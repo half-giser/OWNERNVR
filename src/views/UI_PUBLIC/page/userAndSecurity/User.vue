@@ -22,7 +22,7 @@
                     :key="auth.key"
                 >
                     <div class="base-user-auth-title">
-                        {{ Translate(auth.key) }}
+                        {{ auth.label }}
                     </div>
                     <ul class="base-user-auth-list">
                         <li
@@ -36,7 +36,7 @@
                                     visibility: authItem.value ? 'visible' : 'hidden',
                                 }"
                             />
-                            <span>{{ Translate(authItem.key) }}</span>
+                            <span>{{ authItem.label }}</span>
                         </li>
                     </ul>
                 </template>
@@ -169,6 +169,12 @@
             :user-id="pageData.editUserId"
             :user-name="pageData.editUserName"
             @close="pageData.isEditUserPassword = false"
+        />
+        <BaseCheckAuthPop
+            v-model="pageData.isCheckAuthPop"
+            title="IDCS_CERTIFICATION_RIGHT"
+            @confirm="confirmDeleteUser"
+            @close="pageData.isCheckAuthPop = false"
         />
     </div>
 </template>

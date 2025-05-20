@@ -6,26 +6,29 @@
 <template>
     <div>
         <el-form
+            ref="formRef"
             v-title
             class="stripe"
+            :model="formData"
+            :rules="formRules"
         >
             <div class="base-head-box">{{ Translate('IDCS_DATE_AND_TIME') }}</div>
             <el-form-item :label="Translate('IDCS_SYSTEM_TIME')">
                 <BaseDatePicker
                     v-model="formData.systemTime"
-                    :disabled="formData.isSync || formData.syncType === 'NTP'"
+                    :disabled="formData.syncType === 'NTP'"
                     :format="formatSystemTime"
                     type="datetime"
+                    :validate="handleBeforeSystemTimeChange"
                     @change="handleSystemTimeChange"
                     @visible-change="pendingSystemTimeChange"
                 />
-                <el-checkbox
-                    v-model="formData.isSync"
-                    class="is-sync"
+                <el-button
                     :disabled="formData.syncType === 'NTP'"
-                    :label="Translate('IDCS_SYNC_WITH_COMPUTER_TIME')"
-                    @change="handleIsSyncChange"
-                />
+                    @click="handleIsSyncChange"
+                >
+                    {{ Translate('IDCS_SYNC_WITH_COMPUTER_TIME') }}
+                </el-button>
             </el-form-item>
             <el-form-item :label="Translate('IDCS_DATE_FORMAT')">
                 <el-select-v2
@@ -47,12 +50,37 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_TIME_SERVER')">
-                <el-select-v2
+                <BaseSelectInput
                     v-model="formData.timeServer"
                     :options="pageData.timeServerOptions"
-                    filterable
-                    allow-create
                     :disabled="formData.syncType !== 'NTP'"
+                    :maxlength="formData.timeServerMaxByteLen"
+                    :validate="checkTimeServer"
+                />
+            </el-form-item>
+            <el-form-item
+                v-if="formData.syncType === 'Gmouse'"
+                :label="Translate('IDCS_BAUD_RATE')"
+            >
+                <BaseSelectInput
+                    v-model="formData.gpsBaudRate"
+                    :options="pageData.gpsBaudRateOptions"
+                    :formatter="formatDigit"
+                    :validate="checkGPSBaudRate"
+                    :disabled="formData.syncType !== 'Gmouse'"
+                />
+            </el-form-item>
+            <el-form-item
+                :label="`${Translate('IDCS_NTP_INTERVAL')}[${Translate('IDCS_MINUTE')}]`"
+                prop="ntpInterval"
+            >
+                <BaseNumberInput
+                    v-model="formData.ntpInterval"
+                    :min="formData.ntpIntervalMin"
+                    :max="formData.ntpIntervalMax"
+                    :disabled="formData.syncType === 'NTP'"
+                    mode="blur"
+                    @out-of-range="handleNtpIntervalOutOfRange"
                 />
             </el-form-item>
             <div class="base-head-box">{{ Translate('IDCS_TIMEZONE_DST') }}</div>

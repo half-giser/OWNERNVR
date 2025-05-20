@@ -5,10 +5,12 @@
  */
 import dayjs from 'dayjs'
 import IntelLicencePlateDBAddPlatePop from '../intelligentAnalysis/IntelLicencePlateDBAddPlatePop.vue'
+import ParkLotRemarkPop from './ParkLotRemarkPop.vue'
 
 export default defineComponent({
     components: {
         IntelLicencePlateDBAddPlatePop,
+        ParkLotRemarkPop,
     },
     props: {
         /**
@@ -32,6 +34,10 @@ export default defineComponent({
             type: String as PropType<'edit' | 'read'>,
             default: 'edit',
         },
+        remarkSwitch: {
+            type: Boolean,
+            default: true,
+        },
     },
     emits: {
         updatePlate(index: number, plate: string) {
@@ -45,6 +51,12 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const dateTime = useDateTimeStore()
 
+        const $enterCanvas = ref<HTMLCanvasElement>()
+        const $exitCanvas = ref<HTMLCanvasElement>()
+
+        let enterCanvasContext: ReturnType<typeof CanvasBase>
+        let exitCanvasContext: ReturnType<typeof CanvasBase>
+
         let listIndex = 0
 
         // 进出结果与文本映射
@@ -53,6 +65,7 @@ export default defineComponent({
             'nonEnter-exit': Translate('IDCS_VEHICLE_NOT_IN') + '-' + Translate('IDCS_VEHICLE_HAVE_OUT'), // 未匹配进场-已出场
             'enter-nonExit': Translate('IDCS_VEHICLE_IN') + '-' + Translate('IDCS_VEHICLE_NOT_OUT_TIPS'), // 进场-暂未出场
             'nonEnter-nonExit': Translate('IDCS_NOT_HAVE_IN'), // 未进场
+            'out-nonEnter-nonExit': Translate('IDCS_VEHICLE_NOT_OUT_TIPS'), // 暂未出场
         }
 
         // 进场放行方式/出场放行方式与文本映射
@@ -72,14 +85,20 @@ export default defineComponent({
             2: Translate('IDCS_APPEARANCE'), // 出场
             in: Translate('IDCS_APPROACH'), // 进场
             out: Translate('IDCS_APPEARANCE'), // 出场
+            in_out: Translate('IDCS_APPROACH_APPEARANCE'), // 进场和出场
         }
 
         const pageData = ref({
+            tabIndex: 0,
             index: 0,
             isAddPlatePop: false,
             plateNum: '',
             list: [] as BusinessParkingLotList[],
             relativeList: [] as BusinessParkingLotRelevantList[],
+            isBtnVisible: false,
+            isRemarkPop: false,
+            canvasWidth: 796,
+            canvasHeight: 538,
         })
 
         const formData = ref({
@@ -96,10 +115,50 @@ export default defineComponent({
             }
         })
 
+        const isTraceObj = (obj: { X1: number; X2: number; Y1: number; Y2: number }) => {
+            return obj.X1 || obj.X2 || obj.Y1 || obj.Y2
+        }
+
         watch(current, () => {
             formData.value.plateNum = current.value.plateNum
             if (current.value.isRelative && current.value.direction && !current.value.eventType) {
                 getOpenGateEvent(pageData.value.index)
+            }
+
+            if (current.value.enterImg) {
+                if (!enterCanvasContext) {
+                    enterCanvasContext = CanvasBase($enterCanvas.value!)
+                }
+                enterCanvasContext.ClearRect(0, 0, pageData.value.canvasWidth, pageData.value.canvasHeight)
+
+                if (isTraceObj(current.value.enterTraceObj)) {
+                    const X1 = current.value.enterTraceObj.X1 * pageData.value.canvasWidth
+                    const Y1 = current.value.enterTraceObj.Y1 * pageData.value.canvasHeight
+                    const X2 = current.value.enterTraceObj.X2 * pageData.value.canvasWidth
+                    const Y2 = current.value.enterTraceObj.Y2 * pageData.value.canvasHeight
+                    enterCanvasContext.Point2Rect(X1, Y1, X2, Y2, {
+                        lineWidth: 2,
+                        strokeStyle: '#0000ff',
+                    })
+                }
+            }
+
+            if (current.value.exitImg) {
+                if (!exitCanvasContext) {
+                    exitCanvasContext = CanvasBase($exitCanvas.value!)
+                }
+                exitCanvasContext.ClearRect(0, 0, pageData.value.canvasWidth, pageData.value.canvasHeight)
+
+                if (isTraceObj(current.value.exitTraceObj)) {
+                    const X1 = current.value.exitTraceObj.X1 * pageData.value.canvasWidth
+                    const Y1 = current.value.exitTraceObj.Y1 * pageData.value.canvasHeight
+                    const X2 = current.value.exitTraceObj.X2 * pageData.value.canvasWidth
+                    const Y2 = current.value.exitTraceObj.Y2 * pageData.value.canvasHeight
+                    exitCanvasContext.Point2Rect(X1, Y1, X2, Y2, {
+                        lineWidth: 2,
+                        strokeStyle: '#0000ff',
+                    })
+                }
             }
         })
 
@@ -141,6 +200,13 @@ export default defineComponent({
                 enterTime: isDirectionIn ? enterExitTime : 0,
                 enterFrameTime: '',
                 enterVehicleId: '',
+                enterSnapImg: '',
+                enterTraceObj: {
+                    X1: 0,
+                    Y1: 0,
+                    X2: 0,
+                    Y2: 0,
+                },
                 isExit: !isDirectionIn,
                 exitImg: !isDirectionIn ? data.panorama : '',
                 exitChl: !isDirectionIn ? data.chlName : '',
@@ -149,11 +215,21 @@ export default defineComponent({
                 exitTime: !isDirectionIn ? enterExitTime : 0,
                 exitFrameTime: '',
                 exitVehicleId: '',
+                exitSnapImg: '',
+                exitTraceObj: {
+                    X1: 0,
+                    Y1: 0,
+                    X2: 0,
+                    Y2: 0,
+                },
                 direction: data.direction,
                 isHistory: false,
                 type: '',
                 abnormal: false,
                 isRelative: false,
+                remark: data.remark,
+                plateStartTime: data.plateStartTime,
+                plateEndTime: data.plateEndTime,
             }
             if ($('status').text() === 'success') {
                 obj.master = $('owner').text() || obj.master
@@ -247,7 +323,7 @@ export default defineComponent({
          * @param {number} time
          * @returns {String}
          */
-        const displayDateTime = (time: number) => {
+        const displayDateTime = (time: number | string) => {
             if (!time) return '--'
             return formatDate(time, dateTime.dateTimeFormat)
         }
@@ -282,19 +358,31 @@ export default defineComponent({
             let type = ''
             if (isEnter && isExit) {
                 type = 'enter-exit'
-            } else if (isEnter && !isExit) {
+            }
+
+            if (isEnter && !isExit) {
                 type = 'enter-nonExit'
-            } else if (!isEnter && isExit) {
+            }
+
+            if (!isEnter && isExit) {
                 type = 'nonEnter-exit'
             }
+
             // 进场-拒绝放行
-            else if (isEnter && (enterType === '0' || enterType === 'refuse')) {
+            if (isEnter && (enterType === '0' || enterType === 'refuse')) {
                 type = 'nonEnter-nonExit'
             }
-            // "出场拒绝放行"、"无进场和出场数据"时, 没有进出结果
-            else if ((isExit && (exitType === '0' || exitType === 'refuse')) || (!isEnter && !isExit)) {
-                type = ''
+
+            // 出场-拒绝放行
+            if (isExit && (exitType === '0' || exitType === 'refuse')) {
+                type = 'out-nonEnter-nonExit'
             }
+
+            // NTA1-3765 车辆未进场且未出场的记录需要显示为未进场
+            if (!isEnter && !isExit) {
+                type = 'nonEnter-nonExit'
+            }
+
             return type
         }
 
@@ -327,16 +415,26 @@ export default defineComponent({
                     return
                 }
                 ctx.emit('updatePlate', current.value.index, formData.value.plateNum.trim())
+                if (prop.remarkSwitch) {
+                    pageData.value.isRemarkPop = true
+                } else {
+                    commitOpenGate()
+                }
             }
         }
 
         /**
          * @description 开闸放行
          */
-        const handleOpenGate = async () => {
+        const commitOpenGate = async (remark?: string) => {
+            pageData.value.isRemarkPop = false
+
             const item = current.value
-            if (item.enterType !== '0' && item.enterType !== 'refuse') return
-            if (!item.enterChlId || !item.enterTime || !item.enterVehicleId) return
+            const direction = ['in', 'no', '0', '1'].includes(String(item.direction))
+            const chlId = direction ? item.enterChlId : item.exitChlId
+            const time = localToUtc(direction ? item.enterTime : item.exitTime)
+            const vehicleId = direction ? item.enterVehicleId : item.exitVehicleId
+            if (!chlId || !time || !vehicleId) return
             if (!item.plateNum) {
                 openMessageBox(Translate('IDCS_VEHICLE_NUMBER_EMPTY'))
                 return
@@ -344,14 +442,20 @@ export default defineComponent({
             const sendXml = rawXml`
                 <condition>
                     <plate>${wrapCDATA(item.plateNum)}</plate>
-                    <gate>${item.enterChlId}</gate>
-                    <time>${localToUtc(current.value.enterTime)}</time>
-                    <id>${item.enterVehicleId}</id>
+                    <gate>${chlId}</gate>
+                    <time>${time}</time>
+                    <id>${vehicleId}</id>
                 </condition>
+                ${remark ? `<remarkText>${wrapCDATA(remark)}</remarkText>` : ''}
             `
             const result = await openGate(sendXml)
             const $ = queryXml(result)
-            if ($('status').text() === 'fail') {
+            if ($('status').text() === 'success') {
+                openMessageBox({
+                    type: 'success',
+                    message: Translate('IDCS_OPEN_GATE_RELEASE_SUCCESS'),
+                })
+            } else {
                 const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
@@ -374,6 +478,31 @@ export default defineComponent({
             pageData.value.isAddPlatePop = true
         }
 
+        const getPlateStartTimeState = () => {
+            const now = Date.now()
+            if (current.value.plateStartTime && current.value.isEnter) {
+                const plateStartTimeStamp = dayjs(current.value.plateStartTime, { format: DEFAULT_DATE_FORMAT, jalali: false }).valueOf() // new Date(current.value.plateStartTime).getTime()
+                return now < plateStartTimeStamp
+            } else {
+                return false
+            }
+        }
+
+        const getPlateEndTimeState = () => {
+            const now = Date.now()
+            if (current.value.isExit) {
+                const plateEndTimeStamp = dayjs(current.value.plateEndTime || '2037-12-31 23:59:59', { format: DEFAULT_DATE_FORMAT, jalali: false }).valueOf()
+                return now > plateEndTimeStamp
+            } else {
+                return false
+            }
+        }
+
+        // const onMounted(() => {
+        //     enterCanvasContext = $enterCanvas.value!.getContext('2d')!
+        //     exitCanvasContext = $exitCanvas.value!.getContext('2d')!
+        // })
+
         return {
             current,
             pageData,
@@ -384,12 +513,16 @@ export default defineComponent({
             displayDirection,
             displayOpenGateType,
             commit,
-            handleOpenGate,
             handleNext,
             handlePrev,
             addPlate,
             close,
             open,
+            getPlateStartTimeState,
+            getPlateEndTimeState,
+            commitOpenGate,
+            $enterCanvas,
+            $exitCanvas,
         }
     },
 })

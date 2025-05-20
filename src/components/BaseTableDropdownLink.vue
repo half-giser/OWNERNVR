@@ -54,7 +54,6 @@ withDefaults(
     color: var(--el-table-header-text-color);
     cursor: pointer;
     user-select: none;
-    padding: 8px 0;
 
     &.effect-plain {
         color: var(--main-text);

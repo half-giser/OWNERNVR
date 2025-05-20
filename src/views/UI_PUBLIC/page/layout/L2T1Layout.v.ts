@@ -103,6 +103,7 @@ export default defineComponent({
             if (getMenuDisabled(route)) {
                 return
             }
+
             router.push({
                 path: route.meta.fullPath,
             })

@@ -38,7 +38,7 @@
                     v-model="formData.serverAddr"
                     :disabled="!formData.switch || !current.requireParam.includes('serverAddr')"
                     :placeholder="Translate('IDCS_SERVER_ADDRESS_TIP')"
-                    maxlength="59"
+                    :maxlength="formData.serverAddrMaxLen"
                 />
             </el-form-item>
             <el-form-item
@@ -47,7 +47,7 @@
             >
                 <el-input
                     v-model="formData.domainName"
-                    maxlength="59"
+                    :maxlength="formData.domainNameMaxLen"
                     :formatter="formatDomainName"
                     :parser="formatDomainName"
                     :disabled="!formData.switch || !current.requireParam.includes('domainName')"
@@ -60,13 +60,12 @@
                 :label="Translate('IDCS_USER_NAME')"
                 prop="userName"
             >
-                <el-input
+                <BaseTextInput
                     v-model="formData.userName"
                     :formatter="formatInputUserName"
-                    :parser="formatInputUserName"
                     :disabled="!formData.switch || !current.requireParam.includes('userName')"
                     :placeholder="Translate('IDCS_USERNAME_TIP')"
-                    maxlength="59"
+                    :maxlength="formData.userNameMaxByteLen"
                 />
             </el-form-item>
             <el-form-item

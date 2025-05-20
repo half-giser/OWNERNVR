@@ -58,7 +58,14 @@
             />
             <el-table-column :label="Translate('IDCS_DISK_RECORD_PERIOD')">
                 <template #default="{ row }: TableColumn<SystemDiskStatusList>">
-                    {{ row.recTime ? row.recTime : '' }}
+                    <span>{{ row.recTime ? row.recTime : '' }}</span>
+                    <BaseImgSprite
+                        v-if="row.recFileDate"
+                        file="alarm"
+                        :index="0"
+                        :hover-index="0"
+                        :title="`${Translate('IDCS_WARNING_MSG')}: ${Translate('IDCS_RECORD_LOG_PERIOD').formatForLang(row.recFileDate)}`"
+                    />
                 </template>
             </el-table-column>
         </el-table>

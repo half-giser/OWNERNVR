@@ -240,13 +240,13 @@ export const OCX_XML_P2PAuthentication = (config?: typeof DEFAULT_OCX_CONFIG) =>
     const userSession = useUserSessionStore()
     config = config || DEFAULT_OCX_CONFIG
     return wrapXml(rawXml`
-        <cmd type="Authentication"> 
-            <sn>${wrapCDATA(userSession.sn)}</sn> 
-            <p2pVer>2.0</p2pVer> 
-            <ip>${natIp_2_0}</ip> 
-            <port>${natPort_2_0}</port> 
-            <token>${userSession.token}</token> 
-            <sessionId>${userSession.sessionId}</sessionId> 
+        <cmd type="Authentication">
+            <sn>${wrapCDATA(userSession.sn)}</sn>
+            <p2pVer>2.0</p2pVer>
+            <ip>${natIp_2_0}</ip>
+            <port>${natPort_2_0}</port>
+            <token>${userSession.token}</token>
+            <sessionId>${userSession.sessionId}</sessionId>
             <config>
                 <viewType>${config.viewType}</viewType>
                 <setModel>${config.setModel}</setModel>
@@ -1230,7 +1230,7 @@ export const OCX_XML_MaskAreaSetSwitch = (action: 'EDIT_ON' | 'EDIT_OFF' | 'NONE
  * @param masks
  * @returns {string}
  */
-export const OCX_XML_SetMaskArea = (masks: { X: number; Y: number; width: number; height: number; isSelect?: boolean; color: string }[]) => {
+export const OCX_XML_SetMaskArea = (masks: { X: number; Y: number; width: number; height: number; isSelect?: boolean; color?: string }[]) => {
     return wrapXml(rawXml`
         <cmd type="SetMaskAreaV2">
             ${masks
@@ -1241,7 +1241,7 @@ export const OCX_XML_SetMaskArea = (masks: { X: number; Y: number; width: number
                             <Y>${item.Y}</Y>
                             <width>${item.width}</width>
                             <height>${item.height}</height>
-                            <maskColor>${item.isSelect ? 'green' : item.color}</maskColor>
+                            <maskColor>${item.isSelect ? 'green' : item.color || 'black'}</maskColor>
                         </rectangle>
                     </item>`
                 })
@@ -1613,9 +1613,9 @@ export const OCX_XML_SetOSD = (edit: string, osdList: OcxXmlSetOsdListDatum[] = 
     const osd = osdList
         .map(
             (item) => rawXml`
-                <item 
-                    winIndex="${item.winIndex}" 
-                    ${item.osd ? ` osd="${item.osd}"` : ` dateFormat="${item.dateFormat}" timeFormat="${item.timeFormat}" `} 
+                <item
+                    winIndex="${item.winIndex}"
+                    ${item.osd ? ` osd="${item.osd}"` : ` dateFormat="${item.dateFormat}" timeFormat="${item.timeFormat}" `}
                     x="${item.x}"
                     xMin="${item.xMin || 0}"
                     xMax="${item.xMax || 1920}"
@@ -1951,7 +1951,7 @@ export const OCX_XML_SetCpcAreaAction = (action: 'EDIT_ON' | 'EDIT_OFF' | 'NONE'
  * @param action
  * @returns {string}
  */
-export const OCX_XML_SetPeaAreaAction = (action: 'EDIT_ON' | 'EDIT_OFF' | 'NONE', pointCount: number) => {
+export const OCX_XML_SetPeaAreaAction = (action: 'EDIT_ON' | 'EDIT_OFF' | 'NONE', pointCount?: number) => {
     return wrapXml(`<cmd type="SetPeaAreaAction" ${pointCount && action === 'EDIT_ON' ? ` maxPointCount="${pointCount}"` : ''}>${action}</cmd>`)
 }
 
@@ -2202,7 +2202,7 @@ export const OCX_XML_SetAllArea = (
  * @param data
  * @returns {string}
  */
-export const OCX_XML_SetTripwireLineInfo = (data: { switch: boolean; osdFormat: string; X: number; Y: number }, onlyOSD: boolean) => {
+export const OCX_XML_SetTripwireLineInfo = (data: { switch: boolean; osdFormat: string; X: number; Y: number }, onlyOSD?: boolean) => {
     return wrapXml(rawXml`
         <cmd type="SetTripwireLineInfo">
             <switch>${data.switch}</switch>
@@ -2273,7 +2273,7 @@ export const OCX_XML_AddRectangleArea = (rectangles: { ID: string; text?: string
  * 取消显示矩形区域（通用，传入区域ID进行删除区域）
  * IDs：要进行删除的区域ID列表
  */
-export const OCX_XML_DeleteRectangleArea = (IDs: string[]) => {
+export const OCX_XML_DeleteRectangleArea = (IDs: number[]) => {
     return wrapXml(rawXml`
         <cmd type="DeleteRectangleArea">${IDs.map((ID) => `<ID>${ID}</ID>`).join('')}</cmd>
     `)
@@ -2287,8 +2287,8 @@ export const OCX_XML_DeleteRectangleArea = (IDs: string[]) => {
  * curSubArea：当前绘制的绘制区域，双目计数特有
  */
 export const OCX_XML_AddPolygonArea = (
-    polygonAreas: { point: CanvasBasePoint[]; LineColor?: string; area: string }[] | CanvasBasePoint[][][],
-    currentArea: string,
+    polygonAreas: { point: CanvasBasePoint[]; LineColor?: string; area: number }[] | CanvasBasePoint[][][],
+    currentArea: number,
     showAll: boolean,
     curSubArea?: string,
 ) => {
@@ -2316,7 +2316,7 @@ export const OCX_XML_AddPolygonArea = (
                             `
                           })
                           .join('') // 绘制其他AI事件的多边形区域
-                    : (polygonAreas as { point: CanvasBasePoint[]; LineColor?: string; area: string }[])
+                    : (polygonAreas as { point: CanvasBasePoint[]; LineColor?: string; area: number }[])
                           .map((polygonItem) => {
                               return polygonItem.point.length
                                   ? rawXml`
@@ -2342,7 +2342,7 @@ export const OCX_XML_AddPolygonArea = (
  * area：要进行删除的区域ID
  * subArea：当前绘制的绘制区域，双目计数特有
  */
-export const OCX_XML_DeletePolygonArea = (area: string, subArea?: string) => {
+export const OCX_XML_DeletePolygonArea = (area: string | number, subArea?: string) => {
     return wrapXml(rawXml`
         <cmd type="DeletePolygonArea">
             ${area === 'clearAll' ? '<clearAll>true</clearAll>' : `<clearCurrent>${area}</clearCurrent>`}
@@ -2356,7 +2356,7 @@ export const OCX_XML_DeletePolygonArea = (area: string, subArea?: string) => {
  * data：OSD数据
  * type：当前绘制的AI事件类型（vsd、areaStatis等）
  */
-export const OCX_XML_SetAiOSDInfo = (data: { switch: boolean; osdFormat: string; type: string; X: number; Y: number }, type: string) => {
+export const OCX_XML_SetAiOSDInfo = (data: { switch: boolean; osdFormat: string; X: number; Y: number }, type: string) => {
     return wrapXml(rawXml`
         <cmd type="SetTripwireLineInfo">
             <switch>${data.switch}</switch>

@@ -259,7 +259,13 @@ export default defineComponent({
                 </content>
             `
             const result = await editAccessControlCfg(sendXml)
-            return queryXml(result)
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                editAccessLock.update()
+                return 0
+            } else {
+                return $('errorCode').text().num()
+            }
         }
 
         /**
@@ -280,47 +286,34 @@ export default defineComponent({
                 </content>
             `
             const result = await editAccessDataComCfg(sendXml)
-            return queryXml(result)
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                editWiegand.update()
+                return 0
+            } else {
+                return $('errorCode').text().num()
+            }
         }
 
         /**
          * @description 编辑-下发编辑协议
          */
         const apply = async () => {
-            if (editAccessLock.disabled.value && editWiegand.disabled.value) {
-                return
-            }
-
             openLoading()
 
-            let success = true
-            let errorCode = 0
-            if (!editAccessLock.disabled.value) {
-                const $ = await setAccessControl()
-                success = $('status').text() === 'success'
-                if (!success) {
-                    errorCode = $('errorCode').text().num()
-                }
-            }
-
-            if (success && !editWiegand.disabled.value) {
-                const $ = await setAccessDataCom()
-                success = $('status').text() === 'success'
-                if (!success) {
-                    errorCode = $('errorCode').text().num()
-                }
-            }
+            const errorCode1 = await setAccessControl()
+            const errorCode2 = await setAccessDataCom()
 
             closeLoading()
 
-            if (success) {
+            if (errorCode1 === 0 && errorCode2 === 0) {
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
             } else {
                 let errorMsg = Translate('IDCS_SAVE_DATA_FAIL')
-                if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
+                if (errorCode1 === ErrorCode.USER_ERROR_NO_AUTH || errorCode2 === ErrorCode.USER_ERROR_NO_AUTH) {
                     errorMsg = Translate('IDCS_NO_PERMISSION')
                 }
                 openMessageBox(errorMsg)

@@ -127,7 +127,7 @@ export const CanvasTemperature = (option: CanvasTemperatureOption = {}) => {
      * @description 根据数据绘制区域
      * @param {boolean} isFoucusClosePath
      */
-    const init = (isFoucusClosePath = false) => {
+    const init = (isFoucusClosePath: boolean = false) => {
         clearRect()
         if (regulation) {
             // 画矩形
@@ -182,7 +182,6 @@ export const CanvasTemperature = (option: CanvasTemperatureOption = {}) => {
     const setPointCount = (num: number, type: CanvasTemperatureType) => {
         temperatureFlag = type === 'temperatureDetect'
         max = num
-        init()
     }
 
     /**
@@ -217,7 +216,7 @@ export const CanvasTemperature = (option: CanvasTemperatureOption = {}) => {
      * @description 绘制多边形, isFoucusClosePath: 是否强制闭合
      * @param {boolean} isFoucusClosePath
      */
-    const drawPolygon = (isFoucusClosePath = false) => {
+    const drawPolygon = (isFoucusClosePath: boolean = false) => {
         if (!pointList.length) return
         const startPoint = getRealItemByRelative(pointList[0])
         for (let i = 0; i < pointList.length; i++) {
@@ -338,7 +337,7 @@ export const CanvasTemperature = (option: CanvasTemperatureOption = {}) => {
         enableShowAll = enable
     }
 
-    const setLineStyle = (strokeStyle: string | CanvasGradient | CanvasPattern, lineWidth: number) => {
+    const setLineStyle = (strokeStyle: string | CanvasGradient | CanvasPattern, lineWidth?: number) => {
         lineStyle = {
             strokeStyle: strokeStyle ? strokeStyle : DEFAULT_LINE_COLOR,
             lineWidth: lineWidth ? lineWidth : 1.5,

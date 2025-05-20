@@ -4,6 +4,7 @@
  * 四种模式：箭头、多边形、矩形、OSD
  * @Author: yejiahao yejiahao@tvt.net.cn
  */
+import { type AlarmBinoCountBoundaryDto } from '@/types/apiType/aiAndEvent'
 import type { CanvasBaseArea, CanvasBasePoint } from './canvasBase'
 import { type CanvasPasslinePassline, type CanvasPasslineOsdInfo, type CanvasPasslineLineItem, type CanvasPasslineRect } from './canvasPassline'
 import { type CanvasPolygonAreaType } from './canvasPolygon'
@@ -13,23 +14,24 @@ interface CanvasBinicularOption {
     lineStyle?: CanvasBaseLineStyleOption // 画线样式
     textIn?: string // 入口文字，默认为'A'
     textOut?: string // 出口文字，默认为'B'
+    enable?: boolean // 警戒线是否可绘制，默认true
     enableLine?: boolean // 警戒线是否可绘制，默认true
     enableOSD?: boolean // OSD是否可绘制，默认false
     enableShowAll?: boolean // 是否显示所有区域，默认false
-    direction: CanvasPasslineDirection // 警戒线方向
+    direction?: CanvasPasslineDirection // 警戒线方向
     passline?: CanvasPasslinePassline // 警戒线数据
     osdInfo?: CanvasPasslineOsdInfo
     enableShowRange?: boolean // 是否显示最大/最小区域，默认false
     max?: number // 最大打点数，默认6个点
     min?: number // 最小打点数，默认4个点
-    onchange?: (area: CanvasBaseArea | CanvasBasePoint[] | CanvasPasslinePassline | string, osdInfo?: CanvasPolygonOSDInfo) => void
+    onchange?: (area: CanvasBaseArea | CanvasBasePoint[] | CanvasPasslinePassline, osdInfo?: CanvasPolygonOSDInfo) => void
     closePath?: (pointList: CanvasBasePoint[]) => void
     forceClosePath?: (bool: boolean) => void
     clearCurrentArea?: (pointList: CanvasBasePoint[]) => void
     regulation?: boolean
 }
 
-export const CanvasBinocular = (option: CanvasBinicularOption) => {
+export const CanvasBinocular = (option: CanvasBinicularOption = {}) => {
     const DEFAULT_LINE_COLOR = '#00ff00' // 画线默认色值
     const DEFAULT_TEXT_COLOR = '#ff0000' // 文字默认色值
     const RELATIVE_WIDTH = 10000 // 万分比宽度
@@ -60,6 +62,7 @@ export const CanvasBinocular = (option: CanvasBinicularOption) => {
     let lineStyle = option.lineStyle || { strokeStyle: DEFAULT_LINE_COLOR, lineWidth: 1.5 }
     // const textIn = option.textIn || TEXT_IN
     // const textOut = option.textOut || TEXT_OUT
+    let enable = typeof option.enable === 'boolean' ? option.enable : true
     let enableLine = typeof option.enableLine === 'boolean' ? option.enableLine : true
     let enableOSD = typeof option.enableOSD === 'boolean' ? option.enableOSD : false
     let enableShowAll = typeof option.enableShowAll === 'boolean' ? option.enableShowAll : false
@@ -88,7 +91,7 @@ export const CanvasBinocular = (option: CanvasBinicularOption) => {
     let enablePolygon = false
     let currAreaIndex = 0
     let pointList: CanvasBasePoint[] = []
-    let detectAreaInfo: CanvasBasePoint[][] = []
+    let detectAreaInfo: AlarmBinoCountBoundaryDto[][] = []
     let maskAreaInfo: CanvasBasePoint[][] = []
     let regionInfoList: CanvasBaseArea[] = []
     let area = {
@@ -107,7 +110,6 @@ export const CanvasBinocular = (option: CanvasBinicularOption) => {
         height: 0,
     }
     const hoverOnMaxMinFlag = false
-    let enable = false
 
     const max = option.max || MAX_COUNT
 
@@ -219,10 +221,11 @@ export const CanvasBinocular = (option: CanvasBinicularOption) => {
      * @property {Boolean} isFoucusClosePath 是否强制闭合
      */
     const drawAllPolygon = (
-        newDetectAreaInfo: CanvasBasePoint[][],
+        newDetectAreaInfo: AlarmBinoCountBoundaryDto[][],
         newMaskAreaInfo: CanvasBasePoint[][],
         currAreaType: CanvasPolygonAreaType,
         currAreaIndex: number,
+        currDrawIndex: string,
         isFoucusClosePath: boolean = false,
     ) => {
         if (!newDetectAreaInfo.length && !newMaskAreaInfo.length) {
@@ -233,29 +236,34 @@ export const CanvasBinocular = (option: CanvasBinicularOption) => {
         maskAreaInfo = newMaskAreaInfo // 画点多边形 - 屏蔽区域
 
         detectAreaInfo.forEach((areaInfo, j) => {
-            if (areaInfo.length) {
-                const startPoint = getRealItemByRelative(areaInfo[0]) as CanvasBasePoint
-                for (let i = 0; i < areaInfo.length; i++) {
-                    const point = areaInfo[i]
-                    const item = getRealItemByRelative(point) as CanvasBasePoint
-                    const lineStyle = {
-                        strokeStyle: DEFAULT_LINE_COLOR,
-                        lineWidth: 1.5,
-                    }
-                    if (currAreaType === 'detectionArea' && currAreaIndex === j) {
-                        lineStyle.lineWidth = 3
-                    }
-                    ctx.Circle(item.X, item.Y, 4, lineStyle)
-                    ctx.FillCircle(item.X, item.Y, 3.5, DEFAULT_POINT_COLOR)
+            if (areaInfo) {
+                // 每个区域下还分为A、B区域，所以得再循环一次才能拿到绘制点的坐标
+                for (const key in areaInfo) {
+                    // 当前区域已被清除，继续下一个循环
+                    if (!(areaInfo[key] && areaInfo[key].length)) continue
+                    const startPoint = getRealItemByRelative(areaInfo[key][0]) as CanvasBasePoint
+                    for (let i = 0; i < areaInfo[key].length; i++) {
+                        const point = areaInfo[key][i]
+                        const item = getRealItemByRelative(point) as CanvasBasePoint
+                        const lineStyle = {
+                            strokeStyle: DEFAULT_LINE_COLOR,
+                            lineWidth: 1.5,
+                        }
+                        if (currAreaType === 'detectionArea' && currAreaIndex === j && currDrawIndex === key) {
+                            lineStyle.lineWidth = 3
+                        }
+                        ctx.Circle(item.X, item.Y, 4, lineStyle)
+                        ctx.FillCircle(item.X, item.Y, 3.5, DEFAULT_POINT_COLOR)
 
-                    if (i > 0) {
-                        const itemPre = getRealItemByRelative(areaInfo[i - 1]) as CanvasBasePoint
-                        ctx.Line(itemPre.X, itemPre.Y, item.X, item.Y, lineStyle)
-                    }
+                        if (i > 0) {
+                            const itemPre = getRealItemByRelative(areaInfo[key][i - 1]) as CanvasBasePoint
+                            ctx.Line(itemPre.X, itemPre.Y, item.X, item.Y, lineStyle)
+                        }
 
-                    // 绘制的最后一个点是最大点数，或者强制闭合为true时，才绘制闭合线段
-                    if (i === areaInfo.length - 1 && (i === max - 1 || isFoucusClosePath) && point.isClosed) {
-                        ctx.Line(startPoint.X, startPoint.Y, item.X, item.Y, lineStyle)
+                        // 绘制的最后一个点是最大点数，或者强制闭合为true时，才绘制闭合线段
+                        if (i === areaInfo[key].length - 1 && (i === max - 1 || isFoucusClosePath) && point.isClosed) {
+                            ctx.Line(startPoint.X, startPoint.Y, item.X, item.Y, lineStyle)
+                        }
                     }
                 }
             }
@@ -703,7 +711,7 @@ export const CanvasBinocular = (option: CanvasBinicularOption) => {
 
     const onMouseDown = (e: MouseEvent) => {
         if (enableLine) {
-            if (!enableLine || hoverOnMaxMinFlag) {
+            if (!enable || !enableLine || hoverOnMaxMinFlag) {
                 return
             }
             const startX = e.offsetX
@@ -787,7 +795,8 @@ export const CanvasBinocular = (option: CanvasBinicularOption) => {
             }
 
             const onMouseUp = () => {
-                onchange && onchange('', osdInfo)
+                const area: CanvasBaseArea | CanvasBasePoint[] | CanvasPasslinePassline = []
+                onchange && onchange(area, osdInfo)
                 document.removeEventListener('mousemove', onMouseMove)
                 document.removeEventListener('mouseup', onMouseUp)
                 document.body.style.setProperty('user-select', 'unset')
@@ -800,7 +809,7 @@ export const CanvasBinocular = (option: CanvasBinicularOption) => {
                 // const onMouseDown  = () => {
                 // }
                 // $(this.canvas).off('mousedown.binocularMousedown').on('mousedown.binocularMousedown', function (e) {
-                if (!regulation || hoverOnMaxMinFlag) {
+                if (!enable || !regulation || hoverOnMaxMinFlag) {
                     return
                 }
 
@@ -994,7 +1003,7 @@ export const CanvasBinocular = (option: CanvasBinicularOption) => {
     }
 
     // 设置当前区域 索引/类型
-    const setCurrAreaIndex = (index: number, _drawArea: number, type: CanvasPolygonAreaType) => {
+    const setCurrAreaIndex = (index: number, _drawArea: string, type: CanvasPolygonAreaType) => {
         currAreaIndex = index // 当前警戒区域索引
         currAreaType = type // 当前区域类型 - 侦测/屏蔽/矩形
         clearRect() // 清空画布
@@ -1082,6 +1091,7 @@ export const CanvasBinocular = (option: CanvasBinicularOption) => {
     }
 
     return {
+        init,
         destroy,
         getPassline,
         getArea,
@@ -1092,8 +1102,16 @@ export const CanvasBinocular = (option: CanvasBinicularOption) => {
         setOSD,
         setDrawType,
         setEnable,
+        setArea,
+        drawArea,
+        drawAllPassline,
         setEnableShowAll,
         isCurrentIntersect,
+        setDirection,
+        setPassline,
         setCurrentSurfaceOrAlarmLine,
+        setPointList,
+        drawAllPolygon,
+        clear,
     }
 }

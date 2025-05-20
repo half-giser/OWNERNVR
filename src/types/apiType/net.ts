@@ -18,10 +18,11 @@ export class NetTcpIpForm {
         toeEnable: false,
         curWorkMode: '',
     }
-    ipGroupSwitch = false
-    ipGroupMode = ''
-    ipDefaultBond = ''
-    bonds: NetTcpIpBondsList[] = []
+    // ipGroupSwitch = false
+    // ipGroupMode = ''
+    // ipDefaultBond = ''
+    ipGroupConfig = new NetTcpIpGroupList()
+    // bonds: NetTcpIpBondsList[] = []
     nicConfigs: NetTcpIpNicConfigList[] = []
 }
 
@@ -45,12 +46,14 @@ export class NetTcpIpDhcpList {
 /**
  * @description TCP/IP Bond列表项
  */
-export class NetTcpIpBondsList extends NetTcpIpDhcpList {
-    index = 0
-    id = ''
+export class NetTcpIpGroupList extends NetTcpIpDhcpList {
+    // index = 0
+    // id = ''
+    switch = false
+    mode = ''
     dhcpSwitch = false
     primaryNIC = ''
-    NICs = ''
+    // NICs = ''
     // ip = ''
     // gateway = ''
     // mask = ''
@@ -114,12 +117,13 @@ export class NetTcpIpAdvanceForm {
  * @description 端口配置表单
  */
 export class NetPortForm {
-    httpPort = 0
-    httpsPort = 0
-    netPort = 0
-    posPort = 0
+    httpPort = 10
+    httpsPort = 10
+    netPort = 10
+    posPort = 10
+    autoReportPort = 10
     // rtspPort = 0
-    virtualHostEnabled = false
+    // virtualHostEnabled = false
 }
 
 /**
@@ -167,6 +171,7 @@ export class NetPortRtspServerForm {
 export class NetPPPoEForm {
     switch = false
     userName = ''
+    userNameMaxByteLen = 63
     password = ''
 }
 
@@ -175,9 +180,12 @@ export class NetPPPoEForm {
  */
 export class NetDDNSForm {
     serverType = ''
+    serverAddrMaxLen = 64
     serverAddr = ''
+    userNameMaxByteLen = 63
     userName = ''
     password = ''
+    domainNameMaxLen = 64
     domainName = ''
     heartbeatTime: number | undefined = undefined
     switch = false
@@ -210,14 +218,21 @@ export class NetDDNSServerTypeList {
 export class NetEmailForm {
     anonymousSwitch = false
     name = ''
+    nameMaxByteLen = 63
     address = ''
+    addressMaxByteLen = 63
     userName = ''
+    userNameMaxByteLen = 63
     server = ''
+    serverMaxByteLen = 63
     port = 25
+    portMin = 10
+    portMax = 65535
     attachImg = 0
     imageNumber = 0
     ssl = ''
     password = ''
+    imgType: string[] = []
 }
 
 /**
@@ -233,6 +248,7 @@ export class NetEmailReceiverDto {
  */
 export class NetEmailTestForm {
     address = ''
+    addressMaxByteLen = 63
     password = ''
 }
 
@@ -271,7 +287,8 @@ export class Net8021xForm {
  */
 export class NetNatForm {
     natSwitch = false
-    index = ''
+    index = 1
+    securityAccessSwitch = false
 }
 
 /**
@@ -280,8 +297,10 @@ export class NetNatForm {
 export class NetUPnPReportForm {
     switch = false
     serverAddr = ''
+    serverAddrMaxByteLen = 63
     port = 0
     manId = ''
+    manIdMaxByteLen = 63
 }
 
 /**
@@ -312,11 +331,18 @@ export class NetHTTPSCertPasswordForm {
  */
 export class NetFTPForm {
     switch = false
+    serverAddrMaxLen = 64
     serverAddr = ''
+    portMin = 10
+    portMax = 65535
     port = 0
+    userNameMaxByteLen = 63
     userName = ''
     anonymousSwitch = false
     maxSize = 0
+    maxSizeMin = 0
+    maxSizeMax = 4096
+    pathMaxLen = 64
     path = ''
     disNetUpLoad = false
     password = ''
@@ -344,11 +370,18 @@ export class NetFTPList {
 export class NetSNMPForm {
     snmpv1Switch = false
     snmpv2Switch = false
+    snmpv3Switch = false
     snmpPort = 0
     readCommunity = ''
     writeCommunity = ''
     trapPort = 0
     trapAddress = ''
+    username = ''
+    securityLevel = 0
+    authType = 0
+    privType = 0
+    authPassword = ''
+    privPassword = ''
 }
 
 /**
@@ -459,7 +492,9 @@ export class NetPlatformAccessForm {
     accessType = ''
     nwms5000Switch = false
     serverAddr = ''
+    serverAddrMaxByteLen = 63
     reportId: number | undefined = undefined
+    reportIdMax = 99999999
     port = 0
     gb28181Switch = false
     sipRelm = ''
@@ -497,4 +532,50 @@ export class NetPlatformSipCodeList {
  */
 export class NetDetectionForm {
     address = ''
+}
+
+/**
+ * @description 云升级ipc升级信息列表项
+ */
+export class NetIpcUpgradeInfoList {
+    [key: string]: any
+    ip = ''
+    chlId = ''
+    chlName = ''
+    state = ''
+    formatState = ''
+    version = ''
+    newVersion = ''
+    formatNewVersion = ''
+    newVersionNote = ''
+    newVersionGUID = ''
+    progress = ''
+}
+
+/**
+ * @description HTTP Post表单
+ */
+export class NetHttpPostForm {
+    switch = false
+    host = ''
+    hostMaxByteLen = 63
+    port = 10
+    portMin = 10
+    portMax = 65535
+    path = ''
+    pathMaxByteLen = 63
+    protocolType = ''
+    userInfoDsiabled = true
+    userNameMaxByteLen = 63
+    userName = ''
+    password = ''
+    connectType = ''
+    schedule = ''
+    keepAliveInfoEnable = false
+    heartbeatInterval = 0
+    heartbeatIntervalMin = 0
+    heartbeatIntervalMax = 1
+    heartbeatIntervalDefault = 0
+    enablePostPic: string[] = []
+    passwordSwitch = false
 }

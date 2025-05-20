@@ -18,6 +18,13 @@ export const queryNetStatus = () => fetch('queryNetStatus', '')
 export const queryNetCfgV2 = () => fetch('queryNetCfgV2', '')
 
 /**
+ * @description
+ * @param data
+ * @returns
+ */
+export const editNetCfgV2 = (data: string) => fetch('editNetCfgV2', data)
+
+/**
  * @description 获取网络配置
  * @returns
  */
@@ -159,10 +166,10 @@ export const edit802xCfg = (data: string) => fetch('edit802xCfg', data)
 export const queryCloudUpgradeCfg = () => fetch('queryCloudUpgradeCfg', '')
 
 /**
- * @description 获取云更新下载状态
+ * @description 获取云升级设备信息和通道信息
  * @returns
  */
-export const getPackageDownloadStatus = () => fetch('getPackageDownloadStatus', '')
+export const getCloudUpgradeInfo = () => fetch('getCloudUpgradeInfo', '')
 
 /**
  * @description 编辑云更新配置
@@ -179,11 +186,18 @@ export const editCloudUpgradeCfg = (data: string) => fetch('editCloudUpgradeCfg'
 export const checkVersion = (data: string) => fetch('checkVersion', data)
 
 /**
- * @description 检查版本
+ * @description 设备云升级
  * @param {string} data
  * @returns
  */
 export const cloudUpgrade = (data: string) => fetch('cloudUpgrade', data)
+
+/**
+ * @description IPC云升级
+ * @param {string} data
+ * @returns
+ */
+export const cloudUpgradeNode = (data: string) => fetch('cloudUpgradeNode', data)
 
 /**
  * @description 获取P2P配置
@@ -198,6 +212,19 @@ export const queryP2PCfg = () => fetch('queryP2PCfg', '')
  * @returns
  */
 export const editP2PCfg = (data: string) => fetch('editP2PCfg', data)
+
+/**
+ * @description
+ * @returns
+ */
+export const querySecurityAccess = () => fetch('querySecurityAccess', '')
+
+/**
+ * @description
+ * @param data
+ * @returns
+ */
+export const editSecurityAccess = (data: string) => fetch('editSecurityAccess', data)
 
 /**
  * @description 获取证书配置
@@ -350,3 +377,23 @@ export const editPlatformCfg = (data: string) => fetch('editPlatformCfg', data, 
  * @returns
  */
 export const queryPingCmdResult = (data: string) => fetch('queryPingCmdResult', data)
+
+/**
+ * @description
+ * @returns
+ */
+export const queryHTTPPostConfig = () => fetch('queryHTTPPostConfig', '')
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const testHTTPPost = (data: string) => fetch('testHTTPPost', data)
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const editHTTPPostConfig = (data: string) => fetch('editHTTPPostConfig', data)

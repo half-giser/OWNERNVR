@@ -50,12 +50,20 @@ export default defineComponent({
             avd: 'IDCS_ABNORMAL_DETECTION',
             tripwire: 'IDCS_BEYOND_DETECTION',
             pea: 'IDCS_INVADE_DETECTION',
+            san: 'IDCS_SMART_AOI_ENTRY_DETECTION',
+            sal: 'IDCS_SMART_AOI_LEAVE_DETECTION',
             vfd: 'IDCS_FACE_DETECTION',
             cdd: 'IDCS_CROWD_DENSITY_DETECTION',
             ipd: 'IDCS_PEOPLE_INSTRUSION_DETECTION',
             cpc: 'IDCS_PEOPLE_COUNT_DETECTION',
             temperatureAlarm: 'IDCS_TEMPERATURE_DETECTION',
             smartFirePoint: 'IDCS_FIRE_POINT_DETECTION',
+            asd: 'IDCS_AUDIO_EXCEPTION_DETECTION',
+            pvd: 'IDCS_PARKING_DETECTION',
+            loitering: 'IDCS_LOITERING_DETECTION',
+            LineStatistics: 'IDCS_PASS_LINE_COUNT_DETECTION',
+            crowdGather: 'IDCS_CROWD_GATHERING',
+            regionStatistics: 'IDCS_REGION_STATISTICS',
         }
 
         const SWITCH_MAPPING: Record<string, string> = {
@@ -179,7 +187,7 @@ export default defineComponent({
                     index: 1,
                 },
             )
-            if (systemCaps.supportFaceMatch) {
+            if (systemCaps.supportFaceMatch && !systemCaps.IntelAndFaceConfigHide) {
                 // 人脸比对报警
                 rowData.push({
                     id: 'faceMatchAlarms',
@@ -189,7 +197,7 @@ export default defineComponent({
                 })
             }
 
-            if (systemCaps.supportPlateMatch) {
+            if (systemCaps.supportPlateMatch && !systemCaps.IntelAndFaceConfigHide) {
                 // 车辆比对报警
                 rowData.push({
                     id: 'vehiclePlateMatchAlarms',
@@ -463,15 +471,20 @@ export default defineComponent({
                             span: 1,
                         },
                         {
-                            key: 'IDCS_TARGET_DETECTION',
-                            value: TARGET_TYPE_MAPPING[$item('targetType').text().num()] || '',
+                            key: 'IDCS_TRIGGER_ALARM_OPEN_MESSAGE',
+                            value: SWITCH_MAPPING[$item('popMsgSwitch').text()],
                             span: 1,
-                            hide: !(TARGET_TYPE_MAPPING[$item('targetType').text().num()] || ''),
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_SEND_EMAIL',
                             value: SWITCH_MAPPING[$item('emailSwitch').text()],
-                            span: 2,
+                            span: 1,
+                        },
+                        {
+                            key: 'IDCS_TARGET_DETECTION',
+                            value: TARGET_TYPE_MAPPING[$item('targetType').text().num()] || '',
+                            span: 1,
+                            hide: !(TARGET_TYPE_MAPPING[$item('targetType').text().num()] || ''),
                         },
                     ],
                 }
@@ -607,9 +620,7 @@ export default defineComponent({
 
                 switch (abnormalType) {
                     case 'diskRWError':
-                        const text1 = Translate(ABNORMAL_TYPE_MAPPING[abnormalType])
-                        const text2 = serialNO ? '--' + Translate('IDCS_DISK_IO_ERROR_D_D').formatForLang($item('alarmNode').text(), serialNO) : ''
-                        abnormalTypeText = text1 + text2
+                        abnormalTypeText = Translate(ABNORMAL_TYPE_MAPPING[abnormalType]) + '--' + Translate('IDCS_DISK_IO_ERROR_D_D').formatForLang($item('alarmNode').text() || '', serialNO || '')
                         break
                     case 'networkBreak':
                         abnormalTypeText = `${Translate(ABNORMAL_TYPE_MAPPING[abnormalType])}${nic ? `(${Translate(nic === 'eth0' ? 'IDCS_ETH0_NAME' : nic === 'eth1' ? 'IDCS_ETH1_NAME' : nic)})` : ''}`
@@ -684,6 +695,18 @@ export default defineComponent({
                         break
                     case ErrorCode.USER_ERROR_NODE_NET_OFFLINE:
                         errorNote = `(${Translate('IDCS_NODE_NOT_ONLINE')})`
+                        break
+                    case ErrorCode.HTTPS_PKCS12_CREATE_FAILED:
+                        errorNote = `(${Translate('IDCS_REMOTE_CHL_ID_ERR')})`
+                        break
+                    case ErrorCode.USER_ERROR_USER_LIMITED:
+                        errorNote = `(${Translate('IDCS_CONNECT_LIMIT')})`
+                        break
+                    case ErrorCode.USER_ERROR_USER_LOCKED:
+                        errorNote = `(${Translate('IDCS_DEVICE_LOCKE_TIP')})`
+                        break
+                    case ErrorCode.USER_ERROR_NOSUPPORT_DEV_VERSION:
+                        errorNote = `(${Translate('IDCS_NOSUPPORT_DEV_VERSION')})`
                         break
                     default:
                         break

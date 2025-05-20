@@ -156,7 +156,7 @@ const userAndSecurityRoutes: FeatureItem = {
         // 双重认证 1.4.13
         dualAuth: {
             path: 'dualAuthConfig',
-            component: 'userAndSecurity/dualAuthConfig',
+            component: 'userAndSecurity/DualAuthConfig.vue',
             meta: {
                 sort: 60,
                 lk: 'IDCS_DOUBLE_VERIFICATION',

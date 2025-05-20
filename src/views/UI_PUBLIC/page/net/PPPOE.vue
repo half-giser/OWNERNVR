@@ -22,21 +22,22 @@
                 :label="Translate('IDCS_ACCOUNT')"
                 prop="userName"
             >
-                <el-input
+                <BaseTextInput
                     v-model.trim="formData.userName"
                     :disabled="!formData.switch"
-                    :formatter="formatInputUserName"
-                    :parser="formatInputUserName"
+                    :maxlength="formData.userNameMaxByteLen"
                 />
             </el-form-item>
             <el-form-item prop="password">
                 <template #label>
-                    {{ Translate('IDCS_PASSWORD') }}
-                    <el-checkbox
-                        v-show="pageData.isPasswordSwitch"
-                        v-model="pageData.passwordSwitch"
-                        :disabled="!formData.switch || pageData.wirelessSwitch"
-                    />
+                    <div class="base-label-box">
+                        <span>{{ Translate('IDCS_PASSWORD') }}</span>
+                        <el-checkbox
+                            v-show="pageData.isPasswordSwitch"
+                            v-model="pageData.passwordSwitch"
+                            :disabled="!formData.switch || pageData.wirelessSwitch"
+                        />
+                    </div>
                 </template>
                 <BasePasswordInput
                     v-model.trim="formData.password"

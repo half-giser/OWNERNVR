@@ -50,6 +50,7 @@ type ChlListRecordItem = {
     startTime: number
     endTime: number
     event: string
+    eventColorType?: string
 }
 
 type ChlList = {
@@ -295,14 +296,15 @@ const setMode = (modeConfig: ModeConfig, newPointerTime?: number) => {
             minTime = 0
             maxTime = oneDayHours * 3600
         } else {
-            // dayjs(startDate + ' 00:00:00', 'YYYY/MM/DD HH:mm:ss').valueOf() / 1000 //
             const startTime = new Date(startDate + ' 00:00:00').getTime() / 1000
             const endTime = startTime + 3600 * oneDayHours - 1
             minTime = startTime
             maxTime = endTime
         }
         pointerTime = newPointerTime || minTime
-        zoomList = [oneDayHours, 18, 12, 6, 3, 1, 0.6]
+        zoomList = [3600, 2700, 1800, 900, 450, 150, 90].map((item) => {
+            return (item * oneDayHours) / 3600
+        })
     } else {
         startDate = getFirstDayByGreDate(startDate)
         const startTime = getTimestamp(startDate)
@@ -989,7 +991,7 @@ const drawRecord = () => {
             if (!(records && records.length > 0)) return
             // 一个通道可能包含多个录像段
             records.forEach((record) => {
-                const type = record.event
+                const type = record.eventColorType || record.event
                 if (key !== type && children.indexOf(type) < 0) return
                 const startX = getXByTime(record.startTime / 1000)
                 if (!isPointerVisible(startX)) return

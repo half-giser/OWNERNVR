@@ -10,6 +10,7 @@
 export class AlarmOutDto extends TableRowStatus {
     id = '' //告警输出ID
     name = '' //告警输出名称
+    nameMaxByteLen = 32
     index = 0 //告警输出在设备上的序号
     devDesc: string | undefined = undefined //告警输出所在设备的描述，如果为undefined表示本机，否则表示通道的名称
     devID: string | undefined = undefined //告警输出所在设备的ID，如果为undefined表示本机，否则表示通道的ID
@@ -32,7 +33,6 @@ export class AlarmEmailReceiverDto {
  */
 export class AlarmDisplayPopVideoForm {
     popVideoDuration = 0 // 弹出视频持续时间
-    popVideoOutputShow = false // 是否显示
     popVideoOutput = '' // 弹出视频输出
 }
 
@@ -66,7 +66,7 @@ export class AlarmWhiteLightDto extends TableRowStatus {
     id = ''
     name = ''
     enable = false
-    durationTime: number | undefined = undefined
+    durationTime = 0
     frequencyType = ''
     // enableDisable = true
     // durationTimeDisable = false
@@ -131,21 +131,24 @@ export class AlarmEventDto extends TableRowStatus {
     videoPopupList: SelectOption<string, string>[] = []
     msgBoxPopup = ''
     email = ''
+    popMsgSwitch = ''
 }
 
 /**
  * @description IPC声音报警输出项
  */
 export class AlarmAudioAlarmOutDto extends TableRowStatus {
-    editFlag = false
     index = 0
     id = ''
     name = ''
-    audioTypeList: SelectOption<number, string>[] = [{ label: '', value: 0 }]
-    customeAudioNum = 0
+    audioTypeList: Record<string, SelectOption<number, string>[]> = {
+        customize: [],
+    }
+    // customeAudioNum = 0
     langArr: SelectOption<string, string>[] = []
     audioSwitch = false
     audioType = 0
+    customizeAudioType = 0
     alarmTimes: number | undefined = undefined
     audioVolume: number | undefined = undefined
     alarmTimesDisabled = false
@@ -155,14 +158,14 @@ export class AlarmAudioAlarmOutDto extends TableRowStatus {
     sampleRate = ''
     audioChannel = ''
     audioDepth = ''
-    audioFileLimitSize = ''
+    audioFileLimitSize = 200 * 1024
+    schedule = ''
 }
 
 /**
  * @description IPC声音设备项
  */
 export class AlarmAudioDevice extends TableRowStatus {
-    editFlag = false
     index = 0
     id = ''
     name = ''
@@ -183,17 +186,42 @@ export class AlarmAudioDevice extends TableRowStatus {
     micOrLinEnabled = false
     audioOutEnabled = false
     audioInSwitchEnabled = false
+    audioDenoise = ''
+    audioDenoiseEnabled = false
+    isSpeakerMutex = false
+    loudSpeakerswitch = false
+    audioOutputswitch = false
+    audioDenoiseType: SelectOption<string, string>[] = []
+}
+
+export class AlarmLocalAudioDto {
+    audioSchedule = ''
+    volume = 0
+    list: AlarmLocalAudioFileDto[] = []
+    formatType: string[] = []
 }
 
 /**
  * @description 本地声音表格项
  */
-export class AlarmLocalAudioDto {
+export class AlarmLocalAudioFileDto {
     id = ''
     index = ''
     name = ''
     originalName = ''
     fileValid = ''
+    fileType = ''
+}
+
+/**
+ * @description
+ */
+export class AlarmIpSpeakerDto {
+    schedule = ''
+    volume = 0
+    volumeMin = 0
+    volumeMax = 100
+    online = false
 }
 
 /**
@@ -229,9 +257,18 @@ export class AlarmSystemDisarmDto {
     nodeType = ''
 }
 
-export class AlarmSystemDisarmChlAndSensorSrcDto {
+export class AlarmSystemDisarmFormDto {
+    sensorSwitch = false
+    inputSource = ''
+    resetTime = '00:00:00'
+    autoResetSwitch = false
+    defenseSwitch = false
+    remoteSwitch = false
+}
+
+export class AlaramSystemDisarmChlDto {
     id = ''
-    value = ''
+    name = ''
     nodeType = ''
     supportManualAudio = false
     supportManualWhiteLight = false
@@ -323,6 +360,14 @@ export class AlarmCombinedDto extends TableRowStatus {
     preset = {
         switch: false,
         presets: [] as AlarmPresetItem[],
+    }
+    triggerAudio = {
+        switch: false,
+        chls: [] as SelectOption<string, string>[],
+    }
+    triggerWhiteLight = {
+        switch: false,
+        chls: [] as SelectOption<string, string>[],
     }
     sysAudio = ''
     msgPush = ''
@@ -465,6 +510,21 @@ export class AlarmChlDto extends AlarmOnlineChlDto {
     supportFire = false
     supportTemperature = false
     supportVideoMetadata = false
+    supportLoitering = false
+    supportPvd = false
+    supportRegionStatistics = false
+    supportASD = false
+    supportHeatMap = false
+    supportCrowdGathering = false
+    supportBinocularCountConfig = false
+}
+
+/**
+ * @description: AI事件——视频结构化通道
+ */
+export class AlarmVideoMetaDto extends AlarmOnlineChlDto {
+    chlType = ''
+    supportVideoMetadata = false
 }
 
 /**
@@ -501,9 +561,25 @@ export class AlarmPeaDto {
     holdTime = 0
     // 持续时间列表
     holdTimeList: SelectOption<number, string>[] = []
+    // 检测目标列表
+    detectTargetList: SelectOption<string, string>[] = []
+    // 检测目标
+    detectTarget = 'person'
+    // 是否支持配置时间阈值
+    supportDuration = false
+    // 时间阈值
+    duration = new AlarmNumberInputDto()
     // 区别联咏ipc标志
     regulation = false
-    boundaryInfo: { point: CanvasBasePoint[]; maxCount: number }[] = []
+    // 是否支持配置屏蔽区域
+    supportMaskArea = false
+    // 屏蔽区域
+    maskAreaInfo: { point: CanvasBasePoint[]; maxCount: number }[] = []
+    boundaryInfo: {
+        objectFilter: AlarmObjectFilterCfgDto
+        point: CanvasBasePoint[]
+        maxCount: number
+    }[] = []
     regionInfo: CanvasBaseArea[] = []
     mutexList: AlarmMutexDto[] = []
     mutexListEx: AlarmMutexDto[] = []
@@ -511,15 +587,6 @@ export class AlarmPeaDto {
     onlyPerson = false
     // 只支持人的灵敏度
     sensitivity = 0
-    // 检测目标
-    hasObj = false
-    person = false
-    car = false
-    motorcycle = false
-    // 检测目标灵敏度
-    personSensitivity = 0
-    carSensitivity = 0
-    motorSensitivity = 0
     // 联动
     triggerSwitch = false
     // 音频联动
@@ -538,12 +605,23 @@ export class AlarmPeaDto {
 }
 
 export type CanvasPasslineDirection = 'none' | 'rightortop' | 'leftorbotton'
+// 客流统计绘制区域方向用
+export type CanvasBoundaryDirection = 'AtoB' | 'BtoA'
 
 /**
  * @description 越界
  */
 export class AlarmTripwireDto {
-    lineInfo: { direction: CanvasPasslineDirection; startPoint: { X: number; Y: number }; endPoint: { X: number; Y: number } }[] = []
+    lineInfo: {
+        objectFilter: AlarmObjectFilterCfgDto
+        direction: CanvasPasslineDirection
+        startPoint: { X: number; Y: number }
+        endPoint: { X: number; Y: number }
+    }[] = []
+    // 检测目标列表
+    detectTargetList: SelectOption<string, string>[] = []
+    // 检测目标
+    detectTarget = 'person'
     // 方向
     direction: CanvasPasslineDirection = 'none'
     // 方向列表
@@ -569,20 +647,10 @@ export class AlarmTripwireDto {
     // 联动追踪
     hasAutoTrack = false
     autoTrack = false
-    // 检测目标
-    hasObj = false
     // 是否启用侦测
     detectionEnable = false
     // 用于对比
     originalEnable = false
-    objectFilter = {
-        person: false,
-        car: false,
-        motorcycle: false,
-        personSensitivity: 0,
-        carSensitivity: 0,
-        motorSensitivity: 0,
-    }
     triggerSwitch = false
     // 音频联动
     audioSuport = false
@@ -594,6 +662,483 @@ export class AlarmTripwireDto {
     triggerList = ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch']
     alarmOut: SelectOption<string, string>[] = []
     preset: AlarmPresetItem[] = []
+}
+
+/**
+ * @description 检测目标、目标大小数据类型
+ */
+export class AlarmObjectFilterCfgDto {
+    supportPerson = false // 支持检测目标--人
+    supportCar = false // 支持检测目标--车
+    supportMotor = false // 支持检测目标--非机动车
+    supportMaxMinTarget = false // 支持配置目标大小--人、车、非任意一个
+    supportPersonMaxMin = false // 支持配置目标大小--人
+    supportCarMaxMin = false // 支持配置目标大小--车
+    supportMotorMaxMin = false // 支持配置目标大小--非机动车
+    supportCommonEnable = false
+    supportCommonSensitivity = false
+    detectTargetList: string[] = [] // 检测目标列表：person、car、motor
+    commonSensitivity = new AlarmSensitivityInfoDto()
+    person = new AlarmTargetCfgDto() // 检测目标为人的相关数据：开启检测、灵敏度、最小目标范围、最大目标范围
+    car = new AlarmTargetCfgDto() // 检测目标为车的相关数据：开启检测、灵敏度、最小目标范围、最大目标范围
+    motor = new AlarmTargetCfgDto() // 检测目标为车的相关数据：开启检测、灵敏度、最小目标范围、最大目标范围
+}
+
+/**
+ * @description 检测目标数据类型
+ */
+export class AlarmTargetCfgDto {
+    supportAlarmThreshold = false
+    stayAlarmThreshold? = new AlarmNumberInputDto()
+    // 是否支持配置灵敏度
+    supportSensitivity = false
+    // 是否支持配置灵敏度开关
+    supportSensityEnable = false
+    sensitivity = new AlarmSensitivityInfoDto()
+    minRegionInfo = new AlarmMaxMinRegionInfoDto()
+    maxRegionInfo = new AlarmMaxMinRegionInfoDto()
+}
+
+/**
+ * @description 时间阈值、滞留预警数据类型
+ */
+export class AlarmNumberInputDto {
+    value = 0
+    min = 0
+    max = 100
+    default? = 50
+}
+
+/**
+ * @description 目标大小最值数据类型
+ */
+export class AlarmMaxMinRegionInfoDto {
+    region = []
+    width = 0
+    height = 0
+    min = 0
+    max = 100
+    default = 50
+}
+
+/**
+ * @description 目标灵敏度数据类型
+ */
+export class AlarmSensitivityInfoDto {
+    enable? = false
+    value = 1
+    max = 100
+    min = 0
+    default = 50
+}
+
+/**
+ * @description 徘徊检测页面数据。
+ */
+export class AlarmLoiterDto {
+    // 是否启用侦测
+    detectionEnable = false
+    // 用于对比
+    originalEnable = false
+    // 是否支持SD卡存储
+    pictureAvailable = false
+    // SD卡原图存储
+    saveTargetPicture = false
+    // SD卡目标图存储
+    saveSourcePicture = false
+    // 联动追踪是否支持
+    hasAutoTrack = false
+    // 联动追踪
+    autoTrack = false
+    // 持续时间
+    holdTime = 0
+    // 持续时间列表
+    holdTimeList: SelectOption<number, string>[] = []
+    // 检测目标列表
+    detectTargetList: SelectOption<string, string>[] = []
+    // 检测目标
+    detectTarget = 'person'
+    // 是否支持配置时间阈值
+    supportDuration = false
+    // 时间阈值
+    duration = new AlarmNumberInputDto()
+    // 触发模式
+    supportTriggerMode = false
+    triggerMode = 0
+    boundaryInfo: {
+        objectFilter: AlarmObjectFilterCfgDto
+        point: CanvasBasePoint[]
+        maxCount: number
+    }[] = []
+    mutexList: AlarmMutexDto[] = []
+    mutexListEx: AlarmMutexDto[] = []
+    // 联动
+    triggerSwitch = false
+    // 音频联动
+    audioSuport = false
+    // 白光联动
+    lightSuport = false
+    sysAudio = ''
+    recordSwitch = false
+    recordChls: SelectOption<string, string>[] = []
+    alarmOutSwitch = false
+    alarmOutChls: SelectOption<string, string>[] = []
+    presetSwitch = false
+    presets: AlarmPresetItem[] = []
+    trigger: string[] = []
+    triggerList: string[] = []
+}
+
+/**
+ * @description 声音异常页面数据。
+ */
+export class AlarmAsdDto {
+    // 是否启用侦测
+    detectionEnable = false
+    // 用于对比
+    originalEnable = false
+    // 是否支持配置持续时间
+    holdTimeEnable = false
+    // 持续时间
+    holdTime = 0
+    // 持续时间列表
+    holdTimeList: SelectOption<number, string>[] = []
+    enabledArea = false
+    //
+    sdRiseSwitch = false
+    sdRiseSwitchEnable = false
+    sdRiseSensitivity = new AlarmSensitivityInfoDto()
+    sdRiseThreshold = new AlarmNumberInputDto()
+    //
+    sdReduceSwitch = false
+    sdReduceSwitchEnable = false
+    sdReduceSensitivity = new AlarmSensitivityInfoDto()
+    mutexList: AlarmMutexDto[] = []
+    // 联动
+    // triggerSwitch = false
+    // 音频联动
+    audioSuport = false
+    // 白光联动
+    lightSuport = false
+    sysAudio = ''
+    recordSwitch = false
+    recordChls: SelectOption<string, string>[] = []
+    alarmOutSwitch = false
+    alarmOutChls: SelectOption<string, string>[] = []
+    presetSwitch = false
+    presets: AlarmPresetItem[] = []
+    trigger: string[] = []
+    triggerList: string[] = []
+}
+
+/**
+ * @description 热力图页面数据。
+ */
+export class AlarmHeatMapDto {
+    // 是否启用侦测
+    detectionEnable = false
+    // 用于对比
+    originalEnable = false
+    // 是否支持SD卡存储
+    pictureAvailable = false
+    // SD卡原图存储
+    saveTargetPicture = false
+    // SD卡目标图存储
+    saveSourcePicture = false
+    // 联动追踪是否支持
+    hasAutoTrack = false
+    // 联动追踪
+    autoTrack = false
+    // 检测目标列表
+    detectTargetList: SelectOption<string, string>[] = []
+    // 检测目标
+    detectTarget = 'person'
+    boundaryInfo: {
+        objectFilter: AlarmObjectFilterCfgDto
+        point: CanvasBasePoint[]
+        maxCount: number
+    }[] = []
+    mutexList: AlarmMutexDto[] = []
+    mutexListEx: AlarmMutexDto[] = []
+    // 联动
+    triggerSwitch = false
+    // 音频联动
+    audioSuport = false
+    // 白光联动
+    lightSuport = false
+    sysAudio = ''
+    recordSwitch = false
+    recordChls: SelectOption<string, string>[] = []
+    alarmOutSwitch = false
+    alarmOutChls: SelectOption<string, string>[] = []
+    presetSwitch = false
+    presets: AlarmPresetItem[] = []
+    trigger: string[] = []
+    triggerList: string[] = []
+}
+
+/**
+ * @description 热力图图表坐标数据
+ */
+export class AlarmHeatMapChartDto {
+    x = 0
+    y = 0
+    value = ''
+}
+
+/**
+ * @description 区域统计
+ */
+export class AlarmAreaStatisDto {
+    // 三种模式的时间
+    countPeriod = {
+        day: {
+            date: 0,
+            dateTime: DEFAULT_EMPTY_TIME,
+        },
+        week: {
+            date: 0,
+            dateTime: DEFAULT_EMPTY_TIME,
+        },
+        month: {
+            date: 1,
+            dateTime: DEFAULT_EMPTY_TIME,
+        },
+    }
+    // 是否启用侦测
+    detectionEnable = false
+    // 用于对比
+    originalEnable = false
+    // SD卡原图存储
+    saveTargetPicture = false
+    // SD卡目标图存储
+    saveSourcePicture = false
+    // mutex
+    mutexList: AlarmMutexDto[] = []
+    mutexListEx: AlarmMutexDto[] = []
+    // 排程
+    schedule = ''
+    // 是否支持持续时间
+    supportAlarmHoldTime = false
+    // 持续时间
+    holdTime = 0
+    // 持续时间列表
+    holdTimeList: SelectOption<number, string>[] = []
+    // 检测目标列表
+    detectTargetList: SelectOption<string, string>[] = []
+    // 检测目标
+    detectTarget = 'person'
+    // 是否支持配置时间阈值
+    supportDuration = false
+    // 时间阈值
+    duration = new AlarmNumberInputDto()
+    // OSD
+    countOSD = {
+        switch: false,
+        X: 0,
+        Y: 0,
+        osdFormat: '',
+        showEnterOsd: false,
+        osdEntranceName: '',
+        osdEntranceNameMaxLen: nameByteMaxLen,
+        supportOsdEntranceName: false,
+        showExitOsd: false,
+        osdExitName: '',
+        osdExitNameMaxLen: nameByteMaxLen,
+        supportOsdExitName: false,
+        showStayOsd: false,
+        osdStayName: '',
+        osdStayNameMaxLen: nameByteMaxLen,
+        supportOsdStayName: false,
+        osdWelcomeName: '',
+        osdWelcomeNameMaxLen: nameByteMaxLen,
+        supportOsdWelcomeName: false,
+        osdAlarmName: '',
+        osdAlarmNameMaxLen: nameByteMaxLen,
+        supportOsdAlarmName: false,
+    }
+    // 重置时间模式 day/week/month
+    countTimeType = ''
+    // 重置模式列表
+    countCycleTypeList: SelectOption<string, string>[] = []
+    boundaryInfo: {
+        objectFilter: AlarmObjectFilterCfgDto
+        point: CanvasBasePoint[]
+        maxCount: number
+    }[] = []
+    regionInfo: CanvasBaseArea[] = []
+    // 目标类型只支持人
+    onlyPerson = false
+    // 只支持人的灵敏度
+    sensitivity = 0
+    // 区别联咏ipc标志
+    regulation = false
+    // 联动
+    triggerSwitch = false
+    // 音频联动
+    audioSuport = false
+    // 白光联动
+    lightSuport = false
+    sysAudio = ''
+    recordSwitch = false
+    recordChls: SelectOption<string, string>[] = []
+    alarmOutSwitch = false
+    alarmOutChls: SelectOption<string, string>[] = []
+    presetSwitch = false
+    presets: AlarmPresetItem[] = []
+    trigger: string[] = []
+    triggerList: string[] = []
+}
+
+/**
+ * @description 客流统计
+ */
+export class AlarmBinocularCountDto {
+    // 是否启用侦测
+    detectionEnable = false
+    // 用于对比
+    originalEnable = false
+    // 是否支持SD卡存储
+    pictureAvailable = false
+    // SD卡原图存储
+    saveSourcePicture = false
+    // mutex
+    mutexList: AlarmMutexDto[] = []
+    mutexListEx: AlarmMutexDto[] = []
+    // 排程
+    schedule = ''
+    // 是否支持持续时间
+    supportAlarmHoldTime = false
+    // 持续时间
+    holdTime = 0
+    // 持续时间列表
+    holdTimeList: SelectOption<number, string>[] = []
+    lineInfo: {
+        direction: CanvasPasslineDirection
+        startPoint: { X: number; Y: number }
+        endPoint: { X: number; Y: number }
+    }[] = []
+    boundaryInfo: {
+        direction: CanvasBoundaryDirection
+        rectA: {
+            point: CanvasBasePoint[]
+            area: number
+            LineColor: string
+            maxCount: number
+        }
+        rectB: {
+            point: CanvasBasePoint[]
+            area: number
+            LineColor: string
+            maxCount: number
+        }
+    }[] = []
+    // 滞留报警阈值
+    overcrowdingThreshold = new AlarmNumberInputDto()
+    // 灵敏度
+    sensitivity = new AlarmSensitivityInfoDto()
+    // 三种模式的时间
+    countPeriod = {
+        // 重置时间模式 day/week/month
+        countTimeType: 'day',
+        day: {
+            date: 0,
+            dateTime: DEFAULT_EMPTY_TIME,
+        },
+        week: {
+            date: 0,
+            dateTime: DEFAULT_EMPTY_TIME,
+        },
+        month: {
+            date: 0,
+            dateTime: DEFAULT_EMPTY_TIME,
+        },
+    }
+    // 标定方式配置
+    calibration = {
+        modeType: '',
+        height: new AlarmBinocularCountNumberDto(),
+        regionInfo: {
+            X1: 0,
+            Y1: 0,
+            X2: 0,
+            Y2: 0,
+        },
+    }
+    // OSD
+    countOSD = {
+        // 是否开启OSD
+        switch: false,
+        // 起始位置X
+        X: 0,
+        // 起始位置Y
+        Y: 0,
+        osdFormat: '',
+        // 是否显示进入口OSD
+        showEnterOsd: false,
+        // 进入口 OSD 信息
+        osdEntranceName: '',
+        // 是否显示出口OSD
+        showExitOsd: false,
+        // 出口 OSD 信息
+        osdExitName: '',
+        // 是否显示滞留OSD
+        showStayOsd: false,
+        // 滞留 OSD 信息
+        osdStayName: '',
+        // 人数 OSD 信息
+        osdPersonName: '',
+        // 儿童数 OSD 信息
+        osdChildName: '',
+        // 高于阈值OSD显示
+        osdAlarmName: '',
+        // 低于阈值OSD显示
+        osdWelcomeName: '',
+    }
+    // 是否开启高度过滤
+    enableHeightFilter = false
+    // 高度过滤阈值
+    heightLowerLimit = new AlarmBinocularCountNumberDto()
+    // 是否开启儿童计数
+    enableChildFilter = false
+    // 儿童计数高度过滤阈值
+    childHeightLowerLimit = new AlarmBinocularCountNumberDto()
+}
+
+/**
+ * @description 客流统计--警戒区域数据类型
+ */
+export class AlarmBinoCountBoundaryDto {
+    rectA = {
+        point: {
+            X: 0,
+            Y: 0,
+            isClosed: false,
+        },
+        area: 0,
+        LineColor: 'green',
+        maxCount: 6,
+    }
+    rectB = {
+        point: {
+            X: 0,
+            Y: 0,
+            isClosed: false,
+        },
+        area: 0,
+        LineColor: 'green',
+        maxCount: 6,
+    }
+}
+
+/**
+ * @description 客流统计--镜头离地高度、高度过滤、儿童计数高度过滤数据类型
+ */
+export class AlarmBinocularCountNumberDto {
+    value = 1
+    min = 0
+    max = 100
+    unit = ''
 }
 
 /**
@@ -624,9 +1169,26 @@ export class AlarmPassLinesDto {
     mutexListEx: AlarmMutexDto[] = []
     // 排程
     schedule = ''
+    // 是否支持持续时间
+    supportAlarmHoldTime = false
     // 持续时间
     holdTime = 0
+    // 持续时间列表
+    holdTimeList: SelectOption<number, string>[] = []
+    // 方向
+    direction: CanvasPasslineDirection = 'none'
+    // 方向列表
+    directionList: SelectOption<string, string>[] = []
+    // 检测目标列表
+    detectTargetList: SelectOption<string, string>[] = []
+    // 检测目标
+    detectTarget = 'person'
+    // 是否支持配置时间阈值
+    supportDuration = false
+    // 时间阈值
+    duration = new AlarmNumberInputDto()
     line: {
+        objectFilter: AlarmObjectFilterCfgDto
         direction: CanvasPasslineDirection
         startPoint: { X: number; Y: number }
         endPoint: { X: number; Y: number }
@@ -637,9 +1199,25 @@ export class AlarmPassLinesDto {
         X: 0,
         Y: 0,
         osdFormat: '',
+        showEnterOsd: false,
+        osdEntranceName: '',
+        osdEntranceNameMaxLen: nameByteMaxLen,
+        supportOsdEntranceName: false,
+        showExitOsd: false,
+        osdExitName: '',
+        osdExitNameMaxLen: nameByteMaxLen,
+        supportOsdExitName: false,
+        showStayOsd: false,
+        osdStayName: '',
+        osdStayNameMaxLen: nameByteMaxLen,
+        supportOsdStayName: false,
+        osdWelcomeName: '',
+        osdWelcomeNameMaxLen: nameByteMaxLen,
+        supportOsdWelcomeName: false,
+        osdAlarmName: '',
+        osdAlarmNameMaxLen: nameByteMaxLen,
+        supportOsdAlarmName: false,
     }
-    // 是否启用自动重置
-    autoReset = true
     // 重置时间模式 day/week/month
     countTimeType = ''
     // 重置模式列表
@@ -660,7 +1238,6 @@ export class AlarmPassLinesDto {
         X2: 0,
         Y2: 0,
     }
-    holdTimeList: SelectOption<number, string>[] = []
     // 灵敏度
     detectSensitivity = 0
     detectSensitivityList: SelectOption<number, string>[] = []
@@ -673,18 +1250,21 @@ export class AlarmPassLinesDto {
     crossOutAlarmNumValue = 0
     // 滞留阈值
     twoWayDiffAlarmNumValue = 0
-    objectFilter = {
-        person: false,
-        car: false,
-        motorcycle: false,
-        personSensitivity: 0,
-        carSensitivity: 0,
-        motorSensitivity: 0,
-    }
-    triggerAudio = false
+    // 联动
+    triggerSwitch = false
+    // 音频联动
+    audioSuport = false
     // 白光联动
     lightSuport = false
-    triggerWhiteLight = false
+    sysAudio = ''
+    recordSwitch = false
+    recordChls: SelectOption<string, string>[] = []
+    alarmOutSwitch = false
+    alarmOutChls: SelectOption<string, string>[] = []
+    presetSwitch = false
+    presets: AlarmPresetItem[] = []
+    trigger: string[] = []
+    triggerList: string[] = []
 }
 
 /**
@@ -800,6 +1380,46 @@ export class AlarmTemperatureDetectionDto {
     holdTime = 0
     holdTimeList: SelectOption<number, string>[] = []
     schedule = ''
+    // 是否支持配置屏蔽区域
+    supportMaskArea = false
+    // 屏蔽区域
+    maskAreaInfo: { points: CanvasBasePoint[]; maxCount: number }[] = []
+    // 当前温度单位
+    tempUnits = ''
+    // 当前距离单位
+    distanceUnits = ''
+    // 是否支持配置距离
+    isShowDistance = false
+    // 使能热成像显示温度信息
+    thermaldisplayen = false
+    // 是否支持配置热成像
+    isShowThermal = false
+    // 使能可见光显示温度信息
+    opticaldisplayen = false
+    // 是否支持配置可见光
+    isShowOptical = false
+    tempInfo = {
+        // 是否支持配置温度条
+        isShowSegcolor: false,
+        // 是否启用显示温度条
+        segcolorTemperatureParam: false,
+        // 是否启用点击测温
+        dotTemperatureInfo: false,
+        // 发射率
+        emissivity: new AlarmTempEmissivityDto(),
+        // 距离
+        distance: new AlarmTempDistanceDto(),
+        // 反射温度
+        reflectTemper: new AlarmTemperatureDto(),
+        // 最高温
+        maxtemperen: false,
+        // 是否显示平均温
+        isShowAvgtemperen: false,
+        // 平均温
+        avgtemperen: false,
+        // 最低温
+        mintemperen: false,
+    }
     triggerAudio = ''
     triggerWhiteLight = ''
     record: SelectOption<string, string>[] = []
@@ -812,6 +1432,41 @@ export class AlarmTemperatureDetectionDto {
 }
 
 /**
+ * @description AI事件——更多——温度检测——发射率
+ */
+export class AlarmTempEmissivityDto {
+    value = 0
+    min = 1
+    max = 100
+    default = 50
+}
+
+/**
+ * @description AI事件——更多——温度检测——距离
+ */
+export class AlarmTempDistanceDto {
+    value = 0
+    min = 0
+    max = 100
+    fmin = 0
+    fmax = 328
+    default = 50
+    fdefault = 16
+}
+
+/**
+ * @description AI事件——更多——温度检测——反射温度、警报温度
+ */
+export class AlarmTemperatureDto {
+    value = 0
+    min = -30
+    max = 60
+    fmin = -22
+    fmax = 140
+    default = 25
+    fdefault = 77
+}
+/**
  * @description 检测界限数据（区域）
  */
 export class AlarmTemperatureDetectionBoundryDto {
@@ -820,15 +1475,15 @@ export class AlarmTemperatureDetectionBoundryDto {
     switch = false
     ruleName = ''
     ruleType = ''
-    emissivity = 0
-    emissivityDefault = 0
-    distance = 0
-    distanceDefault = 0
-    reflectTemper = 0
-    reflectTemperDefault = 0
+    // 是否支持配置时间阈值
+    supportDuration = false
+    // 时间阈值
+    duration = new AlarmNumberInputDto()
+    emissivity = new AlarmTempEmissivityDto()
+    distance = new AlarmTempDistanceDto()
+    reflectTemper = new AlarmTemperatureDto()
     alarmRule = ''
-    alarmTemper = 0
-    alarmTemperDefault = 0
+    alarmTemper = new AlarmTemperatureDto()
     maxCount = 0
     points: CanvasBasePoint[] = []
 }
@@ -894,13 +1549,19 @@ export class AlarmVideoStructureDto {
     schedule = ''
     saveSourcePicture = false
     saveTargetPicture = false
-    algoChkModel = ''
-    intervalCheck = 1
-    intervalCheckMin = 1
-    intervalCheckMax = 1
-    detectAreaInfo: CanvasBasePoint[][] = []
-    maskAreaInfo: CanvasBasePoint[][] = []
+    // 检测目标列表
+    detectTargetList: SelectOption<string, string>[] = []
+    // 检测目标
+    detectTarget = 'person'
+    // 屏蔽区域
+    maskAreaInfo: { point: CanvasBasePoint[]; maxCount: number }[] = []
+    detectAreaInfo: {
+        objectFilter: AlarmObjectFilterCfgDto
+        point: CanvasBasePoint[]
+        maxCount: number
+    }[] = []
     mutexList: AlarmMutexDto[] = []
+    mutexListEx: AlarmMutexDto[] = []
     countOSD = {
         switch: false,
         X: 0,
@@ -929,14 +1590,6 @@ export class AlarmVideoStructureDto {
             date: 0,
             dateTime: DEFAULT_EMPTY_TIME,
         },
-    }
-    objectFilter = {
-        car: false,
-        person: false,
-        motorcycle: false,
-        carSensitivity: 1,
-        personSensitivity: 1,
-        motorSensitivity: 1,
     }
     osdType = ''
     osdPersonCfgList: AlarmVideoStructureCfgDto[] = []
@@ -994,6 +1647,21 @@ export class AlarmFireDetectionDto {
     detectionEnable = false
     // 用于对比
     originalEnable = false
+    // 是否支持配置时间阈值
+    supportDuration = false
+    // 时间阈值
+    duration = new AlarmNumberInputDto()
+    // 是否支持配置灵敏度节点
+    ShowFireSensitivity = false
+    // 灵敏度
+    sensitivity = 0
+    // 触发报警条件
+    fireAlarmMode = ''
+    fireAlarmModeList: SelectOption<string, string>[] = []
+    // 是否支持配置屏蔽区域
+    supportMaskArea = false
+    // 屏蔽区域
+    maskAreaInfo: { point: CanvasBasePoint[]; maxCount: number }[] = []
     sysAudio = ''
     record: SelectOption<string, string>[] = []
     alarmOut: SelectOption<string, string>[] = []
@@ -1030,5 +1698,21 @@ export class AlarmPresetPopDto {
     preset = {
         switch: false,
         presets: [] as AlarmPresetItem[],
+    }
+}
+
+export class AlramTriggerAudioPopDto {
+    id = ''
+    triggerAudio = {
+        switch: false,
+        chls: [] as SelectOption<string, string>[],
+    }
+}
+
+export class AlarmTriggerWhiteLightPopDto {
+    id = ''
+    triggerWhiteLight = {
+        switch: false,
+        chls: [] as SelectOption<string, string>[],
     }
 }

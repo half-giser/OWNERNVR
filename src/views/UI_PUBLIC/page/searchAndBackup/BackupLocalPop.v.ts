@@ -3,7 +3,7 @@
  * @Date: 2024-08-06 20:35:59
  * @Description: 本地备份任务 进度弹窗
  */
-import { type DownloadZipOptions } from '@/utils/tools'
+import { type DownloadZipOptions } from '@/utils/downloaders'
 
 export default defineComponent({
     props: {

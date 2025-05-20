@@ -143,6 +143,13 @@ export const editAudioStreamConfig = (data: string) => fetch('editAudioStreamCon
 export const queryAlarmAudioCfg = () => fetch('queryAlarmAudioCfg', '')
 
 /**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const editAlarmAudioCfg = (data: string) => fetch('editAlarmAudioCfg', data)
+
+/**
  * @description 添加本地声音报警文件
  * @param {string} data
  * @returns
@@ -155,6 +162,13 @@ export const addAlarmAudioCfg = (data: string) => fetch('addAlarmAudioCfg', data
  * @returns
  */
 export const deleteAlarmAudio = (data: string) => fetch('deleteAlarmAudio', data)
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const auditionAlarmAudio = (data: string) => fetch('auditionAlarmAudio', data)
 
 /**
  * @description 获取传感器数据
@@ -267,18 +281,53 @@ export const queryTripwire = (data: string) => fetch('queryTripwire', data)
 export const editTripwire = (data: string) => fetch('editTripwire', data)
 
 /**
- * @description 获取区域入侵侦测数据
+ * @description 获取组合报警配置中侦测状况
  * @param {string} data
  * @returns
  */
 export const queryIntelAreaConfig = (data: string) => fetch('queryIntelAreaConfig', data, {}, false)
 
 /**
+ * @description 获取区域入侵侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const queryPerimeter = (data: string) => fetch('queryPerimeter', data)
+
+/**
  * @description 修改区域入侵侦测数据
  * @param {string} data
  * @returns
  */
-export const editIntelAreaConfig = (data: string) => fetch('editIntelAreaConfig', data)
+export const editPerimeter = (data: string) => fetch('editPerimeter', data)
+
+/**
+ * @description 获取进入区域侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const querySmartAOIEntryConfig = (data: string) => fetch('querySmartAOIEntryConfig', data)
+
+/**
+ * @description 修改进入区域侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const editSmartAOIEntryConfig = (data: string) => fetch('editSmartAOIEntryConfig', data)
+
+/**
+ * @description 获取离开区域侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const querySmartAOILeaveConfig = (data: string) => fetch('querySmartAOILeaveConfig', data)
+
+/**
+ * @description 修改离开区域侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const editSmartAOILeaveConfig = (data: string) => fetch('editSmartAOILeaveConfig', data)
 
 /**
  * @description 获取组合报警数据
@@ -312,6 +361,111 @@ export const editCombinedAlarm = (data: string) => fetch('editCombinedAlarm', da
  * @returns
  */
 export const editCombinedAlarmFaceMatch = (data: string) => fetch('editCombinedAlarmFaceMatch', data)
+
+/**
+ * @description 获取徘徊检测数据
+ * @param {string} data
+ * @returns
+ */
+export const querySmartLoiteringConfig = (data: string) => fetch('querySmartLoiteringConfig', data)
+
+/**
+ * @description 修改徘徊检测数据
+ * @param {string} data
+ * @returns
+ */
+export const editSmartLoiteringConfig = (data: string) => fetch('editSmartLoiteringConfig', data)
+
+/**
+ * @description 获取违停检测数据
+ * @param {string} data
+ * @returns
+ */
+export const querySmartPvdConfig = (data: string) => fetch('querySmartPvdConfig', data)
+
+/**
+ * @description 修改违停检测数据
+ * @param {string} data
+ * @returns
+ */
+export const editSmartPvdConfig = (data: string) => fetch('editSmartPvdConfig', data)
+
+/**
+ * @description 获取区域统计侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const queryRegionStatisticsConfig = (data: string) => fetch('queryRegionStatisticsConfig', data)
+
+/**
+ * @description 修改区域统计侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const editRegionStatisticsConfig = (data: string) => fetch('editRegionStatisticsConfig', data)
+
+/**
+ * @description 获取声音异常侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const queryAsd = (data: string) => fetch('queryAsd', data)
+
+/**
+ * @description 修改声音异常侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const editAsd = (data: string) => fetch('editAsd', data)
+
+/**
+ * @description 获取人员聚集侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const queryCgd = (data: string) => fetch('queryCgd', data)
+
+/**
+ * @description 修改人员聚集侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const editCgd = (data: string) => fetch('editCgd', data)
+
+/**
+ * @description 获取热力图侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const queryHeatMapConfig = (data: string) => fetch('queryHeatMapConfig', data)
+
+/**
+ * @description 修改热力图侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const editHeatMapConfig = (data: string) => fetch('editHeatMapConfig', data)
+
+/**
+ * @description 获取热力图统计数据
+ * @param {string} data
+ * @returns
+ */
+export const queryHeatMapStatistics = (data: string) => fetch('queryHeatMapStatistics', data)
+
+/**
+ * @description 获取客流统计侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const querySmartBinocularCountConfig = (data: string) => fetch('querySmartBinocularCountConfig', data)
+
+/**
+ * @description 修改客流统计侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const editSmartBinocularCountConfig = (data: string) => fetch('editSmartBinocularCountConfig', data)
 
 /**
  * @description 获取火点检测数据
@@ -535,3 +689,16 @@ export const queryVideoMetadata = (data: string) => fetch('queryVideoMetadata', 
  * @returns
  */
 export const editVideoMetadata = (data: string) => fetch('editVideoMetadata', data)
+
+/**
+ * @description
+ * @returns
+ */
+export const queryREIDCfg = () => fetch('queryREIDCfg', '')
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const editREIDCfg = (data: string) => fetch('editREIDCfg', data)

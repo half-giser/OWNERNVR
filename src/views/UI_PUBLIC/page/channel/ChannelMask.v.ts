@@ -10,17 +10,21 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
 
+        const pageData = ref({
+            onlineChlList: [] as string[],
+        })
+
         const playerRef = ref<PlayerInstance>()
         const formData = ref(new ChannelMaskDto())
         const tableRef = ref<TableInstance>()
         const tableData = ref<ChannelMaskDto[]>([])
-        const pageIndex = ref(1)
-        const pageSize = ref(10)
-        const pageTotal = ref(0)
+        const maskTableRef = ref<TableInstance>()
+
         const selectedChlId = ref('')
-        const editRows = useWatchEditRows<ChannelMaskDto>()
         const editStatus = ref(false)
-        const switchOptions = getTranslateOptions(DEFAULT_SWITCH_OPTIONS)
+        const switchOptions = getTranslateOptions(DEFAULT_BOOL_SWITCH_OPTIONS)
+
+        const drawingArea = ref<CanvasMaskMaskItem[]>([])
 
         const ready = computed(() => {
             return playerRef.value?.ready || false
@@ -57,6 +61,19 @@ export default defineComponent({
             const rowData = getRowById(chlId)!
             formData.value = rowData
             tableRef.value!.setCurrentRow(rowData)
+            changeEditStatus(false)
+
+            formData.value.mask.forEach((item, index) => {
+                item.isSelect = index === 0
+            })
+
+            if (formData.value.mask.length) {
+                maskTableRef.value!.setCurrentRow(formData.value.mask[0])
+            }
+
+            setTimeout(() => {
+                resetMask(formData.value)
+            }, 10)
         }
 
         const handleRowClick = (rowData: ChannelMaskDto) => {
@@ -64,25 +81,56 @@ export default defineComponent({
                 selectedChlId.value = rowData.id
                 formData.value = rowData
             }
+
             tableRef.value!.setCurrentRow(getRowById(selectedChlId.value))
+            changeEditStatus(false)
+
+            formData.value.mask.forEach((item, index) => {
+                item.isSelect = index === 0
+            })
+
+            if (formData.value.mask.length) {
+                maskTableRef.value!.setCurrentRow(formData.value.mask[0])
+            }
+
+            setTimeout(() => {
+                resetMask(formData.value)
+            }, 10)
         }
 
-        const handleChangeSwitch = () => {
-            const rowData = getRowById(selectedChlId.value)!
-            setOcxData(rowData)
+        const changeSwitch = () => {
+            setData(formData.value)
         }
 
-        const changeSwitchAll = (val: string) => {
-            tableData.value.forEach((ele) => {
-                if (!ele.disabled) {
-                    ele.switch = val
-                    setOcxData(ele)
+        const changeSwitchAll = async (val: boolean) => {
+            tableData.value.forEach((item) => {
+                if (!item.disabled && item.mask.length) {
+                    item.switch = val
                 }
+            })
+
+            Promise.all(tableData.value.filter((item) => !item.disabled && item.mask.length).map((item) => setData(item))).then((result) => {
+                commMutiSaveResponseHandler(result)
             })
         }
 
-        const changeEditStatus = () => {
+        const changeMaskSwitch = async () => {
+            const result = await setData(formData.value)
+            commSaveResponseHandler(result)
+        }
+
+        const changeAllMaskSwitch = async (bool: boolean) => {
+            formData.value.mask.forEach((item) => {
+                item.switch = bool
+            })
+            const result = await setData(formData.value)
+            commSaveResponseHandler(result)
+        }
+
+        const changeEditStatus = (status: boolean) => {
             if (!selectedChlId.value) return
+
+            editStatus.value = status
 
             if (mode.value === 'h5') {
                 drawer.setEnable(editStatus.value)
@@ -95,27 +143,7 @@ export default defineComponent({
         }
 
         const handleClearArea = () => {
-            if (mode.value === 'h5') {
-                drawer.clear()
-                drawer.setEnable(false)
-            }
-
-            if (mode.value === 'ocx') {
-                const sendXML1 = OCX_XML_MaskAreaSetSwitch('NONE')
-                plugin.ExecuteCmd(sendXML1)
-
-                const sendXML2 = OCX_XML_MaskAreaSetSwitch('EDIT_OFF')
-                plugin.ExecuteCmd(sendXML2)
-            }
-
-            editStatus.value = false
-            const rowData = getRowById(selectedChlId.value)!
-            if (rowData.mask.length) {
-                rowData.mask.forEach((ele) => {
-                    ele.switch = false
-                    ele.X = ele.Y = ele.width = ele.height = 0
-                })
-            }
+            resetMask(formData.value)
         }
 
         /**
@@ -137,24 +165,41 @@ export default defineComponent({
                 }
 
                 if ($('status').text() === 'success') {
-                    let isSwitch = false
-                    let isSpeco = false
-                    if (!$('content/chl').length || chlId !== $('content/chl').attr('id')) isSpeco = true
-                    rowData.isSpeco = isSpeco
-                    rowData.mask = $('content/chl/privacyMask/item').map((ele) => {
-                        const $item = queryXml(ele.element)
-                        isSwitch = isSwitch || $item('switch').text().bool()
-                        return {
-                            switch: $item('switch').text().bool(),
-                            X: $item('rectangle/X').text().num(),
-                            Y: $item('rectangle/Y').text().num(),
-                            width: $item('rectangle/width').text().num(),
-                            height: $item('rectangle/height').text().num(),
-                        }
-                    })
-                    rowData.switch = String(isSwitch)
+                    if (!$('content/chl').length || chlId !== $('content/chl').attr('id')) {
+                        return
+                    }
+
+                    rowData.mask = $('content/chl/privacyMask/item')
+                        .map((item, index) => {
+                            const $item = queryXml(item.element)
+                            if (!rowData.color) {
+                                rowData.color = $item('color').text()
+                            }
+
+                            if (!rowData.switch) {
+                                rowData.switch = $item('switch').text().bool()
+                            }
+
+                            return {
+                                id: item.attr('token') || index,
+                                areaIndex: item.attr('index').num(),
+                                switch: $item('switch').text().bool(),
+                                X: $item('rectangle/X').text().num(),
+                                Y: $item('rectangle/Y').text().num(),
+                                width: $item('rectangle/width').text().num(),
+                                height: $item('rectangle/height').text().num(),
+                                color: $item('color').text(),
+                                isDrawing: false,
+                                isSelect: index === 0,
+                            }
+                        })
+                        .filter((item) => {
+                            return item.X || item.Y || item.X || item.Y
+                        })
                     rowData.status = ''
-                    rowData.disabled = isSpeco
+                    rowData.disabled = rowData.protocolType === 'ONVIF' || !pageData.value.onlineChlList.includes(chlId)
+                    rowData.isPtz = $('content/chl').attr('type') === 'intPtz'
+                    rowData.maxCount = $('content/chl/privacyMask').attr('count').num()
                 } else {
                     rowData.status = ''
                 }
@@ -167,13 +212,53 @@ export default defineComponent({
             }
         }
 
+        const getPreset = async (chlId: string) => {
+            const sendXml = rawXml`
+                <condition>
+                    <chlId>${chlId}</chlId>
+                </condition>
+            `
+            const result = await queryChlPresetList(sendXml)
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                const rowData = getRowById(chlId)!
+                rowData.presetList = $('content/presets/item').map((item) => {
+                    return {
+                        label: item.text(),
+                        value: item.attr('index'),
+                    }
+                })
+
+                if (rowData.presetList.length) {
+                    rowData.preset = rowData.presetList[0].value
+                }
+            }
+        }
+
+        const playPreset = (chlId: string, index: string, speed: number) => {
+            const sendXml = rawXml`
+                <content>
+                    <chlId>${chlId}</chlId>
+                    <index>${index}</index>
+                    <speed>${speed}</speed>
+                </content>
+            `
+            goToPtzPreset(sendXml)
+        }
+
+        const getOnlineChlList = async () => {
+            const result = await queryOnlineChlList()
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                pageData.value.onlineChlList = $('content/item').map((item) => item.attr('id'))
+            }
+        }
+
         const getDataList = async () => {
-            editRows.clear()
             openLoading()
 
             const res = await getChlList({
-                pageIndex: pageIndex.value,
-                pageSize: pageSize.value,
+                requireField: ['supportPtz', 'protocolType'],
                 isSupportMaskSetting: true,
             })
             const $ = queryXml(res)
@@ -183,24 +268,33 @@ export default defineComponent({
             if ($('status').text() === 'success') {
                 tableData.value = $('content/item').map((ele) => {
                     const $item = queryXml(ele.element)
-                    const newData = new ChannelMaskDto()
-                    newData.id = ele.attr('id')
-                    newData.name = $item('name').text()
-                    newData.chlIndex = $item('chlIndex').text()
-                    newData.chlType = $item('chlType').text()
-                    newData.status = 'loading'
-                    newData.disabled = true
-                    return newData
+                    const item = new ChannelMaskDto()
+                    item.id = ele.attr('id')
+                    item.name = $item('name').text()
+                    item.chlIndex = $item('chlIndex').text()
+                    item.chlType = $item('chlType').text()
+                    item.protocolType = $item('protocolType').text()
+                    item.status = 'loading'
+                    item.disabled = true
+                    return item
                 })
-                pageTotal.value = $('content').attr('total').num()
             } else {
                 tableData.value = []
                 selectedChlId.value = ''
             }
 
-            tableData.value.forEach(async (item, i) => {
+            let onlineChlId = ''
+
+            tableData.value.forEach(async (item) => {
+                if (!onlineChlId && pageData.value.onlineChlList.includes(item.id)) {
+                    onlineChlId = item.id
+                }
+
                 if (item.chlType !== 'recorder') {
                     await getData(item.id)
+                    if (item.isPtz) {
+                        await getPreset(item.id)
+                    }
                 } else {
                     item.status = ''
                 }
@@ -209,18 +303,21 @@ export default defineComponent({
                     return
                 }
 
-                editRows.listen(item)
-
-                if (i === 0) {
+                if (onlineChlId === item.id) {
                     formData.value = item
                     selectedChlId.value = item.id
                     tableRef.value!.setCurrentRow(item)
+                    nextTick(() => {
+                        if (formData.value.mask.length) {
+                            maskTableRef.value!.setCurrentRow(0)
+                        }
+                        resetMask(formData.value)
+                    })
                 }
             })
         }
 
-        const getSaveData = (rowData: ChannelMaskDto) => {
-            const mask = rowData.mask.length ? rowData.mask : [new ChannelPrivacyMaskDto()]
+        const setData = async (rowData: ChannelMaskDto) => {
             const sendXml = rawXml`
                 <types>
                     <color>
@@ -231,22 +328,22 @@ export default defineComponent({
                 </types>
                 <content>
                     <chl id='${rowData.id}'>
-                        <privacyMask type='list' count='4'>
+                        <privacyMask type='list' count='${rowData.maxCount}' ${rowData.isPtz ? ' type="intPtz"' : ''}>
                             <itemType>
                                 <color type='color'/>
                             </itemType>
-                            ${mask
+                            ${rowData.mask
                                 .map((ele) => {
                                     return rawXml`
-                                        <item>
+                                        <item token="${ele.id}" index="${ele.areaIndex}">
                                             <switch>${rowData.switch}</switch>
                                             <rectangle>
-                                                <X>${ele.switch ? ele.X : 0}</X>
-                                                <Y>${ele.switch ? ele.Y : 0}</Y>
-                                                <width>${ele.switch ? ele.width : 0}</width>
-                                                <height>${ele.switch ? ele.height : 0}</height>
+                                                <X>${ele.X}</X>
+                                                <Y>${ele.Y}</Y>
+                                                <width>${ele.width}</width>
+                                                <height>${ele.height}</height>
                                             </rectangle>
-                                            <color>${!rowData.mask.length ? 'black' : rowData.color}</color>
+                                            <color>${ele.color}</color>
                                         </item>
                                     `
                                 })
@@ -255,30 +352,8 @@ export default defineComponent({
                     </chl>
                 </content>
             `
-            return sendXml
-        }
-
-        const save = async () => {
-            openLoading()
-
-            tableData.value.forEach((ele) => (ele.status = ''))
-
-            for (const ele of editRows.toArray()) {
-                try {
-                    const res = await editPrivacyMask(getSaveData(ele))
-                    const $ = queryXml(res)
-                    if ($('status').text() === 'success') {
-                        ele.status = 'success'
-                        editRows.remove(ele)
-                    } else {
-                        ele.status = 'error'
-                    }
-                } catch {
-                    ele.status = 'error'
-                }
-            }
-
-            closeLoading()
+            const result = await editPrivacyMask(sendXml)
+            return result
         }
 
         const getRowById = (chlId: string) => {
@@ -287,71 +362,77 @@ export default defineComponent({
 
         const notify = ($: XMLQuery, stateType: string) => {
             if (stateType === 'MaskArea') {
-                const preRowData = getRowById(selectedChlId.value)!
-                if (!preRowData.mask.length) {
-                    for (let i = 0; i < 4; i++) {
-                        preRowData.mask.push(new ChannelPrivacyMaskDto())
-                    }
-                }
-                const rectangles = $('statenotify/item/rectangle')
-                preRowData.mask.forEach((ele, index) => {
-                    const rectExist = rectangles[index] !== undefined
-                    if (rectExist) {
-                        const $rect = queryXml(rectangles[index].element)
-                        ele.switch = true
-                        ele.X = $rect('X').text().num()
-                        ele.Y = $rect('Y').text().num()
-                        ele.width = $rect('width').text().num()
-                        ele.height = $rect('height').text().num()
-                    } else {
-                        ele.switch = false
-                        ele.X = ele.Y = ele.width = ele.height = 0
-                    }
+                formData.value.mask.forEach((ele) => {
+                    ele.isSelect = false
                 })
+
+                drawingArea.value[0] = {
+                    X: $('statenotify/item/rectangle/X').text().num(),
+                    Y: $('statenotify/item/rectangle/Y').text().num(),
+                    width: $('statenotify/item/rectangle/width').text().num(),
+                    height: $('statenotify/item/rectangle/height').text().num(),
+                    color: 'black',
+                    isDrawing: true,
+                    isSelect: true,
+                }
+            }
+
+            if (stateType === 'StartViewChl') {
+                resetMask(formData.value)
             }
         }
 
         const handleMaskChange = (maskList: CanvasMaskMaskItem[]) => {
             const rowData = getRowById(selectedChlId.value)!
-            if (!rowData.mask.length) {
-                for (let i = 0; i < 4; i++) {
-                    rowData.mask.push(new ChannelPrivacyMaskDto())
-                }
-            }
+
             rowData.mask.forEach((ele, index) => {
                 const item = maskList[index]
-                const itemExist = item !== undefined
-                ele.switch = itemExist
-                ele.X = itemExist ? item.X : 0
-                ele.Y = itemExist ? item.Y : 0
-                ele.width = itemExist ? item.width : 0
-                ele.height = itemExist ? item.height : 0
+                ele.X = item.X || 0
+                ele.Y = item.Y || 0
+                ele.width = item.width || 0
+                ele.height = item.height || 0
+                ele.color = item.color || 'black'
+                ele.isDrawing = item.isDrawing || false
+                ele.isSelect = item.isSelect || false
             })
+
+            if (maskList.length > rowData.mask.length) {
+                drawingArea.value[0] = maskList.at(-1)!
+            }
         }
 
-        const setOcxData = (rowData: ChannelMaskDto) => {
-            const masks: CanvasMaskMaskItem[] = []
-            if (!rowData.mask.length) {
-                for (let i = 0; i < 4; i++) {
-                    rowData.mask.push(new ChannelPrivacyMaskDto())
-                }
-            }
-            rowData.mask.forEach((ele) => {
-                masks.push({
-                    X: ele.switch ? ele.X : 0,
-                    Y: ele.switch ? ele.Y : 0,
-                    width: ele.switch ? ele.width : 0,
-                    height: ele.switch ? ele.height : 0,
-                })
-            })
+        const resetMask = (rowData: ChannelMaskDto) => {
+            drawingArea.value = []
 
             if (mode.value === 'h5') {
-                drawer.setArea(masks)
+                console.log(rowData.mask)
+                drawer.setMask(rowData.mask)
             }
 
             if (mode.value === 'ocx') {
-                const sendXML = OCX_XML_SetMaskArea(masks)
+                const sendXML = OCX_XML_SetMaskArea(rowData.mask)
                 plugin.ExecuteCmd(sendXML)
+            }
+
+            if (rowData.isPtz) {
+                handleInvokePrivacyMask(rowData)
+            }
+        }
+
+        const updateMask = (rowData: ChannelMaskDto) => {
+            const mask = [...rowData.mask, ...drawingArea.value]
+
+            if (mode.value === 'h5') {
+                drawer.setMask(mask)
+            }
+
+            if (mode.value === 'ocx') {
+                const sendXML = OCX_XML_SetMaskArea(mask)
+                plugin.ExecuteCmd(sendXML)
+            }
+
+            if (rowData.isPtz) {
+                handleInvokePrivacyMask(rowData)
             }
         }
 
@@ -386,6 +467,7 @@ export default defineComponent({
                     streamType: 2,
                 })
                 drawer.clear()
+                resetMask(formData.value)
             }
 
             if (mode.value === 'ocx') {
@@ -397,7 +479,128 @@ export default defineComponent({
                     plugin.ExecuteCmd(sendXML2)
                 })
             }
-            setOcxData(rowData)
+        }
+
+        const handleSelectMask = (row: ChannelPrivacyMaskDto) => {
+            formData.value.mask.forEach((item) => {
+                if (item === row) {
+                    item.isSelect = true
+                } else {
+                    item.isSelect = false
+                }
+            })
+
+            if (drawingArea.value.length) {
+                drawingArea.value[0].isSelect = false
+            }
+
+            updateMask(formData.value)
+        }
+
+        const handleInvokePrivacyMask = async (rowData: ChannelMaskDto) => {
+            const item = formData.value.mask.find((item) => {
+                return item.isSelect
+            })
+
+            if (!item) {
+                return
+            }
+
+            const sendXml = rawXml`
+                <content>
+                    <chl id="${rowData.id}">
+                        <token>${item.id}</token>
+                    </chl>
+                </content>
+            `
+
+            invokePrivacyMask(sendXml)
+        }
+
+        const addMask = async () => {
+            if (formData.value.mask.length > formData.value.maxCount) {
+                openMessageBox(Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
+                return
+            }
+
+            if (!drawingArea.value.length) {
+                openMessageBox(Translate('IDCS_DRAW_AREA_FIRST_TIP'))
+                return
+            }
+
+            openLoading()
+
+            const item = drawingArea.value[0]
+
+            const sendXml = rawXml`
+                <content>
+                    <chl id="${formData.value.id}">
+                        <privacyMask type="list" count="${formData.value.maxCount}">
+                            <itemType>
+                                <color type="color" />
+                            </itemType>
+                            <item>
+                                <switch>false</switch>
+                                <rectangle>
+                                    <X>${item.X}</X>
+                                    <Y>${item.Y}</Y>
+                                    <width>${item.width}</width>
+                                    <height>${item.height}</height>
+                                </rectangle>
+                                <color>${item.color || 'black'}</color>
+                            </item>
+                        </privacyMask>
+                    </chl>
+                </content>
+            `
+
+            const result = await addPrivacyMask(sendXml)
+            const $ = queryXml(result)
+
+            closeLoading()
+
+            if ($('status').text() === 'success') {
+                openMessageBox({
+                    type: 'success',
+                    message: Translate('IDCS_SAVE_DATA_SUCCESS'),
+                })
+
+                await getData(formData.value.id)
+                handleChlSel(formData.value.id)
+            } else {
+                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
+            }
+        }
+
+        const removeMask = async () => {
+            const item = formData.value.mask.find((item) => {
+                return item.isSelect
+            })
+
+            if (!item) {
+                return
+            }
+
+            const sendXml = rawXml`
+                <content>
+                    <chl id="${formData.value.id}">
+                        <token>${item.id}</token>
+                    </chl>
+                </content>
+            `
+            const result = await deletePrivacyMask(sendXml)
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                openMessageBox({
+                    type: 'success',
+                    message: Translate('IDCS_DELETE_SUCCESS'),
+                })
+
+                await getData(formData.value.id)
+                handleChlSel(formData.value.id)
+            } else {
+                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
+            }
         }
 
         // 首次加载成功 播放视频
@@ -413,9 +616,8 @@ export default defineComponent({
             play()
         })
 
-        watch(editStatus, changeEditStatus)
-
-        onMounted(() => {
+        onMounted(async () => {
+            await getOnlineChlList()
             getDataList()
         })
 
@@ -435,22 +637,26 @@ export default defineComponent({
             tableRef,
             tableData,
             chlOptions,
-            editRows,
-            pageIndex,
-            pageSize,
-            pageTotal,
             selectedChlId,
             colorMap,
             editStatus,
             handleChlSel,
             handleRowClick,
-            handleChangeSwitch,
+            changeSwitch,
             changeSwitchAll,
             handleClearArea,
-            save,
             onReady,
             switchOptions,
             getDataList,
+            playPreset,
+            changeEditStatus,
+            drawingArea,
+            addMask,
+            removeMask,
+            handleSelectMask,
+            maskTableRef,
+            changeMaskSwitch,
+            changeAllMaskSwitch,
         }
     },
 })

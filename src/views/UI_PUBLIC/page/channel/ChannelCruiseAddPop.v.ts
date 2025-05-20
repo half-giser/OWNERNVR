@@ -11,26 +11,9 @@ export default defineComponent({
         ChannelCruiseEditPresetPop,
     },
     props: {
-        /**
-         * @property {Number} 最大巡航线数
-         */
-        max: {
-            type: Number,
-            default: 16,
-        },
-        /**
-         * @property {Array} 巡航线列表
-         */
-        cruise: {
-            type: Array as PropType<ChannelPtzCruiseDto[]>,
-            required: true,
-        },
-        /**
-         * @property {String} 通道ID
-         */
-        chlId: {
-            type: String,
-            required: true,
+        data: {
+            type: Object as PropType<ChannelPtzCruiseChlDto>,
+            default: () => new ChannelPtzCruiseChlDto(),
         },
     },
     emits: {
@@ -43,8 +26,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-
-        const PRESET_MAX_COUNT = 16
 
         let presetId = 0
 
@@ -61,6 +42,7 @@ export default defineComponent({
         const formData = ref({
             name: '',
         })
+
         const formRule = ref<FormRules>({
             name: [
                 {
@@ -70,7 +52,7 @@ export default defineComponent({
                             return
                         }
 
-                        if (prop.cruise.map((item) => item.name).includes(value.trim())) {
+                        if (prop.data.cruise.map((item) => item.name).includes(value.trim())) {
                             callback(new Error(Translate('IDCS_PROMPT_CRUISE_NAME_EXIST')))
                             return
                         }
@@ -89,8 +71,8 @@ export default defineComponent({
          * @description 打开弹窗时，重置表单和选项数据
          */
         const open = () => {
-            const cruiseIndex = prop.cruise.map((item) => item.index)
-            const cruiseOptions = Array(prop.max)
+            const cruiseIndex = prop.data.cruise.map((item) => item.index)
+            const cruiseOptions = Array(prop.data.maxCount)
                 .fill(0)
                 .map((_, index) => {
                     return index + 1
@@ -118,8 +100,8 @@ export default defineComponent({
 
             const sendXml = rawXml`
                 <content>
-                    <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
-                    <chlId>${prop.chlId}</chlId>
+                    <name>${wrapCDATA(formData.value.name)}</name>
+                    <chlId>${prop.data.chlId}</chlId>
                     <presets type="list">
                         ${tableData.value
                             .map((item) => {
@@ -183,8 +165,8 @@ export default defineComponent({
          * @description 新增预置点
          */
         const addPreset = () => {
-            if (tableData.value.length >= PRESET_MAX_COUNT) {
-                openMessageBox(Translate('IDCS_PRESET_MAX_NUM').formatForLang(PRESET_MAX_COUNT))
+            if (tableData.value.length >= prop.data.cruisePresetMaxCount) {
+                openMessageBox(Translate('IDCS_PRESET_MAX_NUM').formatForLang(prop.data.cruisePresetMaxCount))
                 return
             }
             pageData.value.isPresetPop = true
@@ -266,6 +248,10 @@ export default defineComponent({
             tableData.value[index + 1] = temp
         }
 
+        const displayHoldTime = (time: number) => {
+            return getTranslateForSecond(time)
+        }
+
         return {
             formRef,
             formData,
@@ -285,6 +271,7 @@ export default defineComponent({
             deleteAllPreset,
             moveUpPreset,
             moveDownPreset,
+            displayHoldTime,
         }
     },
 })

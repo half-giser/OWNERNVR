@@ -149,10 +149,82 @@ export const queryArpCfg = () => fetch('queryArpCfg', '')
  */
 export const editArpCfg = (data: string) => fetch('editArpCfg', data)
 
+/**
+ * @description
+ * @returns
+ */
 export const querySecureEmailcfg = () => fetch('querySecureEmailcfg', '')
 
+/**
+ * @description
+ * @param data
+ * @returns
+ */
 export const editSecureEMailCfg = (data: string) => fetch('editSecureEMailCfg', data)
 
+/**
+ * @description
+ * @returns
+ */
 export const queryPWDProtectQuestion = () => fetch('queryPWDProtectQuestion', '')
 
+/**
+ * @description
+ * @param data
+ * @returns
+ */
 export const editPWDProtectQuestion = (data: string) => fetch('editPWDProtectQuestion', data)
+
+/**
+ * @description
+ * @param data
+ * @returns
+ */
+export const delDualAuthUser = (data: string) => fetch('delDualAuthUser', data)
+
+/**
+ * @description
+ * @returns
+ */
+export const queryDualAuthCfg = () => fetch('queryDualAuthCfg', '')
+
+/**
+ * @description
+ * @returns
+ */
+export const queryDualAuthUserList = () => fetch('queryDualAuthUserList', '')
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const queryDualAuthUser = (data: string) => fetch('queryDualAuthUser', data)
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const editDualAuthCfg = (data: string) => fetch('editDualAuthCfg', data)
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const createDualAuthUser = (data: string) => fetch('createDualAuthUser', data)
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const editDualAuthUser = (data: string) => fetch('editDualAuthUser', data)
+
+/**
+ * @description
+ * @param data
+ * @returns
+ */
+export const queryMyAuth = (data: string) => fetch('queryMyAuth', data)

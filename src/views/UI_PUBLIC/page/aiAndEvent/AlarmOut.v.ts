@@ -48,7 +48,6 @@ export default defineComponent({
          */
         const getData = () => {
             editRows.clear()
-            tableData.value = []
 
             getChlList({
                 pageIndex: pageData.value.pageIndex,
@@ -62,9 +61,12 @@ export default defineComponent({
                     const row = new AlarmOutDto()
                     row.id = item.attr('id')
                     row.name = $item('name').text()
+                    row.nameMaxByteLen = $item('name').attr('maxByteLen').num() || 32
                     row.status = 'loading'
                     return row
                 })
+
+                const displayTimeList = new Set<number>()
 
                 tableData.value.forEach(async (row) => {
                     const sendXml = rawXml`
@@ -82,27 +84,26 @@ export default defineComponent({
                     row.status = ''
 
                     // 从第一个数据中获取延迟时间下拉选项和类型下拉选项
-                    if (!pageData.value.delayList.length) {
-                        pageData.value.delayList = $('content/delayTimeNote')
+                    if (!displayTimeList.size) {
+                        $('content/delayTimeNote')
                             .text()
                             .array()
-                            .map((delayItem) => {
-                                const value = Number(delayItem)
-                                return {
-                                    value: value,
-                                    label: value === 0 ? Translate('IDCS_MANUAL') : getTranslateForSecond(value),
-                                }!
+                            .map((item) => Number(item))
+                            .forEach((item) => {
+                                displayTimeList.add(item)
                             })
                     }
 
                     if ($('status').text() === 'success') {
                         row.disabled = false
                         row.delayTime = $('content/delayTime').text().num()
-                        const $schedule = $('content/schedule')
-                        row.scheduleId = $schedule.attr('id')
-                        row.scheduleName = $schedule.text()
+                        row.scheduleId = $('content/schedule').attr('id')
+                        row.scheduleName = $('content/schedule').text()
                         row.index = $('content/index').text().num() + 1
                         row.devDesc = $('content/devDesc').text()
+
+                        displayTimeList.add(row.delayTime)
+
                         // devDescTemp不存在表示设备本地报警输出，本地报警输出才能设置报警类型
                         if (!row.devDesc) {
                             row.type = pageData.value.alarmoutTypeText[curAlarmoutType.value]
@@ -113,6 +114,15 @@ export default defineComponent({
 
                         editRows.listen(row)
                     }
+
+                    pageData.value.delayList = Array.from(displayTimeList)
+                        .sort((a, b) => a - b)
+                        .map((value) => {
+                            return {
+                                value: value,
+                                label: value === 0 ? Translate('IDCS_MANUAL') : displaySecondWithUnit(value),
+                            }
+                        })
                 })
             })
         }
@@ -193,7 +203,7 @@ export default defineComponent({
         const blurName = (row: AlarmOutDto) => {
             const name = row.name
             if (!checkChlName(name)) {
-                openMessageBox(Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'))
+                openMessageBox(Translate('IDCS_CAN_NOT_CONTAIN_SPECIAL_CHAR').formatForLang(CHANNEL_LIMIT_CHAR))
                 row.name = originalName.value
             } else {
                 if (!name) {

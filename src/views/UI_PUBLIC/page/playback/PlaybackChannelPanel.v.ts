@@ -229,6 +229,7 @@ export default defineComponent({
                         id: item.attr('id'),
                         value: $item('name').text(),
                         dwellTime: $item('dwellTime').text().num(),
+                        nameMaxByteLen: $('content/itemType/name').attr('maxByteLen').num() || nameByteMaxLen,
                     }
                 })
             } else {
@@ -300,6 +301,7 @@ export default defineComponent({
                 pageData.value.editChlGroup.id = find.id
                 pageData.value.editChlGroup.name = find.value
                 pageData.value.editChlGroup.dwellTime = find.dwellTime
+                pageData.value.editChlGroup.nameMaxByteLen = find.nameMaxByteLen
 
                 pageData.value.isEditChlGroup = true
             }

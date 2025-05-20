@@ -24,15 +24,19 @@
                     v-model="formData.userName"
                     maxlength="32"
                     :placeholder="Translate('IDCS_ACCOUNT_TIP')"
+                    @formatter="formatUserName"
+                    @parser="formatUserName"
                 />
             </el-form-item>
             <el-form-item prop="password">
                 <template #label>
-                    {{ type === 'add' ? Translate('IDCS_PASSWORD') : Translate('IDCS_CHANGE_PWD') }}
-                    <el-checkbox
-                        v-show="type === 'edit'"
-                        v-model="pageData.passwordSwitch"
-                    />
+                    <div class="base-label-box">
+                        <span>{{ type === 'add' ? Translate('IDCS_PASSWORD') : Translate('IDCS_CHANGE_PWD') }}</span>
+                        <el-checkbox
+                            v-show="type === 'edit'"
+                            v-model="pageData.passwordSwitch"
+                        />
+                    </div>
                 </template>
                 <BasePasswordInput
                     v-model="formData.password"

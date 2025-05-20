@@ -30,40 +30,12 @@
                         disabled
                     />
                 </el-form-item>
-                <el-form-item :label="Translate('IDCS_PTZ')">
-                    <el-select-v2
-                        v-if="tableData[pageData.tableIndex]"
-                        v-model="tableData[pageData.tableIndex].ptz"
-                        :disabled="tableData[pageData.tableIndex].disabled"
-                        :options="pageData.ptzOptions"
-                    />
-                    <el-select-v2
-                        v-else
-                        model-value=""
-                        :options="[]"
-                        disabled
-                    />
-                </el-form-item>
                 <el-form-item :label="Translate('IDCS_PROTOCOL')">
                     <el-select-v2
                         v-if="tableData[pageData.tableIndex]"
                         v-model="tableData[pageData.tableIndex].protocol"
                         :disabled="tableData[pageData.tableIndex].disabled"
                         :options="tableData[pageData.tableIndex].protocolOptions"
-                    />
-                    <el-select-v2
-                        v-else
-                        model-value=""
-                        :options="[]"
-                        disabled
-                    />
-                </el-form-item>
-                <el-form-item :label="Translate('IDCS_BAUD_RATE')">
-                    <el-select-v2
-                        v-if="tableData[pageData.tableIndex]"
-                        v-model="tableData[pageData.tableIndex].baudRate"
-                        :disabled="tableData[pageData.tableIndex].disabled"
-                        :options="tableData[pageData.tableIndex].baudRateOptions"
                     />
                     <el-select-v2
                         v-else
@@ -79,9 +51,24 @@
                         :min="tableData[pageData.tableIndex].addressMin"
                         :max="tableData[pageData.tableIndex].addressMax"
                         :disabled="tableData[pageData.tableIndex].disabled"
+                        @keydown.enter="blurInput"
                     />
                     <el-input
                         v-else
+                        disabled
+                    />
+                </el-form-item>
+                <el-form-item :label="Translate('IDCS_BAUD_RATE')">
+                    <el-select-v2
+                        v-if="tableData[pageData.tableIndex]"
+                        v-model="tableData[pageData.tableIndex].baudRate"
+                        :disabled="tableData[pageData.tableIndex].disabled"
+                        :options="tableData[pageData.tableIndex].baudRateOptions"
+                    />
+                    <el-select-v2
+                        v-else
+                        model-value=""
+                        :options="[]"
                         disabled
                     />
                 </el-form-item>
@@ -111,35 +98,6 @@
                         prop="chlName"
                         width="185"
                     />
-                    <el-table-column :label="Translate('IDCS_PTZ')">
-                        <template #header>
-                            <el-dropdown>
-                                <BaseTableDropdownLink>
-                                    {{ Translate('IDCS_PTZ') }}
-                                </BaseTableDropdownLink>
-                                <template #dropdown>
-                                    <el-dropdown-menu>
-                                        <el-dropdown-item
-                                            v-for="item in pageData.ptzOptions"
-                                            :key="item.label"
-                                            @click="changeAllPtz(item.value)"
-                                        >
-                                            {{ item.label }}
-                                        </el-dropdown-item>
-                                    </el-dropdown-menu>
-                                </template>
-                            </el-dropdown>
-                        </template>
-
-                        <template #default="{ row }: TableColumn<ChannelPtzProtocolDto>">
-                            <el-select-v2
-                                v-model="row.ptz"
-                                :disabled="row.disabled"
-                                :options="pageData.ptzOptions"
-                            />
-                        </template>
-                    </el-table-column>
-
                     <el-table-column :label="Translate('IDCS_PROTOCOL')">
                         <template #default="{ row }: TableColumn<ChannelPtzProtocolDto>">
                             <el-select-v2
@@ -149,17 +107,6 @@
                             />
                         </template>
                     </el-table-column>
-
-                    <el-table-column :label="Translate('IDCS_BAUD_RATE')">
-                        <template #default="{ row }: TableColumn<ChannelPtzProtocolDto>">
-                            <el-select-v2
-                                v-model="row.baudRate"
-                                :disabled="row.disabled"
-                                :options="row.baudRateOptions"
-                            />
-                        </template>
-                    </el-table-column>
-
                     <el-table-column :label="Translate('IDCS_ADDRESS')">
                         <template #default="{ row }: TableColumn<ChannelPtzProtocolDto>">
                             <BaseNumberInput
@@ -167,6 +114,15 @@
                                 :min="row.addressMin"
                                 :max="row.addressMax"
                                 :disabled="row.disabled"
+                            />
+                        </template>
+                    </el-table-column>
+                    <el-table-column :label="Translate('IDCS_BAUD_RATE')">
+                        <template #default="{ row }: TableColumn<ChannelPtzProtocolDto>">
+                            <el-select-v2
+                                v-model="row.baudRate"
+                                :disabled="row.disabled"
+                                :options="row.baudRateOptions"
                             />
                         </template>
                     </el-table-column>
@@ -181,10 +137,7 @@
                     @current-change="getData"
                 />
             </div>
-            <div class="base-btn-box space-between">
-                <div class="text-error">
-                    {{ Translate('IDCS_PTZOPEN_AND_PROTOCOLSET_RULE') }}
-                </div>
+            <div class="base-btn-box">
                 <el-button
                     :disabled="!editRows.size()"
                     @click="setData"

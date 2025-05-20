@@ -72,6 +72,19 @@ export default defineComponent({
                     trigger: 'manual',
                 },
             ],
+            autoReportPort: [
+                {
+                    validator(_rules, value: number, callback) {
+                        const error = validatePort('autoReportPort', Number(value))
+                        if (error) {
+                            callback(new Error(error))
+                            return
+                        }
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
         })
         const watchEditPortForm = useWatchEditData(portFormData)
 
@@ -205,8 +218,7 @@ export default defineComponent({
                 portFormData.value.httpsPort = $('content/httpsPort').text().num()
                 portFormData.value.netPort = $('content/netPort').text().num()
                 portFormData.value.posPort = $('content/posPort').text().num()
-                // portFormData.value.rtspPort = $("//rtspPort").text().num()
-                portFormData.value.virtualHostEnabled = $('content/virtualHostEnabled').text().bool()
+                portFormData.value.autoReportPort = $('content/autoReportPort').text().num()
 
                 const reservedPort = $('content/reservedPort').text().array()
                 pageData.value.reservedPort = []
@@ -227,16 +239,21 @@ export default defineComponent({
         }
 
         const PORT_ERROR_MAPPING: [string, string, string][] = [
-            ['httpPort', 'netPort', 'IDCS_PROMPT_HTTP_DATA_THE_SAME_PORT'],
-            ['httpPort', 'rtspPort', 'IDCS_PROMPT_HTTP_RTSP_THE_SAME_PORT'],
-            ['netPort', 'rtspPort', 'IDCS_PROMPT_DATA_RTSP_THE_SAME_PORT'],
-            ['httpPort', 'posPort', 'IDCS_POS_DATA_HTTP_THE_SAME_PORT'],
-            ['httpsPort', 'posPort', 'IDCS_POS_DATA_HTTPS_THE_SAME_PORT'],
-            ['netPort', 'posPort', 'IDCS_POS_DATA_PROMPT_THE_SAME_PORT'],
-            ['rtspPort', 'posPort', 'IDCS_POS_DATA_RTSP_THE_SAME_PORT'],
-            ['httpPort', 'httpsPort', 'IDCS_PROMPT_HTTPS_HTTP_THE_SAME_PORT'],
-            ['httpsPort', 'netPort', 'IDCS_PROMPT_HTTPS_DATA_THE_SAME_PORT'],
-            ['httpsPort', 'rtspPort', 'IDCS_PROMPT_HTTPS_RTSP_THE_SAME_PORT'],
+            ['httpPort', 'httpsPort', Translate('IDCS_PROMPT_HTTPS_HTTP_THE_SAME_PORT')],
+            ['httpPort', 'netPort', Translate('IDCS_PROMPT_HTTP_DATA_THE_SAME_PORT')],
+            ['httpPort', 'posPort', Translate('IDCS_POS_DATA_HTTP_THE_SAME_PORT')],
+            ['httpPort', 'autoReportPort', Translate('IDCS_PORT_SAME_TIPS').formatForLang(Translate('IDCS_HTTP_PORT'), Translate('IDCS_AUTO_REPORT_PORT'))],
+            ['httpPort', 'rtspPort', Translate('IDCS_PROMPT_HTTP_RTSP_THE_SAME_PORT')],
+            ['httpsPort', 'netPort', Translate('IDCS_PROMPT_HTTPS_DATA_THE_SAME_PORT')],
+            ['httpsPort', 'posPort', Translate('IDCS_POS_DATA_HTTPS_THE_SAME_PORT')],
+            ['httpsPort', 'autoReportPort', Translate('IDCS_PORT_SAME_TIPS').formatForLang(Translate('IDCS_HTTPS_PORT'), Translate('IDCS_AUTO_REPORT_PORT'))],
+            ['httpsPort', 'rtspPort', Translate('IDCS_PROMPT_HTTPS_RTSP_THE_SAME_PORT')],
+            ['netPort', 'posPort', Translate('IDCS_POS_DATA_PROMPT_THE_SAME_PORT')],
+            ['netPort', 'autoReportPort', Translate('IDCS_PORT_SAME_TIPS').formatForLang(Translate('IDCS_SERVE_PORT'), Translate('IDCS_AUTO_REPORT_PORT'))],
+            ['netPort', 'rtspPort', Translate('IDCS_PROMPT_DATA_RTSP_THE_SAME_PORT')],
+            ['posPort', 'autoReportPort', Translate('IDCS_PORT_SAME_TIPS').formatForLang(Translate('IDCS_POS_PORT'), Translate('IDCS_AUTO_REPORT_PORT'))],
+            ['posPort', 'rtspPort', Translate('IDCS_POS_DATA_RTSP_THE_SAME_PORT')],
+            ['autoReportPort', 'rtspPort', Translate('IDCS_PORT_SAME_TIPS').formatForLang(Translate('IDCS_AUTO_REPORT_PORT'), Translate('IDCS_RTSP_PORT'))],
         ]
 
         /**
@@ -251,6 +268,7 @@ export default defineComponent({
                 ['netPort', portFormData.value.netPort],
                 ['rtspPort', rtspServerFormData.value.rtspPort],
                 ['posPort', portFormData.value.posPort],
+                ['autoReportPort', portFormData.value.autoReportPort],
             ]
             const findSamePort = portValue.find((port) => port[1] === value && port[0] !== param)
             if (findSamePort) {
@@ -261,10 +279,12 @@ export default defineComponent({
                     return Translate(errorText[2])
                 }
             }
+
             const isReservedPort = pageData.value.reservedPort.includes(value)
             if (isReservedPort) {
                 return Translate('IDCS_SYSTEM_RESERVED_PORT').formatForLang(value)
             }
+
             const isReservedPortRange = pageData.value.reservedPortRange.some((item) => value >= item[0] && value <= item[1])
             if (isReservedPortRange) {
                 return Translate('IDCS_SYSTEM_RESERVED_PORT').formatForLang(value)
@@ -285,7 +305,7 @@ export default defineComponent({
                     <httpsPort>${portFormData.value.httpsPort}</httpsPort>
                     <netPort>${portFormData.value.netPort}</netPort>
                     <posPort>${portFormData.value.posPort}</posPort>
-                    <virtualHostEnabled>${portFormData.value.virtualHostEnabled}</virtualHostEnabled>
+                    <autoReportPort>${portFormData.value.autoReportPort}</autoReportPort>
                 </content>
             `
             const result = await editNetPortCfg(sendXml)

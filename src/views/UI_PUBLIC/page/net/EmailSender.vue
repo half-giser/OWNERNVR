@@ -22,6 +22,7 @@
                 <BaseSensitiveEmailInput
                     v-model="formData.address"
                     :show-value="pageData.showUserNameValue"
+                    :maxlength="formData.addressMaxByteLen"
                     @focus="handleUserNameFocus"
                     @blur="handleUserNameBlur"
                     @input="handleAddressInput"
@@ -31,18 +32,17 @@
                 prop="server"
                 :label="Translate('IDCS_STMP_SERVER')"
             >
-                <el-input
+                <BaseTextInput
                     v-model="formData.server"
                     :formatter="formatSTMPServer"
-                    :parser="formatSTMPServer"
-                    maxlength="64"
+                    :maxlength="formData.serverMaxByteLen"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_STMP_PORT')">
                 <BaseNumberInput
                     v-model="formData.port"
-                    :min="10"
-                    :max="65535"
+                    :min="formData.portMin"
+                    :max="formData.portMax"
                 />
                 <el-button @click="setDefaultPort">{{ Translate('IDCS_USE_DEFAULT') }}</el-button>
             </el-form-item>
@@ -58,6 +58,17 @@
                     v-model="formData.attachImg"
                     :options="pageData.attachImgOptions"
                 />
+                <el-checkbox-group
+                    v-show="formData.attachImg > 0"
+                    v-model="formData.imgType"
+                >
+                    <el-checkbox
+                        v-for="item in pageData.imgTypeOptions"
+                        :key="item.value"
+                        :value="item.value"
+                        :label="item.label"
+                    />
+                </el-checkbox-group>
             </el-form-item>
             <el-form-item
                 v-if="formData.attachImg === 2"
@@ -85,17 +96,20 @@
                 <BaseSensitiveEmailInput
                     v-else
                     v-model="formData.userName"
+                    :maxlength="formData.userNameMaxByteLen"
                     :disabled="formData.anonymousSwitch"
                     :show-value="pageData.showUserNameValue"
                 />
             </el-form-item>
             <el-form-item prop="password">
                 <template #label>
-                    {{ Translate('IDCS_PASSWORD') }}
-                    <el-checkbox
-                        v-model="pageData.passwordSwitch"
-                        :disabled="formData.anonymousSwitch"
-                    />
+                    <div class="base-label-box">
+                        <span>{{ Translate('IDCS_PASSWORD') }}</span>
+                        <el-checkbox
+                            v-model="pageData.passwordSwitch"
+                            :disabled="formData.anonymousSwitch"
+                        />
+                    </div>
                 </template>
                 <BasePasswordInput
                     v-model="formData.password"

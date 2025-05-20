@@ -1,5 +1,5 @@
 /*
- * @Date: 2025-04-28 14:51:01
+ * @Date: 2025-05-04 14:51:01
  * @Description: 找回密码设置
  * @Author: yejiahao yejiahao@tvt.net.cn
  */
@@ -13,6 +13,16 @@ export default defineComponent({
         const { Translate } = useLangStore()
 
         const pageData = ref({
+            tabOptions: [
+                {
+                    label: Translate('IDCS_EMAIL'),
+                    value: 'email',
+                },
+                {
+                    label: Translate('IDCS_PASSWORD_PROTECT_QUESTION'),
+                    value: 'question',
+                },
+            ],
             tab: 'email',
             // 问题选项（UI2-A）
             questionOptions: [] as UserFindPwdQuestionForm[],

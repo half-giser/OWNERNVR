@@ -13,7 +13,7 @@
                     :key="auth.key"
                 >
                     <div class="base-user-auth-title">
-                        {{ Translate(auth.key) }}
+                        {{ auth.label }}
                     </div>
                     <ul class="base-user-auth-list">
                         <li
@@ -27,7 +27,7 @@
                                     visibility: authItem.value ? 'visible' : 'hidden',
                                 }"
                             />
-                            <span>{{ Translate(authItem.key) }}</span>
+                            <span>{{ authItem.label }}</span>
                         </li>
                     </ul>
                 </template>
@@ -116,7 +116,7 @@
                 <el-table-column :label="Translate('IDCS_EDIT')">
                     <template #default="{ row }: TableColumn<UserAuthGroupList>">
                         <BaseImgSpriteBtn
-                            v-show="row.enableEdit"
+                            v-show="isShowEdit(row)"
                             file="edit2"
                             :stop-propagation="false"
                             @click="openEditAuthGroupPop(row)"
@@ -126,6 +126,7 @@
                 <el-table-column :label="Translate('IDCS_SAVE_AS')">
                     <template #default="{ row }: TableColumn<UserAuthGroupList>">
                         <BaseImgSpriteBtn
+                            v-show="isShowCopy(row)"
                             file="saveas"
                             @click="copyAuthGroup(row)"
                         />
@@ -134,7 +135,7 @@
                 <el-table-column :label="Translate('IDCS_DELETE')">
                     <template #default="{ row }: TableColumn<UserAuthGroupList>">
                         <BaseImgSpriteBtn
-                            v-show="!row.isDefault"
+                            v-show="isShowDelete(row)"
                             file="del"
                             :stop-propagation="false"
                             @click="deleteAuthGroup(row)"

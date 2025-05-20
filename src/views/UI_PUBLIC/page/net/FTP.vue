@@ -30,7 +30,7 @@
                         :disabled="!formData.switch"
                         :formatter="formatServerAddress"
                         :parser="formatServerAddress"
-                        maxlength="64"
+                        :maxlength="formData.serverAddrMaxLen"
                     />
                 </el-form-item>
                 <el-form-item
@@ -57,19 +57,21 @@
                     :label="Translate('IDCS_USERNAME')"
                     prop="userName"
                 >
-                    <el-input
+                    <BaseTextInput
                         v-model="formData.userName"
-                        maxlength="64"
+                        :maxlength="formData.userNameMaxByteLen"
                         :disabled="!formData.switch || formData.anonymousSwitch"
                     />
                 </el-form-item>
                 <el-form-item prop="password">
                     <template #label>
-                        {{ Translate('IDCS_PASSWORD') }}
-                        <el-checkbox
-                            v-model="pageData.passwordSwitch"
-                            :disabled="!formData.switch || formData.anonymousSwitch"
-                        />
+                        <div class="base-label-box">
+                            <span>{{ Translate('IDCS_PASSWORD') }}</span>
+                            <el-checkbox
+                                v-model="pageData.passwordSwitch"
+                                :disabled="!formData.switch || formData.anonymousSwitch"
+                            />
+                        </div>
                     </template>
                     <BasePasswordInput
                         v-model="formData.password"
@@ -85,8 +87,8 @@
                 >
                     <BaseNumberInput
                         v-model="formData.maxSize"
-                        :min="pageData.minFileSize"
-                        :max="pageData.maxFileSize"
+                        :min="formData.maxSizeMin"
+                        :max="formData.maxSizeMax"
                         :disabled="!formData.switch"
                     />
                     <el-text>M</el-text>
@@ -97,7 +99,7 @@
                 >
                     <el-input
                         v-model="formData.path"
-                        maxlength="64"
+                        :maxlength="formData.pathMaxLen"
                         :formatter="formatDir"
                         :parser="formatDir"
                         :disabled="!formData.switch"

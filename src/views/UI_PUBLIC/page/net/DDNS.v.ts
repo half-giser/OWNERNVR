@@ -147,9 +147,12 @@ export default defineComponent({
             const result = await queryDDNSCfg()
             commLoadResponseHandler(result, ($) => {
                 formData.value.serverType = $('content/serverType').text()
+                formData.value.serverAddrMaxLen = $('content/serverAddr').attr('maxLen').num() || 64
                 formData.value.serverAddr = $('content/serverAddr').text()
+                formData.value.userNameMaxByteLen = $('content/userName').attr('maxByteLen').num() || 63
                 formData.value.userName = $('content/userName').text()
                 formData.value.password = $('content/password').text()
+                formData.value.domainNameMaxLen = $('content/domainName').attr('maxLen').num() || 64
                 formData.value.domainName = $('content/domainName').text()
                 formData.value.heartbeatTime = $('content/heartbeatTime').text().undef()?.num()
                 formData.value.switch = $('content/switch').text().bool()

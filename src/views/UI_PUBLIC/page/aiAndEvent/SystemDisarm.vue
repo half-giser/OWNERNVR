@@ -22,8 +22,8 @@
                 width="55"
             />
             <el-table-column :label="`${Translate('IDCS_CHANNEL')}/${Translate('IDCS_SENSOR')}`">
-                <template #default="{ row }: TableColumn<AlarmSystemDisarmChlAndSensorSrcDto>">
-                    {{ row.value }}
+                <template #default="{ row }: TableColumn<AlaramSystemDisarmChlDto>">
+                    {{ row.name }}
                 </template>
             </el-table-column>
         </el-table>
@@ -89,28 +89,45 @@
                     v-model="formData.inputSource"
                     :props="{
                         value: 'id',
-                        label: 'value',
+                        label: 'name',
                     }"
                     :options="pageData.sensorSourcelist"
                 />
             </el-form-item>
         </el-form>
-
         <el-form
             v-title
             class="stripe"
+            :style="{
+                '--form-label-width': '250px',
+            }"
         >
             <div class="base-head-box">
                 {{ Translate('IDCS_SYSTEM_ARM_SET') }}
             </div>
             <el-form-item :label="Translate('IDCS_STATE')">
-                <span class="state">{{ pageData.defenseSwitch ? Translate('IDCS_GUARD_CLOSED') : Translate('IDCS_GUARD_OPENED') }}</span>
-                <el-button @click="setdisarmAll">{{ pageData.defenseSwitch ? Translate('IDCS_RECOVER_GUARD') : Translate('IDCS_CLOSE_GUARD') }}</el-button>
+                <span class="state">{{ formData.defenseSwitch ? Translate('IDCS_GUARD_CLOSED') : Translate('IDCS_GUARD_OPENED') }}</span>
+                <el-button @click="setDisarmAll">{{ formData.defenseSwitch ? Translate('IDCS_RECOVER_GUARD') : Translate('IDCS_CLOSE_GUARD') }}</el-button>
             </el-form-item>
-            <el-form-item :label="Translate('IDCS_RECOVER_GUARD_CHANNEL')">
-                <el-button @click="pageData.showAddDialog = true">{{ Translate('IDCS_ADD') }}</el-button>
+            <el-form-item>
+                <template #label>
+                    <el-checkbox
+                        v-model="formData.autoResetSwitch"
+                        :label="Translate('IDCS_TIMING_CLOSE_DISATRM')"
+                    />
+                </template>
+                <BaseTimePicker
+                    v-model="formData.resetTime"
+                    :disabled="!formData.autoResetSwitch"
+                />
             </el-form-item>
         </el-form>
+        <div class="base-btn-box space-between gap">
+            <div>
+                {{ Translate('IDCS_RECOVER_GUARD_CHANNEL') }}
+            </div>
+            <el-button @click="pageData.showAddDialog = true">{{ Translate('IDCS_ADD') }}</el-button>
+        </div>
         <div class="base-table-box">
             <el-table
                 v-title
@@ -151,7 +168,7 @@
                                     v-title
                                     show-overflow-tooltip
                                     height="250"
-                                    :data="pageData.totalDefenseParamList"
+                                    :data="totalDefenseParamList"
                                 >
                                     <el-table-column
                                         type="selection"
@@ -224,11 +241,4 @@
     width: 480px;
     padding: 10px;
 }
-
-// .tips_text_pop {
-//     font-size: 14px;
-//     color: var(--main-text-light);
-//     margin-bottom: 5px;
-//     margin-top: 5px;
-// }
 </style>

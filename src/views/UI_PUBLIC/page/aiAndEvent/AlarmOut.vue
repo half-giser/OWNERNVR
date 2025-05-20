@@ -32,10 +32,10 @@
                 <!-- 名称 -->
                 <el-table-column :label="Translate('IDCS_NAME')">
                     <template #default="{ row }: TableColumn<AlarmOutDto>">
-                        <el-input
+                        <BaseTextInput
                             v-model="row.name"
                             :disabled="row.disabled"
-                            maxlength="32"
+                            :maxlength="row.nameMaxByteLen"
                             @focus="focusName(row.name)"
                             @blur="blurName(row)"
                             @keyup.enter="blurInput"

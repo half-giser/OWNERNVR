@@ -56,7 +56,12 @@
                 <!-- 闪烁时间 -->
                 <el-table-column :label="Translate('IDCS_FLASHING_TIME')">
                     <template #default="{ row }: TableColumn<AlarmWhiteLightDto>">
+                        <el-input
+                            v-if="row.disabled"
+                            disabled
+                        />
                         <BaseNumberInput
+                            v-else
                             v-model="row.durationTime"
                             :disabled="!row.enable"
                             :min="1"
@@ -93,6 +98,24 @@
                         />
                     </template>
                 </el-table-column>
+                <!-- 排程 -->
+                <el-table-column width="130">
+                    <template #header>
+                        <BaseScheduleTableDropdown
+                            :options="pageData.scheduleList"
+                            @change="changeAllSchedule"
+                            @edit="openSchedulePop"
+                        />
+                    </template>
+                    <template #default="{ row }: TableColumn<AlarmWhiteLightDto>">
+                        <BaseScheduleSelect
+                            v-model="scheduleData[row.id]"
+                            :disabled="row.disabled"
+                            :options="pageData.scheduleList"
+                            @edit="openSchedulePop"
+                        />
+                    </template>
+                </el-table-column>
             </el-table>
         </div>
         <div class="base-pagination-box">
@@ -104,23 +127,9 @@
                 @current-change="changePagination"
             />
         </div>
-        <div class="base-head-box margin">{{ Translate('IDCS_FLASH_LIGHT_LINK_SCHEDULE') }}</div>
-        <el-form v-title>
-            <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                <BaseScheduleSelect
-                    v-model="pageData.schedule"
-                    :options="pageData.scheduleList"
-                    @change="changeSchedule()"
-                    @edit="pageData.isSchedulePop = true"
-                />
-            </el-form-item>
-            <el-form-item>
-                <span class="text-tips">*{{ Translate('IDCS_FLASH_LIGHT_LINK_SCHEDULE_TIPS') }}</span>
-            </el-form-item>
-        </el-form>
         <div class="base-btn-box">
             <el-button
-                :disabled="!editRows.size() && !pageData.scheduleChanged"
+                :disabled="!editRows.size() && editSchedule.disabled.value"
                 @click="setData()"
             >
                 {{ Translate('IDCS_APPLY') }}

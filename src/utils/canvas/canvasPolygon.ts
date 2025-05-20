@@ -1023,7 +1023,7 @@ export const CanvasPolygon = (option: CanvasPolygonOption = {}) => {
     }
 
     // 设置画线样式
-    const setLineStyle = (strokeStyle: string | CanvasGradient | CanvasPattern, lineWidth: number) => {
+    const setLineStyle = (strokeStyle: string | CanvasGradient | CanvasPattern, lineWidth?: number) => {
         lineStyle = {
             strokeStyle: strokeStyle ? strokeStyle : DEFAULT_LINE_COLOR,
             lineWidth: lineWidth ? lineWidth : 1.5,

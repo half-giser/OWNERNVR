@@ -20,7 +20,6 @@ export default defineComponent({
             hotplug: Translate('IDCS_DISK'),
             esata: Translate('IDCS_ESATA'),
             sata: Translate('IDCS_DISK'),
-            sas: Translate('IDCS_SAS'),
             removable: 'UDisk-',
         }
 
@@ -29,7 +28,6 @@ export default defineComponent({
             hotplug: Translate('IDCS_NORMAL_DISK'),
             esata: Translate('IDCS_NORMAL_DISK'),
             sata: Translate('IDCS_NORMAL_DISK'),
-            sas: Translate('IDCS_NORMAL_DISK'),
             raid: Translate('IDCS_ARRAY'),
             removable: 'UDISK',
         }
@@ -92,7 +90,7 @@ export default defineComponent({
                 const $item = queryXml(item.element)
                 const diskInterfaceType = $item('diskInterfaceType').text()
                 // 开启raid后只显示U盘和esata盘，miniSAS看做e-sata，不管是否开启raid，都会显示miniSAS
-                const showRaidType = ['removable', 'esata', 'sas'] // NRKH-101
+                const showRaidType = ['removable', 'esata'] // NRKH-101
                 if (raidSwitch && !showRaidType.includes(diskInterfaceType)) {
                     return
                 }
@@ -254,6 +252,14 @@ export default defineComponent({
                             break
                         case ErrorCode.USER_ERROR_NO_AUTH:
                             errorInfo = Translate('IDCS_NO_AUTH')
+                            break
+                        case ErrorCode.USER_ERROR_FAIL:
+                            const ids = $('content/diskIds/item').map((item) => item.text())
+                            const names = tableData.value
+                                .filter((item) => ids.includes(item.id))
+                                .map((item) => item.diskNum)
+                                .join(', ')
+                            errorInfo = Translate('IDCS_DISK_FORMAT_FAIL').formatForLang(names)
                             break
                         default:
                             errorInfo = Translate('IDCS_USER_OR_PASSWORD_ERROR')

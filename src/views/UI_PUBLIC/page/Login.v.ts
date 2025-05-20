@@ -344,6 +344,10 @@ export default defineComponent({
             }
         }
 
+        const forgetPassword = () => {
+            router.push('/forgetPassword')
+        }
+
         onMounted(() => {
             updateTitle()
             getIsShowPrivacy()
@@ -363,6 +367,7 @@ export default defineComponent({
             errorMsg,
             qualityOptions,
             handleDualAuthLogin,
+            forgetPassword,
         }
     },
 })

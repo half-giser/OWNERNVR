@@ -24,7 +24,7 @@ export default defineComponent({
                         return
                     }
 
-                    if (!cutStringByByte(value, nameByteMaxLen)) {
+                    if (!checkDomain(value)) {
                         callback(new Error(Translate('IDCS_INVALID_CHAR')))
                         return
                     }
@@ -47,8 +47,10 @@ export default defineComponent({
             if ($('content/reportPorts').length) {
                 pageData.value.upnpSwitch = $('content/switch').text().bool()
                 formData.value.switch = $('content/reportPorts/switch').text().bool()
+                formData.value.serverAddrMaxByteLen = $('content/reportPorts/serverAddr').attr('maxByteLen').num() || nameByteMaxLen
                 formData.value.serverAddr = $('content/reportPorts/serverAddr').text()
                 formData.value.port = $('content/reportPorts/port').text().num()
+                formData.value.manIdMaxByteLen = $('content/reportPorts/manId').attr('maxByteLen').num() || nameByteMaxLen
                 formData.value.manId = $('content/reportPorts/manId').text()
             }
         }

@@ -69,12 +69,12 @@
         </div>
         <div class="item-center">
             <div>{{ data.chlName }}</div>
-            <div>{{ data.info.similarity }}%</div>
+            <div>{{ data.info?.similarity }}%</div>
             <div>{{ displayTime(data.detect_time) }}</div>
         </div>
         <div class="item-bottom">
-            <span>{{ data.info.text_tip || data.info.group_name }}</span>
-            <span>({{ data.info.remarks || data.info.name }})</span>
+            <span>{{ data.info?.text_tip || data.info?.group_name }}</span>
+            <span>({{ data.info?.remarks || data.info?.name }})</span>
         </div>
     </div>
 </template>

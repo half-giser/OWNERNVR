@@ -31,10 +31,9 @@
                     :label="Translate('IDCS_SERVER_ADDRESS')"
                     prop="serverAddr"
                 >
-                    <el-input
+                    <BaseTextInput
                         v-model="formData.serverAddr"
-                        :formatter="formatInputMaxLength"
-                        :parser="formatInputMaxLength"
+                        :maxlength="formData.serverAddrMaxByteLen"
                         :disabled="!formData.nwms5000Switch"
                     />
                 </el-form-item>
@@ -56,7 +55,7 @@
                     <BaseNumberInput
                         v-model="formData.reportId"
                         :min="0"
-                        :max="99999999"
+                        :max="formData.reportIdMax"
                         :disabled="!formData.nwms5000Switch"
                     />
                 </el-form-item>

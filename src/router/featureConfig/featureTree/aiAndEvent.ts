@@ -304,7 +304,7 @@ const aiAndEventRoutes: FeatureItem = {
         // 目标侦测 1.4.13
         detectTarget: {
             path: 'detectTarget',
-            component: '',
+            component: 'aiAndEvent/DetectTarget.vue',
             meta: {
                 sort: 10,
                 lk: 'IDCS_TARGET_DETECT',

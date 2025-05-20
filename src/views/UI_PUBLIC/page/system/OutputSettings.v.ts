@@ -69,7 +69,7 @@ export default defineComponent({
             // 当前选择中的解码卡输出的索引序号（输出1：0，输出2：1，输出3：2，输出4：3）
             decoderIdx: 0,
             // 通道组列表
-            chlGroupList: [] as ChlItem[],
+            chlGroupList: [] as ChannelGroupDto[],
             // 当前选中的通道组
             activeChlGroup: '',
             // 当前通道组的通道列表
@@ -325,10 +325,7 @@ export default defineComponent({
         const editChlGroup = () => {
             const find = pageData.value.chlGroupList.find((item) => item.id === pageData.value.activeChlGroup)
             if (find) {
-                pageData.value.editChlGroup.id = find.id
-                pageData.value.editChlGroup.name = find.value
-                pageData.value.editChlGroup.dwellTime = find.dwellTime!
-
+                pageData.value.editChlGroup = find
                 pageData.value.isEditChlGroup = true
             }
         }
@@ -349,7 +346,7 @@ export default defineComponent({
             if (findItem) {
                 openMessageBox({
                     type: 'question',
-                    message: Translate('IDCS_DELETE_MP_GROUP_S').formatForLang(getShortString(findItem.value, 10)),
+                    message: Translate('IDCS_DELETE_MP_GROUP_S').formatForLang(getShortString(findItem.name, 10)),
                 }).then(async () => {
                     openLoading()
                     const sendXml = rawXml`
@@ -408,8 +405,11 @@ export default defineComponent({
                     const $item = queryXml(item.element)
                     return {
                         id: item.attr('id'),
-                        value: $item('name').text(),
+                        nameMaxByteLen: $item('name').attr('maxByteLen').num() || nameByteMaxLen,
+                        name: $item('name').text(),
                         dwellTime: $item('dwellTime').text().num(),
+                        chlCount: $item('chlCount').text().num(),
+                        chls: [],
                     }
                 })
             }
@@ -523,76 +523,76 @@ export default defineComponent({
             const $ = queryXml(result)
 
             // 解码卡输出
-            $('decoderContent/decoder').forEach((decoder) => {
-                const $decoder = queryXml(decoder.element)
-                const decoderId = decoder.attr('id').num()
-                const onlineStatus = decoder.attr('onlineStatus').bool()
+            // $('decoderContent/decoder').forEach((decoder) => {
+            //     const $decoder = queryXml(decoder.element)
+            //     const decoderId = decoder.attr('id').num()
+            //     const onlineStatus = decoder.attr('onlineStatus').bool()
 
-                // 设备端刘顺：每张解码卡固定4个输出
-                formData.value.decoder.push({
-                    id: decoderId,
-                    onlineStatus,
-                    ShowHdmiIn: -1,
-                    output: Array(4)
-                        .fill(0)
-                        .map((_, index) => {
-                            const item = new SystemOutputSettingItem()
-                            item.id = index
-                            return item
-                        }),
-                })
+            //     // 设备端刘顺：每张解码卡固定4个输出
+            //     formData.value.decoder.push({
+            //         id: decoderId,
+            //         onlineStatus,
+            //         ShowHdmiIn: -1,
+            //         output: Array(4)
+            //             .fill(0)
+            //             .map((_, index) => {
+            //                 const item = new SystemOutputSettingItem()
+            //                 item.id = index
+            //                 return item
+            //             }),
+            //     })
 
-                $decoder('item').forEach((outItem) => {
-                    const $outItem = queryXml(outItem.element)
-                    const outIndex = outItem.attr('outIndex').num()
+            //     $decoder('item').forEach((outItem) => {
+            //         const $outItem = queryXml(outItem.element)
+            //         const outIndex = outItem.attr('outIndex').num()
 
-                    // 表示当前输出是HDMI IN输出
-                    const showHdmiIn = outItem.attr('ShowHdmiIn').bool()
-                    if (showHdmiIn) {
-                        formData.value.decoder[decoderId].ShowHdmiIn = outIndex
-                    }
+            //         // 表示当前输出是HDMI IN输出
+            //         const showHdmiIn = outItem.attr('ShowHdmiIn').bool()
+            //         if (showHdmiIn) {
+            //             formData.value.decoder[decoderId].ShowHdmiIn = outIndex
+            //         }
 
-                    // 0/1 表示当前输出是轮询('0')还是预览('1')模式
-                    formData.value.decoder[decoderId].output[outIndex].isDwell = outItem.attr('validItem').num() === 0
-                    formData.value.decoder[decoderId].output[outIndex].maxWin = systemCaps.decoderOutputMaxWin[decoderId]
+            //         // 0/1 表示当前输出是轮询('0')还是预览('1')模式
+            //         formData.value.decoder[decoderId].output[outIndex].isDwell = outItem.attr('validItem').num() === 0
+            //         formData.value.decoder[decoderId].output[outIndex].maxWin = systemCaps.decoderOutputMaxWin[decoderId]
 
-                    $outItem('item1').forEach((element) => {
-                        const $element = queryXml(element.element)
-                        const displayMode = $element('displayMode').text()
-                        // 表示当前输出是否勾选轮询check框
-                        if (displayMode === 'dwell') {
-                            formData.value.decoder[decoderId].output[outIndex].dwell = {
-                                id: 0,
-                                timeInterval: $element('timeInterval').text().num() || 5,
-                                chlGroups: $element('chlGroups/item').map((chlGroup) => {
-                                    const $chlGroup = queryXml(chlGroup.element)
-                                    return {
-                                        segNum: $chlGroup('segNum').text().num(),
-                                        chls: $chlGroup('chls/item').map((chl) => ({
-                                            id: chl.attr('id'),
-                                            winindex: chl.text().num(),
-                                        })),
-                                    }
-                                }),
-                            }
-                        } else {
-                            formData.value.decoder[decoderId].output[outIndex].preview.chlGroups = [
-                                {
-                                    segNum: $element('segNum').text().num() || 1,
-                                    chls: $element('chls/item').map((chlItem) => {
-                                        return {
-                                            id: chlItem.attr('id'),
-                                            winindex: chlItem.text().num(),
-                                        }
-                                    }),
-                                },
-                            ]
-                        }
-                    })
-                })
+            //         $outItem('item1').forEach((element) => {
+            //             const $element = queryXml(element.element)
+            //             const displayMode = $element('displayMode').text()
+            //             // 表示当前输出是否勾选轮询check框
+            //             if (displayMode === 'dwell') {
+            //                 formData.value.decoder[decoderId].output[outIndex].dwell = {
+            //                     id: 0,
+            //                     timeInterval: $element('timeInterval').text().num() || 5,
+            //                     chlGroups: $element('chlGroups/item').map((chlGroup) => {
+            //                         const $chlGroup = queryXml(chlGroup.element)
+            //                         return {
+            //                             segNum: $chlGroup('segNum').text().num(),
+            //                             chls: $chlGroup('chls/item').map((chl) => ({
+            //                                 id: chl.attr('id'),
+            //                                 winindex: chl.text().num(),
+            //                             })),
+            //                         }
+            //                     }),
+            //                 }
+            //             } else {
+            //                 formData.value.decoder[decoderId].output[outIndex].preview.chlGroups = [
+            //                     {
+            //                         segNum: $element('segNum').text().num() || 1,
+            //                         chls: $element('chls/item').map((chlItem) => {
+            //                             return {
+            //                                 id: chlItem.attr('id'),
+            //                                 winindex: chlItem.text().num(),
+            //                             }
+            //                         }),
+            //                     },
+            //                 ]
+            //             }
+            //         })
+            //     })
 
-                pageData.value.hasDecoder = true
-            })
+            //     pageData.value.hasDecoder = true
+            // })
 
             // 获取主输出的配置
             formData.value.main.isDwell = true
@@ -944,24 +944,24 @@ export default defineComponent({
         }
 
         // hdmi输入选项
-        const hdmiInOptions = computed(() => {
-            if (pageData.value.tabId === -1) {
-                return []
-            }
-            return [
-                {
-                    value: -1,
-                    label: Translate('IDCS_NULL'),
-                },
-            ].concat(
-                formData.value.decoder[pageData.value.tabId].output.map((_, index) => {
-                    return {
-                        value: index,
-                        label: `${Translate('IDCS_OUTPUT')}${index + 1}`,
-                    }
-                }),
-            )
-        })
+        // const hdmiInOptions = computed(() => {
+        //     if (pageData.value.tabId === -1) {
+        //         return []
+        //     }
+        //     return [
+        //         {
+        //             value: -1,
+        //             label: Translate('IDCS_NULL'),
+        //         },
+        //     ].concat(
+        //         formData.value.decoder[pageData.value.tabId].output.map((_, index) => {
+        //             return {
+        //                 value: index,
+        //                 label: `${Translate('IDCS_OUTPUT')}${index + 1}`,
+        //             }
+        //         }),
+        //     )
+        // })
 
         // 分屏选项
         const segList = computed(() => {
@@ -1033,7 +1033,7 @@ export default defineComponent({
             changeDecoderIndex,
             closeEditChlGroup,
             closeAddChlGroup,
-            hdmiInOptions,
+            // hdmiInOptions,
             isDwell,
             formData,
             getCurrentOutput,

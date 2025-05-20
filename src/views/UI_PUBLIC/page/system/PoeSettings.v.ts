@@ -3,8 +3,13 @@
  * @Date: 2024-09-19 17:29:31
  * @Description: POE电源管理
  */
+import { type TableInstance } from 'element-plus'
+
 export default defineComponent({
     setup() {
+        const { Translate } = useLangStore()
+        const systemCaps = useCababilityStore()
+
         const indexMapping: Record<string, number> = {}
 
         const pageData = ref({
@@ -14,6 +19,18 @@ export default defineComponent({
             totalPower: '0.00',
             // 剩余功率
             remainPower: '0.00',
+            tabOptions: [
+                {
+                    value: 'poePower',
+                    label: Translate('IDCS_SYSTEM_POE_SETUP'),
+                    disabled: !systemCaps.supportPoePowerManage,
+                },
+                {
+                    value: 'poeExtensionSetup',
+                    label: Translate('IDCS_SYSTEM_POE_EXTENSION_SETUP'),
+                },
+            ],
+            tab: systemCaps.supportPoePowerManage ? 'poePower' : 'poeExtensionSetup',
         })
 
         const timer = useRefreshTimer(() => {
@@ -21,6 +38,9 @@ export default defineComponent({
         })
 
         const tableData = ref<SystemPoeList[]>([])
+
+        const poeTableData = ref<SystemPoeExtensionList[]>([])
+        const poeTableRef = ref<TableInstance>()
 
         /**
          * @description 启用/关闭所有电源
@@ -81,17 +101,77 @@ export default defineComponent({
             commSaveResponseHandler(result)
         }
 
+        const getPoeData = async () => {
+            const result = await queryPoEPortExtendInfo()
+            const $ = queryXml(result)
+
+            if ($('status').text() === 'success') {
+                poeTableData.value = $('content/item').map((item, index) => {
+                    const $item = queryXml(item.element)
+                    return {
+                        id: item.attr('id'),
+                        poeName: `PoE[${padStart(index + 1, 2)}]`,
+                        switch: $item('plugAndPlay').text().bool(),
+                    }
+                })
+
+                nextTick(() => {
+                    poeTableData.value.forEach((item) => {
+                        poeTableRef.value!.toggleRowSelection(item, item.switch)
+                    })
+                })
+            }
+        }
+
+        const setPoeData = async () => {
+            openLoading()
+
+            const selectedRows = (poeTableRef.value?.getSelectionRows() as SystemPoeExtensionList[]).map((item) => item.id)
+            const sendXml = rawXml`
+                <content type="list" total="${poeTableData.value.length}">
+                    ${poeTableData.value
+                        .map((item) => {
+                            return rawXml`
+                            <item id="${item.id}">
+                                <plugAndPlay>${selectedRows.includes(item.id)}</plugAndPlay>
+                            </item>
+                        `
+                        })
+                        .join('')}
+                </content>
+            `
+            const result = await editPoEPortExtendInfo(sendXml)
+
+            closeLoading()
+
+            commSaveResponseHandler(result)
+        }
+
+        const changeTab = () => {
+            timer.stop()
+
+            if (pageData.value.tab === 'poePower') {
+                getData()
+            } else {
+                getPoeData()
+            }
+        }
+
         onMounted(async () => {
             openLoading()
-            getData()
+            changeTab()
             closeLoading()
         })
 
         return {
             pageData,
             setData,
+            setPoeData,
             tableData,
             changeAllSwitch,
+            poeTableData,
+            poeTableRef,
+            changeTab,
         }
     },
 })

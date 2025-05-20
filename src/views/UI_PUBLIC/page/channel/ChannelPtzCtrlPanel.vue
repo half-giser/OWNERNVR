@@ -6,16 +6,19 @@
 <template>
     <div
         class="ctrl"
-        :class="{
-            disabled: !chlId || disabled,
-        }"
+        :class="[
+            {
+                disabled: !chlId || disabled,
+            },
+            layout,
+        ]"
     >
         <div class="steer">
             <BaseImgSpriteBtn
                 v-for="item in pageData.steer"
                 :key="item.file"
                 :file="item.file"
-                :disabled="!chlId || disabled"
+                :disabled="!chlId || disabled || !enableCtrl"
                 @mousedown="addCmd(item)"
                 @mouseup="stopCmd()"
             />
@@ -24,21 +27,21 @@
             <div class="speed">
                 <BaseImgSpriteBtn
                     file="SpeedSlow"
-                    :disabled="!chlId || disabled"
+                    :disabled="!chlId || disabled || !enableSpeed"
                     @click="decreaseSpeed()"
                 />
                 <el-slider
                     v-model="pageData.speed"
-                    :min="pageData.minSpeed"
-                    :max="pageData.maxSpeed"
+                    :min="minSpeed"
+                    :max="maxSpeed"
                     :step="1"
-                    :disabled="!chlId || disabled"
-                    :show-tooltip="!chlId || disabled ? false : true"
+                    :disabled="!chlId || disabled || !enableSpeed"
+                    :show-tooltip="!chlId || disabled || !enableSpeed ? false : true"
                     placement="bottom"
                 />
                 <BaseImgSpriteBtn
                     file="SpeedQuick"
-                    :disabled="!chlId || disabled"
+                    :disabled="!chlId || disabled || !enableSpeed"
                     @click="increaseSpeed()"
                 />
             </div>
@@ -49,14 +52,14 @@
             >
                 <BaseImgSpriteBtn
                     :file="item.control[0].file"
-                    :disabled="!chlId || disabled"
+                    :disabled="!item.validate()"
                     @mousedown="addCmd(item.control[0])"
                     @mouseup="stopCmd()"
                 />
                 <span>{{ item.name }}</span>
                 <BaseImgSpriteBtn
                     :file="item.control[1].file"
-                    :disabled="!chlId || disabled"
+                    :disabled="!item.validate()"
                     @mousedown="addCmd(item.control[1])"
                     @mouseup="stopCmd()"
                 />
@@ -79,6 +82,15 @@
     &.disabled {
         .row {
             color: var(--main-text-light);
+        }
+    }
+
+    &.vertical {
+        flex-direction: column;
+        width: 100%;
+
+        .steer {
+            padding: 20px 0 10px;
         }
     }
 }

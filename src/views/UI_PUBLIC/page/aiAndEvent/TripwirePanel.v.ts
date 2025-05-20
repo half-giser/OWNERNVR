@@ -61,6 +61,12 @@ export default defineComponent({
             leftorbotton: 'A<-B',
         }
 
+        const detectTargetTypeTip: Record<string, string> = {
+            person: Translate('IDCS_DETECTION_PERSON'),
+            car: Translate('IDCS_DETECTION_VEHICLE'),
+            motor: Translate('IDCS_NON_VEHICLE'),
+        }
+
         const pageData = ref({
             // 是否支持声音设置
             supportAlarmAudioConfig: true,
@@ -71,6 +77,8 @@ export default defineComponent({
             // 排程管理
             isSchedulePop: false,
             scheduleList: [] as SelectOption<string, string>[],
+            // 配置模式
+            objectFilterMode: 'mode1',
             // 选择的警戒面
             surfaceIndex: 0,
             surfaceChecked: [] as number[],
@@ -80,6 +88,8 @@ export default defineComponent({
             showAllAreaVisible: false,
             // 控制显示清除全部区域按钮 >=2才显示
             clearAllVisible: false,
+            // 控制显示最值区域
+            isShowDisplayRange: false,
             // 云台speed
             tripWirespeed: 0,
             // 云台锁定状态
@@ -104,6 +114,48 @@ export default defineComponent({
                 return ''
             }
             return playerRef.value!.mode
+        })
+
+        // 显示人的勾选框 + 灵敏度配置项
+        const showAllPersonTarget = computed(() => {
+            const surfaceIndex = pageData.value.surfaceIndex
+            const haslineInfo = formData.value.lineInfo.length > 0
+            return haslineInfo && formData.value.lineInfo[surfaceIndex].objectFilter.supportPerson
+        })
+
+        // 显示车的勾选框 + 灵敏度配置项
+        const showAllCarTarget = computed(() => {
+            const surfaceIndex = pageData.value.surfaceIndex
+            const haslineInfo = formData.value.lineInfo.length > 0
+            return haslineInfo && formData.value.lineInfo[surfaceIndex].objectFilter.supportCar
+        })
+
+        // 显示摩托车的勾选框 + 灵敏度配置项
+        const showAllMotorTarget = computed(() => {
+            const surfaceIndex = pageData.value.surfaceIndex
+            const haslineInfo = formData.value.lineInfo.length > 0
+            return haslineInfo && formData.value.lineInfo[surfaceIndex].objectFilter.supportMotor
+        })
+
+        // 显示人的灵敏度配置项
+        const showPersonSentity = computed(() => {
+            const surfaceIndex = pageData.value.surfaceIndex
+            const hasLineInfo = formData.value.lineInfo.length > 0
+            return hasLineInfo && formData.value.lineInfo[surfaceIndex].objectFilter.person.supportSensitivity
+        })
+
+        // 显示车的灵敏度配置项
+        const showCarSentity = computed(() => {
+            const surfaceIndex = pageData.value.surfaceIndex
+            const hasLineInfo = formData.value.lineInfo.length > 0
+            return hasLineInfo && formData.value.lineInfo[surfaceIndex].objectFilter.car.supportSensitivity
+        })
+
+        // 显示摩托车的灵敏度配置项
+        const showMotorSentity = computed(() => {
+            const surfaceIndex = pageData.value.surfaceIndex
+            const hasLineInfo = formData.value.lineInfo.length > 0
+            return hasLineInfo && formData.value.lineInfo[surfaceIndex].objectFilter.motor.supportSensitivity
         })
 
         /**
@@ -288,9 +340,47 @@ export default defineComponent({
                     formData.value.holdTime = $param('alarmHoldTime').text().num()
                     formData.value.holdTimeList = getAlarmHoldTimeList($param('holdTimeNote').text(), formData.value.holdTime)
 
-                    formData.value.lineInfo = $param('line/item').map((item) => {
+                    // 解析检测目标的数据
+                    const objectFilterMode = getCurrentAICfgMode('line', $param)
+                    pageData.value.objectFilterMode = objectFilterMode
+                    const $paramObjectFilter = $('content/chl/param/objectFilter')
+                    let objectFilter = ref(new AlarmObjectFilterCfgDto())
+                    if (objectFilterMode === 'mode1') {
+                        // 模式一
+                        if ($param('objectFilter').text() !== '') {
+                            objectFilter = getObjectFilterData(objectFilterMode, $paramObjectFilter, [])
+                        }
+                    }
+                    $param('line/item').forEach((item) => {
                         const $item = queryXml(item.element)
-                        return {
+                        // 下列模式需要获取从line/item/objectFilter获取检测目标配置数据
+                        const needResetObjectList = ['mode2', 'mode3', 'mode5']
+                        const needResetObjectFilter = needResetObjectList.indexOf(objectFilterMode) > -1
+                        if (needResetObjectFilter) {
+                            // 模式2灵敏度相关数据从chl/param/objectFilter节点获取
+                            const $resultNode = objectFilterMode === 'mode2' ? $paramObjectFilter : []
+                            objectFilter = getObjectFilterData(objectFilterMode, $item('objectFilter'), $resultNode)
+                        }
+
+                        // ONVIF存在每个区域有公共灵敏度和开关
+                        if (objectFilterMode === 'mode5') {
+                            // NTA1-3733 存在只有开关的情况
+                            const supportCommonEnable = $item('switch').length > 0
+                            const supportCommonSensitivity = supportCommonEnable && $item('>sensitivity').length > 0
+                            if (supportCommonSensitivity) {
+                                objectFilter.value.supportCommonEnable = supportCommonEnable
+                                objectFilter.value.supportCommonSensitivity = supportCommonSensitivity
+                                objectFilter.value.commonSensitivity.enable = $item('switch').text().bool()
+                                objectFilter.value.commonSensitivity.value = $item('sensitivity').text().num()
+                                objectFilter.value.commonSensitivity.min = $item('sensitivity').attr('min').num()
+                                objectFilter.value.commonSensitivity.max = $item('sensitivity').attr('max').num()
+                            } else if (supportCommonEnable) {
+                                objectFilter.value.supportCommonEnable = supportCommonEnable
+                                objectFilter.value.commonSensitivity.enable = $item('switch').text().bool()
+                            }
+                        }
+                        formData.value.lineInfo.push({
+                            objectFilter: objectFilter.value,
                             direction: $item('direction').text() as CanvasPasslineDirection,
                             startPoint: {
                                 X: $item('startPoint/X').text().num(),
@@ -300,7 +390,7 @@ export default defineComponent({
                                 X: $item('endPoint/X').text().num(),
                                 Y: $item('endPoint/Y').text().num(),
                             },
-                        }
+                        })
                     })
                     formData.value.direction = formData.value.lineInfo[pageData.value.surfaceIndex].direction
                     formData.value.detectionEnable = $param('switch').text().bool()
@@ -315,26 +405,19 @@ export default defineComponent({
                     formData.value.onlyPreson = $param('sensitivity').text() !== ''
                     // NTA1-231：低配版IPC：4M S4L-C，越界/区域入侵目标类型只支持人
                     formData.value.sensitivity = formData.value.onlyPreson ? $param('sensitivity').text().num() : 0
-                    formData.value.hasObj = $param('objectFilter').text() !== ''
-                    if (formData.value.hasObj) {
-                        const car = $param('objectFilter/car/switch').text().bool()
-                        const person = $param('objectFilter/person/switch').text().bool()
-                        const motorcycle = $param('objectFilter/motor/switch').text().bool()
-                        const personSensitivity = $param('objectFilter/person/sensitivity').text().num()
-                        const carSensitivity = $param('objectFilter/car/sensitivity').text().num()
-                        const motorSensitivity = $param('objectFilter/motor/sensitivity').text().num()
-                        formData.value.objectFilter = {
-                            car: car,
-                            person: person,
-                            motorcycle: motorcycle,
-                            personSensitivity: personSensitivity,
-                            carSensitivity: carSensitivity,
-                            motorSensitivity: motorSensitivity,
-                        }
+
+                    // 默认用lineInfo的第一个数据初始化检测目标
+                    if (formData.value.lineInfo[0].objectFilter.detectTargetList.length) {
+                        formData.value.detectTargetList = formData.value.lineInfo[0].objectFilter.detectTargetList.map((item) => {
+                            return {
+                                value: item,
+                                label: detectTargetTypeTip[item],
+                            }
+                        })
+                        formData.value.detectTarget = formData.value.detectTargetList[0].value
                     }
 
                     formData.value.sysAudio = $trigger('sysAudio').attr('id')
-
                     formData.value.record = $trigger('sysRec/chls/item').map((item) => {
                         return {
                             value: item.attr('id'),
@@ -386,79 +469,88 @@ export default defineComponent({
         }
 
         /**
+         * @description 组装param根节点下的ObjectFilter数据
+         */
+        const setParamObjectFilterData = () => {
+            let paramXml = ''
+            const noParamObjectNodeList = ['mode0', 'mode4', 'mode5'] // 模式0,4,5不需要下发基础的objectFilter节点
+            if (noParamObjectNodeList.indexOf(pageData.value.objectFilterMode) === -1) {
+                // 模式1、2、3均要下发基础的objectFilter节点
+                paramXml = setObjectFilterXmlData(formData.value.lineInfo[0].objectFilter, props.chlData)
+            }
+            return paramXml
+        }
+
+        /**
+         * @description 组装各个区域下的ObjectFilter节点数据
+         */
+        const setItemObjectFilterData = (item: { objectFilter: globalThis.AlarmObjectFilterCfgDto }) => {
+            let paramXml = ''
+            const singleDetectCfgList = ['mode2', 'mode3', 'mode5'] // 上述模式每个区域可单独配置检测目标或目标大小
+            if (singleDetectCfgList.indexOf(pageData.value.objectFilterMode) !== -1) {
+                paramXml += setObjectFilterXmlData(item.objectFilter, props.chlData)
+            }
+
+            return paramXml
+        }
+
+        /**
          * @description 保存越界检测配置
          */
         const saveData = async () => {
             let paramXml = ''
+            const data = formData.value
             if (!supportPeaTrigger.value) {
-                paramXml = rawXml`
-                    <param>
-                        <switch>${formData.value.detectionEnable}</switch>
-                        <alarmHoldTime unit="s">${formData.value.holdTime}</alarmHoldTime>
-                        ${formData.value.onlyPreson ? `<sensitivity>${formData.value.sensitivity}</sensitivity>` : ''}
-                        ${
-                            formData.value.hasObj
-                                ? rawXml`
-                                    <objectFilter>
-                                        <car>
-                                            <switch>${formData.value.objectFilter.car}</switch>
-                                            <sensitivity>${formData.value.objectFilter.carSensitivity}</sensitivity>
-                                        </car>
-                                        <person>
-                                            <switch>${formData.value.objectFilter.person}</switch>
-                                            <sensitivity>${formData.value.objectFilter.personSensitivity}</sensitivity>
-                                        </person>
+                paramXml = rawXml`<param>
+                    <switch>${data.detectionEnable}</switch>
+                    <alarmHoldTime unit="s">${data.holdTime}</alarmHoldTime>
+                    ${data.autoTrack ? `<autoTrack>${data.autoTrack}</autoTrack>` : ''}
+                    ${data.audioSuport && props.chlData.supportAudio ? `<triggerAudio>${data.trigger.includes('triggerAudio')}</triggerAudio>` : ''}
+                    ${data.lightSuport && props.chlData.supportWhiteLight ? `<triggerWhiteLight>${data.trigger.includes('triggerWhiteLight')}</triggerWhiteLight>` : ''}
+                    ${
+                        data.pictureAvailable
+                            ? rawXml`
+                            <saveSourcePicture>${data.saveSourcePicture}</saveSourcePicture>
+                            <saveTargetPicture>${data.saveTargetPicture}</saveTargetPicture>
+                        `
+                            : ''
+                    }
+                    ${data.hasAutoTrack ? `<autoTrack>${data.autoTrack}</autoTrack>` : ''}
+                    ${data.onlyPreson ? `<sensitivity>${data.sensitivity}</sensitivity>` : ''}
+                    ${setParamObjectFilterData()}
+                    <line type="list" count="${data.lineInfo.length}">
+                        <itemType>
+                        <direction type="direction"/>
+                        </itemType>
+                        ${formData.value.lineInfo
+                            .map((element) => {
+                                return rawXml`
+                                    <item>
+                                        <direction type="direction">${element.direction}</direction>
+                                        <startPoint>
+                                            <X>${element.startPoint.X}</X>
+                                            <Y>${element.startPoint.Y}</Y>
+                                        </startPoint>
+                                        <endPoint>
+                                            <X>${element.endPoint.X}</X>
+                                            <Y>${element.endPoint.Y}</Y>
+                                        </endPoint>
+                                        ${setItemObjectFilterData(element)}
                                         ${
-                                            props.chlData.accessType === '0'
+                                            element.objectFilter.supportCommonSensitivity
                                                 ? rawXml`
-                                                    <motor>
-                                                        <switch>${formData.value.objectFilter.motorcycle}</switch>
-                                                        <sensitivity>${formData.value.objectFilter.motorSensitivity}</sensitivity>
-                                                    </motor>
-                                                `
+                                                ${element.objectFilter.supportCommonEnable ? `<switch>${element.objectFilter.commonSensitivity.enable}</switch>` : ''}
+                                                <sensitivity>${element.objectFilter.commonSensitivity.value}</sensitivity>`
                                                 : ''
                                         }
-                                    </objectFilter>
+                                        ${element.objectFilter.supportCommonEnable ? `<switch>${element.objectFilter.commonSensitivity.enable}</switch>` : ''}
+                                    </item>
                                 `
-                                : ''
-                        }
-                        ${formData.value.hasAutoTrack ? `<autoTrack>${formData.value.autoTrack}</autoTrack>` : ''}
-                        <line type="list" count="${formData.value.lineInfo.length}">
-                            <itemType>
-                                <direction type="direction"/>
-                            </itemType>
-                            ${formData.value.lineInfo
-                                .map((element) => {
-                                    return rawXml`
-                                        <item>
-                                            <direction type="direction">${element.direction}</direction>
-                                            <startPoint>
-                                                <X>${element.startPoint.X}</X>
-                                                <Y>${element.startPoint.Y}</Y>
-                                            </startPoint>
-                                            <endPoint>
-                                                <X>${element.endPoint.X}</X>
-                                                <Y>${element.endPoint.Y}</Y>
-                                            </endPoint>
-                                        </item>
-                                    `
-                                })
-                                .join('')}
-                        </line>
-                        ${formData.value.audioSuport && props.chlData.supportAudio ? `<triggerAudio>${formData.value.trigger.includes('triggerAudio')}</triggerAudio>` : ''}
-                        ${formData.value.lightSuport && props.chlData.supportWhiteLight ? `<triggerWhiteLight>${formData.value.trigger.includes('triggerWhiteLight')}</triggerWhiteLight>` : ''}
-                        ${
-                            formData.value.pictureAvailable
-                                ? rawXml`
-                                    <saveSourcePicture>${formData.value.saveSourcePicture}</saveSourcePicture>
-                                    <saveTargetPicture>${formData.value.saveTargetPicture}</saveTargetPicture>
-                                `
-                                : ''
-                        }
-                    </param>
-                `
+                            })
+                            .join('')}
+                    </line>
+                </param>`
             }
-
             const sendXml = rawXml`
                 <content>
                     <chl id="${props.currChlId}" scheduleGuid="${formData.value.schedule}">
@@ -564,7 +656,7 @@ export default defineComponent({
                 if (pageData.value.isShowAllArea) {
                     showAllArea(true)
                 }
-            } else if (pageData.value.tab === 'target' || pageData.value.tab === 'trigger') {
+            } else if (pageData.value.tab === 'trigger') {
                 showAllArea(false)
 
                 if (mode.value === 'h5') {
@@ -612,11 +704,22 @@ export default defineComponent({
         }
 
         /**
+         * @description 开关显示大小范围区域
+         */
+        const toggleDisplayRange = () => {
+            showDisplayRange()
+        }
+
+        /**
          * @description 切换警戒面
          */
         const changeSurface = () => {
             formData.value.direction = formData.value.lineInfo[pageData.value.surfaceIndex].direction
+            const surfaceIndex = pageData.value.surfaceIndex
+            const detectTarget = formData.value.detectTarget
+            console.log(formData.value.lineInfo[surfaceIndex].objectFilter[detectTarget])
             setTripwireOcxData()
+            showDisplayRange()
         }
 
         /**
@@ -625,6 +728,53 @@ export default defineComponent({
         const changeDirection = () => {
             formData.value.lineInfo[pageData.value.surfaceIndex].direction = formData.value.direction
             setTripwireOcxData()
+        }
+
+        /**
+         * @description 校验目标范围最大最小值
+         * @param {string} type
+         */
+        const checkMinMaxRange = (type: string) => {
+            const surfaceIndex = pageData.value.surfaceIndex
+            const detectTarget = formData.value.detectTarget
+            // 最小区域宽
+            const minTextW = formData.value.lineInfo[surfaceIndex].objectFilter[detectTarget].minRegionInfo.width
+            // 最小区域高
+            const minTextH = formData.value.lineInfo[surfaceIndex].objectFilter[detectTarget].minRegionInfo.height
+            // 最大区域宽
+            const maxTextW = formData.value.lineInfo[surfaceIndex].objectFilter[detectTarget].maxRegionInfo.width
+            // 最大区域高
+            const maxTextH = formData.value.lineInfo[surfaceIndex].objectFilter[detectTarget].maxRegionInfo.height
+
+            const errorMsg = Translate('IDCS_MIN_LESS_THAN_MAX')
+            switch (type) {
+                case 'minTextW':
+                    if (minTextW >= maxTextW) {
+                        openMessageBox(errorMsg)
+                        formData.value.lineInfo[surfaceIndex].objectFilter[detectTarget].minRegionInfo.width = maxTextW - 1
+                    }
+                    break
+                case 'minTextH':
+                    if (minTextH >= maxTextH) {
+                        openMessageBox(errorMsg)
+                        formData.value.lineInfo[surfaceIndex].objectFilter[detectTarget].minRegionInfo.height = maxTextH - 1
+                    }
+                    break
+                case 'maxTextW':
+                    if (maxTextW <= minTextW) {
+                        openMessageBox(errorMsg)
+                        formData.value.lineInfo[surfaceIndex].objectFilter[detectTarget].maxRegionInfo.width = minTextW + 1
+                    }
+                    break
+                case 'maxTextH':
+                    if (maxTextH <= minTextH) {
+                        openMessageBox(errorMsg)
+                        formData.value.lineInfo[surfaceIndex].objectFilter[detectTarget].maxRegionInfo.height = minTextH + 1
+                    }
+                    break
+                default:
+                    break
+            }
         }
 
         /**
@@ -718,6 +868,81 @@ export default defineComponent({
                 }
                 setTripwireOcxData()
             }
+        }
+
+        /**
+         * @description 是否显示大小范围区域
+         */
+        const showDisplayRange = () => {
+            if (pageData.value.isShowDisplayRange) {
+                const currentSurface = pageData.value.surfaceIndex
+                const currTargetType = formData.value.detectTarget // 人/车/非
+                const minRegionInfo = formData.value.lineInfo[currentSurface].objectFilter[currTargetType].minRegionInfo // 最小区域
+                const maxRegionInfo = formData.value.lineInfo[currentSurface].objectFilter[currTargetType].maxRegionInfo // 最大区域
+                const minPercentW = minRegionInfo.width
+                const minPercentH = minRegionInfo.height
+                const maxPercentW = maxRegionInfo.width
+                const maxPercentH = maxRegionInfo.height
+                minRegionInfo.region = []
+                maxRegionInfo.region = []
+                minRegionInfo.region.push(calcRegionInfo(minPercentW, minPercentH))
+                maxRegionInfo.region.push(calcRegionInfo(maxPercentW, maxPercentH))
+
+                if (mode.value === 'h5') {
+                    drawer.setRangeMin(minRegionInfo.region[0])
+                    drawer.setRangeMax(maxRegionInfo.region[0])
+                    drawer.toggleRange(true)
+                }
+
+                if (mode.value === 'ocx') {
+                    // 插件需要先删除区域 再重新添加区域进行显示
+                    const areaList = [1, 2]
+                    const sendXMLClear = OCX_XML_DeleteRectangleArea(areaList)
+                    plugin.ExecuteCmd(sendXMLClear)
+                    const minRegionForPlugin = cloneDeep(minRegionInfo.region[0])
+                    minRegionForPlugin.ID = 1
+                    minRegionForPlugin.text = 'Min'
+                    minRegionForPlugin.LineColor = 'yellow'
+                    const maxRegionForPlugin = cloneDeep(maxRegionInfo.region[0])
+                    maxRegionForPlugin.ID = 2
+                    maxRegionForPlugin.text = 'Max'
+                    maxRegionForPlugin.LineColor = 'yellow'
+                    const rectangles = []
+                    rectangles.push(minRegionForPlugin)
+                    rectangles.push(maxRegionForPlugin)
+                    const sendXML = OCX_XML_AddRectangleArea(rectangles)
+                    plugin.ExecuteCmd(sendXML)
+                }
+            } else {
+                if (mode.value === 'h5') {
+                    drawer.toggleRange(false)
+                }
+
+                if (mode.value === 'ocx') {
+                    const areaList = [1, 2]
+                    const sendXMLClear = OCX_XML_DeleteRectangleArea(areaList)
+                    plugin.ExecuteCmd(sendXMLClear)
+                }
+            }
+        }
+
+        /**
+         * @description  计算最大值最小值区域 画布分割为 10000 * 10000
+         * @param {number} widthPercent
+         * @param {number} heightPercent
+         */
+        const calcRegionInfo = (widthPercent: number, heightPercent: number) => {
+            const X1 = ((100 - widthPercent) * 10000) / 100 / 2
+            const X2 = ((100 - widthPercent) * 10000) / 100 / 2 + (widthPercent * 10000) / 100
+            const Y1 = ((100 - heightPercent) * 10000) / 100 / 2
+            const Y2 = ((100 - heightPercent) * 10000) / 100 / 2 + (heightPercent * 10000) / 100
+            const regionInfo = {
+                X1: X1,
+                Y1: Y1,
+                X2: X2,
+                Y2: Y2,
+            }
+            return regionInfo
         }
 
         /**
@@ -855,20 +1080,29 @@ export default defineComponent({
             playerRef,
             pageData,
             formData,
-            notify,
             watchEdit,
+            showAllPersonTarget,
+            showAllCarTarget,
+            showAllMotorTarget,
+            showPersonSentity,
+            showCarSentity,
+            showMotorSentity,
+            supportPeaTrigger,
+            notify,
             handlePlayerReady,
             setSpeed,
             closeSchedulePop,
             applyData,
             changeTab,
             toggleShowAllArea,
+            toggleDisplayRange,
+            showDisplayRange,
             changeSurface,
             changeDirection,
+            checkMinMaxRange,
             editLockStatus,
             clearArea,
             clearAllArea,
-            supportPeaTrigger,
         }
     },
 })

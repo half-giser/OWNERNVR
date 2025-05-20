@@ -13,6 +13,8 @@
     --primary-light: #99c8e6;
     --primary: #0076c0;
 
+    --body-bg: #0076c0;
+
     --main-text: #000;
     --main-text-light: #8d8d8d;
     --main-text-active: #fff;
@@ -26,21 +28,21 @@
     --subheading-text: var(--main-text);
     --subheading-bg: #ccc;
 
-    --header-bg: var(--main-bg);
-    --header-text: var(--main-text);
+    --header-bg: #00a3e0;
+    --header-text: #fff;
     --header-border: #666;
-    --header-menu-text: #666;
-    --header-menu-text-hover: #313131;
-    --header-menu-text-active: var(--primary);
-    --header-menu-bg: transparent;
-    --header-menu-bg-hover: transparent;
-    --header-menu-bg-active: transparent;
-    --header-menu-border: transparent;
-    --header-menu-border-hover: var(--primary-light);
-    --header-menu-border-active: var(--primary);
+    --header-menu-text: var(--primary);
+    --header-menu-text-hover: #fff;
+    --header-menu-text-active: #fff;
+    --header-menu-bg: #99c8e6;
+    --header-menu-bg-hover: var(--primary);
+    --header-menu-bg-active: var(--primary);
+    --header-menu-border: var(--header-bg);
+    --header-menu-border-hover: var(--header-bg);
+    --header-menu-border-active: var(--header-bg);
 
     --footer-text: var(--header-menu-text);
-    --footer-bg: unset;
+    --footer-bg: var(--main-bg);
 
     --input-text: #000;
     --input-text-disabled: #545454;
@@ -108,24 +110,24 @@
     --transfer-text: var(--main-text);
     --transfer-btn-bg-disabled: var(--btn-bg-disabled);
 
-    --config-menu-text: #3c3c3c;
+    --config-menu-text: #fff;
     --config-menu-text-hover: var(--primary);
     --config-menu-text-active: var(--primary);
     --config-menu-text-disabled: #d9d9d9;
-    --config-menu-bg: unset;
-    --config-menu-bg-hover: unset;
+    --config-menu-bg: #00a3e0;
+    --config-menu-bg-hover: #01a3f4;
     --config-menu-bg-active: unset;
-    --config-menu-bg-disabled: unset;
-    --config-menu-border: #aeaeae;
-    --config-menu-border-hover: var(--primary);
+    --config-menu-bg-disabled: #00a3e0;
+    --config-menu-border: #00a3e0;
+    --config-menu-border-hover: #01a3f4;
     --config-menu-border-disabled: #d9d9d9;
 
-    --config-submenu-text: #8f8f8f;
+    --config-submenu-text: #fff;
     --config-submenu-text-hover: var(--primary);
     --config-submenu-text-disabled: #d9d9d9;
     --config-submenu-bg: unset;
 
-    --login-bg: var(--main-bg);
+    --login-bg: #0076c0;
     --login-content-bg: transparent;
     --login-input-bg: #fff;
     --login-input-text: #000;
@@ -143,14 +145,14 @@
     --config-aside-text-hover: var(--primary);
     --config-aside-text-active: #555;
     --config-aside-text-disabled: #d9d9d9;
-    --config-aside-bg: unset;
+    --config-aside-bg: var(--main-bg);
     --config-aside-item-border-hover: var(--primary);
     --config-aside-item-bg: unset;
     --config-aside-item-bg-active: #eee;
     --config-aside-item-bg-hover: unset;
 
     --breadcrumb-text: #454545;
-    --breadcrumb-bg: transparent;
+    --breadcrumb-bg: var(--main-bg);
 
     --ptz-btn: #f0f0f0;
     --ptz-btn-disabled: #fff;
@@ -171,7 +173,7 @@
 
     --upgrade-text-active: #23de1a;
 
-    --panel-bg: transparent;
+    --panel-bg: var(--main-bg);
     --panel-header-bg: #fff;
     --panel-header-text: #666;
     --panel-header-text-02: #666;
@@ -198,8 +200,8 @@
 
     --panel-ptz-border: #ddd;
 
-    --tabbar-text: var(--header-menu-text);
-    --tabbar-text-hover: var(--header-menu-text);
+    --tabbar-text: var(--main-text);
+    --tabbar-text-hover: var(--main-text);
     --tabbar-text-active: var(--main-text-active);
     --tabbar-bg: transparent;
     --tabbar-bg-hover: var(--primary-light);

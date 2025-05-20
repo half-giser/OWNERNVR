@@ -137,6 +137,20 @@ export default defineComponent({
             return plugin.IsSupportH5()
         })
 
+        const changeHttpsSwitch = () => {
+            if (!formData.value.httpsSwitch) {
+                // NTA1-4178：网络安全问题单-提示
+                openMessageBox({
+                    type: 'question',
+                    message: Translate('IDCS_SECURITY_RISK_AND_KEEP').formatForLang(Translate('IDCS_COLSE_HTTPS')),
+                })
+                    .then(() => {})
+                    .catch(() => {
+                        formData.value.httpsSwitch = true
+                    })
+            }
+        }
+
         /**
          * @description 获取网络配置，查询是否开启HTTPS
          */
@@ -518,6 +532,7 @@ export default defineComponent({
         })
 
         return {
+            changeHttpsSwitch,
             isSupportH5,
             setNetPortConfig,
             pageData,

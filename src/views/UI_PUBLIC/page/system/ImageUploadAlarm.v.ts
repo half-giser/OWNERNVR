@@ -40,15 +40,13 @@ export default defineComponent({
                 return
             }
             const sendXml = rawXml`
-                <condition>
-                    <authGroupId>${authGroupId}</authGroupId>
-                </condition>
+                <authGroupId>${authGroupId}</authGroupId>
                 <requireField>
                     <name/>
                     <systemAuth/>
                 </requireField>
             `
-            const res = await queryAuthGroup(sendXml)
+            const res = await queryMyAuth(sendXml)
             const $ = queryXml(res)
             if ($('status').text() === 'success') {
                 pageData.value.hasAuth = $('content/systemAuth/alarmMgr').text().bool()

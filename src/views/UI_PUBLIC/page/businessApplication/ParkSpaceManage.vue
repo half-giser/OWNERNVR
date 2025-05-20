@@ -34,7 +34,7 @@
                 </el-table-column>
                 <el-table-column
                     width="200"
-                    :label="Translate('IDCS_TOTAL_VEHICLE_NUM')"
+                    :label="Translate('IDCS_GROUP_TOTAL_VEHICLE_NUM')"
                 >
                     <template #default="{ row }: TableColumn<BusinessParkSpaceManageList>">
                         <el-input
@@ -51,7 +51,7 @@
                 </el-table-column>
                 <el-table-column
                     width="200"
-                    :label="Translate('IDCS_REMAIN_VEHICLE_NUM')"
+                    :label="Translate('IDCS_GROUP_REMAIN_VEHICLE_NUM')"
                 >
                     <template #default="{ row }: TableColumn<BusinessParkSpaceManageList>">
                         <el-input

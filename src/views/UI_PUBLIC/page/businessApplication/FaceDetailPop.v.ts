@@ -22,6 +22,13 @@ export default defineComponent({
             type: String as PropType<'check' | 'sign'>,
             default: 'check',
         },
+        /**
+         * @property 人脸组
+         */
+        faceGroup: {
+            type: Array as PropType<BusinessFaceGroupList[]>,
+            required: true,
+        },
     },
     emits: {
         close() {
@@ -173,8 +180,10 @@ export default defineComponent({
         const prev = () => {
             pageData.value.currentIndex--
             current.value = prop.data.detail[pageData.value.currentIndex]
-            tableRef.value?.setCurrentRow(current.value)
-            tableRef.value?.$el.querySelector(`.el-table__row:nth-child(${pageData.value.currentIndex + 1})`)?.scrollIntoViewIfNeeded()
+            if (tableRef.value) {
+                tableRef.value.setCurrentRow(current.value)
+                scrollIntoView(tableRef.value.$el.querySelector(`.el-table__row:nth-child(${pageData.value.currentIndex + 1})`))
+            }
         }
 
         /**
@@ -183,8 +192,10 @@ export default defineComponent({
         const next = () => {
             pageData.value.currentIndex++
             current.value = prop.data.detail[pageData.value.currentIndex]
-            tableRef.value?.setCurrentRow(current.value)
-            tableRef.value?.$el.querySelector(`.el-table__row:nth-child(${pageData.value.currentIndex + 1})`)?.scrollIntoViewIfNeeded()
+            if (tableRef.value) {
+                tableRef.value.setCurrentRow(current.value)
+                scrollIntoView(tableRef.value.$el.querySelector(`.el-table__row:nth-child(${pageData.value.currentIndex + 1})`))
+            }
         }
 
         /**
@@ -220,15 +231,37 @@ export default defineComponent({
             const id = prop.data.id
             const data = await getSimpleFaceFeatureInfo(id)
             const pic = await getFacePersonalImage(data.id)
+            const size = await getImgSize(pic)
             const searchInfo = {
-                faceType: 'face',
-                id: data.id,
-                name: data.name,
-                certificateNum: data.certificateNum,
-                mobile: data.mobile,
-                birthday: data.birthday,
-                pic: wrapBase64Img(pic),
-                date: dayjs(current.value.date, DEFAULT_YMD_FORMAT).valueOf(),
+                menuType: 'person', // person：人，vehicle：车，searchTarget：目标检索
+                isFaceCompare: true, // 是否是人脸比对
+                searchDateForFace: dayjs(current.value.date, DEFAULT_YMD_FORMAT).valueOf(),
+                data: {
+                    content: pic,
+                    ptWidth: size[0],
+                    ptHeight: size[1],
+                },
+                faceFeatureCache: {
+                    id: data.id,
+                    faceFeatureId: data.id,
+                    data: pic,
+                    picWidth: size[0],
+                    picHeight: size[1],
+                    number: data.number,
+                    name: data.name,
+                    note: data.note,
+                    sex: data.sex,
+                    birthday: data.birthday,
+                    nativePlace: data.nativePlace,
+                    certificateType: data.certificateType,
+                    certificateNum: data.certificateNum,
+                    mobile: data.mobile,
+                    createTime: '',
+                    faceImgCount: data.faceImgCount,
+                    groups: data.groups,
+                    content1: wrapBase64Img(data.content1),
+                    tempTimes: null,
+                },
             }
             router.push({
                 path: '/intelligent-analysis/search/search-face',
@@ -266,11 +299,13 @@ export default defineComponent({
                 mobile: $item('mobile').text(),
                 createTime: $item('createTime').text(),
                 faceImgCount: $item('faceImgCount').text(),
+                note: $item('note').text(),
                 groups: $item('groups/item').map((group) => {
                     const $group = queryXml(group.element)
                     return {
                         id: group.attr('id'),
                         groupId: $group('groupId').text(),
+                        groupName: prop.faceGroup.find((item) => item.groupId === $group('groupId').text())?.name || '',
                         name: $group('name').text(),
                         property: $group('property').text(),
                         validStartTime: $group('validStartTime').text(),
@@ -298,6 +333,18 @@ export default defineComponent({
             if ($('status').text() === 'success') {
                 return $('content').text()
             } else return ''
+        }
+
+        const getImgSize = async (src: string) => {
+            return new Promise((resolve: (e: [number, number]) => void) => {
+                const img = new Image()
+                img.onload = function () {
+                    const width = img.width
+                    const height = img.height
+                    resolve([width, height])
+                }
+                img.src = 'data:image/jpg;base64,' + src
+            })
         }
 
         onBeforeRouteLeave(() => {

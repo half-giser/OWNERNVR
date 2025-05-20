@@ -28,7 +28,7 @@
                     <template #default="{ row }: TableColumn<BusinessParkEnterExitManageList>">
                         <el-select-v2
                             v-model="row.direction"
-                            :options="pageData.directionList"
+                            :options="row.directionList"
                         />
                     </template>
                 </el-table-column>
@@ -43,6 +43,26 @@
                 >
                     <template #default="{ row }: TableColumn<BusinessParkEnterExitManageList>">
                         <span :class="getChlStatus(row.id)">{{ getChlStatus(row.id) === 'text-online' ? Translate('IDCS_ONLINE') : Translate('IDCS_OFFLINE') }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    width="150"
+                    :label="Translate('IDCS_ALARM_OUT')"
+                    min-width="200"
+                >
+                    <template #default="{ row }: TableColumn<BusinessParkEnterExitManageList>">
+                        <!-- 不支持【报警输出】的摄像机（例如：9823型号），报警输出字段置灰不可编辑 -->
+                        <el-select-v2
+                            v-if="pageData.supportAudioAlarmOutChlList.includes(row.id)"
+                            v-model="row.relateAlarmOuts"
+                            :options="pageData.relateAlarmOutsList"
+                        />
+                        <el-select-v2
+                            v-else
+                            model-value=""
+                            :options="[]"
+                            disabled
+                        />
                     </template>
                 </el-table-column>
                 <el-table-column

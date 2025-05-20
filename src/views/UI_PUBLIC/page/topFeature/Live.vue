@@ -29,6 +29,7 @@
                     @error="handlePlayerError"
                     @record-file="handlePlayerRecordFile"
                     @message="notify"
+                    @audioerror="handlePlayerAudioError"
                 />
             </div>
             <LiveScreenPanel
@@ -130,6 +131,7 @@
     height: 100%;
     border-left: 1px solid var(--live-border);
     border-right: 1px solid var(--live-border);
+    background-color: var(--main-bg);
 
     &-player {
         width: 100%;

@@ -27,7 +27,7 @@ const channelRoutes: FeatureItem = {
             //移动侦测
             motion: {
                 sort: 30,
-                lk: 'IDCS_SMART_SETTINGS',
+                lk: 'IDCS_MOTION_DETECTION',
                 icon: 'motion_s',
             },
             //云台
@@ -234,7 +234,7 @@ const channelRoutes: FeatureItem = {
                 minHeight: 850,
             },
         },
-        // 拼接 1.4.13
+        // 双目拼接 1.4.13
         splicing: {
             path: 'settings/spliceCfg',
             component: 'channel/ChannelSplicing.vue',
@@ -349,9 +349,9 @@ const channelRoutes: FeatureItem = {
                 lk: 'IDCS_PROTOCOL',
                 group: 'ptz',
                 minHeight: 850,
-                hasCap(systemCaps) {
-                    return !!systemCaps.analogChlCount
-                },
+                // hasCap(systemCaps) {
+                //     return !!systemCaps.analogChlCount
+                // },
             },
         },
         // 看守位 1.4.13
@@ -367,19 +367,16 @@ const channelRoutes: FeatureItem = {
         },
         // 查看或更改IPSpeaker 1.4.13
         ipSpeakerAdd: {
-            path: 'IPSpeaker/list',
-            components: {
-                toolBar: 'channel/ChannelIPSpeakerToolBar.vue',
-                default: 'channel/ChannelIPSpeaker.vue',
-            },
+            redirect: '/config/channel/IPSpeaker/list',
+            path: 'IPSpeaker/list-add',
             meta: {
                 sort: 10,
                 lk: 'IDCS_ADD_IP_SPEARKER',
                 group: 'ipspeaker',
-            },
-            beforeEnter() {
-                history.state.fromAdd = 'true'
-                nextTick()
+                cbk() {
+                    const layoutStore = useLayoutStore()
+                    layoutStore.isIpSpeakerAddPop = true
+                },
             },
         },
         // 查看或更改IPSpeaker 1.4.13

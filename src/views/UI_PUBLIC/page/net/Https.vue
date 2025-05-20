@@ -16,6 +16,7 @@
                     v-model="formData.httpsSwitch"
                     :disabled="pageData.httpSwitchDisabled"
                     :label="Translate('IDCS_ENABLE')"
+                    @change="changeHttpsSwitch"
                 />
             </el-form-item>
         </el-form>

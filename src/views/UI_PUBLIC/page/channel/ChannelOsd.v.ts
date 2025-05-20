@@ -12,6 +12,10 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const dateTime = useDateTimeStore()
 
+        const pageData = ref({
+            onlineChlList: [] as string[],
+        })
+
         const playerRef = ref<PlayerInstance>()
         const formData = ref(new ChannelOsdDto())
         const tableRef = ref<TableInstance>()
@@ -39,6 +43,7 @@ export default defineComponent({
             })
         })
 
+        let cacheData: Record<string, ChannelOsdDto> = {}
         let nameMapping: Record<string, string> = {}
         let drawer = CanvasOSD()
 
@@ -59,7 +64,7 @@ export default defineComponent({
             const rowData = getRowById(chlId)!
             const name = chlName.trim()
             if (!checkChlName(name)) {
-                openMessageBox(Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'))
+                openMessageBox(Translate('IDCS_CAN_NOT_CONTAIN_SPECIAL_CHAR').formatForLang(CHANNEL_LIMIT_CHAR))
                 rowData.name = tempName.value
                 formData.value = cloneDeep(rowData)
                 chlList.value = cloneDeep(tableData.value)
@@ -238,6 +243,8 @@ export default defineComponent({
          * @returns {Promise<boolean>}
          */
         const getData = async (chlId: string) => {
+            cacheData = {}
+
             const data = rawXml`
                 <condition>
                     <chlId>${chlId}</chlId>
@@ -288,7 +295,7 @@ export default defineComponent({
                     channelOsd.nameYMinValue = $('content/chl/chlName/Y').attr('min').num()
                     channelOsd.nameYMaxValue = $('content/chl/chlName/Y').attr('max').num()
 
-                    channelOsd.disabled = isSpeco
+                    channelOsd.disabled = isSpeco || !pageData.value.onlineChlList.includes(chlId)
                     return
                 } else {
                     // 处理请求配置信息失败通道（离线）
@@ -338,7 +345,13 @@ export default defineComponent({
                 selectedChlId.value = ''
             }
 
-            tableData.value.forEach(async (item, i) => {
+            let onlineChlId = ''
+
+            tableData.value.forEach(async (item) => {
+                if (!onlineChlId && pageData.value.onlineChlList.includes(item.id)) {
+                    onlineChlId = item.id
+                }
+
                 if (manufacturer[item.id]) {
                     item.manufacturer = manufacturer[item.id]
                 }
@@ -363,7 +376,9 @@ export default defineComponent({
 
                 editRows.listen(item)
 
-                if (i === 0) {
+                cacheData[item.id] = cloneDeep(item)
+
+                if (onlineChlId === item.id) {
                     selectedChlId.value = item.id
                     tableRef.value!.setCurrentRow(item)
                     formData.value = cloneDeep(item)
@@ -399,6 +414,7 @@ export default defineComponent({
 
                     if (flagSetDevice && flagSetOSD) {
                         nameMapping[rowData.id] = rowData.name
+                        cacheData[rowData.id] = cloneDeep(rowData)
                         rowData.status = 'success'
                         editRows.remove(rowData)
                     }
@@ -412,10 +428,15 @@ export default defineComponent({
         }
 
         const setDevice = async (rowData: ChannelOsdDto) => {
+            const cacheRow = cacheData[rowData.id]
+            if (rowData.name === cacheRow.name) {
+                return true
+            }
+
             const sendXml = rawXml`
                 <content>
                     <id>${rowData.id}</id>
-                    <name maxByteLen="63">${wrapCDATA(rowData.name)}</name>
+                    <name>${wrapCDATA(rowData.name)}</name>
                 </content>
             `
             const result = await editDev(sendXml)
@@ -434,6 +455,11 @@ export default defineComponent({
         }
 
         const setChlWaterMark = async (rowData: ChannelOsdDto) => {
+            const cacheRow = cacheData[rowData.id]
+            if (rowData.remarkNote === cacheRow.remarkNote && rowData.remarkSwitch === cacheRow.remarkSwitch) {
+                return true
+            }
+
             const sendXml = rawXml`
                 <content>
                     <chl id='${rowData.id}'>
@@ -448,6 +474,21 @@ export default defineComponent({
         }
 
         const setIPChlORChlOSD = async (rowData: ChannelOsdDto) => {
+            const cacheRow = cacheData[rowData.id]
+            if (
+                rowData.displayTime === cacheRow.displayTime &&
+                rowData.timeX === cacheRow.timeX &&
+                rowData.timeY === cacheRow.timeY &&
+                rowData.dateFormat === cacheRow.dateFormat &&
+                rowData.timeFormat === cacheRow.timeFormat &&
+                rowData.displayName === cacheRow.displayName &&
+                rowData.nameX === cacheRow.nameX &&
+                rowData.nameY === cacheRow.nameY &&
+                rowData.name === cacheRow.name
+            ) {
+                return true
+            }
+
             const sendXml = rawXml`
                 <types>
                     ${rowData.supportDateFormat ? `<dateFormat>${wrapEnums(rowData.dateEnum)}</dateFormat>` : ''}
@@ -474,9 +515,6 @@ export default defineComponent({
             const res = await editIPChlORChlOSD(sendXml)
             const $ = queryXml(res)
             if ($('status').text() === 'success') {
-                // if (rowData.name === nameMapping[rowData.id]) {
-                //     rowData.status = 'success'
-                // }
                 return true
             } else {
                 let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
@@ -579,6 +617,14 @@ export default defineComponent({
             setOcxData(channelOsd)
         }
 
+        const getOnlineChlList = async () => {
+            const result = await queryOnlineChlList()
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                pageData.value.onlineChlList = $('content/item').map((item) => item.attr('id'))
+            }
+        }
+
         // 首次加载成功 播放视频
         const stopWatchFirstPlay = watchEffect(() => {
             if (ready.value && tableData.value.length) {
@@ -657,6 +703,7 @@ export default defineComponent({
             formData.value.remarkDisabled = false
             formData.value.supportTimeFormat = true
             formData.value.supportDateFormat = true
+            await getOnlineChlList()
             await getTimeEnabledData()
             await getDataList()
         })

@@ -6,6 +6,7 @@
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
+        const userSession = useUserSessionStore()
 
         const pageData = ref({
             // 停车选项列表
@@ -103,6 +104,11 @@ export default defineComponent({
                     }
                 })
                 watchEdit.listen()
+            } else {
+                const errorCode = $('errorCode').text().num()
+                if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
+                    openMessageBox(Translate('IDCS_NO_PERMISSION'))
+                }
             }
         }
 
@@ -167,6 +173,11 @@ export default defineComponent({
          * @description 编辑-下发编辑协议
          */
         const apply = async () => {
+            if (!userSession.hasAuth('businessCfg')) {
+                openMessageBox(Translate('IDCS_NO_PERMISSION'))
+                return
+            }
+
             if (!validateData()) return
 
             const sendXml = rawXml`
@@ -181,7 +192,7 @@ export default defineComponent({
                                         <groupTotalNum>${item.groupTotalNum}</groupTotalNum>
                                         <groupRemainNum>${item.groupRemainNum}</groupRemainNum>
                                         <groupSchedule>${item.groupSchedule}</groupSchedule>
-                                        <linkEmail>${wrapCDATA(item.linkEmail)}</linkEmail>
+                                        <linkEmail>${item.linkEmail}</linkEmail>
                                     </item>`
                             })
                             .join('')}

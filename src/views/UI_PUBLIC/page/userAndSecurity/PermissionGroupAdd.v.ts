@@ -78,14 +78,16 @@ export default defineComponent({
                 commLoadResponseHandler(result, ($) => {
                     getSystemAuth($)
                     getChannelAuth($, true)
-                    getAuthGroupName($('content/name').text())
+                    getAuthGroupList($('content/name').text())
                 })
             }
             // 从新建入口进来，所有选项默认为false
             else {
                 const result = await getChlList()
                 commLoadResponseHandler(result, ($) => {
+                    getSystemAuth()
                     getChannelAuth($, false)
+                    getAuthGroupList()
                 })
             }
             closeLoading()
@@ -94,8 +96,9 @@ export default defineComponent({
         /**
          * @description 创建从另存为入口进来的回显名称
          */
-        const getAuthGroupName = async (name: string) => {
-            const sendXml = rawXml`
+        const getAuthGroupList = async (name?: string) => {
+            const sendXml = name
+                ? rawXml`
                 <condition>
                     <name>${wrapCDATA(name)}</name>
                     <requireField>
@@ -103,33 +106,49 @@ export default defineComponent({
                     </requireField>
                 </condition>
             `
+                : ''
             const result = await queryAuthGroupList(sendXml)
             const $ = queryXml(result)
 
-            const nameList = $('content/item').map((item) => {
-                const $item = queryXml(item.element)
-                return $item('name').text()
-            })
+            formData.value.nameMaxByteLen = $('content/itemType/name').attr('maxByteLen').num() || nameByteMaxLen
 
-            let groupName = ''
-            for (let i = 1; i < Number.POSITIVE_INFINITY; i++) {
-                groupName = (DEFAULT_AUTH_GROUP_MAPPING[groupName] ? Translate(DEFAULT_AUTH_GROUP_MAPPING[groupName]) : name) + i
-                if (nameList.includes(groupName)) {
-                    continue
-                } else break
+            if (name) {
+                const nameList = $('content/item').map((item) => {
+                    const $item = queryXml(item.element)
+                    return $item('name').text()
+                })
+
+                let groupName = ''
+                for (let i = 1; i < Number.POSITIVE_INFINITY; i++) {
+                    groupName = (DEFAULT_AUTH_GROUP_MAPPING[groupName] ? Translate(DEFAULT_AUTH_GROUP_MAPPING[groupName]) : name) + i
+                    if (nameList.includes(groupName)) {
+                        continue
+                    } else break
+                }
+                formData.value.name = groupName
             }
-            formData.value.name = groupName
         }
 
         /**
          * @description 更新系统权限
          * @param {Function} $doc
          */
-        const getSystemAuth = ($doc: XMLQuery) => {
-            const $ = queryXml($doc('content/systemAuth')[0].element)
+        const getSystemAuth = ($doc?: XMLQuery) => {
+            const $ = $doc ? queryXml($doc('content/systemAuth')[0].element) : ''
             Object.keys(systemAuthList.value).forEach((classify) => {
+                systemAuthList.value[classify].label = Translate(systemAuthList.value[classify].key)
                 Object.keys(systemAuthList.value[classify].value).forEach((key) => {
-                    systemAuthList.value[classify].value[key].value = $(key).text().bool()
+                    if ($) {
+                        systemAuthList.value[classify].value[key].value = $(key).text().bool()
+                    }
+
+                    if (systemAuthList.value[classify].value[key].formatForLang?.length) {
+                        systemAuthList.value[classify].value[key].label = Translate(systemAuthList.value[classify].value[key].key).formatForLang(
+                            ...systemAuthList.value[classify].value[key].formatForLang.map((item) => Translate(item)),
+                        )
+                    } else {
+                        systemAuthList.value[classify].value[key].label = Translate(systemAuthList.value[classify].value[key].key)
+                    }
                 })
             })
             if (userSession.userType === USER_TYPE_DEFAULT_ADMIN) {

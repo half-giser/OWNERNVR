@@ -27,12 +27,19 @@ export default defineComponent({
             avd: Translate('IDCS_ABNORMAL_DETECTION'),
             tripwire: Translate('IDCS_BEYOND_DETECTION'),
             pea: Translate('IDCS_INVADE_DETECTION'),
+            san: Translate('IDCS_SMART_AOI_ENTRY_DETECTION'),
+            sal: Translate('IDCS_SMART_AOI_LEAVE_DETECTION'),
             cpc: Translate('IDCS_PEOPLE_COUNT_DETECTION'),
             ipd: Translate('IDCS_PEOPLE_INSTRUSION_DETECTION'),
             cdd: Translate('IDCS_CROWD_DENSITY_DETECTION'),
             vehicle: Translate('IDCS_PLATE_MATCH'),
             fire_point: Translate('IDCS_FIRE_POINT_DETECTION'),
             temperature: Translate('IDCS_TEMPERATURE_DETECTION'),
+            loitering: Translate('IDCS_LOITERING_DETECTION'),
+            pvd: Translate('IDCS_PARKING_DETECTION'),
+            asd: Translate('IDCS_AUDIO_EXCEPTION_DETECTION'),
+            crowd_gather: Translate('IDCS_CROWD_GATHERING'),
+            threshold: Translate('IDCS_SMART_STATISTIC_THRESHOLD_ALARM'),
         }
 
         // 图像质量与显示文案的映射
@@ -77,7 +84,9 @@ export default defineComponent({
          */
         const formatRecordType = (row: SystemRecordStatusList) => {
             const recTypes = row.recTypes
-            const str = recTypes
+            let showPerson = false
+            let showVehicle = false
+            const result = recTypes
                 .sort((a, b) => {
                     const getOrderIndex = (x: string) => {
                         switch (x) {
@@ -91,19 +100,43 @@ export default defineComponent({
                                 return 3
                             case 'pos':
                                 return 4
-                            default:
+                            case 'target_human':
                                 return 5
+                            case 'target_vehicle':
+                                return 6
+                            case 'target_non_motor_vehicle':
+                                return 7
+                            default:
+                                return 8
                         }
                     }
                     return getOrderIndex(a) - getOrderIndex(b)
                 })
-                .map((item) => (DEFAULT_REC_TYPE_MAPPING[item] ? Translate(DEFAULT_REC_TYPE_MAPPING[item]) : ''))
+                .map((item) => {
+                    if (item === 'target_human') {
+                        showPerson = true
+                        return ''
+                    } else if (item === 'target_vehicle' || item === 'target_non_motor_vehicle') {
+                        showVehicle = true
+                        return ''
+                    } else {
+                        return DEFAULT_REC_TYPE_MAPPING[item] ? Translate(DEFAULT_REC_TYPE_MAPPING[item]) : ''
+                    }
+                })
                 .filter((item) => !!item)
-                .join('/')
-            if (!str) {
+
+            if (showPerson && showVehicle) {
+                result.push(`${Translate('IDCS_TARGET')}(${Translate('IDCS_DETECTION_PERSON')}/${Translate('IDCS_VEHICLE')})`)
+            } else if (showPerson && !showVehicle) {
+                result.push(`${Translate('IDCS_TARGET')}(${Translate('IDCS_DETECTION_PERSON')}})`)
+            } else if (showVehicle && !showPerson) {
+                result.push(`${Translate('IDCS_TARGET')}(${Translate('IDCS_VEHICLE')})`)
+            }
+
+            if (!result.length) {
                 return '--'
             }
-            return str
+            return result.join('/')
         }
 
         /**

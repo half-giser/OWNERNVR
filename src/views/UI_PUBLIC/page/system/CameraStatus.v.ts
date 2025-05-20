@@ -22,6 +22,8 @@ export default defineComponent({
             avdAlarming: Translate('IDCS_ABNORMAL_DETECTION'),
             tripwireAlarming: Translate('IDCS_BEYOND_DETECTION'),
             peaAlarming: Translate('IDCS_INVADE_DETECTION'),
+            sanAlarming: Translate('IDCS_SMART_AOI_ENTRY_DETECTION'),
+            salAlarming: Translate('IDCS_SMART_AOI_LEAVE_DETECTION'),
             vfdAlarming: Translate('IDCS_FACE_DETECTION'),
             cpcAlarming: Translate('IDCS_PEOPLE_COUNT_DETECTION'),
             ipdAlarming: Translate('IDCS_PEOPLE_INSTRUSION_DETECTION'),
@@ -30,6 +32,12 @@ export default defineComponent({
             faceMatchAlarming: Translate('IDCS_FACE_MATCH'),
             smartFirePointAlarming: Translate('IDCS_FIRE_POINT_DETECTION'),
             temperatureAlarming: Translate('IDCS_TEMPERATURE_DETECTION'),
+            asdAlarming: Translate('IDCS_AUDIO_EXCEPTION_DETECTION'),
+            pvdAlarming: Translate('IDCS_PARKING_DETECTION'),
+            loiteringAlarming: Translate('IDCS_LOITERING_DETECTION'),
+            LineStatisticsAlarming: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
+            crowdGatherAlarming: Translate('IDCS_CROWD_GATHERING'),
+            srsAlarming: Translate('IDCS_REGION_STATISTICS'),
         }
 
         const tableData = ref<SystemChannelStatusList[]>([])

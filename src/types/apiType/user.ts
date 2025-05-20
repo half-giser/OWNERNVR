@@ -72,3 +72,10 @@ export class UserCheckAuthForm {
 export class UserInputEncryptPwdForm {
     password = ''
 }
+
+export class UserForgetPwdForm {
+    password = ''
+    confirmPassword = ''
+    captcha = ''
+    email = ''
+}

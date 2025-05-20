@@ -102,3 +102,23 @@ export const queryShowPrivacyView = () => fetch('queryShowPrivacyView', '')
  * @returns
  */
 export const getSessionInfo = () => fetch('queryShowPrivacyView', '', {}, false)
+
+/**
+ * @description
+ * @returns
+ */
+export const queryRecoverPasswordInfo = () => fetch('queryRecoverPasswordInfo', '', {}, false)
+
+/**
+ * @description
+ * @param data
+ * @returns
+ */
+export const sendCaptchaEmail = (data: string) => fetch('sendCaptchaEmail', data, {}, false)
+
+/**
+ * @description
+ * @param data
+ * @returns
+ */
+export const recoverPassword = (data: string) => fetch('sendCaptchaEmail', data, {}, false)

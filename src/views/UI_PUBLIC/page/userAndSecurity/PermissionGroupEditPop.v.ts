@@ -85,8 +85,16 @@ export default defineComponent({
         const getSystemAuth = ($doc: XMLQuery) => {
             const $ = queryXml($doc('content/systemAuth')[0].element)
             Object.keys(systemAuthList.value).forEach((classify) => {
+                systemAuthList.value[classify].label = Translate(systemAuthList.value[classify].key)
                 Object.keys(systemAuthList.value[classify].value).forEach((key) => {
                     systemAuthList.value[classify].value[key].value = $(key).text().bool()
+                    if (systemAuthList.value[classify].value[key].formatForLang?.length) {
+                        systemAuthList.value[classify].value[key].label = Translate(systemAuthList.value[classify].value[key].key).formatForLang(
+                            ...systemAuthList.value[classify].value[key].formatForLang.map((item) => Translate(item)),
+                        )
+                    } else {
+                        systemAuthList.value[classify].value[key].label = Translate(systemAuthList.value[classify].value[key].key)
+                    }
                 })
             })
             if (userSession.userType === USER_TYPE_DEFAULT_ADMIN) {
@@ -148,7 +156,6 @@ export default defineComponent({
                             .map((item) => {
                                 return rawXml`
                                     <item id="${item.id}">
-                                        <name>${wrapCDATA(item.name)}</name>
                                         <auth>${wrapCDATA(DEFAULT_CHANNEL_AUTH_LIST.filter((key) => item[key]).join(','))}</auth>
                                     </item>
                                 `

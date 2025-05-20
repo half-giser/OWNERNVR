@@ -54,6 +54,13 @@ export const queryRecBackupTaskList = () => fetch('queryRecBackupTaskList', '')
 export const ctrlRecBackupTask = (data: string) => fetch('ctrlRecBackupTask', data)
 
 /**
+ * @description 查询通道录像日志列表（1.4.13新增，代替了queryChlRecLog）
+ * @param {string} data
+ * @returns
+ */
+export const queryRecLog = (data: string) => fetch('queryRecLog', data)
+
+/**
  * @description 查询通道录像日志列表
  * @param {string} data
  * @returns
@@ -115,3 +122,23 @@ export const snapChlPicture = (data: string) => fetch('snapChlPicture', data)
  * @returns
  */
 export const queryRecDataSize = (data: string) => fetch('queryRecDataSize', data)
+
+/**
+ * @description 查询设备硬盘中已存在的所有事件类型列表
+ * @returns
+ */
+export const queryRecTypeList = () => fetch('queryRecTypeList', '')
+
+/**
+ * @description
+ * @param data
+ * @returns
+ */
+export const queryDatesExistRec = (data: string) => fetch('queryDatesExistRec', data)
+
+/**
+ * @description
+ * @param data
+ * @returns
+ */
+export const queryChlSnapPicture = (data: string) => fetch('queryDatesExistRec', data)

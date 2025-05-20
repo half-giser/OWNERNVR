@@ -30,6 +30,9 @@ type SnapDataConfig = Partial<{
     parking_lot: {
         info: boolean
     }
+    audio_exception: {
+        info: boolean
+    }
 }>[]
 
 export interface WebsocketSnapOption {
