@@ -28,7 +28,7 @@ export default defineComponent({
         close(isRefresh = false) {
             return typeof isRefresh === 'boolean'
         },
-        confirm(item: ChannelInfoDto) {
+        confirm(item: ChannelEditForm) {
             return !!item
         },
     },
@@ -36,21 +36,26 @@ export default defineComponent({
         const userSessionStore = useUserSessionStore()
         const { Translate } = useLangStore()
 
-        const formRef = useFormRef()
-        const ipTitle = ref('')
-        const showIpInput = ref(true)
-        const ipPlaceholder = ref('')
-        const formData = ref(new ChannelInfoDto())
-        const editPwdSwitch = ref(false)
-        const isAnolog = ref(false)
-        const inputDisabled = ref(false)
-        const ipDisabled = ref(false)
-        const portDisabled = ref(false)
+        const formData = ref(new ChannelEditForm())
 
-        let isIp = false
-        let isIpv6 = false
-        let isDomain = false
+        const formRef = useFormRef()
+        const editPwdSwitch = ref(false)
+
+        const ipType = ref('IPV4')
+
         let notCheckNameFlag = false
+
+        const isAnolog = computed(() => {
+            return !formData.value.port
+        })
+
+        const portDisabled = computed(() => {
+            return !formData.value.port || props.rowData.protocolType === 'RSTP' || props.rowData.isOnline || props.rowData.accessType === 'poe' || props.rowData.autoReportID !== ''
+        })
+
+        const ipDisabled = computed(() => {
+            return !formData.value.ip || props.rowData.addType === 'poe' || props.rowData.isOnline || props.rowData.autoReportID !== ''
+        })
 
         const getData = () => {
             const data = rawXml`
@@ -63,10 +68,15 @@ export default defineComponent({
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
+                    formData.value.nameMaxByteLen = $('content/name').attr('maxByteLen').num() || nameByteMaxLen
                     formData.value.name = $('content/name').text()
                     formData.value.port = $('content/port').text().num()
+
+                    formData.value.chlNum = props.rowData.chlNum
+
                     const filterPropertyList = props.protocolList.map((item) => item.index)
                     const factoryName = $('content/productModel').attr('factoryName')
+
                     const manufacturer = $('content/manufacturer').text()
                     if (factoryName) {
                         formData.value.manufacturer = factoryName
@@ -75,49 +85,32 @@ export default defineComponent({
                     } else {
                         formData.value.manufacturer = props.manufacturerMap[manufacturer]
                     }
+
                     formData.value.productModel.innerText = $('content/productModel').text()
+                    formData.value.userNameMaxByteLen = $('content/userName').attr('maxByteLen').num() || nameByteMaxLen
                     formData.value.userName = $('content/userName').text()
 
-                    if (!$('content/ip').text()) {
-                        isAnolog.value = true
-                        inputDisabled.value = true
-                        ipDisabled.value = true
-                        portDisabled.value = true
-                    } else {
+                    formData.value.autoReportID = $('content/autoReportID').text()
+                    formData.value.chlIndex = $('content/chlIndex').text().num() + 1
+
+                    formData.value.ip = $('content/ip').text()
+
+                    if (formData.value.ip) {
                         const ipdomain = $('content/ip').text()
-                        isIp = checkIpV4(ipdomain)
-                        isIpv6 = checkIpV6(ipdomain)
-                        isDomain = !isIp && !isIpv6
+                        const isIp = checkIpV4(ipdomain)
+                        const isIpv6 = checkIpV6(ipdomain)
 
                         if ($('content/protocolType').text() === 'RTSP') {
-                            portDisabled.value = true
                             formData.value.port = 0
                         }
 
                         if (isIp) {
-                            ipTitle.value = 'IPV4'
-                            showIpInput.value = true
+                            ipType.value = 'IPV4'
                         } else if (isIpv6) {
-                            ipTitle.value = 'IPV6'
-                            ipPlaceholder.value = Translate('IDCS_INPUT_IPV6_ADDRESS_TIP')
-                            showIpInput.value = false
+                            ipType.value = 'IPV6'
                         } else {
-                            ipTitle.value = Translate('IDCS_DOMAIN')
-                            ipPlaceholder.value = Translate('IDCS_DOMAIN_TIP')
-                            showIpInput.value = false
+                            ipType.value = 'domain'
                         }
-                        formData.value.ip = ipdomain
-
-                        if ($('content/addType').text() === 'poe') {
-                            ipDisabled.value = true
-                            portDisabled.value = true
-                        }
-                    }
-
-                    if (props.rowData.isOnline) {
-                        inputDisabled.value = true
-                        ipDisabled.value = true
-                        portDisabled.value = true
                     }
                 } else {
                     let errorInfo = Translate('IDCS_QUERY_DATA_FAIL')
@@ -125,11 +118,6 @@ export default defineComponent({
                     if (isNotExit) errorInfo = Translate('IDCS_RESOURCE_NOT_EXIST').formatForLang(Translate('IDCS_CHANNEL'))
                     openMessageBox(errorInfo).finally(() => {
                         emit('close', true)
-                        // if (isNotExit) {
-                        //     emit('close', true)
-                        // } else {
-                        //     emit('close', true)
-                        // }
                     })
                 }
             })
@@ -146,7 +134,7 @@ export default defineComponent({
                         }
 
                         if (!checkChlName(value.replace(' ', ''))) {
-                            openMessageBox(Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'))
+                            openMessageBox(Translate('IDCS_CAN_NOT_CONTAIN_SPECIAL_CHAR').formatForLang(CHANNEL_LIMIT_CHAR))
                             return
                         }
 
@@ -172,27 +160,27 @@ export default defineComponent({
                     validator: (_rule, value: string, callback) => {
                         if (!isAnolog.value) {
                             value = value.trim()
-                            if (isIp && (!value.length || !checkIpV4(value))) {
+                            if (ipType.value === 'IPV4' && (!value.length || !checkIpV4(value))) {
                                 callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_EMPTY')))
                                 return
                             }
 
-                            if (isIp && !checkIpV4(value)) {
+                            if (ipType.value === 'IPV4' && !checkIpV4(value)) {
                                 callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_INVALID')))
                                 return
                             }
 
-                            if (isDomain && !value.length) {
+                            if (ipType.value === 'domain' && !value.length) {
                                 callback(new Error(Translate('IDCS_DOMAIN_NAME_EMPTY')))
                                 return
                             }
 
-                            if (isIpv6 && !value.length) {
+                            if (ipType.value === 'IPV6' && !value.length) {
                                 callback(new Error(Translate('IDCS_PROMPT_IPV6_ADDRESS_EMPTY')))
                                 return
                             }
 
-                            if (isIpv6 && !checkIpV6(value)) {
+                            if (ipType.value === 'IPV6' && !checkIpV6(value)) {
                                 callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID')))
                                 return
                             }
@@ -230,8 +218,9 @@ export default defineComponent({
                             <id>${props.rowData.id}</id>
                             <manufacturer type="manufacturer">${formData.value.manufacturer}</manufacturer>
                             <name>${wrapCDATA(formData.value.name.trim())}</name>
-                            ${!isAnolog.value && !portDisabled.value ? `<ip>${isIp || isIpv6 ? formData.value.ip : ''}</ip>` : ''}
-                            ${!isAnolog.value && !portDisabled.value && isDomain ? `<domain>${wrapCDATA(formData.value.ip)}</domain>` : ''}
+                            ${formData.value.autoReportID ? `<autoReportID>${wrapCDATA(formData.value.autoReportID)}</autoReportID>` : ''}
+                            ${!isAnolog.value && !portDisabled.value ? `<ip>${ipType.value === 'IPV4' || ipType.value === 'IPV6' ? formData.value.ip : ''}</ip>` : ''}
+                            ${!isAnolog.value && !portDisabled.value && ipType.value === 'domain' ? `<domain>${wrapCDATA(formData.value.ip)}</domain>` : ''}
                             ${!isAnolog.value && !portDisabled.value ? `<port>${formData.value.port}</port>` : ''}
                             ${!isAnolog.value && editPwdSwitch.value ? `<password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.password, userSessionStore.sesionKey))}</password>` : ''}
                             ${!isAnolog.value ? `<userName>${formData.value.userName}</userName>` : ''}
@@ -269,6 +258,11 @@ export default defineComponent({
                                 case ErrorCode.USER_ERROR_INVALID_IP:
                                     errorInfo = Translate('IDCS_PROMPT_CHANNEL_EXIST')
                                     break
+                                case ErrorCode.USER_ERROR_INVALID_PARAM:
+                                    errorInfo = Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS')
+                                    break
+                                default:
+                                    break
                             }
 
                             openMessageBox(errorInfo)
@@ -284,32 +278,22 @@ export default defineComponent({
         }
 
         const open = () => {
-            ipTitle.value = 'IPV4'
-            showIpInput.value = true
-            ipPlaceholder.value = ''
             editPwdSwitch.value = false
-            isAnolog.value = false
-            inputDisabled.value = false
-            ipDisabled.value = false
-            portDisabled.value = false
+            ipType.value = 'IPV4'
             notCheckNameFlag = false
-            formData.value = new ChannelInfoDto()
             getData()
         }
 
         return {
             formRef,
             rules,
-            ipTitle,
-            showIpInput,
-            ipPlaceholder,
             editPwdSwitch,
             formData,
-            inputDisabled,
             ipDisabled,
             portDisabled,
             open,
             save,
+            ipType,
         }
     },
 })

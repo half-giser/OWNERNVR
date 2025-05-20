@@ -26,78 +26,79 @@ export default defineComponent({
         })
 
         const tableData = ref<AlarmWhiteLightDto[]>([])
+        const scheduleData = ref<Record<string, string>>({})
         const editRows = useWatchEditRows<AlarmWhiteLightDto>()
+        const editSchedule = useWatchEditData(scheduleData)
 
-        const getData = () => {
+        const getData = async () => {
             editRows.clear()
             tableData.value = []
 
-            getChlList({
+            const res = await getChlList({
                 pageIndex: pageData.value.pageIndex,
                 pageSize: pageData.value.pageSize,
                 nodeType: 'chls',
+                requireField: ['supportManualWhiteLightAlarmOut'],
                 isSupportWhiteLightAlarmOut: true,
-            }).then((res) => {
-                const $chl = queryXml(res)
-                pageData.value.totalCount = $chl('content').attr('total').num()
-                tableData.value = $chl('content/item').map((item) => {
-                    const row = new AlarmWhiteLightDto()
-                    row.id = item.attr('id')
-                    row.name = queryXml(item.element)('name').text()
-                    row.status = 'loading'
-                    return row
-                })
-                tableData.value.forEach(async (row) => {
-                    const sendXml = rawXml`
-                        <condition>
-                            <chlId>${row.id}</chlId>
-                        </condition>
-                        <requireField>
-                            <param></param>
-                        </requireField>
-                    `
-                    const result = await queryWhiteLightAlarmOutCfg(sendXml)
-                    const $ = queryXml(result)
+            })
+            const $chl = queryXml(res)
+            pageData.value.totalCount = $chl('content').attr('total').num()
+            tableData.value = $chl('content/item').map((item) => {
+                const row = new AlarmWhiteLightDto()
+                row.id = item.attr('id')
+                row.name = queryXml(item.element)('name').text()
+                row.status = 'loading'
+                return row
+            })
 
-                    if (!tableData.value.some((item) => item === row)) {
-                        return
-                    }
+            tableData.value.forEach(async (row) => {
+                const sendXml = rawXml`
+                    <condition>
+                        <chlId>${row.id}</chlId>
+                    </condition>
+                    <requireField>
+                        <param></param>
+                    </requireField>
+                `
+                const result = await queryWhiteLightAlarmOutCfg(sendXml)
+                const $ = queryXml(result)
 
-                    row.status = ''
-                    if ($('status').text() === 'success') {
-                        if (!pageData.value.lightFrequencyList.length) {
-                            pageData.value.lightFrequencyList = $('types/lightFrequency/enum').map((item) => {
-                                return {
-                                    value: item.text(),
-                                    label: LIGHT_FREQUENCY_MAPPING[item.text()],
-                                }
-                            })
-                        }
-                        row.enable = $('content/chl/param/lightSwitch').text().bool()
-                        row.durationTime = $('content/chl/param/durationTime').text().num()
-                        row.frequencyType = $('content/chl/param/frequencyType').text()
-                        row.disabled = false
-                        editRows.listen(row)
+                if (!tableData.value.some((item) => item === row)) {
+                    return
+                }
+
+                row.status = ''
+                if ($('status').text() === 'success') {
+                    if (!pageData.value.lightFrequencyList.length) {
+                        pageData.value.lightFrequencyList = $('types/lightFrequency/enum').map((item) => {
+                            return {
+                                value: item.text(),
+                                label: LIGHT_FREQUENCY_MAPPING[item.text()],
+                            }
+                        })
                     }
-                })
+                    row.enable = $('content/chl/param/lightSwitch').text().bool()
+                    row.durationTime = $('content/chl/param/durationTime').text().num()
+                    row.frequencyType = $('content/chl/param/frequencyType').text()
+                    row.disabled = false
+                    editRows.listen(row)
+                }
             })
         }
 
         const getSaveData = (rowData: AlarmWhiteLightDto) => {
-            if (rowData.durationTime) {
-                const sendXml = rawXml`
-                    <content>
-                        <chl id="${rowData.id}">
-                            <param>
-                                <name>${rowData.name}</name>
-                                <lightSwitch>${rowData.enable}</lightSwitch>
-                                <durationTime>${rowData.durationTime}</durationTime>
-                                <frequency>${rowData.frequencyType}</frequency>
-                            </param>
-                        </chl>
-                    </content>`
-                return sendXml
-            }
+            const sendXml = rawXml`
+                <content>
+                    <chl id="${rowData.id}">
+                        <param>
+                            <name>${rowData.name}</name>
+                            <lightSwitch>${rowData.enable}</lightSwitch>
+                            <durationTime>${rowData.durationTime}</durationTime>
+                            <frequency>${rowData.frequencyType}</frequency>
+                        </param>
+                    </chl>
+                </content>`
+            return sendXml
         }
 
         const getScheduleList = async () => {
@@ -105,28 +106,16 @@ export default defineComponent({
         }
 
         const getSchedule = async () => {
-            await getScheduleList()
-            queryEventNotifyParam().then((result) => {
-                const $ = queryXml(result)
-                if ($('status').text() === 'success') {
-                    pageData.value.schedule = $('content/triggerChannelLightSchedule').attr('id')
-                    const scheduleName = $('content/triggerChannelLightSchedule').text()
-                    // 判断返回的排程是否存在，若不存在设为DEFAULT_EMPTY_ID
-                    if (pageData.value.schedule) {
-                        if (!pageData.value.scheduleList.some((item) => item.value === pageData.value.schedule)) {
-                            pageData.value.schedule = DEFAULT_EMPTY_ID
-                        }
-                    } else {
-                        const find = pageData.value.scheduleList.find((item) => item.label === scheduleName)
-                        if (find) {
-                            pageData.value.schedule = find.value
-                        } else {
-                            pageData.value.schedule = DEFAULT_EMPTY_ID
-                        }
-                    }
-                }
-            })
-            pageData.value.scheduleChanged = false
+            editSchedule.reset()
+            const result = await queryEventNotifyParam()
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                $('content/triggerChannelLightInfos/item').forEach((item) => {
+                    const $item = queryXml(item.element)
+                    scheduleData.value[item.attr('id')] = $item('schedule').attr('id')
+                })
+                editSchedule.listen()
+            }
         }
 
         const setData = async () => {
@@ -152,20 +141,31 @@ export default defineComponent({
                 }
             }
 
-            if (pageData.value.scheduleChanged) {
-                const scheduleName = pageData.value.schedule === DEFAULT_EMPTY_ID ? '' : pageData.value.scheduleList.find((item) => item.value === pageData.value.schedule)!.label
-                const scheduleSendXml = rawXml`
-                    <content>
-                        <triggerChannelLightSchedule id="${pageData.value.schedule}">${scheduleName}</triggerChannelLightSchedule>
-                    </content>
-                `
-                try {
-                    await editEventNotifyParam(scheduleSendXml)
-                } catch {}
-                pageData.value.scheduleChanged = false
-            }
+            await setSchedule()
 
             closeLoading()
+        }
+
+        const setSchedule = async () => {
+            if (!editSchedule.disabled.value) {
+                const sendXml = rawXml`
+                    <content>
+                        <triggerChannelLightInfos>
+                            ${Object.entries(scheduleData.value)
+                                .map((item) => {
+                                    return rawXml`
+                                    <item id="${item[0]}">
+                                        <schedule id="${item[1]}">${pageData.value.scheduleList.find((schedule) => schedule.value === item[1])?.label || Translate('IDCS_NULL')}</schedule>
+                                    </item>
+                                `
+                                })
+                                .join('')}
+                        </triggerChannelLightInfos>
+                    </content>
+                `
+                await editEventNotifyParam(sendXml)
+                editSchedule.update()
+            }
         }
 
         const changePagination = () => {
@@ -196,18 +196,31 @@ export default defineComponent({
             })
         }
 
-        const changeSchedule = () => {
-            pageData.value.scheduleChanged = true
+        const changeAllSchedule = (schedule: string) => {
+            tableData.value.forEach((item) => {
+                if (!item.disabled) {
+                    scheduleData.value[item.id] = schedule
+                }
+            })
+        }
+
+        const openSchedulePop = () => {
+            pageData.value.isSchedulePop = true
         }
 
         const closeSchedulePop = async () => {
             pageData.value.isSchedulePop = false
             await getScheduleList()
-            pageData.value.schedule = getScheduleId(pageData.value.scheduleList, pageData.value.schedule)
-            changeSchedule()
+
+            tableData.value.forEach((item) => {
+                if (!item.disabled) {
+                    scheduleData.value[item.id] = getScheduleId(pageData.value.scheduleList, scheduleData.value[item.id])
+                }
+            })
         }
 
         onMounted(async () => {
+            await getScheduleList()
             await getSchedule()
             getData()
         })
@@ -220,9 +233,12 @@ export default defineComponent({
             changePaginationSize,
             changeAllEnable,
             changeAllFrequencyType,
-            changeSchedule,
+            openSchedulePop,
+            changeAllSchedule,
             closeSchedulePop,
             setData,
+            scheduleData,
+            editSchedule,
         }
     },
 })

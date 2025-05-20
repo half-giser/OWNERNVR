@@ -53,7 +53,7 @@ export default defineComponent({
             timeFormatOptions: [] as SelectOption<string, string>[],
             // 时间服务器选项
             timeServerOptions: [] as SelectOption<string, string>[],
-            gpsBaudRateOptions: arrayToOptions([1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200]),
+            gpsBaudRateOptions: arrayToOptions(['1200', '2400', '4800', '9600', '19200', '38400', '57600', '115200']),
             // 时区选项
             timeZoneOption: DEFAULT_TIME_ZONE.map((item) => {
                 return {
@@ -166,11 +166,12 @@ export default defineComponent({
                     label: item.text(),
                 }
             })
+            formData.value.timeServerMaxByteLen = $('content/synchronizeInfo/ntpServer').attr('maxByteLen').num() || nameByteMaxLen
 
             formData.value.timeZone = $('content/timezoneInfo/timeZone').text()
             formData.value.enableDST = $('content/timezoneInfo/daylightSwitch').text().bool()
 
-            formData.value.gpsBaudRate = $('content/synchronizeInfo/gpsBaudRate').text().num()
+            formData.value.gpsBaudRate = $('content/synchronizeInfo/gpsBaudRate').text()
             formData.value.gpsBaudRateMin = $('content/synchronizeInfo/gpsBaudRate').attr('min').num()
             formData.value.gpsBaudRateMax = $('content/synchronizeInfo/gpsBaudRate').attr('max').num()
 
@@ -285,6 +286,14 @@ export default defineComponent({
             })
         }
 
+        const checkTimeServer = (str: string) => {
+            return /^\w(-?\w+)*(\.\w(-?\w+)*)*$/.test(str)
+        }
+
+        const checkGPSBaudRate = (str: string) => {
+            return Number(str) >= formData.value.gpsBaudRateMin && Number(str) <= formData.value.gpsBaudRateMax
+        }
+
         watch(isDSTDisabled, (val) => {
             if (val) {
                 formData.value.enableDST = false
@@ -319,6 +328,8 @@ export default defineComponent({
             handleSyncTypeChange,
             handleNtpIntervalOutOfRange,
             handleBeforeSystemTimeChange,
+            checkTimeServer,
+            checkGPSBaudRate,
         }
     },
 })

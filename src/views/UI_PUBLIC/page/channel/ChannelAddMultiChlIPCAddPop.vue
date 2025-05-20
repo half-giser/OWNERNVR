@@ -5,29 +5,29 @@
 -->
 <template>
     <el-dialog
-        v-model="multiChlIPCCfgDialogVisiable"
-        :title="Translate('IDCS_THERMAL_CHANNEL_CONFIG')"
+        :title="Translate('IDCS_XXX_CONFIG').formatForLang(Translate('IDCS_CHANNEL'))"
         width="640"
-        @opened="opened"
+        @opened="open"
     >
         <el-table
             :data="tableData"
-            show-overflow-tooltip
-            highlight-current-row
             :show-header="false"
             height="300"
         >
             <el-table-column
-                prop="name"
+                prop="ip"
                 width="140"
+                show-overflow-tooltip
             />
-            <el-table-column
-                min-width="420"
-                class-name="custom_cell"
-            >
-                <template #default="{ row }: TableColumn<ChannelMultiChlIPCAddDto>">
+            <el-table-column min-width="420">
+                <template #default="{ row }: TableColumn<ChannelManualAddDto>">
                     <el-checkbox
-                        v-for="(item, index) in row.multichannelCheckedInfoList"
+                        :model-value="getCheckAllValue(row)"
+                        :label="Translate('IDCS_ALL')"
+                        @update:model-value="updateCheckAllValue($event, row)"
+                    />
+                    <el-checkbox
+                        v-for="(item, index) in row.multiChlList"
                         :key="index"
                         v-model="item.checked"
                         :label="item.chlLabel"
@@ -37,13 +37,13 @@
             </el-table-column>
         </el-table>
         <div class="base-btn-box">
-            <el-button @click="saveData">{{ Translate('IDCS_OK') }}</el-button>
-            <el-button @click="multiChlIPCCfgDialogVisiable = false">{{ Translate('IDCS_CANCEL') }}</el-button>
+            <el-button @click="confirm">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="cancel">{{ Translate('IDCS_CANCEL') }}</el-button>
         </div>
     </el-dialog>
 </template>
 
-<script lang="ts" src="./ChannelAddMultiChlIPCAdd.v.ts"></script>
+<script lang="ts" src="./ChannelAddMultiChlIPCAddPop.v.ts"></script>
 
 <style scoped lang="scss">
 :deep(.custom_cell) {

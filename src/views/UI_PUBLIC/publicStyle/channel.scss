@@ -51,7 +51,7 @@
         background-color: transparent;
     }
 
-    &:has(.disabled) {
+    &.disabled {
         background-color: var(--ptz-btn-disabled);
 
         &:hover {

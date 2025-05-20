@@ -5,68 +5,59 @@
 -->
 <template>
     <el-dialog
-        :title="Translate('IDCS_SET_DEV_DEFAULT_PWD')"
+        :title="Translate('IDCS_CONFIGURATION_XXX').formatForLang(Translate('IDCS_DEV_DEFAULT_PWD'))"
         width="700"
         @opened="opened"
-        @closed="formRef?.resetFields()"
     >
-        <el-form
-            ref="formRef"
-            :model="formData"
+        <el-table
+            v-title
+            :data="tableData"
+            height="300"
+            flexible
         >
-            <el-table
-                v-title
-                :data="formData.params"
-                height="300"
-                flexible
+            <el-table-column
+                prop="displayName"
+                :label="Translate('IDCS_PROTOCOL')"
+                width="130"
+                show-overflow-tooltip
+            />
+            <el-table-column
+                :label="Translate('IDCS_USERNAME')"
+                min-width="240"
+                class-name="cell-with-form-rule"
             >
-                <el-table-column
-                    prop="displayName"
-                    :label="Translate('IDCS_PROTOCOL')"
-                    width="130"
-                    show-overflow-tooltip
-                />
-                <el-table-column
-                    :label="Translate('IDCS_USERNAME')"
-                    min-width="240"
-                    class-name="cell-with-form-rule"
-                >
-                    <template #default="{ row, $index }: TableColumn<ChannelDefaultPwdDto>">
-                        <el-form-item
-                            :prop="`params.${$index}.userName`"
-                            :rules="rules.userName"
-                        >
-                            <el-input
-                                v-model="row.userName"
-                                :validate-event="false"
-                                :formatter="formatInputMaxLength"
-                                :parser="formatInputMaxLength"
-                                @keyup.enter="blurInput"
-                            />
-                        </el-form-item>
-                    </template>
-                </el-table-column>
-                <el-table-column
-                    :label="Translate('IDCS_PASSWORD')"
-                    width="240"
-                >
-                    <template #default="{ row, $index }: TableColumn<ChannelDefaultPwdDto>">
-                        <span
-                            v-show="!row.showInput"
-                            @click="togglePwd($index, row)"
-                            >{{ row.password ? Array(row.password.length).fill('*').join('') : '******' }}</span
-                        >
-                        <BasePasswordInput
-                            v-show="row.showInput"
-                            :ref="(ref) => (passwordInputRef[$index] = ref)"
-                            v-model="row.password"
-                            maxlength="64"
-                            @blur="togglePwd($index, row)"
-                        />
-                    </template>
-                </el-table-column>
-            </el-table>
-        </el-form>
+                <template #default="{ row }: TableColumn<ChannelDefaultPwdDto>">
+                    <el-input
+                        v-model="row.userName"
+                        :validate-event="false"
+                        :formatter="formatInputMaxLength"
+                        :parser="formatInputMaxLength"
+                        @keyup.enter="blurInput"
+                    />
+                </template>
+            </el-table-column>
+            <el-table-column
+                :label="Translate('IDCS_PASSWORD')"
+                width="240"
+            >
+                <template #default="{ row, $index }: TableColumn<ChannelDefaultPwdDto>">
+                    <span
+                        v-show="!row.showInput"
+                        @click="togglePwd($index, row)"
+                        >{{ row.password ? Array(row.password.length).fill('*').join('') : '******' }}</span
+                    >
+                    <BasePasswordInput
+                        v-show="row.showInput"
+                        :ref="(ref) => (passwordInputRef[$index] = ref)"
+                        v-model="row.password"
+                        :maxlength="row.protocolType === 'TVT_IPCAMERA' ? 16 : 64"
+                        :formatter="formatPassword"
+                        :parser="formatPassword"
+                        @blur="togglePwd($index, row)"
+                    />
+                </template>
+            </el-table-column>
+        </el-table>
         <BaseCheckAuthPop
             v-model="isCheckAuthPop"
             @confirm="setData"

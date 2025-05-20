@@ -253,7 +253,7 @@ export default defineComponent({
         /**
          * @description 打开弹窗 初始化数据
          */
-        const open = () => {
+        const open = async () => {
             tableData.value = [
                 {
                     alarmSourceType: 'Motion',
@@ -301,7 +301,15 @@ export default defineComponent({
             pageData.value.faceMatchObj = prop?.currRowFaceObj || {}
 
             changeDescription()
-            tableData.value[1] && checkDetect(tableData.value[1])
+
+            // NTA1-458 修改方案如下：
+            // 1、若当前组合报警未配置，打开配置窗口，无需查询通道/传感器开启/未开启状态，选择具体通道/传感器时查询
+            // 2、若当前组合报警已配置，打开配置窗口，查询当前报警源1和报警源2的状态，若两个均未开启，显示报警源1未开启提示；若其中1个未开启，显示对应的报警源未开启提示；
+            await checkDetect(tableData.value[0])
+
+            if (!pageData.value.isDetectShow) {
+                await checkDetect(tableData.value[1])
+            }
         }
 
         /**
@@ -324,25 +332,26 @@ export default defineComponent({
          * @returns {SelectOption<string, string>[]}
          */
         const getEntityMap = (currType: string) => {
-            let mapList = pageData.value.chlsMap
-
-            if (currType === 'Sensor') {
+            switch (currType) {
                 // 传感器
-                mapList = pageData.value.sensorsMap
-            } else if (currType === 'Motion') {
+                case 'Sensor':
+                    return pageData.value.sensorsMap
                 // 移动侦测
-                mapList = pageData.value.chlsFilterMap
-            } else if (currType === 'FaceMatch') {
+                case 'Motion':
+                    return pageData.value.chlsFilterMap
                 // 人脸比对
-                mapList = localFaceDectMaxCount ? pageData.value.chlsFilterMap : pageData.value.faceMap // 支持人脸后侦测，放上全部通道
-            } else if (currType === 'InvadeDetect') {
+                case 'FaceMatch':
+                    // 支持人脸后侦测，放上全部通道
+                    return localFaceDectMaxCount ? pageData.value.chlsFilterMap : pageData.value.faceMap
                 // 区域入侵
-                mapList = localTargetDectMaxCount ? pageData.value.chlsFilterMapForThermal : pageData.value.peaMap
-            } else if (currType === 'Tripwire') {
+                case 'InvadeDetect':
+                    return localTargetDectMaxCount ? pageData.value.chlsFilterMapForThermal : pageData.value.peaMap
                 // 越界
-                mapList = localTargetDectMaxCount ? pageData.value.chlsFilterMapForThermal : pageData.value.tripwireMap
+                case 'Tripwire':
+                    return localTargetDectMaxCount ? pageData.value.chlsFilterMapForThermal : pageData.value.tripwireMap
+                default:
+                    return pageData.value.chlsMap
             }
-            return mapList
         }
 
         const changeRow = (row: AlarmCombinedItemDto) => {
@@ -404,25 +413,8 @@ export default defineComponent({
                             '2': Translate('IDCS_WORKTIME_MISS_HIT'),
                         }
                         const faceStr = obj.faceDataBase.map((item) => item || '').join('')
-
-                        str +=
-                            '，' +
-                            Translate('IDCS_FACE_MATCH_RESULT') +
-                            ' ' +
-                            ruleMap[obj.rule] +
-                            faceStr +
-                            '；' +
-                            Translate('IDCS_PREALARM_BEFORE') +
-                            ' ' +
-                            -obj.duration +
-                            Translate('IDCS_SECOND') +
-                            '；' +
-                            Translate('IDCS_PREALARM_AFTER') +
-                            ' ' +
-                            obj.delay +
-                            Translate('IDCS_SECOND')
+                        str += `, ${Translate('IDCS_FACE_MATCH_RESULT')} ${ruleMap[obj.rule]}${faceStr}; ${Translate('IDCS_PREALARM_BEFORE')} ${displaySecondWithUnit(obj.duration)}; ${Translate('IDCS_PREALARM_AFTER')} ${displaySecondWithUnit(obj.delay)}`
                     }
-
                     pageData.value.description.push(str)
                 } else {
                     const str = COMBINED_ALARM_TYPES_MAPPING[item.alarmSourceType] + ' ' + (item.alarmSourceEntity.label || '')
@@ -436,7 +428,16 @@ export default defineComponent({
             // 在没有报警源时不进行后续处理
             if (!id) return false
 
-            let isShowDetect = true
+            const sendXml = rawXml`
+                <condition>
+                    <chlId>${id}</chlId>
+                </condition>
+                <requireField>
+                    <param/>
+                </requireField>
+            `
+
+            let detectSwitch = true
             if (row.alarmSourceType === 'Sensor') {
                 const sendXml = rawXml`
                     <condition>
@@ -446,90 +447,79 @@ export default defineComponent({
                 const result = await queryAlarmIn(sendXml)
                 const $ = queryXml(result)
                 if ($('status').text() === 'success') {
-                    isShowDetect = $('content/param/switch').text().bool()
+                    detectSwitch = $('content/param/switch').text().bool()
                 }
             }
-            // 以下几种类型的请求头是一样的
-            else {
-                const sendXml = rawXml`
-                    <condition>
-                        <chlId>${id}</chlId>
-                    </condition>
-                    <requireField>
-                        <param/>
-                    </requireField>
-                `
-                // 区域入侵
-                if (row.alarmSourceType === 'InvadeDetect') {
-                    const typeMap = localTargetDectMaxCount ? pageData.value.chlsFilterMapForThermal : pageData.value.peaMap
-                    if (!typeMap.some((el) => el.value === id)) {
-                        return false
+            // 区域入侵
+            else if (row.alarmSourceType === 'InvadeDetect') {
+                const typeMap = localTargetDectMaxCount ? pageData.value.chlsFilterMapForThermal : pageData.value.peaMap
+                if (!typeMap.some((el) => el.value === id)) {
+                    return false
+                }
+                const result = await queryIntelAreaConfig(sendXml)
+                const $ = queryXml(result)
+                if ($('status').text() === 'success') {
+                    // 开关包含区域入侵、区域进入、区域离开
+                    const perimeterSwitch = $('content/chl/perimeter/param/switch').text().bool()
+                    const entrySwitch = $('content/chl/entry/param/switch').text().bool()
+                    const leaveSwitch = $('content/chl/leave/param/switch').text().bool()
+                    detectSwitch = perimeterSwitch || entrySwitch || leaveSwitch
+                } else {
+                    detectSwitch = false
+                }
+            }
+            // 人脸比对
+            else if (row.alarmSourceType === 'FaceMatch') {
+                const typeMap = localTargetDectMaxCount ? pageData.value.chlsFilterMap : pageData.value.faceMap
+                if (!typeMap.some((el) => el.value === id)) {
+                    return false
+                }
+                let isVfdChl = false // 当前通道是否为前侦测通道
+                pageData.value.faceMap.forEach((item) => {
+                    if (item.value === id) {
+                        isVfdChl = true
                     }
-                    const result = await queryIntelAreaConfig(sendXml)
+                })
+
+                if (isVfdChl) {
+                    const result = await queryVfd(sendXml)
                     const $ = queryXml(result)
                     if ($('status').text() === 'success') {
-                        // 开关包含区域入侵、区域进入、区域离开
-                        const perimeterSwitch = $('content/chl/perimeter/param/switch').text().bool()
-                        const entrySwitch = $('content/chl/entry/param/switch').text().bool()
-                        const leaveSwitch = $('content/chl/leave/param/switch').text().bool()
-                        isShowDetect = perimeterSwitch || entrySwitch || leaveSwitch
-                    } else {
-                        isShowDetect = false
+                        detectSwitch = $('content/chl/param/switch').text().bool()
                     }
-                }
-                // 人脸比对
-                else if (row.alarmSourceType === 'FaceMatch') {
-                    const typeMap = localTargetDectMaxCount ? pageData.value.chlsFilterMap : pageData.value.faceMap
-                    if (!typeMap.some((el) => el.value === id)) {
-                        return false
-                    }
-                    let isVfdChl = false // 当前通道是否为前侦测通道
-                    pageData.value.faceMap.forEach((item) => {
-                        if (item.value === id) {
-                            isVfdChl = true
+                } else {
+                    const result = await queryBackFaceMatch()
+                    const $ = queryXml(result)
+                    detectSwitch = false
+                    $('content/param/chls/item').forEach((item) => {
+                        if (item.attr('guid') === id) {
+                            detectSwitch = queryXml(item.element)('switch').text().bool()
                         }
                     })
-
-                    if (isVfdChl) {
-                        const result = await queryVfd(sendXml)
-                        const $ = queryXml(result)
-                        if ($('status').text() === 'success') {
-                            isShowDetect = $('content/chl/param/switch').text().bool()
-                        }
-                    } else {
-                        const result = await queryBackFaceMatch()
-                        const $ = queryXml(result)
-                        isShowDetect = false
-                        $('content/param/chls/item').forEach((item) => {
-                            if (item.attr('guid') === id) {
-                                isShowDetect = queryXml(item.element)('switch').text().bool()
-                            }
-                        })
-                    }
                 }
-                // 越界
-                else if (row.alarmSourceType === 'Tripwire') {
-                    const typeMap = localTargetDectMaxCount ? pageData.value.chlsFilterMapForThermal : pageData.value.tripwireMap
-                    if (!typeMap.some((el) => el.value === id)) {
-                        return false
-                    }
-                    const result = await queryTripwire(sendXml)
-                    const $ = queryXml(result)
-                    if ($('status').text() === 'success') {
-                        isShowDetect = $('content/chl/param/switch').text().bool()
-                    }
+            }
+            // 越界
+            else if (row.alarmSourceType === 'Tripwire') {
+                const typeMap = localTargetDectMaxCount ? pageData.value.chlsFilterMapForThermal : pageData.value.tripwireMap
+                if (!typeMap.some((el) => el.value === id)) {
+                    return false
                 }
-                // 移动侦测
-                else if (row.alarmSourceType === 'Motion') {
-                    const result = await queryMotion(sendXml)
-                    const $ = queryXml(result)
-                    if ($('status').text() === 'success') {
-                        isShowDetect = $('content/chl/param/switch').text().bool()
-                    }
+                const result = await queryTripwire(sendXml)
+                const $ = queryXml(result)
+                if ($('status').text() === 'success') {
+                    detectSwitch = $('content/chl/param/switch').text().bool()
+                }
+            }
+            // 移动侦测
+            else if (row.alarmSourceType === 'Motion') {
+                const result = await queryMotion(sendXml)
+                const $ = queryXml(result)
+                if ($('status').text() === 'success') {
+                    detectSwitch = $('content/chl/param/switch').text().bool()
                 }
             }
 
-            if (!isShowDetect) {
+            if (!detectSwitch) {
                 pageData.value.isDetectShow = true
                 pageData.value.detectChlId = row.alarmSourceEntity.value
                 pageData.value.detectEntity = row.alarmSourceEntity.label

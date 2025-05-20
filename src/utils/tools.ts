@@ -843,19 +843,45 @@ export const getScheduleId = (scheduleList: SelectOption<string, string>[], sche
  * @description 返回持续时间列表
  * @returns {SelectOption<string, string>[]}
  */
-export const getAlarmHoldTimeList = (holdTimeList: string, holdTime: number) => {
+export const getAlarmHoldTimeList = (holdTimeList: string, holdTime: number, zeroType: 'normal' | 'keep' | 'manual' = 'normal', unitType: 'mm:ss' | 'ss' = 'ss') => {
+    const { Translate } = useLangStore()
     const holdTimeArr = holdTimeList.array().map((item) => Number(item))
     if (!holdTimeArr.includes(holdTime)) {
         holdTimeArr.push(holdTime)
     }
     return holdTimeArr
         .map((value) => {
+            let label = ''
+            if (value === 0) {
+                if (zeroType === 'normal') {
+                    label = value + ' ' + Translate('IDCS_MANUAL')
+                } else if (zeroType === 'keep') {
+                    label = Translate('IDCS_ALWAYS_KEEP')
+                } else if (zeroType === 'manual') {
+                    label = Translate('IDCS_SECOND')
+                }
+            } else {
+                label = unitType === 'mm:ss' ? getTranslateForSecond(value) : displaySecondWithUnit(value)
+            }
             return {
                 value,
-                label: getTranslateForSecond(value),
+                label: label,
             }
         })
         .toSorted((a, b) => {
+            if (a.value === 0) {
+                if (zeroType === 'normal') {
+                    return a.value - b.value
+                }
+
+                if (zeroType === 'manual') {
+                    return -1
+                }
+
+                if (zeroType === 'keep') {
+                    return 1
+                }
+            }
             return a.value - b.value
         })
 }
@@ -867,13 +893,18 @@ export const buildAudioList = async () => {
     const Translate = useLangStore().Translate
     const result = await queryAlarmAudioCfg()
     const $ = await commLoadResponseHandler(result)
-    const audioList = $('content/audioList/item').map((item) => {
-        const $item = queryXml(item.element)
-        return {
-            value: item.attr('id'),
-            label: $item('name').text(),
-        }
-    })
+    const supportWavPlayLocal = $('content/supportWavPlayLocal').text().bool() // 表示联动本地声音提示是否支持WAV音频
+    const audioList = $('content/audioList/item')
+        .map((item) => {
+            const $item = queryXml(item.element)
+            return {
+                value: item.attr('id'),
+                label: $item('name').text(),
+            }
+        })
+        .filter((item) => {
+            return supportWavPlayLocal || !item.label.toLowerCase().endsWith('.wav')
+        })
     audioList.push({
         value: DEFAULT_EMPTY_ID,
         label: `<${Translate('IDCS_NULL')}>`,
@@ -973,6 +1004,16 @@ export const getTranslateForMin = (value: number) => {
 export const getTranslateForSecond = (value: number) => {
     const Translate = useLangStore().Translate
     return getTranslateForTime(value, Translate('IDCS_MINUTE'), Translate('IDCS_MINUTES'), Translate('IDCS_SECOND'), Translate('IDCS_SECONDS'))
+}
+
+export const displaySecondWithUnit = (value: number) => {
+    const Translate = useLangStore().Translate
+    return value + ' ' + (value > 1 ? Translate('IDCS_SECONDS') : Translate('IDCS_SECOND'))
+}
+
+export const displayMinuteWithUnit = (value: number) => {
+    const Translate = useLangStore().Translate
+    return value + value > 1 ? Translate('IDCS_MINUTES') : Translate('IDCS_MINUTE')
 }
 
 /**
@@ -1166,7 +1207,7 @@ export const getBitrateRange = (options: GetBitRateRangeOption) => {
     return { min, max }
 }
 
-// 获取base64文件大小，返回MB数字
+// 获取base64文件大小，返回字节数
 export const base64FileSize = (base64url: string) => {
     let str = base64url || ''
     const equalIndex = str.indexOf('=')
@@ -1176,7 +1217,8 @@ export const base64FileSize = (base64url: string) => {
     const strLength = str.length
     const fileLength = strLength - (strLength / 8) * 2
     // 返回单位为MB的大小
-    return (fileLength / (1024 * 1024)).toFixed(1)
+    // return (fileLength / (1024 * 1024)).toFixed(1)
+    return fileLength
 }
 
 /**
@@ -1387,6 +1429,20 @@ export const blurInput = (event: Event) => {
 }
 
 /**
+ * @description 元素滚动到视图可见的地方
+ * @param {Element} target
+ */
+export const scrollIntoView = (target: Element) => {
+    if (typeof target.scrollIntoViewIfNeeded === 'function') {
+        target?.scrollIntoViewIfNeeded(true)
+    } else {
+        target?.scrollIntoView({
+            block: 'center',
+        })
+    }
+}
+
+/**
  * @description:
  * 根据AP返回的xml信息判断当前AI事件配置模式
  * 模式0：4.2.1普通摄像机，不支持设置检测目标和目标大小
@@ -1512,7 +1568,7 @@ export const getObjectFilterData = (objectMode: string, itemObjectFilter: { elem
  * @param {any} $paramNodeObj chl/param/objectFilter节点数据
  * @returns {Object}
  */
-const getDetectTargetData = (nodeType: String, objectMode: String, $itemNodeObj: Function, $paramNodeObj: any) => {
+const getDetectTargetData = (nodeType: String, objectMode: String, $itemNodeObj: XMLQuery, $paramNodeObj: XMLQuery) => {
     let resultObj = new AlarmTargetCfgDto()
     // 模式2：灵敏度相关配置从chl/param/objectFilter节点获取
     const $itemNode = objectMode === 'mode2' ? $paramNodeObj : $itemNodeObj

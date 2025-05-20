@@ -108,7 +108,7 @@
                 </el-table-column>
                 <!-- 声音，supportAudio -->
                 <el-table-column
-                    v-if="pageData.supportAudio"
+                    v-if="systemCaps.supportAlarmAudioConfig"
                     width="150"
                 >
                     <template #header>
@@ -312,6 +312,56 @@
                             v-model="row.email"
                             :options="pageData.switchList"
                         />
+                    </template>
+                </el-table-column>
+                <!-- IPC声音 -->
+                <el-table-column width="180">
+                    <template #header>
+                        <AlarmBaseTriggerAudioPop
+                            :visible="pageData.isTriggerAudioPop"
+                            :data="tableData"
+                            :index="pageData.triggerDialogIndex"
+                            @confirm="changeTriggerAudio"
+                        />
+                    </template>
+                    <template #default="{ row, $index }: TableColumn<AlarmCombinedDto>">
+                        <div class="base-cell-box">
+                            <el-checkbox
+                                v-model="row.triggerAudio.switch"
+                                @change="switchTriggerAudio($index)"
+                            />
+                            <el-button
+                                :disabled="!row.triggerAudio.switch"
+                                @click="openTriggerAudio($index)"
+                            >
+                                {{ Translate('IDCS_CONFIG') }}
+                            </el-button>
+                        </div>
+                    </template>
+                </el-table-column>
+                <!-- IPC闪灯 -->
+                <el-table-column width="180">
+                    <template #header>
+                        <AlarmBaseTriggerWhiteLightPop
+                            :visible="pageData.isTriggerWhiteLightPop"
+                            :data="tableData"
+                            :index="pageData.triggerDialogIndex"
+                            @confirm="changeTriggerWhiteLight"
+                        />
+                    </template>
+                    <template #default="{ row, $index }: TableColumn<AlarmCombinedDto>">
+                        <div class="base-cell-box">
+                            <el-checkbox
+                                v-model="row.triggerWhiteLight.switch"
+                                @change="switchTriggerWhiteLight($index)"
+                            />
+                            <el-button
+                                :disabled="!row.triggerWhiteLight.switch"
+                                @click="openTriggerWhiteLight($index)"
+                            >
+                                {{ Translate('IDCS_CONFIG') }}
+                            </el-button>
+                        </div>
                     </template>
                 </el-table-column>
             </el-table>

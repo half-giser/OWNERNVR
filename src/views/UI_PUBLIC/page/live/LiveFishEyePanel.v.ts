@@ -58,7 +58,7 @@ export default defineComponent({
                             value: '2x180',
                         },
                         {
-                            label: Translate('IDCS_FISH_ADJUST_3PTZ'),
+                            label: Translate('IDCS_FISH_3PTZ'),
                             file: 'fishEye_3PZ',
                             cmd: '',
                             value: 'FISH_3PTZ',
@@ -146,7 +146,7 @@ export default defineComponent({
                             value: '2x180',
                         },
                         {
-                            label: Translate('IDCS_FISH_ADJUST_3PTZ'),
+                            label: Translate('IDCS_FISH_3PTZ'),
                             file: 'fishEye_3PZ',
                             cmd: '',
                             value: 'FISH_3PTZ',

@@ -5,6 +5,7 @@
  */
 import { type TableInstance, type FormRules } from 'element-plus'
 import ChannelPtzTaskEditPop from './ChannelPtzTaskEditPop.vue'
+import { ChannelPtzTaskChlDto } from '@/types/apiType/channel'
 
 export default defineComponent({
     components: {
@@ -17,16 +18,9 @@ export default defineComponent({
         const playerRef = ref<PlayerInstance>()
         const auth = useUserChlAuth(false)
 
-        // 任务数最大值
-        const TASK_LIMIT = 8
-
-        const renderTaskListTimer = useRefreshTimer(() => {
-            renderTaskList()
-        }, 2000)
-
         // 功能与显示文本的映射
         const TYPE_TRANS_MAPPING: Record<string, string> = {
-            NON: Translate('IDCS_NO'),
+            // NON: Translate('IDCS_NO'),
             PRE: Translate('IDCS_PRESET'),
             CRU: Translate('IDCS_CRUISE'),
             TRA: Translate('IDCS_PTZ_TRACE'),
@@ -36,7 +30,7 @@ export default defineComponent({
 
         // 默认名称与显示文本的映射
         const NAME_TRANS_MAPPING: Record<string, string> = {
-            No: Translate('IDCS_NO'),
+            // No: Translate('IDCS_NO'),
             'Random Scanning': Translate('IDCS_RANDOM_SCANNING'),
             'Boundary Scanning': Translate('IDCS_BOUNDARY_SCANNING'),
         }
@@ -48,37 +42,22 @@ export default defineComponent({
             expandRowKey: [] as string[],
             // 功能选项
             typeOptions: objectToOptions(TYPE_TRANS_MAPPING, 'string'),
-            // 名称选项
-            nameOptions: [
-                {
-                    label: Translate('IDCS_NO'),
-                    value: 'No',
-                },
-            ],
-            // 任务启用状态
-            taskStatus: false,
             // 是否显示编辑弹窗
             isEditPop: false,
             // 编辑数据
             editData: new ChannelPtzTaskDto(),
-            // 编辑的通道ID
-            editChlId: '',
+            editRow: new ChannelPtzTaskChlDto(),
         })
 
         const formRef = useFormRef()
 
-        const formData = ref(new ChannelPtzTaskForm())
+        const formData = ref(new ChannelPtzTaskDto())
 
         const formRule = ref<FormRules>({
-            name: [
+            editIndex: [
                 {
-                    validator: (_rule, value: string, callback) => {
-                        if (!value.trim()) {
-                            callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
-                            return
-                        }
-
-                        if (tableData.value[pageData.value.tableIndex].taskItemCount >= TASK_LIMIT) {
+                    validator: (_rule, _value, callback) => {
+                        if (tableData.value[pageData.value.tableIndex].taskItemCount >= tableData.value[pageData.value.tableIndex].maxCount) {
                             openMessageBox(Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
                             return
                         }
@@ -105,8 +84,6 @@ export default defineComponent({
 
         const tableRef = ref<TableInstance>()
         const tableData = ref<ChannelPtzTaskChlDto[]>([])
-
-        const taskTableData = ref<ChannelPtzTaskDto[]>([])
 
         const chlOptions = computed(() => {
             return tableData.value.map((item, index) => {
@@ -173,147 +150,154 @@ export default defineComponent({
 
         /**
          * @description 获取预置点列表
-         * @param {String} chlId
+         * @param {ChannelPtzTaskChlDto} row
          */
-        const getPresetNameList = async (chlId: string) => {
+        const getPresetNameList = async (row: ChannelPtzTaskChlDto) => {
             const sendXml = rawXml`
                 <condition>
-                    <chlId>${chlId}</chlId>
+                    <chlId>${row.chlId}</chlId>
                 </condition>
             `
             const result = await queryChlPresetList(sendXml)
             const $ = queryXml(result)
 
-            pageData.value.nameOptions = $('content/presets/item').map((item) => {
-                return {
-                    value: item.attr('index'),
-                    label: item.text(),
-                }
+            const nameMapping: Record<number, string> = {}
+
+            $('content/presets/item').forEach((item) => {
+                nameMapping[item.attr('index').num()] = item.text()
             })
+
+            row.presetList = getNameList(row.preMin, row.preMax, nameMapping)
         }
 
         /**
          * @description 获取巡航线列表
-         * @param {string} chlId
+         * @param {ChannelPtzTaskChlDto} row
          */
-        const getCruiseNameList = async (chlId: string) => {
+        const getCruiseNameList = async (row: ChannelPtzTaskChlDto) => {
             const sendXml = rawXml`
                 <condition>
-                    <chlId>${chlId}</chlId>
+                    <chlId>${row.chlId}</chlId>
                 </condition>
             `
             const result = await queryChlCruiseList(sendXml)
             const $ = queryXml(result)
-            pageData.value.nameOptions = $('content/cruises/item').map((item) => {
-                return {
-                    value: item.attr('index'),
-                    label: item.text(),
-                }
+            const nameMapping: Record<number, string> = {}
+
+            $('content/presets/item').forEach((item) => {
+                nameMapping[item.attr('index').num()] = item.text()
             })
+
+            row.cruiseList = getNameList(row.cruMin, row.cruMax, nameMapping)
         }
 
         /**
          * @description 获取轨迹列表
-         * @param {string} chlId
+         * @param {ChannelPtzTaskChlDto} row
          */
-        const getTraceNameList = async (chlId: string) => {
+        const getTraceNameList = async (row: ChannelPtzTaskChlDto) => {
             const sendXml = rawXml`
                 <condition>
-                    <chlId>${chlId}</chlId>
+                    <chlId>${row.chlId}</chlId>
                 </condition>
             `
             const result = await queryLocalChlPtzTraceList(sendXml)
             const $ = queryXml(result)
-            pageData.value.nameOptions = $('content/traces/item').map((item) => {
-                return {
-                    value: item.attr('index'),
-                    label: item.text(),
-                }
+            const nameMapping: Record<number, string> = {}
+            $('content/presets/item').forEach((item) => {
+                nameMapping[item.attr('index').num()] = item.text()
             })
+
+            row.traceList = getNameList(row.traMin, row.traMax, nameMapping)
         }
 
         /**
-         * @description 只有数据更新才重新渲染
-         * @param {ChannelPtzTaskDto[]} data
+         * @description
+         * @param {number} min
+         * @param {number} max
+         * @param {Record<number, string>} nameMapping
+         * @returns
          */
-        const compareTask = (data: ChannelPtzTaskDto[]) => {
-            if (data.length !== taskTableData.value.length) {
-                return true
+        const getNameList = (min: number, max: number, nameMapping: Record<number, string>) => {
+            return Array(max - min)
+                .fill(min)
+                .map((item, index) => {
+                    return {
+                        value: item + index,
+                        label: `${item + index}${nameMapping[item + index] ? `(${nameMapping[item + index]})` : ''}`,
+                    }
+                })
+        }
+
+        /**
+         * @description
+         * @param {ChannelPtzTaskChlDto} row
+         * @param {string} type
+         * @returns {SelectOption<number, string>[]}
+         */
+        const getNameOption = (row: ChannelPtzTaskChlDto, type: string) => {
+            if (typeof row === 'undefined') {
+                return []
             }
-            return taskTableData.value.some((item, index) => {
-                return (
-                    item.startTime !== data[index].startTime ||
-                    item.endTime !== data[index].endTime ||
-                    item.name !== data[index].name ||
-                    item.enable !== data[index].enable ||
-                    item.type !== data[index].type ||
-                    item.editIndex !== data[index].editIndex
-                )
-            })
+
+            switch (type) {
+                case 'PRE':
+                    return row.presetList
+                case 'CRU':
+                    return row.cruiseList
+                case 'TRA':
+                    return row.traceList
+                case 'RSC':
+                    return [
+                        {
+                            value: 0,
+                            label: 'Random Scanning',
+                        },
+                    ]
+                case 'ASC':
+                    return [
+                        {
+                            value: 0,
+                            label: 'Boundary Scanning',
+                        },
+                    ]
+                default:
+                    return []
+            }
         }
 
         /**
          * @description 获取任务列表
-         * @param {String} chlId
-         * @param {Boolean} update 是否更新表格
+         * @param {row} ChannelPtzTaskChlDto
          */
-        const getTaskList = async (chlId: string, update = true) => {
-            const index = tableData.value.findIndex((item) => item.chlId === chlId)
+        const getTaskList = async (row: ChannelPtzTaskChlDto) => {
             const sendData = rawXml`
                 <condition>
-                    <chlId>${chlId}</chlId>
+                    <chlId>${row.chlId}</chlId>
                 </condition>
             `
             const result = await queryLocalChlPtzTask(sendData)
             const $ = queryXml(result)
 
             if ($('status').text() === 'success') {
-                const status = $('content/tasks').attr('status').bool()
-                const data = $('content/tasks/item').map((item, index) => {
+                row.tasks = $('content/tasks/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        index: index + 1,
-                        enable: status ? Translate('IDCS_ON') : Translate('IDCS_OFF'),
-                        startTime: $item('startTime').text(), // formatDate($item('startTime').text(), dateTime.hourMinuteFormat.value, 'HH:mm'),
-                        endTime: $item('endTime').text(), // formatDate($item('endTime').text(), dateTime.hourMinuteFormat.value, 'HH:mm'),
+                        startTime: $item('startTime').text(),
+                        endTime: $item('endTime').text(),
                         type: $item('type').text(),
-                        name: $item('name').text(),
-                        editIndex: item.attr('index'),
+                        editIndex: item.attr('index').num(),
                     }
                 })
-                if (update && chlId === pageData.value.expandRowKey[0]) {
-                    if (pageData.value.taskStatus !== status) {
-                        pageData.value.taskStatus = status
-                    }
-                    const different = compareTask(data)
-                    if (different) {
-                        taskTableData.value = data
-                        tableData.value[index].taskItemCount = taskTableData.value.length
-                    }
-                }
-                return {
-                    data,
-                    status,
-                }
-            } else {
-                return {
-                    data: [],
-                    status: false,
-                }
+                row.preMin = $('types/pre').attr('min').num()
+                row.preMax = $('types/pre').attr('max').num()
+                row.cruMin = $('types/cru').attr('min').num()
+                row.cruMax = $('types/cru').attr('max').num()
+                row.traMin = $('types/tra').attr('min').num()
+                row.traMax = $('types/tra').attr('max').num()
+                row.maxCount = $('content/tasks').attr('maxCount').num()
+                row.status = $('content/tasks').attr('status').bool()
             }
-        }
-
-        /**
-         * @description 定时获取任务列表
-         */
-        const renderTaskList = async () => {
-            renderTaskListTimer.stop()
-            if (pageData.value.expandRowKey.length) {
-                await getTaskList(pageData.value.expandRowKey[0])
-            } else if (taskTableData.value.length) {
-                taskTableData.value = []
-            }
-            renderTaskListTimer.repeat()
         }
 
         /**
@@ -329,34 +313,40 @@ export default defineComponent({
          * @description 编辑任务列表
          * @param {String} chlId
          * @param {Boolean} status
-         * @param {Array} taskList
+         * @param {ChannelPtzTaskDto[]} taskList
+         * @param {boolean} prompt
          */
-        const setTask = async (chlId: string, status: boolean, taskList: ChannelPtzTaskDto[]) => {
-            const taskXml = taskList
-                .map((item) => {
-                    return rawXml`
-                        <item index="${item.editIndex}">
-                            <type>${item.type}</type>
-                            <startTime>${getSeconds(item.startTime)}</startTime>
-                            <endTime>${getSeconds(item.endTime)}</endTime>
-                        </item>
-                    `
-                })
-                .join('')
+        const setTask = async (chlId: string, status: boolean, taskList: ChannelPtzTaskDto[], prompt = true) => {
             const sendXML = rawXml`
                 <content>
                     <chlId id="${chlId}"></chlId>
                     <index>1</index>
                     <name>task1</name>
                     <status>${status}</status>
-                    <childs type="list">${taskXml}</childs>
+                    <childs type="list">${taskList
+                        .map((item) => {
+                            return rawXml`
+                                <item index="${item.editIndex}">
+                                    <type>${item.type}</type>
+                                    <startTime>${getSeconds(item.startTime)}</startTime>
+                                    <endTime>${getSeconds(item.endTime)}</endTime>
+                                </item>
+                            `
+                        })
+                        .join('')}</childs>
                 </content>
             `
-            await editChlPtzTask(sendXML)
-            openMessageBox({
-                type: 'success',
-                message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-            })
+            const result = await editChlPtzTask(sendXML)
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                if (prompt) {
+                    openMessageBox({
+                        type: 'success',
+                        message: Translate('IDCS_SAVE_DATA_SUCCESS'),
+                    })
+                }
+            }
+            return $('status').text() === 'success'
         }
 
         /**
@@ -380,12 +370,13 @@ export default defineComponent({
          */
         const changeTaskStatus = async () => {
             if (pageData.value.expandRowKey.length) {
-                renderTaskListTimer.stop()
                 const chlId = pageData.value.expandRowKey[0]
-                const status = !pageData.value.taskStatus
-                await setTask(chlId, status, taskTableData.value)
-                await setTaskStatus(chlId, status)
-                renderTaskList()
+                const row = tableData.value.find((item) => item.chlId === chlId)
+                if (row) {
+                    await setTask(chlId, !row.status, row.tasks)
+                    await setTaskStatus(chlId, !row.status)
+                    row.status = !row.status
+                }
             }
         }
 
@@ -393,28 +384,24 @@ export default defineComponent({
          * @description 打开编辑任务弹窗
          * @param {ChannelPtzTaskDto} row
          */
-        const editTask = (row: ChannelPtzTaskDto) => {
-            renderTaskListTimer.stop()
+        const editTask = (data: ChannelPtzTaskDto, row: ChannelPtzTaskChlDto) => {
+            pageData.value.editData = data
+            pageData.value.editRow = row
             pageData.value.isEditPop = true
-            pageData.value.editData = { ...row }
-            pageData.value.editChlId = pageData.value.expandRowKey[0]
         }
 
         /**
          * @description 确认编辑任务，更新任务列表
          * @param {ChannelPtzTaskForm} data
          */
-        const confirmEditTask = async (data: ChannelPtzTaskForm) => {
+        const confirmEditTask = async (data: ChannelPtzTaskDto) => {
+            const row = pageData.value.editRow
             pageData.value.isEditPop = false
-            const current = cloneDeep(taskTableData.value)
-            current[pageData.value.editData.index - 1] = {
-                ...pageData.value.editData,
-                ...data,
-                editIndex: data.name,
-            }
-            await setTask(pageData.value.editChlId, pageData.value.taskStatus, current)
-            await setTaskStatus(pageData.value.editChlId, pageData.value.taskStatus)
-            renderTaskList()
+            pageData.value.editData.editIndex = data.editIndex
+            pageData.value.editData.endTime = data.endTime
+            pageData.value.editData.startTime = data.startTime
+            pageData.value.editData.type = data.type
+            await setTask(row.chlId, row.status, row.tasks)
         }
 
         /**
@@ -422,22 +409,47 @@ export default defineComponent({
          */
         const closeEditTask = () => {
             pageData.value.isEditPop = false
-            renderTaskList()
         }
 
         /**
          * @description 删除所有任务
          */
-        const deleteAllTask = () => {
+        const deleteAllTask = (row: ChannelPtzTaskChlDto) => {
             openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_ALL_ITEMS'),
             }).then(async () => {
                 if (pageData.value.expandRowKey.length) {
-                    renderTaskListTimer.stop()
-                    const chlId = pageData.value.expandRowKey[0]
-                    await setTask(chlId, false, [])
-                    renderTaskList()
+                    const result = await setTask(row.chlId, false, [], false)
+                    if (result) {
+                        row.tasks = []
+                    }
+                }
+            })
+        }
+
+        /**
+         * @description 删除任务
+         * @param {number} index
+         * @param {ChannelPtzTaskChlDto} row
+         */
+        const deleteTask = (index: number, row: ChannelPtzTaskChlDto) => {
+            const name = displayName(row.tasks[index].editIndex, row.tasks[index].type, row)
+            openMessageBox({
+                type: 'question',
+                message: Translate('IDCS_DELETE_MP_ITEM_BY_TASK_S').formatForLang(name),
+            }).then(async () => {
+                const tasks = cloneDeep(row.tasks)
+                tasks.splice(index, 1)
+                const result = await setTask(row.chlId, false, tasks, false)
+                if (result) {
+                    openMessageBox({
+                        type: 'success',
+                        message: Translate('IDCS_DELETE_SUCCESS'),
+                    })
+                    row.tasks.splice(index, 1)
+                } else {
+                    openMessageBox(Translate('IDCS_DELETE_FAIL'))
                 }
             })
         }
@@ -449,24 +461,22 @@ export default defineComponent({
             const result = await getChlList({
                 pageIndex: 1,
                 pageSize: 999,
-                requireField: ['taskItemCount'],
-                isSupportPtzGroupTraceTask: true,
+                requireField: ['supportIntegratedPtz'],
             })
             const $ = queryXml(result)
             if ($('status').text() === 'success') {
                 tableData.value = $('content/item')
                     .filter((item) => {
                         const $item = queryXml(item.element)
-                        return (auth.value.hasAll || auth.value.ptz[item.attr('id')]) && $item('chlType').text() !== 'recorder'
+                        return (auth.value.hasAll || auth.value.ptz[item.attr('id')]) && $item('chlType').text() !== 'recorder' && $item('supportIntegratedPtz').text().bool()
                     })
                     .map((item) => {
                         const $item = queryXml(item.element)
-
-                        return {
-                            chlId: item.attr('id'),
-                            chlName: $item('name').text(),
-                            taskItemCount: $item('taskItemCount').text().num(),
-                        }
+                        const row = new ChannelPtzTaskChlDto()
+                        row.chlId = item.attr('id')
+                        row.chlName = $item('name').text()
+                        row.taskItemCount = $item('taskItemCount').text().num()
+                        return row
                     })
             }
         }
@@ -477,22 +487,12 @@ export default defineComponent({
         const setData = () => {
             formRef.value!.validate(async (valid) => {
                 if (valid) {
-                    renderTaskListTimer.stop()
+                    const row = tableData.value[pageData.value.tableIndex]
                     const chlId = tableData.value[pageData.value.tableIndex].chlId
-                    const result = await getTaskList(chlId, false)
-                    result.data.push({
-                        index: 10000,
-                        enable: '',
-                        startTime: formData.value.startTime,
-                        endTime: formData.value.endTime,
-                        name: formData.value.name,
-                        type: formData.value.type,
-                        editIndex: formData.value.name,
-                    })
-                    await setTask(chlId, result.status, result.data)
-                    await setTaskStatus(chlId, result.status)
-                    tableData.value[pageData.value.tableIndex].taskItemCount++
-                    renderTaskList()
+                    const task = cloneDeep(formData.value)
+                    row.tasks.push(task)
+                    await setTask(chlId, row.status, row.tasks)
+                    await setTaskStatus(chlId, row.status)
                 }
             })
         }
@@ -515,49 +515,51 @@ export default defineComponent({
 
         /**
          * @description 名称的文本显示
-         * @param {String} name
+         * @param {number} editIndex
+         * @param {string} type
+         * @param {ChannelPtzTaskChlDto} data
+         * @returns {string}
          */
-        const displayName = (name: string) => {
-            return NAME_TRANS_MAPPING[name] ? NAME_TRANS_MAPPING[name] : name
+        const displayName = (editIndex: number, type: string, data: ChannelPtzTaskChlDto) => {
+            if (NAME_TRANS_MAPPING[type]) {
+                return NAME_TRANS_MAPPING[type]
+            }
+
+            if (type === 'PRE') {
+                return data.presetList.find((item) => item.value === editIndex)?.label || ''
+            }
+
+            if (type === 'CRU') {
+                return data.cruiseList.find((item) => item.value === editIndex)?.label || ''
+            }
+
+            if (type === 'TRA') {
+                return data.traceList.find((item) => item.value === editIndex)?.label || ''
+            }
+
+            return ''
         }
 
         /**
-         * @description 获取名称选项
+         * @description 获取默认值
+         * @param {ChannelPtzTaskChlDto} row
+         * @param {string} type
+         * @returns {number}
          */
-        const getName = async () => {
-            const chlId = tableData.value[pageData.value.tableIndex].chlId
-
-            if (formData.value.type === 'NON') {
-                pageData.value.nameOptions = [
-                    {
-                        label: displayName('NO'),
-                        value: 'NO',
-                    },
-                ]
-            } else if (formData.value.type === 'PRE') {
-                await getPresetNameList(chlId)
-            } else if (formData.value.type === 'CRU') {
-                await getCruiseNameList(chlId)
-            } else if (formData.value.type === 'TRA') {
-                await getTraceNameList(chlId)
-            } else if (formData.value.type === 'RSC') {
-                pageData.value.nameOptions = [
-                    {
-                        label: displayName('Random Scanning'),
-                        value: 'Random Scanning',
-                    },
-                ]
-            } else if (formData.value.type === 'ASC') {
-                pageData.value.nameOptions = [
-                    {
-                        label: displayName('Boundary Scanning'),
-                        value: 'Boundary Scanning',
-                    },
-                ]
-            }
-
-            if (pageData.value.nameOptions.length) {
-                formData.value.name = pageData.value.nameOptions[0].value
+        const getNumber = (row: ChannelPtzTaskChlDto, type: string) => {
+            switch (type) {
+                case 'PRE':
+                    return row.preMin
+                case 'CRU':
+                    return row.cruMin
+                case 'TRA':
+                    return row.traMin
+                case 'RSC':
+                    return 0
+                case 'ASC':
+                    return 0
+                default:
+                    return 0
             }
         }
 
@@ -566,16 +568,15 @@ export default defineComponent({
          */
         const changeChl = () => {
             tableRef.value!.setCurrentRow(tableData.value[pageData.value.tableIndex])
-            formData.value.name = ''
-            getName()
+            formData.value = new ChannelPtzTaskDto()
+            formData.value.editIndex = getNumber(tableData.value[pageData.value.tableIndex], formData.value.type)
         }
 
         /**
          * @description 修改功能选项
          */
         const changeType = () => {
-            formData.value.name = ''
-            getName()
+            formData.value.editIndex = getNumber(tableData.value[pageData.value.tableIndex], formData.value.type)
         }
 
         /**
@@ -601,16 +602,12 @@ export default defineComponent({
             }
 
             if (!expanded.length) {
-                taskTableData.value = []
                 pageData.value.expandRowKey = []
-                renderTaskListTimer.stop()
             }
 
             if (expanded.some((item) => item.chlId === row.chlId)) {
                 tableRef.value!.setCurrentRow(row)
-                taskTableData.value = []
                 pageData.value.expandRowKey = [row.chlId]
-                renderTaskListTimer.repeat(true)
             }
         }
 
@@ -629,10 +626,18 @@ export default defineComponent({
             openLoading()
             await auth.value.update()
             await getData()
-            if (tableData.value.length) {
-                tableRef.value?.setCurrentRow(tableData.value[pageData.value.tableIndex])
-                await renderTaskList()
+
+            for (const item of tableData.value) {
+                await getTaskList(item)
+                getPresetNameList(item)
+                getCruiseNameList(item)
+                getTraceNameList(item)
             }
+
+            if (tableData.value.length) {
+                changeChl()
+            }
+
             closeLoading()
         })
 
@@ -651,7 +656,6 @@ export default defineComponent({
             formRef,
             formData,
             formRule,
-            taskTableData,
             pageData,
             changeChl,
             changeType,
@@ -665,10 +669,12 @@ export default defineComponent({
             confirmEditTask,
             closeEditTask,
             deleteAllTask,
+            deleteTask,
             displayTime,
             displayType,
             displayName,
             setData,
+            getNameOption,
         }
     },
 })

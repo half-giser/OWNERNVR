@@ -119,11 +119,17 @@ declare global {
         msRequestFullscreen: () => void
     }
 
+    interface ElementExtends {
+        scrollIntoViewIfNeeded: (bool: boolean) => void
+    }
+
     interface Document extends DocumentExtends {}
 
     interface HTMLCanvasElement extends DocumentExtends {}
 
-    interface HTMLDivElement extends DocumentExtends {}
+    interface HTMLElement extends DocumentExtends {}
+
+    interface Element extends ElementExtends {}
 
     interface SelectOption<T, K> {
         value: T

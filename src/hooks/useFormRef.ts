@@ -18,13 +18,6 @@ export const useFormRef = () => {
         formRef.value.validate = async (callback?: (isValid: boolean) => void) => {
             clearTimeout(timer)
 
-            formRef.value!.fields.forEach((item) => {
-                const selector = item.$el?.querySelector('.el-form-item__error')
-                if (selector) {
-                    selector.classList.remove('base-fade-out')
-                }
-            })
-
             let valid = false
 
             for (const field of formRef.value!.fields) {
@@ -35,15 +28,6 @@ export const useFormRef = () => {
                         continue
                     } catch {
                         valid = false
-                        timer = setTimeout(() => {
-                            const selector = field.$el?.querySelector('.el-form-item__error')
-                            if (selector) {
-                                selector.classList.add('base-fade-out')
-                                selector.addEventListener('animationend', () => {
-                                    formRef.value!.clearValidate(field.prop)
-                                })
-                            }
-                        }, 200)
                         break
                     }
                 }
@@ -54,6 +38,39 @@ export const useFormRef = () => {
             }
 
             return valid
+        }
+
+        const validateField = formRef.value.validateField
+
+        type ValidateFieldParams = Parameters<typeof validateField>
+
+        formRef.value.validateField = async (...args: ValidateFieldParams) => {
+            formRef.value!.fields.forEach((item) => {
+                const selector = item.$el?.querySelector('.el-form-item__error')
+                if (selector) {
+                    selector.classList.remove('base-fade-out')
+                }
+            })
+
+            return new Promise(async (resolve: (bool: boolean) => void, reject) => {
+                try {
+                    await validateField(...args)
+                    resolve(true)
+                } catch {
+                    timer = setTimeout(() => {
+                        formRef.value!.fields.forEach((item) => {
+                            const selector = item.$el?.querySelector('.el-form-item__error')
+                            if (selector) {
+                                selector.classList.add('base-fade-out')
+                                selector.addEventListener('animationend', () => {
+                                    formRef.value!.clearValidate(item.prop)
+                                })
+                            }
+                        })
+                    }, 200)
+                    reject(false)
+                }
+            })
         }
 
         stopWatch()

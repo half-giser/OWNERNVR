@@ -86,6 +86,12 @@ export const queryDevDefaultPwd = () => fetch('queryDevDefaultPwd', '')
 export const queryLanRecorderList = () => fetch('queryLanRecorderList', '')
 
 /**
+ * @description
+ * @returns
+ */
+export const queryAutoReportDevList = () => fetch('queryAutoReportDevList', '')
+
+/**
  * @description 编辑通道密码
  * @param {string} data
  * @returns
@@ -233,6 +239,13 @@ export const queryChlVideoParam = (data: string) => fetch('queryChlVideoParam', 
 export const editChlVideoParam = (data: string) => fetch('editChlVideoParam', data)
 
 /**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const editFusionOffset = (data: string) => fetch('editFusionOffset', data)
+
+/**
  * @description 查询通道镜头控制参数
  * @param {string} data
  * @returns
@@ -266,6 +279,27 @@ export const queryPrivacyMask = (data: string) => fetch('queryPrivacyMask', data
  * @returns
  */
 export const editPrivacyMask = (data: string) => fetch('editPrivacyMask', data)
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const addPrivacyMask = (data: string) => fetch('addPrivacyMask', data)
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const invokePrivacyMask = (data: string) => fetch('invokePrivacyMask', data)
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const deletePrivacyMask = (data: string) => fetch('deletePrivacyMask', data)
 
 /**
  * @description 编辑鱼眼通道配置
@@ -579,3 +613,92 @@ export const editIPChlORChlLogo = (data: string) => fetch('editIPChlORChlLogo', 
  * @returns
  */
 export const getTempLoginCert = (data: string) => fetch('getTempLoginCert', data)
+
+/**
+ * @description
+ * @param data
+ * @returns
+ */
+export const queryChlPtzHomePosition = (data: string) => fetch('queryChlPtzHomePosition', data)
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const editChlPtzHomePosition = (data: string) => fetch('editChlPtzHomePosition', data)
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const queryVoiceDev = (data: string) => fetch('queryVoiceDev', data)
+
+/**
+ * @description
+ * @returns
+ */
+export const queryOnlineVoiceDevList = () => fetch('queryOnlineVoiceDevList', '')
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const delVoiceDevList = (data: string) => fetch('delVoiceDevList', data)
+
+/**
+ * @description
+ * @returns
+ */
+export const queryVoiceDevDefaultPwd = () => fetch('queryVoiceDevDefaultPwd', '')
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const editVoiceDevDefaultPwd = (data: string) => fetch('editVoiceDevDefaultPwd', data)
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const createVoiceDevList = (data: string) => fetch('createVoiceDevList', data)
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const editVoiceDev = (data: string) => fetch('editVoiceDev', data)
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const querySpliceConfig = (data: string) => fetch('querySpliceConfig', data)
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const editSpliceConfig = (data: string) => fetch('editSpliceConfig', data)
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const querySmartLightConfig = (data: string) => fetch('querySmartLightConfig', data)
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const editSmartLightConfig = (data: string) => fetch('editSmartLightConfig', data)

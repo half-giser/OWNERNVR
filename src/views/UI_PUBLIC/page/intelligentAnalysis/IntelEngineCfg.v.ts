@@ -12,12 +12,10 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
 
-        // 事件与文本的映射
-        const EVENT_TYPE_MAPPING: Record<string, string> = {
-            faceDetect: Translate('IDCS_FACE_DETECTION') + '+' + Translate('IDCS_FACE_RECOGNITION'),
-            faceMatch: Translate('IDCS_FACE_RECOGNITION'),
-            tripwire: Translate('IDCS_BEYOND_DETECTION'),
-            perimeter: Translate('IDCS_INVADE_DETECTION'),
+        const AI_RES_TYPE_MAPPING: Record<string, string> = {
+            face: Translate('IDCS_FACE_RECOGNITION'),
+            boundary: Translate('IDCS_HUMAN_CAR_OTHER_BOUNDARY'),
+            reid: Translate('IDCS_PICTURE_COMPARSION'),
         }
 
         const pageData = ref({
@@ -32,8 +30,7 @@ export default defineComponent({
         })
 
         const formData = ref(new IntelEngineConfigForm())
-        // 用来记录勾选框的值是否被更改，更改了才需要下发协议
-        const cloneFormData = new IntelEngineConfigForm()
+        const watchEditData = useWatchEditData(formData)
 
         const tableData = ref<IntelEngineConfigList[]>([])
 
@@ -41,17 +38,21 @@ export default defineComponent({
          * @description 获取工作模式
          */
         const getSystemWorkMode = async () => {
+            watchEditData.reset()
+
             const result = await querySystemWorkMode()
             const $ = queryXml(result)
 
             formData.value.supportAI = $('content/supportAI').text().bool()
-            cloneFormData.supportAI = formData.value.supportAI
+
             pageData.value.is3536Amode = !$('content/openSubOutput').length
             const openSubOutput = $('content/openSubOutput').text().bool()
             // 3536A机型一直是可勾选的，所以需要排除在外
             pageData.value.disabled = formData.value.supportAI && !openSubOutput && !pageData.value.is3536Amode
             // 3536A机型开启AI，则需要查询明细
             pageData.value.isDetail = pageData.value.disabled || (pageData.value.is3536Amode && formData.value.supportAI)
+
+            watchEditData.listen()
         }
 
         /**
@@ -61,14 +62,15 @@ export default defineComponent({
             const result = await queryAIResourceDetail('')
             const $ = queryXml(result)
             tableData.value = []
-            $('content/chl/item').map((item) => {
+            $('content/aiResInfo/item').map((item) => {
                 const $item = queryXml(item.element)
-                const name = $item('name').text()
-                $item('resource/item').forEach((res) => {
+                $item('detailInfos/item').forEach((res) => {
+                    const $res = queryXml(res.element)
+                    const name = $res('name').text()
                     const eventType = res.attr('eventType').array()
                     tableData.value.push({
                         name,
-                        eventType: eventType.map((event) => EVENT_TYPE_MAPPING[event]).join('+'),
+                        eventType: eventType.map((event) => AI_RES_TYPE_MAPPING[event]).join('+'),
                     })
                 })
             })
@@ -78,15 +80,18 @@ export default defineComponent({
          * @description 修改数据，打开鉴权弹窗
          */
         const setData = () => {
-            if (formData.value.supportAI === cloneFormData.supportAI) {
+            if (watchEditData.disabled.value) {
                 return
             }
 
+            // 非AI模式 未开启AI，则不下发协议
             if (pageData.value.disabled) {
                 return
             }
 
+            // 开启AI时，重启的提示语
             let message = Translate('IDCS_OPEN_AI_TIP')
+            // AI模式，开启和关闭AI时提示语不同
             if (pageData.value.is3536Amode) {
                 message = formData.value.supportAI ? Translate('IDCS_OPEN_AI_REBOOT_TIP') : Translate('IDCS_CLOSE_AI_REBOOT_TIP')
             }
@@ -94,9 +99,13 @@ export default defineComponent({
             openMessageBox({
                 type: 'question',
                 message,
-            }).then(() => {
-                pageData.value.isCheckAuthPop = true
             })
+                .then(() => {
+                    pageData.value.isCheckAuthPop = true
+                })
+                .catch(() => {
+                    formData.value.supportAI = !formData.value.supportAI
+                })
         }
 
         /**
@@ -122,6 +131,7 @@ export default defineComponent({
 
             if ($('status').text() === 'success') {
                 pageData.value.isCheckAuthPop = false
+                watchEditData.update()
             } else {
                 const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
@@ -155,6 +165,7 @@ export default defineComponent({
             formData,
             setData,
             confirmSetData,
+            tableData,
         }
     },
 })

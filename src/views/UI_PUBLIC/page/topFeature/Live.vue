@@ -29,6 +29,7 @@
                     @error="handlePlayerError"
                     @record-file="handlePlayerRecordFile"
                     @message="notify"
+                    @audioerror="handlePlayerAudioError"
                 />
             </div>
             <LiveScreenPanel

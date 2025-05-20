@@ -7,7 +7,7 @@
     <div class="base-home-ptz">
         <BaseListBox>
             <BaseListBoxItem
-                v-for="(item, index) in listData"
+                v-for="(item, index) in formData.cruise"
                 :key="item.index"
                 :class="{
                     active: pageData.active === index,
@@ -47,9 +47,9 @@
         </div>
         <ChannelCruiseGroupAddPop
             v-model="pageData.isAddPop"
-            :max="pageData.maxCount"
-            :cruise="listData"
-            :chl-id="chlId"
+            :cruise="formData.cruise"
+            :chl-id="formData.chlId"
+            :max="formData.maxCount"
             @confirm="confirmAddCruiseGroup"
             @close="pageData.isAddPop = false"
         />

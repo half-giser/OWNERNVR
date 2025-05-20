@@ -54,8 +54,8 @@
                     @row-click="handleCruiseRowClick"
                 >
                     <el-table-column
-                        :label="Translate('IDCS_CRUISE')"
-                        prop="index"
+                        :label="Translate('IDCS_SERIAL_NUMBER')"
+                        prop="number"
                     />
                     <el-table-column
                         :label="Translate('IDCS_CRUISE_NAME')"

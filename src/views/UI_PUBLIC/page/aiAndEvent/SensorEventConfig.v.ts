@@ -241,7 +241,7 @@ export default defineComponent({
         const blurName = (row: AlarmSensorEventDto) => {
             const name = row.name
             if (!checkChlName(name)) {
-                openMessageBox(Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'))
+                openMessageBox(Translate('IDCS_CAN_NOT_CONTAIN_SPECIAL_CHAR').formatForLang(CHANNEL_LIMIT_CHAR))
                 row.name = originalName.value
             } else {
                 if (!name) {
@@ -417,19 +417,19 @@ export default defineComponent({
                         <sysRec>
                             <switch>${row.record.switch}</switch>
                             <chls type='list'>
-                                ${row.record.chls.map((item) => `<item id='${item.value}'>${wrapCDATA(item.label)}</item>`).join('')}
+                                ${row.record.chls.map((item) => `<item id='${item.value}' />`).join('')}
                             </chls>
                         </sysRec>
                         <sysSnap>
                             <switch>${row.snap.switch}</switch>
                             <chls type='list'>
-                                ${row.snap.chls.map((item) => `<item id='${item.value}'>${wrapCDATA(item.label)}</item>`).join('')}
+                                ${row.snap.chls.map((item) => `<item id='${item.value}' />`).join('')}
                             </chls>
                         </sysSnap>
                         <alarmOut>
                             <switch>${row.alarmOut.switch}</switch>
                             <alarmOuts type='list'>
-                                ${row.alarmOut.alarmOuts.map((item) => `<item id='${item.value}'>${wrapCDATA(item.label)}</item>`).join('')}
+                                ${row.alarmOut.alarmOuts.map((item) => `<item id='${item.value}' />`).join('')}
                             </alarmOuts>
                         </alarmOut>
                         <preset>
@@ -440,8 +440,7 @@ export default defineComponent({
                                         return rawXml`
                                             <item>
                                                 <index>${item.index}</index>
-                                                <name>${wrapCDATA(item.name)}</name>
-                                                <chl id='${item.chl.value}'>${wrapCDATA(item.chl.label)}</chl>
+                                                <chl id='${item.chl.value}' />
                                             </item>
                                         `
                                     })

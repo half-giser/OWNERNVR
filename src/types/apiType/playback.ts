@@ -19,6 +19,7 @@ export class PlaybackChannelGroupList {
     id = ''
     value = ''
     dwellTime = 0
+    nameMaxByteLen = 63
 }
 
 /**

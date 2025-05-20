@@ -99,12 +99,17 @@ export default defineComponent({
             const result = await queryChlPresetList(sendXml)
             const $ = queryXml(result)
             if ($('status').text() === 'success') {
-                pageData.value.nameOptions = $('content/presets/item').map((item) => {
-                    return {
-                        value: item.attr('index').num(),
-                        label: item.text(),
-                    }
-                })
+                // NTA1-1850 预置点按顺序显示
+                pageData.value.nameOptions = $('content/presets/item')
+                    .map((item) => {
+                        return {
+                            value: item.attr('index').num(),
+                            label: item.text(),
+                        }
+                    })
+                    .sort((a, b) => {
+                        return (a.value = b.value)
+                    })
                 if (pageData.value.nameOptions.length && prop.type === 'add') {
                     formData.value.name = pageData.value.nameOptions[0].label
                 }

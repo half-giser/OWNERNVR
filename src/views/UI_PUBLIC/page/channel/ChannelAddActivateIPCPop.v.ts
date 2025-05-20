@@ -70,22 +70,33 @@ export default defineComponent({
         }
 
         const save = () => {
-            formRef.value!.validate((valid) => {
+            formRef.value!.validate(async (valid) => {
                 if (valid) {
                     const sendXml = rawXml`
                         <content>
                             ${props.activateIpcData
-                                .map((ele) => {
+                                .map((item) => {
                                     return rawXml`
                                         <item>
-                                            <userPassword>
-                                                <password type='string' encryptType='md5' maxLen='16'${getSecurityVer()}>${wrapCDATA(useDefaultPwdSwitch.value ? '' : AES_encrypt(formData.value.password, userSessionStore.sesionKey))}</password>
-                                            </userPassword>
-                                            <name>${ele.devName}</name>
-                                            <ip>${ele.ip}</ip>
-                                            <port>${ele.httpPort}</port>
-                                            <protocolType>${ele.protocolType}</protocolType>
-                                            <manufacturer>${ele.manufacturer}</manufacturer>
+                                            ${
+                                                useDefaultPwdSwitch.value
+                                                    ? rawXml`
+                                                            <userPassword>
+                                                                <password type='string' encryptType='md5' maxLen='63'${getSecurityVer()}>${wrapCDATA(useDefaultPwdSwitch.value ? '' : AES_encrypt(formData.value.password, userSessionStore.sesionKey))}</password>
+                                                            </userPassword>
+                                                        `
+                                                    : ''
+                                            }
+                                            <name>${wrapCDATA(item.devName)}</name>
+                                            <ip>${item.ip}</ip>
+                                            <port>${item.httpPort}</port>
+                                            <type>${item.httpType}</type>
+                                            <protocolType>${item.protocolType}</protocolType>
+                                            <productModel ${item.productModel.factoryName ? ` factoryName="${item.productModel.identity || item.productModel.factoryName}"` : ''}>${item.productModel.innerText}</productModel>
+                                            <manufacturer>${item.manufacturer}</manufacturer>
+                                            <localEthName>${item.localEthName}</localEthName>
+                                            <subIp>${item.subIp}</subIp>
+                                            <subIpNetMask>${item.subIpNetMask}</subIpNetMask>
                                         </item>
                                     `
                                 })
@@ -93,11 +104,10 @@ export default defineComponent({
                         </content>
                     `
                     openLoading()
-                    activateIPC(sendXml).then(() => {
-                        closeLoading()
-                        // 激活后成功或失败不做提示处理
-                        emit('close')
-                    })
+                    await activateIPC(sendXml)
+                    closeLoading()
+                    // 激活后成功或失败不做提示处理
+                    emit('close')
                 }
             })
         }

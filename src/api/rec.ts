@@ -128,3 +128,17 @@ export const queryRecDataSize = (data: string) => fetch('queryRecDataSize', data
  * @returns
  */
 export const queryRecTypeList = () => fetch('queryRecTypeList', '')
+
+/**
+ * @description
+ * @param data
+ * @returns
+ */
+export const queryDatesExistRec = (data: string) => fetch('queryDatesExistRec', data)
+
+/**
+ * @description
+ * @param data
+ * @returns
+ */
+export const queryChlSnapPicture = (data: string) => fetch('queryDatesExistRec', data)

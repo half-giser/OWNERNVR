@@ -121,12 +121,14 @@
             </el-form-item>
             <el-form-item>
                 <template #label>
-                    {{ Translate('IDCS_AUTH_PASSWD') }}
-                    <el-checkbox
-                        v-model="pageData.authPassword"
-                        :disabled="!formData.snmpv3Switch || formData.securityLevel === 0"
-                        @change="changeAuthPasswordSwitch"
-                    />
+                    <div class="base-label-box">
+                        <div>{{ Translate('IDCS_AUTH_PASSWD') }}</div>
+                        <el-checkbox
+                            v-model="pageData.authPassword"
+                            :disabled="!formData.snmpv3Switch || formData.securityLevel === 0"
+                            @change="changeAuthPasswordSwitch"
+                        />
+                    </div>
                 </template>
                 <BasePasswordInput
                     v-model="formData.authPassword"
@@ -143,12 +145,14 @@
             </el-form-item>
             <el-form-item>
                 <template #label>
-                    {{ Translate('IDCS_PRIVACY_PASSWD') }}
-                    <el-checkbox
-                        v-model="pageData.privPassword"
-                        :disabled="!formData.snmpv3Switch || formData.securityLevel !== 2"
-                        @change="changePrivPasswordSwitch"
-                    />
+                    <div class="base-label-box">
+                        <span>{{ Translate('IDCS_PRIVACY_PASSWD') }}</span>
+                        <el-checkbox
+                            v-model="pageData.privPassword"
+                            :disabled="!formData.snmpv3Switch || formData.securityLevel !== 2"
+                            @change="changePrivPasswordSwitch"
+                        />
+                    </div>
                 </template>
                 <BasePasswordInput
                     v-model="formData.privPassword"

@@ -21,16 +21,10 @@
                 :label="Translate('IDCS_RECIPIENT_ADDRESS')"
                 prop="address"
             >
-                <el-select-v2
+                <BaseSelectInput
                     v-model="formData.address"
-                    filterable
-                    allow-create
-                    default-first-option
-                    :options="pageData.list"
-                    :props="{
-                        value: 'address',
-                        label: 'address',
-                    }"
+                    :maxlength="formData.addressMaxByteLen"
+                    :options="addressOptions"
                 />
                 <el-button @click="addReceiver">{{ Translate('IDCS_ADD_ECIPIENT') }}</el-button>
             </el-form-item>
