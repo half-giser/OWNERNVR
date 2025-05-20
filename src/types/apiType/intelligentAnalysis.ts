@@ -108,6 +108,22 @@ export class IntelFaceDBSnapFaceList {
 }
 
 /**
+ * @description 人体抓拍列表
+ */
+export class IntelBodyDBSnapBodyList {
+    index = ''
+    searchByImageIndex = ''
+    faceFeatureId = ''
+    timestamp = 0
+    frameTime = ''
+    imgId = 0
+    chlId = ''
+    chlName = ''
+    pic = ''
+    featureStatus = false
+}
+
+/**
  * @description 导入人脸图片信息
  */
 export class IntelFaceDBImportImgDto {

@@ -18,6 +18,14 @@ export default defineComponent({
             default: false,
         },
         /**
+         * @property 抓拍搜索类型
+         * @description byFace:人脸抓拍；byBody:人体抓拍
+         */
+        searchType: {
+            type: String,
+            default: 'byFace',
+        },
+        /**
          * @property 是否支持多选
          */
         multiple: {
@@ -26,7 +34,7 @@ export default defineComponent({
         },
     },
     emits: {
-        change(item: IntelFaceDBSnapFaceList[]) {
+        change(item: IntelFaceDBSnapFaceList[] | IntelBodyDBSnapBodyList[]) {
             return Array.isArray(item)
         },
     },
@@ -36,7 +44,6 @@ export default defineComponent({
 
         const chlMap: Record<string, string> = {}
         const cachePic = new Map<string, { pic: string; featureStatus: boolean }>()
-
         const pageData = ref({
             // 日期范围类型
             dateRangeType: 'date',
@@ -56,8 +63,8 @@ export default defineComponent({
             faceIndex: [] as number[],
         })
 
-        const listData = ref<IntelFaceDBSnapFaceList[]>([])
-        const filterListData = ref<IntelFaceDBSnapFaceList[]>([])
+        const listData = ref<IntelFaceDBSnapFaceList[] | IntelBodyDBSnapBodyList[]>([])
+        const filterListData = ref<IntelFaceDBSnapFaceList[] | IntelBodyDBSnapBodyList[]>([])
 
         /**
          * @description 打开通道弹窗
@@ -103,51 +110,97 @@ export default defineComponent({
         }
 
         /**
-         * @description 检索抓怕数据列表
+         * @description 检索抓怕数据列表,人脸抓怕使用searchImageByImageV2，人体使用searchTargetIndex
          */
         const searchData = async () => {
             cachePic.clear()
             openLoading()
 
-            const sendXml = rawXml`
-                <resultLimit>10000</resultLimit>
-                <condition>
-                    <startTime>${localToUtc(formData.value.dateRange[0])}</startTime>
-                    <endTime>${localToUtc(formData.value.dateRange[1])}</endTime>
-                    <chls type="list">${formData.value.chls.map((item) => `<item id="${item.value}" />`).join('')}</chls>
-                    <event>
-                        <eventType>byAllQualified</eventType>
-                    </event>
-                </condition>
-            `
-            const result = await searchImageByImageV2(sendXml)
-            const $ = queryXml(result)
+            if (prop.searchType === 'byFace') {
+                const sendXml = rawXml`
+                    <resultLimit>10000</resultLimit>
+                    <condition>
+                        <startTime>${localToUtc(formData.value.dateRange[0])}</startTime>
+                        <endTime>${localToUtc(formData.value.dateRange[1])}</endTime>
+                        <chls type="list">${formData.value.chls.map((item) => `<item id="${item.value}" />`).join('')}</chls>
+                        <event>
+                            <eventType>byAllQualified</eventType>
+                        </event>
+                    </condition>
+                `
+                const result = await searchImageByImageV2(sendXml)
+                const $ = queryXml(result)
+                closeLoading()
 
-            closeLoading()
+                formData.value.faceIndex = []
+                listData.value = $('content/i')
+                    .map((item) => {
+                        const textArr = item.text().array()
+                        const chlId = getChlGuid16(textArr[4]).toUpperCase()
+                        const timestamp = hexToDec(textArr[1]) * 1000
+                        return {
+                            faceFeatureId: hexToDec(textArr[0]) + '',
+                            timestamp,
+                            frameTime: localToUtc(timestamp) + ':' + padStart(hexToDec(textArr[2]), 7),
+                            imgId: hexToDec(textArr[3]),
+                            chlId,
+                            chlName: chlMap[chlId],
+                            pic: '',
+                            featureStatus: false,
+                        }
+                    })
+                    .toSorted((a, b) => b.timestamp - a.timestamp)
 
-            formData.value.faceIndex = []
-            listData.value = $('content/i')
-                .map((item) => {
-                    const textArr = item.text().array()
-                    const chlId = getChlGuid16(textArr[4]).toUpperCase()
-                    const timestamp = hexToDec(textArr[1]) * 1000
-                    return {
-                        faceFeatureId: hexToDec(textArr[0]) + '',
-                        timestamp,
-                        frameTime: localToUtc(timestamp) + ':' + padStart(hexToDec(textArr[2]), 7),
-                        imgId: hexToDec(textArr[3]),
-                        chlId,
-                        chlName: chlMap[chlId],
-                        pic: '',
-                        featureStatus: false,
-                    }
-                })
-                .toSorted((a, b) => b.timestamp - a.timestamp)
+                closeLoading()
 
-            closeLoading()
+                changeFacePage(1)
+                ctx.emit('change', [])
+            } else {
+                const sendXml = rawXml`
+                    <resultLimit>10000</resultLimit>
+                    <condition>
+                        <searchType>byHumanBodyPic</searchType>
+                        <startTime>${localToUtc(formData.value.dateRange[0])}</startTime>
+                        <endTime>${localToUtc(formData.value.dateRange[1])}</endTime>
+                        <chls type="list">${formData.value.chls.map((item) => `<item id="${item.value}" />`).join('')}</chls>
+                        <byAllQualified>true</byAllQualified>
+                    </condition>
+                `
+                const result = await searchTargetIndex(sendXml)
+                const $ = queryXml(result)
+                closeLoading()
 
-            changeFacePage(1)
-            ctx.emit('change', [])
+                formData.value.faceIndex = []
+                listData.value = $('content/results/item')
+                    .map((item) => {
+                        const $item = queryXml(item.element)
+                        const index = $item('index').text()
+                        const searchByImageIndex = $item('index').text()
+                        const chlId = $item('chlID').text()
+                        const timestamp = Number($item('timestamp').text()) * 1000
+                        const calTimeS = $item('calTimeS').text()
+                        const calTimeNS = $item('calTimeNS').text()
+                        const frameTime = localToUtc(calTimeS) + ':' + calTimeNS
+                        const imgId = Number($item('targetID').text())
+                        return {
+                            index,
+                            searchByImageIndex,
+                            faceFeatureId: '0',
+                            timestamp,
+                            frameTime,
+                            imgId,
+                            chlId,
+                            chlName: chlMap[chlId],
+                            pic: '',
+                            featureStatus: false,
+                        }
+                    })
+                    .toSorted((a, b) => b.timestamp - a.timestamp)
+                closeLoading()
+
+                changeFacePage(1)
+                ctx.emit('change', [])
+            }
         }
 
         /**
@@ -158,7 +211,7 @@ export default defineComponent({
             formData.value.pageIndex = pageIndex
             filterListData.value = listData.value.slice((formData.value.pageIndex - 1) * formData.value.pageSize, formData.value.pageIndex * formData.value.pageSize)
             filterListData.value.forEach(async (item) => {
-                const data = await getFacePic(item)
+                const data = await getFacePic(item, prop.searchType)
                 if (data) {
                     item.pic = data.pic
                     item.featureStatus = data.featureStatus
@@ -204,34 +257,58 @@ export default defineComponent({
          * @param {IntelFaceDBSnapFaceList} item
          * @returns {string}
          */
-        const getFacePic = async (item: IntelFaceDBSnapFaceList) => {
+        const getFacePic = async (item: IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList, type: String) => {
             const key = getUniqueKey(item)
             if (cachePic.has(key)) {
                 return cachePic.get(key)!
             }
-            const sendXml = rawXml`
-                <condition>
-                    <imgId>${item.imgId}</imgId>
-                    <chlId>${item.chlId}</chlId>
-                    <frameTime>${item.frameTime}</frameTime>
-                    <featureStatus>true</featureStatus>
-                </condition>
-            `
-            const result = await requestChSnapFaceImage(sendXml)
-            const $ = queryXml(result)
-            const pic = $('content').text()
-            const featureStatus = $('featureStatus').text().bool()
-            if (pic) {
-                cachePic.set(key, {
-                    pic: wrapBase64Img(pic),
-                    featureStatus,
-                })
-                return {
-                    pic: wrapBase64Img(pic),
-                    featureStatus,
+
+            if (type === 'byFace') {
+                const sendXml = rawXml`
+                    <condition>
+                        <imgId>${item.imgId}</imgId>
+                        <chlId>${item.chlId}</chlId>
+                        <frameTime>${item.frameTime}</frameTime>
+                        <featureStatus>true</featureStatus>
+                    </condition>
+                `
+                const result = await requestChSnapFaceImage(sendXml)
+                const $ = queryXml(result)
+                const pic = $('content').text()
+                const featureStatus = $('featureStatus').text().bool()
+                if (pic) {
+                    cachePic.set(key, {
+                        pic: wrapBase64Img(pic),
+                        featureStatus,
+                    })
+                    return {
+                        pic: wrapBase64Img(pic),
+                        featureStatus,
+                    }
                 }
+                return null
+            } else {
+                const bodyItem = item as IntelBodyDBSnapBodyList
+                const sendXml = rawXml`
+                    <condition>
+                        <index>${bodyItem.index}</index>
+                    </condition>
+                `
+                const result = await requestTargetData(sendXml)
+                const $ = queryXml(result)
+                const pic = $('content/objPicData/data').text()
+                if (pic) {
+                    cachePic.set(key, {
+                        pic: wrapBase64Img(pic),
+                        featureStatus: false,
+                    })
+                    return {
+                        pic: wrapBase64Img(pic),
+                        featureStatus: false,
+                    }
+                }
+                return null
             }
-            return null
         }
 
         /**
@@ -269,6 +346,7 @@ export default defineComponent({
          */
         const open = async () => {
             formData.value.faceIndex = []
+            filterListData.value = []
         }
 
         watch(

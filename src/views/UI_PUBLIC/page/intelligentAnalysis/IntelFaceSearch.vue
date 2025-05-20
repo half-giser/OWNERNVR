@@ -64,7 +64,7 @@
                                     </el-button>
                                     <el-button
                                         link
-                                        @click.stop="resetFaceData"
+                                        @click.stop="resetSelectedData"
                                     >
                                         {{ Translate('IDCS_CLEAR_AWAY') }}
                                     </el-button>
@@ -452,11 +452,14 @@
         <IntelFaceSearchChooseFacePop
             v-model="pageData.isChoosePop"
             :type="formData.face"
-            :snap="formData.snapFace"
+            :open-type="formData.openType"
+            :snap-face="formData.snapFace"
+            :snap-body="formData.snapBody"
             :face="formData.featureFace"
             :group="formData.featureFaceGroup"
             :external="formData.importFace"
-            @choose-snap="changeSnap"
+            @choose-face-snap="changeFaceSnap"
+            @choose-body-snap="changeBodySnap"
             @choose-group="changeFaceGroup"
             @choose-face="changeFace"
             @import-files="changeImportFace"
