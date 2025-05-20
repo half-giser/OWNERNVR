@@ -5,10 +5,18 @@
  */
 import PassLineEmailPop from './PassLineEmailPop.vue'
 import { type XMLQuery } from '@/utils/xmlParse'
+import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
+import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
+import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
+import AlarmBasePresetSelector from './AlarmBasePresetSelector.vue'
 
 export default defineComponent({
     components: {
         PassLineEmailPop,
+        AlarmBaseRecordSelector,
+        AlarmBaseAlarmOutSelector,
+        AlarmBaseTriggerSelector,
+        AlarmBasePresetSelector,
     },
     props: {
         /**
@@ -68,16 +76,29 @@ export default defineComponent({
             off: Translate('IDCS_OFF'),
         }
 
+        const DIRECTION_TYPE_MAPPING: Record<string, string> = {
+            rightortop: 'A->B',
+            leftorbotton: 'A<-B',
+        }
+
+        const DETECT_TARGET_TYPE_MAPPING: Record<string, string> = {
+            person: Translate('IDCS_DETECTION_PERSON'),
+            car: Translate('IDCS_DETECTION_VEHICLE'),
+            motor: Translate('IDCS_NON_VEHICLE'),
+        }
+
         const pageData = ref({
             // 是否支持声音设置
             supportAlarmAudioConfig: true,
             // 请求数据失败显示提示
             reqFail: false,
-            // 选择的功能:param、target
+            // 选择的功能:param、imageOSD、trigger
             tab: 'param',
             // 排程管理
             isSchedulePop: false,
             scheduleList: [] as SelectOption<string, string>[],
+            // 配置模式
+            objectFilterMode: 'mode1',
             // passLine播放器设置
             // 是否显示全部区域绑定值
             isShowAllArea: false,
@@ -89,6 +110,8 @@ export default defineComponent({
             direction: '' as CanvasPasslineDirection,
             // 方向列表
             directionList: [] as SelectOption<string, string>[],
+            // 控制显示最值区域
+            isShowDisplayRange: false,
             // CPC播放器设置
             // 是否显示CPC绘制控制 老代码写死不显示，并且不可画图
             showCpcDrawAvailable: false,
@@ -106,7 +129,21 @@ export default defineComponent({
                 reportHour: 0,
                 reportMin: 0,
             },
+            // 发件人的原始数据
+            origSendEmailData: {
+                type: 0,
+                enableSwitch: false,
+                dailyReportSwitch: false,
+                weeklyReportSwitch: false,
+                weeklyReportDate: 0,
+                mouthlyReportSwitch: false,
+                mouthlyReportDate: 0,
+                reportHour: 0,
+                reportMin: 0,
+            },
             receiverData: [] as AlarmPassLinesEmailDto['receiverData'],
+            // 收件人的原始数据
+            origReceiverData: [] as AlarmPassLinesEmailDto['receiverData'],
             weekOption: objectToOptions(getTranslateMapping(DEFAULT_WEEK_MAPPING), 'number'),
             monthOption: Array(31)
                 .fill(0)
@@ -144,6 +181,48 @@ export default defineComponent({
                 return ''
             }
             return playerRef.value!.mode
+        })
+
+        // 显示人的勾选框 + 灵敏度配置项
+        const showAllPersonTarget = computed(() => {
+            const surfaceIndex = pageData.value.surfaceIndex
+            const haslineInfo = formData.value.line.length > 0
+            return haslineInfo && formData.value.line[surfaceIndex].objectFilter.supportPerson
+        })
+
+        // 显示车的勾选框 + 灵敏度配置项
+        const showAllCarTarget = computed(() => {
+            const surfaceIndex = pageData.value.surfaceIndex
+            const haslineInfo = formData.value.line.length > 0
+            return haslineInfo && formData.value.line[surfaceIndex].objectFilter.supportCar
+        })
+
+        // 显示摩托车的勾选框 + 灵敏度配置项
+        const showAllMotorTarget = computed(() => {
+            const surfaceIndex = pageData.value.surfaceIndex
+            const haslineInfo = formData.value.line.length > 0
+            return haslineInfo && formData.value.line[surfaceIndex].objectFilter.supportMotor
+        })
+
+        // 显示人的滞留报警阈值配置项
+        const showPersonThreshold = computed(() => {
+            const surfaceIndex = pageData.value.surfaceIndex
+            const haslineInfo = formData.value.line.length > 0
+            return haslineInfo && formData.value.line[surfaceIndex].objectFilter.person.supportAlarmThreshold
+        })
+
+        // 显示车的滞留报警阈值配置项
+        const showCarThreshold = computed(() => {
+            const surfaceIndex = pageData.value.surfaceIndex
+            const haslineInfo = formData.value.line.length > 0
+            return haslineInfo && formData.value.line[surfaceIndex].objectFilter.car.supportAlarmThreshold
+        })
+
+        // 显示非机动车的滞留报警阈值配置项
+        const showMotorThreshold = computed(() => {
+            const surfaceIndex = pageData.value.surfaceIndex
+            const haslineInfo = formData.value.line.length > 0
+            return haslineInfo && formData.value.line[surfaceIndex].objectFilter.motor.supportAlarmThreshold
         })
 
         /**
@@ -241,6 +320,7 @@ export default defineComponent({
                         schedule: getScheduleId(pageData.value.scheduleList, $('schedule').attr('id')),
                     })
                 })
+                pageData.value.origReceiverData = cloneDeep(pageData.value.receiverData)
             }
         }
 
@@ -248,6 +328,8 @@ export default defineComponent({
          * @description 设置收件人配置
          */
         const setEmailCfg = async () => {
+            // 数据未被修改，不下发编辑协议
+            if (JSON.stringify(pageData.value.origReceiverData) === JSON.stringify(pageData.value.receiverData)) return
             const sendXml = rawXml`
                 <content>
                     <receiver>
@@ -264,7 +346,11 @@ export default defineComponent({
                     </receiver>
                 </content>
             `
-            await editEmailCfg(sendXml)
+            const res = await editEmailCfg(sendXml)
+            const $ = queryXml(res)
+            if ($('status').text() === 'success') {
+                pageData.value.origReceiverData = cloneDeep(pageData.value.receiverData)
+            }
         }
 
         /**
@@ -288,6 +374,7 @@ export default defineComponent({
                             reportHour: $item('param/item/reportHour').text().num(),
                             reportMin: $item('param/item/reportMin').text().num(),
                         }
+                        pageData.value.origSendEmailData = cloneDeep(pageData.value.sendEmailData)
                     }
                 })
             }
@@ -297,6 +384,8 @@ export default defineComponent({
          * @description 设置定时发送邮件配置
          */
         const setTimingSendEmail = async () => {
+            // 数据未被修改，不下发编辑协议
+            if (JSON.stringify(pageData.value.origSendEmailData) === JSON.stringify(pageData.value.sendEmailData)) return
             const sendXML = rawXml`
                 <content>
                     <chl id="${props.currChlId}">
@@ -316,21 +405,11 @@ export default defineComponent({
                     </chl>
                 </content>
             `
-            await editTimingSendEmail(sendXML)
-        }
-
-        /**
-         * @description 保存PASSLINE排程
-         */
-        const setScheduleGuid = () => {
-            const sendXml = rawXml`
-                <content>
-                    <chl id="${props.currChlId}" scheduleGuid="${formData.value.schedule}">
-                        <trigger></trigger>
-                    </chl>
-                </content>
-            `
-            editPls(sendXml)
+            const res = await editTimingSendEmail(sendXML)
+            const $ = queryXml(res)
+            if ($('status').text() === 'success') {
+                pageData.value.origSendEmailData = cloneDeep(pageData.value.sendEmailData)
+            }
         }
 
         /**
@@ -372,7 +451,7 @@ export default defineComponent({
                     if (mode.value === 'h5') {
                         setPassLineOcxData()
                         passLineDrawer.setEnable('line', true)
-                        passLineDrawer.setEnable('osd', formData.value.countOSD.switch)
+                        passLineDrawer.setEnable('osd', false)
                         passLineDrawer.setOSD(formData.value.countOSD)
                     }
 
@@ -395,12 +474,13 @@ export default defineComponent({
                     setCpcOcxData()
                     cpcDrawer.setEnable(true)
                 }
-            } else if (pageData.value.tab === 'target') {
+            } else if (pageData.value.tab === 'imageOSD') {
+                showAllPassLineArea(false)
                 if (props.chlData.supportPassLine) {
                     if (mode.value === 'h5') {
                         passLineDrawer.clear()
                         passLineDrawer.setEnable('line', false)
-                        passLineDrawer.setEnable('osd', false)
+                        passLineDrawer.setEnable('osd', formData.value.countOSD.switch)
                         passLineDrawer.setOSD(formData.value.countOSD)
                     }
 
@@ -420,6 +500,21 @@ export default defineComponent({
                     cpcDrawer.clear()
                     cpcDrawer.setEnable(false)
                 }
+            } else if (pageData.value.tab === 'trigger') {
+                showAllPassLineArea(false)
+
+                if (mode.value === 'h5') {
+                    passLineDrawer.clear()
+                    passLineDrawer.setEnable('line', false)
+                }
+
+                if (mode.value === 'ocx') {
+                    const sendXML1 = OCX_XML_SetTripwireLineAction('NONE')
+                    plugin.ExecuteCmd(sendXML1)
+
+                    const sendXML2 = OCX_XML_SetTripwireLineAction('EDIT_OFF')
+                    plugin.ExecuteCmd(sendXML2)
+                }
             }
         }
 
@@ -438,6 +533,7 @@ export default defineComponent({
                     </condition>
                     <requireField>
                         <param/>
+                        <trigger/>
                     </requireField>
                 `
                 const res = await queryPls(sendXml)
@@ -445,6 +541,7 @@ export default defineComponent({
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
                     const $param = queryXml($('content/chl/param')[0].element)
+                    const $trigger = queryXml($('content/chl/trigger')[0].element)
 
                     let enabledSwitch = $param('switch').text().bool()
                     if (typeof manualResetSwitch === 'boolean') {
@@ -452,15 +549,6 @@ export default defineComponent({
                     }
                     formData.value.detectionEnable = enabledSwitch
                     formData.value.originalEnable = enabledSwitch
-
-                    formData.value.objectFilter = {
-                        car: $param('objectFilter/car/switch').text().bool(),
-                        person: $param('objectFilter/person/switch').text().bool(),
-                        motorcycle: $param('objectFilter/motor/switch').text().bool(),
-                        personSensitivity: $param('objectFilter/person/sensitivity').text().num(),
-                        carSensitivity: $param('objectFilter/car/sensitivity').text().num(),
-                        motorSensitivity: $param('objectFilter/motor/sensitivity').text().num(),
-                    }
 
                     const countTimeType = $param('countPeriod/countTimeType').text()
                     formData.value.countTimeType = countTimeType !== 'off' ? countTimeType : 'day'
@@ -480,33 +568,19 @@ export default defineComponent({
                         },
                     }
 
-                    formData.value.line = $param('line/item').map((element) => {
-                        const $item = queryXml(element.element)
-                        const direction = $item('direction').text() as CanvasPasslineDirection
-                        const startX = $item('startPoint/X').text().num()
-                        const startY = $item('startPoint/Y').text().num()
-                        const endX = $item('endPoint/X').text().num()
-                        const endY = $item('endPoint/Y').text().num()
-                        return {
-                            direction: direction,
-                            startPoint: {
-                                X: startX,
-                                Y: startY,
-                            },
-                            endPoint: {
-                                X: endX,
-                                Y: endY,
-                            },
-                        }
-                    })
+                    formData.value.schedule = getScheduleId(pageData.value.scheduleList, $('content/chl').attr('scheduleGuid'))
+                    formData.value.supportAlarmHoldTime = $param('alarmHoldTime').text().length > 0
+                    formData.value.holdTime = Number($param('alarmHoldTime').text())
+                    formData.value.holdTimeList = getAlarmHoldTimeList($param('holdTimeNote').text(), formData.value.holdTime)
 
-                    if (formData.value.line.length > 1) {
-                        pageData.value.showAllAreaVisible = true
-                        pageData.value.clearAllVisible = true
+                    // 时间阈值（秒）
+                    formData.value.supportDuration = $param('duration').text() !== ''
+                    formData.value.duration = {
+                        value: $param('duration').text().num(),
+                        min: $param('duration').attr('min').num(),
+                        max: $param('duration').attr('max').num(),
                     }
 
-                    formData.value.schedule = getScheduleId(pageData.value.scheduleList, $('content/chl').attr('scheduleGuid'))
-                    formData.value.holdTime = Number($param('alarmHoldTime').text())
                     formData.value.countCycleTypeList = $('types/countCycleType/enum')
                         .map((element) => {
                             const itemValue = element.text()
@@ -516,6 +590,14 @@ export default defineComponent({
                             }
                         })
                         .filter((item) => item.value !== 'off')
+
+                    formData.value.directionList = $('types/direction/enum').map((element) => {
+                        const itemValue = element.text()
+                        return {
+                            value: itemValue,
+                            label: DIRECTION_TYPE_MAPPING[itemValue],
+                        }
+                    })
 
                     formData.value.mutexList = $param('mutexList/item').map((element) => {
                         const $ = queryXml(element.element)
@@ -532,18 +614,147 @@ export default defineComponent({
                         }
                     })
 
+                    // 解析检测目标的数据
+                    const objectFilterMode = getCurrentAICfgMode('line', $param)
+                    pageData.value.objectFilterMode = objectFilterMode
+                    const $paramObjectFilter = $('content/chl/param/objectFilter')
+                    let objectFilter = ref(new AlarmObjectFilterCfgDto())
+                    if (objectFilterMode === 'mode1') {
+                        // 模式一
+                        if ($param('objectFilter').text() !== '') {
+                            objectFilter = getObjectFilterData(objectFilterMode, $paramObjectFilter, [])
+                        }
+                    }
+
+                    $param('line/item').forEach((item) => {
+                        const $item = queryXml(item.element)
+                        // 下列模式需要获取从line/item/objectFilter获取检测目标配置数据
+                        const needResetObjectList = ['mode2', 'mode3', 'mode5']
+                        const needResetObjectFilter = needResetObjectList.indexOf(objectFilterMode) > -1
+                        if (needResetObjectFilter) {
+                            // 模式2灵敏度相关数据从chl/param/objectFilter节点获取
+                            const $resultNode = objectFilterMode === 'mode2' ? $paramObjectFilter : []
+                            objectFilter = getObjectFilterData(objectFilterMode, $item('objectFilter'), $resultNode)
+                        }
+
+                        formData.value.line.push({
+                            objectFilter: objectFilter.value,
+                            direction: $item('direction').text() as CanvasPasslineDirection,
+                            startPoint: {
+                                X: $item('startPoint/X').text().num(),
+                                Y: $item('startPoint/Y').text().num(),
+                            },
+                            endPoint: {
+                                X: $item('endPoint/X').text().num(),
+                                Y: $item('endPoint/Y').text().num(),
+                            },
+                        })
+                    })
+                    if (formData.value.line.length > 1) {
+                        pageData.value.showAllAreaVisible = true
+                        pageData.value.clearAllVisible = true
+                    }
+                    formData.value.direction = formData.value.line[pageData.value.surfaceIndex].direction
+                    // 默认用line的第一个数据初始化检测目标
+                    if (formData.value.line[0].objectFilter.detectTargetList.length) {
+                        formData.value.detectTargetList = formData.value.line[0].objectFilter.detectTargetList.map((item) => {
+                            return {
+                                value: item,
+                                label: DETECT_TARGET_TYPE_MAPPING[item],
+                            }
+                        })
+                        formData.value.detectTarget = formData.value.detectTargetList[0].value
+                    }
+                    // OSD信息
+                    let osdFormat = $param('countOSD/osdFormat').text()
+                    const showEnterOsd = $param('countOSD/showEnterOsd').text().bool()
+                    const osdEntranceName = $param('countOSD/osdEntranceName').text()
+                    const osdEntranceNameMaxLen = $param('countOSD/osdEntranceName').attr('maxByteLen').num() || nameByteMaxLen
+                    const supportOsdEntranceName = $param('countOSD/osdEntranceName').length > 0
+                    const showExitOsd = $param('countOSD/showExitOsd').text().bool()
+                    const osdExitName = $param('countOSD/osdExitName').text()
+                    const osdExitNameMaxLen = $param('countOSD/osdExitName').attr('maxByteLen').num() || nameByteMaxLen
+                    const supportOsdExitName = $param('countOSD/osdExitName').length > 0
+                    const showStayOsd = $param('countOSD/showStayOsd').text().bool()
+                    const osdStayName = $param('countOSD/osdStayName').text()
+                    const osdStayNameMaxLen = $param('countOSD/osdStayName').attr('maxByteLen').num() || nameByteMaxLen
+                    const supportOsdStayName = $param('countOSD/osdStayName').length > 0
+                    const osdWelcomeName = $param('countOSD/osdWelcomeName').text()
+                    const osdWelcomeNameMaxLen = $param('countOSD/osdWelcomeName').attr('maxByteLen').num() || nameByteMaxLen
+                    const supportOsdWelcomeName = $param('countOSD/osdWelcomeName').length > 0
+                    const osdAlarmName = $param('countOSD/osdAlarmName').text()
+                    const osdAlarmNameMaxLen = $param('countOSD/osdAlarmName').attr('maxByteLen').num() || nameByteMaxLen
+                    const supportOsdAlarmName = $param('countOSD/osdAlarmName').length > 0
+
+                    // 拼接osdFormat
+                    let entryOsdFormat = osdEntranceName + ': '
+                    let exitOsdFormat = osdExitName + '  : '
+                    let stayOsdFormat = osdStayName + ' : '
+
+                    const objectFilterData = formData.value.line[0].objectFilter
+                    if (objectFilterData.supportPerson) {
+                        if (showEnterOsd) entryOsdFormat += 'human-# '
+                        if (showExitOsd) exitOsdFormat += 'human-# '
+                        if (showStayOsd) stayOsdFormat += 'human-# '
+                    }
+
+                    if (objectFilterData.supportCar) {
+                        if (showEnterOsd) entryOsdFormat += 'car-# '
+                        if (showExitOsd) exitOsdFormat += 'car-# '
+                        if (showStayOsd) stayOsdFormat += 'car-# '
+                    }
+
+                    if (objectFilterData.supportMotor) {
+                        if (showEnterOsd) entryOsdFormat += 'bike-# '
+                        if (showExitOsd) exitOsdFormat += 'bike-# '
+                        if (showStayOsd) stayOsdFormat += 'bike-# '
+                    }
+
+                    if (supportOsdEntranceName || supportOsdExitName || supportOsdStayName) {
+                        osdFormat = ''
+                        if (showEnterOsd) {
+                            osdFormat += entryOsdFormat + '\\n'
+                        }
+
+                        if (showExitOsd) {
+                            osdFormat += exitOsdFormat + '\\n'
+                        }
+
+                        if (showStayOsd) {
+                            osdFormat += stayOsdFormat + '\\n'
+                        }
+                    } else {
+                        osdFormat = osdFormat
+                    }
                     formData.value.countOSD = {
                         switch: $param('countOSD/switch').text().bool(),
                         X: $param('countOSD/X').text().num(),
                         Y: $param('countOSD/Y').text().num(),
-                        osdFormat: $param('countOSD/osdFormat').text(),
+                        osdFormat: osdFormat,
+                        showEnterOsd: showEnterOsd,
+                        osdEntranceName: osdEntranceName,
+                        osdEntranceNameMaxLen: osdEntranceNameMaxLen,
+                        supportOsdEntranceName: supportOsdEntranceName,
+                        showExitOsd: showExitOsd,
+                        osdExitName: osdExitName,
+                        osdExitNameMaxLen: osdExitNameMaxLen,
+                        supportOsdExitName: supportOsdExitName,
+                        showStayOsd: showStayOsd,
+                        osdStayName: osdStayName,
+                        osdStayNameMaxLen: osdStayNameMaxLen,
+                        supportOsdStayName: supportOsdStayName,
+                        osdWelcomeName: osdWelcomeName,
+                        osdWelcomeNameMaxLen: osdWelcomeNameMaxLen,
+                        supportOsdWelcomeName: supportOsdWelcomeName,
+                        osdAlarmName: osdAlarmName,
+                        osdAlarmNameMaxLen: osdAlarmNameMaxLen,
+                        supportOsdAlarmName: supportOsdAlarmName,
                     }
 
-                    formData.value.triggerAudio = $param('triggerAudio').text().bool()
-                    formData.value.triggerWhiteLight = $param('triggerWhiteLight').text().bool()
+                    formData.value.audioSuport = $param('triggerAudio').text() !== ''
+                    formData.value.lightSuport = $param('triggerWhiteLight').text() !== ''
                     formData.value.saveTargetPicture = $param('saveTargetPicture').text().bool()
                     formData.value.saveSourcePicture = $param('saveSourcePicture').text().bool()
-                    formData.value.autoReset = countTimeType !== 'off'
 
                     pageData.value.direction = formData.value.line[0].direction
                     pageData.value.directionList = $('types/direction/enum').map((element) => {
@@ -553,6 +764,56 @@ export default defineComponent({
                             label: DIRECTION_TYPE[itemValue],
                         }
                     })
+
+                    formData.value.sysAudio = $trigger('sysAudio').attr('id')
+                    formData.value.recordSwitch = $trigger('sysRec/switch').text().bool()
+                    formData.value.recordChls = $trigger('sysRec/chls/item').map((item) => {
+                        return {
+                            value: item.attr('id'),
+                            label: item.text(),
+                        }
+                    })
+                    formData.value.alarmOutSwitch = $trigger('alarmOut/switch').text().bool()
+                    formData.value.alarmOutChls = $trigger('alarmOut/alarmOuts/item').map((item) => {
+                        return {
+                            value: item.attr('id'),
+                            label: item.text(),
+                        }
+                    })
+                    formData.value.presetSwitch = $trigger('preset/switch').text().bool()
+                    formData.value.presets = $trigger('preset/presets/item').map((item) => {
+                        const $item = queryXml(item.element)
+                        return {
+                            index: $item('index').text(),
+                            name: $item('name').text(),
+                            chl: {
+                                value: $item('chl').attr('id'),
+                                label: $item('chl').text(),
+                            },
+                        }
+                    })
+
+                    formData.value.trigger = ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch'].filter((item) => {
+                        return $trigger(item).text().bool()
+                    })
+
+                    formData.value.triggerList = ['snapSwitch', 'msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch']
+
+                    if (formData.value.audioSuport && props.chlData.supportAudio) {
+                        formData.value.triggerList.push('triggerAudio')
+                        const triggerAudio = $param('triggerAudio').text().bool()
+                        if (triggerAudio) {
+                            formData.value.trigger.push('triggerAudio')
+                        }
+                    }
+
+                    if (formData.value.lightSuport && props.chlData.supportWhiteLight) {
+                        formData.value.triggerList.push('triggerWhiteLight')
+                        const triggerWhiteLight = $param('triggerWhiteLight').text().bool()
+                        if (triggerWhiteLight) {
+                            formData.value.trigger.push('triggerWhiteLight')
+                        }
+                    }
 
                     watchEdit.listen()
                 } else {
@@ -641,37 +902,45 @@ export default defineComponent({
         }
 
         /**
+         * @description 组装param根节点下的ObjectFilter数据
+         */
+        const setParamObjectFilterData = () => {
+            let paramXml = ''
+            const noParamObjectNodeList = ['mode0', 'mode4', 'mode5'] // 模式0,4,5不需要下发基础的objectFilter节点
+            if (noParamObjectNodeList.indexOf(pageData.value.objectFilterMode) === -1) {
+                // 模式1、2、3均要下发基础的objectFilter节点
+                paramXml = setObjectFilterXmlData(formData.value.line[0].objectFilter, props.chlData)
+            }
+
+            return paramXml
+        }
+
+        /**
+         * @description 组装各个区域下的ObjectFilter节点数据
+         */
+        const setItemObjectFilterData = (item: { objectFilter: globalThis.AlarmObjectFilterCfgDto }) => {
+            let paramXml = ''
+            const singleDetectCfgList = ['mode2', 'mode3', 'mode5'] // 上述模式每个区域可单独配置检测目标或目标大小
+            if (singleDetectCfgList.indexOf(pageData.value.objectFilterMode) !== -1) {
+                paramXml += setObjectFilterXmlData(item.objectFilter, props.chlData)
+            }
+
+            return paramXml
+        }
+
+        /**
          * @description 保存PASSLINE配置
          */
         const savePassLineData = async () => {
             const sendXml = rawXml`
                 <content>
-                    <chl id="${props.currChlId}">
+                    <chl id="${props.currChlId}" scheduleGuid="${formData.value.schedule}">
                         <param>
                             <switch>${formData.value.detectionEnable}</switch>
-                            <alarmHoldTime unit="s">${formData.value.holdTime}</alarmHoldTime>
-                            <objectFilter>
-                                <car>
-                                    <switch>${formData.value.objectFilter.car}</switch>
-                                    <sensitivity>${formData.value.objectFilter.carSensitivity}</sensitivity>
-                                </car>
-                                <person>
-                                    <switch>${formData.value.objectFilter.person}</switch>
-                                    <sensitivity>${formData.value.objectFilter.personSensitivity}</sensitivity>
-                                </person>
-                                ${
-                                    props.chlData.accessType === '0'
-                                        ? rawXml`
-                                            <motor>
-                                                <switch>${formData.value.objectFilter.motorcycle}</switch>
-                                                <sensitivity>${formData.value.objectFilter.motorSensitivity}</sensitivity>
-                                            </motor>
-                                        `
-                                        : ''
-                                }
-                            </objectFilter>
+                            ${formData.value.supportAlarmHoldTime ? `<alarmHoldTime unit="s">${formData.value.holdTime}</alarmHoldTime>` : ''}
+                            ${formData.value.supportDuration ? `<duration>${formData.value.duration.value}</duration>` : ''}
                             <countPeriod>
-                                <countTimeType>${!formData.value.autoReset ? 'off' : formData.value.countTimeType}</countTimeType>
+                                <countTimeType>${formData.value.countTimeType}</countTimeType>
                                 <day>
                                     <dateSpan>${formData.value.countPeriod.day.date}</dateSpan>
                                     <dateTimeSpan>${formData.value.countPeriod.day.dateTime}</dateTimeSpan>
@@ -689,10 +958,29 @@ export default defineComponent({
                                 <switch>${formData.value.countOSD.switch}</switch>
                                 <X>${Math.round(formData.value.countOSD.X)}</X>
                                 <Y>${Math.round(formData.value.countOSD.Y)}</Y>
-                                <osdFormat>${formData.value.countOSD.osdFormat}</osdFormat>
+                            ${
+                                formData.value.countOSD.supportOsdEntranceName
+                                    ? `<showEnterOsd>${formData.value.countOSD.showEnterOsd}</showEnterOsd>
+                                <osdEntranceName>${formData.value.countOSD.osdEntranceName}</osdEntranceName>`
+                                    : ''
+                            }
+                             ${
+                                 formData.value.countOSD.supportOsdExitName
+                                     ? `<showExitOsd>${formData.value.countOSD.showExitOsd}</showExitOsd>
+                                <osdExitName>${formData.value.countOSD.osdExitName}</osdExitName>`
+                                     : ''
+                             }
+                             ${
+                                 formData.value.countOSD.supportOsdStayName
+                                     ? `<showStayOsd>${formData.value.countOSD.showStayOsd}</showStayOsd>
+                                <osdStayName>${formData.value.countOSD.osdStayName}</osdStayName>`
+                                     : ''
+                             }
+                             ${formData.value.countOSD.supportOsdAlarmName ? `<osdAlarmName>${formData.value.countOSD.osdAlarmName}</osdAlarmName>` : ''}
+                             ${formData.value.countOSD.supportOsdWelcomeName ? `<osdWelcomeName>${formData.value.countOSD.osdWelcomeName}</osdWelcomeName>` : ''}
                             </countOSD>
-                            ${props.chlData.supportAudio ? `<triggerAudio>${formData.value.triggerAudio}</triggerAudio>` : ''}
-                            ${props.chlData.supportWhiteLight ? `<triggerWhiteLight>${formData.value.triggerWhiteLight}</triggerWhiteLight>` : ''}
+                            ${formData.value.audioSuport && props.chlData.supportAudio ? `<triggerAudio>${formData.value.trigger.includes('triggerAudio')}</triggerAudio>` : ''}
+                            ${formData.value.lightSuport && props.chlData.supportWhiteLight ? `<triggerWhiteLight>${formData.value.trigger.includes('triggerWhiteLight')}</triggerWhiteLight>` : ''}
                             <saveTargetPicture>${formData.value.saveTargetPicture}</saveTargetPicture>
                             <saveSourcePicture>${formData.value.saveSourcePicture}</saveSourcePicture>
                             <line type="list" count="${formData.value.line.length}">
@@ -712,13 +1000,46 @@ export default defineComponent({
                                                     <X>${Math.round(element.endPoint.X)}</X>
                                                     <Y>${Math.round(element.endPoint.Y)}</Y>
                                                 </endPoint>
+                                                    ${setItemObjectFilterData(element)}
                                             </item>
                                         `,
                                     )
                                     .join('')}
                             </line>
+                            ${setParamObjectFilterData()}
                         </param>
-                        <trigger></trigger>
+                       <trigger>
+                            <sysRec>
+                                <chls type="list">
+                                    ${formData.value.recordChls.map((element: { value: any; label: string }) => `<item id="${element.value}">${wrapCDATA(element.label)}</item>`).join('')}
+                                </chls>
+                            </sysRec>
+                            <alarmOut>
+                                <alarmOuts type="list">
+                                    ${formData.value.alarmOutChls.map((element) => `<item id="${element.value}">${wrapCDATA(element.label)}</item>`).join('')}
+                                </alarmOuts>
+                            </alarmOut>
+                            <preset>
+                                <presets type="list">
+                                    ${formData.value.presets
+                                        .map((item) => {
+                                            return rawXml`
+                                            <item>
+                                                <index>${item.index}</index>
+                                                <name>${wrapCDATA(item.name)}</name>
+                                                <chl id='${item.chl.value}'>${wrapCDATA(item.chl.label)}</chl>
+                                            </item>`
+                                        })
+                                        .join('')}
+                                </presets>
+                            </preset>
+                            <snapSwitch>${formData.value.trigger.includes('snapSwitch')}</snapSwitch>
+                            <msgPushSwitch>${formData.value.trigger.includes('msgPushSwitch')}</msgPushSwitch>
+                            <buzzerSwitch>${formData.value.trigger.includes('buzzerSwitch')}</buzzerSwitch>
+                            <popVideoSwitch>${formData.value.trigger.includes('popVideoSwitch')}</popVideoSwitch>
+                            <emailSwitch>${formData.value.trigger.includes('emailSwitch')}</emailSwitch>
+                            <sysAudio id='${formData.value.sysAudio}'></sysAudio>
+                        </trigger>
                     </chl>
                 </content>
             `
@@ -729,7 +1050,6 @@ export default defineComponent({
             if ($('status').text() === 'success') {
                 setEmailCfg()
                 setTimingSendEmail()
-                setScheduleGuid()
                 refreshInitPage()
                 watchEdit.update()
             } else {
@@ -885,6 +1205,144 @@ export default defineComponent({
             await getScheduleList()
             await getData()
             refreshInitPage()
+        }
+
+        /**
+         * @description 开关显示大小范围区域
+         */
+        const toggleDisplayRange = () => {
+            showDisplayRange()
+        }
+
+        /**
+         * @description 数值失去焦点
+         * @param {number} min
+         * @param {number} max
+         */
+        const blurDuration = (min: number, max: number) => {
+            openMessageBox(Translate('IDCS_DURATION_RANGE').formatForLang(min, max))
+        }
+
+        /**
+         * @description 校验目标范围最大最小值
+         * @param {string} type
+         */
+        const checkMinMaxRange = (type: string) => {
+            const surfaceIndex = pageData.value.surfaceIndex
+            const detectTarget = formData.value.detectTarget
+            // 最小区域宽
+            const minTextW = formData.value.line[surfaceIndex].objectFilter[detectTarget].minRegionInfo.width
+            // 最小区域高
+            const minTextH = formData.value.line[surfaceIndex].objectFilter[detectTarget].minRegionInfo.height
+            // 最大区域宽
+            const maxTextW = formData.value.line[surfaceIndex].objectFilter[detectTarget].maxRegionInfo.width
+            // 最大区域高
+            const maxTextH = formData.value.line[surfaceIndex].objectFilter[detectTarget].maxRegionInfo.height
+
+            const errorMsg = Translate('IDCS_MIN_LESS_THAN_MAX')
+            switch (type) {
+                case 'minTextW':
+                    if (minTextW >= maxTextW) {
+                        openMessageBox(errorMsg)
+                        formData.value.line[surfaceIndex].objectFilter[detectTarget].minRegionInfo.width = maxTextW - 1
+                    }
+                    break
+                case 'minTextH':
+                    if (minTextH >= maxTextH) {
+                        openMessageBox(errorMsg)
+                        formData.value.line[surfaceIndex].objectFilter[detectTarget].minRegionInfo.height = maxTextH - 1
+                    }
+                    break
+                case 'maxTextW':
+                    if (maxTextW <= minTextW) {
+                        openMessageBox(errorMsg)
+                        formData.value.line[surfaceIndex].objectFilter[detectTarget].maxRegionInfo.width = minTextW + 1
+                    }
+                    break
+                case 'maxTextH':
+                    if (maxTextH <= minTextH) {
+                        openMessageBox(errorMsg)
+                        formData.value.line[surfaceIndex].objectFilter[detectTarget].maxRegionInfo.height = minTextH + 1
+                    }
+                    break
+                default:
+                    break
+            }
+        }
+
+        /**
+         * @description 是否显示大小范围区域
+         */
+        const showDisplayRange = () => {
+            if (pageData.value.isShowDisplayRange) {
+                const currentSurface = pageData.value.surfaceIndex
+                const currTargetType = formData.value.detectTarget // 人/车/非
+                const minRegionInfo = formData.value.line[currentSurface].objectFilter[currTargetType].minRegionInfo // 最小区域
+                const maxRegionInfo = formData.value.line[currentSurface].objectFilter[currTargetType].maxRegionInfo // 最大区域
+                const minPercentW = minRegionInfo.width
+                const minPercentH = minRegionInfo.height
+                const maxPercentW = maxRegionInfo.width
+                const maxPercentH = maxRegionInfo.height
+                minRegionInfo.region = []
+                maxRegionInfo.region = []
+                minRegionInfo.region.push(calcRegionInfo(minPercentW, minPercentH))
+                maxRegionInfo.region.push(calcRegionInfo(maxPercentW, maxPercentH))
+
+                if (mode.value === 'h5') {
+                    passLineDrawer.setRangeMin(minRegionInfo.region[0])
+                    passLineDrawer.setRangeMax(maxRegionInfo.region[0])
+                    passLineDrawer.toggleRange(true)
+                }
+
+                if (mode.value === 'ocx') {
+                    // 插件需要先删除区域 再重新添加区域进行显示
+                    const areaList = [1, 2]
+                    const sendXMLClear = OCX_XML_DeleteRectangleArea(areaList)
+                    plugin.ExecuteCmd(sendXMLClear)
+                    const minRegionForPlugin = cloneDeep(minRegionInfo.region[0])
+                    minRegionForPlugin.ID = 1
+                    minRegionForPlugin.text = 'Min'
+                    minRegionForPlugin.LineColor = 'yellow'
+                    const maxRegionForPlugin = cloneDeep(maxRegionInfo.region[0])
+                    maxRegionForPlugin.ID = 2
+                    maxRegionForPlugin.text = 'Max'
+                    maxRegionForPlugin.LineColor = 'yellow'
+                    const rectangles = []
+                    rectangles.push(minRegionForPlugin)
+                    rectangles.push(maxRegionForPlugin)
+                    const sendXML = OCX_XML_AddRectangleArea(rectangles)
+                    plugin.ExecuteCmd(sendXML)
+                }
+            } else {
+                if (mode.value === 'h5') {
+                    passLineDrawer.toggleRange(false)
+                }
+
+                if (mode.value === 'ocx') {
+                    const areaList = [1, 2]
+                    const sendXMLClear = OCX_XML_DeleteRectangleArea(areaList)
+                    plugin.ExecuteCmd(sendXMLClear)
+                }
+            }
+        }
+
+        /**
+         * @description  计算最大值最小值区域 画布分割为 10000 * 10000
+         * @param {number} widthPercent
+         * @param {number} heightPercent
+         */
+        const calcRegionInfo = (widthPercent: number, heightPercent: number) => {
+            const X1 = ((100 - widthPercent) * 10000) / 100 / 2
+            const X2 = ((100 - widthPercent) * 10000) / 100 / 2 + (widthPercent * 10000) / 100
+            const Y1 = ((100 - heightPercent) * 10000) / 100 / 2
+            const Y2 = ((100 - heightPercent) * 10000) / 100 / 2 + (heightPercent * 10000) / 100
+            const regionInfo = {
+                X1: X1,
+                Y1: Y1,
+                X2: X2,
+                Y2: Y2,
+            }
+            return regionInfo
         }
 
         /**
@@ -1234,10 +1692,20 @@ export default defineComponent({
             pageData,
             watchEdit,
             formData,
+            showAllPersonTarget,
+            showAllCarTarget,
+            showAllMotorTarget,
+            showPersonThreshold,
+            showCarThreshold,
+            showMotorThreshold,
             handlePlayerReady,
             closeSchedulePop,
             changeTab,
             togglePassLineShowAllArea,
+            toggleDisplayRange,
+            showDisplayRange,
+            checkMinMaxRange,
+            blurDuration,
             clearArea,
             clearAllArea,
             changeLine,

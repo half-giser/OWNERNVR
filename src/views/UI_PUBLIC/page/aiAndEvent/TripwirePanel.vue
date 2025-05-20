@@ -116,12 +116,9 @@
                                         />
                                     </el-radio-group>
                                 </el-form-item>
-                                <div :class="formData.objectFilterMode === 'mode3' ? 'rectangleBorder' : ''">
+                                <div :class="pageData.objectFilterMode === 'mode3' ? 'rectangleBorder' : ''">
                                     <!-- 方向 -->
-                                    <div
-                                        v-if="formData.detectTargetList.length"
-                                        :class="formData.objectFilterMode === 'mode2' ? 'rectangleBorder' : ''"
-                                    >
+                                    <div :class="pageData.objectFilterMode === 'mode2' ? 'rectangleBorder' : ''">
                                         <el-form-item :label="Translate('IDCS_DIRECTION')">
                                             <el-select-v2
                                                 v-model="formData.direction"
@@ -130,18 +127,27 @@
                                             />
                                         </el-form-item>
                                         <!-- 目标大小 -->
-                                        <div class="base-ai-subheading">
+                                        <div
+                                            v-if="formData.detectTargetList.length"
+                                            class="base-ai-subheading"
+                                        >
                                             {{ Translate('IDCS_DETECT_TARGET_SIZE') }}
                                         </div>
                                         <!-- 目标 -->
-                                        <el-form-item :label="Translate('IDCS_TARGET')">
+                                        <el-form-item
+                                            v-if="formData.detectTargetList.length"
+                                            :label="Translate('IDCS_TARGET')"
+                                        >
                                             <el-select-v2
                                                 v-model="formData.detectTarget"
                                                 :options="formData.detectTargetList"
                                                 @change="showDisplayRange"
                                             />
                                         </el-form-item>
-                                        <el-form-item :label="Translate('IDCS_MIN')">
+                                        <el-form-item
+                                            v-if="formData.detectTargetList.length"
+                                            :label="Translate('IDCS_MIN')"
+                                        >
                                             <span class="spanWidth">{{ Translate('IDCS_WIDTH') }}</span>
                                             <BaseNumberInput
                                                 v-if="formData.lineInfo.length"
@@ -165,7 +171,10 @@
                                             />
                                             <span class="percentLabel">{{ Translate('%') }}</span>
                                         </el-form-item>
-                                        <el-form-item :label="Translate('IDCS_MAX')">
+                                        <el-form-item
+                                            v-if="formData.detectTargetList.length"
+                                            :label="Translate('IDCS_MAX')"
+                                        >
                                             <span class="spanWidth">{{ Translate('IDCS_WIDTH') }}</span>
                                             <BaseNumberInput
                                                 v-if="formData.lineInfo.length"
@@ -189,7 +198,7 @@
                                             />
                                             <span class="percentLabel">{{ Translate('%') }}</span>
                                         </el-form-item>
-                                        <el-form-item>
+                                        <el-form-item v-if="formData.detectTargetList.length">
                                             <template #label>
                                                 <el-checkbox
                                                     v-model="pageData.isShowDisplayRange"
@@ -200,7 +209,7 @@
                                         </el-form-item>
                                     </div>
                                     <!-- 检测目标 -->
-                                    <div :class="formData.objectFilterMode === 'mode5' ? 'rectangleBorder' : ''">
+                                    <div :class="pageData.objectFilterMode === 'mode5' ? 'rectangleBorder' : ''">
                                         <el-form-item v-if="formData.lineInfo.length && formData.lineInfo[pageData.surfaceIndex].objectFilter.supportCommonSensitivity">
                                             <template #label>
                                                 <el-checkbox
@@ -418,31 +427,4 @@
 
 <script lang="ts" src="./TripwirePanel.v.ts"></script>
 
-<style lang="scss" scoped>
-#n9web .el-form > div > .el-form-item,
-#n9web .el-form > div > div > .el-form-item {
-    padding: 2px 15px;
-    margin-bottom: 0;
-    flex-wrap: nowrap;
-}
-.rectangleBorder {
-    border: solid 1px #d1d1d1;
-    padding: 12px;
-    margin: 10px 15px;
-}
-.spanWidth {
-    display: inline-block;
-    max-width: 75px;
-    margin-right: 5px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    vertical-align: middle;
-}
-.targetInput {
-    width: 40px !important;
-}
-.percentLabel {
-    margin-right: 30px;
-}
-</style>
+<style lang="scss" scoped></style>

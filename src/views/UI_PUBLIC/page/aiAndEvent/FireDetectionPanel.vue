@@ -23,6 +23,7 @@
             <el-tabs
                 v-model="pageData.tab"
                 class="base-ai-tabs"
+                @tab-change="changeTab"
             >
                 <!-- 参数设置 -->
                 <el-tab-pane
@@ -35,7 +36,30 @@
                                 <BaseVideoPlayer
                                     ref="playerRef"
                                     @ready="handlePlayerReady"
+                                    @message="notify"
                                 />
+                            </div>
+                            <div v-show="pageData.tab === 'param'">
+                                <div class="base-btn-box space-between">
+                                    <div>
+                                        <el-checkbox
+                                            v-show="pageData.showAllAreaVisible"
+                                            v-model="pageData.isShowAllArea"
+                                            :label="Translate('IDCS_DISPLAY_ALL_AREA')"
+                                            @change="toggleShowAllArea"
+                                        />
+                                    </div>
+                                    <div>
+                                        <el-button @click="clearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
+                                        <el-button
+                                            v-if="pageData.clearAllVisible"
+                                            @click="clearAllArea"
+                                        >
+                                            {{ Translate('IDCS_FACE_CLEAR_ALL') }}
+                                        </el-button>
+                                    </div>
+                                </div>
+                                <div class="base-ai-tip">{{ Translate('IDCS_DRAW_AREA_TIP').formatForLang(6) }}</div>
                             </div>
                         </div>
                         <div class="base-ai-param-box-right">
@@ -60,6 +84,59 @@
                                         v-model="formData.holdTime"
                                         :options="formData.holdTimeList"
                                     />
+                                </el-form-item>
+                                <!-- 触发报警条件 -->
+                                <el-form-item
+                                    v-if="formData.fireAlarmMode"
+                                    :label="Translate('IDCS_FIRE_TRIGGER_ALARM_CONDITION')"
+                                >
+                                    <el-select-v2
+                                        v-model="formData.fireAlarmMode"
+                                        :options="formData.fireAlarmModeList"
+                                    />
+                                </el-form-item>
+                                <!-- 灵敏度 -->
+                                <el-form-item
+                                    v-if="formData.ShowFireSensitivity"
+                                    :label="Translate('IDCS_SENSITIVITY')"
+                                >
+                                    <BaseSliderInput
+                                        v-model="formData.sensitivity"
+                                        :min="1"
+                                    />
+                                </el-form-item>
+                                <!-- 时间阈值 -->
+                                <el-form-item
+                                    v-if="formData.supportDuration"
+                                    :label="Translate('IDCS_DURATION_THRESHOLD')"
+                                >
+                                    <BaseNumberInput
+                                        v-model="formData.duration.value"
+                                        :min="formData.duration.min"
+                                        :max="formData.duration.max"
+                                        @out-of-range="blurDuration(formData.duration.min, formData.duration.max)"
+                                    />
+                                </el-form-item>
+                                <!-- 屏蔽区域 -->
+                                <el-form-item
+                                    v-if="formData.supportMaskArea"
+                                    :label="Translate('IDCS_MASK_AREA')"
+                                >
+                                    <el-radio-group
+                                        v-model="pageData.maskAreaIndex"
+                                        class="small-btn"
+                                        @change="changeMaskArea"
+                                    >
+                                        <el-radio-button
+                                            v-for="(_item, index) in formData.maskAreaInfo"
+                                            :key="index"
+                                            :value="index"
+                                            :label="index + 1"
+                                            :class="{
+                                                checked: pageData.maskAreaChecked.includes(index),
+                                            }"
+                                        />
+                                    </el-radio-group>
                                 </el-form-item>
                             </el-form>
                         </div>
