@@ -234,7 +234,7 @@ const channelRoutes: FeatureItem = {
                 minHeight: 850,
             },
         },
-        // 拼接 1.4.13
+        // 双目拼接 1.4.13
         splicing: {
             path: 'settings/spliceCfg',
             component: 'channel/ChannelSplicing.vue',
@@ -367,19 +367,16 @@ const channelRoutes: FeatureItem = {
         },
         // 查看或更改IPSpeaker 1.4.13
         ipSpeakerAdd: {
-            path: 'IPSpeaker/list',
-            components: {
-                toolBar: 'channel/ChannelIPSpeakerToolBar.vue',
-                default: 'channel/ChannelIPSpeaker.vue',
-            },
+            redirect: '/config/channel/IPSpeaker/list',
+            path: 'IPSpeaker/list-add',
             meta: {
                 sort: 10,
                 lk: 'IDCS_ADD_IP_SPEARKER',
                 group: 'ipspeaker',
-            },
-            beforeEnter(_from, _to, next) {
-                history.state.fromAdd = 'true'
-                next()
+                cbk() {
+                    const layoutStore = useLayoutStore()
+                    layoutStore.isIpSpeakerAddPop = true
+                },
             },
         },
         // 查看或更改IPSpeaker 1.4.13

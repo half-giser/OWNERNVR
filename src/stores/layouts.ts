@@ -19,6 +19,8 @@ export const useLayoutStore = defineStore('layout', () => {
     const liveLastSegNum = ref(1)
     const liveLastChlList = ref<string[]>([])
 
+    const isIpSpeakerAddPop = ref(false)
+
     //一级菜单列表
     const menu1Items = ref<RouteRecordRawExtends[]>([])
     // //当前进入的一级菜单项
@@ -52,6 +54,7 @@ export const useLayoutStore = defineStore('layout', () => {
         isPwdChecked,
         liveLastSegNum,
         liveLastChlList,
+        isIpSpeakerAddPop,
         notifications,
 
         menu1Items,

@@ -104,6 +104,7 @@ export const getMenuItem = (item: RouteRecordRawExtends) => {
             inHome: item.meta!.inHome,
             minWidth: item.meta!.minWidth,
             minHeight: item.meta!.minHeight,
+            cbk: item.meta!.cbk,
         },
         children: item.children ? getMenuItems(item.children) : [],
         redirect: item.redirect || '',
@@ -179,12 +180,19 @@ export const getConfigMenu = () => {
 }
 
 router.afterEach((to: RouteLocationNormalized) => {
+    closeLoading()
     progress.done()
 
     const element = document.getElementById('n9web')
     if (element) {
         element.style.setProperty('--main-min-width', to.meta.minWidth ? `${to.meta.minWidth}px` : 'var(--default-main-min-width)')
         element.style.setProperty('--main-min-height', to.meta.minHeight ? `${to.meta.minHeight}px` : 'var(--default-main-min-height)')
+    }
+
+    if (typeof to.redirectedFrom?.meta.cbk === 'function') {
+        to.redirectedFrom.meta.cbk()
+    } else if (typeof to.meta.cbk === 'function') {
+        to.meta.cbk()
     }
 })
 

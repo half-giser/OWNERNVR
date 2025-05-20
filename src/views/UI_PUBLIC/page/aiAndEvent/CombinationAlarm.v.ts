@@ -7,6 +7,8 @@ import AlarmBasePresetPop from './AlarmBasePresetPop.vue'
 import AlarmBaseSnapPop from './AlarmBaseSnapPop.vue'
 import AlarmBaseRecordPop from './AlarmBaseRecordPop.vue'
 import AlarmBaseAlarmOutPop from './AlarmBaseAlarmOutPop.vue'
+import AlarmBaseTriggerAudioPop from './AlarmBaseTriggerAudioPop.vue'
+import AlarmBaseTriggerWhiteLightPop from './AlarmBaseTriggerWhiteLightPop.vue'
 import CombinationAlarmPop from './CombinationAlarmPop.vue'
 
 export default defineComponent({
@@ -16,6 +18,8 @@ export default defineComponent({
         AlarmBaseRecordPop,
         AlarmBaseAlarmOutPop,
         CombinationAlarmPop,
+        AlarmBaseTriggerAudioPop,
+        AlarmBaseTriggerWhiteLightPop,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -28,7 +32,7 @@ export default defineComponent({
             Motion: Translate('IDCS_MOTION_DETECTION'), //移动侦测
             Sensor: Translate('IDCS_SENSOR'), //传感器
             FaceMatch: Translate('IDCS_FACE_MATCH'), //人脸识别
-            InvadeDetect: Translate('IDCS_INVADE_DETECTION'), //区域入侵
+            InvadeDetect: Translate('IDCS_INVADE_ENTRY_LEAVE_DETECTION'), //区域入侵
             Tripwire: Translate('IDCS_BEYOND_DETECTION'), //越界
         }
 
@@ -39,8 +43,6 @@ export default defineComponent({
             switchList: getTranslateOptions(DEFAULT_SWITCH_OPTIONS),
             // 持续时间列表
             durationList: [] as SelectOption<string, string>[],
-            // 是否支持声音
-            supportAudio: false,
             // 声音列表
             audioList: [] as SelectOption<string, string>[],
             // 视频弹出列表
@@ -57,6 +59,8 @@ export default defineComponent({
             // 预置点名称配置
             isPresetPop: false,
             isCombinedAlarmPop: false,
+            isTriggerAudioPop: false,
+            isTriggerWhiteLightPop: false,
             combinedAlarmLinkedId: '',
             combinedAlarmLinkedList: [] as AlarmCombinedItemDto[],
             currRowFaceObj: {} as Record<string, Record<string, AlarmCombinedFaceMatchDto>>,
@@ -71,8 +75,7 @@ export default defineComponent({
 
         // 获取系统配置和基本信息，部分系统配置可用项
         const getSystemCaps = async () => {
-            pageData.value.supportAudio = systemCaps.supportAlarmAudioConfig
-            if (pageData.value.supportAudio) {
+            if (systemCaps.supportAlarmAudioConfig) {
                 await getAudioData()
             }
         }
@@ -144,6 +147,7 @@ export default defineComponent({
                     const $item = queryXml(item.element)
                     const trigger = $item('trigger')
                     const $trigger = queryXml(trigger[0].element)
+                    const currCombinedId = item.attr('id')
 
                     const row: AlarmCombinedDto = {
                         id: item.attr('id'),
@@ -153,7 +157,56 @@ export default defineComponent({
                         disabled: false,
                         combinedAlarm: {
                             switch: $item('param/switch').text().bool(),
-                            item: [],
+                            item: $item('param/alarmSource/item').map((ele) => {
+                                const $ele = queryXml(ele.element)
+                                const APISource = $ele('alarmSourceType').text() // 接口返回报警类型
+                                const APIChlId = $ele('alarmSourceEntity').attr('id') // 接口返回报警源
+                                let realSource = ''
+
+                                if (APISource === 'Motion') {
+                                    // 已配置的FaceMatch数组
+                                    $faceMatch('content/item').forEach((faceItem) => {
+                                        const $faceItem = queryXml(faceItem.element)
+                                        // FaceMatch数组XML包含了组合报警Id和通道chlId,若匹配上，证明已配置，是FaceMatch类型
+                                        if (faceItem.attr('id') === currCombinedId && $faceItem('chlID').attr('id') === APIChlId) {
+                                            const alarmSourceType = faceItem.attr('alarmSourceType')
+                                            realSource = alarmSourceType ? alarmSourceType : 'Motion'
+
+                                            if (alarmSourceType === 'FaceMatch') {
+                                                const chlIdMapFaceName = {} as Record<string, string>
+                                                const groupId = [] as string[]
+                                                const faceDataBase = [] as string[]
+                                                $faceGroup('content/item').forEach((ele2) => {
+                                                    const $ele2 = queryXml(ele2.element)
+                                                    chlIdMapFaceName[ele2.attr('id')] = $ele2('name').text()
+                                                })
+                                                $faceItem('groupId/item').forEach((ele3) => {
+                                                    groupId.push(ele3.attr('id'))
+                                                    faceDataBase.push(chlIdMapFaceName[ele3.attr('id')])
+                                                })
+                                                pageData.value.faceObj[currCombinedId] = {}
+                                                pageData.value.faceObj[currCombinedId][APIChlId] = {}
+                                                pageData.value.faceObj[currCombinedId][APIChlId].obj = {
+                                                    duration: $faceItem('startTime').text().num(),
+                                                    delay: $faceItem('endTime').text().num(),
+                                                    faceDataBase: faceDataBase,
+                                                    groupId: groupId,
+                                                    rule: $faceItem('matchRule').text(),
+                                                    noShowDisplay: $faceItem('noShowDisplay').text(),
+                                                    displayText: $faceItem('displayText').text(),
+                                                }
+                                            }
+                                        }
+                                    })
+                                }
+                                return {
+                                    alarmSourceType: realSource || $ele('alarmSourceType').text(),
+                                    alarmSourceEntity: {
+                                        value: APIChlId || $ele('alarmSourceEntity').attr('id'),
+                                        label: $ele('alarmSourceEntity').text(),
+                                    },
+                                }
+                            }),
                         },
                         record: {
                             switch: $trigger('sysRec/switch').text().bool(),
@@ -185,78 +238,43 @@ export default defineComponent({
                         popVideo: $trigger('popVideo/switch').text() === 'false' ? '' : $trigger('popVideo/chl').attr('id'),
                         preset: {
                             switch: $trigger('preset/switch').text().bool(),
-                            presets: [],
+                            presets: $trigger('preset/presets/item').map((element) => {
+                                const $element = queryXml(element.element)
+                                return {
+                                    index: $element('index').text(),
+                                    name: $element('name').text(),
+                                    chl: {
+                                        value: $element('chl').attr('id'),
+                                        label: $element('chl').text(),
+                                    },
+                                }
+                            }),
                         },
                         sysAudio: getSystemAudioID(pageData.value.audioList, $trigger('sysAudio').attr('id')), //|| DEFAULT_EMPTY_ID,
                         msgPush: $trigger('msgPushSwitch').text(),
                         beeper: $trigger('buzzerSwitch').text(),
                         email: $trigger('emailSwitch').text(),
                         msgBoxPopup: $trigger('popMsgSwitch').text(),
+                        triggerAudio: {
+                            switch: $trigger('triggerAudio/switch').text().bool(),
+                            chls: $trigger('triggerAudio/chls/item').map((item) => {
+                                return {
+                                    value: item.attr('id'),
+                                    label: item.text(),
+                                }
+                            }),
+                        },
+                        triggerWhiteLight: {
+                            switch: $trigger('triggerWhiteLight/switch').text().bool(),
+                            chls: $trigger('triggerWhiteLight/chls/item').map((item) => {
+                                return {
+                                    value: item.attr('id'),
+                                    label: item.text(),
+                                }
+                            }),
+                        },
                     }
 
-                    const currCombinedId = item.attr('id')
-                    $item('param/alarmSource/item').forEach((ele) => {
-                        const $ele = queryXml(ele.element)
-                        const APISource = $ele('alarmSourceType').text() // 接口返回报警类型
-                        const APIChlId = $ele('alarmSourceEntity').attr('id') // 接口返回报警源
-                        let realSource = ''
-
-                        if (APISource === 'Motion') {
-                            // 已配置的FaceMatch数组
-                            $faceMatch('content/item').forEach((faceItem) => {
-                                const $faceItem = queryXml(faceItem.element)
-                                // FaceMatch数组XML包含了组合报警Id和通道chlId,若匹配上，证明已配置，是FaceMatch类型
-                                if (faceItem.attr('id') === currCombinedId && $faceItem('chlID').attr('id') === APIChlId) {
-                                    const alarmSourceType = faceItem.attr('alarmSourceType')
-                                    realSource = alarmSourceType ? alarmSourceType : 'Motion'
-
-                                    if (alarmSourceType === 'FaceMatch') {
-                                        const chlIdMapFaceName = {} as Record<string, string>
-                                        const groupId = [] as string[]
-                                        const faceDataBase = [] as string[]
-                                        $faceGroup('content/item').forEach((ele2) => {
-                                            const $ele2 = queryXml(ele2.element)
-                                            chlIdMapFaceName[ele2.attr('id')] = $ele2('name').text()
-                                        })
-                                        $faceItem('groupId/item').forEach((ele3) => {
-                                            groupId.push(ele3.attr('id'))
-                                            faceDataBase.push(chlIdMapFaceName[ele3.attr('id')])
-                                        })
-                                        pageData.value.faceObj[currCombinedId] = {}
-                                        pageData.value.faceObj[currCombinedId][APIChlId] = {}
-                                        pageData.value.faceObj[currCombinedId][APIChlId].obj = {
-                                            duration: $faceItem('startTime').text().num(),
-                                            delay: $faceItem('endTime').text().num(),
-                                            faceDataBase: faceDataBase,
-                                            groupId: groupId,
-                                            rule: $faceItem('matchRule').text(),
-                                            noShowDisplay: $faceItem('noShowDisplay').text(),
-                                            displayText: $faceItem('displayText').text(),
-                                        }
-                                    }
-                                }
-                            })
-                        }
-                        row.combinedAlarm.item.push({
-                            alarmSourceType: realSource || $ele('alarmSourceType').text(),
-                            alarmSourceEntity: {
-                                value: APIChlId || $ele('alarmSourceEntity').attr('id'),
-                                label: $ele('alarmSourceEntity').text(),
-                            },
-                        })
-                    })
-
-                    row.preset.presets = $trigger('preset/presets/item').map((element) => {
-                        const $element = queryXml(element.element)
-                        return {
-                            index: $element('index').text(),
-                            name: $element('name').text(),
-                            chl: {
-                                value: $element('chl').attr('id'),
-                                label: $element('chl').text(),
-                            },
-                        }
-                    })
                     tableData.value.push(row)
                 })
                 tableData.value.forEach((item) => {
@@ -280,7 +298,7 @@ export default defineComponent({
         const blurName = (row: AlarmCombinedDto) => {
             const name = row.name
             if (!checkChlName(name)) {
-                openMessageBox(Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'))
+                openMessageBox(Translate('IDCS_CAN_NOT_CONTAIN_SPECIAL_CHAR').formatForLang(CHANNEL_LIMIT_CHAR))
                 row.name = originalName.value
             } else {
                 if (!name) {
@@ -466,6 +484,78 @@ export default defineComponent({
         }
 
         /**
+         * @description
+         * @param {number} index
+         */
+        const switchTriggerAudio = (index: number) => {
+            const row = tableData.value[index].triggerAudio
+            if (row.switch) {
+                openTriggerAudio(index)
+            } else {
+                row.chls = []
+            }
+        }
+
+        /**
+         * @description
+         * @param {number} index
+         */
+        const openTriggerAudio = (index: number) => {
+            tableData.value[index].triggerAudio.switch = true
+            pageData.value.triggerDialogIndex = index
+            pageData.value.isTriggerAudioPop = true
+        }
+
+        /**
+         * @description
+         * @param {number} index
+         * @param {SelectOption<string, string>[]} data
+         */
+        const changeTriggerAudio = (index: number, data: SelectOption<string, string>[]) => {
+            pageData.value.isTriggerAudioPop = false
+            tableData.value[index].triggerAudio = {
+                switch: !!data.length,
+                chls: cloneDeep(data),
+            }
+        }
+
+        /**
+         * @description
+         * @param {number} index
+         */
+        const switchTriggerWhiteLight = (index: number) => {
+            const row = tableData.value[index].triggerWhiteLight
+            if (row.switch) {
+                openTriggerWhiteLight(index)
+            } else {
+                row.chls = []
+            }
+        }
+
+        /**
+         * @description
+         * @param {number} index
+         */
+        const openTriggerWhiteLight = (index: number) => {
+            tableData.value[index].triggerWhiteLight.switch = true
+            pageData.value.triggerDialogIndex = index
+            pageData.value.isTriggerWhiteLightPop = true
+        }
+
+        /**
+         * @description
+         * @param {number} index
+         * @param {SelectOption<string, string>[]} data
+         */
+        const changeTriggerWhiteLight = (index: number, data: SelectOption<string, string>[]) => {
+            pageData.value.isTriggerWhiteLightPop = false
+            tableData.value[index].triggerWhiteLight = {
+                switch: !!data.length,
+                chls: cloneDeep(data),
+            }
+        }
+
+        /**
          * @description 开关预置点
          * @param {number} index
          */
@@ -560,19 +650,19 @@ export default defineComponent({
                             <sysRec>
                                 <switch>${row.record.switch}</switch>
                                 <chls>
-                                    ${row.record.chls.map((item) => `<item id='${item.value}'>${wrapCDATA(item.label)}</item>`).join('')}
+                                    ${row.record.chls.map((item) => `<item id='${item.value}' />`).join('')}
                                 </chls>
                             </sysRec>
                             <sysSnap>
                                 <switch>${row.snap.switch}</switch>
                                 <chls>
-                                    ${row.snap.chls.map((item) => `<item id='${item.value}'>${wrapCDATA(item.label)}</item>`).join('')}
+                                    ${row.snap.chls.map((item) => `<item id='${item.value}' />`).join('')}
                                 </chls>
                             </sysSnap>
                             <alarmOut>
                                 <switch>${row.alarmOut.switch}</switch>
                                 <alarmOuts>
-                                    ${row.alarmOut.alarmOuts.map((item) => `<item id='${item.value}'>${wrapCDATA(item.label)}</item>`).join('')}
+                                    ${row.alarmOut.alarmOuts.map((item) => `<item id='${item.value}' />`).join('')}
                                 </alarmOuts>
                             </alarmOut>
                             <popVideo>
@@ -587,14 +677,25 @@ export default defineComponent({
                                             return rawXml`
                                                 <item>
                                                     <index>${item.index}</index>
-                                                    <name>${wrapCDATA(item.name)}</name>
-                                                    <chl id='${item.chl.value}'>${item.chl.label}</chl>
+                                                    <chl id='${item.chl.value}' />
                                                 </item>
                                             `
                                         })
                                         .join('')}
                                 </presets>
                             </preset>
+                            <triggerAudio>
+                                <switch>${row.triggerAudio.switch}</switch>
+                                <chls>
+                                    ${row.triggerAudio.chls.map((item) => `<item id='${item.value}' />`).join('')}
+                                </chls>
+                            </triggerAudio>
+                            <triggerWhiteLight>
+                                <switch>${row.triggerWhiteLight.switch}</switch>
+                                <chls>
+                                    ${row.triggerWhiteLight.chls.map((item) => `<item id='${item.value}' />`).join('')}
+                                </chls>
+                            </triggerWhiteLight>
                             <msgPushSwitch>${row.msgPush}</msgPushSwitch>
                             <buzzerSwitch>${row.beeper}</buzzerSwitch>
                             <popMsgSwitch>${row.msgBoxPopup}</popMsgSwitch>
@@ -749,9 +850,16 @@ export default defineComponent({
             switchPreset,
             openPreset,
             changePreset,
+            switchTriggerAudio,
+            openTriggerAudio,
+            changeTriggerAudio,
+            switchTriggerWhiteLight,
+            openTriggerWhiteLight,
+            changeTriggerWhiteLight,
             changeAllValue,
             setData,
             editRows,
+            systemCaps,
         }
     },
 })

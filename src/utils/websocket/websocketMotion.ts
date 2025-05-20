@@ -4,10 +4,22 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  */
 
+export interface WebsocketMotionDto {
+    frameTime: number
+    motion_infos: {
+        compress_type: number
+        height_div_num: 18
+        grids: string[]
+        timestamp_ms: number
+        timestamp_us: number
+        width_div_num: number
+    }[]
+}
+
 export interface WebsocketMotionOption {
     onerror?: () => void
     onclose?: () => void
-    onmotion?: (data: { motion_infos: { grids: string }[] }) => void
+    onmotion?: (data: WebsocketMotionDto) => void
     config: CmdPreviewOption
 }
 
@@ -25,7 +37,7 @@ export const WebsocketMotion = (option: WebsocketMotionOption) => {
         ready: () => {
             init()
         },
-        onmotion: (data) => {
+        onmotion: (data: WebsocketMotionDto) => {
             onmotion && onmotion(data)
         },
     })
@@ -74,6 +86,7 @@ export const WebsocketMotion = (option: WebsocketMotionOption) => {
     const destroy = () => {
         stop()
         ws.close()
+        motionRender.destroy()
     }
 
     return {

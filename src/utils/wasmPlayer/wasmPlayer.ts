@@ -70,7 +70,7 @@ interface WasmPlayerOption {
     onrecordFile: (buf: ArrayBuffer) => void
     onpos: (pos: Uint8Array, len: number) => void
     onparam: (type: string, data: any) => void
-    onmotion: (data: { motion_infos: { grids: string }[] }) => void
+    onmotion: (data: WebsocketMotionDto) => void
     onaudioerror: (format: string) => void
     volume: number
 }
@@ -104,7 +104,7 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
     let frameData: WasmPlayerVideoFrame | null = null // 当前帧数据
     let recordBuf: ArrayBuffer | null = null
     let pcmPlayer: ReturnType<typeof PCMPlayer>
-    let motionArr: any[] = []
+    let motionArr: WebsocketMotionDto[] = []
 
     const type = options.type || 'live'
     let taskID = '' // 与设备交互的guid
@@ -564,6 +564,8 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
         if (pcmPlayer) {
             pcmPlayer.destroy()
         }
+
+        motionArr = []
     }
 
     let websocketTimer: NodeJS.Timeout | number = 0
@@ -928,7 +930,7 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
     /**
      * data: motion帧数据
      */
-    const setMotion = (data: any) => {
+    const setMotion = (data: WebsocketMotionDto) => {
         if (data.motion_infos.length > 0) {
             motionArr.push(data)
         }
@@ -940,18 +942,33 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
     const drawMotion = (frameTime: number) => {
         if (motionArr.length > 0) {
             let drawIndex = -1
+            let outdatedIndex = -1
 
-            motionArr.forEach((item, index) => {
-                const motionTime = Number(item.frameTime)
-                if (frameTime - motionTime < 400) {
-                    drawIndex = index
-                    return false
+            motionArr.some((item, index) => {
+                let motionTime = Number(item.frameTime)
+                if (String(motionTime).length === 12) {
+                    motionTime = motionTime * 10
                 }
+
+                if (frameIndex - motionTime > 400) {
+                    outdatedIndex = index
+                }
+
+                if (Math.abs(frameTime - motionTime) < 400) {
+                    drawIndex = index
+                    outdatedIndex = index
+                    return true
+                }
+
+                return false
             })
 
             if (drawIndex > 0) {
                 onmotion(motionArr[drawIndex])
-                motionArr = motionArr.slice(drawIndex, motionArr.length)
+            }
+
+            if (outdatedIndex > 0) {
+                motionArr = motionArr.slice(outdatedIndex, motionArr.length)
             }
         }
     }

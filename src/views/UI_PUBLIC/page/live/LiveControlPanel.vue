@@ -82,6 +82,21 @@
                 :disabled="openDoorDisabled"
                 @click="openDoor"
             />
+            <!-- 雨刷 -->
+            <BaseImgSpriteBtn
+                v-show="!wiperDisabled"
+                file="ptzBrushOpen"
+                :title="Translate('IDCS_RUN')"
+                :disabled="wiperDisabled"
+                @click="runWiper"
+            />
+            <BaseImgSpriteBtn
+                v-show="!wiperDisabled"
+                file="ptzBrushClose"
+                :title="Translate('IDCS_STOP')"
+                :disabled="wiperDisabled"
+                @click="stopWiper"
+            />
         </div>
         <!-- 音量控制 -->
         <div class="voice">
@@ -95,6 +110,7 @@
         </div>
         <!-- 码流控制 -->
         <div class="stream-menu">
+            <!-- RTSP通道无子码流 -->
             <el-radio-group
                 class="nowrap"
                 :model-value="winData.streamType"
@@ -146,7 +162,7 @@
                 </el-form-item>
                 <div class="base-btn-box">
                     <el-button
-                        :disabled="pageData.isRTSP"
+                        :disabled="streamOptionDisabled"
                         @click="setStreamData"
                     >
                         {{ Translate('IDCS_APPLY') }}

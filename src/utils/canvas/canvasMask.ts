@@ -54,6 +54,7 @@ export const CanvasMask = (option: CanvasMaskOption = {}) => {
         maskList = list
 
         if (!maskList.length) return
+
         for (let i = 0; i < maskList.length; i++) {
             const item = getRealItemByRelative(maskList[i])
             const color = maskList[i].color || blurStyle

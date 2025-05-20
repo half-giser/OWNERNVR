@@ -39,7 +39,7 @@ export default defineComponent({
             cruiseTableIndex: 0,
         })
 
-        let cruiseId = 0
+        // let cruiseId = 0
 
         const tableRef = ref<TableInstance>()
         const tableData = ref<ChannelPtzCruiseGroupChlDto[]>([])
@@ -130,9 +130,10 @@ export default defineComponent({
                 tableData.value[index].cruise = $('content/cruises/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        id: ++cruiseId,
+                        // id: ++cruiseId,
                         index: item.attr('index').num(),
                         name: $item('name').text(),
+                        number: item.attr('number').num(),
                     }
                 })
                 // tableData.value[index].maxCount = $('content/cruises').attr('maxCount').num()
@@ -149,8 +150,7 @@ export default defineComponent({
             const result = await getChlList({
                 pageIndex: 1,
                 pageSize: 999,
-                requireField: ['groupCruiseCount'],
-                isSupportPtzGroupTraceTask: true,
+                requireField: ['supportIntegratedPtz'],
             })
             const $ = queryXml(result)
 
@@ -160,7 +160,7 @@ export default defineComponent({
                 tableData.value = $('content/item')
                     .filter((item) => {
                         const $item = queryXml(item.element)
-                        return (auth.value.hasAll || auth.value.ptz[item.attr('id')]) && $item('chlType').text() !== 'recorder'
+                        return (auth.value.hasAll || auth.value.ptz[item.attr('id')]) && $item('chlType').text() !== 'recorder' && $item('supportIntegratedPtz').text().bool()
                     })
                     .map((item) => {
                         const $item = queryXml(item.element)
@@ -199,7 +199,7 @@ export default defineComponent({
                         <cruises type="list">
                             ${tableData.value[chlIndex].cruise
                                 .filter((item) => item.index !== cruise.index)
-                                .map((item) => `<item index="${item.index}">${wrapCDATA(item.name)}</item>`)
+                                .map((item) => `<item index="${item.index}" number="${item.number}">${wrapCDATA(item.name)}</item>`)
                                 .join('')}
                         </cruises>
                     </condition>
@@ -329,7 +329,7 @@ export default defineComponent({
          * @param {ChannelPtzCruiseGroupCruiseDto} row
          */
         const handleCruiseRowClick = (row: ChannelPtzCruiseGroupCruiseDto) => {
-            pageData.value.cruiseTableIndex = cruiseOptions.value.findIndex((item) => row.id === item.id)
+            pageData.value.cruiseTableIndex = cruiseOptions.value.findIndex((item) => row.number === item.number)
         }
 
         watch(

@@ -43,15 +43,10 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
 
-        // 最大的巡航线数量
-        const TRACE_MAX_COUNT = 4
-        // 录像时间
-        const DEFAULT_RECORD_TIME = 180
-
         const pageData = ref({
             // 是否显示新增轨迹弹窗
             isAddPop: false,
-            maxCount: TRACE_MAX_COUNT,
+            // maxCount: TRACE_MAX_COUNT,
             // 当前选中轨迹项索引
             active: 0,
             // 是否播放状态
@@ -59,13 +54,10 @@ export default defineComponent({
             // 是否录像状态
             recordStatus: false, // 0:未录制， 1:录制中
             // 录像剩余时间
-            recordTime: DEFAULT_RECORD_TIME,
-            // 最大录像时间
-            maxRecordTime: DEFAULT_RECORD_TIME,
+            recordTime: 180,
         })
 
-        // 列表数据
-        const listData = ref<ChannelPtzTraceDto[]>([])
+        const formData = ref(new ChannelPtzTraceChlDto())
 
         /**
          * @description 获取轨迹列表
@@ -80,13 +72,17 @@ export default defineComponent({
             const result = await queryLocalChlPtzTraceList(sendXml)
             const $ = queryXml(result)
             if ($('status').text() === 'success' && chlId === prop.chlId) {
-                pageData.value.maxCount = $('content/traces').attr('maxCount').num()
-                listData.value = $('content/traces/item').map((item) => {
+                formData.value.chlId = chlId
+                formData.value.chlName = prop.chlName
+                formData.value.maxCount = $('content/traces').attr('maxCount').num()
+                formData.value.nameMaxLen = $('content/traces/itemType').attr('maxLen').num() || 10
+                formData.value.trace = $('content/traces/item').map((item) => {
                     return {
                         name: item.text(),
                         index: item.attr('index').num(),
                     }
                 })
+                formData.value.traceMaxHoldTime = $('content/traceMaxHoldTime').text().num()
             }
         }
 
@@ -98,7 +94,7 @@ export default defineComponent({
                 return
             }
 
-            if (listData.value.length >= pageData.value.maxCount) {
+            if (formData.value.trace.length >= formData.value.maxCount) {
                 openMessageBox(Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
                 return
             }
@@ -126,7 +122,7 @@ export default defineComponent({
          * @description 请求播放轨迹
          */
         const playTrace = async () => {
-            const item = listData.value[pageData.value.active]
+            const item = formData.value.trace[pageData.value.active]
             if (!item) {
                 openMessageBox(Translate('IDCS_PROMPT_CHANNEL_TRACE_EMPTY'))
                 return
@@ -213,7 +209,7 @@ export default defineComponent({
          */
         const resetRecord = () => {
             pageData.value.recordStatus = false
-            pageData.value.recordTime = DEFAULT_RECORD_TIME
+            pageData.value.recordTime = formData.value.traceMaxHoldTime
             timer.stop()
         }
 
@@ -222,7 +218,7 @@ export default defineComponent({
          */
         const startRecord = async () => {
             const index = pageData.value.active
-            const item = listData.value[pageData.value.active]
+            const item = formData.value.trace[pageData.value.active]
             if (!item) {
                 openMessageBox(Translate('IDCS_PROMPT_CHANNEL_TRACE_EMPTY'))
                 return
@@ -239,7 +235,7 @@ export default defineComponent({
                 `
                 await startChlPtzTrace(sendXml)
 
-                pageData.value.recordTime = DEFAULT_RECORD_TIME - 1
+                pageData.value.recordTime = formData.value.traceMaxHoldTime - 1
                 timer.setCallback(() => {
                     pageData.value.recordTime--
                     if (pageData.value.recordTime < 0) {
@@ -255,7 +251,7 @@ export default defineComponent({
          * @param {string} chlId
          */
         const checkTraceRecord = async (chlId: string) => {
-            const item = listData.value[pageData.value.active]
+            const item = formData.value.trace[pageData.value.active]
             if (item && chlId && pageData.value.recordStatus) {
                 resetRecord()
                 const sendXml = rawXml`
@@ -273,7 +269,7 @@ export default defineComponent({
          * @param {number} index
          */
         const stopRecord = async (index: number) => {
-            const item = listData.value[index]
+            const item = formData.value.trace[index]
             if (!item) {
                 return
             }
@@ -305,7 +301,7 @@ export default defineComponent({
             () => prop.chlId,
             (newVal, oldVal) => {
                 if (systemCaps.supportPtzGroupAndTrace) {
-                    if (pageData.value.recordTime !== DEFAULT_RECORD_TIME) {
+                    if (pageData.value.recordTime !== formData.value.traceMaxHoldTime) {
                         // 切换通道时取消轨迹录制
                         if (oldVal) {
                             checkTraceRecord(oldVal)
@@ -326,7 +322,7 @@ export default defineComponent({
             () => prop.active,
             (newVal) => {
                 if (!newVal) {
-                    if (pageData.value.recordTime !== DEFAULT_RECORD_TIME) {
+                    if (pageData.value.recordTime !== formData.value.traceMaxHoldTime) {
                         // 切换通道时取消轨迹录制
                         checkTraceRecord(prop.chlId)
                     }
@@ -335,7 +331,7 @@ export default defineComponent({
         )
 
         onBeforeUnmount(() => {
-            if (pageData.value.recordTime !== DEFAULT_RECORD_TIME) {
+            if (pageData.value.recordTime !== formData.value.traceMaxHoldTime) {
                 // 切换通道时取消轨迹录制
                 checkTraceRecord(prop.chlId)
             }
@@ -343,7 +339,7 @@ export default defineComponent({
 
         return {
             pageData,
-            listData,
+            formData,
             deleteTrace,
             playCurrentTrace,
             playTrace,

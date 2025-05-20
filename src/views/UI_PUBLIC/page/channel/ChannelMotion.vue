@@ -11,6 +11,8 @@
                     ref="playerRef"
                     @ready="onReady"
                     @message="notify"
+                    @success="onPlayerSuccess"
+                    @motion="onPlayerMotion"
                 />
             </div>
             <div class="motionCtrl">
@@ -40,8 +42,8 @@
                 <el-form-item :label="Translate('IDCS_SENSITIVITY')">
                     <BaseSliderInput
                         v-model="formData.sensitivity"
-                        :min="formData.sensitivityMinValue"
-                        :max="formData.sensitivityMaxValue"
+                        :min="formData.sensitivityMin"
+                        :max="formData.sensitivityMax"
                         :disabled="formData.disabled"
                     />
                 </el-form-item>
@@ -146,8 +148,8 @@
                         <template #default="{ row }: TableColumn<ChannelMotionDto>">
                             <BaseNumberInput
                                 v-model="row.sensitivity"
-                                :min="row.sensitivityMinValue"
-                                :max="row.sensitivityMaxValue"
+                                :min="row.sensitivityMin"
+                                :max="row.sensitivityMax"
                                 :disabled="row.disabled"
                             />
                         </template>

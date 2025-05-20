@@ -18,7 +18,7 @@ export default defineComponent({
         const pageTotal = ref(0)
         const selectedChlId = ref('')
         // 当前列表中存在的鱼眼模式枚举
-        const fishEyeModelList = ref(new Set<string>())
+        // const fishEyeModelList = ref(new Set<string>())
         // 当前列表中存在的安装模式枚举
         const installTypeList = ref(new Set<string>())
         // const deviceDatacache: Record<string, Record<string, string>> = {}
@@ -28,7 +28,7 @@ export default defineComponent({
         const editRows = useWatchEditRows<ChannelFisheyeDto>()
 
         // 保存设置前的鱼眼模式
-        const cacheFishEyeMode: Record<string, string> = {}
+        // const cacheFishEyeMode: Record<string, string> = {}
 
         const chlOptions = computed(() => {
             return tableData.value.map((item) => {
@@ -39,10 +39,33 @@ export default defineComponent({
             })
         })
 
+        const pageData = ref({
+            fishEyeModeList: [
+                {
+                    label: Translate('IDCS_FISHEYE'),
+                    value: 'FishEye',
+                },
+                {
+                    label: Translate('IDCS_FISHEYEMODE_PANORAMA'),
+                    value: 'Panorama',
+                },
+                {
+                    label: Translate('IDCS_FISHEYEMODE_PANORAMA_3PTZ'),
+                    value: 'FishEye+Panorama+3PTZ',
+                },
+                {
+                    label: Translate('IDCS_FISHEYEMODE_4PTZ'),
+                    value: 'FishEye+4PTZ',
+                },
+            ],
+        })
+
         // 鱼眼模式与文本的映射
         const FISH_EYE_MODE_MAPPING: Record<string, string> = {
-            'FishEye+Panorama+3PTZ': Translate('IDCS_FISHEYE_STREAM_1'),
-            'FishEye+4PTZ': Translate('IDCS_FISHEYE_STREAM_2'),
+            FishEye: Translate('IDCS_FISHEYE'),
+            Panorama: Translate('IDCS_FISHEYEMODE_PANORAMA'),
+            'FishEye+Panorama+3PTZ': Translate('IDCS_FISHEYEMODE_PANORAMA_3PTZ'),
+            'FishEye+4PTZ': Translate('IDCS_FISHEYEMODE_4PTZ'),
         }
 
         // 安装模式与文本的映射
@@ -86,7 +109,9 @@ export default defineComponent({
                     const fishEyeMode = val as string
                     tableData.value.forEach((ele) => {
                         if (!ele.disabled) {
-                            ele.fishEyeMode = fishEyeMode
+                            if (ele.fishEyeModeList.some((item) => item.value === fishEyeMode)) {
+                                ele.fishEyeMode = fishEyeMode
+                            }
                         }
                     })
                     break
@@ -140,12 +165,9 @@ export default defineComponent({
             openLoading()
             editRows.clear()
             installTypeList.value.clear()
-            fishEyeModelList.value.clear()
 
             const result = await getChlList({
-                pageIndex: pageIndex.value,
-                pageSize: pageSize.value,
-                isSupportFishEye: true,
+                isSupportFishEyeConfig: true,
             })
 
             const $ = queryXml(result)
@@ -190,7 +212,7 @@ export default defineComponent({
                 // IPC若支持鱼眼，返回的supportMode为support/notSupport
                 // IPC若不支持鱼眼，但通过onvif等协议添加时也可配置鱼眼开关，返回的supportMode为manualSupport/manualNotSupport
                 const supportMode = $('content/chl').attr('supportMode')
-                if (supportMode === 'support') {
+                if (supportMode === 'support' || supportMode === 'notSupport') {
                     item.fishEyeMode = $('content/chl/fishEyeMode').text()
                     item.installType = $('content/chl/installType').text()
 
@@ -201,12 +223,14 @@ export default defineComponent({
                         }
                     })
 
-                    $('types/fishEyeMode/enum').forEach((ele) => {
-                        const fishEyeMode = FISH_EYE_MODE_MAPPING[ele.text()]
-                        if (fishEyeMode) {
-                            fishEyeModelList.value.add(ele.text())
-                        }
-                    })
+                    item.fishEyeModeList = $('types/fishEyeMode/enum')
+                        .map((ele) => {
+                            return {
+                                label: FISH_EYE_MODE_MAPPING[ele.text()],
+                                value: ele.text(),
+                            }
+                        })
+                        .filter((ele) => !!ele.label)
 
                     if (hikvisionIds.includes(item.id)) {
                         item.disabled = true
@@ -215,7 +239,7 @@ export default defineComponent({
                         item.disabled = false
                     }
 
-                    cacheFishEyeMode[item.id] = item.fishEyeMode
+                    // cacheFishEyeMode[item.id] = item.fishEyeMode
                 } else if (supportMode === 'manualSupport' || supportMode === 'manualNotSupport') {
                     // 只对海康IPC判断
                     if (hikvisionIds.includes(item.id)) {
@@ -225,11 +249,6 @@ export default defineComponent({
                         item.disabled = false
                         item.reqCfgFail = true
                     }
-                }
-
-                const fishEyeMode = FISH_EYE_MODE_MAPPING[item.fishEyeMode]
-                if (fishEyeMode) {
-                    fishEyeModelList.value.add(item.fishEyeMode)
                 }
 
                 const installType = INSTALL_TYPE_MAPPING[item.installType]
@@ -252,16 +271,6 @@ export default defineComponent({
             return Array.from(installTypeList.value).map((value) => {
                 return {
                     label: INSTALL_TYPE_MAPPING[value],
-                    value,
-                }
-            })
-        })
-
-        // 鱼眼模式选项
-        const fishEyeModeOption = computed(() => {
-            return Array.from(fishEyeModelList.value).map((value) => {
-                return {
-                    label: FISH_EYE_MODE_MAPPING[value],
                     value,
                 }
             })
@@ -293,7 +302,7 @@ export default defineComponent({
          * @param {ChannelFisheyeDto} rowData
          * @returns {string}
          */
-        const getSaveData = (rowData: ChannelFisheyeDto) => {
+        const getSaveData = (rowData: ChannelFisheyeDto, rebootPrompt: boolean) => {
             return rawXml`
                 <types>
                     <fishEyeMode>
@@ -310,6 +319,7 @@ export default defineComponent({
                     <chl id='${rowData.id}'>
                         <installType type='installType'>${rowData.installType}</installType>
                         <fishEyeMode type='fishEyeMode'>${rowData.fishEyeMode}</fishEyeMode>
+                        <rebootPrompt>${rebootPrompt}</rebootPrompt>
                     </chl>
                 </content>`
         }
@@ -338,37 +348,69 @@ export default defineComponent({
         /**
          * @description 保存配置
          */
-        const setData = async () => {
+        const setData = async (rebootPrompt = true) => {
+            let needReboot = false
+
+            openLoading()
+
+            for (const item of editRows.toArray()) {
+                if (!item.reqCfgFail) {
+                    const res = await editIPChlORChlFishEye(getSaveData(item, true))
+                    const $ = queryXml(res)
+                    const success = $('status').text() === 'success'
+                    if (success) {
+                        item.status = 'success'
+                        editRows.remove(item)
+                    } else {
+                        const errorCode = $('errorCode').text().num()
+                        if (errorCode === 536871071) needReboot = true
+                        if (!rebootPrompt) {
+                            item.status = 'error'
+                        }
+                    }
+                }
+            }
+
+            closeLoading()
+
+            if (needReboot) {
+                try {
+                    await openMessageBox({
+                        type: 'question',
+                        message: Translate('IDCS_FISHMODE_CHANGE_TIP'),
+                    })
+                    await setData(false)
+                } catch {}
+            } else {
+                await setData(false)
+            }
+        }
+
+        /**
+         * @description 保存配置
+         */
+        const save = async () => {
             tableData.value.forEach((ele) => (ele.status = ''))
 
             // 支持开关配置的鱼眼才下发editFishEyeEnable协议
             const editEnableRows: ChannelFisheyeDto[] = []
 
-            openLoading()
-
             for (const ele of editRows.toArray()) {
-                if (!ele.reqCfgFail) {
-                    const res = await editIPChlORChlFishEye(getSaveData(ele))
-                    const $ = queryXml(res)
-                    const success = $('status').text() === 'success'
-                    if (success) {
-                        ele.status = 'success'
-                        editRows.remove(ele)
-                        cacheFishEyeMode[ele.id] = ele.fishEyeMode
-                    } else {
-                        ele.status = 'error'
-                    }
-                }
-
                 if (ele.supportFishEyeEnable) {
                     editEnableRows.push(ele)
                 }
             }
 
+            await setData()
+
             if (editEnableRows.length) {
+                openLoading()
+
                 const res = await editFishEyeEnable(getFishEyeEnableSaveData(editEnableRows))
                 const $ = queryXml(res)
                 const success = $('status').text() === 'success'
+
+                closeLoading()
 
                 editEnableRows.forEach((ele) => {
                     if (ele.reqCfgFail) {
@@ -380,31 +422,6 @@ export default defineComponent({
                         }
                     }
                 })
-            }
-
-            closeLoading()
-        }
-
-        /**
-         * @description 保存配置前，判断鱼眼模式是否被修改
-         */
-        const save = () => {
-            const isFishEyeModeChanged = editRows.toArray().some((item) => {
-                if (cacheFishEyeMode[item.id] && cacheFishEyeMode[item.id] !== item.fishEyeMode) {
-                    return true
-                }
-                return false
-            })
-
-            if (isFishEyeModeChanged) {
-                openMessageBox({
-                    type: 'question',
-                    message: Translate('IDCS_FISHMODE_CHANGE_TIP'),
-                }).then(() => {
-                    setData()
-                })
-            } else {
-                setData()
             }
         }
 
@@ -490,7 +507,6 @@ export default defineComponent({
             pageTotal,
             selectedChlId,
             installTypeOption,
-            fishEyeModeOption,
             handleRowClick,
             handleChlSel,
             changeFishEyeEnabled,
@@ -499,6 +515,7 @@ export default defineComponent({
             onReady,
             switchOptions,
             getDataList,
+            pageData,
         }
     },
 })

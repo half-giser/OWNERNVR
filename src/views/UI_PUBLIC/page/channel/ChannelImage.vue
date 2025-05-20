@@ -25,7 +25,7 @@
                     />
                 </el-form-item>
                 <el-form-item
-                    v-show="formData.isSupportThermal"
+                    v-show="formData.paletteList.length"
                     :label="Translate('IDCS_COLOR_CODE')"
                 >
                     <el-select-v2
@@ -36,7 +36,7 @@
                     />
                 </el-form-item>
                 <el-form-item
-                    v-show="!formData.isSupportThermal"
+                    v-show="formData.paletteList.length || (!formData.brightMin && !formData.brightMax)"
                     :label="Translate('IDCS_BRIGHTNESS')"
                 >
                     <BaseSliderInput
@@ -48,7 +48,7 @@
                     />
                 </el-form-item>
                 <el-form-item
-                    v-show="!formData.isSupportThermal"
+                    v-show="formData.paletteList.length || (!formData.contrastMin && !formData.contrastMax)"
                     :label="Translate('IDCS_CONTRAST')"
                 >
                     <BaseSliderInput
@@ -60,7 +60,7 @@
                     />
                 </el-form-item>
                 <el-form-item
-                    v-show="!formData.isSupportThermal"
+                    v-show="formData.paletteList.length || (!formData.saturationMin && !formData.saturationMax)"
                     :label="Translate('IDCS_SATURATION')"
                 >
                     <BaseSliderInput
@@ -72,7 +72,7 @@
                     />
                 </el-form-item>
                 <el-form-item
-                    v-show="!formData.isSupportThermal"
+                    v-show="formData.paletteList.length || (!formData.hueMin && !formData.hueMax)"
                     :label="Translate('IDCS_TONE')"
                 >
                     <BaseSliderInput
@@ -94,8 +94,15 @@
                     </div>
                 </div>
                 <div>
+                    <!--
+                    * 1、普通ipc支持高级功能
+                    * 2、单目热成像ipc支持高级功能
+                    * 3、双目热成像：
+                    *    1）支持双光融合的ipc，支持高级功能
+                    *    2）不支持双光融合的ipc，不支持高级功能
+                    -->
                     <el-button
-                        :disabled="formData.disabled || formData.isSupportThermal"
+                        :disabled="formData.disabled || (!!formData.paletteList.length && formData.AccessType === '1' && !formData.isSupportImageFusion)"
                         @click="showMore"
                     >
                         {{ Translate('IDCS_ADVANCED') }}
@@ -144,7 +151,7 @@
                     >
                         <template #default="{ row }: TableColumn<ChannelImageDto>">
                             <span v-if="row.isSpeco"></span>
-                            <span v-else-if="row.isSupportThermal">--</span>
+                            <span v-else-if="row.paletteList.length || (!row.brightMin && !row.brightMax)">--</span>
                             <BaseNumberInput
                                 v-else
                                 v-model="row.bright"
@@ -162,7 +169,7 @@
                     >
                         <template #default="{ row }: TableColumn<ChannelImageDto>">
                             <span v-if="row.isSpeco"></span>
-                            <span v-else-if="row.isSupportThermal">--</span>
+                            <span v-else-if="row.paletteList.length || (!row.contrastMin && !row.contrastMax)">--</span>
                             <BaseNumberInput
                                 v-else
                                 v-model="row.contrast"
@@ -180,7 +187,7 @@
                     >
                         <template #default="{ row }: TableColumn<ChannelImageDto>">
                             <span v-if="row.isSpeco"></span>
-                            <span v-else-if="row.isSupportThermal">--</span>
+                            <span v-else-if="row.paletteList.length || (!row.saturationMin && !row.saturationMax)">--</span>
                             <BaseNumberInput
                                 v-else
                                 v-model="row.saturation"
@@ -198,7 +205,7 @@
                     >
                         <template #default="{ row }: TableColumn<ChannelImageDto>">
                             <span v-if="row.isSpeco"></span>
-                            <span v-else-if="row.isSupportThermal || row.hue === undefined">--</span>
+                            <span v-else-if="row.paletteList.length || (!row.hueMin && !row.hueMax)">--</span>
                             <BaseNumberInput
                                 v-else
                                 v-model="row.hue"
@@ -216,7 +223,10 @@
                         width="100"
                     >
                         <template #default="{ row }: TableColumn<ChannelImageDto>">
-                            <div class="expandContent">
+                            <div
+                                v-if="!row.isSupportImageFusion"
+                                class="expandContent"
+                            >
                                 <div class="page_content">
                                     <el-scrollbar>
                                         <div
@@ -376,18 +386,19 @@
                                                 <el-form-item :label="Translate('IDCS_ANTI_FLICKER')">
                                                     <el-select-v2
                                                         v-model="row.antiflicker"
-                                                        :disabled="row.antiflicker === undefined"
+                                                        :disabled="row.antiflicker === undefined || row.BLCMode === 'HWDR'"
                                                         :options="row.antiflickerModeList"
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
+                                                <!-- 曝光模式 NTA1-2782 开启HWDR时，曝光模式未置灰，和IPC端不一致 将曝光模式移至背光补偿绑定之前 -->
                                                 <el-form-item
                                                     v-if="row.exposureModeList.length"
                                                     :label="Translate('IDCS_EXPOSURE_MODE')"
                                                 >
                                                     <el-select-v2
                                                         v-model="row.exposureMode"
-                                                        :disabled="row.exposureMode === undefined"
+                                                        :disabled="row.exposureMode === undefined || row.BLCMode === 'HWDR'"
                                                         :options="row.exposureModeList"
                                                         @change="changeExposureMode"
                                                     />
@@ -405,37 +416,37 @@
                                                 </el-form-item>
                                                 <!-- 1、NT2-3947 当有ShowGainMode字段且为false时，为4.2.1版本的ipc，认为不支持隐藏增益模式，，隐藏增益模式下拉框，否则认为是支持；2、协议返回增益模式的枚举只有一个，则为5.2版本的ipc，隐藏增益模式下拉框-->
                                                 <el-form-item
-                                                    v-if="row.ShowGainMode && row.gainModeList.length > 1"
+                                                    v-if="row.exposureMode === 'manual' && !row.noGainMode"
                                                     :label="Translate('IDCS_GAIN_MODE')"
                                                 >
                                                     <el-select-v2
                                                         v-model="row.gainMode"
                                                         :options="row.gainModeList"
-                                                        :disabled="row.BLCMode === 'HWDR' || (row.BLCMode !== 'HWDR' && row.gainMode === undefined)"
+                                                        :disabled="row.gainMode === undefined"
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
                                                 <el-form-item
-                                                    v-if="row.gainMode === '1'"
+                                                    v-if="row.exposureMode === 'manual' && ((row.gainMode === '1' && !row.noGainMode) || row.noGainMode)"
                                                     :label="Translate('IDCS_GAIN')"
                                                 >
                                                     <BaseSliderInput
                                                         v-model="row.gain"
                                                         :min="row.gainMin"
                                                         :max="row.gainMax"
-                                                        :disabled="row.BLCMode === 'HWDR' || (row.BLCMode !== 'HWDR' && row.gainMode === undefined)"
+                                                        :disabled="row.gain === undefined"
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
                                                 <el-form-item
-                                                    v-if="row.gainMode === '0'"
+                                                    v-if="row.exposureMode !== 'manual' && ((row.gainMode === '0' && !row.noGainMode) || row.noGainMode)"
                                                     :label="Translate('IDCS_GAIN_LIMIT')"
                                                 >
                                                     <BaseSliderInput
                                                         v-model="row.gainAGC"
                                                         :min="row.gainMin"
                                                         :max="row.gainMax"
-                                                        :disabled="row.BLCMode === 'HWDR' || (row.BLCMode !== 'HWDR' && row.gainMode === undefined)"
+                                                        :disabled="row.gainAGC === undefined"
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
@@ -446,6 +457,7 @@
                                                     <el-select-v2
                                                         v-model="row.imageRotate"
                                                         :options="pageData.imgRotateOptions"
+                                                        :disabled="row.BLCMode === 'HWDR' && row.HWDRMutexRotao"
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
@@ -488,19 +500,13 @@
                                                     />
                                                 </el-form-item>
                                                 <el-form-item :label="Translate('IDCS_DN_MODE')">
+                                                    <!-- 根据是否支持日夜模式后再根据配置文件来置灰，若配置文件为day或night则置灰，否则维持原状 -->
                                                     <el-select-v2
-                                                        v-if="row.isSupportIRCutMode && row.IRCutMode !== undefined"
+                                                        v-if="row.IRCutMode !== undefined"
                                                         v-model="row.IRCutMode"
-                                                        :disabled="!row.isSupportIRCutMode"
+                                                        :disabled="!row.isSupportIRCutMode || row.cfgFile === 'day' || row.cfgFile === 'night'"
                                                         :options="row.IRCutModeList.length ? row.IRCutModeList : pageData.icCutModeOptions"
                                                         @change="setAZData()"
-                                                    />
-                                                    <el-select-v2
-                                                        v-else-if="row.isSupportIRCutMode"
-                                                        v-model="defaultIRCutMode"
-                                                        :disabled="!row.isSupportIRCutMode"
-                                                        :options="row.IRCutModeList.length ? row.IRCutModeList : pageData.icCutModeOptions"
-                                                        @change="changeIRCutMode"
                                                     />
                                                     <el-select-v2
                                                         v-else
@@ -641,6 +647,18 @@
                                                     />
                                                 </el-form-item>
                                                 <el-form-item
+                                                    v-if="row.illumination === 'smart' || (row.illumination === 'irLight' && row.InfraredMode !== 'off')"
+                                                    :label="Translate('IDCS_IR_BRIGHTNESS')"
+                                                >
+                                                    <BaseSliderInput
+                                                        v-model="row.irLightBright"
+                                                        :disabled="row.irLightBright === undefined"
+                                                        :min="row.irLightBrightMin"
+                                                        :max="row.irLightBrightMax"
+                                                        @change="setAZData()"
+                                                    />
+                                                </el-form-item>
+                                                <el-form-item
                                                     v-if="row.whitelightMode"
                                                     :label="Translate('IDCS_WHITE_LIGHT')"
                                                 >
@@ -679,6 +697,62 @@
                                                         v-model="row.whitelightOffTime"
                                                         unit="minute"
                                                         @change="setAZData()"
+                                                    />
+                                                </el-form-item>
+                                                <el-form-item :label="Translate('IDCS_DIGITAL_ZOOM')">
+                                                    <el-select-v2
+                                                        v-if="row.dZoom !== undefined"
+                                                        v-model="row.dZoom"
+                                                        :options="row.DigitalZoomList"
+                                                        @change="setAZData()"
+                                                    />
+                                                    <el-select-v2
+                                                        v-else
+                                                        model-value=""
+                                                        :options="[]"
+                                                        disabled
+                                                    />
+                                                </el-form-item>
+                                                <el-form-item :label="Translate('IDCS_ANTI_SHAKE_DSP')">
+                                                    <el-select-v2
+                                                        v-if="row.antiShakeDsp !== undefined"
+                                                        v-model="row.antiShakeDsp"
+                                                        :options="pageData.switchOptions"
+                                                        @change="setAZData()"
+                                                    />
+                                                    <el-select-v2
+                                                        v-else
+                                                        model-value=""
+                                                        :options="[]"
+                                                        disabled
+                                                    />
+                                                </el-form-item>
+                                                <el-form-item :label="Translate('IDCS_ILLUMINATION_MODE')">
+                                                    <el-select-v2
+                                                        v-if="row.illumination !== undefined"
+                                                        v-model="row.illumination"
+                                                        :options="row.illuminationModeList"
+                                                        @change="setAZData(undefined, undefined, true)"
+                                                    />
+                                                    <el-select-v2
+                                                        v-else
+                                                        model-value=""
+                                                        :options="[]"
+                                                        disabled
+                                                    />
+                                                </el-form-item>
+                                                <el-form-item :label="Translate('IDCS_OVEREXPOSURE_MODE')">
+                                                    <el-select-v2
+                                                        v-if="row.ImageOverExposure !== undefined"
+                                                        v-model="row.ImageOverExposure"
+                                                        :options="row.ImageOverExposureModeList"
+                                                        @change="setAZData()"
+                                                    />
+                                                    <el-select-v2
+                                                        v-else
+                                                        model-value=""
+                                                        :options="[]"
+                                                        disabled
                                                     />
                                                 </el-form-item>
                                             </el-form>
@@ -892,6 +966,83 @@
                                             :label="Translate(item.text)"
                                         />
                                     </el-radio-group>
+                                </div>
+                            </div>
+                            <div
+                                v-else
+                                class="expandContent"
+                            >
+                                <div class="page_content">
+                                    <div class="page_content_item">
+                                        <el-form v-title>
+                                            <el-form-item :label="Translate('IDCS_DUAL_LIGHT_FUSION')">
+                                                <el-select-v2
+                                                    v-model="row.imageFusion.switch"
+                                                    :options="pageData.imageFusionSwitchOptions"
+                                                />
+                                            </el-form-item>
+                                            <el-form-item
+                                                v-show="row.imageFusion.switch"
+                                                :label="Translate('IDCS_DISTANCE')"
+                                            >
+                                                <BaseSliderInput
+                                                    v-if="row.imageFusion.distanceUnit === 'Meter'"
+                                                    v-model="row.imageFusion.distance"
+                                                    :min="row.imageFusion.distanceMin"
+                                                    :max="row.imageFusion.distanceMax"
+                                                />
+                                                <BaseSliderInput
+                                                    v-else
+                                                    v-model="row.imageFusion.distance"
+                                                    :min="row.imageFusion.distanceFmin"
+                                                    :max="row.imageFusion.distanceFmax"
+                                                />
+                                            </el-form-item>
+                                            <el-form-item
+                                                v-show="row.imageFusion.switch"
+                                                :label="Translate('IDCS_INTENSITY')"
+                                            >
+                                                <BaseSliderInput
+                                                    v-model="row.imageFusion.poolid"
+                                                    :min="row.imageFusion.poolidMin"
+                                                    :max="row.imageFusion.poolidMax"
+                                                />
+                                            </el-form-item>
+                                            <el-form-item
+                                                v-show="row.imageFusion.switch"
+                                                :label="Translate('IDCS_CALIBRATION_ADJUST')"
+                                            >
+                                                <div class="base-btn-box no-padding flex-start">
+                                                    <BaseImgSpriteBtn
+                                                        file="U"
+                                                        @click="saveFusionOffset(row, 'up')"
+                                                    />
+                                                    <BaseImgSpriteBtn
+                                                        file="D"
+                                                        @click="saveFusionOffset(row, 'down')"
+                                                    />
+                                                    <BaseImgSpriteBtn
+                                                        file="L"
+                                                        @click="saveFusionOffset(row, 'left')"
+                                                    />
+                                                    <BaseImgSpriteBtn
+                                                        file="R"
+                                                        @click="saveFusionOffset(row, 'right')"
+                                                    />
+                                                </div>
+                                            </el-form-item>
+                                            <el-form-item
+                                                v-show="row.imageFusion.switch"
+                                                :label="Translate('IDCS_SPEED')"
+                                            >
+                                                <BaseSliderInput
+                                                    v-model="row.imageFusion.fusespeed"
+                                                    :min="row.imageFusion.fusespeedMin"
+                                                    :max="row.imageFusion.fusespeedMax"
+                                                />
+                                            </el-form-item>
+                                        </el-form>
+                                    </div>
                                 </div>
                             </div>
                         </template>

@@ -62,6 +62,7 @@ export default defineComponent({
             //排程管理弹窗显示状态
             isSchedulePop: false,
             currentRow: new AlarmEmailReceiverDto(),
+            receiverNameMaxByteLen: nameByteMaxLen,
         })
 
         const getIconStatus = () => {
@@ -115,22 +116,24 @@ export default defineComponent({
          */
         const getData = async () => {
             openLoading()
-            queryEmailCfg().then((result) => {
-                closeLoading()
-                const scheduleIds = pageData.value.scheduleList.map((item) => item.value)
-                const $ = queryXml(result)
-                if ($('status').text() === 'success') {
-                    pageData.value.sender = $('content/sender/address').text()
-                    tableData.value = $('content/receiver/item').map((item) => {
-                        const $item = queryXml(item.element)
-                        const scheduleId = $item('schedule').attr('id')
-                        return {
-                            address: $item('address').text(),
-                            schedule: !scheduleId || !scheduleIds.includes(scheduleId) ? DEFAULT_EMPTY_ID : scheduleId,
-                        }
-                    })
-                }
-            })
+            const result = await queryEmailCfg()
+            const scheduleIds = pageData.value.scheduleList.map((item) => item.value)
+            const $ = queryXml(result)
+
+            closeLoading()
+
+            if ($('status').text() === 'success') {
+                pageData.value.sender = $('content/sender/address').text()
+                pageData.value.receiverNameMaxByteLen = $('content/receiver/itemType').attr('maxByteLen').num() || nameByteMaxLen
+                tableData.value = $('content/receiver/item').map((item) => {
+                    const $item = queryXml(item.element)
+                    const scheduleId = $item('schedule').attr('id')
+                    return {
+                        address: $item('address').text(),
+                        schedule: !scheduleId || !scheduleIds.includes(scheduleId) ? DEFAULT_EMPTY_ID : scheduleId,
+                    }
+                })
+            }
         }
 
         /**

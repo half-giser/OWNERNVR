@@ -50,23 +50,23 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_TIME_SERVER')">
-                <el-select-v2
+                <BaseSelectInput
                     v-model="formData.timeServer"
                     :options="pageData.timeServerOptions"
-                    filterable
-                    allow-create
                     :disabled="formData.syncType !== 'NTP'"
+                    :maxlength="formData.timeServerMaxByteLen"
+                    :validate="checkTimeServer"
                 />
             </el-form-item>
             <el-form-item
                 v-if="formData.syncType === 'Gmouse'"
                 :label="Translate('IDCS_BAUD_RATE')"
             >
-                <el-select-v2
+                <BaseSelectInput
                     v-model="formData.gpsBaudRate"
                     :options="pageData.gpsBaudRateOptions"
-                    filterable
-                    allow-create
+                    :formatter="formatDigit"
+                    :validate="checkGPSBaudRate"
                     :disabled="formData.syncType !== 'Gmouse'"
                 />
             </el-form-item>
@@ -79,6 +79,7 @@
                     :min="formData.ntpIntervalMin"
                     :max="formData.ntpIntervalMax"
                     :disabled="formData.syncType === 'NTP'"
+                    mode="blur"
                     @out-of-range="handleNtpIntervalOutOfRange"
                 />
             </el-form-item>

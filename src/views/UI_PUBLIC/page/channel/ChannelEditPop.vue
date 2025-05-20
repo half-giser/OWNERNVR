@@ -17,36 +17,73 @@
             :rules="rules"
             class="stripe"
         >
+            <el-form-item :label="Translate('IDCS_CHANNEL_NO')">
+                <el-input
+                    v-model="formData.chlNum"
+                    disabled
+                />
+            </el-form-item>
             <el-form-item
                 :label="Translate('IDCS_CHANNEL_NAME')"
                 prop="name"
             >
-                <el-input
+                <BaseTextInput
                     v-model="formData.name"
-                    :formatter="formatInputMaxLength"
-                    :parser="formatInputMaxLength"
+                    :maxlength="formData.nameMaxByteLen"
                 />
             </el-form-item>
             <el-form-item
-                :label="ipTitle"
+                v-if="ipType === 'IPV4'"
+                label="IPV4"
                 prop="ip"
             >
                 <BaseIpInput
-                    v-if="showIpInput"
                     v-model="formData.ip"
                     :disabled="ipDisabled"
                 />
+            </el-form-item>
+            <el-form-item
+                v-if="ipType === 'IPV6'"
+                label="IPV6"
+                prop="ip"
+            >
                 <el-input
-                    v-else
                     v-model="formData.ip"
-                    :placeholder="ipPlaceholder"
+                    :placeholder="Translate('IDCS_INPUT_IPV6_ADDRESS_TIP')"
                     :disabled="ipDisabled"
+                />
+            </el-form-item>
+            <el-form-item
+                v-if="ipType === 'domain'"
+                :label="Translate('IDCS_DOMAIN')"
+                prop="ip"
+            >
+                <el-input
+                    v-model="formData.ip"
+                    :placeholder="Translate('IDCS_DOMAIN_TIP')"
+                    :disabled="ipDisabled"
+                />
+            </el-form-item>
+            <el-form-item
+                v-if="rowData.autoReportID"
+                :label="Translate('IDCS_SUB_DEVICE_ID')"
+            >
+                <el-input
+                    v-model="formData.autoReportID"
+                    :formatter="formatDigit"
+                    :parser="formatDigit"
+                />
+            </el-form-item>
+            <el-form-item :label="Translate('IDCS_REMOTE_CHANNEL_NUMBER')">
+                <el-input
+                    v-model="formData.chlIndex"
+                    disabled
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_PORT')">
                 <el-input
                     v-if="portDisabled"
-                    :model-value="formData.port < 10 ? '' : formData.port"
+                    :model-value="formData.port < 10 ? (rowData.autoReportID ? '--' : '') : formData.port"
                     disabled
                 />
                 <BaseNumberInput
@@ -72,18 +109,21 @@
                 :label="Translate('IDCS_USERNAME')"
                 prop="userName"
             >
-                <el-input
+                <BaseTextInput
                     v-model="formData.userName"
-                    :disabled="inputDisabled"
+                    :maxlength="formData.userNameMaxByteLen"
+                    :disabled="rowData.isOnline || !formData.port"
                 />
             </el-form-item>
             <el-form-item>
                 <template #label>
-                    {{ Translate('IDCS_PASSWORD') }}
-                    <el-checkbox
-                        v-model="editPwdSwitch"
-                        :disabled="inputDisabled"
-                    />
+                    <div class="base-label-box">
+                        <span>{{ Translate('IDCS_PASSWORD') }}</span>
+                        <el-checkbox
+                            v-model="editPwdSwitch"
+                            :disabled="rowData.isOnline || !formData.port"
+                        />
+                    </div>
                 </template>
                 <BasePasswordInput
                     v-model="formData.password"

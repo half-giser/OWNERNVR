@@ -7,7 +7,7 @@
     <div class="base-home-ptz">
         <BaseListBox>
             <BaseListBoxItem
-                v-for="(item, index) in listData"
+                v-for="(item, index) in formData.trace"
                 :key="item.index"
                 :class="{
                     active: pageData.active === index,
@@ -30,7 +30,7 @@
         <div class="base-home-ptz-btns">
             <div>
                 <el-text
-                    v-show="pageData.recordTime < pageData.maxRecordTime && pageData.recordTime >= 0"
+                    v-show="pageData.recordTime < formData.traceMaxHoldTime && pageData.recordTime >= 0"
                     class="base-home-ptz-seconds"
                 >
                     {{ pageData.recordTime }} s
@@ -73,9 +73,7 @@
         </div>
         <ChannelTraceAddPop
             v-model="pageData.isAddPop"
-            :max="pageData.maxCount"
-            :trace="listData"
-            :chl-id="chlId"
+            :data="formData"
             @confirm="confirmAddTrace"
             @close="pageData.isAddPop = false"
         />

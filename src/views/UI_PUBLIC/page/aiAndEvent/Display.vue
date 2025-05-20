@@ -17,7 +17,7 @@
             />
         </el-form-item>
         <el-form-item
-            v-show="videoFormData.popVideoOutputShow"
+            v-show="pageData.popVideoOutputOption.length >= 2"
             :label="Translate('IDCS_OUTPUT')"
         >
             <el-select-v2

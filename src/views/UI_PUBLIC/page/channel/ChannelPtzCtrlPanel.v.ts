@@ -19,6 +19,38 @@ export default defineComponent({
             type: Boolean,
             default: false,
         },
+        enableCtrl: {
+            type: Boolean,
+            default: true,
+        },
+        enableIris: {
+            type: Boolean,
+            default: true,
+        },
+        enableZoom: {
+            type: Boolean,
+            default: true,
+        },
+        enableFocus: {
+            type: Boolean,
+            default: true,
+        },
+        enableSpeed: {
+            type: Boolean,
+            default: false,
+        },
+        minSpeed: {
+            type: Number,
+            default: 1,
+        },
+        maxSpeed: {
+            type: Number,
+            default: 8,
+        },
+        layout: {
+            type: String as PropType<'horizontal' | 'vertical'>,
+            default: 'horizontal',
+        },
     },
     emits: {
         speed(speedValue: number) {
@@ -99,6 +131,9 @@ export default defineComponent({
                             type: 'control',
                         },
                     ],
+                    validate() {
+                        return !prop.disabled && !!prop.chlId && prop.enableZoom
+                    },
                 },
                 {
                     name: Translate('IDCS_FOCUS'),
@@ -114,6 +149,9 @@ export default defineComponent({
                             type: 'control',
                         },
                     ],
+                    validate() {
+                        return !prop.disabled && !!prop.chlId && prop.enableFocus
+                    },
                 },
                 {
                     name: Translate('IDCS_IRIS'),
@@ -129,14 +167,17 @@ export default defineComponent({
                             type: 'control',
                         },
                     ],
+                    validate() {
+                        return !prop.disabled && !!prop.chlId && prop.enableIris
+                    },
                 },
-            ] as { name: string; control: [CmdItem, CmdItem] }[],
+            ] as { name: string; control: [CmdItem, CmdItem]; validate: () => boolean }[],
             // 当前速度值
             speed: 4,
             // 最小速度
-            minSpeed: 1,
+            // minSpeed: 1,
             // 最大速度
-            maxSpeed: 8,
+            // maxSpeed: 8,
         })
 
         const cmdQueue = useCmdQueue()
@@ -178,7 +219,7 @@ export default defineComponent({
          * @description 降低速度
          */
         const decreaseSpeed = () => {
-            if (pageData.value.speed > pageData.value.minSpeed) {
+            if (pageData.value.speed > prop.minSpeed) {
                 pageData.value.speed--
             }
         }
@@ -187,7 +228,7 @@ export default defineComponent({
          * @description 提高速度
          */
         const increaseSpeed = () => {
-            if (pageData.value.speed < pageData.value.maxSpeed) {
+            if (pageData.value.speed < prop.maxSpeed) {
                 pageData.value.speed++
             }
         }
@@ -200,6 +241,13 @@ export default defineComponent({
             () => pageData.value.speed,
             () => {
                 ctx.emit('speed', pageData.value.speed)
+            },
+        )
+
+        watch(
+            () => prop.maxSpeed,
+            () => {
+                pageData.value.speed = prop.maxSpeed / 2
             },
         )
 

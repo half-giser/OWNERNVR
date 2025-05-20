@@ -58,6 +58,12 @@
                 :active="osd"
                 @click="$emit('update:osd', !osd)"
             />
+            <!-- 目标检测 -->
+            <BaseImgSpriteBtn
+                v-if="systemCaps.supportREID"
+                file="target_retrieval"
+                :title="Translate('IDCS_REID')"
+            />
             <!-- 全屏按钮 -->
             <BaseImgSpriteBtn
                 file="full_screen"
@@ -80,6 +86,7 @@
             </el-radio-group>
         </div>
         <div class="ctrl-right">
+            <LiveScreenRS485Pop v-if="systemCaps.supportRS485" />
             <LiveScreenAlarmOutPop />
             <!-- 关闭/开启图像 -->
             <BaseImgSpriteBtn
@@ -139,7 +146,7 @@
         display: flex;
         justify-content: flex-end;
 
-        & > span {
+        & > .Sprite {
             margin: 0 5px;
         }
     }
