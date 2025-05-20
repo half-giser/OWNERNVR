@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-26 15:31:53
  * @Description: UI2-A 客制化功能面板
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-08 15:47:58
 -->
 <template>
     <div class="config-home">
@@ -62,7 +60,7 @@
 .config {
     &-home {
         width: 100%;
-        height: var(--content-height);
+        font-size: 16px;
     }
 
     &-wrapper {

@@ -2,385 +2,282 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-21 15:34:24
  * @Description: 异常报警
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-10 13:45:39
  */
-import { cloneDeep } from 'lodash-es'
-import { ExceptionAlarmRow } from '@/types/apiType/aiAndEvent'
-import SetPresetPop from './SetPresetPop.vue'
+import AlarmBasePresetPop from './AlarmBasePresetPop.vue'
+import AlarmBaseAlarmOutPop from './AlarmBaseAlarmOutPop.vue'
+
 export default defineComponent({
     components: {
-        SetPresetPop,
+        AlarmBasePresetPop,
+        AlarmBaseAlarmOutPop,
     },
     setup() {
         const { Translate } = useLangStore()
-        const tableData = ref<ExceptionAlarmRow[]>([])
-        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
-        const openMessageTipBox = useMessageBox().openMessageTipBox
+
+        const EVENT_TYPE_MAPPING: Record<string, string> = {
+            ipConflict: 'IDCS_IP_CONFLICT',
+            diskRWError: 'IDCS_DISK_IO_ERROR',
+            diskFull: 'IDCS_DISK_FULL',
+            illegalAccess: 'IDCS_UNLAWFUL_ACCESS',
+            networkBreak: 'IDCS_NET_DISCONNECT',
+            noDisk: 'IDCS_NO_DISK',
+            signalShelter: 'IDCS_SIGNAL_SHELTER',
+            hddPullOut: 'IDCS_HDD_PULL_OUT',
+            raidException: 'IDCS_RAID_EXCEPTION',
+            alarmServerOffline: 'IDCS_ALARM_SERVER_OFFLINE',
+            diskFailure: 'IDCS_DISK_FAILURE',
+        }
+
         const pageData = ref({
-            enableList: [
-                { value: 'true', label: Translate('IDCS_ON') },
-                { value: 'false', label: Translate('IDCS_OFF') },
-            ],
-            eventTypeMapping: {
-                ipConflict: 'IDCS_IP_CONFLICT',
-                diskRWError: 'IDCS_DISK_IO_ERROR',
-                diskFull: 'IDCS_DISK_FULL',
-                illegalAccess: 'IDCS_UNLAWFUL_ACCESS',
-                networkBreak: 'IDCS_NET_DISCONNECT',
-                noDisk: 'IDCS_NO_DISK',
-                signalShelter: 'IDCS_SIGNAL_SHELTER',
-                hddPullOut: 'IDCS_HDD_PULL_OUT',
-                raidException: 'IDCS_RAID_EXCEPTION',
-                alarmServerOffline: 'IDCS_ALARM_SERVER_OFFLINE',
-                diskFailure: 'IDCS_DISK_FAILURE',
-            },
-            defaultAudioId: '{00000000-0000-0000-0000-000000000000}',
-            supportAudio: false,
-            audioList: [] as { value: string; label: string }[],
+            enableList: getTranslateOptions(DEFAULT_SWITCH_OPTIONS),
+            supportAudio: systemCaps.supportAlarmAudioConfig,
+            audioList: [] as SelectOption<string, string>[],
             // 打开穿梭框时选择行的索引
             triggerDialogIndex: 0,
-
-            // alarmOut穿梭框数据源
-            alarmOutList: [] as { value: string; label: string; device: { value: string; label: string } }[],
-            alarmOutHeaderTitle: 'IDCS_TRIGGER_ALARM_OUT',
-            alarmOutSourceTitle: 'IDCS_ALARM_OUT',
-            alarmOutTargetTitle: 'IDCS_TRIGGER_ALARM_OUT',
-            // 表头选中id
-            alarmOutChosedIdsAll: [] as string[],
-            // 表头选中的数据
-            alarmOutChosedListAll: [] as { value: string; label: string }[],
-            alarmOutIsShow: false,
-            alarmOutType: 'alarmOut',
-
-            // disable
-            applyDisable: true,
-            alarmOutPopoverVisible: false,
+            isAlarmOutPop: false,
         })
+
+        const tableData = ref<AlarmExceptionDto[]>([])
+        const watchEdit = useWatchEditData(tableData)
+
+        /**
+         * @description 获取声音列表
+         */
         const getAudioList = async () => {
-            pageData.value.supportAudio = systemCaps.supportAlarmAudioConfig
-            // pageData.value.supportAudio = true
-            if (pageData.value.supportAudio == true) {
-                queryAlarmAudioCfg().then(async (resb) => {
-                    pageData.value.audioList = []
-                    const res = queryXml(resb)
-                    if (res('status').text() == 'success') {
-                        res('//content/audioList/item').forEach((item) => {
-                            const $item = queryXml(item.element)
-                            pageData.value.audioList.push({
-                                value: item.attr('id')!,
-                                label: $item('name').text(),
-                            })
-                        })
-                        pageData.value.audioList.push({ value: pageData.value.defaultAudioId, label: '<' + Translate('IDCS_NULL') + '>' })
-                    }
-                })
+            if (pageData.value.supportAudio) {
+                pageData.value.audioList = await buildAudioList()
             }
         }
-        const getAlarmOutList = async () => {
-            getChlList({
-                requireField: ['device'],
-                nodeType: 'alarmOuts',
-            }).then(async (resb) => {
-                const res = queryXml(resb)
-                if (res('status').text() == 'success') {
-                    res('//content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        let name = $item('name').text()
-                        if ($item('devDesc').text().length) {
-                            name = $item('devDesc').text() + '-' + name
-                        }
-                        pageData.value.alarmOutList.push({
-                            value: item.attr('id')!,
-                            label: name,
-                            device: {
-                                value: $item('device').attr('id'),
-                                label: $item('device').text(),
-                            },
-                        })
-                    })
-                }
-            })
-        }
-        const buildTableData = () => {
-            tableData.value.length = 0
+
+        /**
+         * @description 获取列表数据
+         */
+        const getData = () => {
             openLoading()
 
-            queryAbnormalTrigger().then((resb) => {
-                // TODO p2p
-                // if (APP_TYPE == 'P2P') {
-                //     res = res[0]
-                // }
-                const res = queryXml(resb)
-                if (res('status').text() == 'success') {
-                    tableData.value = []
-                    res('//content/item').forEach((item) => {
-                        const row = new ExceptionAlarmRow()
-                        row.rowDisable = false
+            queryAbnormalTrigger().then((result) => {
+                const $ = queryXml(result)
+                if ($('status').text() === 'success') {
+                    $('content/item').forEach((item) => {
+                        const row = new AlarmExceptionDto()
                         const $item = queryXml(item.element)
                         const abnormalType = $item('abnormalType').text()
-                        if (abnormalType == 'RAIDSubHealth' || abnormalType == 'RAIDUnavaiable' || abnormalType == 'signalShelter') {
+                        if (abnormalType === 'RAIDSubHealth' || abnormalType === 'RAIDUnavaiable' || abnormalType === 'signalShelter') {
                             return
                         }
-                        if (abnormalType == 'raidException' && !systemCaps.supportRaid) {
+
+                        if (abnormalType === 'raidException' && !systemCaps.supportRaid) {
                             return
                         }
-                        if (abnormalType == 'alarmServerOffline' && !systemCaps.supportAlarmServerConfig) {
+
+                        if (abnormalType === 'alarmServerOffline' && !systemCaps.supportAlarmServerConfig) {
                             return
                         }
                         row.eventType = $item('abnormalType').text()
-                        row.sysAudio = $item('sysAudio').attr('id') || pageData.value.defaultAudioId
-                        // 设置的声音文件被删除时，显示为none
-                        const AudioData = pageData.value.audioList.filter((element: { value: string; label: string }) => {
-                            return element.value === row.sysAudio
-                        })
-                        if (AudioData.length === 0) {
-                            row.sysAudio = pageData.value.defaultAudioId
-                        }
+                        row.sysAudio = getSystemAudioID(pageData.value.audioList, $item('sysAudio').attr('id'))
                         row.msgPush = $item('msgPushSwitch').text()
-                        row.alarmOut.switch = $item('triggerAlarmOut/switch').text() == 'true' ? true : false
-                        $item('triggerAlarmOut/alarmOuts/item').forEach((item) => {
-                            row.alarmOut.alarmOuts.push({
-                                value: item.attr('id')!,
+                        row.alarmOut.switch = $item('triggerAlarmOut/switch').text().bool()
+                        row.alarmOut.alarmOuts = $item('triggerAlarmOut/alarmOuts/item').map((item) => {
+                            return {
+                                value: item.attr('id'),
                                 label: item.text(),
-                            })
+                            }
                         })
                         row.alarmOutList = row.alarmOut.alarmOuts.map((item) => item.value)
                         row.beeper = $item('buzzerSwitch').text()
-                        if (row.eventType != 'networkBreak' && row.eventType != 'ipConflict') {
+                        if (row.eventType !== 'networkBreak' && row.eventType !== 'ipConflict') {
                             row.email = $item('emailSwitch').text()
                             row.emailDisable = false
                         }
                         row.msgBoxPopup = $item('popMsgSwitch').text()
                         tableData.value.push(row)
                     })
+                    watchEdit.listen()
                 }
             })
             closeLoading()
         }
 
+        /**
+         * @description 格式化事件类型
+         * @param {string} eventType
+         * @returns {string}
+         */
         const formatEventType = (eventType: string) => {
-            return Translate(pageData.value.eventTypeMapping[eventType as keyof typeof pageData.value.eventTypeMapping])
-        }
-        // 下列为alarmOut穿梭框相关
-        const alarmOutConfirmAll = (e: any[]) => {
-            if (e.length !== 0) {
-                pageData.value.alarmOutChosedListAll = cloneDeep(e)
-                pageData.value.alarmOutChosedIdsAll = e.map((item) => item.value)
-                tableData.value.forEach((item) => {
-                    if (!item.rowDisable) {
-                        addEditRow()
-                        item.alarmOut.alarmOuts = []
-                        item.alarmOutList = []
-                        item.alarmOut.switch = true
-                        item.alarmOut.alarmOuts = pageData.value.alarmOutChosedListAll
-                        item.alarmOutList = pageData.value.alarmOutChosedListAll.map((item) => item.value)
-                    }
-                })
-            } else {
-                tableData.value.forEach((item) => {
-                    if (!item.rowDisable) {
-                        addEditRow()
-                        item.alarmOut.switch = false
-                        item.alarmOut.alarmOuts = []
-                        item.alarmOutList = []
-                    }
-                })
-            }
-            pageData.value.alarmOutChosedListAll = []
-            pageData.value.alarmOutChosedIdsAll = []
-            pageData.value.alarmOutPopoverVisible = false
-        }
-        const alarmOutCloseAll = () => {
-            pageData.value.alarmOutChosedListAll = []
-            pageData.value.alarmOutChosedIdsAll = []
-            pageData.value.alarmOutPopoverVisible = false
-        }
-        const setAlarmOut = (index: number) => {
-            pageData.value.alarmOutIsShow = true
-            pageData.value.triggerDialogIndex = index
-        }
-        const alarmOutConfirm = (e: { value: string; label: string }[]) => {
-            addEditRow()
-            if (e.length != 0) {
-                tableData.value[pageData.value.triggerDialogIndex].alarmOut.alarmOuts = cloneDeep(e)
-                const chls = tableData.value[pageData.value.triggerDialogIndex].alarmOut.alarmOuts
-                tableData.value[pageData.value.triggerDialogIndex].alarmOutList = chls.map((item) => item.value)
-            } else {
-                tableData.value[pageData.value.triggerDialogIndex].alarmOut.alarmOuts = []
-                tableData.value[pageData.value.triggerDialogIndex].alarmOutList = []
-                tableData.value[pageData.value.triggerDialogIndex].alarmOut.switch = false
-            }
-            pageData.value.alarmOutIsShow = false
-        }
-        const alarmOutClose = () => {
-            if (!tableData.value[pageData.value.triggerDialogIndex].alarmOut.alarmOuts.length) {
-                tableData.value[pageData.value.triggerDialogIndex].alarmOut.switch = false
-                tableData.value[pageData.value.triggerDialogIndex].alarmOutList = []
-                tableData.value[pageData.value.triggerDialogIndex].alarmOut.alarmOuts = []
-            }
-            pageData.value.alarmOutIsShow = false
+            return Translate(EVENT_TYPE_MAPPING[eventType])
         }
 
-        const alarmOutSwitchChange = (row: ExceptionAlarmRow) => {
-            addEditRow()
-            if (row.alarmOut.switch === false) {
-                row.alarmOut.alarmOuts = []
-                row.alarmOutList = []
+        /**
+         * @description 开关报警输出
+         * @param {number} index
+         */
+        const switchAlarmOut = (index: number) => {
+            const row = tableData.value[index].alarmOut
+            if (row.switch) {
+                openAlarmOut(index)
+            } else {
+                row.alarmOuts = []
             }
         }
-        // 系统音频
-        const handleSysAudioChangeAll = (sysAudio: string) => {
+
+        /**
+         * @description 打开报警输出穿梭框
+         * @param {number} index
+         */
+        const openAlarmOut = (index: number) => {
+            tableData.value[index].alarmOut.switch = true
+            pageData.value.triggerDialogIndex = index
+            pageData.value.isAlarmOutPop = true
+        }
+
+        /**
+         * @description 更新报警输出联动
+         * @param {number} index
+         * @param {SelectOption<string, string>[]} data
+         */
+        const changeAlarmOut = (index: number, data: SelectOption<string, string>[]) => {
+            pageData.value.isAlarmOutPop = false
+            tableData.value[index].alarmOut = {
+                switch: !!data.length,
+                alarmOuts: cloneDeep(data),
+            }
+        }
+
+        /**
+         * @description 批量更改系统音频
+         * @param {string} sysAudio
+         */
+        const changeAllAudio = (sysAudio: string) => {
             tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
-                    addEditRow()
-                    item.sysAudio = sysAudio
-                }
+                item.sysAudio = sysAudio
             })
         }
-        // 消息推送
-        const handleMsgPushChangeAll = (msgPush: string) => {
+
+        /**
+         * @description 批量更改消息推送
+         * @param {string} msgPush
+         */
+        const changeAllMsgPush = (msgPush: string) => {
             tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
-                    addEditRow()
-                    item.msgPush = msgPush
-                }
+                item.msgPush = msgPush
             })
         }
-        // 蜂鸣器
-        const handleBeeperChangeAll = (beeper: string) => {
+
+        /**
+         * @description 批量更改蜂鸣器
+         * @param {string} beeper
+         */
+        const changeAllBeeper = (beeper: string) => {
             tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
-                    addEditRow()
-                    item.beeper = beeper
-                }
+                item.beeper = beeper
             })
         }
-        // 消息框弹出
-        const handleMsgBoxPopupChangeAll = (msgBoxPopup: string) => {
+
+        /**
+         * @description 批量更改消息框弹出
+         * @param {string} msgBoxPopup
+         */
+        const changeAllMsgPopUp = (msgBoxPopup: string) => {
             tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
-                    addEditRow()
-                    item.msgBoxPopup = msgBoxPopup
-                }
+                item.msgBoxPopup = msgBoxPopup
             })
         }
-        // 邮件
-        const handleEmailChangeAll = (email: string) => {
+
+        /**
+         * @description 批量更改邮件
+         * @param {string} email
+         */
+        const changeAllEmail = (email: string) => {
             tableData.value.forEach((item) => {
-                if (!item.rowDisable && !item.emailDisable) {
-                    addEditRow()
+                if (!item.emailDisable) {
                     item.email = email
                 }
             })
         }
 
-        const addEditRow = () => {
-            pageData.value.applyDisable = false
-        }
-
+        /**
+         * @description
+         * @returns {string}
+         */
         const getSavaData = () => {
-            let sendXml = rawXml`
+            const sendXml = rawXml`
                 <types>
                     <abnormalType>
-                    <enum>ipConflict</enum>
-                    <enum>diskRWError</enum>
-                    <enum>diskFull</enum>
-                    <enum>illegalAccess</enum>
-                    <enum>networkBreak</enum>
-                    <enum>noDisk</enum>
-                    <enum>raidException</enum>
+                        <enum>ipConflict</enum>
+                        <enum>diskRWError</enum>
+                        <enum>diskFull</enum>
+                        <enum>illegalAccess</enum>
+                        <enum>networkBreak</enum>
+                        <enum>noDisk</enum>
+                        <enum>raidException</enum>
                     </abnormalType>
                 </types>
                 <content type="list">
                     <itemType>
-                            <abnormalType type="abnormalType"/>
-                            <triggerAlarmOut>
-                                <alarmOuts type="list"/>
-                            </triggerAlarmOut>
+                        <abnormalType type="abnormalType"/>
+                        <triggerAlarmOut>
+                            <alarmOuts type="list"/>
+                        </triggerAlarmOut>
                     </itemType>
-                `
-            tableData.value.forEach((item) => {
-                const alarmOutSwitch = item.alarmOut.switch
-                sendXml += rawXml`
-                            <item>
-                                <abnormalType>${item['eventType']}</abnormalType>
-                                <triggerAlarmOut>
-                                    <switch>${item['alarmOut']['switch'].toString()}</switch>
-                                    <alarmOuts>
-                        `
-                if (!alarmOutSwitch) {
-                    item.alarmOut = { switch: false, alarmOuts: [] }
-                }
-                let alarmOuts = item.alarmOut.alarmOuts
-                if (!alarmOuts) {
-                    alarmOuts = []
-                }
-                if (!(alarmOuts instanceof Array)) {
-                    alarmOuts = [alarmOuts]
-                }
-                alarmOuts.forEach((item) => {
-                    sendXml += rawXml` <item id="${item.value}">
-                                <![CDATA[${item.label}]]>
-                            </item>`
-                })
-                sendXml += rawXml`</alarmOuts>
-                    </triggerAlarmOut>`
-                sendXml += rawXml`
-                        <msgPushSwitch>${item.msgPush}</msgPushSwitch>
-                        <buzzerSwitch>${item.beeper}</buzzerSwitch>
-                        <popMsgSwitch>${item.msgBoxPopup}</popMsgSwitch>
-                        <emailSwitch>${item.email}</emailSwitch>
-                        <sysAudio id='${item.sysAudio}'></sysAudio>
-                    </item>`
-            })
-            sendXml += rawXml`</content>`
+                    ${tableData.value
+                        .map((item) => {
+                            const alarmOutSwitch = item.alarmOut.switch
+                            const alarmOuts = alarmOutSwitch ? item.alarmOut.alarmOuts : []
+                            return rawXml`
+                                <item>
+                                    <abnormalType>${item.eventType}</abnormalType>
+                                    <triggerAlarmOut>
+                                        <switch>${alarmOutSwitch}</switch>
+                                        <alarmOuts>
+                                            ${alarmOuts.map((item) => `<item id="${item.value}">${wrapCDATA(item.label)}</item>`).join('')}
+                                        </alarmOuts>
+                                    </triggerAlarmOut>
+                                    <msgPushSwitch>${item.msgPush}</msgPushSwitch>
+                                    <buzzerSwitch>${item.beeper}</buzzerSwitch>
+                                    <popMsgSwitch>${item.msgBoxPopup}</popMsgSwitch>
+                                    <emailSwitch>${item.email}</emailSwitch>
+                                    <sysAudio id='${item.sysAudio}'></sysAudio>
+                                </item>
+                            `
+                        })
+                        .join('')}
+                </content>
+            `
             return sendXml
         }
-        const setData = () => {
+
+        /**
+         * @description 保存数据
+         */
+        const setData = async () => {
             openLoading()
             const sendXml = getSavaData()
-            editAbnormalTrigger(sendXml).then((resb) => {
-                const res = queryXml(resb)
-                if (res('status').text() == 'success') {
-                    openMessageTipBox({
-                        type: 'success',
-                        message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                    })
-                } else {
-                    openMessageTipBox({
-                        type: 'error',
-                        message: Translate('IDCS_SAVE_DATA_FAIL'),
-                    })
-                }
-            })
+            const result = await editAbnormalTrigger(sendXml)
+            commSaveResponseHandler(result)
             closeLoading()
-            pageData.value.applyDisable = true
+            watchEdit.update()
         }
 
         onMounted(async () => {
             await getAudioList()
-            await getAlarmOutList()
-            buildTableData()
+            getData()
         })
+
         return {
             pageData,
             tableData,
+            watchEdit,
             formatEventType,
-            alarmOutConfirmAll,
-            alarmOutCloseAll,
-            setAlarmOut,
-            alarmOutConfirm,
-            alarmOutClose,
-            alarmOutSwitchChange,
-            handleSysAudioChangeAll,
-            handleMsgPushChangeAll,
-            handleBeeperChangeAll,
-            handleMsgBoxPopupChangeAll,
-            handleEmailChangeAll,
+            openAlarmOut,
+            changeAlarmOut,
+            changeAllAudio,
+            changeAllMsgPush,
+            changeAllBeeper,
+            changeAllMsgPopUp,
+            changeAllEmail,
             setData,
-            addEditRow,
+            switchAlarmOut,
         }
     },
 })

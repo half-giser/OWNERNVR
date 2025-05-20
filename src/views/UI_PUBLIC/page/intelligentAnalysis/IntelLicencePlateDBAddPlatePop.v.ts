@@ -2,14 +2,9 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-03 09:09:06
  * @Description: 新增车牌弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:17:38
  */
-import { IntelPlateDBAddPlateForm, IntelPlateDBPlateInfo } from '@/types/apiType/intelligentAnalysis'
 import IntelLicenceDBEditPop from './IntelLicencePlateDBEditPop.vue'
-import { type FormInstance, type FormRules } from 'element-plus'
-import { type XMLQuery } from '@/utils/tools'
-import WebsocketImportPlate from '@/utils/websocket/websocketImportplate'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     components: {
@@ -40,14 +35,8 @@ export default defineComponent({
         },
     },
     setup(prop, ctx) {
-        const Plugin = inject('Plugin') as PluginType
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
-
-        const mode = computed(() => {
-            return Plugin.IsSupportH5() ? 'h5' : 'ocx'
-        })
+        const userSession = useUserSessionStore()
 
         const groupMap: Record<string, string> = {}
 
@@ -71,7 +60,7 @@ export default defineComponent({
             tab: 'form',
             csvTitle: ['(B1)' + Translate('IDCS_LICENSE_PLATE_NUM'), '(B2)' + Translate('IDCS_VEHICLE_OWNER'), '(B3)' + Translate('IDCS_PHONE_NUMBER'), '(N1)' + Translate('IDCS_VEHICLE_TYPE')],
             // 是否禁用Tab
-            disabledTab: import.meta.env.VITE_APP_TYPE === 'P2P' || isHttpsLogin(),
+            disabledTab: userSession.appType === 'P2P' || isHttpsLogin(),
             // 导入框是否drag状态
             isDrag: false,
             // 导入的文件名
@@ -80,13 +69,13 @@ export default defineComponent({
             fileData: [] as IntelPlateDBAddPlateForm[],
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new IntelPlateDBAddPlateForm())
         const formRule = ref<FormRules>({
             plateNumber: [
                 {
-                    validator(rule, value, callback) {
-                        if (!value) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_VEHICLE_NUMBER_EMPTY')))
                             return
                         }
@@ -97,7 +86,7 @@ export default defineComponent({
             ],
             groupId: [
                 {
-                    validator(rule, value, callback) {
+                    validator: (_rule, value: string, callback) => {
                         if (!value) {
                             callback(new Error(Translate('IDCS_PLATE_LIBRARY_GROUP_NOT_EXIST')))
                             return
@@ -115,6 +104,36 @@ export default defineComponent({
             edit: Translate('IDCS_EDIT'),
             register: Translate('IDCS_REGISTER'),
         }
+
+        const plugin = usePlugin({
+            onMessage: ($, stateType) => {
+                if (stateType === 'UploadIPCAudioBase64') {
+                    const $item = queryXml($('statenotify')[0].element)
+                    if ($item('status').text() === 'success') {
+                        const fileBase64 = $item('base64').text()
+                        const filePath = $item('filePath').text()
+                        pageData.value.fileName = filePath.replace(/\\/g, '/').split('/').pop()!
+                        const file = base64ToFile(fileBase64, pageData.value.fileName)
+                        parseFiles(file)
+                    } else {
+                        openMessageBox(Translate('IDCS_OUT_FILE_SIZE'))
+                        closeLoading()
+                    }
+                }
+
+                //网络断开
+                if (stateType === 'FileNetTransport') {
+                    closeLoading()
+                    if ($('statenotify/errorCode').text().num() === ErrorCode.USER_ERROR_NODE_NET_DISCONNECT) {
+                        openMessageBox(Translate('IDCS_OCX_NET_DISCONNECT'))
+                    }
+                }
+            },
+        })
+
+        const mode = computed(() => {
+            return plugin.IsSupportH5() ? 'h5' : 'ocx'
+        })
 
         // 回显标题
         const displayTitle = computed(() => {
@@ -147,11 +166,11 @@ export default defineComponent({
 
             closeLoading()
 
-            pageData.value.groupList = $('//content/group/item').map((item) => {
+            pageData.value.groupList = $('content/group/item').map((item) => {
                 const $item = queryXml(item.element)
-                groupMap[$item('name').text()] = item.attr('id')!
+                groupMap[$item('name').text()] = item.attr('id')
                 return {
-                    value: item.attr('id')!,
+                    value: item.attr('id'),
                     label: $item('name').text(),
                 }
             })
@@ -186,10 +205,7 @@ export default defineComponent({
                     errorInfo = Translate('IDCS_ADD_FACE_FAIL')
                     break
             }
-            openMessageTipBox({
-                type: 'info',
-                message: errorInfo,
-            })
+            openMessageBox(errorInfo)
         }
 
         /**
@@ -217,15 +233,15 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                openMessageTipBox({
+            if ($('status').text() === 'success') {
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).finally(() => {
                     ctx.emit('confirm')
                 })
             } else {
-                handleError(Number($('//errorCode').text()))
+                handleError($('errorCode').text().num())
             }
         }
 
@@ -239,7 +255,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <plate type="list">
-                        <item id="${form.groupId}">
+                        <item id="${form.id}">
                             <plateNumber>${form.plateNumber}</plateNumber>
                             <groupId>${form.groupId}</groupId>
                             <owner>${form.owner}</owner>
@@ -254,15 +270,15 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                openMessageTipBox({
+            if ($('status').text() === 'success') {
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).finally(() => {
                     ctx.emit('confirm')
                 })
             } else {
-                handleError(Number($('//errorCode').text()))
+                handleError($('errorCode').text().num())
             }
         }
 
@@ -273,17 +289,19 @@ export default defineComponent({
             pageData.value.tab = 'form'
             pageData.value.fileName = ''
             pageData.value.fileData = []
-            formRef.value?.clearValidate()
             formData.value = new IntelPlateDBAddPlateForm()
             if (prop.type === 'edit') {
                 formData.value.plateNumber = !prop.data.plateNumber || prop.data.plateNumber === '--' ? '' : prop.data.plateNumber
                 formData.value.owner = prop.data.owner || ''
                 formData.value.ownerPhone = prop.data.ownerPhone || ''
                 formData.value.vehicleType = prop.data.vehicleType || ''
+                formData.value.id = prop.data.id || ''
             }
+
             if (prop.type === 'register') {
                 formData.value.plateNumber = !prop.data.plateNumber || prop.data.plateNumber === '--' ? '' : prop.data.plateNumber
             }
+
             await getGroupList()
             if (pageData.value.groupList.length) {
                 if (!prop.data.groupId) {
@@ -305,7 +323,7 @@ export default defineComponent({
                             addPlate()
                         } else {
                             if (prop.data.groupId && prop.data.groupId !== formData.value.groupId) {
-                                openMessageTipBox({
+                                openMessageBox({
                                     type: 'question',
                                     message: Translate('IDCS_CHANGE_PLATE_GROUP_TIP'),
                                 }).then(() => {
@@ -318,21 +336,15 @@ export default defineComponent({
                     }
                 })
             } else {
-                if (pageData.value.fileName.indexOf('.csv') === -1) {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_NO_CHOOSE_TDB_FILE'),
-                    })
+                if (pageData.value.fileName.toLowerCase().indexOf('.csv') === -1) {
+                    openMessageBox(Translate('IDCS_NO_CHOOSE_TDB_FILE').formatForLang('*.csv'))
+                    return
                 } else if (!pageData.value.fileData.length) {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_IMPORT_FAIL'),
-                    })
+                    openMessageBox(Translate('IDCS_IMPORT_FAIL'))
+                    return
                 } else if (!formData.value.groupId) {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_PLATE_LIBRARY_GROUP_NOT_EXIST'),
-                    })
+                    openMessageBox(Translate('IDCS_PLATE_LIBRARY_GROUP_NOT_EXIST'))
+                    return
                 }
                 addPlates()
             }
@@ -349,18 +361,18 @@ export default defineComponent({
          * @description OCX导入的回调
          */
         const handleOCXImport = () => {
-            if (Plugin.IsPluginAvailable()) {
+            if (plugin.IsPluginAvailable()) {
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
 
             const sendXML = OCX_XML_OpenFileBrowser('OPEN_FILE', 'csv')
-            Plugin.AsynQueryInfo(Plugin.GetVideoPlugin(), sendXML, (result) => {
+            plugin.AsynQueryInfo(sendXML, (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     const sendXML = OCX_XML_UploadIPCAudioBase64(path)
-                    Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                    openLoading()
+                    plugin.ExecuteCmd(sendXML)
+                    // openLoading()
                 }
             })
         }
@@ -423,18 +435,19 @@ export default defineComponent({
                 }
             })
             // 删除最后一行换行符导致的空数据
-            if (!rowData[rowData.length - 1]) {
+            if (!rowData.at(-1)) {
                 rowData.pop()
             }
             return rowData.slice(1, rowData.length).map((item) => {
                 const split = item.split(separator)
 
                 return {
-                    plateNumber: split[dataIndexMap.plateNumber] || '',
+                    id: '',
+                    plateNumber: (split[dataIndexMap.plateNumber] || '').trim(),
                     groupId: '',
-                    owner: split[dataIndexMap.owner] || '',
-                    ownerPhone: split[dataIndexMap.ownerPhone] || '',
-                    vehicleType: split[dataIndexMap.vehicleType] || '',
+                    owner: (split[dataIndexMap.owner] || '').trim(),
+                    ownerPhone: (split[dataIndexMap.ownerPhone] || '').trim(),
+                    vehicleType: (split[dataIndexMap.vehicleType] || '').trim(),
                 }
             })
         }
@@ -452,12 +465,12 @@ export default defineComponent({
                 }
                 const reader = new FileReader()
                 reader.readAsText(file)
-                reader.onloadend = async () => {
+                reader.onloadend = () => {
                     const separator = fileType === 'txt' ? '\t' : ','
                     try {
                         const map = formatDataFile(reader.result as string, separator)
                         resolve(map)
-                    } catch {
+                    } catch (e) {
                         reject(Translate('IDCS_FILE_NOT_AVAILABLE'))
                     }
                 }
@@ -469,22 +482,26 @@ export default defineComponent({
          * @param {File} file
          */
         const parseFiles = async (file: File) => {
-            const fileType = file.name.split('.').pop()
+            const fileType = file.name.split('.').pop()?.toLowerCase()
             if (fileType !== 'csv') {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_FILE_NOT_AVAILABLE'),
-                })
+                openMessageBox(Translate('IDCS_FILE_NOT_AVAILABLE'))
                 return
             }
-            pageData.value.fileName = file.name
+            pageData.value.fileName = file.name.toLowerCase()
 
             openLoading()
-            pageData.value.fileData = await parseDataFile(file, 'csv')
-            console.log(pageData.value.fileData)
-            closeLoading()
+            try {
+                pageData.value.fileData = await parseDataFile(file, 'csv')
+            } catch {
+            } finally {
+                closeLoading()
+            }
         }
 
+        /**
+         * @description Drop文件
+         * @param {DragEvent} e
+         */
         const handleDrop = (e: DragEvent) => {
             e.preventDefault()
             pageData.value.isDrag = false
@@ -505,52 +522,7 @@ export default defineComponent({
             }
         }
 
-        /**
-         * @description OCX通知回调
-         * @param {Function} $
-         */
-        const notify = ($: XMLQuery) => {
-            if ($('statenotify[@type="UploadIPCAudioBase64"]').length) {
-                const $item = queryXml($('statenotify[@type="UploadIPCAudioBase64"]')[0].element)
-                if ($item('status').text() === 'success') {
-                    const fileBase64 = $item('base64').text()
-                    const filePath = $item('filePath').text()
-                    pageData.value.fileName = filePath.replace(/\\/g, '/').split('/').pop()!
-                    const file = base64ToFile(fileBase64, pageData.value.fileName)
-                    parseFiles(file)
-                } else {
-                    const errorCode = Number($item('errorCode').text())
-                    switch (errorCode) {
-                        case ErrorCode.USER_ERROR_KEYBOARDINDEX_ERROR:
-                            closeLoading()
-                            openMessageTipBox({
-                                type: 'info',
-                                message: Translate('IDCS_ADD_FACE_FAIL'),
-                            })
-                            break
-                        case ErrorCode.USER_ERROR_SPECIAL_CHAR_2:
-                            closeLoading()
-                            openMessageTipBox({
-                                type: 'info',
-                                message: Translate('IDCS_IMPORT_FAIL'),
-                            })
-                            break
-                    }
-                }
-            }
-            //网络断开
-            else if ($('statenotify[@type="FileNetTransport"]').length) {
-                closeLoading()
-                if (Number($('statenotify[@type="FileNetTransport"]/errorCode').text()) === ErrorCode.USER_ERROR_NODE_NET_DISCONNECT) {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_OCX_NET_DISCONNECT'),
-                    })
-                }
-            }
-        }
-
-        let ws: WebsocketImportPlate | null = null
+        let ws: ReturnType<typeof WebsocketImportPlateLib> | null = null
 
         /**
          * @description 批量新增车牌
@@ -568,17 +540,16 @@ export default defineComponent({
                     }
                 })
             if (!plateList.length) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_IMPORT_FAIL'),
-                })
+                openMessageBox(Translate('IDCS_IMPORT_FAIL'))
+                ctx.emit('close')
+                return
             }
-            ws = new WebsocketImportPlate({
+            ws = WebsocketImportPlateLib({
                 plateDataList: plateList,
                 onsuccess() {
                     closeLoading()
                     ws?.stop()
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'success',
                         message: Translate('IDCS_IMPORT_SUCCESSED'),
                     }).then(() => {
@@ -613,10 +584,7 @@ export default defineComponent({
                             errorInfo = Translate('IDCS_IMPORT_FAIL')
                             break
                     }
-                    openMessageTipBox({
-                        type: 'info',
-                        message: errorInfo,
-                    })
+                    openMessageBox(errorInfo)
                 },
                 onclose() {
                     closeLoading()
@@ -624,12 +592,14 @@ export default defineComponent({
             })
         }
 
-        onMounted(() => {
-            Plugin.VideoPluginNotifyEmitter.addListener(notify)
+        onBeforeUnmount(() => {
+            if (ws) {
+                ws.destroy()
+                ws = null
+            }
         })
 
-        onBeforeUnmount(() => {
-            Plugin.VideoPluginNotifyEmitter.removeListener(notify)
+        onDeactivated(() => {
             if (ws) {
                 ws.destroy()
                 ws = null
@@ -654,7 +624,6 @@ export default defineComponent({
             confirmAddGroup,
             mode,
             displayTitle,
-            IntelLicenceDBEditPop,
         }
     },
 })

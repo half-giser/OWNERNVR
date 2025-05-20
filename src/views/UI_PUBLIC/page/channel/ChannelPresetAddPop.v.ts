@@ -2,11 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-20 18:26:39
  * @Description: 新增预置点弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:38:13
  */
-import { type ChannelPtzPresetDto } from '@/types/apiType/channel'
-import type { FormInstance, FormRules } from 'element-plus'
+import type { FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -42,15 +39,13 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
             // 预置点选项
-            presetOptions: [] as number[],
+            presetOptions: [] as SelectOption<number, number>[],
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref({
             index: 0 as number | string,
             name: '',
@@ -58,15 +53,17 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             name: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator: (_rule, value: string, callback) => {
                         if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return
                         }
+
                         if (prop.presets.map((item) => item.name).includes(value.trim())) {
                             callback(new Error(Translate('IDCS_PROMPT_PRESET_NAME_OR_INDEX_EXIST')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -78,20 +75,19 @@ export default defineComponent({
          * @description 打开弹窗时，重置表单和选项数据
          */
         const open = () => {
-            formRef.value?.clearValidate()
-            formRef.value?.resetFields()
-
             const presetsIndex = prop.presets.map((item) => item.index)
-            pageData.value.presetOptions = Array(prop.max)
-                .fill(0)
-                .map((item, index) => {
-                    return index + 1
-                })
-                .filter((item) => {
-                    return !presetsIndex.includes(item)
-                })
+            pageData.value.presetOptions = arrayToOptions(
+                Array(prop.max)
+                    .fill(0)
+                    .map((_, index) => {
+                        return index + 1
+                    })
+                    .filter((item) => {
+                        return !presetsIndex.includes(item)
+                    }),
+            )
             if (pageData.value.presetOptions.length) {
-                formData.value.index = pageData.value.presetOptions[0]
+                formData.value.index = pageData.value.presetOptions[0].value
                 formData.value.name = 'preset' + formData.value.index
             } else {
                 formData.value.index = ''
@@ -107,8 +103,8 @@ export default defineComponent({
 
             const sendXml = rawXml`
                 <content>
-                    <index>${formData.value.index.toString()}</index>
-                    <name>${wrapCDATA(formData.value.name)}</name>
+                    <index>${formData.value.index}</index>
+                    <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
                     <chlId>${prop.chlId}</chlId>
                 </content>
             `
@@ -117,15 +113,15 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                openMessageTipBox({
+            if ($('status').text() === 'success') {
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).finally(() => {
                     ctx.emit('confirm')
                 })
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NAME_EXISTED:
@@ -141,10 +137,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                         break
                 }
-                openMessageTipBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 
@@ -152,7 +145,7 @@ export default defineComponent({
          * @description 验证表单
          */
         const verify = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     setData()
                 }
@@ -174,8 +167,6 @@ export default defineComponent({
             open,
             verify,
             close,
-            nameByteMaxLen,
-            formatInputMaxLength,
         }
     },
 })

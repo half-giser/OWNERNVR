@@ -2,16 +2,13 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-03 09:08:22
  * @Description: 新增车牌弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-27 16:16:28
 -->
 <template>
     <el-dialog
         :title="displayTitle"
         width="600"
-        align-center
-        draggable
         @open="open"
+        @closed="formRef?.resetFields()"
     >
         <div v-show="type === 'add' && !pageData.disabledTab">
             <el-button
@@ -30,13 +27,10 @@
         >
             <el-form
                 ref="formRef"
-                label-position="left"
+                v-title
                 :model="formData"
                 :rules="formRule"
-                :style="{
-                    '--form-label-width': '130px',
-                    '--form-input-width': '280px',
-                }"
+                class="stripe"
             >
                 <el-form-item
                     :label="Translate('IDCS_LICENSE_PLATE_NUM')"
@@ -62,22 +56,19 @@
                 <el-form-item :label="Translate('IDCS_PHONE_NUMBER')">
                     <el-input
                         v-model="formData.ownerPhone"
-                        type="tel"
-                        maxlength="31"
+                        :parser="formatDigit"
+                        :formatter="formatDigit"
+                        maxlength="15"
                     />
                 </el-form-item>
-                <el-form-item :label="Translate('IDCS_ADD_FACE_GROUP')">
-                    <el-select
+                <el-form-item
+                    :label="Translate('IDCS_ADD_FACE_GROUP')"
+                    prop="groupId"
+                >
+                    <el-select-v2
                         v-model="formData.groupId"
-                        prop="groupId"
-                    >
-                        <el-option
-                            v-for="item in pageData.groupList"
-                            :key="item.value"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-select>
+                        :options="pageData.groupList"
+                    />
                     <el-button @click="addGroup">{{ Translate('IDCS_ADD_GROUP') }}</el-button>
                 </el-form-item>
             </el-form>
@@ -87,21 +78,14 @@
             class="import"
         >
             <el-form
-                label-position="left"
-                class="inline-message"
-                :style="{
-                    '--form-label-width': '100px',
-                }"
+                v-title
+                class="no-padding"
             >
                 <el-form-item :label="Translate('IDCS_ADD_FACE_GROUP')">
-                    <el-select v-model="formData.groupId">
-                        <el-option
-                            v-for="item in pageData.groupList"
-                            :key="item.value"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-select>
+                    <el-select-v2
+                        v-model="formData.groupId"
+                        :options="pageData.groupList"
+                    />
                     <el-button @click="addGroup">{{ Translate('IDCS_ADD_GROUP') }}</el-button>
                 </el-form-item>
             </el-form>
@@ -114,12 +98,20 @@
                 @dragleave="handleDragLeave"
                 @drop="handleDrop"
             >
-                <div class="tip">
+                <div
+                    v-show="!pageData.fileName"
+                    class="tip"
+                >
                     <span>{{ Translate('IDCS_DRAG_CSV_TIPS').formatForLang('*.csv') }}</span>
                     <strong> / </strong>
                     <span class="highlight">{{ Translate('IDCS_CLICK_UPLOAD') }}</span>
                 </div>
-                <div>{{ pageData.fileName }}</div>
+                <div
+                    v-show="pageData.fileName"
+                    class="highlight"
+                >
+                    {{ pageData.fileName }}
+                </div>
             </label>
             <input
                 id="upload-import"
@@ -150,37 +142,16 @@
             @confirm="confirmAddGroup"
             @close="pageData.isAddPop = false"
         />
-        <template #footer>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
-                >
-                    <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 
 <script lang="ts" src="./IntelLicencePlateDBAddPlatePop.v.ts"></script>
 
 <style lang="scss" scoped>
-:deep(.el-button) {
-    &.is-link {
-        color: var(--primary);
-
-        &.el-button--default {
-            color: var(--main-text);
-        }
-
-        &:hover {
-            color: var(--primary);
-        }
-    }
-}
-
 .label-upload {
     width: 100%;
     height: 150px;

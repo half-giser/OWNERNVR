@@ -6,83 +6,76 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_SET_DEV_DEFAULT_PWD')"
-        width="600"
-        align-center
+        width="700"
         @opened="opened"
+        @closed="formRef?.resetFields()"
     >
         <el-form
             ref="formRef"
             :model="formData"
         >
             <el-table
-                border
-                stripe
+                v-title
                 :data="formData.params"
-                table-layout="fixed"
-                show-overflow-tooltip
-                empty-text=" "
-                height="300px"
-                class="ruleTable"
+                height="300"
+                flexible
             >
                 <el-table-column
                     prop="displayName"
                     :label="Translate('IDCS_PROTOCOL')"
-                    width="130px"
+                    width="130"
+                    show-overflow-tooltip
                 />
                 <el-table-column
                     :label="Translate('IDCS_USERNAME')"
-                    min-width="240px"
+                    min-width="240"
+                    class-name="cell-with-form-rule"
                 >
-                    <template #default="scope">
+                    <template #default="{ row, $index }: TableColumn<ChannelDefaultPwdDto>">
                         <el-form-item
-                            :prop="`params.${scope.$index}.userName`"
+                            :prop="`params.${$index}.userName`"
                             :rules="rules.userName"
                         >
                             <el-input
-                                v-model="scope.row.userName"
+                                v-model="row.userName"
                                 :validate-event="false"
-                                maxlength="63"
-                                @keydown.enter="handleKeydownEnter($event)"
+                                :formatter="formatInputMaxLength"
+                                :parser="formatInputMaxLength"
+                                @keyup.enter="blurInput"
                             />
                         </el-form-item>
                     </template>
                 </el-table-column>
                 <el-table-column
-                    prop="password"
-                    :label="Translate('IDCS_USERNAME')"
-                    width="170px"
+                    :label="Translate('IDCS_PASSWORD')"
+                    width="240"
                 >
-                    <template #default="scope">
+                    <template #default="{ row, $index }: TableColumn<ChannelDefaultPwdDto>">
                         <span
-                            v-show="!scope.row.showInput"
-                            @click="handlePwdViewChange(scope.$index, scope.row)"
-                            >{{ scope.row.password ? scope.row.password : '******' }}</span
+                            v-show="!row.showInput"
+                            @click="togglePwd($index, row)"
+                            >{{ row.password ? Array(row.password.length).fill('*').join('') : '******' }}</span
                         >
-                        <el-input
-                            v-show="scope.row.showInput"
-                            :ref="(ref) => (passwordInputRef[scope.$index] = ref)"
-                            v-model="scope.row.password"
-                            @blur="handlePwdViewChange(scope.$index, scope.row)"
+                        <BasePasswordInput
+                            v-show="row.showInput"
+                            :ref="(ref) => (passwordInputRef[$index] = ref)"
+                            v-model="row.password"
+                            maxlength="64"
+                            @blur="togglePwd($index, row)"
                         />
                     </template>
                 </el-table-column>
             </el-table>
         </el-form>
         <BaseCheckAuthPop
-            v-model="baseCheckAuthPopVisiable"
+            v-model="isCheckAuthPop"
             @confirm="setData"
+            @close="isCheckAuthPop = false"
         />
-        <template #footer>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
-                >
-                    <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

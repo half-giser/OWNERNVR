@@ -2,8 +2,6 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-04-20 16:04:39
  * @Description: 二级类型1布局页--适用于所有配置页
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 13:41:49
 -->
 <template>
     <el-container id="layout2">
@@ -22,7 +20,7 @@
                 <div class="main-menu">
                     <BaseImgSprite
                         :file="menuGroup[1].icon || ''"
-                        :index="getMenuGroupDisabled(menuGroup[0]) ? 1 : 0"
+                        :index="getMenuGroupDisabled(menuGroup[0]) ? disabledIconIndex : normalIconIndex"
                         :chunk="2"
                     />
                     <span v-text="Translate(menuGroup[1].lk || '')"> </span>
@@ -35,8 +33,9 @@
                             disabled: getMenuDisabled(menu3),
                         }"
                         @click.stop="goToPath(menu3)"
-                        >{{ Translate(menu3.meta.lk || '') }}</span
                     >
+                        {{ Translate(menu3.meta.lk || '') }}
+                    </span>
                 </div>
             </div>
             <div class="rest"></div>
@@ -100,9 +99,9 @@
     width: 237px;
     min-height: 100%;
     position: relative;
-    top: 0px;
-    left: 0px;
-    margin: -1px 0px -1px -1px;
+    top: 0;
+    left: 0;
+    margin: -1px 0 -1px -1px;
     overflow: hidden;
     z-index: 1;
     display: flex;
@@ -113,17 +112,24 @@
 .menu-group {
     width: 237px;
     border: solid 1px var(--content-border);
-    padding: 20px;
-    margin: 0px 0px -1px 0px;
+    padding: 18px 10px 18px 15px;
+    margin: 0 0 -1px;
     position: relative;
     flex-shrink: 0;
     background-color: var(--config-aside-item-bg);
+
+    &:hover {
+        border: solid 1px var(--config-aside-item-border-hover);
+        background-color: var(--config-aside-item-bg-hover);
+        z-index: 100;
+    }
 
     &.active {
         background-color: var(--config-aside-item-bg-active);
 
         .main-menu span {
             color: var(--config-aside-text-active);
+
             &:hover {
                 color: var(--config-aside-text-active);
             }
@@ -131,22 +137,19 @@
 
         .sub-menus span {
             color: var(--config-aside-text-active);
-            &:not(:last-of-type):after {
+
+            &:not(:last-of-type)::after {
                 background-color: var(--config-aside-text-active);
             }
+
             &:hover {
                 color: var(--config-aside-text-active);
             }
         }
     }
 
-    &:hover {
-        border: solid 1px var(--primary);
-        z-index: 100;
-    }
-
     &:last-of-type {
-        margin: 0px 0px 0px 0px;
+        margin: 0;
     }
 
     &.disabled,
@@ -165,7 +168,7 @@
         .sub-menu span:hover {
             color: var(--config-aside-text-disabled);
 
-            &:not(:last-of-type):after {
+            &:not(:last-of-type)::after {
                 background-color: var(--config-aside-text-disabled);
             }
         }
@@ -183,7 +186,7 @@
     align-items: center;
 
     span {
-        margin-right: 8px;
+        margin-right: 10px;
         display: inline-block;
         font-size: 16px;
         text-decoration: none;
@@ -199,9 +202,12 @@
 }
 
 .sub-menus {
+    margin-top: 2px;
+    line-height: 22px;
+
     span {
         display: inline-block;
-        padding: 2px 0px 0px 0px;
+        padding: 2px 0 0;
         font-size: 13px;
         text-decoration: none;
         cursor: pointer;
@@ -219,10 +225,10 @@
             cursor: default;
         }
 
-        &:not(:last-of-type):after {
+        &:not(:last-of-type)::after {
             content: '';
             display: inline-block;
-            margin: 0px 3px;
+            margin: 0 2px;
             position: relative;
             top: 2px;
             width: 1px;
@@ -240,14 +246,14 @@
 
     .el-menu-item {
         display: inline-block;
-        padding: 0px !important;
+        padding: 0 !important;
         height: auto !important;
     }
 }
 
 #layout2Right {
     position: relative;
-    padding: 0px;
+    padding: 0;
     background-color: var(--main-bg);
 }
 
@@ -270,8 +276,10 @@
     a {
         font-size: 15px;
         text-decoration: none;
-        margin: 0 3px 0 3px;
-        display: inline-block;
+        margin-right: 8px;
+        height: 100%;
+        display: inline-flex;
+        align-items: center;
         color: var(--breadcrumb-text);
 
         &:hover {
@@ -279,14 +287,13 @@
         }
 
         span {
-            margin-left: 5px;
+            margin-left: 8px;
         }
     }
 }
 
 #layout2RightTopBarToolBar {
     display: flex;
-    // width: 50%;
     height: 100%;
     align-items: center;
     justify-content: flex-end;

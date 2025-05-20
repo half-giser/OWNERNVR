@@ -2,10 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-06 20:37:55
  * @Description: 回放-事件列表
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-12 18:17:25
  */
-import type { PlaybackRecLogList, PlaybackChlList, PlaybackRecList } from '@/types/apiType/playback'
 import dayjs from 'dayjs'
 
 export default defineComponent({
@@ -64,6 +61,13 @@ export default defineComponent({
         playStatus: {
             type: String,
             required: true,
+        },
+        /**
+         * @property POS关键字
+         */
+        posKeyword: {
+            type: String,
+            default: '',
         },
     },
     emits: {
@@ -171,7 +175,7 @@ export default defineComponent({
          */
         const displayEvent = (row: PlaybackRecLogList) => {
             if (displayEventIcon(row)) {
-                return EVENT_TRANS_MAPPING.motion
+                return EVENT_TRANS_MAPPING.MOTION
             } else {
                 // INTELLIGENT、NORMALALL事件类型显示具体的子类型事件
                 return EVENT_TRANS_MAPPING[row.event] || EVENT_TRANS_MAPPING[row.recSubType]
@@ -210,7 +214,7 @@ export default defineComponent({
                     } else if (item.event === 'INVADE' || item.recSubType === 'INVADE') {
                         return events.includes('INVADE') || events.includes('AOIENTRY') || events.includes('AOILEAVE')
                     } else {
-                        return events.includes(item.event) || events.includes(item.recSubType)
+                        return events.includes(item.event) || events.includes(item.recSubType) || ['SMDHUMAN', 'SMDHUMAN'].includes(item.event) || ['SMDHUMAN', 'SMDHUMAN'].includes(item.recSubType)
                     }
                 })
                 .filter((item) => {
@@ -218,6 +222,7 @@ export default defineComponent({
                     if (!motions.length || motions.includes('None')) {
                         return true
                     }
+
                     // 不包括“无”：如果选择了Motion类型则显示选中的目标类型结果；否则显示空数据
                     if (events.includes('MOTION')) {
                         return motions.includes(item.event) || motions.includes(item.recSubType)
@@ -258,15 +263,15 @@ export default defineComponent({
                 </requireField>
                 <condition>
                     <modeType>${prop.modeType}</modeType>
-                    <startTime>${formatDate(prop.startTime, 'YYYY-MM-DD HH:mm:ss')}</startTime>
-                    <endTime>${formatDate(prop.endTime, 'YYYY-MM-DD HH:mm:ss')}</endTime>
+                    <startTime>${formatGregoryDate(prop.startTime, DEFAULT_DATE_FORMAT)}</startTime>
+                    <endTime>${formatGregoryDate(prop.endTime, DEFAULT_DATE_FORMAT)}</endTime>
                     <startTimeEx>${localToUtc(prop.startTime)}</startTimeEx>
                     <endTimeEx>${localToUtc(prop.endTime)}</endTimeEx>
                     <recType type='list'>
                         <itemType type='recType'/>
                         ${prop.eventList.map((event) => `<item>${event}</item>`).join('')}
                     </recType>
-                    ${prop.eventList.includes('POS') ? `<keyword></keyword>` : ''}
+                    ${prop.eventList.includes('POS') ? `<keyword>${prop.posKeyword}</keyword>` : ''}
                     ${prop.chls.length ? `<chl>${chls}</chl>` : ''}
                 </condition>
             `
@@ -275,12 +280,12 @@ export default defineComponent({
 
             isLocked = false
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 let hasPosEvent = false
-                tableData.value = $('//content/chl/item').map((item) => {
+                tableData.value = $('content/chl/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        chlId: item.attr('id')!,
+                        chlId: item.attr('id'),
                         chlName: $item('name').text(),
                         records: $item('recList/item').map((rec) => {
                             const $rec = queryXml(rec.element)
@@ -301,12 +306,12 @@ export default defineComponent({
                                 duration: dayjs.utc(endTime - startTime).format('HH:mm:ss'),
                             }
                         }),
-                        timeZone: $item('recList').attr('timeZone')!,
+                        timeZone: $item('recList').attr('timeZone'),
                     }
                 })
                 ctx.emit('callback', tableData.value, hasPosEvent)
             } else {
-                const errorType = $('//errorDescription').text()
+                const errorType = $('errorDescription').text()
                 if (errorType === 'noRecord') {
                     const error = prop.chls.map((item) => item.value + ' : ' + Translate('IDCS_NO_RECORD_DATA'))
                     ctx.emit('error', error)
@@ -329,7 +334,6 @@ export default defineComponent({
          */
         const download = (row: PlaybackRecLogList) => {
             pageData.value.visible = false
-            console.log(row)
             ctx.emit('download', row)
         }
 
@@ -337,11 +341,8 @@ export default defineComponent({
          * @description 刷新列表
          */
         const refresh = () => {
-            console.log(prop.chls.length, prop.playStatus)
             if (prop.chls.length) {
-                if (prop.playStatus === 'play' || prop.playStatus === 'pending') {
-                    getRecList()
-                }
+                getRecList()
             } else {
                 tableData.value = []
                 ctx.emit('callback', [], false)
@@ -351,29 +352,32 @@ export default defineComponent({
         watch(
             () => prop.chls,
             () => {
-                console.log('update chl', prop.chls)
-                nextTick(() => refresh())
+                if (prop.playStatus !== 'pending') {
+                    nextTick(() => refresh())
+                }
             },
             {
                 deep: true,
             },
         )
 
-        watch(
-            () => prop.startTime,
-            () => {
-                nextTick(() => refresh())
-            },
-        )
+        // watch(
+        //     () => prop.startTime,
+        //     () => {
+        //         nextTick(() => refresh())
+        //     },
+        // )
 
         watch(
             () => prop.playStatus,
-            () => {
-                if (tableData.value.length === prop.chls.length) {
-                    return
+            (newVal) => {
+                // if (tableData.value.length === prop.chls.length) {
+                //     return
+                // }
+
+                if (newVal === 'pending') {
+                    nextTick(() => refresh())
                 }
-                // console.log('playstatus', prop.playStatus)
-                nextTick(() => refresh())
             },
             {
                 deep: true,

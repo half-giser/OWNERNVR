@@ -2,10 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-08 18:01:51
  * @Description: 存储模式新增通道弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 17:44:26
  */
-import { StorageModeDiskGroupList, type StorageModeChlList } from '@/types/apiType/disk'
 
 export default defineComponent({
     props: {
@@ -36,8 +33,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         const tableData = ref<StorageModeChlList[]>([])
         const pageData = ref({
@@ -61,14 +56,14 @@ export default defineComponent({
             const result = await queryDevList(sendXml)
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 const chlList = prop.current.chlList.map((item) => item.id)
-                tableData.value = $('//content/item')
-                    .filter((item) => !chlList.includes(item.attr('id')!))
+                tableData.value = $('content/item')
+                    .filter((item) => !chlList.includes(item.attr('id')))
                     .map((item) => {
                         const $item = queryXml(item.element)
                         return {
-                            id: item.attr('id')!,
+                            id: item.attr('id'),
                             name: $item('name').text(),
                             chlIndex: $item('chlIndex').text(),
                             chlType: $item('chlType').text(),
@@ -98,10 +93,7 @@ export default defineComponent({
          */
         const confirm = async () => {
             if (!pageData.value.selection.length) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'),
-                })
+                openMessageBox(Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'))
                 return
             }
 
@@ -145,7 +137,7 @@ export default defineComponent({
             const result = await editSetAndElementRelation(sendXml)
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 ctx.emit('confirm')
             }
 

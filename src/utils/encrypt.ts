@@ -2,11 +2,8 @@
  * @Author: xujp xujp@tvt.net.cn
  * @Date: 2023-05-23 17:57:48
  * @Description: 加解密相关方法
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-12 11:20:48
  */
 
-import { encode as Base64Encode, decode as Base64Decode } from 'js-base64'
 import 'crypto-js/enc-base64'
 import MD5 from 'crypto-js/md5'
 import WordArray from 'crypto-js/lib-typedarrays'
@@ -17,15 +14,11 @@ import ECB from 'crypto-js/mode-ecb'
 import UTF8 from 'crypto-js/enc-utf8'
 import AES from 'crypto-js/aes'
 import RSA from 'jsencrypt'
-// import MD5 from 'js-md5'
+import { KEYUTIL } from 'jsrsasign'
 
-/**
- * MD5加密
- * @param {MD5.message} word 明文
- */
-// export const MD5_encrypt = (word: MD5.message) => {
-//     return MD5(word).toUpperCase()
-// }
+const rsaKeypair = KEYUTIL.generateKeypair('RSA', 1024)
+export const RSA_PUBLIC_KEY = KEYUTIL.getPEM(rsaKeypair.prvKeyObj) //获取公钥
+export const RSA_PRIVATE_KEY = KEYUTIL.getPEM(rsaKeypair.prvKeyObj, 'PKCS8PRV') //获取私钥
 
 /**
  * @description MD5加密
@@ -38,8 +31,15 @@ export const MD5_encrypt = (word: ArrayBuffer | string) => {
     return MD5(word).toString().toUpperCase()
 }
 
+export const MD5_encrypt_WordArray = (word: ArrayBuffer | string) => {
+    if (word instanceof ArrayBuffer) {
+        return MD5(WordArray.create(word))
+    }
+    return MD5(word)
+}
+
 /**
- * @description AES加密 (mode和padding 需要与服务端相对应)
+ * @description AES加密 ECB (mode和padding 需要与服务端相对应)
  * @param {string} word 明文
  * @param {string} key 秘钥
  * @param {number} blockSizeByte
@@ -60,7 +60,7 @@ export const AES_encrypt = (word: string, key: string, blockSizeByte?: number) =
 }
 
 /**
- * @description AES解密 (mode和padding 需要与服务端相对应)
+ * @description AES解密 ECB (mode和padding 需要与服务端相对应)
  * @param {string} word 密文
  * @param {string} key 秘钥
  * @param {number} blockSizeByte
@@ -77,11 +77,53 @@ export const AES_decrypt = (word: string, key: string) => {
 }
 
 /**
+ * AESEncrypt CBC mode, Parse plaintext into ciphertext based on the specified key, iv
+ * @param {String} plaintext
+ * @param {wordArray} aesKey
+ * @param {wordArray} aesIv
+ * @returns {String} Base64str
+ */
+export const AES_CBC_Encrypt = (plaintext: string, aesKey: WordArray, aesIv: WordArray) => {
+    return AES.encrypt(plaintext, aesKey, { iv: aesIv }).toString()
+}
+
+/**
+ * AESEncrypt CBC mode, Parse ciphertext into plaintext based on the specified key, iv
+ * @param {String} ciphertext
+ * @param {wordArray} aesKey
+ * @param {wordArray} aesIv
+ * @returns  {String}
+ */
+export const AES_CBC_Decrypt = (ciphertext: string, aesKey: WordArray, aesIv: WordArray) => {
+    if (!ciphertext) return ''
+    return AES.decrypt(ciphertext, aesKey, {
+        iv: aesIv,
+        blockSizeByte: 16,
+    }).toString(UTF8)
+}
+
+// base64转为url地址
+// 标准的Base64编码传输url可能会带来问题, 因为它使用了在url中具有特殊意义的字符（加号（+），斜杠（/）和等号（=））
+// basr64传输url前, +/=字符应分别被替换为点（.）、下划线（_）和破折号（-）
+export const base64StrToUrl = (base64Str: string) => {
+    return base64Str.replace(/\+/g, '.').replace(/\//g, '_').replace(/=/g, '-')
+}
+
+// url转为base64地址（url中的base64取出值时, 同上进行还原）
+export const urlToBase64Str = (url: string) => {
+    return url.replace(/\./g, '+').replace(/_/g, '/').replace(/-/g, '=')
+}
+
+/**
  * @description sha256加密
  * @param {string} word 密文
  */
 export const sha256_encrypt = (word: string) => {
     return SHA256(word).toString()
+}
+
+export const sha256_encrypt_WordArray = (word: string) => {
+    return SHA256(word)
 }
 
 /**
@@ -171,7 +213,17 @@ export const getNonce = () => {
  * @param {string} str
  */
 export const base64Encode = (str: string) => {
-    return Base64Encode(str, true)
+    const u8a = new TextEncoder().encode(str)
+    const maxargs = 0x1000
+    const strs: string[] = []
+    for (let i = 0, l = u8a.length; i < l; i += maxargs) {
+        strs.push(String.fromCharCode(...u8a.subarray(i, i + maxargs)))
+    }
+    return btoa(strs.join(''))
+        .replace(/=/g, '')
+        .replace(/[+\/]/g, (m0) => {
+            return m0 === '+' ? '-' : '_'
+        })
 }
 
 /**
@@ -179,5 +231,13 @@ export const base64Encode = (str: string) => {
  * @param {string} str
  */
 export const base64Decode = (str: string) => {
-    return Base64Decode(str)
+    const text = str.replace(/[-_]/g, (m0) => {
+        return m0 === '-' ? '+' : '/'
+    })
+    const u8a = Uint8Array.from(
+        atob(text)
+            .split('')
+            .map((c) => c.charCodeAt(0)),
+    )
+    return new TextDecoder().decode(u8a)
 }

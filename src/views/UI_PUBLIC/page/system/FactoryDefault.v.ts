@@ -2,12 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-20 15:59:30
  * @Description: 恢复出厂设置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:28:01
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import { SystemFactoryDefaultForm } from '@/types/apiType/system'
-import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     components: {
@@ -16,8 +12,6 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
 
         let timer: NodeJS.Timeout | number = 0
 
@@ -58,14 +52,14 @@ export default defineComponent({
             const result = await restoreDefaults(sendXml)
             const $ = queryXml(result)
 
-            closeLoading()
-
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 pageData.value.isAuthDialog = false
                 openLoading(LoadingTarget.FullScreen, Translate('IDCS_REBOOTING'))
                 timer = reconnect()
             } else {
-                const errorCode = Number($('//errorCode').text())
+                closeLoading()
+
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NO_AUTH:
@@ -77,10 +71,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_USER_OR_PASSWORD_ERROR')
                         break
                 }
-                openMessageTipBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 
@@ -94,9 +85,11 @@ export default defineComponent({
             } else if (systemCaps.supportPlateMatch) {
                 pageData.value.factoryResetTip = Translate('IDCS_RECOVERY_DEFAULT_SET_NOTE_WITHOUT_FACE')
                 pageData.value.recoverDefaultTip = Translate('IDCS_RECOVERY_DEFAULT_SET_WARNING_WITHOUT_FACE')
-            } else {
-                pageData.value.factoryResetTip = Translate('IDCS_RECOVERY_DEFAULT_SET_NOTE')
-                pageData.value.recoverDefaultTip = Translate('IDCS_RECOVERY_DEFAULT_SET_WARNING')
+            }
+            // NTA1-619 不支持人脸识别和车牌识别
+            else {
+                pageData.value.factoryResetTip = Translate('IDCS_RECOVERY_DEFAULT_SET_NOTE_WITHOUT_FACE_AND_PLATE')
+                pageData.value.recoverDefaultTip = Translate('IDCS_RECOVERY_DEFAULT_SET_WARNING_WITHOUT_FACE_AND_PLATE')
             }
         }
 
@@ -113,7 +106,6 @@ export default defineComponent({
             formData,
             verify,
             confirm,
-            BaseCheckAuthPop,
         }
     },
 })

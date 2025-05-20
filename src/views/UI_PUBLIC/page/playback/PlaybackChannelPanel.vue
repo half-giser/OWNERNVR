@@ -2,46 +2,38 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-30 09:32:36
  * @Description: 回放-通道视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-26 15:23:03
 -->
 <template>
-    <div class="left">
+    <div class="base-home-panel left">
         <div
             v-show="pageData.isOpen"
-            class="left-content"
+            class="base-home-panel-content"
         >
             <div
-                class="left-top"
+                class="base-home-panel-top"
                 @click="pageData.isOpen = false"
             >
                 <div>
                     {{ pageData.chlMenu[pageData.activeChlMenu].label }}
                 </div>
-                <i></i>
+                <i class="base-home-panel-arrow"></i>
             </div>
-            <div class="left-menu">
+            <div class="base-home-panel-menu">
                 <div
                     v-for="(item, index) in pageData.chlMenu"
                     :key="item.tab"
+                    class="base-home-panel-menu-item"
                     :class="{
                         active: pageData.activeChlMenu === index,
                     }"
+                    :title="item.label"
                     @click="changeChlMenu(index)"
                     @dblclick="changeChlMenu(index)"
                 >
-                    <el-tooltip
-                        :content="item.label"
-                        :show-after="500"
-                    >
-                        <BaseImgSprite
-                            :file="item.file"
-                            :index="pageData.activeChlMenu === index ? 1 : 0"
-                            :hover-index="1"
-                            :disabled-index="3"
-                            :chunk="4"
-                        />
-                    </el-tooltip>
+                    <BaseImgSpriteBtn
+                        :file="item.file"
+                        :active="pageData.activeChlMenu === index"
+                    />
                 </div>
             </div>
             <slot></slot>
@@ -54,41 +46,49 @@
                     <div class="left-chl-form">
                         <el-input
                             v-model="pageData.chlKeyword"
+                            class="middle"
                             :placeholder="Translate('IDCS_SEARCH_CHANNEL')"
-                            @keydown.enter="searchChl"
+                            @keyup.enter="searchChl"
                         />
                         <BaseImgSprite
                             class="left-chl-search"
                             file="toolbar_search"
+                            :title="Translate('IDCS_SEARCH')"
                             @click="searchChl"
                         />
                         <BaseImgSprite
                             class="left-chl-search"
                             file="toolbar_refresh"
+                            :title="Translate('IDCS_REFRESH')"
                             @click="refreshChl"
                         />
                     </div>
+                    <el-checkbox
+                        :model-value="isChlAll"
+                        :label="Translate('IDCS_ALL')"
+                        class="left-chl-check-all"
+                        @change="toggleAllChl"
+                    />
                     <BaseListBox class="left-chl-box">
-                        <el-checkbox
-                            :model-value="isChlAll"
-                            @change="toggleAllChl"
-                            >{{ Translate('IDCS_ALL') }}</el-checkbox
-                        >
                         <el-checkbox-group v-model="pageData.selectedChl">
-                            <el-checkbox
+                            <BaseListBoxItem
                                 v-for="item in pageData.cacheChlList"
-                                v-show="chlList.includes(item.id)"
                                 :key="item.id"
-                                :value="item.id"
-                                :disabled="isChlAll && !pageData.selectedChl.includes(item.id)"
                             >
-                                <BaseImgSprite
-                                    file="chl_rec_icon"
-                                    :index="1"
-                                    :chunk="2"
-                                />
-                                <span>{{ item.value }}</span>
-                            </el-checkbox>
+                                <el-checkbox
+                                    v-show="chlList.includes(item.id)"
+                                    :key="item.id"
+                                    :value="item.id"
+                                    :disabled="isChlAll && !pageData.selectedChl.includes(item.id)"
+                                >
+                                    <BaseImgSprite
+                                        file="chl_rec_icon"
+                                        :index="1"
+                                        :chunk="2"
+                                    />
+                                    <span>{{ item.value }}</span>
+                                </el-checkbox>
+                            </BaseListBoxItem>
                         </el-checkbox-group>
                     </BaseListBox>
                 </div>
@@ -118,7 +118,7 @@
                                     :index="pageData.activeChlGroup === groupItem.id ? 1 : 0"
                                     :chunk="2"
                                 />
-                                <span>{{ groupItem.value }}</span>
+                                <div class="text-ellipsis">{{ groupItem.value }}</div>
                             </BaseListBoxItem>
                         </BaseListBox>
                         <div class="left-chlgroup-btns">
@@ -137,56 +137,40 @@
                             :key="listItem.id"
                             class="left-chlgroup-items"
                         >
-                            <span>{{ listItem.value }}</span>
+                            <div class="text-ellipsis">{{ listItem.value }}</div>
                         </BaseListBoxItem>
                     </BaseListBox>
                 </div>
             </div>
             <div class="left-btns">
-                <el-tooltip
-                    :content="Translate('IDCS_SEARCH')"
-                    :show-after="500"
-                >
-                    <div>
-                        <BaseImgSprite
-                            file="search"
-                            :index="0"
-                            :hover-index="2"
-                            :chunk="4"
-                            :disabled="!pageData.selectedChl.length"
-                            :disabled-index="3"
-                            @click="search"
-                        />
-                    </div>
-                </el-tooltip>
-                <el-tooltip
-                    :content="Translate('IDCS_PLAY')"
-                    :show-after="500"
-                >
-                    <div>
-                        <BaseImgSprite
-                            file="play (2)"
-                            :index="0"
-                            :hover-index="2"
-                            :chunk="4"
-                            :disabled="!pageData.selectedChl.length"
-                            :disabled-index="3"
-                            @click="play"
-                        />
-                    </div>
-                </el-tooltip>
+                <div :title="Translate('IDCS_SEARCH')">
+                    <BaseImgSpriteBtn
+                        file="search"
+                        :index="[0, 2, 2, 3]"
+                        :disabled="!pageData.selectedChl.length"
+                        @click="search"
+                    />
+                </div>
+                <div :title="Translate('IDCS_PLAY')">
+                    <BaseImgSpriteBtn
+                        file="play_rec"
+                        :index="[0, 2, 2, 3]"
+                        :disabled="!pageData.selectedChl.length"
+                        @click="play"
+                    />
+                </div>
             </div>
         </div>
         <div
             v-show="!pageData.isOpen"
-            class="left-hide"
+            class="base-home-panel-hide"
         >
             <div
-                class="left-top"
+                class="base-home-panel-top"
                 @click="pageData.isOpen = true"
             >
                 <div></div>
-                <i class="hide"></i>
+                <i class="base-home-panel-arrow hide"></i>
             </div>
         </div>
         <!-- 新增通道组 -->
@@ -209,97 +193,8 @@
 
 <style lang="scss" scoped>
 .left {
-    height: 100%;
-    flex-shrink: 0;
-    background-color: var(--panel-bg);
-
-    &-content {
-        width: 260px;
-        height: 100%;
-    }
-
-    &-hide {
-        width: 16px;
-        height: 100%;
-    }
-
-    &-top {
-        display: flex;
-        width: 100%;
-        height: 50px;
-        align-items: center;
-        justify-content: space-between;
-        color: var(--panel-header-text);
-        background-color: var(--panel-header-bg);
-
-        & > div {
-            margin-left: 10px;
-        }
-
-        i {
-            border-right: 8px solid var(--panel-header-text);
-            border-top: 8px solid transparent;
-            border-bottom: 8px solid transparent;
-            border-left: 8px solid transparent;
-            font-size: 0;
-            width: 0;
-            height: 0;
-            line-height: 0;
-            cursor: pointer;
-            margin-right: 10px;
-            position: relative;
-
-            &:after {
-                content: '';
-                border-right: 4px solid var(--panel-header-bg);
-                border-top: 4px solid transparent;
-                border-bottom: 4px solid transparent;
-                border-left: 4px solid transparent;
-                position: absolute;
-                width: 0;
-                height: 0;
-                left: 0;
-                top: -4px;
-            }
-
-            &.hide {
-                transform: rotate(180deg);
-                left: -5px;
-            }
-        }
-
-        &:hover i {
-            border-right-color: var(--primary);
-        }
-    }
-
-    &-menu {
-        height: 50px;
-        background-color: var(--panel-menu-bg);
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-        flex-shrink: 0;
-
-        & > div {
-            background-color: transparent;
-            width: 42px;
-            height: 38px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 10px;
-            border-top: 3px solid transparent;
-
-            &.active {
-                background-color: var(--panel-menu-bg-active);
-                border-top-color: var(--primary);
-            }
-        }
-    }
-
     &-bottom {
-        height: calc(100% - 250px);
+        height: calc(100% - 300px);
     }
 
     &-chl {
@@ -309,7 +204,7 @@
         width: 100%;
 
         &-form {
-            margin: 10px 10px;
+            margin: 10px;
             display: flex;
             flex-shrink: 0;
             align-items: center;
@@ -328,12 +223,18 @@
 
         &-box {
             height: 100%;
+            margin-left: 10px;
+            width: calc(100% - 10px);
+
+            .Sprite {
+                margin-right: 3px;
+            }
         }
 
-        // .el-checkbox {
-        //     margin-left: 10px;
-        //     display: flex;
-        // }
+        &-check-all {
+            margin-left: 21px;
+            height: 32px;
+        }
     }
 
     &-chlgroup {
@@ -343,16 +244,15 @@
         flex-direction: column;
 
         &-btns {
-            display: flex;
             width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 50px;
+            height: 33px;
             flex-shrink: 0;
 
             :deep(.el-button) {
-                margin: 0 2px;
+                min-width: unset !important;
             }
         }
 
@@ -373,7 +273,7 @@
             margin: 0 auto;
             cursor: n-resize;
 
-            &:before {
+            &::before {
                 content: '';
                 position: absolute;
                 top: -10px;
@@ -383,7 +283,7 @@
                 border-top: 1px solid var(--content-border);
             }
 
-            &:after {
+            &::after {
                 content: '';
                 position: absolute;
                 bottom: 10px;
@@ -408,12 +308,12 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            // border: 2px solid var(--border-color5);
             margin: 0 4px;
 
             span {
                 position: relative;
-                &:after {
+
+                &::after {
                     content: '';
                     width: 100px;
                     height: 25px;
@@ -423,11 +323,14 @@
                     top: -3px;
                     border-radius: 3px;
                 }
-                &:hover:after {
+
+                &:hover::after {
                     border-color: var(--primary);
                 }
-                &.disabled:after {
+
+                &.disabled::after {
                     border-color: var(--panel-btn-bg-disabled);
+
                     &:hover {
                         border-color: var(--panel-btn-bg-disabled);
                     }

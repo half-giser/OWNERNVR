@@ -1,51 +1,51 @@
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-06-17 21:17:45
- * @Description:
+ * @Description: 通道组
  */
-import { ChlGroup } from '@/types/apiType/channel'
-import { DefaultPagerSizeOptions, DefaultPagerLayout } from '@/utils/constants'
 import ChannelGroupEditPop from './ChannelGroupEditPop.vue'
 import ChannelGroupAddChlPop from './ChannelGroupAddChlPop.vue'
+import ChannelPtzTableExpandPanel from './ChannelPtzTableExpandPanel.vue'
+import ChannelPtzTableExpandItem from './ChannelPtzTableExpandItem.vue'
 
 export default defineComponent({
     components: {
         ChannelGroupEditPop,
         ChannelGroupAddChlPop,
+        ChannelPtzTableExpandPanel,
+        ChannelPtzTableExpandItem,
     },
-    setup() {
+    setup(_prop, ctx) {
         const router = useRouter()
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
 
-        const tableData = ref<ChlGroup[]>()
+        const tableData = ref<ChannelGroupDto[]>([])
         const pageIndex = ref(1)
         const pageSize = ref(10)
         const pageTotal = ref(0)
-        const editItem = ref(new ChlGroup())
-        const editItemForAddChl = ref(new ChlGroup())
-        const chlGroupEditPopVisiable = ref(false)
-        const chlGroupAddChlPopVisiable = ref(false)
-        let tmpExpendedRows: ChlGroup[] = []
+        const editItem = ref(new ChannelGroupDto())
+        const editItemForAddChl = ref(new ChannelGroupDto())
+        const isEditPop = ref(false)
+        const isAddChlPop = ref(false)
+        let tmpExpendedRows: ChannelGroupDto[] = []
 
         const closeChlGroupEditPop = () => {
-            chlGroupEditPopVisiable.value = false
+            isEditPop.value = false
         }
 
         const closeChlGroupAddChlPop = (isRefresh = false) => {
-            chlGroupAddChlPopVisiable.value = false
+            isAddChlPop.value = false
             if (isRefresh) {
                 handleExpandChange(editItemForAddChl.value!, tmpExpendedRows)
             }
         }
 
-        const setDataCallBack = (rowData: ChlGroup) => {
+        const setDataCallBack = (rowData: ChannelGroupDto) => {
             editItem.value!.name = rowData.name
             editItem.value!.dwellTime = rowData.dwellTime
         }
 
-        const handleToolBarEvent = (toolBarEvent: ConfigToolBarEvent<ChannelToolBarEvent>) => {
+        const handleToolBarEvent = (toolBarEvent: ConfigToolBarEvent<SearchToolBarEvent>) => {
             switch (toolBarEvent.type) {
                 case 'addChlGroup':
                     router.push('add')
@@ -54,21 +54,16 @@ export default defineComponent({
         }
 
         const formatDwellTime = (value: number) => {
-            if (value >= 60) {
-                value = value / 60
-                return Translate('IDCS_STAY_TIME_D').formatForLang(value + ' ', value === 1 ? Translate('IDCS_MINUTE') : Translate('IDCS_MINUTES'))
-            } else {
-                return Translate('IDCS_STAY_TIME_D').formatForLang(value + ' ', Translate('IDCS_SECONDS'))
-            }
+            return Translate('IDCS_STAY_TIME_D').formatForLang(getTranslateForSecond(value), '')
         }
 
-        const handleEditChlGroup = (rowData: ChlGroup) => {
+        const editChlGroup = (rowData: ChannelGroupDto) => {
             editItem.value = rowData
-            chlGroupEditPopVisiable.value = true
+            isEditPop.value = true
         }
 
-        const handleDelChlGroup = (rowData: ChlGroup) => {
-            openMessageTipBox({
+        const deleteChlGroup = (rowData: ChannelGroupDto) => {
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_GROUP_S').formatForLang(getShortString(rowData.name, 10)),
             }).then(() => {
@@ -82,36 +77,25 @@ export default defineComponent({
                 openLoading()
                 delChlGroup(data).then((res) => {
                     closeLoading()
-                    const $ = queryXml(res)
-                    if ($('status').text() == 'success') {
-                        openMessageTipBox({
-                            type: 'success',
-                            message: Translate('IDCS_DELETE_SUCCESS'),
-                        }).then(() => {
-                            pageIndex.value = 1
-                            getData()
-                        })
-                    } else {
-                        openMessageTipBox({
-                            type: 'info',
-                            message: Translate('IDCS_DELETE_FAIL'),
-                        })
-                    }
+                    commDelResponseHandler(res, () => {
+                        pageIndex.value = 1
+                        getData()
+                    })
                 })
             })
         }
 
-        const handleSizeChange = (val: number) => {
+        const changePageSize = (val: number) => {
             pageSize.value = val
             getData()
         }
 
-        const handleCurrentChange = (val: number) => {
+        const changePage = (val: number) => {
             pageIndex.value = val
             getData()
         }
 
-        const handleExpandChange = (row: ChlGroup, expandedRows: ChlGroup[]) => {
+        const handleExpandChange = (row: ChannelGroupDto, expandedRows: ChannelGroupDto[]) => {
             if (expandedRows.includes(row)) {
                 const data = rawXml`
                     <condition>
@@ -122,14 +106,13 @@ export default defineComponent({
                 queryChlGroup(data).then((res) => {
                     closeLoading()
                     const $ = queryXml(res)
-                    if ($('status').text() == 'success') {
-                        const chlList: Record<string, string | boolean>[] = []
-                        $('//content/chlList/item').forEach((ele) => {
-                            chlList.push({
-                                value: ele.attr('id')!,
+                    if ($('status').text() === 'success') {
+                        const chlList = $('content/chlList/item').map((ele) => {
+                            return {
+                                value: ele.attr('id'),
                                 text: ele.text(),
                                 showDelIcon: false,
-                            })
+                            }
                         })
                         row.chls = chlList
                         row.chlCount = chlList.length
@@ -141,8 +124,8 @@ export default defineComponent({
 
         const getData = () => {
             const data = rawXml`
-                <pageIndex>${pageIndex.value.toString()}</pageIndex>
-                <pageSize>${pageSize.value.toString()}</pageSize>
+                <pageIndex>${pageIndex.value}</pageIndex>
+                <pageSize>${pageSize.value}</pageSize>
                 <requireField>
                     <name/>
                     <dwellTime/>
@@ -153,32 +136,29 @@ export default defineComponent({
             queryChlGroupList(data).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
-                    tableData.value = []
-                    $('//content/item').forEach((ele) => {
-                        const eleXml = queryXml(ele.element)
-                        const newData = new ChlGroup()
-                        newData.id = ele.attr('id')!
-                        newData.name = eleXml('name').text()
-                        newData.dwellTime = Number(eleXml('dwellTime').text())
-                        newData.chlCount = Number(eleXml('chlCount').text())
-                        tableData.value?.push(newData)
+                if ($('status').text() === 'success') {
+                    tableData.value = $('content/item').map((ele) => {
+                        const $item = queryXml(ele.element)
+                        const newData = new ChannelGroupDto()
+                        newData.id = ele.attr('id')
+                        newData.name = $item('name').text()
+                        newData.dwellTime = $item('dwellTime').text().num()
+                        newData.chlCount = $item('chlCount').text().num()
+                        return newData
                     })
-                    pageTotal.value = Number($('content').attr('total'))
+                    pageTotal.value = $('content').attr('total').num()
                 }
             })
         }
 
-        const handleAddChl = (rowData: ChlGroup) => {
+        const addChl = (rowData: ChannelGroupDto) => {
             editItemForAddChl.value = rowData
-            chlGroupAddChlPopVisiable.value = true
+            isAddChlPop.value = true
         }
-        const handleDelChl = (rowData: ChlGroup, chlId: string) => {
+
+        const deleteChl = (rowData: ChannelGroupDto, chlId: string | boolean) => {
             if (rowData.chlCount <= 1) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_PROMPT_CHANNEL_GROUP_DELETE_CHANNEL_ERROR'),
-                })
+                openMessageBox(Translate('IDCS_PROMPT_CHANNEL_GROUP_DELETE_CHANNEL_ERROR'))
                 return
             }
             const data = rawXml`
@@ -201,26 +181,19 @@ export default defineComponent({
             openLoading()
             editSetAndElementRelation(data).then((res) => {
                 closeLoading()
-                const $ = queryXml(res)
-                if ($('status').text() == 'success') {
-                    openMessageTipBox({
-                        type: 'success',
-                        message: Translate('IDCS_DELETE_SUCCESS'),
-                    }).then(() => {
-                        rowData.chls = rowData.chls.filter((item) => item['value'] != chlId)
-                        rowData.chlCount = rowData.chls.length
-                    })
-                } else {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_DELETE_FAIL'),
-                    })
-                }
+                commDelResponseHandler(res, () => {
+                    rowData.chls = rowData.chls.filter((item) => item.value !== chlId)
+                    rowData.chlCount = rowData.chls.length
+                })
             })
         }
 
         onMounted(() => {
             getData()
+        })
+
+        ctx.expose({
+            handleToolBarEvent,
         })
 
         return {
@@ -230,24 +203,19 @@ export default defineComponent({
             pageTotal,
             editItem,
             editItemForAddChl,
-            chlGroupEditPopVisiable,
-            chlGroupAddChlPopVisiable,
+            isEditPop,
+            isAddChlPop,
             closeChlGroupEditPop,
             closeChlGroupAddChlPop,
             setDataCallBack,
-            DefaultPagerSizeOptions,
-            DefaultPagerLayout,
-            handleToolBarEvent,
             formatDwellTime,
-            handleEditChlGroup,
-            handleDelChlGroup,
-            handleSizeChange,
-            handleCurrentChange,
+            editChlGroup,
+            deleteChlGroup,
+            changePageSize,
+            changePage,
             handleExpandChange,
-            handleAddChl,
-            handleDelChl,
-            ChannelGroupEditPop,
-            ChannelGroupAddChlPop,
+            addChl,
+            deleteChl,
         }
     },
 })

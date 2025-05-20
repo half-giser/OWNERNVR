@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-28 11:45:24
  * @Description: 报警状态
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-15 18:06:04
 -->
 <template>
     <div class="base-flex-box">
@@ -11,78 +9,96 @@
             ref="tableRef"
             :data="tableList"
             height="100%"
-            stripe
-            :row-key="(item) => item.id"
+            :border="false"
+            highlight-current-row
+            :row-key="getRowKey"
             :current-row-key="pageData.activeIndex"
             :expand-row-keys="pageData.activeRow"
-            :row-class-name="(item) => (item.rowIndex === pageData.activeIndex ? 'active' : '')"
             :show-header="false"
             @cell-click="handleChangeRow"
+            @expand-change="handleExpandChange"
         >
-            <el-table-column prop="type">
-                <template #default="scope">
-                    <div class="type">{{ scope.row.type }}</div>
+            <el-table-column>
+                <template #default="{ row }: TableColumn<SystemAlarmStatusList>">
+                    <div class="type">{{ row.type }}</div>
                 </template>
             </el-table-column>
             <el-table-column>
-                <template #default="scope">
+                <template #default="{ row, $index }: TableColumn<SystemAlarmStatusList>">
                     <div class="status">
-                        <div :class="{ active: getAlarmStatusActive(scope.row, scope.$index) }">
+                        <div
+                            :class="{
+                                active: getAlarmStatusActive(row, $index),
+                            }"
+                        >
                             <BaseImgSprite
-                                :index="getAlarmClassName(scope.row, scope.$index)"
+                                :index="getAlarmClassName(row, $index)"
                                 file="alarm_status"
                                 :chunk="5"
                             />
-                            <span>{{ scope.row.data.length }}</span>
+                            <span>{{ row.data.length || '' }}</span>
                         </div>
-                        <el-tooltip :content="scope.row.data.length > 0 ? Translate('IDCS_ABNORMAL') : Translate('IDCS_NORMAL')">
-                            <span :class="{ alarm: scope.row.data.length > 0 }">{{ scope.row.data.length > 0 ? Translate('IDCS_ABNORMAL') : Translate('IDCS_NORMAL') }}</span>
-                        </el-tooltip>
+                        <span
+                            :class="{
+                                'text-error': row.data.length > 0,
+                            }"
+                        >
+                            {{ row.data.length > 0 ? Translate('IDCS_ABNORMAL') : Translate('IDCS_NORMAL') }}
+                        </span>
                     </div>
                 </template>
             </el-table-column>
             <el-table-column type="expand">
-                <template #default="scope">
-                    <div>
-                        <div class="expand">
+                <template #default="{ row }: TableColumn<SystemAlarmStatusList>">
+                    <div class="expand-box">
+                        <div
+                            v-show="row.data.length"
+                            class="expand"
+                        >
                             <div class="left">
                                 <div
-                                    v-for="(item, key) in scope.row.data[scope.row.index - 1]?.data || []"
-                                    :key="`${scope.row.id + (scope.row.index - 1)}${key}`"
+                                    v-for="(item, key) in row.data[row.index - 1]?.data || []"
+                                    :key="`${row.id + (row.index - 1)}${key}`"
                                     :class="[
                                         {
-                                            hidden: item.hidden,
+                                            hidden: item.hide,
                                         },
                                         `span${item.span}`,
                                     ]"
                                 >
-                                    <label>{{ Translate(item.key) }} :</label>
-                                    <span>{{ item.value }}</span>
+                                    <div>
+                                        <label v-show="item.key">{{ Translate(item.key) }} :</label>
+                                        <span
+                                            v-title
+                                            class="text-ellipsis"
+                                        >
+                                            {{ item.value }}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                             <div class="right">
                                 <img
-                                    v-if="scope.row.data[scope.row.index - 1]?.img"
-                                    :src="scope.row.data[scope.row.index - 1]?.img"
+                                    v-if="row.data[row.index - 1]?.img"
+                                    :src="row.data[row.index - 1]?.img"
                                 />
-                                <BaseImgSprite
-                                    v-if="scope.row.data[scope.row.index - 1]?.rec.length"
+                                <BaseImgSpriteBtn
+                                    v-if="row.data[row.index - 1]?.rec.length"
                                     file="large_play"
-                                    :index="0"
-                                    :hover-index="2"
-                                    :chunk="4"
-                                    @click="playRec(scope.row.data[scope.row.index - 1])"
+                                    :index="[0, 2, 2, 4]"
+                                    @click="playRec(row.data[row.index - 1])"
                                 />
                             </div>
                         </div>
-                        <div class="pagination">
-                            <el-pagination
-                                v-show="scope.row.data.length"
-                                v-model:current-page="scope.row.index"
+                        <div
+                            v-show="row.data.length"
+                            class="base-pagination-box"
+                        >
+                            <BasePagination
+                                v-model:current-page="row.index"
                                 :page-size="1"
-                                layout="prev, pager, next, total, jumper"
-                                :total="scope.row.data.length"
-                                size="small"
+                                layout="jumper"
+                                :total="row.data.length"
                             />
                         </div>
                     </div>
@@ -116,8 +132,14 @@
 
         &.active {
             span:last-child {
-                color: black;
+                color: var(--color-error);
             }
+        }
+
+        span:first-child {
+            position: absolute;
+            top: 3px;
+            left: 0;
         }
 
         span:last-child {
@@ -126,7 +148,7 @@
             left: 0;
             text-align: center;
             line-height: 25px;
-            color: white;
+            color: var(--color-white);
             display: block;
             width: 100%;
             height: 100%;
@@ -135,21 +157,34 @@
     }
 }
 
+.expand-box {
+    padding: 5px;
+}
+
 .expand {
     width: 100%;
     display: flex;
-    margin-bottom: 20px;
+    // margin-bottom: 20px;
+    border: 1px solid var(--table-border);
+    padding: 20px 10px;
 
     .left {
-        width: 80%;
+        width: 85%;
         display: flex;
         flex-wrap: wrap;
         line-height: 20px;
 
         & > div {
-            display: flex;
             height: 20px;
             padding-left: 20px;
+
+            div {
+                display: flex;
+            }
+
+            label {
+                flex-shrink: 0;
+            }
 
             span {
                 padding-left: 20px;
@@ -159,11 +194,19 @@
         .span1 {
             display: flex;
             width: 50%;
+
+            div {
+                width: 100%;
+            }
         }
 
         .span2 {
             display: flex;
             width: 100%;
+
+            div {
+                width: 50%;
+            }
         }
 
         .hidden {
@@ -172,7 +215,7 @@
     }
 
     .right {
-        width: 20%;
+        width: 15%;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -184,9 +227,7 @@
     }
 }
 
-.pagination {
-    width: 100%;
-    display: flex;
+.base-pagination-box {
     justify-content: center;
 }
 </style>

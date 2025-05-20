@@ -2,8 +2,6 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-05-07 20:42:33
  * @Description: 功能面板
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-08 16:32:08
  */
 
 import { getMenuItems } from '@/router'
@@ -26,6 +24,8 @@ export default defineComponent({
                 item.children.forEach((subItem) => {
                     if (subItem.meta.inHome === 'group') {
                         subItem.meta.lk = item.meta.groups![subItem.meta.group].lk as string
+                    } else if (subItem.meta.inHome && subItem.meta.inHome !== 'hidden' && subItem.meta.inHome !== 'self') {
+                        subItem.meta.lk = subItem.meta.inHome
                     }
                 })
                 item.children.sort((a, b) => {
@@ -48,17 +48,18 @@ export default defineComponent({
          * @param {RouteRecordRawExtends} moduleItem
          */
         const goToDefaultPage = (moduleItem: RouteRecordRawExtends) => {
-            if (moduleItem.meta.enabled && !userSession.hasAuth(moduleItem.meta.enabled)) {
+            if (moduleItem.meta.auth && !userSession.hasAuth(moduleItem.meta.auth)) {
                 return
             }
-            const defaultMenu = moduleItem.children.find((o) => o.meta.default === true && !getMenuDisabled(o))
+            const defaultMenu = moduleItem.children.find((o) => o.meta.homeDefault === true && !getMenuDisabled(o))
             if (defaultMenu) {
                 router.push(defaultMenu.meta.fullPath)
             } else {
-                const defaultMenu = moduleItem.children.find((item) => !getMenuDisabled(item))
-                if (defaultMenu) {
-                    router.push(defaultMenu.meta.fullPath)
-                }
+                router.push(moduleItem.redirect)
+                // const defaultMenu = moduleItem.children.find((item) => !getMenuDisabled(item))
+                // if (defaultMenu) {
+                //     router.push(defaultMenu.meta.fullPath)
+                // }
             }
         }
 
@@ -68,10 +69,11 @@ export default defineComponent({
          * @param {RouteRecordRawExtends} moduleItem
          */
         const goToPage = (subMenu: RouteRecordRawExtends, moduleItem: RouteRecordRawExtends) => {
-            if (moduleItem.meta.enabled && !userSession.hasAuth(moduleItem.meta.enabled)) {
+            if (moduleItem.meta.auth && !userSession.hasAuth(moduleItem.meta.auth)) {
                 return
             }
-            if (subMenu.meta.enabled && !userSession.hasAuth(subMenu.meta.enabled)) {
+
+            if (subMenu.meta.auth && !userSession.hasAuth(subMenu.meta.auth)) {
                 return
             }
             router.push(subMenu.meta.fullPath)
@@ -81,6 +83,8 @@ export default defineComponent({
             // 选中的主菜单
             mainMenuIndex: 0,
             hoverMenuIndex: -1,
+            activeIconIndex: import.meta.env.VITE_UI_TYPE === 'UI1-D' || import.meta.env.VITE_UI_TYPE === 'UI1-Q' || import.meta.env.VITE_UI_TYPE === 'UI1-N' ? 0 : 1,
+            normalIconIndex: import.meta.env.VITE_UI_TYPE === 'UI1-D' || import.meta.env.VITE_UI_TYPE === 'UI1-Q' || import.meta.env.VITE_UI_TYPE === 'UI1-N' ? 1 : 0,
         })
 
         /**
@@ -105,6 +109,7 @@ export default defineComponent({
             if (getMenuDisabled(moduleItem)) {
                 return
             }
+
             if (bool) {
                 pageData.value.hoverMenuIndex = key
             } else {
@@ -118,7 +123,7 @@ export default defineComponent({
          * @returns {boolean}
          */
         const getMenuDisabled = (route: RouteRecordRawExtends) => {
-            return typeof route.meta.enabled !== 'undefined' && !userSession.hasAuth(route.meta.enabled)
+            return typeof route.meta.auth !== 'undefined' && !userSession.hasAuth(route.meta.auth)
         }
 
         watch(
@@ -130,6 +135,11 @@ export default defineComponent({
                 immediate: true,
             },
         )
+
+        onMounted(() => {
+            // 检测是否登录超时
+            heartBeat()
+        })
 
         return {
             configModules,

@@ -2,35 +2,32 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-11 08:56:29
  * @Description: 802.1x配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 11:52:09
 -->
 <template>
     <div>
         <el-form
             ref="formRef"
+            v-title
             :model="formData"
             :rules="formRule"
-            :style="{
-                '--form-input-width': '200px',
-            }"
-            label-position="left"
-            inline-message
-            class="form stripe"
+            class="stripe"
         >
             <el-form-item>
-                <el-checkbox v-model="formData.switch">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
+                <el-checkbox
+                    v-model="formData.switch"
+                    :label="Translate('IDCS_ENABLE')"
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_PROTOCOL')">
                 <el-input
                     v-model="formData.protocal"
-                    :disabled="!formData.switch"
+                    disabled
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_8021X_EAPOL_VERSION')">
                 <el-input
                     v-model="formData.version"
-                    :disabled="!formData.switch"
+                    disabled
                 />
             </el-form-item>
             <el-form-item
@@ -40,18 +37,17 @@
                 <el-input
                     v-model="formData.userName"
                     :disabled="!formData.switch"
+                    maxlength="32"
                 />
             </el-form-item>
             <el-form-item
                 :label="Translate('IDCS_PASSWORD')"
                 prop="password"
             >
-                <el-input
+                <BasePasswordInput
                     v-model="formData.password"
                     :disabled="!formData.switch || !pageData.passwordSwitch"
-                    type="password"
-                    @copy.capture.prevent=""
-                    @paste.capture.prevent=""
+                    maxlength="32"
                 />
                 <el-checkbox
                     v-model="pageData.passwordSwitch"

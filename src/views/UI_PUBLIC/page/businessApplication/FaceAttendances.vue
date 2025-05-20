@@ -2,45 +2,38 @@
  * @Author: zhangdongming zhangdongming@tvt.net.cn
  * @Date: 2024-06-05 18:18:24
  * @Description: 业务应用-人脸考勤
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-10 11:34:24
 -->
 <template>
-    <div class="base-flex-box face">
+    <div class="base-flex-box">
         <div class="form">
-            <el-form
-                label-position="left"
-                class="inline-message narrow"
-                :style="{
-                    '--form-input-width': '200px',
-                    '--form-label-width': '150px',
-                }"
-            >
-                <el-form-item>
-                    <el-form-item :label="Translate('IDCS_CHANNEL')">
-                        <el-button @click="changeChl">{{ Translate('IDCS_MORE') }}</el-button>
-                        <el-checkbox
-                            v-model="pageData.isAllChl"
-                            @change="changeAllChl"
-                            >{{ Translate('IDCS_ALL') }}</el-checkbox
-                        >
-                    </el-form-item>
-                    <el-form-item>
-                        <el-text class="text-ellipsis">{{ formData.chls.map((item) => item.label).join(';') }}</el-text>
-                    </el-form-item>
+            <el-form class="stripe">
+                <el-form-item :label="Translate('IDCS_CHANNEL')">
+                    <el-button @click="changeChl">{{ Translate('IDCS_MORE') }}</el-button>
+                    <el-checkbox
+                        v-model="pageData.isAllChl"
+                        :label="Translate('IDCS_ALL')"
+                        @change="changeAllChl"
+                    />
+                    <div
+                        v-title
+                        class="text-ellipsis"
+                    >
+                        {{ formData.chls.map((item) => item.label).join('; ') }}
+                    </div>
                 </el-form-item>
-                <el-form-item>
-                    <el-form-item :label="Translate('IDCS_ADD_FACE_GROUP')">
-                        <el-button @click="changeFaceGroup">{{ Translate('IDCS_CONFIGURATION') }}</el-button>
-                        <el-checkbox
-                            v-model="pageData.isAllFaceGroup"
-                            @change="changeAllFaceGroup"
-                            >{{ Translate('IDCS_ALL') }}</el-checkbox
-                        >
-                    </el-form-item>
-                    <el-form-item>
-                        <el-text>{{ formData.faceGroup.map((item) => item.name).join(';') }}</el-text>
-                    </el-form-item>
+                <el-form-item :label="Translate('IDCS_ADD_FACE_GROUP')">
+                    <el-button @click="changeFaceGroup">{{ Translate('IDCS_CONFIGURATION') }}</el-button>
+                    <el-checkbox
+                        v-model="pageData.isAllFaceGroup"
+                        :label="Translate('IDCS_ALL')"
+                        @change="changeAllFaceGroup"
+                    />
+                    <div
+                        v-title
+                        class="text-ellipsis"
+                    >
+                        {{ formData.faceGroup.map((item) => item.name).join('; ') }}
+                    </div>
                 </el-form-item>
                 <el-form-item>
                     <el-form-item>
@@ -48,12 +41,14 @@
                         <BaseDateRange
                             :model-value="formData.dateRange"
                             :type="pageData.dateRangeType"
+                            custom-type="minute"
                             @change="changeDateRange"
                         />
                     </el-form-item>
                     <el-form-item>
                         <BaseDateTab
                             :model-value="formData.dateRange"
+                            custom-type="minute"
                             @change="changeDateRange"
                         />
                     </el-form-item>
@@ -70,42 +65,47 @@
                         </el-checkbox-group>
                     </el-form-item>
                     <el-form-item>
-                        <el-form-item :label="Translate('IDCS_START_TIME')">
-                            <el-time-picker
+                        <el-form-item
+                            :label="Translate('IDCS_ATTENDANCE_START_TIME')"
+                            :style="{
+                                '--form-input-width': '150px',
+                                '--form-label-width': '100px',
+                            }"
+                        >
+                            <BaseTimePicker
                                 v-model="formData.startTime"
-                                format="HH:mm:ss"
-                                value-format="HH:mm:ss"
-                                :disabled-hours="pickerRange.disabledStartTimeHours"
-                                :disabled-minutes="pickerRange.disabledStartTimeMinutes"
-                                :disabled-seconds="pickerRange.disabledStartTimeSeconds"
-                                :clearable="false"
+                                :range="[null, formData.endTime]"
                             />
                         </el-form-item>
                         <el-form-item
-                            :label="Translate('IDCS_END_TIME')"
-                            class="end-time"
+                            :label="Translate('IDCS_ATTENDANCE_END_TIME')"
+                            :style="{
+                                '--form-input-width': '150px',
+                                '--form-label-width': '100px',
+                            }"
                         >
-                            <el-time-picker
+                            <BaseTimePicker
                                 v-model="formData.endTime"
-                                format="HH:mm:ss"
-                                value-format="HH:mm:ss"
-                                :disabled-hours="pickerRange.disabledEndTimeHours"
-                                :disabled-minutes="pickerRange.disabledEndTimeMinutes"
-                                :disabled-seconds="pickerRange.disabledEndTimeSeconds"
-                                :clearable="false"
+                                :range="[formData.startTime, null]"
                             />
                         </el-form-item>
                     </el-form-item>
                 </el-form-item>
                 <el-form-item>
                     <template #label>
-                        <el-checkbox v-model="formData.advanced">{{ Translate('IDCS_ADVANCED') }}</el-checkbox>
+                        <el-checkbox
+                            v-model="formData.advanced"
+                            :label="Translate('IDCS_ADVANCED')"
+                        />
                     </template>
                 </el-form-item>
                 <el-form-item v-show="formData.advanced">
                     <el-form-item>
                         <template #label>
-                            <el-checkbox v-model="formData.isName">{{ Translate('IDCS_NAME_PERSON') }}</el-checkbox>
+                            <el-checkbox
+                                v-model="formData.isName"
+                                :label="Translate('IDCS_NAME_PERSON')"
+                            />
                         </template>
                         <el-input
                             v-model="formData.name"
@@ -113,7 +113,10 @@
                         />
                     </el-form-item>
                     <el-form-item>
-                        <el-checkbox v-model="formData.isType">{{ Translate('IDCS_TYPE') }}</el-checkbox>
+                        <el-checkbox
+                            v-model="formData.isType"
+                            :label="Translate('IDCS_TYPE')"
+                        />
                         <el-checkbox-group
                             v-model="formData.type"
                             :disabled="!formData.isType"
@@ -122,105 +125,91 @@
                                 v-for="item in pageData.typeOptions"
                                 :key="item.value"
                                 :value="item.value"
-                            >
-                                {{ item.label }}
-                            </el-checkbox>
+                                :label="item.label"
+                            />
                         </el-checkbox-group>
                     </el-form-item>
                 </el-form-item>
             </el-form>
-            <div class="base-btn-box padding">
+            <div class="base-btn-box padding gap">
                 <el-button @click="searchData">{{ Translate('IDCS_SEARCH') }}</el-button>
-                <el-button @click="exportData">{{ Translate('IDCS_EXPORT') }}</el-button>
+                <el-button
+                    :disabled="!tableData.length"
+                    @click="exportData"
+                >
+                    {{ Translate('IDCS_EXPORT') }}
+                </el-button>
             </div>
         </div>
         <div class="base-table-box">
             <el-table
+                v-title
                 :data="sliceTableData"
-                border
-                stripe
+                highlight-current-row
+                show-overflow-tooltip
             >
-                <el-table-column :label="Translate('No.')">
-                    <template #default="scope">
-                        {{ displayIndex(scope.$index) }}
+                <el-table-column label="No.">
+                    <template #default="{ $index }: TableColumn<BusinessFaceAttendanceList>">
+                        {{ displayIndex($index) }}
                     </template>
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_NAME')"
                     prop="name"
+                    width="250"
                 />
                 <el-table-column
                     :label="Translate('IDCS_FACE_LIBRARY')"
                     prop="groupName"
+                    width="250"
                 />
-                <el-table-column
-                    :label="Translate('IDCS_NORMAL')"
-                    prop="normal"
-                >
-                    <template #default="scope">
-                        {{ displayStatus(scope.row.normal) }}
+                <el-table-column :label="Translate('IDCS_NORMAL')">
+                    <template #default="{ row }: TableColumn<BusinessFaceAttendanceList>">
+                        {{ displayStatus(row.normal) }}
                     </template>
                 </el-table-column>
 
-                <el-table-column
-                    :label="Translate('IDCS_LATE')"
-                    prop="late"
-                >
-                    <template #default="scope">
-                        {{ displayStatus(scope.row.late) }}
+                <el-table-column :label="Translate('IDCS_LATE')">
+                    <template #default="{ row }: TableColumn<BusinessFaceAttendanceList>">
+                        <span class="text-online">{{ displayStatus(row.late) }}</span>
                     </template>
                 </el-table-column>
 
-                <el-table-column
-                    :label="Translate('IDCS_LEFT_EARLY')"
-                    prop="leaveEarly"
-                >
-                    <template #default="scope">
-                        <span class="text-error">{{ displayStatus(scope.row.leftEarly) }}</span>
+                <el-table-column :label="Translate('IDCS_LEFT_EARLY')">
+                    <template #default="{ row }: TableColumn<BusinessFaceAttendanceList>">
+                        <span class="text-error">{{ displayStatus(row.leftEarly) }}</span>
                     </template>
                 </el-table-column>
 
-                <el-table-column
-                    :label="Translate('IDCS_ATTENDANCE_NONE')"
-                    prop="absenteeism"
-                >
-                    <template #default="scope">
-                        <span class="text-error">{{ displayStatus(scope.row.absenteeism) }}</span>
+                <el-table-column :label="Translate('IDCS_ATTENDANCE_NONE')">
+                    <template #default="{ row }: TableColumn<BusinessFaceAttendanceList>">
+                        <span class="text-error">{{ displayStatus(row.absenteeism) }}</span>
                     </template>
                 </el-table-column>
 
-                <el-table-column
-                    :label="Translate('IDCS_ABNORMAL')"
-                    prop="abnormal"
-                >
-                    <template #default="scope">
-                        {{ displayStatus(scope.row.abnormal) }}
+                <el-table-column :label="Translate('IDCS_ABNORMAL')">
+                    <template #default="{ row }: TableColumn<BusinessFaceAttendanceList>">
+                        <span class="text-exception">{{ displayStatus(row.abnormal) }}</span>
                     </template>
                 </el-table-column>
 
-                <el-table-column
-                    :label="Translate('IDCS_DETAIL')"
-                    prop="detail"
-                >
-                    <template #default="scope">
-                        <BaseImgSprite
-                            file="edit (2)"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click="showDetail(scope.$index)"
+                <el-table-column :label="Translate('IDCS_DETAIL')">
+                    <template #default="{ $index }: TableColumn<BusinessFaceAttendanceList>">
+                        <BaseImgSpriteBtn
+                            file="edit2"
+                            :stop-propagation="false"
+                            @click="showDetail($index)"
                         />
                     </template>
                 </el-table-column>
             </el-table>
         </div>
         <div class="base-btn-box padding">
-            <el-pagination
+            <BasePagination
                 v-model:current-page="formData.currentPage"
                 v-model:page-size="formData.pageSize"
-                :layout="DefaultPagerLayout"
                 :total="tableData.length"
-                :page-sizes="[100]"
+                :page-sizes="[formData.pageSize]"
             />
         </div>
         <BaseTableSelectPop
@@ -244,6 +233,8 @@
         <FaceDetailPop
             v-model="pageData.isDetailPop"
             :data="pageData.detail"
+            :face-group="pageData.faceGroupList"
+            destroy-on-close
             @close="pageData.isDetailPop = false"
         />
     </div>
@@ -252,43 +243,8 @@
 <script lang="ts" src="./FaceAttendances.v.ts"></script>
 
 <style lang="scss" scoped>
-.face {
-    height: calc(var(--content-height) + 10px);
-}
-
 .form {
-    display: flex;
-
-    & > .el-form {
-        width: 90%;
-
-        & > .el-form-item {
-            & > .el-form-item__content {
-                display: flex;
-
-                & > .el-form-item:first-child {
-                    width: 550px !important;
-                    flex-shrink: 0;
-                }
-                & > .el-form-item:last-child {
-                    width: calc(100% - 550px) !important;
-                }
-            }
-        }
-    }
-
-    .el-checkbox {
-        margin-right: 0;
-    }
-
-    .base-btn-box {
-        width: 10%;
-        align-items: flex-end;
-        padding-bottom: 10px;
-    }
-}
-
-.end-time {
-    padding-left: 15px;
+    padding: 10px;
+    padding-bottom: 0;
 }
 </style>

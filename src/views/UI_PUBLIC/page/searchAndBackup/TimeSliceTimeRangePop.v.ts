@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-14 16:59:08
  * @Description: 设置时间范围弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 18:06:21
  */
 import dayjs from 'dayjs'
 
@@ -34,10 +32,6 @@ export default defineComponent({
             // 结束时间
             endTime: '',
         })
-
-        const startTime = computed(() => formData.value.startTime)
-        const endTime = computed(() => formData.value.endTime)
-        const pickerRange = useTimePickerRange(startTime, endTime)
 
         /**
          * @property 打开表单时 重置表单数据
@@ -73,8 +67,6 @@ export default defineComponent({
             close,
             formData,
             open,
-            dateTime,
-            pickerRange,
         }
     },
 })

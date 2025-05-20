@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-06 10:35:28
  * @Description: 通道版块的一些公共样式，仅在需要用到的通道版块下引入
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 14:37:15
  */
 .base-chl-box {
     width: 100%;
@@ -16,6 +14,8 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+    position: relative;
+    z-index: 10;
 }
 
 .base-chl-box-player {
@@ -33,16 +33,25 @@
 }
 
 .base-chl-icon-btn {
+    position: relative;
     flex-shrink: 0;
-    background-color: var(--ptz-btn);
+    width: 20px;
+    height: 20px;
     border: 1px solid var(--ptz-btn);
+    background-color: var(--ptz-btn);
 
-    &:hover {
-        background-color: var(--ptz-btn);
-        border-color: var(--primary);
+    .Sprite {
+        position: absolute;
+        top: -5px;
+        left: -5px;
     }
 
-    &.disabled {
+    &:hover {
+        border-color: var(--primary);
+        background-color: transparent;
+    }
+
+    &:has(.disabled) {
         background-color: var(--ptz-btn-disabled);
 
         &:hover {
@@ -53,4 +62,8 @@
     & + & {
         margin-left: 5px;
     }
+}
+
+.base-rich-text {
+    line-height: 1.4;
 }

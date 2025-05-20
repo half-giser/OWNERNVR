@@ -2,32 +2,27 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-09 15:29:39
  * @Description: 抓拍弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-11 14:24:06
 -->
 <template>
     <el-dialog
         :title="Translate('IDCS_SNAP_DETAIL')"
         :width="950"
-        align-center
-        draggable
-        @opened="open"
+        @open="open"
+        @opened="opened"
     >
         <div>
             <div class="info">
                 <div class="title">{{ Translate('IDCS_BASIC_INFO') }}</div>
-                <div class="row">
-                    <label>{{ Translate('IDCS_SNAP_TIME') }}</label>
-                    <span>{{ displayTime(current.timestamp) }}</span>
-                    <label>{{ Translate('IDCS_SNAP_ADDRESS') }}</label>
-                    <span>{{ current.chlName }}</span>
-                </div>
-                <div class="row">
-                    <label>{{ Translate('IDCS_EVENT_TYPE') }}</label>
-                    <span>{{ displayEventType(current.eventType) }}</span>
-                    <label>{{ Translate('IDCS_TARGET_TYPE') }}</label>
-                    <span>{{ displayTargetType(current.targetType) }}</span>
-                </div>
+                <el-form>
+                    <el-form-item>
+                        <el-form-item :label="`${Translate('IDCS_SNAP_TIME')} : `">{{ displayTime(current.timestamp) }}</el-form-item>
+                        <el-form-item :label="`${Translate('IDCS_SNAP_ADDRESS')} : `">{{ current.chlName }}</el-form-item>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-form-item :label="`${Translate('IDCS_EVENT_TYPE')} : `">{{ displayEventType(current.eventType) }}</el-form-item>
+                        <el-form-item :label="`${Translate('IDCS_TARGET_TYPE')} : `">{{ displayTargetType(current.targetType) }}</el-form-item>
+                    </el-form-item>
+                </el-form>
             </div>
             <div class="snap">
                 <div>
@@ -35,6 +30,7 @@
                     <img
                         :src="current.pic"
                         class="snap-img"
+                        @load="loadImg"
                     />
                 </div>
                 <div>
@@ -52,58 +48,55 @@
                     </div>
                 </div>
             </div>
-            <!-- <div
-                v-show="displayInfo.length"
+            <div
+                v-show="infoList.length"
                 class="attr"
             >
-                <div class="title">{{ displayInfoTitle }}</div>
+                <div class="title">{{ infoListTitle }}</div>
                 <div class="attr-list">
                     <div
-                        v-for="item in displayInfo"
-                        :key="item.name + item.value"
+                        v-for="item in infoList"
+                        :key="`${item.label}-${item.value}`"
                         class="row"
                     >
-                        <label>{{ item.name }} :</label><span>{{ item.value }}</span>
+                        <label>{{ item.label }}</label>
+                        <span>{{ item.value }}</span>
                     </div>
                 </div>
-            </div> -->
+            </div>
         </div>
-        <template #footer>
-            <el-row>
-                <el-col
-                    :span="12"
-                    class="el-col-flex-start"
+        <div class="base-btn-box space-between">
+            <div>
+                <el-button
+                    v-show="isAddBtn"
+                    @click="add"
                 >
-                    <el-button
-                        v-show="isAddBtn"
-                        @click="add"
-                        >{{ Translate('IDCS_REGISTER') }}</el-button
-                    >
-                    <el-button
-                        v-show="showSearch"
-                        @click="search"
-                        >{{ Translate('IDCS_SEARCH') }}</el-button
-                    >
-                    <el-button @click="playRec">{{ Translate('IDCS_REPLAY') }}</el-button>
-                </el-col>
-                <el-col
-                    :span="12"
-                    class="el-col-flex-end"
+                    {{ Translate('IDCS_REGISTER') }}
+                </el-button>
+                <el-button
+                    v-show="showSearch"
+                    @click="search"
                 >
-                    <el-button
-                        :disabled="pageData.currentIndex <= 0"
-                        @click="previous"
-                        >{{ Translate('IDCS_PREVIOUS') }}</el-button
-                    >
-                    <el-button
-                        :disabled="pageData.currentIndex >= list.length - 1"
-                        @click="next"
-                        >{{ Translate('IDCS_NEXT') }}</el-button
-                    >
-                    <el-button @click="close">{{ Translate('IDCS_EXIT') }}</el-button>
-                </el-col>
-            </el-row>
-        </template>
+                    {{ Translate('IDCS_SEARCH') }}
+                </el-button>
+                <el-button @click="playRec">{{ Translate('IDCS_REPLAY') }}</el-button>
+            </div>
+            <div>
+                <el-button
+                    :disabled="pageData.currentIndex <= 0"
+                    @click="previous"
+                >
+                    {{ Translate('IDCS_PREVIOUS') }}
+                </el-button>
+                <el-button
+                    :disabled="pageData.currentIndex >= list.length - 1"
+                    @click="next"
+                >
+                    {{ Translate('IDCS_NEXT') }}
+                </el-button>
+                <el-button @click="close">{{ Translate('IDCS_EXIT') }}</el-button>
+            </div>
+        </div>
     </el-dialog>
 </template>
 
@@ -113,7 +106,6 @@
 .info {
     border-bottom: 1px solid var(--input-border);
     margin: 10px 0;
-    padding-bottom: 20px;
 }
 
 .title {
@@ -121,7 +113,6 @@
     height: 30px;
     line-height: 30px;
     padding-left: 15px;
-    // margin-left: 15px;
 }
 
 .row {
@@ -129,15 +120,16 @@
     padding: 10px 0;
 
     label {
-        width: 15%;
+        width: 135px;
+        flex-shrink: 0;
 
-        &:after {
+        &::after {
             content: ' : ';
         }
     }
 
     span {
-        width: 35%;
+        width: 100%;
     }
 }
 
@@ -153,13 +145,11 @@
         width: 185px;
         height: 215px;
         margin: 10px 0 0 10px;
-        background-color: var(--bg-button-disabled);
     }
 }
 
 .panorama {
     position: relative;
-    background-color: var(--bg-button-disabled);
     width: 400px;
     height: 215px;
     margin: 10px 0 0 10px;
@@ -180,5 +170,24 @@
 
 .attr {
     margin: 10px 0;
+    width: 100%;
+
+    &-list {
+        margin-top: 10px;
+        box-sizing: border-box;
+        padding: 10px;
+        border: 1px solid var(--content-border);
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .row {
+        width: 25%;
+
+        label {
+            width: auto;
+            margin-right: 5px;
+        }
+    }
 }
 </style>

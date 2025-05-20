@@ -2,13 +2,10 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-04-16 13:47:54
  * @Description: 路由构建入口文件
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-12 14:22:36
  */
-import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
+import { createRouter, createWebHashHistory, type RouteLocationNormalized } from 'vue-router'
 import { buildRouter } from './featureConfig/RouteUtil'
 import progress from '@bassist/progress'
-// import { APP_NAME } from '@/utils/constants'
 import { type RouteLocationNormalizedLoaded } from 'vue-router'
 
 progress.configure({ showSpinner: false })
@@ -18,8 +15,8 @@ progress.setColor('var(--primary)')
 const routes = buildRouter()
 
 const router = createRouter({
-    history: createWebHistory(import.meta.env.BASE_URL),
-    routes: routes.filter((item) => item.meta?.enabled === ''),
+    history: createWebHashHistory(),
+    routes: routes.filter((item) => item.meta?.noToken),
     scrollBehavior: (_to, _from, savedPosition) => {
         return savedPosition ? savedPosition : { top: 0, left: 0 }
     },
@@ -33,10 +30,9 @@ let authRoutes: RouteRecordRawExtends[] = []
 export const generateAsyncRoutes = () => {
     const systemCaps = useCababilityStore()
     const userSession = useUserSessionStore()
-    const ui = getUiAndTheme().name
 
     const asyncRoute = (routes as RouteRecordRawExtends[]).filter((item) => {
-        return item.meta?.enabled !== ''
+        return item.meta?.noToken === undefined
     })
 
     /**
@@ -50,13 +46,13 @@ export const generateAsyncRoutes = () => {
                 item.children = getAuthRoute(item.children)
 
                 // 设置路由重定向 （满足能力集和用户权限）
-                const redirect = item.children.find((item) => !item.meta.enabled || userSession.hasAuth(item.meta.enabled))
+                const redirect = item.children.find((item) => !item.meta.auth || userSession.hasAuth(item.meta.auth))
                 if (redirect) {
                     item.redirect = redirect.meta.fullPath
                 }
             }
 
-            return !item.meta.auth || item.meta.auth(systemCaps, ui)
+            return !item.meta.hasCap || item.meta.hasCap(systemCaps)
         })
     }
 
@@ -75,7 +71,7 @@ export const generateAsyncRoutes = () => {
  */
 export const removeAsyncRoutes = () => {
     authRoutes.forEach((item) => {
-        router.removeRoute(item.name)
+        router.removeRoute(item.name!)
     })
 }
 
@@ -89,8 +85,9 @@ export const getMenuItem = (item: RouteRecordRawExtends) => {
         path: item.path,
         name: item.name,
         meta: {
+            hasCap: item.meta!.hasCap,
+            noToken: item.meta!.noToken,
             auth: item.meta!.auth,
-            enabled: item.meta!.enabled,
             // noAuth: item.meta!.noAuth,
             keepAlive: item.meta!.keepAlive,
             fullPath: item.meta!.fullPath,
@@ -99,14 +96,18 @@ export const getMenuItem = (item: RouteRecordRawExtends) => {
             group: item.meta!.group,
             noMenu: item.meta!.noMenu,
             default: item.meta!.default,
+            homeDefault: item.meta!.homeDefault,
             plClass: item.meta!.plClass,
             groups: item.meta!.groups,
             homeSort: item.meta!.homeSort,
             sort: item.meta!.sort,
             inHome: item.meta!.inHome,
+            minWidth: item.meta!.minWidth,
+            minHeight: item.meta!.minHeight,
         },
         children: item.children ? getMenuItems(item.children) : [],
         redirect: item.redirect || '',
+        alias: item.alias,
     }
 }
 
@@ -175,24 +176,30 @@ export const getConfigMenu = () => {
     if (find) {
         layoutStore.configMenu = find
     }
-    // return find as RouteRecordRawExtends
 }
 
-router.beforeEach(() => {
-    progress.start()
-})
-
-router.afterEach(() => {
-    // const title = to.meta.title
-    // document.title = title ? `${title} - ${APP_NAME}` : APP_NAME
+router.afterEach((to: RouteLocationNormalized) => {
     progress.done()
+
+    const element = document.getElementById('n9web')
+    if (element) {
+        element.style.setProperty('--main-min-width', to.meta.minWidth ? `${to.meta.minWidth}px` : 'var(--default-main-min-width)')
+        element.style.setProperty('--main-min-height', to.meta.minHeight ? `${to.meta.minHeight}px` : 'var(--default-main-min-height)')
+    }
 })
 
-/*
-注册全局路由守卫，设置当前的菜单状态
-*/
-router.beforeResolve((to: RouteLocationNormalized, _from: RouteLocationNormalized, next: Function) => {
+router.beforeResolve(async (to: RouteLocationNormalized, _from, next) => {
     const layoutStore = useLayoutStore()
+    const dateTime = useDateTimeStore()
+
+    progress.start()
+    if (!to.meta?.noToken) {
+        try {
+            await dateTime.getTimeConfig()
+        } catch {}
+    }
+    closeAllLoading()
+
     layoutStore.menu1Item = null
     layoutStore.menu2Items = []
     if (to.matched && to.matched.length > 1) {

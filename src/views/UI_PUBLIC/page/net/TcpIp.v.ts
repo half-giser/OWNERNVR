@@ -2,12 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-16 18:56:58
  * @Description: TCP/IP配置页
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:05:58
  */
-import { NetTcpIpForm, NetTcpIpDhcpList, NetTcpIpBondsList, type NetTcpIpNicConfigList, type NetTcpIpAdvanceForm } from '@/types/apiType/net'
 import { type CheckboxValueType } from 'element-plus'
-import { cloneDeep } from 'lodash-es'
 import TcpIpAdvancePop from './TcpIpAdvancePop.vue'
 
 export default defineComponent({
@@ -16,8 +12,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
         const pageData = ref({
@@ -60,7 +54,7 @@ export default defineComponent({
 
         // DHCP数据
         const dhcpData = ref({
-            bonds: [] as NetTcpIpDhcpList[],
+            ipGroupConfig: new NetTcpIpDhcpList(),
             nicConfigs: [] as NetTcpIpDhcpList[],
         })
 
@@ -88,6 +82,15 @@ export default defineComponent({
             return item.isPoe ? Translate('IDCS_POE_ETH_NAME') : Translate('IDCS_ETH_NAME').formatForLang(item.index + 1)
         }
 
+        const nicConfigOptions = computed(() => {
+            return formData.value.nicConfigs.map((item) => {
+                return {
+                    label: displayNicName(item),
+                    value: item.id,
+                }
+            })
+        })
+
         /**
          * @description 网口状态文本显示
          * @param {NetTcpIpNicConfigList} item
@@ -106,36 +109,25 @@ export default defineComponent({
 
             const DEFAULT_DATA = new NetTcpIpDhcpList()
 
-            if (!formData.value.ipGroupSwitch) {
-                dhcpData.value.bonds.push({ ...DEFAULT_DATA })
-            } else {
-                formData.value.bonds.forEach((bond) => {
-                    const data = { ...DEFAULT_DATA }
-                    const item = $(`//content/bonds/item[@id="${bond.id}"]`)
-                    if (!item.length) {
-                        return
+            if (formData.value.ipGroupConfig.switch && formData.value.ipGroupConfig.dhcpSwitch) {
+                const data = { ...DEFAULT_DATA }
+                data.ip = $('ipGroup/ip').text()
+                data.gateway = $('ipGroup/gateway').text()
+                data.mask = $('ipGroup/mask').text()
+                if (formData.value.ipGroupConfig.ipv4DnsDhcpSwitch) {
+                    data.dns1 = $('ipGroup/dns1').text()
+                    data.dns2 = $('ipGroup/dns2').text()
+                }
+
+                if (formData.value.ipGroupConfig.ipV6Switch) {
+                    data.ipV6 = $('ipGroup/ipV6').text()
+                    data.gatewayV6 = $('ipGroup/gatewayV6').text()
+                    data.subLengthV6 = $('ipGroup/subLengthV6').text().num()
+                    if (formData.value.ipGroupConfig.ipv6DnsDhcpSwitch) {
+                        data.ipv6Dns1 = $('ipGroup/ipv6Dns1').text()
+                        data.ipv6Dns2 = $('ipGroup/ipv6Dns2').text()
                     }
-                    const $item = queryXml(item[0].element)
-                    if (bond.dhcpSwitch) {
-                        data.ip = $item('ip').text()
-                        data.gateway = $item('gateway').text()
-                        data.mask = $item('mask').text()
-                        if (bond.ipv4DnsDhcpSwitch) {
-                            data.dns1 = $item('dns1').text()
-                            data.dns2 = $item('dns2').text()
-                        }
-                        if (bond.ipV6Switch) {
-                            data.ipV6 = $item('ipV6').text()
-                            data.gatewayV6 = $item('gatewayV6').text()
-                            data.subLengthV6 = Number($item('subLengthV6').text())
-                            if (bond.ipv6DnsDhcpSwitch) {
-                                data.ipv6Dns1 = $item('ipv6Dns1').text()
-                                data.ipv6Dns2 = $item('ipv6Dns2').text()
-                            }
-                        }
-                    }
-                    dhcpData.value.bonds.push(data)
-                })
+                }
             }
 
             formData.value.nicConfigs.forEach((config) => {
@@ -143,7 +135,7 @@ export default defineComponent({
                     return
                 }
                 const data = { ...DEFAULT_DATA }
-                const item = $(`//content/nic/item[@id="${config.id}"]`)
+                const item = $(`content/nic/item[@id="${config.id}"]`)
                 if (!item.length) {
                     return
                 }
@@ -156,10 +148,11 @@ export default defineComponent({
                         data.dns1 = $item('dns1').text()
                         data.dns2 = $item('dns2').text()
                     }
+
                     if (config.ipV6Switch) {
                         data.ipV6 = $item('ipV6').text()
                         data.gatewayV6 = $item('gatewayV6').text()
-                        data.subLengthV6 = Number($item('subLengthV6').text())
+                        data.subLengthV6 = $item('subLengthV6').text().num()
                         if (config.ipv6DnsDhcpSwitch) {
                             data.ipv6Dns1 = $item('ipv6Dns1').text()
                             data.ipv6Dns2 = $item('ipv6Dns2').text()
@@ -173,74 +166,71 @@ export default defineComponent({
         /**
          * @description 获取配置数据
          */
-        const getNetConfigV3 = async () => {
-            const result = await queryNetCfgV3()
+        const getNetConfigV2 = async () => {
+            const result = await queryNetCfgV2()
             const $ = queryXml(result)
-            const $content = queryXml($('//content')[0].element)
+            const $content = queryXml($('content')[0].element)
             formData.value.netConfig.defaultNic = $content('defaultNic').text()
-            formData.value.netConfig.poeMode = Number($content('poeMode').text())
-            formData.value.netConfig.supportNetworkFaultTolerance = $content('supportNetworkFaultTolerance').text().toBoolean()
-            formData.value.netConfig.supportNetworkMultiAddrSetting = $content('supportNetworkMultiAddrSetting').text().toBoolean()
-            formData.value.netConfig.toeEnable = $content('toeEnable').text().toBoolean()
+            formData.value.netConfig.poeMode = $content('poeMode').text().num()
+            formData.value.netConfig.supportNetworkFaultTolerance = $content('supportNetworkFaultTolerance').text().bool()
+            formData.value.netConfig.supportNetworkMultiAddrSetting = $content('supportNetworkMultiAddrSetting').text().bool()
+            formData.value.netConfig.toeEnable = $content('toeEnable').text().bool()
             formData.value.netConfig.curWorkMode = $content('curWorkMode').text()
-            formData.value.ipGroupSwitch = $content('ipGroupConfig/switch').text().toBoolean()
-            formData.value.ipGroupMode = $content('ipGroupConfig/mode').text()
-            formData.value.ipDefaultBond = $content('ipGroupConfig/defaultBond').text()
-            formData.value.bonds = $content('ipGroupConfig/bonds/item').map((item, index) => {
-                const $item = queryXml(item.element)
-                return {
-                    index: index,
-                    id: item.attr('id')!,
-                    dhcpSwitch: $item('dhcpSwitch').text().toBoolean(),
-                    primaryNIC: $item('primaryNIC').text(),
-                    NICs: $item('NICs').text(),
-                    ip: $item('ip').text(),
-                    gateway: $item('gateway').text(),
-                    mask: $item('mask').text(),
-                    mtu: Number($item('mtu').text()),
-                    ipV6Switch: $item('ipV6Switch').text().toBoolean(),
-                    ipV6: $item('ipV6').text(),
-                    gatewayV6: $item('gatewayV6').text(),
-                    subLengthV6: Number($item('subLengthV6').text()),
-                    ipv4DnsDhcpSwitch: $item('dhcpSwitch').text().toBoolean() ? $item('ipv4DnsDhcpSwitch').text().toBoolean() : false,
-                    dns1: $item('dns1').text(),
-                    dns2: $item('dns2').text(),
-                    ipv6DnsDhcpSwitch: $item('dhcpSwitch').text().toBoolean() ? $item('ipv6DnsDhcpSwitch').text().toBoolean() : false,
-                    ipv6Dns1: $item('ipv6Dns1').text(),
-                    ipv6Dns2: $item('ipv6Dns2').text(),
+
+            if ($('content/ipGroupConfig').length) {
+                const $group = queryXml($('content/ipGroupConfig')[0].element)
+                formData.value.ipGroupConfig = {
+                    dhcpSwitch: $group('dhcpSwitch').text().bool(),
+                    switch: $group('switch').text().bool(),
+                    mode: $group('mode').text(),
+                    primaryNIC: $group('primaryNIC').text(),
+                    ip: $group('ip').text(),
+                    gateway: $group('gateway').text(),
+                    mask: $group('mask').text(),
+                    mtu: $group('mtu').text().num(),
+                    ipV6Switch: $group('ipV6Switch').text().bool(),
+                    ipV6: $group('ipV6').text(),
+                    gatewayV6: $group('gatewayV6').text(),
+                    subLengthV6: $group('subLengthV6').text().num(),
+                    ipv4DnsDhcpSwitch: $group('ipv4DnsDhcpSwitch').text().bool(),
+                    dns1: $group('dns1').text(),
+                    dns2: $group('dns2').text(),
+                    ipv6DnsDhcpSwitch: $group('ipv6DnsDhcpSwitch').text().bool(),
+                    ipv6Dns1: $group('ipv6Dns1').text(),
+                    ipv6Dns2: $group('ipv6Dns2').text(),
                     isPoe: false, // 手动加一个属性ipGroupConfig走的逻辑也是非poe类型
                 }
-            })
+            }
+
             formData.value.nicConfigs = $content('nicConfigs/item').map((item, index) => {
                 const $item = queryXml(item.element)
-                if (item.attr('isPoe')!.toBoolean()) {
+                if (item.attr('isPoe').bool()) {
                     pageData.value.hasPoeNic = true
-                    pageData.value.nicIndex = index
                 }
                 return {
                     index: index,
-                    id: item.attr('id')!,
-                    isPoe: item.attr('isPoe')!.toBoolean(),
-                    isSupSecondIP: item.attr('isSupSecondIP')!.toBoolean(),
-                    isSupMultiWorkMode: item.attr('isSupMultiWorkMode')!.toBoolean(),
-                    dhcpSwitch: $item('dhcpSwitch').text().toBoolean(),
+                    id: item.attr('id'),
+                    isPoe: item.attr('isPoe').bool(),
+                    isSupSecondIP: item.attr('isSupSecondIP').bool(),
+                    isSupMultiWorkMode: item.attr('isSupMultiWorkMode').bool(),
+                    dhcpSwitch: $item('dhcpSwitch').text().bool(),
                     ip: $item('ip').text(),
                     gateway: $item('gateway').text(),
                     mask: $item('mask').text(),
                     mac: $item('mac').text(),
-                    mtu: Number($item('mtu').text()),
-                    ipV6Switch: $item('ipV6Switch').text().toBoolean(),
+                    mtu: $item('mtu').text().num(),
+                    ipV6Switch: $item('ipV6Switch').text().bool(),
                     ipV6: $item('ipV6').text(),
                     gatewayV6: $item('gatewayV6').text(),
-                    subLengthV6: Number($item('subLengthV6').text()),
-                    isOnline: $item('isOnline').text().toBoolean(),
-                    ipv4DnsDhcpSwitch: $item('dhcpSwitch').text().toBoolean() ? $item('ipv4DnsDhcpSwitch').text().toBoolean() : false,
-                    dns1: $item('dns1').text(),
-                    dns2: $item('dns2').text(),
-                    ipv6DnsDhcpSwitch: $item('ipv6DnsDhcpSwitch').text().toBoolean(),
+                    subLengthV6: $item('subLengthV6').text().num(),
+                    isOnline: $item('isOnline').text().bool(),
+                    ipv4DnsDhcpSwitch: $item('dhcpSwitch').text().bool() ? $item('ipv4DnsDhcpSwitch').text().bool() : false,
+                    dns1: $item('dns1').text() || DEFAULT_EMPTY_IP,
+                    dns2: $item('dns2').text() || DEFAULT_EMPTY_IP,
+                    ipv6DnsDhcpSwitch: $item('ipv6DnsDhcpSwitch').text().bool(),
                     ipv6Dns1: $item('ipv6Dns1').text(),
                     ipv6Dns2: $item('ipv6Dns2').text(),
-                    secondIpSwitch: $item('dhcpSwitch').text().toBoolean() ? $item('secondIpSwitch').text().toBoolean() : false,
+                    secondIpSwitch: $item('dhcpSwitch').text().bool() ? $item('secondIpSwitch').text().bool() : false,
                     secondIp: $item('secondIp').text(),
                     secondMask: $item('secondMask').text(),
                 }
@@ -250,30 +240,40 @@ export default defineComponent({
             pageData.value.toleranceAndPoe = pageData.value.hasPoeNic && formData.value.netConfig.supportNetworkFaultTolerance
         }
 
+        const defaultData = new NetTcpIpGroupList()
+
         /**
          * @description 当前表单显示数据
          */
         const current = computed(() => {
             const mode = formData.value.netConfig.curWorkMode
-            let item, dhcp
-            if (mode === 'multiple_address_setting' && formData.value.nicConfigs.length) {
+            let item
+            let dhcp: NetTcpIpDhcpList
+
+            if (mode !== 'network_fault_tolerance' && formData.value.nicConfigs.length) {
                 item = { ...formData.value.nicConfigs[pageData.value.nicIndex] }
                 dhcp = dhcpData.value.nicConfigs[item.index]
             } else if (mode === 'network_fault_tolerance') {
                 if (pageData.value.toleranceAndPoe) {
                     item = { ...formData.value.nicConfigs[pageData.value.nicIndex] }
                     dhcp = dhcpData.value.nicConfigs[item.index]
-                } else if (formData.value.bonds.length) {
-                    item = { ...formData.value.bonds[pageData.value.bondIndex] }
-                    dhcp = dhcpData.value.bonds[item.index]
                 } else {
-                    return new NetTcpIpBondsList()
+                    item = { ...formData.value.ipGroupConfig }
+                    dhcp = dhcpData.value.ipGroupConfig
                 }
             } else {
-                return new NetTcpIpBondsList()
+                return defaultData
             }
+
+            if (!dhcp) {
+                return {
+                    ...defaultData,
+                    ...item,
+                }
+            }
+
             if (item.dhcpSwitch) {
-                item.ip = dhcp.ip
+                item.ip = dhcp.ip || ''
                 item.mask = dhcp.mask
                 item.gateway = dhcp.gateway
                 item.ipV6 = dhcp.ipV6
@@ -284,10 +284,17 @@ export default defineComponent({
                     item.dns1 = dhcp.dns1
                     item.dns2 = dhcp.dns2
                 }
+
                 if (item.ipv4DnsDhcpSwitch) {
                     item.ipv6Dns1 = dhcp.ipv6Dns1
                     item.ipv6Dns2 = dhcp.ipv6Dns2
                 }
+            }
+
+            if (!item.ipV6Switch) {
+                item.ipV6 = ''
+                item.subLengthV6 = undefined
+                item.gatewayV6 = ''
             }
             return item
         })
@@ -304,7 +311,7 @@ export default defineComponent({
                 if (pageData.value.toleranceAndPoe) {
                     formData.value.nicConfigs[pageData.value.nicIndex][key] = value
                 } else {
-                    formData.value.bonds[pageData.value.bondIndex][key] = value
+                    formData.value.ipGroupConfig[key] = value
                 }
             }
         }
@@ -322,10 +329,10 @@ export default defineComponent({
                     formData.value.nicConfigs[pageData.value.nicIndex].ipv6DnsDhcpSwitch = false
                 }
             } else {
-                formData.value.bonds[pageData.value.bondIndex][key] = !!value
+                formData.value.ipGroupConfig[key] = !!value
                 if (key === 'dhcpSwitch' && !value) {
-                    formData.value.bonds[pageData.value.bondIndex].ipv4DnsDhcpSwitch = false
-                    formData.value.bonds[pageData.value.bondIndex].ipv6DnsDhcpSwitch = false
+                    formData.value.ipGroupConfig.ipv4DnsDhcpSwitch = false
+                    formData.value.ipGroupConfig.ipv6DnsDhcpSwitch = false
                 }
             }
         }
@@ -335,7 +342,7 @@ export default defineComponent({
          */
         const handleChangeIpV6Switch = () => {
             if (!current.value.ipV6Switch) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_IPV6_NETWORK_CLOSE_TIP').formatForLang('IPv6'),
                 }).catch(() => {
@@ -348,20 +355,12 @@ export default defineComponent({
          * @description POE模式切换，显示弹窗
          */
         const handleChangePoeMode = () => {
-            openMessageTipBox({
-                type: 'info',
-                message: Translate('IDCS_POE_MODE_VALUE').formatForLang(formData.value.netConfig.poeMode),
-            })
+            openMessageBox(Translate('IDCS_POE_MODE_VALUE').formatForLang(formData.value.netConfig.poeMode))
         }
 
         // 是否POE
         const isPoe = computed(() => {
             return systemCaps.supportModifyPoeMode && current.value.isPoe
-        })
-
-        // 是否支持POE
-        const poeEnabled = computed(() => {
-            return !pageData.value.pppoeSwitch || isPoe.value
         })
 
         /**
@@ -370,7 +369,7 @@ export default defineComponent({
         const getPPPoeSwitch = async () => {
             const result = await queryPPPoECfg()
             const $ = queryXml(result)
-            pageData.value.pppoeSwitch = $('//content/switch').text().toBoolean()
+            pageData.value.pppoeSwitch = $('content/switch').text().bool()
         }
 
         /**
@@ -389,26 +388,26 @@ export default defineComponent({
                     message: Translate('IDCS_MTU_EDIT_AFTER_REBOOT'),
                     check: () => {
                         if (formData.value.netConfig.curWorkMode === 'network_fault_tolerance') {
-                            return formData.value.bonds.some((item, index) => {
-                                return item.mtu !== cacheData.bonds[index].mtu
-                            })
+                            return formData.value.ipGroupConfig.mtu !== cacheData.ipGroupConfig.mtu
                         } else {
                             return formData.value.nicConfigs.some((item, index) => {
                                 return item.mtu !== cacheData.nicConfigs[index].mtu
                             })
                         }
                     },
+                    cancel: () => {},
                 },
             ]
 
             for (let i = 0; i < rule.length; i++) {
                 if (rule[i].check()) {
                     try {
-                        await openMessageTipBox({
+                        await openMessageBox({
                             type: 'question',
                             message: rule[i].message,
                         })
                     } catch {
+                        rule[i].cancel()
                         return false
                     }
                 }
@@ -423,64 +422,45 @@ export default defineComponent({
         const verifyParams = () => {
             // 网络容错和多址模式的参数分开发送，分开校验
             if (formData.value.netConfig.curWorkMode === 'network_fault_tolerance') {
-                const flag = formData.value.bonds.every((item) => {
-                    // 开启ipv6且未勾选自动获取校验ipv6相关地址
-                    if (item.ipV6Switch && !item.dhcpSwitch) {
-                        if (!item.ipV6.trim().length) {
-                            openMessageTipBox({
-                                type: 'info',
-                                message: Translate('IDCS_PROMPT_IPV6_ADDRESS_EMPTY'),
-                            })
-                            return false
-                        }
-                        if (!checkIpV6(item.ipV6)) {
-                            openMessageTipBox({
-                                type: 'info',
-                                message: Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'),
-                            })
-                            return false
-                        }
-                        if (item.gatewayV6 && !checkIpV6(item.gatewayV6)) {
-                            openMessageTipBox({
-                                type: 'info',
-                                message: Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'),
-                            })
-                            return false
-                        }
-                    }
-                    // 开启ipv6且dns自动获取未开启
-                    if (item.ipV6Switch && !item.ipv6DnsDhcpSwitch) {
-                        if (item.ipv6Dns1 && !checkIpV6(item.ipv6Dns1)) {
-                            openMessageTipBox({
-                                type: 'info',
-                                message: Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'),
-                            })
-                            return false
-                        }
-                        if (item.ipv6Dns2 && !checkIpV6(item.ipv6Dns2)) {
-                            openMessageTipBox({
-                                type: 'info',
-                                message: Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'),
-                            })
-                            return false
-                        }
+                // 开启ipv6且未勾选自动获取校验ipv6相关地址
+                if (formData.value.ipGroupConfig.ipV6Switch && !formData.value.ipGroupConfig.dhcpSwitch) {
+                    if (!formData.value.ipGroupConfig.ipV6.trim().length) {
+                        openMessageBox(Translate('IDCS_PROMPT_IPV6_ADDRESS_EMPTY'))
+                        return false
                     }
 
-                    if (pageData.value.toleranceAndPoe) {
-                        if (isEqualIPAddress(item.ip, item.mask, item.ip, item.mask)) {
-                            openMessageTipBox({
-                                type: 'info',
-                                message: Translate('IDCS_ERROR_IP_SAME_NETWORK_SEGMAENT'),
-                            })
-                            return false
-                        }
+                    if (!checkIpV6(formData.value.ipGroupConfig.ipV6)) {
+                        openMessageBox(Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'))
+                        return false
                     }
 
-                    return true
-                })
-                if (!flag) {
-                    return false
+                    if (formData.value.ipGroupConfig.gatewayV6 && !checkIpV6(formData.value.ipGroupConfig.gatewayV6)) {
+                        openMessageBox(Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'))
+                        return false
+                    }
                 }
+
+                // 开启ipv6且dns自动获取未开启
+                if (formData.value.ipGroupConfig.ipV6Switch && !formData.value.ipGroupConfig.ipv6DnsDhcpSwitch) {
+                    if (formData.value.ipGroupConfig.ipv6Dns1 && !checkIpV6(formData.value.ipGroupConfig.ipv6Dns1)) {
+                        openMessageBox(Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'))
+                        return false
+                    }
+
+                    if (formData.value.ipGroupConfig.ipv6Dns2 && !checkIpV6(formData.value.ipGroupConfig.ipv6Dns2)) {
+                        openMessageBox(Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'))
+                        return false
+                    }
+                }
+
+                if (pageData.value.toleranceAndPoe) {
+                    if (isEqualIPAddress(formData.value.ipGroupConfig.ip, formData.value.ipGroupConfig.mask, formData.value.ipGroupConfig.ip, formData.value.ipGroupConfig.mask)) {
+                        openMessageBox(Translate('IDCS_ERROR_IP_SAME_NETWORK_SEGMAENT'))
+                        return false
+                    }
+                }
+
+                return true
             } else {
                 const ipv4Arr: string[] = []
                 const ipv6Arr: string[] = []
@@ -490,79 +470,59 @@ export default defineComponent({
                         // 未勾选自动获取开关时，判断ipv4地址是否相同
                         if (!item.dhcpSwitch) {
                             if (ipv4Arr.includes(item.ip)) {
-                                openMessageTipBox({
-                                    type: 'info',
-                                    message: Translate('IDCS_PROMPT_THE_SAME_IP_ADDRESS').formatForLang('IPv4'),
-                                })
+                                openMessageBox(Translate('IDCS_PROMPT_THE_SAME_IP_ADDRESS').formatForLang('IPv4'))
                                 return false
                             }
                             ipv4Arr.push(item.ip)
                         }
+
                         // 开启ipv6且未勾选自动获取校验ipv6相关地址
                         if (item.ipV6Switch && !item.dhcpSwitch) {
                             if (!item.ipV6.trim().length) {
-                                openMessageTipBox({
-                                    type: 'info',
-                                    message: Translate('IDCS_PROMPT_IPV6_ADDRESS_EMPTY'),
-                                })
+                                openMessageBox(Translate('IDCS_PROMPT_IPV6_ADDRESS_EMPTY'))
                                 return false
                             }
+
                             if (!checkIpV6(item.ipV6)) {
-                                openMessageTipBox({
-                                    type: 'info',
-                                    message: Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'),
-                                })
+                                openMessageBox(Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'))
                                 return false
                             }
+
                             if (item.gatewayV6 && !checkIpV6(item.gatewayV6)) {
-                                openMessageTipBox({
-                                    type: 'info',
-                                    message: Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'),
-                                })
+                                openMessageBox(Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'))
                                 return false
                             }
+
                             if (ipv6Arr.includes(item.ipV6)) {
-                                openMessageTipBox({
-                                    type: 'info',
-                                    message: Translate('IDCS_PROMPT_THE_SAME_IP_ADDRESS'),
-                                })
+                                openMessageBox(Translate('IDCS_PROMPT_THE_SAME_IP_ADDRESS'))
                                 return false
                             }
                             ipv6Arr.push(item.ipV6)
                         }
+
                         // 开启ipv6且dns自动获取未开启
                         if (item.ipV6Switch && !item.ipv6DnsDhcpSwitch) {
                             if (item.ipv6Dns1 && !checkIpV6(item.ipv6Dns1)) {
-                                openMessageTipBox({
-                                    type: 'info',
-                                    message: Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'),
-                                })
+                                openMessageBox(Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'))
                                 return false
                             }
+
                             if (item.ipv6Dns2 && !checkIpV6(item.ipv6Dns2)) {
-                                openMessageTipBox({
-                                    type: 'info',
-                                    message: Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'),
-                                })
+                                openMessageBox(Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'))
                                 return false
                             }
                         }
                     } else {
                         // poe地址最后一位不能大于100
                         if (Number(item.ip.split('')[3]) >= 100) {
-                            openMessageTipBox({
-                                type: 'info',
-                                message: Translate('IDCS_ERROR_IP_LAST_FIELD_NEED_LESSTHAN100'),
-                            })
+                            openMessageBox(Translate('IDCS_ERROR_IP_LAST_FIELD_NEED_LESSTHAN100'))
                             return false
                         }
                     }
+
                     if (item.isSupSecondIP) {
                         if (item.secondIp === item.ip) {
-                            openMessageTipBox({
-                                type: 'info',
-                                message: Translate('IDCS_PROMPT_THE_SAME_IPADDRESS').formatForLang(Translate('IDCS_ETH0_NAME')),
-                            })
+                            openMessageBox(Translate('IDCS_PROMPT_THE_SAME_IPADDRESS').formatForLang(Translate('IDCS_ETH0_NAME')))
                             return false
                         }
                     }
@@ -576,10 +536,7 @@ export default defineComponent({
                 if (poeIpAndMask) {
                     const flag = ethIpAndMask.every((item) => {
                         if (isEqualIPAddress(item.ip, item.mask, poeIpAndMask.ip, poeIpAndMask.mask)) {
-                            openMessageTipBox({
-                                type: 'info',
-                                message: Translate('IDCS_ERROR_IP_SAME_NETWORK_SEGMAENT'),
-                            })
+                            openMessageBox(Translate('IDCS_ERROR_IP_SAME_NETWORK_SEGMAENT'))
                             return false
                         }
                         return true
@@ -599,7 +556,8 @@ export default defineComponent({
             if (!verifyParams()) {
                 return
             }
-            if (!verifyRebootParam()) {
+            const flag = await verifyRebootParam()
+            if (!flag) {
                 return
             }
 
@@ -608,37 +566,25 @@ export default defineComponent({
             let sendXml = ''
             if (formData.value.netConfig.curWorkMode === 'network_fault_tolerance') {
                 if (!pageData.value.pppoeSwitch) {
-                    const bonds = formData.value.bonds
-                        .map((item) => {
-                            return rawXml`
-                                <item id="${item.id}">
-                                    <dhcpSwitch>${item.dhcpSwitch.toString()}</dhcpSwitch>
-                                    <primaryNIC>${item.primaryNIC}</primaryNIC>
-                                    <NICs>${item.NICs}</NICs>
-                                    <ip>${item.ip}</ip>
-                                    <gateway>${item.gateway}</gateway>
-                                    <mask>${item.mask}</mask>
-                                    <mtu>${item.mtu.toString()}</mtu>
-                                    <ipV6Switch>${item.ipV6Switch.toString()}</ipV6Switch>
-                                    <ipV6>${item.ipV6}</ipV6>
-                                    <gatewayV6>${item.gatewayV6}</gatewayV6>
-                                    <subLengthV6>${item.subLengthV6.toString()}</subLengthV6>
-                                    <ipv4DnsDhcpSwitch>${item.ipv4DnsDhcpSwitch.toString()}</ipv4DnsDhcpSwitch>
-                                    <dns1>${item.dns1}</dns1>
-                                    <dns2>${item.dns2}</dns2>
-                                    <ipv6DnsDhcpSwitch>${item.ipv6DnsDhcpSwitch.toString()}</ipv6DnsDhcpSwitch>
-                                    <ipv6Dns1>${item.ipv6Dns1}</ipv6Dns1>
-                                    <ipv6Dns2>${item.ipv6Dns2}</ipv6Dns2>
-                                </item>
-                            `
-                        })
-                        .join('')
                     sendXml = rawXml`
                         <ipGroupConfig>
                             <switch>true</switch>
-                            <mode>${formData.value.netConfig.curWorkMode}</mode>
-                            <defaultBond>${formData.value.ipDefaultBond}</defaultBond>
-                            <bonds type="list">${bonds}</bonds>
+                            <dhcpSwitch>${formData.value.ipGroupConfig.dhcpSwitch}</dhcpSwitch>
+                            <primaryNIC>${formData.value.ipGroupConfig.primaryNIC}</primaryNIC>
+                            <ip>${formData.value.ipGroupConfig.ip}</ip>
+                            <gateway>${formData.value.ipGroupConfig.gateway}</gateway>
+                            <mask>${formData.value.ipGroupConfig.mask}</mask>
+                            <mtu>${formData.value.ipGroupConfig.mtu}</mtu>
+                            <ipV6Switch>${formData.value.ipGroupConfig.ipV6Switch}</ipV6Switch>
+                            <ipV6>${formData.value.ipGroupConfig.ipV6}</ipV6>
+                            <gatewayV6>${formData.value.ipGroupConfig.gatewayV6}</gatewayV6>
+                            <subLengthV6>${Number(formData.value.ipGroupConfig.subLengthV6)}</subLengthV6>
+                            <ipv4DnsDhcpSwitch>${formData.value.ipGroupConfig.ipv4DnsDhcpSwitch}</ipv4DnsDhcpSwitch>
+                            <dns1>${formData.value.ipGroupConfig.dns1}</dns1>
+                            <dns2>${formData.value.ipGroupConfig.dns2}</dns2>
+                            <ipv6DnsDhcpSwitch>${formData.value.ipGroupConfig.ipv6DnsDhcpSwitch}</ipv6DnsDhcpSwitch>
+                            <ipv6Dns1>${formData.value.ipGroupConfig.ipv6Dns1}</ipv6Dns1>
+                            <ipv6Dns2>${formData.value.ipGroupConfig.ipv6Dns2}</ipv6Dns2>
                         </ipGroupConfig>
                     `
                 }
@@ -652,20 +598,20 @@ export default defineComponent({
                             }
                             return rawXml`
                                 <item id="${item.id}">
-                                    <dhcpSwitch>${item.dhcpSwitch.toString()}</dhcpSwitch>
+                                    <dhcpSwitch>${item.dhcpSwitch}</dhcpSwitch>
                                     <ip>${item.ip}</ip>
                                     <gateway>${item.gateway}</gateway>
                                     <mask>${item.mask}</mask>
                                     <mac>${item.mac}</mac>
-                                    <mtu>${item.mtu.toString()}</mtu>
-                                    <ipV6Switch>${item.ipV6Switch.toString()}</ipV6Switch>
+                                    <mtu>${item.mtu}</mtu>
+                                    <ipV6Switch>${item.ipV6Switch}</ipV6Switch>
                                     <ipV6>${item.ipV6}</ipV6>
                                     <gatewayV6>${item.gatewayV6}</gatewayV6>
-                                    <subLengthV6>${item.subLengthV6.toString()}</subLengthV6>
-                                    <ipv4DnsDhcpSwitch>${item.ipv4DnsDhcpSwitch.toString()}</ipv4DnsDhcpSwitch>
-                                    <dns1>${item.dns1}</dns1>
-                                    <dns2>${item.dns2}</dns2>
-                                    <ipv6DnsDhcpSwitch>${item.ipv6DnsDhcpSwitch.toString()}</ipv6DnsDhcpSwitch>
+                                    <subLengthV6>${Number(item.subLengthV6)}</subLengthV6>
+                                    <ipv4DnsDhcpSwitch>${item.ipv4DnsDhcpSwitch}</ipv4DnsDhcpSwitch>
+                                    <dns1>${item.dns1 === DEFAULT_EMPTY_IP ? '' : item.dns1}</dns1>
+                                    <dns2>${item.dns2 === DEFAULT_EMPTY_IP ? '' : item.dns2}</dns2>
+                                    <ipv6DnsDhcpSwitch>${item.ipv6DnsDhcpSwitch}</ipv6DnsDhcpSwitch>
                                     <ipv6Dns1>${item.ipv6Dns1}</ipv6Dns1>
                                     <ipv6Dns2>${item.ipv6Dns2}</ipv6Dns2>
                                 </item>
@@ -682,52 +628,52 @@ export default defineComponent({
                         }
                         return rawXml`
                             <item id="${item.id}">
-                                <dhcpSwitch>${item.dhcpSwitch.toString()}</dhcpSwitch>
+                                <dhcpSwitch>${item.dhcpSwitch}</dhcpSwitch>
                                 <ip>${item.ip}</ip>
                                 <gateway>${item.gateway}</gateway>
                                 <mask>${item.mask}</mask>
                                 <mac>${item.mac}</mac>
-                                <mtu>${item.mtu.toString()}</mtu>
-                                <ipV6Switch>${item.ipV6Switch.toString()}</ipV6Switch>
+                                <mtu>${item.mtu}</mtu>
+                                <ipV6Switch>${item.ipV6Switch}</ipV6Switch>
                                 <ipV6>${item.ipV6}</ipV6>
                                 <gatewayV6>${item.gatewayV6}</gatewayV6>
-                                <subLengthV6>${item.subLengthV6.toString()}</subLengthV6>
-                                <ipv4DnsDhcpSwitch>${item.ipv4DnsDhcpSwitch.toString()}</ipv4DnsDhcpSwitch>
-                                <dns1>${item.dns1}</dns1>
-                                <dns2>${item.dns2}</dns2>
-                                <ipv6DnsDhcpSwitch>${item.ipv6DnsDhcpSwitch.toString()}</ipv6DnsDhcpSwitch>
+                                <subLengthV6>${Number(item.subLengthV6)}</subLengthV6>
+                                <ipv4DnsDhcpSwitch>${item.ipv4DnsDhcpSwitch}</ipv4DnsDhcpSwitch>
+                                <dns1>${item.dns1 === DEFAULT_EMPTY_IP ? '' : item.dns1}</dns1>
+                                <dns2>${item.dns2 === DEFAULT_EMPTY_IP ? '' : item.dns2}</dns2>
+                                <ipv6DnsDhcpSwitch>${item.ipv6DnsDhcpSwitch}</ipv6DnsDhcpSwitch>
                                 <ipv6Dns1>${item.ipv6Dns1}</ipv6Dns1>
                                 <ipv6Dns2>${item.ipv6Dns2}</ipv6Dns2>
-                                ${ternary(item.isSupSecondIP, `<secondIpSwitch>${item.dhcpSwitch ? 'false' : item.secondIpSwitch.toString()}</secondIpSwitch>`)}
-                                ${ternary(item.isSupSecondIP, `<secondIp>${item.secondIp}</secondIp>`)}
-                                ${ternary(item.isSupSecondIP, `<secondMask>${item.secondMask}</secondMask>`)}
+                                ${item.isSupSecondIP ? `<secondIpSwitch>${item.dhcpSwitch ? false : item.secondIpSwitch}</secondIpSwitch>` : ''}
+                                ${item.isSupSecondIP ? `<secondIp>${item.secondIp}</secondIp>` : ''}
+                                ${item.isSupSecondIP ? `<secondMask>${item.secondMask}</secondMask>` : ''}
                             </item>
                         `
                     })
                     .join('')
                 sendXml = rawXml`
                     <nicConfigs>${nic}</nicConfigs>
-                    ${ternary(!pageData.value.pppoeSwitch, `<defaultNic>${formData.value.netConfig.defaultNic}</defaultNic>`)}
+                    ${!pageData.value.pppoeSwitch ? `<defaultNic>${formData.value.netConfig.defaultNic}</defaultNic>` : ''}
                 `
             }
             sendXml = rawXml`
                 <content>
                     ${sendXml}
-                    ${ternary(pageData.value.hasPoeNic, `<poeMode>${formData.value.netConfig.poeMode}</poeMode>`)}
-                    ${ternary(formData.value.netConfig.toeEnable, `<toeEnable>true</toeEnable>`)}
-                    ${ternary(!pageData.value.pppoeSwitch, `<curWorkMode>${formData.value.netConfig.curWorkMode}</curWorkMode>`)}
+                    ${pageData.value.hasPoeNic ? `<poeMode>${formData.value.netConfig.poeMode}</poeMode>` : ''}
+                    ${formData.value.netConfig.toeEnable ? '<toeEnable>true</toeEnable>' : ''}
+                    ${!pageData.value.pppoeSwitch ? `<curWorkMode>${formData.value.netConfig.curWorkMode}</curWorkMode>` : ''}
                 </content>
             `
 
-            const result = await editNetCfgV3(sendXml)
+            const result = await editNetCfgV2(sendXml)
             const $ = queryXml(result)
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                commSaveResponseHadler(result)
+            if ($('status').text() === 'success') {
+                commSaveResponseHandler(result)
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_INVALID_IP:
@@ -764,10 +710,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                         break
                 }
-                openMessageTipBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 
@@ -793,6 +736,7 @@ export default defineComponent({
                 res1.push(parseInt(addr1s[i]) & parseInt(mask1s[i]))
                 res2.push(parseInt(addr2s[i]) & parseInt(mask2s[i]))
             }
+
             if (res1.join('.') === res2.join('.')) {
                 //同一网段
                 return true
@@ -815,7 +759,7 @@ export default defineComponent({
          */
         const confirmSetAdvanceData = (data: NetTcpIpAdvanceForm, index: number) => {
             pageData.value.isAdvancePop = false
-            if (formData.value.netConfig.curWorkMode === 'multiple_address_setting') {
+            if (formData.value.netConfig.curWorkMode !== 'network_fault_tolerance') {
                 data.mtu.forEach((mtu, index) => {
                     formData.value.nicConfigs[index].mtu = mtu
                 })
@@ -825,8 +769,8 @@ export default defineComponent({
                     formData.value.nicConfigs[index].secondMask = data.secondMask
                 }
             } else {
-                data.mtu.forEach((mtu, index) => {
-                    formData.value.bonds[index].mtu = mtu
+                data.mtu.forEach((mtu) => {
+                    formData.value.ipGroupConfig.mtu = mtu
                 })
             }
         }
@@ -835,7 +779,7 @@ export default defineComponent({
             openLoading()
 
             await getPPPoeSwitch()
-            await getNetConfigV3()
+            await getNetConfigV2()
             await getNetStatus()
 
             closeLoading()
@@ -851,13 +795,12 @@ export default defineComponent({
             changeData,
             changeSwitch,
             displayNicName,
+            nicConfigOptions,
             displayNicStatus,
             handleChangeIpV6Switch,
             isPoe,
-            poeEnabled,
             handleChangePoeMode,
             setData,
-            TcpIpAdvancePop,
         }
     },
 })

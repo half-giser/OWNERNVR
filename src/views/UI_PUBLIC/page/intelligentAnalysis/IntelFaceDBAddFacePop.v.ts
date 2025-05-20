@@ -2,11 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-30 18:47:04
  * @Description: 人脸库 - 添加人脸
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 11:06:10
  */
-import { IntelFaceDBFaceForm, type IntelFaceDBGroupDto, type IntelFaceDBSnapFaceList, type IntelFaceDBImportFaceDto } from '@/types/apiType/intelligentAnalysis'
-import { type FormInstance } from 'element-plus'
 import IntelBaseFaceItem from './IntelBaseFaceItem.vue'
 import IntelFaceDBChooseFacePop from './IntelFaceDBChooseFacePop.vue'
 
@@ -34,9 +30,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
-        const dateTime = useDateTimeStore()
+        // const dateTime = useDateTimeStore()
 
         // 错误码与显示文本的映射
         const ERROR_TIP_MAPPING: Record<number, string> = {
@@ -49,7 +43,7 @@ export default defineComponent({
             [ErrorCode.USER_ERROR_WALL_HAVEDECODER]: Translate('IDCS_UNQUALIFIED_PICTURE'),
         }
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
 
         const pageData = ref({
             // 性别选项
@@ -78,8 +72,6 @@ export default defineComponent({
             formIndex: 0,
             // 表单类型 snap | import
             formType: 'snap',
-            // 错误文本
-            errorTip: ' ',
             // 选中的图片索引
             swiperIndex: 0,
         })
@@ -95,7 +87,7 @@ export default defineComponent({
 
         // 当前分页的图片列表
         const picList = computed(() => {
-            return formData.value.slice(pageData.value.swiperIndex * 6, (pageData.value.swiperIndex + 1) * 6)
+            return formData.value.slice(pageData.value.swiperIndex * 7, (pageData.value.swiperIndex + 1) * 7)
         })
 
         // 成功上传总数
@@ -105,7 +97,7 @@ export default defineComponent({
 
         // 上传总数
         const totalCount = computed(() => {
-            return formData.value.length
+            return formData.value.length === 1 ? (formData.value[0].pic ? 1 : 0) : formData.value.length
         })
 
         // 当前进度文本
@@ -124,10 +116,10 @@ export default defineComponent({
 
             closeLoading()
 
-            pageData.value.groupList = $('//content/item').map((item) => {
+            pageData.value.groupList = $('content/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
-                    id: item.attr('id')!,
+                    id: item.attr('id'),
                     groupId: $item('groupId').text(),
                     name: $item('name').text(),
                 }
@@ -140,7 +132,8 @@ export default defineComponent({
          */
         const renderFormData = () => {
             const data = new IntelFaceDBFaceForm()
-            data.birthday = formatDate(new Date(), dateTime.dateFormat)
+            data.birthday = formatGregoryDate(new Date(), DEFAULT_YMD_FORMAT)
+            data.errorTip = Translate('IDCS_WAITING_ADD')
             if (pageData.value.groupList.length) {
                 if (prop.groupId) {
                     data.groupId = prop.groupId
@@ -159,11 +152,10 @@ export default defineComponent({
             snapData = []
             importData = []
             formData.value = [new IntelFaceDBFaceForm()]
-            formData.value[0].birthday = formatDate(new Date(), dateTime.dateFormat)
+            formData.value[0].birthday = formatGregoryDate(new Date(), DEFAULT_YMD_FORMAT)
             await getFaceGroup()
             pageData.value.formIndex = 0
             pageData.value.formType = 'choose'
-            pageData.value.errorTip = ' ' // Translate('IDCS_WAITING_ADD')
             if (pageData.value.groupList.length) {
                 if (prop.groupId) {
                     formData.value[0].groupId = prop.groupId
@@ -177,20 +169,16 @@ export default defineComponent({
          * @description 图片列表上一页
          */
         const handlePrev = () => {
-            if (pageData.value.swiperIndex === 0) {
-                return
-            }
             pageData.value.swiperIndex--
+            pageData.value.formIndex = pageData.value.swiperIndex * 7
         }
 
         /**
          * @description 图片列表下一页
          */
         const handleNext = () => {
-            if (pageData.value.swiperIndex === swiperSize.value - 1) {
-                return
-            }
             pageData.value.swiperIndex++
+            pageData.value.formIndex = pageData.value.swiperIndex * 7
         }
 
         /**
@@ -209,12 +197,12 @@ export default defineComponent({
         const confirmChooseFace = (e: IntelFaceDBSnapFaceList[]) => {
             pageData.value.isChooseFacePop = false
             pageData.value.formType = 'snap'
-            pageData.value.errorTip = Translate('IDCS_WAITING_ADD')
             pageData.value.swiperIndex = 0
             pageData.value.formIndex = 0
 
             const data = renderFormData()
             data.pic = e[0].pic
+            data.errorTip = Translate('IDCS_WAITING_ADD')
             formData.value = [data]
             snapData = e
         }
@@ -228,21 +216,14 @@ export default defineComponent({
         const confirmImportFace = (e: IntelFaceDBImportFaceDto[]) => {
             pageData.value.isChooseFacePop = false
             pageData.value.formType = 'import'
-            pageData.value.errorTip = Translate('IDCS_WAITING_ADD')
             pageData.value.swiperIndex = 0
             pageData.value.formIndex = 0
 
             formData.value = e.map((item) => {
-                console.log(item)
                 const data = renderFormData()
-                data.birthday = formatDate(item.birthday, dateTime.dateFormat, 'YYYY/MM/DD')
-                console.log(data.birthday)
-                if (item.number) {
-                    data.number = Number(item.number)
-                }
-                if (item.mobile) {
-                    data.mobile = Number(item.mobile)
-                }
+                data.birthday = formatGregoryDate(item.birthday, DEFAULT_YMD_FORMAT, 'YYYY/MM/DD')
+                data.number = item.number
+                data.mobile = item.mobile
                 data.name = item.name ? item.name : item.imgName.split('.')[0]
                 data.sex = item.sex
                 data.certificateType = item.certificateType
@@ -273,10 +254,7 @@ export default defineComponent({
          */
         const setSingleImportData = async (item: IntelFaceDBFaceForm, index: number, force = false) => {
             if (!item.name) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_PROMPT_FULL_NAME_EMPTY'),
-                })
+                openMessageBox(Translate('IDCS_PROMPT_FULL_NAME_EMPTY'))
                 return
             }
 
@@ -287,15 +265,15 @@ export default defineComponent({
 
             const sendXml = rawXml`
                 <content>
-                    <force>${force.toString()}</force>
+                    <force>${force}</force>
                     <name>${item.name}</name>
                     <sex>${item.sex}</sex>
-                    <birthday>${formatDate(item.birthday, 'YYYY-MM-DD', dateTime.dateFormat)}</birthday>
+                    <birthday>${item.birthday}</birthday>
                     <nativePlace>${item.nativePlace}</nativePlace>
                     <certificateType>${item.certificateType}</certificateType>
                     <certificateNum>${item.certificateNum}</certificateNum>
-                    <mobile>${item.mobile?.toString() || ''}</mobile>
-                    <number>${item.number?.toString() || ''}</number>
+                    <mobile>${item.mobile}</mobile>
+                    <number>${item.number}</number>
                     <note>${item.note}</note>
                     <groups>
                         <item id="${group.id}">
@@ -305,8 +283,8 @@ export default defineComponent({
                     </groups>
                     <faceImg>
                         <imgData>${wrapCDATA(item.pic.split(',')[1])}</imgData>
-                        <imgWidth>${importItem.width.toString()}</imgWidth>
-                        <imgHeight>${importItem.height.toString()}</imgHeight>
+                        <imgWidth>${importItem.width}</imgWidth>
+                        <imgHeight>${importItem.height}</imgHeight>
                     </faceImg>
                 </content>
             `
@@ -315,12 +293,12 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                pageData.value.errorTip = Translate('IDCS_FACE_ADD_SUCCESS')
+            if ($('status').text() === 'success') {
                 formData.value[index].success = true
+                formData.value[index].errorTip = Translate('IDCS_FACE_ADD_SUCCESS')
                 isAddedFace = true
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_CANNOT_DEL_CUR_USER:
                     case ErrorCode.USER_ERROR_NO_AUTH:
@@ -329,14 +307,14 @@ export default defineComponent({
                     case ErrorCode.USER_ERROR_FILE_MISMATCHING:
                     case ErrorCode.USER_ERROR_WALL_HAVEDECODER:
                     case ErrorCode.USER_ERROR_MDU_HAVEDEVICE:
-                        pageData.value.errorTip = Translate('IDCS_ADD_FACE_FAIL') + ',' + ERROR_TIP_MAPPING[errorCode]
                         formData.value[index].error = true
+                        formData.value[index].errorTip = Translate('IDCS_ADD_FACE_FAIL') + ',' + ERROR_TIP_MAPPING[errorCode]
                         break
                     case ErrorCode.USER_ERROR_NODE_ID_EXISTS:
                         if (!force) {
-                            const name = $('//content/name').text()
-                            const similarity = $('//content/similarity').text() + '%'
-                            return openMessageTipBox({
+                            const name = $('content/name').text()
+                            const similarity = $('content/similarity').text() + '%'
+                            return openMessageBox({
                                 type: 'question',
                                 message: Translate('IDCS_TARGET_LIBRARY_FACE_HAS_EXIST').formatForLang(name, similarity),
                             }).then(() => {
@@ -345,7 +323,7 @@ export default defineComponent({
                         }
                         break
                     default:
-                        pageData.value.errorTip = Translate('IDCS_ADD_FACE_FAIL')
+                        formData.value[index].errorTip = Translate('IDCS_ADD_FACE_FAIL')
                         formData.value[index].error = true
                         break
                 }
@@ -359,6 +337,11 @@ export default defineComponent({
          * @param {boolean} force 是否无视相似度警告，强制上传
          */
         const setSingleSnapData = async (item: IntelFaceDBFaceForm, index: number, force = false) => {
+            if (!item.name) {
+                openMessageBox(Translate('IDCS_PROMPT_FULL_NAME_EMPTY'))
+                return
+            }
+
             openLoading()
 
             const snapItem = snapData[0]
@@ -371,15 +354,15 @@ export default defineComponent({
                     <property>${wrapEnums(['allow', 'reject', 'limited'])}</property>
                 </types>
                 <content>
-                    ${ternary(force, `<force>true</force>`, '')}
+                    ${force ? '<force>true</force>' : ''}
                     <name>${item.name}</name>
                     <sex type="sex">${item.sex}</sex>
-                    <birthday>${formatDate(item.birthday, 'YYYY-MM-DD', dateTime.dateFormat)}</birthday>
+                    <birthday>${item.birthday}</birthday>
                     <nativePlace>${item.nativePlace}</nativePlace>
                     <certificateType type="certificateType">${item.certificateType}</certificateType>
                     <certificateNum>${item.certificateNum}</certificateNum>
-                    <mobile>${item.mobile?.toString() || ''}</mobile>
-                    <number>${item.number?.toString() || ''}</number>
+                    <mobile>${item.mobile}</mobile>
+                    <number>${item.number}</number>
                     <note>${item.note}</note>
                     <groups>
                         <item id="${group.id}">
@@ -390,7 +373,7 @@ export default defineComponent({
                     <faceImgs type="list" maxCount="5">
                         <item>
                             <frameTime>${snapItem.frameTime}</frameTime>
-                            <img id="${snapItem.imgId.toString()}" />
+                            <img id="${snapItem.imgId}" />
                             <chl id="${snapItem.chlId}" />
                         </item>
                     </faceImgs>
@@ -401,12 +384,12 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 formData.value[index].success = true
-                pageData.value.errorTip = Translate('IDCS_FACE_ADD_SUCCESS')
+                formData.value[index].errorTip = Translate('IDCS_FACE_ADD_SUCCESS')
                 isAddedFace = true
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_CANNOT_DEL_CUR_USER:
                     case ErrorCode.USER_ERROR_NO_AUTH:
@@ -415,14 +398,14 @@ export default defineComponent({
                     case ErrorCode.USER_ERROR_FILE_MISMATCHING:
                     case ErrorCode.USER_ERROR_WALL_HAVEDECODER:
                     case ErrorCode.USER_ERROR_MDU_HAVEDEVICE:
-                        pageData.value.errorTip = Translate('IDCS_ADD_FACE_FAIL') + ',' + ERROR_TIP_MAPPING[errorCode]
+                        formData.value[index].errorTip = Translate('IDCS_ADD_FACE_FAIL') + ',' + ERROR_TIP_MAPPING[errorCode]
                         formData.value[index].error = true
                         break
                     case ErrorCode.USER_ERROR_NODE_ID_EXISTS:
                         if (!force) {
-                            const name = $('//content/name').text()
-                            const similarity = $('//content/similarity').text() + '%'
-                            return openMessageTipBox({
+                            const name = $('content/name').text()
+                            const similarity = $('content/similarity').text() + '%'
+                            return openMessageBox({
                                 type: 'question',
                                 message: Translate('IDCS_TARGET_LIBRARY_FACE_HAS_EXIST').formatForLang(name, similarity),
                             }).then(() => {
@@ -431,7 +414,7 @@ export default defineComponent({
                         }
                         break
                     default:
-                        pageData.value.errorTip = Translate('IDCS_ADD_FACE_FAIL')
+                        formData.value[index].errorTip = Translate('IDCS_ADD_FACE_FAIL')
                         formData.value[index].error = true
                         break
                 }
@@ -454,9 +437,16 @@ export default defineComponent({
          */
         const setAllData = async () => {
             const single = totalCount.value - successCount.value === 1
+            let startFlag = false
             for (let i = 0; i < formData.value.length; i++) {
                 if (!formData.value[i].success) {
+                    if (!startFlag) {
+                        pageData.value.formIndex = i
+                        startFlag = true
+                    }
                     await setSingleImportData(formData.value[i], i, !single)
+                    pageData.value.formIndex = i
+                    pageData.value.swiperIndex = Math.floor(pageData.value.formIndex / 7)
                 }
             }
         }
@@ -469,7 +459,6 @@ export default defineComponent({
         }
 
         return {
-            dateTime,
             formRef,
             formData,
             pageData,
@@ -488,9 +477,6 @@ export default defineComponent({
             successCount,
             picList,
             swiperSize,
-            highlightWeekend,
-            IntelFaceDBChooseFacePop,
-            IntelBaseFaceItem,
         }
     },
 })

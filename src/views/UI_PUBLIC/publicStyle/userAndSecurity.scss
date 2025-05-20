@@ -1,0 +1,110 @@
+/*
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-09-06 10:32:09
+ * @Description: 用户与安全版块的一些公共样式，仅在需要用到的用户与安全版块下import
+ */
+
+.base-user-box {
+    width: 100%;
+    height: var(--content-height);
+    display: flex;
+}
+
+.base-user-box-left {
+    width: 550px;
+    height: 100%;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    margin-right: 5px;
+    overflow: hidden;
+}
+
+.base-user-box-right {
+    width: 100%;
+}
+
+.base-user-auth {
+    width: 100%;
+    flex-shrink: 0;
+    margin-top: 12px;
+}
+
+.base-user-auth-none {
+    font-size: 30px;
+    font-weight: bold;
+    padding-top: 50px;
+    text-align: center;
+}
+
+.base-user-auth-box {
+    display: flex;
+    width: 100%;
+
+    & > .base-user-auth {
+        width: 50%;
+    }
+}
+
+.base-user-auth-title {
+    border-left: 3px solid var(--content-border);
+    height: 30px;
+    line-height: 30px;
+    padding-left: 15px;
+    margin-left: 15px;
+}
+
+.base-user-auth-list {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+    box-sizing: border-box;
+
+    li {
+        width: 50%;
+        height: 35px;
+        line-height: 35px;
+        display: flex;
+        align-items: center;
+        box-sizing: border-box;
+    }
+}
+
+.base-user-chl {
+    height: 100%;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+
+    ul {
+        display: flex;
+        justify-content: center;
+        border: 1px solid var(--table-border);
+        margin: 0;
+        padding: 5px;
+        flex-shrink: 0;
+    }
+}
+
+.base-user-chl-list {
+    --list-height: 100%;
+
+    height: var(--list-height);
+    position: relative;
+
+    & > div {
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        pointer-events: none;
+        width: 100%;
+        height: var(--list-height);
+
+        &.active {
+            opacity: 1;
+            pointer-events: unset;
+        }
+    }
+}

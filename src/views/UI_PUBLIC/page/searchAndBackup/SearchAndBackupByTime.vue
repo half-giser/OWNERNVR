@@ -2,31 +2,27 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-08 19:25:53
  * @Description: 按时间搜索
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 18:02:59
 -->
 <template>
     <div class="by-time">
         <div class="left">
-            <el-form label-position="top">
+            <el-form
+                v-title
+                label-position="top"
+                :style="{
+                    '--form-input-width': '100%',
+                }"
+            >
                 <el-form-item :label="Translate('IDCS_START_TIME')">
-                    <el-date-picker
+                    <BaseDatePicker
                         v-model="formData.startTime"
-                        :value-format="dateTime.dateTimeFormat"
-                        :format="dateTime.dateTimeFormat"
-                        :cell-class-name="highlightWeekend"
-                        clear-icon=""
                         type="datetime"
                         :placeholder="Translate('IDCS_START_TIME')"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_END_TIME')">
-                    <el-date-picker
+                    <BaseDatePicker
                         v-model="formData.endTime"
-                        :value-format="dateTime.dateTimeFormat"
-                        :format="dateTime.dateTimeFormat"
-                        :cell-class-name="highlightWeekend"
-                        clear-icon=""
                         type="datetime"
                         :placeholder="Translate('IDCS_END_TIME')"
                     />
@@ -36,31 +32,33 @@
                 <el-text>{{ Translate('IDCS_CHANNEL') }}</el-text>
                 <el-checkbox
                     :model-value="isChlAll"
+                    :label="Translate('IDCS_ALL')"
                     @change="toggleAllChl"
-                    >{{ Translate('IDCS_ALL') }}</el-checkbox
-                >
+                />
             </div>
-            <BaseListBox class="chl-box">
+            <BaseListBox
+                class="chl-box"
+                border
+            >
                 <el-checkbox-group v-model="formData.chls">
-                    <el-checkbox
+                    <BaseListBoxItem
                         v-for="item in pageData.chlList"
                         :key="item.id"
-                        :value="item.id"
-                        :disabled="isChlAll && !formData.chls.includes(item.id)"
+                        :show-hover="false"
                     >
-                        {{ item.value }}
-                    </el-checkbox>
+                        <el-checkbox
+                            :value="item.id"
+                            :label="item.value"
+                            :disabled="isChlAll && !formData.chls.includes(item.id)"
+                        />
+                    </BaseListBoxItem>
                 </el-checkbox-group>
             </BaseListBox>
         </div>
         <div class="main">
             <div class="center">
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     file="large_backup"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
-                    :disabled-index="3"
                     :disabled="!formData.chls.length"
                     @click="backUp"
                 />
@@ -70,7 +68,6 @@
                 <span>{{ Translate('IDCS_BACKUP_NOTICE').formatForLang(Translate('IDCS_BACKUP')) }}</span>
             </div>
         </div>
-        <BasePluginNotice />
         <BackupPop
             v-model="pageData.isBackUpPop"
             :mode="mode"
@@ -92,20 +89,19 @@
 <style lang="scss" scoped>
 .by-time {
     width: 100%;
-    height: calc(var(--content-height) + 30px);
     display: flex;
 }
 
 .left {
     width: 260px;
-    height: 100%;
+    height: var(--content-height);
     flex-shrink: 0;
-    border-right: 1px solid var(--input-border);
     display: flex;
     flex-direction: column;
 
     .el-form {
         flex-shrink: 0;
+        margin-top: 10px;
         margin-bottom: 0 !important;
     }
 }
@@ -120,7 +116,6 @@
     &-box {
         width: calc(100% - 30px);
         margin: 0 auto 15px;
-        border: 1px solid var(--input-border);
     }
 }
 
@@ -129,6 +124,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+    border-left: 1px solid var(--input-border);
 }
 
 .center {
@@ -147,6 +143,7 @@
         padding-left: 15px;
         display: flex;
         align-items: center;
+
         span:last-child {
             padding-left: 5px;
         }

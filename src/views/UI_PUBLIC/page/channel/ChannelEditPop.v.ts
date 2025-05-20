@@ -1,11 +1,9 @@
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-05-09 17:18:09
- * @Description:
+ * @Description: 通道编辑 弹窗
  */
-import { type FormInstance } from 'element-plus'
-import { type RuleItem } from 'async-validator'
-import { ChannelInfoDto } from '@/types/apiType/channel'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -14,7 +12,7 @@ export default defineComponent({
             required: true,
         },
         protocolList: {
-            type: Array as PropType<Record<string, string>[]>,
+            type: Array as PropType<ChannelRTSPPropertyDto[]>,
             required: true,
         },
         manufacturerMap: {
@@ -27,81 +25,80 @@ export default defineComponent({
         },
     },
     emits: {
-        updateNameMapping(id: string, name: string) {
-            return typeof id === 'string' && typeof name === 'string'
-        },
         close(isRefresh = false) {
             return typeof isRefresh === 'boolean'
         },
-        setDataCallBack(item: ChannelInfoDto) {
+        confirm(item: ChannelInfoDto) {
             return !!item
         },
     },
     setup(props, { emit }) {
         const userSessionStore = useUserSessionStore()
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
-        const formRef = ref<FormInstance>()
+
+        const formRef = useFormRef()
         const ipTitle = ref('')
         const showIpInput = ref(true)
         const ipPlaceholder = ref('')
-        const editItem = ref(new ChannelInfoDto())
+        const formData = ref(new ChannelInfoDto())
         const editPwdSwitch = ref(false)
         const isAnolog = ref(false)
         const inputDisabled = ref(false)
         const ipDisabled = ref(false)
         const portDisabled = ref(false)
+
         let isIp = false
         let isIpv6 = false
         let isDomain = false
         let notCheckNameFlag = false
 
         const getData = () => {
-            const data = `<condition><id>${props.rowData.id}</id></condition>`
+            const data = rawXml`
+                <condition>
+                    <id>${props.rowData.id}</id>
+                </condition>
+            `
             openLoading()
             queryDev(data).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
-                    editItem.value = new ChannelInfoDto()
-                    editItem.value.name = $('//content/name').text()
-                    editItem.value.port = Number($('//content/port').text())
-                    // editItem.value.manufacturer = res('//content/manufacturer').text()
-                    const filterPropertyList = filterProperty(props.protocolList, 'index')
-                    const factoryName = $('//content/productModel').attr('factoryName')!
-                    const manufacturer = $('//content/manufacturer').text()
+                if ($('status').text() === 'success') {
+                    formData.value.name = $('content/name').text()
+                    formData.value.port = $('content/port').text().num()
+                    const filterPropertyList = props.protocolList.map((item) => item.index)
+                    const factoryName = $('content/productModel').attr('factoryName')
+                    const manufacturer = $('content/manufacturer').text()
                     if (factoryName) {
-                        editItem.value.manufacturer = factoryName
-                    } else if (manufacturer.indexOf('RTSP') != -1) {
-                        editItem.value.manufacturer = props.protocolList[filterPropertyList.indexOf(manufacturer.slice(5))]['displayName']
+                        formData.value.manufacturer = factoryName
+                    } else if (manufacturer.indexOf('RTSP') !== -1) {
+                        formData.value.manufacturer = props.protocolList[filterPropertyList.indexOf(manufacturer.slice(5))].displayName
                     } else {
-                        editItem.value.manufacturer = props.manufacturerMap[manufacturer]
+                        formData.value.manufacturer = props.manufacturerMap[manufacturer]
                     }
-                    editItem.value.productModel.innerText = $('//content/productModel').text()
-                    editItem.value.userName = $('//content/userName').text()
+                    formData.value.productModel.innerText = $('content/productModel').text()
+                    formData.value.userName = $('content/userName').text()
 
-                    if ($('//content/ip').length == 0 || $('//content/ip').text() == '') {
+                    if (!$('content/ip').text()) {
                         isAnolog.value = true
                         inputDisabled.value = true
                         ipDisabled.value = true
                         portDisabled.value = true
                     } else {
-                        const ipdomain = $('//content/ip').text()
+                        const ipdomain = $('content/ip').text()
                         isIp = checkIpV4(ipdomain)
                         isIpv6 = checkIpV6(ipdomain)
                         isDomain = !isIp && !isIpv6
 
-                        if ($('//content/protocolType').text() == 'RTSP') {
+                        if ($('content/protocolType').text() === 'RTSP') {
                             portDisabled.value = true
-                            editItem.value.port = 0
+                            formData.value.port = 0
                         }
 
                         if (isIp) {
-                            ipTitle.value = Translate('IPV4')
+                            ipTitle.value = 'IPV4'
                             showIpInput.value = true
                         } else if (isIpv6) {
-                            ipTitle.value = Translate('IPV6')
+                            ipTitle.value = 'IPV6'
                             ipPlaceholder.value = Translate('IDCS_INPUT_IPV6_ADDRESS_TIP')
                             showIpInput.value = false
                         } else {
@@ -109,9 +106,9 @@ export default defineComponent({
                             ipPlaceholder.value = Translate('IDCS_DOMAIN_TIP')
                             showIpInput.value = false
                         }
-                        editItem.value.ip = ipdomain
+                        formData.value.ip = ipdomain
 
-                        if ($('//content/addType').text() === 'poe') {
+                        if ($('content/addType').text() === 'poe') {
                             ipDisabled.value = true
                             portDisabled.value = true
                         }
@@ -124,175 +121,157 @@ export default defineComponent({
                     }
                 } else {
                     let errorInfo = Translate('IDCS_QUERY_DATA_FAIL')
-                    const isNotExit = Number($('errorCode').text()) === ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR
+                    const isNotExit = $('errorCode').text().num() === ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR
                     if (isNotExit) errorInfo = Translate('IDCS_RESOURCE_NOT_EXIST').formatForLang(Translate('IDCS_CHANNEL'))
-                    openMessageTipBox({
-                        type: 'info',
-                        message: errorInfo,
-                        showCancelButton: false,
-                    }).then(() => {
-                        if (isNotExit) {
-                            emit('close', true)
-                        } else {
-                            emit('close')
-                        }
+                    openMessageBox(errorInfo).finally(() => {
+                        emit('close', true)
+                        // if (isNotExit) {
+                        //     emit('close', true)
+                        // } else {
+                        //     emit('close', true)
+                        // }
                     })
                 }
             })
         }
 
-        const validate: Record<string, RuleItem['validator']> = {
-            validateName: (_rule, value, callback) => {
-                value = value.trim()
-                if (value.length === 0) {
-                    callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
-                    return
-                } else {
-                    editItem.value.name = value = cutStringByByte(value, nameByteMaxLen)
-                    // 应该不可能发生此情况
-                    if (value == 0) {
-                        callback(new Error(Translate('IDCS_INVALID_CHAR')))
-                        return
-                    }
-                }
-                if (!checkChlName(value.replace(' ', ''))) {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'),
-                    })
-                    return
-                }
-                if (!notCheckNameFlag && checkIsNameExit(value, props.rowData.id)) {
-                    openMessageTipBox({
-                        type: 'question',
-                        message: Translate('IDCS_NAME_EXISTED'),
-                        confirmButtonText: Translate('IDCS_KEEP'),
-                        cancelButtonText: Translate('IDCS_EDIT'),
-                    }).then(() => {
-                        save(true)
-                    })
-                    return
-                }
-                callback()
-            },
-            validateIp: (_rule, value, callback) => {
-                if (!isAnolog.value) {
-                    value = value.trim()
-                    if (isIp && (value.length == 0 || !checkIpV4(value))) {
-                        callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_EMPTY')))
-                        return
-                    }
-                    if (isIp && !checkIpV4(value)) {
-                        callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_INVALID')))
-                        return
-                    }
-                    if (isDomain && value.length == 0) {
-                        callback(new Error(Translate('IDCS_DOMAIN_NAME_EMPTY')))
-                        return
-                    }
-                    if (isIpv6 && value.length == 0) {
-                        callback(new Error(Translate('IDCS_PROMPT_IPV6_ADDRESS_EMPTY')))
-                        return
-                    }
-                    if (isIpv6 && !checkIpV6(value)) {
-                        callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID')))
-                        return
-                    }
-                }
-                callback()
-            },
-            validateUserName: (_rule, value, callback) => {
-                if (!isAnolog.value) {
-                    value = value.trim()
-                    if (props.rowData.protocolType != 'RTSP' && value.length == 0) {
-                        callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
-                        return
-                    }
-                }
-                callback()
-            },
-        }
-        const rules = ref({
-            name: [{ validator: validate.validateName, trigger: 'manual' }],
-            ip: [{ validator: validate.validateIp, trigger: 'manual' }],
-            userName: [{ validator: validate.validateUserName, trigger: 'manual' }],
+        const rules = ref<FormRules>({
+            name: [
+                {
+                    validator: (_rule, value: string, callback) => {
+                        value = value.trim()
+                        if (!value) {
+                            callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
+                            return
+                        }
+
+                        if (!checkChlName(value.replace(' ', ''))) {
+                            openMessageBox(Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'))
+                            return
+                        }
+
+                        if (!notCheckNameFlag && checkIsNameExit(value, props.rowData.id)) {
+                            openMessageBox({
+                                type: 'question',
+                                message: Translate('IDCS_NAME_EXISTED'),
+                                confirmButtonText: Translate('IDCS_KEEP'),
+                                cancelButtonText: Translate('IDCS_EDIT'),
+                            }).then(() => {
+                                save(true)
+                            })
+                            return
+                        }
+
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
+            ip: [
+                {
+                    validator: (_rule, value: string, callback) => {
+                        if (!isAnolog.value) {
+                            value = value.trim()
+                            if (isIp && (!value.length || !checkIpV4(value))) {
+                                callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_EMPTY')))
+                                return
+                            }
+
+                            if (isIp && !checkIpV4(value)) {
+                                callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_INVALID')))
+                                return
+                            }
+
+                            if (isDomain && !value.length) {
+                                callback(new Error(Translate('IDCS_DOMAIN_NAME_EMPTY')))
+                                return
+                            }
+
+                            if (isIpv6 && !value.length) {
+                                callback(new Error(Translate('IDCS_PROMPT_IPV6_ADDRESS_EMPTY')))
+                                return
+                            }
+
+                            if (isIpv6 && !checkIpV6(value)) {
+                                callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID')))
+                                return
+                            }
+                        }
+
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
+            userName: [
+                {
+                    validator: (_rule, value: string, callback) => {
+                        if (!isAnolog.value) {
+                            value = value.trim()
+                            if (props.rowData.protocolType !== 'RTSP' && !value.length) {
+                                callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
+                                return
+                            }
+                        }
+
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
         })
 
         const save = (notCheckName: boolean) => {
             notCheckNameFlag = notCheckName
-            if (!formRef) return false
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
-                    let data =
-                        '<content>' +
-                        '<id>' +
-                        props.rowData.id +
-                        '</id>' +
-                        '<manufacturer type="manufacturer">' +
-                        editItem.value.manufacturer +
-                        '</manufacturer>' +
-                        '<name><![CDATA[' +
-                        editItem.value.name.trim() +
-                        ']]></name>'
-                    if (!isAnolog.value) {
-                        if (!portDisabled.value) {
-                            data +=
-                                '<ip>' +
-                                (isIp || isIpv6 ? editItem.value.ip : '') +
-                                '</ip>' +
-                                (isDomain ? '<domain><![CDATA[' + editItem.value.ip + ']]></domain>' : '') +
-                                '<port>' +
-                                editItem.value.port +
-                                '</port>'
-                        }
-                        const psdXml = '<password' + getSecurityVer() + '><![CDATA[' + AES_encrypt(editItem.value.password, userSessionStore.sesionKey) + ']]></password>'
-                        data += '<userName>' + editItem.value.userName + '</userName>' + (editPwdSwitch.value ? psdXml : '')
-                    }
-                    data += '</content>'
-                    editDev(data).then((res) => {
+                    const sendXml = rawXml`
+                        <content>
+                            <id>${props.rowData.id}</id>
+                            <manufacturer type="manufacturer">${formData.value.manufacturer}</manufacturer>
+                            <name>${wrapCDATA(formData.value.name.trim())}</name>
+                            ${!isAnolog.value && !portDisabled.value ? `<ip>${isIp || isIpv6 ? formData.value.ip : ''}</ip>` : ''}
+                            ${!isAnolog.value && !portDisabled.value && isDomain ? `<domain>${wrapCDATA(formData.value.ip)}</domain>` : ''}
+                            ${!isAnolog.value && !portDisabled.value ? `<port>${formData.value.port}</port>` : ''}
+                            ${!isAnolog.value && editPwdSwitch.value ? `<password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.password, userSessionStore.sesionKey))}</password>` : ''}
+                            ${!isAnolog.value ? `<userName>${formData.value.userName}</userName>` : ''}
+                        </content>
+                    `
+                    editDev(sendXml).then((res) => {
                         const $ = queryXml(res)
-                        if ($('status').text() == 'success') {
-                            emit('updateNameMapping', props.rowData.id, editItem.value.name)
-                            openMessageTipBox({
+                        if ($('status').text() === 'success') {
+                            openMessageBox({
                                 type: 'success',
                                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                             }).then(() => {
-                                if (editItem.value.ip == '0.0.0.0') {
-                                    editItem.value.ip = ''
+                                if (formData.value.ip === DEFAULT_EMPTY_IP) {
+                                    formData.value.ip = ''
                                 }
-                                emit('setDataCallBack', editItem.value)
-                                emit('close')
+                                formData.value.password = ''
+                                emit('confirm', formData.value)
+                                emit('close', true)
                             })
                         } else {
-                            const errorCode = Number($('errorCode').text())
-                            if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
-                                openMessageTipBox({
-                                    type: 'info',
-                                    message: Translate('IDCS_PROMPT_CHANNEL_NAME_EXIST'),
-                                })
-                            } else if (errorCode === ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR) {
-                                openMessageTipBox({
-                                    type: 'info',
-                                    message: Translate('IDCS_RESOURCE_NOT_EXIST').formatForLang(Translate('IDCS_CHANNEL')),
-                                }).then(() => {
-                                    emit('close', true)
-                                })
-                            } else if (errorCode === ErrorCode.USER_ERROR_NODE_ID_EXISTS) {
-                                openMessageTipBox({
-                                    type: 'info',
-                                    message: Translate('IDCS_PROMPT_CHANNEL_EXIST'),
-                                })
-                            } else if (errorCode === ErrorCode.USER_ERROR_INVALID_IP) {
-                                openMessageTipBox({
-                                    type: 'info',
-                                    message: Translate('IDCS_ERROR_IP_ROUTE_INVALID'),
-                                })
-                            } else {
-                                openMessageTipBox({
-                                    type: 'info',
-                                    message: Translate('IDCS_SAVE_DATA_FAIL'),
-                                })
+                            const errorCode = $('errorCode').text().num()
+                            let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
+                            switch (errorCode) {
+                                case ErrorCode.USER_ERROR_NAME_EXISTED:
+                                    errorInfo = Translate('IDCS_PROMPT_CHANNEL_NAME_EXIST')
+                                    break
+                                case ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR:
+                                    openMessageBox(Translate('IDCS_RESOURCE_NOT_EXIST').formatForLang(Translate('IDCS_CHANNEL'))).then(() => {
+                                        emit('close', true)
+                                    })
+                                    return
+                                case ErrorCode.USER_ERROR_NODE_ID_EXISTS:
+                                    errorInfo = Translate('IDCS_PROMPT_CHANNEL_EXIST')
+                                    break
+                                case ErrorCode.USER_ERROR_INVALID_IP:
+                                    errorInfo = Translate('IDCS_PROMPT_CHANNEL_EXIST')
+                                    break
                             }
+
+                            openMessageBox(errorInfo)
                         }
                     })
                 }
@@ -301,21 +280,11 @@ export default defineComponent({
 
         // 检测名字是否已经存在
         const checkIsNameExit = (name: string, currId: string) => {
-            let isSameName = false
-            for (const key in props.nameMapping) {
-                if (key != currId) {
-                    if (name == props.nameMapping[key]) {
-                        isSameName = true
-                        break
-                    }
-                }
-            }
-            return isSameName
+            return Object.entries(props.nameMapping).some((item) => item[0] !== currId && item[1] === name)
         }
 
-        const opened = () => {
-            if (formRef.value) formRef.value.resetFields()
-            ipTitle.value = Translate('IPV4')
+        const open = () => {
+            ipTitle.value = 'IPV4'
             showIpInput.value = true
             ipPlaceholder.value = ''
             editPwdSwitch.value = false
@@ -324,6 +293,7 @@ export default defineComponent({
             ipDisabled.value = false
             portDisabled.value = false
             notCheckNameFlag = false
+            formData.value = new ChannelInfoDto()
             getData()
         }
 
@@ -334,11 +304,11 @@ export default defineComponent({
             showIpInput,
             ipPlaceholder,
             editPwdSwitch,
-            editItem,
+            formData,
             inputDisabled,
             ipDisabled,
             portDisabled,
-            opened,
+            open,
             save,
         }
     },

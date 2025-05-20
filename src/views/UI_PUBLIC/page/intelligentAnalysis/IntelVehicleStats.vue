@@ -2,33 +2,34 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-04 14:57:44
  * @Description: 智能分析-车辆统计
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 17:30:28
 -->
 <template>
     <div class="base-intel-box">
         <div class="base-intel-left">
-            <IntelBaseChannelSelector
-                v-model="formData.chl"
-                @update:model-value="changeChl"
-                @ready="getChlMap"
-            />
-            <IntelBaseEventSelector
-                v-model="formData.event"
-                :range="['vehicle']"
-                @update:model-value="changeEvent"
-                @ready="getEventMap"
-            />
-            <IntelBaseAttributeSelector
-                :model-value="[formData.attribute, []]"
-                @update:model-value="changeAttribute"
-            />
+            <div class="base-intel-left-form">
+                <IntelBaseChannelSelector
+                    v-model="formData.chl"
+                    @update:model-value="changeChl"
+                    @ready="getChlMap"
+                />
+                <IntelBaseEventSelector
+                    v-model="formData.event"
+                    :range="['vehicle']"
+                    @update:model-value="changeEvent"
+                    @ready="getEventMap"
+                />
+                <IntelBaseAttributeSelector
+                    :model-value="[formData.attribute, []]"
+                    @update:model-value="changeAttribute"
+                />
+            </div>
         </div>
         <div class="base-intel-right">
             <div class="base-intel-row">
                 <BaseDateTab
                     :model-value="formData.dateRange"
                     :layout="['date', 'week', 'month', 'quarter', 'custom', 'today']"
+                    custom-type="day"
                     @change="changeDateRange"
                 />
             </div>
@@ -36,6 +37,7 @@
                 <BaseDateRange
                     :model-value="formData.dateRange"
                     :type="pageData.dateRangeType"
+                    custom-type="day"
                     @change="changeDateRange"
                 />
             </div>
@@ -54,27 +56,18 @@
                     :tooltip="pageData.barData.tooltip"
                 />
             </div>
-            <div
-                class="base-btn-box"
-                :span="2"
-            >
+            <div class="base-btn-box space-between">
                 <div>
                     <el-checkbox
                         v-show="['plateDetection', 'plateMatchWhiteList', 'plateMatchStranger'].includes(formData.event[0] || '')"
                         v-model="formData.deduplicate"
-                        >{{ Translate('IDCS_REMOVE_DUPLICATE_LICENSE_PLATE') }}</el-checkbox
-                    >
+                        :label="Translate('IDCS_REMOVE_DUPLICATE_LICENSE_PLATE')"
+                    />
                 </div>
-                <div>
-                    <el-button @click="exportChart">{{ Translate('IDCS_EXPORT') }}</el-button>
-                </div>
+                <el-button @click="exportChart">{{ Translate('IDCS_EXPORT') }}</el-button>
             </div>
         </div>
     </div>
 </template>
 
 <script lang="ts" src="./IntelVehicleStats.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/intelligentAnalysis.scss';
-</style>

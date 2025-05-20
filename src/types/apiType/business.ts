@@ -1,38 +1,38 @@
 /*
  * @Author: zhangdongming zhangdongming@tvt.net.cn
  * @Date: 2024-05-27 10:50:38
- * @Description: 业务应用（停车场管理、门禁管理、人脸考勤、人脸签到）
+ * @Description: 业务应用（停车场管理、门禁管理、人脸考勤、人脸签到）的类型定义，类型命名的前缀统一为Business*
  */
 
 /**
  * @description 停车场管理-基础配置-停车场信息表单
  */
-export class PkMgrBasicConfigForm {
+export class BusinessParkBasicConfigForm {
     parkName = '' // 停车场名称
     totalNum = 0 // 总车位
     remainTotalNum = 0 // 剩余总车位
     groupTotalNum = 0 // 停车组总车位
     groupRemainTotalNum = 0 // 剩余停车组总车位
+    remarkSwitch = false
+    autoOpenBarrierSwitch = false
+    startOfVehicle = ''
 }
 
 /**
  * @description 停车场管理-车位管理-车位信息列表
  */
-export class PkMgrSpaceManageList {
+export class BusinessParkSpaceManageList {
     id = '' // parkingSapce id（车位id）
     groupName = '' // 停车组名称
     parkingType = '' // 停车选项
     groupTotalNum = 0 // 总车位
     groupRemainNum = 0 // 剩余总车位
     groupSchedule = '' // 排程
-    oldGroupSchedule = '' // 记录上一次选择的排程id（实现el-select下拉框最后一项'排程管理'点击后实际选中值不变的效果）
     linkEmail = '' // E-mail
 }
 
 // 业务应用-停车场管理-出入口-出入口信息
-export type directionType = 'no' | 'out' | 'in' // 方向-Type
-export type screenType = 'JiaXun' // LED屏-Type
-export class PkMgrEnterExitManageList {
+export class BusinessParkEnterExitManageList {
     id = '' // id
     channelName = '' // 出入口车道名称（通道名称）
     direction = '' // 方向
@@ -42,12 +42,15 @@ export class PkMgrEnterExitManageList {
     enableLEDScreenValid = false // 启用LED屏-是否可操作
     LEDScreenType = '' // 关联LED屏
     LEDScreenTypeValid = false // 关联LED屏-是否可操作
+    relateAlarmOuts = ''
+    directionList: SelectOption<string, string>[] = []
 }
 
 /**
  * @description 门禁管理-门禁配置-门禁信息
  */
-export class AccessLockDataItem {
+export class BusinessAccessLockDataItem {
+    index = 0
     id = 0
     name = ' '
     openDelayTimeMin = 0 // 开门延时时间-最小值
@@ -55,8 +58,8 @@ export class AccessLockDataItem {
     openDelayTimeDefault = 0 // 开门延时时间-默认值
     openDelayTime = 0 // 开门延时时间-当前值
     openDelayTimeEnabled = false
-    openHoldTimeMin = 0 // 开门持续时间-最小值
-    openHoldTimeMax = 0 // 开门持续时间-最大值
+    openHoldTimeMin = 1 // 开门持续时间-最小值
+    openHoldTimeMax = 1 // 开门持续时间-最大值
     openHoldTimeDefault = 0 // 开门持续时间-默认值
     openHoldTimeEnabled = false
     openHoldTime = 0 // 开门持续时间-当前值
@@ -65,14 +68,20 @@ export class AccessLockDataItem {
 }
 
 /**
- * @description 业务应用-门禁管理表单
+ * @description 业务应用-门禁门锁表单
  */
-export class AccessConfigForm {
-    accessLockData = [new AccessLockDataItem()]
+export class BusinessAccessLockForm {
+    doorLock = [new BusinessAccessLockDataItem()]
     accessListType = ''
     wearMaskOpen = false
-    wiegandIOType = ''
-    wiegandMode = ''
+}
+
+/**
+ * @description 业务应用-韦根配置表单
+ */
+export class BusinessWiegandForm {
+    IOType = ''
+    mode = ''
 }
 
 /**
@@ -83,7 +92,7 @@ export class BusinessFaceGroupList {
     name = ''
     property = ''
     groupId = ''
-    members = [] as { id: string; name: string }[]
+    members: { id: string; name: string }[] = []
 }
 
 /**
@@ -105,8 +114,8 @@ export class BusinessFaceDetailList {
     date = ''
     day = ''
     type = ''
-    alarm = false
-    detail = [] as BusinessFaceResultList[]
+    alarm = ''
+    detail: BusinessFaceResultList[] = []
 }
 
 /**
@@ -117,27 +126,27 @@ export class BusinessFaceList {
     name = ''
     groupId = ''
     groupName = ''
-    searchData = {} as Record<string, BusinessFaceResultList[]>
-    detail = [] as BusinessFaceDetailList[]
+    searchData: Record<string, BusinessFaceResultList[]> = {}
+    detail: BusinessFaceDetailList[] = []
 }
 
 /**
  * @description 人脸搜索表单 （基类）
  */
 export class BusinessFaceForm {
-    dateRange = [0, 0] as [number, number]
+    dateRange: [number, number] = [0, 0]
     pageSize = 100
     currentPage = 1
     startTime = '09:00:00'
     endTime = '18:00:00'
-    chls = [] as SelectOption<string, string>[]
-    faceGroup = [] as BusinessFaceGroupList[]
+    chls: SelectOption<string, string>[] = []
+    faceGroup: BusinessFaceGroupList[] = []
     // weekdays = [1, 2, 3, 4, 5]
     advanced = false
     isName = false
     name = ''
     isType = false
-    type = [] as string[]
+    type: string[] = []
 }
 
 /**
@@ -177,7 +186,7 @@ export class BusinessFaceCheckForm extends BusinessFaceForm {}
 export class BusinessParkingLotList {
     index = 0
     plateNum = ''
-    eventType = ''
+    eventType = 0
     master = ''
     phoneNum = ''
     // groupName = ''
@@ -189,6 +198,13 @@ export class BusinessParkingLotList {
     enterVehicleId = ''
     enterType = ''
     enterImg = ''
+    enterTraceObj = {
+        X1: 0,
+        Y1: 0,
+        X2: 0,
+        Y2: 0,
+    }
+    enterSnapImg = ''
     isExit = false
     exitChlId = ''
     exitChl = ''
@@ -197,19 +213,29 @@ export class BusinessParkingLotList {
     exitVehicleId = ''
     exitType = ''
     exitImg = ''
+    exitSnapImg = ''
+    exitTraceObj = {
+        X1: 0,
+        Y1: 0,
+        X2: 0,
+        Y2: 0,
+    }
     direction = ''
     isHistory = false
     type = ''
+    remark = ''
     abnormal = false
     isRelative = false
+    plateStartTime = ''
+    plateEndTime = ''
 }
 
 /**
  * @description 停车场-关联数据列表
  */
 export class BusinessParkingLotRelevantList {
-    eventTypeID = ''
-    panoramaContent = ''
+    eventTypeID = 0
+    panorama = ''
     chlName = ''
     openType = ''
     plateNumber = ''
@@ -218,4 +244,15 @@ export class BusinessParkingLotRelevantList {
     isRelative = true
     direction = ''
     frameTime = ''
+    plateStartTime = ''
+    plateEndTime = ''
+    remark = ''
+}
+
+export class BusinessPassengerFlowConfigForm {
+    switch = false
+    resetMode = ''
+    resetDay = 1
+    resetTime = '00:00:00'
+    chlList: SelectOption<string, string>[] = []
 }

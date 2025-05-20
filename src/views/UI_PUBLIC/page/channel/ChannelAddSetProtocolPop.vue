@@ -6,46 +6,38 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_PROTOCOL_MANAGE')"
-        width="1000px"
-        align-center
-        draggable
+        width="1000"
         @opened="opened"
+        @closed="formRef?.resetFields()"
     >
         <el-form
             ref="formRef"
+            v-title
             :model="formData"
             :rules="rules"
-            class="protocolManageForm"
-            label-position="left"
+            :style="{
+                '--form-input-width': '250px',
+            }"
         >
             <el-form-item>
                 <el-form-item :label="Translate('IDCS_PROTOCOL_LOGO')">
-                    <el-select
+                    <el-select-v2
                         v-model="currentProtocolLogo"
+                        :options="protocolManageList"
+                        :props="{
+                            value: 'id',
+                        }"
                         @change="handleProtocolLogoChange"
-                    >
-                        <el-option
-                            v-for="item in protocolManageList"
-                            :key="item.id"
-                            :label="`${Translate('IDCS_CUSTOM_PROTOCOL')} ${item.id}`"
-                            :value="item.id"
-                        />
-                    </el-select>
+                    />
                 </el-form-item>
-                <el-form-item></el-form-item>
+                <el-form-item />
             </el-form-item>
             <el-form-item>
                 <el-form-item :label="Translate('IDCS_STATE')">
-                    <el-select v-model="formData.enabled">
-                        <el-option
-                            :label="Translate('IDCS_NIC_STATE_DISABLED')"
-                            :value="false"
-                        />
-                        <el-option
-                            :label="Translate('IDCS_ENABLE')"
-                            :value="true"
-                        />
-                    </el-select>
+                    <el-select-v2
+                        v-model="formData.enabled"
+                        :options="pageData.enabledOptions"
+                    />
                 </el-form-item>
                 <el-form-item
                     prop="displayName"
@@ -55,114 +47,86 @@
                         v-model="formData.displayName"
                         :disabled="!formData.enabled"
                         maxlength="11"
-                        @input="handleDisplayNameInput"
-                    ></el-input>
+                        :formatter="formatName"
+                        :parser="formatName"
+                    />
                 </el-form-item>
             </el-form-item>
         </el-form>
         <el-table
             ref="tableRef"
-            border
-            stripe
+            v-title
             :data="formData.resourcesPath"
-            table-layout="fixed"
             show-overflow-tooltip
-            empty-text=" "
             highlight-current-row
         >
             <el-table-column
-                prop="streamType"
                 :label="Translate('IDCS_CODE_STREAM_TYPE')"
-                min-width="260px"
+                min-width="260"
             >
-                <template #default="scope">
-                    <span>{{ scope.row.streamType === 'Main' ? Translate('IDCS_MAIN_STREAM') : Translate('IDCS_SUB_STREAM') }}</span>
+                <template #default="{ row }: TableColumn<ChannelResourcesPathDto>">
+                    {{ row.streamType === 'Main' ? Translate('IDCS_MAIN_STREAM') : Translate('IDCS_SUB_STREAM') }}
                 </template>
             </el-table-column>
             <el-table-column
                 :label="Translate('IDCS_TYPE')"
-                width="130px"
+                min-width="130"
             >
-                <template #default="scope">
-                    <el-select
-                        v-model="scope.row.protocol"
-                        size="small"
+                <template #default="{ row }: TableColumn<ChannelResourcesPathDto>">
+                    <el-select-v2
+                        v-model="row.protocol"
                         :disabled="!formData.enabled"
-                    >
-                        <el-option
-                            label="RTSP"
-                            value="RTSP"
-                        />
-                    </el-select>
+                        :options="pageData.protocolOptions"
+                    />
                 </template>
             </el-table-column>
             <el-table-column
                 :label="Translate('IDCS_TRANSFER_PROTOCOL')"
-                width="130px"
+                min-width="130"
             >
-                <template #default="scope">
-                    <el-select
-                        v-model="scope.row.transportProtocol"
-                        size="small"
+                <template #default="{ row }: TableColumn<ChannelResourcesPathDto>">
+                    <el-select-v2
+                        v-model="row.transportProtocol"
                         :disabled="!formData.enabled"
-                    >
-                        <el-option
-                            label="TCP"
-                            value="TCP"
-                        />
-                    </el-select>
+                        :options="pageData.transferProtocolOptions"
+                    />
                 </template>
             </el-table-column>
             <el-table-column
                 :label="Translate('IDCS_PORT')"
-                width="130px"
+                min-width="130"
             >
-                <template #default="scope">
-                    <el-input-number
-                        v-model="scope.row.port"
+                <template #default="{ row }: TableColumn<ChannelResourcesPathDto>">
+                    <BaseNumberInput
+                        v-model="row.port"
                         :min="10"
                         :max="65535"
-                        value-on-clear="min"
-                        :controls="false"
-                        size="small"
                         :disabled="!formData.enabled"
                     />
                 </template>
             </el-table-column>
             <el-table-column
                 :label="Translate('IDCS_RESOURCE_PATH')"
-                min-width="210px"
+                min-width="210"
             >
-                <template #default="scope">
+                <template #default="{ row }: TableColumn<ChannelResourcesPathDto>">
                     <el-input
-                        v-model="scope.row.path"
-                        size="small"
+                        v-model="row.path"
                         :disabled="!formData.enabled"
+                        :formatter="formatPath"
+                        :parser="formatPath"
                     />
                 </template>
             </el-table-column>
         </el-table>
-        <template #footer>
-            <el-row class="elRowTip">
-                <el-col class="el-col-flex-start">
-                    <span>{{ Translate('IDCS_CHANGE_PROTOCOL_TIP') }}</span>
-                </el-col>
-            </el-row>
-            <el-row>
-                <el-col class="el-col-flex-end">
-                    <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
-        </template>
+        <div class="base-btn-box flex-start text-tips">
+            {{ Translate('IDCS_CHANGE_PROTOCOL_TIP') }}
+        </div>
+        <div class="base-btn-box">
+            <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 
 <script lang="ts" src="./ChannelAddSetProtocolPop.v.ts"></script>
-
-<style scoped lang="scss">
-.elRowTip {
-    margin-bottom: 10px;
-    font-size: 14px;
-}
-</style>

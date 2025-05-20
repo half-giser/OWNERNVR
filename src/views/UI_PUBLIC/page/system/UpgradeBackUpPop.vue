@@ -2,27 +2,19 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-27 16:34:23
  * @Description: 系统升级-备份弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 09:24:55
 -->
 <template>
     <el-dialog
         :title="Translate('IDCS_BACKUP')"
         width="450"
-        align-center
-        draggable
         :show-close="false"
-        @opened="opened"
+        @closed="formRef?.resetFields()"
     >
         <el-form
             ref="formRef"
+            v-title
             :rules
             :model="formData"
-            :style="{
-                '--form-input-width': '250px',
-            }"
-            class="form"
-            label-position="left"
         >
             <el-form-item
                 :label="Translate('IDCS_PATH')"
@@ -31,26 +23,16 @@
                 <el-input
                     :model-value="formData.filePath"
                     readonly
-                ></el-input>
-                <el-button @click="chooseFile">
-                    <BaseImgSprite
-                        file="filechooser"
-                        :index="1"
-                        :chunk="4"
-                    />
-                </el-button>
+                />
+                <BaseImgSpriteBtn
+                    file="filechooser"
+                    @click="chooseFile"
+                />
             </el-form-item>
         </el-form>
-        <template #footer>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
-                >
-                    <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
-                </el-col>
-            </el-row>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

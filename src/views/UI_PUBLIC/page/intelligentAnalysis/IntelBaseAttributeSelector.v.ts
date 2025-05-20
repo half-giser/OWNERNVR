@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-05 10:13:11
  * @Description: 智能分析 属性选择器
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-12 20:34:34
  */
 export default defineComponent({
     props: {
@@ -95,6 +93,7 @@ export default defineComponent({
          */
         const reset = () => {
             selectedVehicle.value = []
+            selectedPerson.value = []
         }
 
         // 打开选择框时，更新勾选值
@@ -109,6 +108,7 @@ export default defineComponent({
                     } else {
                         selectedVehicle.value = prop.modelValue[0]
                     }
+
                     if (prop.modelValue[1].length === pageData.value.personOptions.length) {
                         if (selectedPerson.value.length) {
                             selectedPerson.value = prop.modelValue[1]

@@ -2,12 +2,10 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-19 13:37:26
  * @Description: 现场预览-目标检测视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-27 09:59:13
 -->
 <template>
     <div class="snap">
-        <div class="snap-list">
+        <el-scrollbar class="snap-list">
             <template v-for="(item, index) in currentSnapList">
                 <!-- 人脸比对组件 -->
                 <LiveSnapFaceMatchItem
@@ -44,7 +42,7 @@
                     @play-rec="playRec(item)"
                 />
             </template>
-        </div>
+        </el-scrollbar>
         <div class="snap-btns">
             <div
                 v-for="(item, index) in pageData.menu"
@@ -61,6 +59,7 @@
             v-model="pageData.isInfoPop"
             :list="pageData.infoList"
             :index="pageData.infoIndex"
+            show-search
             @play-rec="handleSnapRec"
             @add="handleSnapRegister"
             @search="handleSnapSearch"
@@ -101,7 +100,6 @@
 
     &-list {
         height: 100%;
-        overflow-y: scroll;
     }
 
     &-btns {

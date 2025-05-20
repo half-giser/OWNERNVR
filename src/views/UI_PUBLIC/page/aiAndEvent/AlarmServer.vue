@@ -2,86 +2,48 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-14 17:06:01
  * @Description: 报警服务器
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-27 18:03:40
 -->
 <template>
     <div class="base-flex-box">
-        <ScheduleManagPop
-            v-model="pageData.scheduleManagePopOpen"
-            @close="pageData.scheduleManagePopOpen = false"
-        >
-        </ScheduleManagPop>
-        <el-dialog
-            v-model="pageData.showAlarmTransfer"
-            :title="Translate('IDCS_ALARM_TYPE')"
-            width="615px"
-            draggable
-            center
-            :visible="pageData.showAlarmTransfer"
-            @close="pageData.showAlarmTransfer = false"
-        >
-            <el-transfer
-                v-model="pageData.linkedAlarmList"
-                :data="pageData.alarmList"
-                :props="{
-                    key: 'id',
-                    label: 'value',
-                }"
-                :titles="[Translate('IDCS_ALARM'), Translate('IDCS_SEND_ALARM')]"
-            />
-            <template #footer>
-                <el-row>
-                    <el-col
-                        :span="24"
-                        class="el-col-flex-end"
-                    >
-                        <el-button @click="setAlarmTypes()">{{ Translate('IDCS_OK') }}</el-button>
-                        <el-button @click="pageData.showAlarmTransfer = false">{{ Translate('IDCS_CANCEL') }}</el-button>
-                    </el-col>
-                </el-row>
-            </template>
-        </el-dialog>
-        <div class="base-subheading-box">{{ Translate('IDCS_ALARM_SERVER') }}</div>
+        <div class="base-head-box">{{ Translate('IDCS_ALARM_SERVER') }}</div>
+        <!-- 表单 -->
         <el-form
             ref="formRef"
+            v-title
             :model="formData"
             :rules="rules"
-            class="form narrow inline-message"
-            label-position="left"
-            label-width="172px"
-            :style="{
-                '--form-input-width': '250px',
-            }"
+            class="stripe"
         >
-            <el-form-item
-                prop="enable"
-                label-width="0px"
-            >
-                <el-checkbox v-model="formData.enable">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
+            <el-form-item>
+                <el-checkbox
+                    v-model="formData.enable"
+                    :label="Translate('IDCS_ENABLE')"
+                />
             </el-form-item>
-            <!-- 多UI -->
             <el-form-item
-                v-show="pageData.isAnothorUI || pageData.deviceIdShow"
+                v-if="pageData.showAdditionalServerSetting || pageData.deviceIdShow"
                 prop="deviceId"
                 :label="Translate('IDCS_ID')"
             >
                 <el-input
                     v-model="formData.deviceId"
-                    :maxlength="pageData.maxDeviceIdLength"
+                    :maxlength="pageData.supportAdditionalServerSetting ? 16 : 6"
                     :disabled="!formData.enable"
                 />
             </el-form-item>
+            <!-- Token  -->
             <el-form-item
-                v-show="pageData.isAnothorUI"
-                prop="Token"
+                v-if="pageData.showAdditionalServerSetting"
+                prop="token"
                 :label="Translate('Token')"
             >
                 <el-input
                     v-model="formData.token"
                     :disabled="!formData.enable"
+                    maxlength="256"
                 />
             </el-form-item>
+            <!-- address -->
             <el-form-item
                 prop="address"
                 :label="Translate('IDCS_SERVER_ADDRESS')"
@@ -89,122 +51,92 @@
                 <el-input
                     v-model="formData.address"
                     :disabled="!formData.enable"
+                    maxlength="60"
+                    @input="checkAddress"
                 />
             </el-form-item>
-            <el-form-item
-                prop="url"
-                :label="Translate('IDCS_SERVER_URL')"
-            >
+            <!-- url -->
+            <el-form-item :label="Translate('IDCS_SERVER_URL')">
                 <el-input
                     v-model="formData.url"
                     :disabled="!(formData.enable && !pageData.urlDisabled)"
+                    maxlength="60"
+                    @input="checkUrl"
                 />
             </el-form-item>
-            <el-form-item
-                prop="port"
-                :label="Translate('IDCS_PORT')"
-            >
-                <el-input-number
+            <!-- port -->
+            <el-form-item :label="Translate('IDCS_PORT')">
+                <BaseNumberInput
                     v-model="formData.port"
                     :disabled="!formData.enable"
                     :min="10"
                     :max="65535"
-                    :controls="false"
                 />
             </el-form-item>
-            <el-form-item
-                prop="protocol"
-                :label="Translate('IDCS_PROTOCOL')"
-            >
-                <el-select
+            <!-- protocol -->
+            <el-form-item :label="Translate('IDCS_PROTOCOL')">
+                <el-select-v2
                     v-model="formData.protocol"
                     :disabled="!formData.enable"
-                    value-key="value"
                     :options="pageData.protocolOptions"
-                    @change="handleProtocolChange()"
-                >
-                    <el-option
-                        v-for="item in pageData.protocolOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
+                    @change="changeProtocol()"
+                />
             </el-form-item>
-            <br />
-            <el-form-item
-                prop="heartEnable"
-                label-width="0px"
-            >
+            <!-- heartEnable -->
+            <el-form-item prop="heartEnable">
                 <el-checkbox
                     v-model="formData.heartEnable"
                     :disabled="!(formData.enable && !pageData.heartEnableDisabled)"
-                    >{{ Translate('IDCS_SEND_HEARTBEAT') }}</el-checkbox
-                >
+                    :label="Translate('IDCS_SEND_HEARTBEAT')"
+                />
             </el-form-item>
+            <!-- interval -->
             <el-form-item
                 prop="interval"
                 :label="Translate('IDCS_INTERVAL_TIME')"
             >
-                <el-input-number
+                <BaseNumberInput
                     v-model="formData.interval"
                     :disabled="!(formData.heartEnable && formData.enable)"
                     :min="5"
                     :max="65535"
-                    :controls="false"
                 />
             </el-form-item>
+            <!-- schedule -->
             <el-form-item
                 prop="schedule"
                 :label="Translate('IDCS_SCHEDULE')"
             >
-                <el-select
+                <BaseScheduleSelect
                     v-model="formData.schedule"
-                    prop="schedule"
-                    :disabled="!formData.enable"
-                    value-key="value"
                     :options="pageData.scheduleList"
-                >
-                    <el-option
-                        v-for="item in pageData.scheduleList"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
-                <el-button
-                    class="btn"
                     :disabled="!formData.enable"
-                    @click="pageData.scheduleManagePopOpen = true"
-                >
-                    {{ Translate('IDCS_MANAGE') }}
-                </el-button>
+                    @edit="pageData.isSchedulePop = true"
+                />
             </el-form-item>
         </el-form>
+        <!-- 表格 -->
         <div class="base-table-box">
             <el-table
                 v-show="pageData.showAlarmTypeCfg"
                 :data="tableData"
                 class="table"
-                border
             >
-                <el-table-column
-                    prop="alarmType"
-                    :label="Translate('IDCS_ALARM_TYPE')"
-                >
+                <el-table-column>
                     <template #header>
-                        <el-row class="tabel_header">
+                        <div class="tabel_header">
                             <span>{{ Translate('IDCS_ALARM_TYPE') }}</span>
                             <el-button
                                 class="btn"
                                 :disabled="!formData.enable"
                                 @click="pageData.showAlarmTransfer = true"
-                                >{{ Translate('IDCS_CONFIG') }}</el-button
                             >
-                        </el-row>
+                                {{ Translate('IDCS_CONFIG') }}
+                            </el-button>
+                        </div>
                     </template>
-                    <template #default="scope">
-                        <span class="table_item">{{ scope.row.value }}</span>
+                    <template #default="{ row }: TableColumn<SelectOption<string, string>>">
+                        <span class="table_item">{{ row.label }}</span>
                     </template>
                 </el-table-column>
             </el-table>
@@ -217,11 +149,27 @@
         >
             <el-button
                 :disabled="!formData.enable"
-                @click="testAlarmServer()"
-                >{{ Translate('IDCS_TEST') }}</el-button
+                @click="testData()"
             >
-            <el-button @click="applyAlarmSever()">{{ Translate('IDCS_APPLY') }}</el-button>
+                {{ Translate('IDCS_TEST') }}
+            </el-button>
+            <el-button @click="applyData()">{{ Translate('IDCS_APPLY') }}</el-button>
         </div>
+        <BaseScheduleManagePop
+            v-model="pageData.isSchedulePop"
+            @close="closeSchedulePop"
+        />
+        <BaseTransferPop
+            v-model="pageData.showAlarmTransfer"
+            header-title="IDCS_ALARM_TYPE"
+            source-title="IDCS_ALARM"
+            target-title="IDCS_SEND_ALARM"
+            :source-data="pageData.alarmList"
+            :linked-list="pageData.linkedAlarmList"
+            :limit="10000"
+            @confirm="setAlarmTypes"
+            @close="pageData.showAlarmTransfer = false"
+        />
     </div>
 </template>
 
@@ -229,17 +177,18 @@
 
 <style lang="scss" scoped>
 .base-table-box {
-    width: 438px;
+    width: 415px;
 }
 
 .tabel_header {
-    width: 428px;
+    width: 100%;
     display: flex;
     justify-content: space-between;
+    padding: 0 10px;
+    box-sizing: border-box;
 }
 
 .table_item {
-    width: 428px;
     text-align: left;
     display: block;
 }

@@ -2,10 +2,7 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-04-20 16:18:25
  * @Description: 二级类型2布局页--适用于“搜索和备份”、“智能分析”、“业务应用”等
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-08 15:10:26
  */
-
 import { type RouteRecordRaw } from 'vue-router'
 import { getMenu2 } from '@/router'
 
@@ -15,18 +12,18 @@ export default defineComponent({
         const router = useRouter()
         const layoutStore = useLayoutStore()
         const userSession = useUserSessionStore()
-        const { openMessageTipBox } = useMessageBox()
         const { Translate } = useLangStore()
 
         const menu2Items = computed(() => layoutStore.menu2Items)
         const menu2Item = computed(() => layoutStore.menu2Item)
+        const menuKey = ref(layoutStore.menu1Item?.name || '')
 
         /**
          * @description 是否是焦点菜单
          * @param {RouteRecordRawExtends} menu2
          * @returns {boolean}
          */
-        const isMenu2Actice = (menu2: RouteRecordRawExtends) => {
+        const isMenu2Active = (menu2: RouteRecordRawExtends) => {
             const item = menu2 as RouteRecordRaw
             return Boolean(item && item.meta && getMenu2(route)?.meta.fullPath === item.meta.fullPath)
         }
@@ -37,7 +34,7 @@ export default defineComponent({
          * @returns {boolean}
          */
         const getMenuDisabled = (route: RouteRecordRawExtends) => {
-            return typeof route.meta.enabled !== 'undefined' && !userSession.hasAuth(route.meta.enabled)
+            return typeof route.meta.auth !== 'undefined' && !userSession.hasAuth(route.meta.auth)
         }
 
         /**
@@ -46,10 +43,7 @@ export default defineComponent({
          */
         const goToPath = (route: RouteRecordRawExtends) => {
             if (getMenuDisabled(route)) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_AUTH'),
-                })
+                openMessageBox(Translate('IDCS_NO_AUTH'))
                 return
             }
             router.push({
@@ -57,11 +51,19 @@ export default defineComponent({
             })
         }
 
+        watch(
+            () => route.path,
+            () => {
+                menuKey.value = layoutStore.menu1Item?.name || ''
+            },
+        )
+
         return {
             route, // 当前进入的二级菜单项
             menu2Item, // 当前进入的一级菜单项的二级菜单列表
             menu2Items,
-            isMenu2Actice,
+            menuKey,
+            isMenu2Active,
             getMenuDisabled,
             goToPath,
         }

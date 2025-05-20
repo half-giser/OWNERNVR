@@ -1,10 +1,9 @@
 /*
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-21 18:15:30
- * @Description: 系统
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 16:49:40
+ * @Description: 系统的类型定义，类型命名的前缀统一为System*
  */
+import { TableRowStatus } from './base'
 
 /**
  * @description 网络状态列表
@@ -21,8 +20,8 @@ export class SystemNetStatusList {
 export class SystemRecordStatusList {
     name = ''
     resolution = ''
-    frameRate = ''
-    quality = ''
+    frameRate = 0
+    quality = 0
     bitType = ''
     level = ''
     recStatus = ''
@@ -44,7 +43,7 @@ export class SystemChannelStatusList {
 /**
  * @description 磁盘状态列表
  */
-export class SystemDiskStatusList {
+export class SystemDiskStatusList extends TableRowStatus {
     id = ''
     diskNum = ''
     raidType = ''
@@ -58,10 +57,8 @@ export class SystemDiskStatusList {
     recTime = ''
     group = ''
     detail = []
-    gridRowStatus = 'loading'
-    gridRowDisabled = true
-    gridRowStatusInitTooltip = ''
     sortIndex = 0
+    recFileDate = ''
 }
 
 export interface SystemAlarmStatusListData {
@@ -72,7 +69,12 @@ export interface SystemAlarmStatusListData {
         text: string
     }[]
     alarmTime: string
-    data: { key: string; value: string; span: number; hide?: boolean }[]
+    data: {
+        key: string
+        value: string
+        span: number
+        hide?: boolean
+    }[]
 }
 
 /**
@@ -82,7 +84,7 @@ export class SystemAlarmStatusList {
     id = ''
     type = ''
     // status = 0
-    data = [] as SystemAlarmStatusListData[]
+    data: SystemAlarmStatusListData[] = []
     index = 0
 }
 
@@ -91,8 +93,8 @@ export class SystemAlarmStatusList {
  */
 export class SystemAutoMaintenanceForm {
     switch = false
-    interval = ''
-    time = new Date(2000, 1, 1, 0, 0)
+    interval: number | undefined = undefined
+    time = '00:00:00'
 }
 
 /**
@@ -122,6 +124,7 @@ export class SystemBaseInfoForm {
     showGDPR = false
     qrCodeContent = ''
     qrCodeContentIsEnabled = false
+    securityCode = ''
 }
 
 /**
@@ -131,12 +134,19 @@ export class SystemFactoryDefaultForm {
     exceptNetworkConfigSwitch = 'false'
 }
 
+// class SystemGeneralSettingDecoderResolution {
+//     id = 0
+//     onlineStatus = false
+//     decoder: { index: number; value: string }[] = []
+// }
+
 /**
  * @description 全局配置表单
  */
 export class SystemGeneralSettingForm {
     deviceName = '' // 设备名称
-    deviceNumber = 0 // 设备编号
+    deviceNameMaxByteLen = 32
+    deviceNumber: number | undefined = undefined // 设备编号
     videoFormat = '' // 视频制式
     outputAdapt = false // 固定显示分辨率
     resolution: string[] = [] // 显示多路输出分辨率
@@ -146,7 +156,9 @@ export class SystemGeneralSettingForm {
     enableAutoDwell = false // 自动轮询
     waitTime = 0 // 等待时长
     zeroOrAddIpc = false //
-    decoder: Record<number, Record<number, string>> = {}
+    superResolution = false
+    // decoderResolution: SystemGeneralSettingDecoderResolution[] = []
+    // decoder: Record<number, Record<number, string>> = {}
 }
 
 /**
@@ -154,13 +166,74 @@ export class SystemGeneralSettingForm {
  */
 export class SystemDateTimeForm {
     systemTime = '' // new Date() // 系统时间
-    isSync = false //  和计算机时间同步
+    // isSync = false //  和计算机时间同步
     dateFormat = 'year-month-day' // 日期格式
     timeFormat = '24' // 时间格式
     syncType = '' // 同步方式
     timeServer = '' // 时间服务器
     timeZone = '' // 时区
     enableDST = false // 夏令时
+    gpsBaudRate = 0
+    gpsBaudRateMin = 0
+    gpsBaudRateMax = 0
+    ntpInterval = 0
+    ntpIntervalMin = 0
+    ntpIntervalMax = 0
+}
+
+export class SystemOutputSettingChlItem {
+    id = ''
+    winindex = 0
+}
+
+export class SystemOutputSettingChlGroup {
+    segNum = 1
+    chls: SystemOutputSettingChlItem[] = []
+}
+
+export class SystemOutputSettingDto {
+    id = 0
+    timeInterval = 0
+    chlGroups: SystemOutputSettingChlGroup[] = []
+}
+
+export class SystemOutputSettingItem {
+    id = 0
+    isDwell = false
+    // 轮询
+    dwell: SystemOutputSettingDto = {
+        id: 0,
+        timeInterval: 5,
+        chlGroups: [] as SystemOutputSettingChlGroup[],
+    }
+    // 预览
+    preview: SystemOutputSettingDto = {
+        id: 1,
+        timeInterval: 0,
+        chlGroups: [
+            {
+                segNum: 1,
+                chls: [],
+            },
+        ] as SystemOutputSettingChlGroup[],
+    }
+    maxWin = 0
+}
+
+export class SystemOutputSettingDecoderItem {
+    id = 0
+    onlineStatus = false
+    ShowHdmiIn = -1
+    output: SystemOutputSettingItem[] = []
+}
+
+export class SystemOutputSettingForm {
+    // 主输出
+    main = new SystemOutputSettingItem()
+    // 副输出
+    sub: SystemOutputSettingItem[] = []
+    // 解码卡
+    decoder: SystemOutputSettingDecoderItem[] = [] // SystemOutputSettingItem[][] = []
 }
 
 /**
@@ -200,8 +273,7 @@ export class SystemRestoreForm extends SystemUpgradeForm {}
  * @description 系统备份表单
  */
 export class SystemBackUpForm extends SystemUpgradeForm {
-    isIncludeNetworkConfig = false
-    isIncludeDataEncryptPwd = false
+    configSwitch: string[] = []
 }
 
 /**
@@ -213,10 +285,10 @@ export class SystemLogForm {
     pageSize = 20
     startTime = ''
     endTime = ''
-    subType = [] as string[]
+    subType: string[] = []
 }
 
-/**
+/**d
  * @description 系统日志列表项
  */
 export class SystemLogList {
@@ -228,8 +300,13 @@ export class SystemLogList {
     mainType = ''
     content = ''
     chl = { id: '', text: '' }
-    triggerRecChls = [] as { id: string; text: string }[]
+    triggerRecChls: { id: string; text: string }[] = []
     index = 0
+    detailsExtra = ''
+    combFaceID = ''
+    combTime = ''
+    combFaceName = ''
+    combChl = ''
 }
 
 /**
@@ -253,9 +330,10 @@ export interface SystemPosListChls {
  * @description POS 通道色彩选项
  */
 export class SystemPostColorData {
+    index = 0
     chlId = ''
     name = ''
-    colorList = [] as string[]
+    colorList: string[] = []
     printMode = ''
     previewDisplay = false
 }
@@ -277,8 +355,9 @@ export class SystemPostDisplaySet {
  */
 export class SystemPosConnectionForm {
     ip = ''
-    port = 0
+    port: number | undefined = undefined
     switch = false
+    posPortType = 'remote'
 }
 
 /**
@@ -322,6 +401,7 @@ export class SystemPosList {
         posPort: 0,
         filterDstPortSwitch: false,
         dstPort: 0,
+        posPortType: '',
     }
     encodeFormat = ''
     displaySetting = new SystemPosDisplaySetting()
@@ -360,9 +440,15 @@ export class SystemGuideDateTimeForm {
     timeFormat = '24' // 时间格式
     syncType = '' // 同步方式
     timeServer = '' // 时间服务器
+    gpsBaudRate = 0 // 波特率
+    gpsBaudRateMin = 0 // 波特率 最小值
+    gpsBaudRateMax = 0 // 波特率 最大值
+    ntpInterval = 0 // 时间间隔[分]
+    ntpIntervalMin = 0 // 时间间隔[分] 最小值
+    ntpIntervalMax = 0 // 时间间隔[分] 最大值
     timeZone = '' // 时区
     enableDST = false // 夏令时
-    videoType = ''
+    videoType = '' // 视频格式
 }
 
 /**
@@ -375,12 +461,28 @@ export class SystemGuideUserForm {
 }
 
 /**
- * @description 开机向导 密保问题表单
+ * @description 开机向导 通道配置（通道默认协议密码/通道IP规划）表单
+ */
+export class SystemGuideChlConfigForm {
+    password = ''
+    checked = false
+}
+
+/**
+ * @description 开机向导 Email和密保问题表单 - 密保问题表单
  */
 export class SystemGuideQuestionForm {
     id = ''
     question = ''
     answer = ''
+}
+
+/**
+ * @description 开机向导 Email和密保问题表单 - Email
+ */
+export class SystemGuideEmailForm {
+    checked = false // e-mail是否启用
+    email = ''
 }
 
 /**
@@ -414,4 +516,85 @@ export class SystemPoeList {
     poeName = ''
     switch = ''
     power = ''
+}
+
+export class SystemPoeExtensionList {
+    id = ''
+    poeName = ''
+    switch = false
+}
+
+/**
+ * @description 报警图像上传表格项
+ */
+export class SystemImageUploadAlarmItem {
+    id = ''
+    chlNum = 0
+    name = ''
+    preTime = ''
+    saveTime = ''
+    rowDisable = false
+}
+
+/**
+ * @description 定时图像上传表格项
+ */
+export class SystenSHDBImageUploadDto {
+    chlId = ''
+    chlNum = 0
+    name = ''
+    timeCount = 0
+    timelist: SelectOption<string, string>[] = []
+}
+
+/**
+ * @description 平台操作管理表格项
+ */
+export class SystemSHDBPlatformOperatorDto {
+    chlId = ''
+    chlNum = 0
+    name = ''
+}
+
+/**
+ * @description 地标平台参数 表单
+ */
+export class SystemSHDBPlatformParameterForm {
+    enable = false
+    proxyId = ''
+    ip = ''
+    domain = ''
+    isDomain = true
+    port = 5901
+    resolution = ''
+    level = ''
+    holdTime = ''
+}
+
+/**
+ * @description
+ */
+export class SystemDebugModeForm {
+    debugModeSwitch = false
+    timeLen = 1
+    userName = ''
+    password = ''
+    startTime = 0
+    endTime = 0
+}
+
+export class SystemRS485Form {
+    switch = false
+    name = ''
+}
+
+export class SystemRS485Dto {
+    id = ''
+    name = ''
+    baudrate = 0
+    addrID = 0
+    protocol = ''
+    code = ''
+    operate = ''
+    settingInfos = ''
 }

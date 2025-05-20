@@ -2,17 +2,14 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-21 14:31:40
  * @Description: 通道状态
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 14:27:25
  */
-import { type SystemChannelStatusList } from '@/types/apiType/system'
-
 export default defineComponent({
-    setup() {
+    setup(_prop, ctx) {
         const { Translate } = useLangStore()
+        const systemCaps = useCababilityStore()
 
         // 状态值与显示文案的映射
-        const TransMap: Record<string, string> = {
+        const TRANS_MAPPING: Record<string, string> = {
             noSupport: Translate('IDCS_NONSUPPORT'),
             alarmOff: Translate('IDCS_NO_ALARM'),
             alarming: Translate('IDCS_NOW_ALARM'),
@@ -25,6 +22,8 @@ export default defineComponent({
             avdAlarming: Translate('IDCS_ABNORMAL_DETECTION'),
             tripwireAlarming: Translate('IDCS_BEYOND_DETECTION'),
             peaAlarming: Translate('IDCS_INVADE_DETECTION'),
+            sanAlarming: Translate('IDCS_SMART_AOI_ENTRY_DETECTION'),
+            salAlarming: Translate('IDCS_SMART_AOI_LEAVE_DETECTION'),
             vfdAlarming: Translate('IDCS_FACE_DETECTION'),
             cpcAlarming: Translate('IDCS_PEOPLE_COUNT_DETECTION'),
             ipdAlarming: Translate('IDCS_PEOPLE_INSTRUSION_DETECTION'),
@@ -33,6 +32,12 @@ export default defineComponent({
             faceMatchAlarming: Translate('IDCS_FACE_MATCH'),
             smartFirePointAlarming: Translate('IDCS_FIRE_POINT_DETECTION'),
             temperatureAlarming: Translate('IDCS_TEMPERATURE_DETECTION'),
+            asdAlarming: Translate('IDCS_AUDIO_EXCEPTION_DETECTION'),
+            pvdAlarming: Translate('IDCS_PARKING_DETECTION'),
+            loiteringAlarming: Translate('IDCS_LOITERING_DETECTION'),
+            LineStatisticsAlarming: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
+            crowdGatherAlarming: Translate('IDCS_CROWD_GATHERING'),
+            srsAlarming: Translate('IDCS_REGION_STATISTICS'),
         }
 
         const tableData = ref<SystemChannelStatusList[]>([])
@@ -43,16 +48,15 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryChlStatus()
             commLoadResponseHandler(result, ($) => {
-                tableData.value = []
-                $('//content/item').forEach((item) => {
+                tableData.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
-                    tableData.value.push({
+                    return {
                         name: $item('chl').text(),
-                        online: $item('online').text().toBoolean(),
+                        online: $item('online').text().bool(),
                         motionStatus: $item('motionStatus').text(),
                         intelligentStatus: $item('intelligentStatus').text(),
                         recStatus: $item('recStatus').text(),
-                    })
+                    }
                 })
             })
         }
@@ -65,7 +69,7 @@ export default defineComponent({
         const formatMotionStatus = (row: SystemChannelStatusList) => {
             if (!row.online || !row.motionStatus) {
                 return '--'
-            } else return TransMap[row.motionStatus === 'off' ? 'alarmOff' : row.motionStatus]
+            } else return TRANS_MAPPING[row.motionStatus === 'off' ? 'alarmOff' : row.motionStatus]
         }
 
         /**
@@ -74,9 +78,9 @@ export default defineComponent({
          * @returns {string}
          */
         const formatIntelligentStatus = (row: SystemChannelStatusList) => {
-            if (!row.online || !row.motionStatus) {
+            if (!row.online || !row.intelligentStatus) {
                 return '--'
-            } else return TransMap[row.motionStatus === 'off' ? 'alarmOff' : row.intelligentStatus]
+            } else return TRANS_MAPPING[row.intelligentStatus === 'off' ? 'alarmOff' : row.intelligentStatus]
         }
 
         /**
@@ -85,9 +89,9 @@ export default defineComponent({
          * @returns {string}
          */
         const formatRecStatus = (row: SystemChannelStatusList) => {
-            if (!row.online || !row.motionStatus) {
+            if (!row.online || !row.recStatus) {
                 return '--'
-            } else return TransMap[row.motionStatus === 'off' ? 'recordingOff' : row.recStatus]
+            } else return TRANS_MAPPING[row.recStatus === 'off' ? 'recordingOff' : row.recStatus]
         }
 
         /**
@@ -95,7 +99,7 @@ export default defineComponent({
          * @param event
          * @returns
          */
-        const handleToolBarEvent = (event: ConfigToolBarEvent<ChannelToolBarEvent>) => {
+        const handleToolBarEvent = (event: ConfigToolBarEvent<SearchToolBarEvent>) => {
             if (event.type === 'refresh') {
                 getData()
                 return
@@ -106,8 +110,12 @@ export default defineComponent({
             getData()
         })
 
-        return {
+        ctx.expose({
             handleToolBarEvent,
+        })
+
+        return {
+            systemCaps,
             tableData,
             formatMotionStatus,
             formatIntelligentStatus,

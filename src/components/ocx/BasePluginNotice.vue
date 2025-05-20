@@ -1,17 +1,12 @@
 <!--
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-04 10:17:30
- * @Description: 不支持WebSocket或未安装插件时的占位弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-25 16:43:10
+ * @Description: 不支持WebSocket/未安装插件时/插件需升级的占位弹窗
 -->
 <template>
-    <teleport
-        :to="container || 'body'"
-        :disabled="!container"
-    >
+    <teleport :to="container || 'body'">
         <div
-            v-show="pluginStore.showPluginNoResponse"
+            v-show="showNotice"
             class="PluginNotice"
             :class="{
                 warning: notice.warning,
@@ -30,14 +25,15 @@
 <script lang="ts" setup>
 const lang = useLangStore()
 const pluginStore = usePluginStore()
-const Plugin = inject('Plugin') as PluginType
+const plugin = usePlugin()
+const router = useRouter()
 
 /**
  * @description 获取语言配置
  * @param {String} langKey
  */
 const getPluginLoadLang = (langKey: keyof typeof OCX_Plugin_Notice_Map) => {
-    const langId = lang.langId // $.webSession('lang_id')
+    const langId = lang.langId
     if (langId in OCX_Plugin_Notice_Map && langKey in OCX_Plugin_Load_Lang[langId]) {
         let langValue = OCX_Plugin_Load_Lang[langId][langKey]
         if (!langValue) langValue = OCX_Plugin_Load_Lang['0x0409'][langKey]
@@ -49,17 +45,17 @@ const getPluginLoadLang = (langKey: keyof typeof OCX_Plugin_Notice_Map) => {
  * @description 获取语言配置
  * @param {String} langKey
  */
-const getHTML = (langKey: keyof typeof OCX_Plugin_Notice_Map, downloadUrl?: string) => {
+const getHTML = (langKey: string, downloadUrl?: string) => {
     const item = OCX_Plugin_Notice_Map[langKey]
     return {
         warning: item.warning,
-        html: item.downloadUrl ? getPluginLoadLang(langKey).formatForLang(downloadUrl) : getPluginLoadLang(langKey),
+        html: item.downloadUrl ? getPluginLoadLang(langKey).formatForLang(downloadUrl!) : getPluginLoadLang(langKey),
     }
 }
 
 const notice = computed(() => {
-    if (Plugin.pluginNoticeHtml.value) {
-        return getHTML(Plugin.pluginNoticeHtml.value, Plugin.pluginDownloadUrl.value)
+    if (plugin.pluginNoticeHtml.value) {
+        return getHTML(plugin.pluginNoticeHtml.value, getPluginPath())
     } else {
         return {
             warning: false,
@@ -69,21 +65,30 @@ const notice = computed(() => {
 })
 
 const container = computed(() => {
-    return Plugin.pluginNoticeContainer.value
+    return plugin.pluginNoticeContainer.value
+})
+
+const showNotice = computed(() => {
+    return pluginStore.currPluginMode === 'ocx' && container.value && (!plugin.IsInstallPlugin() || !plugin.IsPluginAvailable())
+})
+
+router.beforeResolve(() => {
+    if (container.value !== '' && container.value !== 'body') {
+        plugin.SetPluginNotice('')
+    }
 })
 </script>
 
 <style lang="scss" scoped>
 .PluginNotice {
-    background-color: #fff;
+    background-color: var(--main-bg);
     position: absolute;
     top: 0;
     left: 0;
-    color: #000000;
+    color: var(--main-text);
     width: 100%;
+    min-height: 100%;
     height: 100%;
-    box-sizing: border-box;
-    padding: 10px;
     z-index: 9999;
     display: flex;
     flex-direction: column;
@@ -92,10 +97,10 @@ const container = computed(() => {
     padding: 30px;
 
     a {
-        color: #327eee;
+        color: var(--plugin-link-text);
 
         &:hover {
-            color: var(--primary);
+            color: var(--plugin-link-text-hover);
         }
     }
 

@@ -2,30 +2,20 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-06 20:37:25
  * @Description: 回放-事件类型视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:34:11
  */
-import { type PlaybackEventList } from '@/types/apiType/playback'
+export interface EventPanelExpose {
+    setEvent(chl: string): void
+}
 
 export default defineComponent({
-    props: {
-        /**
-         * @property
-         */
-        smdRecLogPlay: {
-            type: String,
-            default: '',
-        },
-    },
     emits: {
-        change(data: PlaybackEventList[], typeMask: string[], eventList: string[], modeType: string) {
-            return Array.isArray(data) && Array.isArray(typeMask) && Array.isArray(eventList) && typeof modeType === 'string'
+        change(data: PlaybackEventList[], typeMask: string[], eventList: string[], modeType: string, posKeyword: string, forced: boolean) {
+            return Array.isArray(data) && Array.isArray(typeMask) && Array.isArray(eventList) && typeof modeType === 'string' && typeof posKeyword === 'string' && typeof forced === 'boolean'
         },
     },
-    setup(prop, ctx) {
+    setup(_, ctx) {
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
-        const theme = getUiAndTheme()
 
         // 事件模式索引与key值的映射
         const MODE_INDEX_TYPE_MAP: Record<number, string> = {
@@ -258,7 +248,14 @@ export default defineComponent({
                 ].join(': '),
             ],
             // UI1-B客户不支持选第二种模式
-            isEventPopBtn: true,
+            isEventPopBtn: !systemCaps.IntelAndFaceConfigHide,
+            // 是否显示POS输入框
+            isPosInput: systemCaps.supportPOS,
+            // POS关键字
+            posKeyword: '',
+            // SMD目标
+            SMDTarget: '',
+            forcedChange: false,
         })
 
         /**
@@ -274,6 +271,32 @@ export default defineComponent({
                 }
             } else {
                 pageData.value.eventList.push(value)
+            }
+        }
+
+        /**
+         * @description 设置选中的事件
+         * @param {string[]} value
+         */
+        const setEvent = (value: string) => {
+            let event = ''
+            pageData.value.events[pageData.value.eventIndex]
+                .filter((item) => item.enable)
+                .some((item) => {
+                    if (item.value === value || item.children.includes(value)) {
+                        event = item.value
+                        return true
+                    } else {
+                        return false
+                    }
+                })
+
+            if (event) {
+                if (['MOTION', 'SMDHUMAN', 'SMDVEHICLE'].includes(value)) {
+                    pageData.value.SMDTarget = value
+                }
+                pageData.value.forcedChange = true
+                pageData.value.eventList = [event]
             }
         }
 
@@ -313,8 +336,8 @@ export default defineComponent({
                                     return TYPE_MASK_MAP[item.value]
                                 }
                                 if (item.children.length) {
-                                    if (item.value === 'MOTION' && prop.smdRecLogPlay) {
-                                        return TYPE_MASK_MAP[prop.smdRecLogPlay]
+                                    if (item.value === 'MOTION' && pageData.value.SMDTarget) {
+                                        return TYPE_MASK_MAP[pageData.value.SMDTarget]
                                     } else {
                                         return item.children
                                             .map((child) => {
@@ -340,7 +363,9 @@ export default defineComponent({
                     ),
                 )
 
-                ctx.emit('change', list, typeMask, eventList, MODE_INDEX_TYPE_MAP[pageData.value.activeEventIndex])
+                ctx.emit('change', list, typeMask, eventList, MODE_INDEX_TYPE_MAP[pageData.value.activeEventIndex], pageData.value.posKeyword, pageData.value.forcedChange)
+                pageData.value.SMDTarget = ''
+                pageData.value.forcedChange = false
             },
             {
                 immediate: true,
@@ -350,10 +375,10 @@ export default defineComponent({
 
         onMounted(() => {
             pageData.value.eventList = pageData.value.events[0].map((item) => item.value)
-            // UI1-B客户不支持选第二种模式
-            if (theme.name === 'UI1-B') {
-                pageData.value.isEventPopBtn = false
-            }
+        })
+
+        ctx.expose({
+            setEvent,
         })
 
         return {

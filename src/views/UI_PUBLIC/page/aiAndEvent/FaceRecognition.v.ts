@@ -1,216 +1,153 @@
 /*
- * @Description: AI 事件——人脸识别
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-28 13:42:09
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-16 11:51:07
+ * @Description: AI 事件——人脸识别
  */
-import { cloneDeep } from 'lodash-es'
-import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
-import { type FaceChlItem, type AIResource, FaceDetection, type PresetList, FaceMatch, type FaceGroupTableItem, FaceCompare, type CompareTask } from '@/types/apiType/aiAndEvent'
 import { type TabPaneName, type CheckboxValueType } from 'element-plus'
-import CanvasVfd from '@/utils/canvas/canvasVfd'
-import SuccessfulRecognition from './SuccessfulRecognition.vue'
-import { type XmlResult } from '@/utils/xmlParse'
+import RecognitionPanel from './RecognitionPanel.vue'
+import { type XMLQuery } from '@/utils/xmlParse'
+import AlarmBaseChannelSelector from './AlarmBaseChannelSelector.vue'
+import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
+import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
+import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
+import AlarmBasePresetSelector from './AlarmBasePresetSelector.vue'
+import AlarmBaseResourceData from './AlarmBaseResourceData.vue'
 
 export default defineComponent({
     components: {
-        SuccessfulRecognition,
-        ScheduleManagPop,
+        RecognitionPanel,
+        AlarmBaseChannelSelector,
+        AlarmBaseRecordSelector,
+        AlarmBaseAlarmOutSelector,
+        AlarmBaseTriggerSelector,
+        AlarmBasePresetSelector,
+        AlarmBaseResourceData,
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const router = useRouter()
-        const pluginStore = usePluginStore()
         const systemCaps = useCababilityStore()
-        const osType = getSystemInfo().platform
-        const Plugin = inject('Plugin') as PluginType
 
         const playerRef = ref<PlayerInstance>()
-        // ai资源弹窗
-        const AIResourcePopOpen = ref(false)
-        // 高级设置
-        const advancedVisible = ref(false)
-        // 侦测页的数据
-        const faceDetectionData = ref(new FaceDetection())
-        // 常规联动
-        const normalParamCheckAll = ref(false)
-        const normalParamCheckList = ref([] as string[])
 
-        /* 
-        人脸识别——识别参数
-         */
-        const taskTabs = ref([] as SelectOption<string, string>[])
+        const taskTabs = ref<SelectOption<string, string>[]>([])
         //nameId的取值为0,1,2,3;0为默认的识别成功和陌生人类型，添加的项取值不可能为0
         const defaultNameId = [1, 2, 3]
-        let haveUseNameId = [] as Number[]
+        let haveUseNameId: number[] = []
         // 人脸分组数据，初始化后不会改变
-        const faceGroupNameMap = {} as Record<string, string>
-        let faceGroupData = [] as { guid: string; name: string }[]
+        const faceGrougMap: Record<
+            string,
+            {
+                name: string
+                groupId: string
+            }
+        > = {}
+
+        type FaceGroupDto = {
+            guid: string
+            name: string
+        }
+
+        const faceGroupData = ref<FaceGroupDto[]>([])
+
         // 人脸匹配数据
-        const faceMatchData = ref(new FaceMatch())
-        const faceGroupTable = ref<FaceGroupTableItem[]>([])
-        // 人脸识别数据
-        const faceCompareData = ref(new FaceCompare())
-        // 相似度下拉框
-        const similarityRef = ref()
+        const faceMatchData = ref(new AlarmFaceMatchDto())
+        const watchMatch = useWatchEditData(faceMatchData)
 
         // 需要用到的系统配置
         const supportFaceMatch = systemCaps.supportFaceMatch
         const showAIReourceDetail = systemCaps.showAIReourceDetail
-        const localFaceDectEnabled = systemCaps.localFaceDectMaxCount != 0
+        const localFaceDectEnabled = !!systemCaps.localFaceDectMaxCount
         const faceMatchLimitMaxChlNum = systemCaps.faceMatchLimitMaxChlNum
         const supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
         const AISwitch = systemCaps.AISwitch
-
-        const EVENT_TYPE_MAPPING: Record<string, string> = {
-            faceDetect: Translate('IDCS_FACE_DETECTION') + '+' + Translate('IDCS_FACE_RECOGNITION'),
-            faceMatch: Translate('IDCS_FACE_RECOGNITION'),
-            tripwire: Translate('IDCS_BEYOND_DETECTION'),
-            perimeter: Translate('IDCS_INVADE_DETECTION'),
-        }
-
-        const closeTip: Record<string, string> = {
-            cdd: Translate('IDCS_CROWD_DENSITY_DETECTION'),
-            cpc: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
-            ipd: Translate('IDCS_INVADE_DETECTION'),
-            tripwire: Translate('IDCS_BEYOND_DETECTION'),
-            osc: Translate('IDCS_WATCH_DETECTION'),
-            avd: Translate('IDCS_ABNORMAL_DETECTION'),
-            perimeter: Translate('IDCS_INVADE_DETECTION'),
-            vfd: Translate('IDCS_FACE_DETECTION'),
-            aoientry: Translate('IDCS_INVADE_DETECTION'),
-            aoileave: Translate('IDCS_INVADE_DETECTION'),
-            passlinecount: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
-            h264s: Translate('IDCS_VIDEO_ENCT_TYPE_H264_SMART'),
-            h265s: Translate('IDCS_VIDEO_ENCT_TYPE_H265_SMART'),
-            vehicle: Translate('IDCS_PLATE_DETECTION'),
-            fire: Translate('IDCS_FIRE_POINT_DETECTION'),
-            vsd: Translate('IDCS_VSD_DETECTION'),
-        }
-
-        const normalParamList = ref([
-            { value: 'catchSnapSwitch', label: Translate('IDCS_SNAP') },
-            { value: 'msgPushSwitch', label: Translate('IDCS_PUSH') },
-            { value: 'buzzerSwitch', label: Translate('IDCS_BUZZER') },
-            { value: 'popVideoSwitch', label: Translate('IDCS_VIDEO_POPUP') },
-            { value: 'emailSwitch', label: Translate('IDCS_EMAIL') },
-            // 在满足条件后添加到列表中
-            // { value: 'triggerAudio', label: 'IPC_' + Translate('IDCS_AUDIO') },
-            // { value: 'triggerWhiteLight', label: 'IPC_' + Translate('IDCS_LIGHT') },
-        ])
-
-        // 通道列表，存储通道的相关数据
-        const chlList: Record<string, FaceChlItem> = {}
 
         // 侦测tab项下的界面数据
         const detectionPageData = ref({
             // '启用IPC/NVR侦测'
             deviceInfo: '',
             // 默认进入参数配置tab项
-            detectionTab: 'param',
-            // 参数设置右侧（除排程外）是否展示
-            isParamRightShow: false,
-            // 联动方式是否展示
-            isLinkageShow: false,
+            tab: 'param',
             // 显示范围框是否选中
             isDispalyRangeChecked: false,
-            // 播放器下的清空和提示是否展示
-            isPlayerBottomShow: false,
-            // 高级选项是否展示
-            isMoreWrapShow: true,
-            // 存储原图是否选中
-            isSaveSourcePicChecked: false,
-            // 存储目标图是否选中
-            isSaveFacePicChecked: false,
-            // 存储是否可用
-            isSavePicDisabled: false,
-            snapList: [] as SelectOption<string, string>[],
-            // 抓图次数是否选中
-            isSnapNumberChecked: false,
-            // 抓图次数
-            snapNumber: '',
-            // 抓图次数是否可用
-            isSnapNumberDisabled: false,
-            // 人脸曝光
-            faceExpDisabled: false,
-            // 初始化，后判断应用是否可用
-            initComplated: false,
-            applyDisabled: true,
+            snapList: [300, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 15000, 20000, 30000, 40000, 50000, 60000, 120000, 240000, 360000, 480000, 600000].map((item) => {
+                let label = ''
+                if (item / 1000 <= 60) {
+                    label = getTranslateForSecond(item / 1000)
+                } else {
+                    label = getTranslateForMin(item / 1000 / 60)
+                }
+                return {
+                    value: item.toString(),
+                    label,
+                }
+            }),
+            // 人脸曝光是否禁用
+            faceExpDisabled: true,
+            triggerList: ['snapSwitch', 'msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch'],
         })
+
+        // 侦测页的数据
+        const detectionFormData = ref(new AlarmFaceDetectionDto())
+        const watchDetection = useWatchEditData(detectionFormData)
 
         // 识别tab项下的界面数据
-        const comparePageData = ref({
+        const recognitionPageData = ref({
             // 默认进入参数配置tab项
-            compareTab: 'hit',
-            // tab项‘param’，‘hit’，‘miss’不可被移除，移除btn不可用
-            removeDisabled: true,
+            tab: 'hit',
+            // 相似度下拉框
+            isSimilarityPop: false,
             // 相似度默认值
-            similarityNumber: 75,
+            similarity: 75,
             // 当前选中tab的任务数据
-            taskData: {} as CompareTask,
-
-            // 初始化，后判断应用是否可用
-            initComplated: false,
-            applyDisabled: true,
+            taskData: {} as AlarmRecognitionTaskDto,
         })
+
+        // 人脸识别数据
+        const recognitionFormData = ref(new AlarmFaceRecognitionDto())
+        const watchRecognition = useWatchEditData(recognitionFormData)
 
         // 整体的通用界面数据
         const pageData = ref({
             curChl: '',
-            faceChlList: [] as Record<string, string>[],
+            chlList: [] as AlarmFaceChlDto[],
             // 当前选择的tab项
-            faceTab: 'faceDetection',
-            faceDetectionDisabled: false,
-            faceCompareDisabled: false,
-            faceLibraryDisabled: false,
-            isFaceCompareShow: true,
-            isFaceLibraryShow: true,
-            // AI资源占比
-            resourceOccupancy: '',
+            tab: '',
+            detectionDisabled: false,
+            recognitionDisabled: false,
+            libraryDisabled: false,
+            isRecognitionShow: true,
+            isLibraryShow: true,
             // 排程
             scheduleList: [] as SelectOption<string, string>[],
-            scheduleManagPopOpen: false,
-            // 通知列表
-            notification: [] as string[],
+            isSchedulePop: false,
             // 声音列表
             voiceList: [] as SelectOption<string, string>[],
-            // record穿梭框数据源
-            recordList: [] as { value: string; label: string }[],
-            recordIsShow: false,
-            // alarmOut穿梭框数据源
-            alarmOutList: [] as { value: string; label: string }[],
-            alarmOutIsShow: false,
-            // 抓图数据源
-            snapList: [] as { value: string; label: string }[],
-            notChlSupport: false,
-            notSupportTip: '',
-        })
-
-        // 联动预置点
-        const MAX_TRIGGER_PRESET_COUNT = 16
-        const PresetTableData = ref<PresetList[]>([])
-
-        // AI资源详情弹窗table数据
-        const AIResourceTableData = ref<AIResource[]>([])
-        // 播放模式
-        const mode = computed(() => {
-            if (!playerRef.value) {
-                return ''
-            }
-            return playerRef.value.mode
+            notSupport: false,
+            // 高级设置
+            isAdvance: false,
         })
 
         const ready = computed(() => {
             return playerRef.value?.ready || false
         })
 
+        // 播放模式
+        const mode = computed(() => {
+            if (!ready.value) {
+                return ''
+            }
+            return playerRef.value!.mode
+        })
+
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
-        // vfd人脸侦测绘制的Canvas
-        let vfdDrawer: CanvasVfd
+        let drawer = CanvasVfd()
+
+        const chlData = computed(() => {
+            return pageData.value.chlList.find((item) => item.id === pageData.value.curChl) || new AlarmFaceChlDto()
+        })
+
         /**
          * @description 播放器就绪时回调
          */
@@ -219,28 +156,18 @@ export default defineComponent({
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
-                if (isHttpsLogin()) {
-                    pageData.value.notification = [formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`)]
-                }
-                const canvas = player.getDrawbordCanvas(0)
-                vfdDrawer = new CanvasVfd({
-                    el: canvas,
-                    onchange: (area: { X1: number; Y1: number; X2: number; Y2: number }) => {
-                        faceDetectionData.value.regionInfo = [area]
+                drawer.destroy()
+                drawer = CanvasVfd({
+                    el: player.getDrawbordCanvas(),
+                    onchange: (area) => {
+                        detectionFormData.value.regionInfo = [area]
                     },
                 })
             }
+
             if (mode.value === 'ocx') {
-                if (!plugin.IsInstallPlugin()) {
-                    plugin.SetPluginNotice('#layout2Content')
-                    return
-                }
-                if (!plugin.IsPluginAvailable()) {
-                    pluginStore.showPluginNoResponse = true
-                    plugin.ShowPluginNoResponse()
-                }
-                const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'VfdConfig' : 'ReadOnly', 'Live')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -248,586 +175,376 @@ export default defineComponent({
          * @description 播放视频
          */
         const play = () => {
-            const chlData = chlList[pageData.value.curChl]
+            // const chlData = chlList[pageData.value.curChl]
             if (mode.value === 'h5') {
                 player.play({
                     chlID: pageData.value.curChl,
                     streamType: 2,
                 })
-            } else if (mode.value === 'ocx') {
-                if (osType == 'mac') {
-                    const sendXML = OCX_XML_Preview({
-                        winIndexList: [0],
-                        chlIdList: [chlData.id],
-                        chlNameList: [chlData.name],
-                        streamType: 'sub',
-                        // chl没有index属性
-                        chlIndexList: ['0'],
-                        chlTypeList: [chlData.chlType],
-                    })
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                } else {
-                    plugin.RetryStartChlView(pageData.value.curChl, chlList[pageData.value.curChl].name)
-                }
             }
-            // 通道和tab切换时直接绘制失效，将绘制改成微任务执行
-            setTimeout(() => {
-                setCurrChlView('vfdArea')
-            }, 0)
-            if (chlData.supportVfd) {
+
+            if (mode.value === 'ocx') {
+                plugin.RetryStartChlView(pageData.value.curChl, chlData.value.name)
+            }
+
+            if (chlData.value.supportVfd) {
                 // 设置视频区域可编辑
                 if (mode.value === 'h5') {
-                    vfdDrawer.setEnable(true)
-                } else {
+                    drawer.setEnable(true)
+                }
+
+                if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_SetVfdAreaAction('EDIT_ON')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 }
             } else {
                 // 设置视频区域不可编辑
                 if (mode.value === 'h5') {
-                    vfdDrawer.setEnable(false)
-                } else {
+                    drawer.setEnable(false)
+                }
+
+                if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_SetVfdAreaAction('EDIT_OFF')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 }
             }
+
+            // 通道和tab切换时直接绘制失效，将绘制改成微任务执行
+            setTimeout(() => {
+                setCurrChlView('vfdArea')
+            }, 0)
         }
 
-        // 获取AI资源列表数据
-        const getAIResourceData = async (isEdit: boolean) => {
-            AIResourceTableData.value = []
-            let sendXml = rawXml``
-            if (isEdit) {
-                let eventType = ''
-                let enabledSwitch = ''
-                if (pageData.value.faceTab == 'faceDetection') {
-                    eventType = 'faceDetect'
-                    enabledSwitch = faceDetectionData.value.enabledSwitch ? 'true' : 'false'
-                } else if (pageData.value.faceTab == 'faceCompare') {
-                    eventType = 'faceMatch'
-                    enabledSwitch = faceMatchData.value.hitEnable || faceMatchData.value.notHitEnable ? 'true' : 'false'
-                }
-                sendXml += rawXml`
-                <content>
-                    <chl>
-                        <item id='${pageData.value.curChl}'>
-                            <eventType>${eventType}</eventType>
-                            <switch>${enabledSwitch}</switch>
-                        </item>
-                    </chl>
-                </content>
-                `
-            }
-            const result = await queryAIResourceDetail(sendXml)
-            commLoadResponseHandler(result, ($) => {
-                const tempResourceOccupancy = $('/response/content/totalResourceOccupancy').text()
-                if (Number(tempResourceOccupancy) <= 100) {
-                    $('/response/content/chl/item').forEach((item) => {
-                        pageData.value.resourceOccupancy = ': ' + tempResourceOccupancy + '%'
-
-                        const $item = queryXml(item.element)
-                        const id = item.attr('id')!
-                        let name = $item('name').text()
-                        const connectState = $item('connectState').text() == 'true' // 通道是否在线
-                        name = connectState ? name : name + '(' + Translate('IDCS_OFFLINE') + ')'
-                        $item('resource/item').forEach((element) => {
-                            const eventType = element.attr('eventType')?.split(',') || []
-                            const eventTypeMap = eventType.map((item) => EVENT_TYPE_MAPPING[item])
-                            // 解码资源文本的判断
-                            const decodeResource = element.attr('occupyDecodeCapPercent')!
-                            let decodeResourceText = ''
-                            if (!decodeResource) {
-                                decodeResourceText = '--'
-                            } else if (Number(decodeResource) > 0) {
-                                decodeResourceText = decodeResource + '%'
-                            } else if (decodeResource == 'notEnough') {
-                                decodeResourceText = Translate('IDCS_NO_DECODE_RESOURCE')
-                            }
-
-                            AIResourceTableData.value.push({
-                                id,
-                                name,
-                                eventType,
-                                eventTypeText: eventTypeMap.join('+'),
-                                percent: element.text(),
-                                decodeResource,
-                                decodeResourceText,
-                            })
-                        })
-                    })
-                } else {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_NO_RESOURCE'),
-                    })
-                    if (pageData.value.faceTab == 'faceDetection') {
-                        faceDetectionData.value.enabledSwitch = false
-                    } else if (pageData.value.faceTab == 'faceCompare') {
-                        faceMatchData.value.hitEnable = false
-                        faceMatchData.value.notHitEnable = false
-                    }
-                }
-            })
-        }
-        // 获取排程数据
-        const getScheduleData = async () => {
-            const result = await queryScheduleList()
-
-            commLoadResponseHandler(result, ($) => {
-                pageData.value.scheduleList = $('/response/content/item').map((item) => {
-                    return {
-                        value: item.attr('id')!,
-                        label: item.text(),
-                    }
-                })
-            })
-            pageData.value.scheduleList.push({
-                value: '{00000000-0000-0000-0000-000000000000}',
-                label: `<${Translate('IDCS_NULL')}>`,
-            })
-        }
-        // 处理抓图选项
-        const getSnapOptions = () => {
-            const snapIntervalArr = [300, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 15000, 20000, 30000, 40000, 50000, 60000, 120000, 240000, 360000, 480000, 600000]
-            detectionPageData.value.snapList = snapIntervalArr.map((item) => {
-                let label = ''
-                if (item / 1000 <= 60) {
-                    label = item / 1000 + Translate('IDCS_SECONDS')
-                } else {
-                    label = item / 1000 / 60 + Translate('IDCS_MINUTES')
-                }
-                return {
-                    value: item.toString(),
-                    label,
-                }
-            })
-        }
-        // 获取声音列表数据
+        /**
+         * @description 获取声音列表数据
+         */
         const getVoiceList = async () => {
-            const result = await queryAlarmAudioCfg()
+            pageData.value.voiceList = await buildAudioList()
+        }
 
+        /**
+         * @description 获取通道数据
+         */
+        const getChlData = async () => {
+            const online = await queryOnlineChlList()
+            const $online = await commLoadResponseHandler(online)
+            const onlineChlList = $online('content/item').map((item) => {
+                return item.attr('id')
+            })
+
+            const result = await getChlList({
+                requireField: ['ip', 'supportVfd', 'supportAudioAlarmOut', 'supportFire', 'supportWhiteLightAlarmOut', 'supportTemperature'],
+            })
             commLoadResponseHandler(result, ($) => {
-                pageData.value.voiceList = $('/response/content/audioList/item').map((item) => {
+                $('content/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    return {
-                        value: item.attr('id')!,
-                        label: $item('name').text(),
+                    const protocolType = $item('protocolType').text()
+                    const factoryName = $item('productModel').attr('factoryName')
+                    if (factoryName === 'Recorder') return
+                    const curChlId = item.attr('id')
+                    if (protocolType !== 'RTSP' && onlineChlList.includes(curChlId)) {
+                        const supportVfd = $item('supportVfd').text().bool()
+                        const supportFire = $item('supportFire').text().bool()
+                        const supportTemperature = $item('supportTemperature').text().bool()
+                        let supportBackVfd = false
+                        if (localFaceDectEnabled) {
+                            // 支持人脸后侦测且人脸前侦测为false，才算支持人脸后侦测
+                            supportBackVfd = !supportVfd
+                        }
+
+                        // 热成像通道（火点检测/温度检测）不支持后侦测
+                        if (supportFire || supportTemperature) {
+                            supportBackVfd = false
+                        }
+
+                        // 当前没有选中任何通道的情况下，初始化为第一个支持人脸识别的通道
+                        if (!pageData.value.curChl) {
+                            if (supportVfd || supportBackVfd) {
+                                pageData.value.curChl = curChlId
+                            }
+                        }
+                        const name = $item('name').text()
+
+                        pageData.value.chlList.push({
+                            id: curChlId,
+                            name,
+                            ip: $item('ip').text(),
+                            chlType: $item('chlType').text(),
+                            accessType: $item('accessType').text(),
+                            supportVfd,
+                            supportBackVfd,
+                            supportAudio: $item('supportAudioAlarmOut').text().bool(),
+                            supportWhiteLight: $item('supportWhiteLightAlarmOut').text().bool(),
+                            showAIReourceDetail,
+                            faceMatchLimitMaxChlNum,
+                        })
                     }
                 })
             })
-            pageData.value.voiceList.push({ value: '{00000000-0000-0000-0000-000000000000}', label: `<${Translate('IDCS_NULL')}>` })
-        }
-        // 获取录像数据
-        const getRecordList = async () => {
-            getChlList({
-                nodeType: 'chls',
-                isSupportSnap: false,
-            }).then((result) => {
-                commLoadResponseHandler(result, ($) => {
-                    $('content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        pageData.value.recordList.push({
-                            value: item.attr('id')!,
-                            label: $item('name').text(),
-                        })
-                    })
-                })
-            })
-        }
-        // 获取报警输出数据
-        const getAlarmOutData = async () => {
-            getChlList({
-                requireField: ['device'],
-                nodeType: 'alarmOuts',
-            }).then((result: any) => {
-                commLoadResponseHandler(result, ($) => {
-                    const rowData = [] as {
-                        id: string
-                        name: string
-                        device: {
-                            id: string
-                            innerText: string
-                        }
-                    }[]
-                    $('/response/content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        let name = $item('name').text()
-                        if ($item('devDesc').text()) {
-                            name = $item('devDesc').text() + '_' + name
-                        }
-                        rowData.push({
-                            id: item.attr('id')!,
-                            name,
-                            device: {
-                                id: $item('device').attr('id'),
-                                innerText: $item('device').text(),
-                            },
-                        })
-                    })
-                    pageData.value.alarmOutList = rowData.map((item) => {
-                        return {
-                            value: item.id,
-                            label: item.name,
-                        }
-                    })
-                })
-            })
-        }
-        // 获取抓图数据
-        const getSnapList = async () => {
-            getChlList({
-                nodeType: 'chls',
-                isSupportSnap: true,
-            }).then((result) => {
-                commLoadResponseHandler(result, ($) => {
-                    $('content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        pageData.value.snapList.push({
-                            value: item.attr('id')!,
-                            label: $item('name').text(),
-                        })
-                    })
-                })
-            })
         }
 
-        // 获取通道及相关配置数据
-        const getChlData = async () => {
-            // 获取在线通道列表
-            const onlineChlList = [] as string[]
-            const result = await queryOnlineChlList()
-            commLoadResponseHandler(result, ($) => {
-                $('/response/content/item').forEach((item) => {
-                    onlineChlList.push(item.attr('id')!)
-                })
-            })
+        /**
+         * @description 通道发生改变时刷新数据
+         */
+        const changeChl = async () => {
+            openLoading()
+            pageData.value.tab = ''
+            detectionPageData.value.tab = 'param'
+            // 识别页切换为识别成功，-禁用
+            recognitionPageData.value.tab = 'hit'
 
-            getChlList({
-                requireField: ['ip', 'supportVfd', 'supportAudioAlarmOut', 'supportFire', 'supportWhiteLightAlarmOut', 'supportTemperature'],
-            }).then((result: any) => {
-                commLoadResponseHandler(result, async ($) => {
-                    $('/response/content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        const protocolType = $item('protocolType').text()
-                        const factoryName = $item('productModel').attr('factoryName')
-                        if (factoryName === 'Recorder') return
-                        const curChlId = item.attr('id')!
-                        if (protocolType !== 'RTSP' && onlineChlList.includes(curChlId)) {
-                            const supportVfd = $item('supportVfd').text() == 'true'
-                            const supportFire = $item('supportFire').text() == 'true'
-                            const supportTemperature = $item('supportTemperature').text() == 'true'
-                            let supportBackVfd = false
-                            if (localFaceDectEnabled) {
-                                // 支持人脸后侦测且人脸前侦测为false，才算支持人脸后侦测
-                                supportBackVfd = !supportVfd
-                            }
-                            // 热成像通道（火点检测/温度检测）不支持后侦测
-                            if (supportFire || supportTemperature) {
-                                supportBackVfd = false
-                            }
-                            // 当前没有选中任何通道的情况下，初始化为第一个支持人脸识别的通道
-                            if (!pageData.value.curChl) {
-                                if (supportVfd || supportBackVfd) {
-                                    pageData.value.curChl = curChlId
-                                }
-                            }
-                            const name = $item('name').text()
-                            chlList[curChlId] = {
-                                id: curChlId,
-                                name,
-                                ip: $item('ip').text(),
-                                chlType: $item('chlType').text(),
-                                accessType: $item('accessType').text(),
-                                supportVfd,
-                                supportBackVfd,
-                                supportAudio: $item('supportAudioAlarmOut').text() == 'true',
-                                supportWhiteLight: $item('supportWhiteLightAlarmOut').text() == 'true',
-                                showAIReourceDetail,
-                                faceMatchLimitMaxChlNum,
-                            }
-                            pageData.value.faceChlList.push({
-                                value: curChlId,
-                                label: name,
-                            })
-                        }
-                    })
-                }).then(async () => {
-                    if (!pageData.value.curChl) pageData.value.curChl = onlineChlList[0]
-                    handleCurrChlData(chlList[pageData.value.curChl])
-                    // 在获取到通道数据后再请求通道的侦测数据
-                    await getFaceDetectionData()
-                    // 初始化完成
-                    detectionPageData.value.initComplated = true
-                    // 请求人脸识别的数据
-                    await getFaceGroupData()
-                })
-            })
-        }
-        // 处理通道数据
-        const handleCurrChlData = (data: FaceChlItem) => {
-            pageData.value.faceDetectionDisabled = !(data.supportVfd || data.supportBackVfd)
-            pageData.value.faceCompareDisabled = !(data.supportVfd || (data.supportBackVfd && supportFaceMatch))
-            if (AISwitch) {
-                pageData.value.faceCompareDisabled = false
-                pageData.value.faceLibraryDisabled = false
+            const data = chlData.value
+            pageData.value.detectionDisabled = !(data.supportVfd || data.supportBackVfd)
+            pageData.value.recognitionDisabled = !(data.supportVfd || (data.supportBackVfd && supportFaceMatch))
+            // TSSR-20367, 仅TD-3332B2-A1型号才会返回AISwitch字段, 此时人像库固定显示, 仅可选/置灰
+            if (typeof AISwitch === 'boolean') {
+                pageData.value.recognitionDisabled = false
+                pageData.value.libraryDisabled = AISwitch ? true : false
             } else if (!supportFaceMatch) {
-                pageData.value.isFaceCompareShow = false
-                pageData.value.isFaceLibraryShow = false
+                pageData.value.isRecognitionShow = false
+                // NLYH-64：非AI模式下，不支持人脸比对，可根据是否支持人脸比对supportFaceMatch来隐藏人脸识别和人脸库
+                pageData.value.isLibraryShow = false
             }
 
             if (!(data.supportVfd || data.supportBackVfd)) {
-                pageData.value.faceTab = ''
-                pageData.value.notChlSupport = true
-                pageData.value.notSupportTip = Translate('IDCS_FACE_EVENT_UNSUPORT_TIP')
+                pageData.value.notSupport = true
             } else {
-                pageData.value.faceTab = 'faceDetection'
+                pageData.value.notSupport = false
             }
-        }
 
-        // 通道发生改变时刷新数据
-        const chlChange = async () => {
-            pageData.value.faceTab = 'faceDetection'
-            detectionPageData.value.detectionTab = 'param'
-            comparePageData.value.compareTab = 'hit'
-            pageData.value.notChlSupport = false
-            handleCurrChlData(chlList[pageData.value.curChl])
+            // handleCurrChlData()
             // 更换通道时清空上一个通道的数据
-            faceDetectionData.value = {} as FaceDetection
-            faceCompareData.value = {} as FaceCompare
-            faceGroupData = []
+            detectionFormData.value = new AlarmFaceDetectionDto()
+            recognitionFormData.value = new AlarmFaceRecognitionDto()
+            faceMatchData.value = new AlarmFaceMatchDto()
+            taskTabs.value = []
+            faceGroupData.value = []
             haveUseNameId = []
-            detectionPageData.value.initComplated = false
-            comparePageData.value.initComplated = false
-            detectionPageData.value.applyDisabled = true
-            comparePageData.value.applyDisabled = true
-            // 获取改变后的通道数据
-            await getFaceDetectionData()
-            await getPresetData()
-            // 初始化完成
-            detectionPageData.value.initComplated = true
-            await getFaceGroupData()
-            // 播放器
-            if (mode.value === 'h5') {
-                vfdDrawer.clear()
-            } else {
-                const sendXML = OCX_XML_SetVfdAreaAction('NONE', 'vfdArea')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-            }
-            dispalyRangeChange(false)
-            play()
+
+            await getGroupData()
+            await getMatchData()
+            await getRecognitionData()
+            await getDetectionData()
+            pageData.value.tab = 'faceDetection'
+
+            closeLoading()
         }
 
-        // 获取侦测页的数据
-        const getFaceDetectionData = async () => {
-            const chlData = chlList[pageData.value.curChl]
-            if (chlData.supportVfd) {
-                const sendXml = rawXml`
-                    <condition>
-                        <chlId>${chlData.id}</chlId>
-                    </condition>
-                    <requireField>
-                        <param/>
-                        <trigger/>
-                    </requireField>
-                `
-                const result = await queryVfd(sendXml)
-                commLoadResponseHandler(result, async ($) => {
-                    const enabledSwitch = $('/response/content/chl/param/switch').text() == 'true'
-                    let holdTimeArr = $('/response/content/chl/param/holdTimeNote').text().split(',')
-                    const holdTime = $('/response/content/chl/param/holdTime').text()
-                    if (!holdTimeArr.includes(holdTime)) {
-                        holdTimeArr.push(holdTime)
-                        holdTimeArr = holdTimeArr.sort((a, b) => Number(a) - Number(b))
-                    }
-                    const holdTimeList = holdTimeArr.map((item) => {
-                        const label = item == '60' ? '1 ' + Translate('IDCS_MINUTE') : Number(item) > 60 ? Number(item) / 60 + ' ' + Translate('IDCS_MINUTES') : item + ' ' + Translate('IDCS_SECONDS')
+        /**
+         * @description 获取人脸识别配置
+         */
+        const getVfdData = async () => {
+            const sendXml = rawXml`
+                <condition>
+                    <chlId>${chlData.value.id}</chlId>
+                </condition>
+                <requireField>
+                    <param/>
+                    <trigger/>
+                </requireField>
+            `
+            const result = await queryVfd(sendXml)
+            commLoadResponseHandler(result, ($) => {
+                const $param = queryXml($('content/chl/param')[0].element)
+                const $trigger = queryXml($('content/chl/trigger')[0].element)
+
+                const enabledSwitch = $param('switch').text().bool()
+
+                // true自定义可输入1-65534，false显示“无限制”，值为65535
+                // 防止返回值是65535时，是“无限制”状态，值取默认值3
+                let captureCycle = $param('senceMode/customize/captureCycle').text().num()
+                let captureCycleChecked = true
+                if (captureCycle === 65535) {
+                    captureCycleChecked = false
+                    captureCycle = 3
+                }
+
+                detectionFormData.value = {
+                    supportVfd: true,
+                    enabledSwitch,
+                    originalSwitch: enabledSwitch,
+                    holdTime: $param('holdTime').text().num(),
+                    holdTimeList: getAlarmHoldTimeList($param('holdTimeNote').text(), $param('holdTime').text().num()),
+                    regionInfo: $param('regionInfo/item').map((item) => {
+                        const $item = queryXml(item.element)
                         return {
-                            value: item,
-                            label,
+                            X1: $item('X1').text().num(),
+                            Y1: $item('Y1').text().num(),
+                            X2: $item('X2').text().num(),
+                            Y2: $item('Y2').text().num(),
                         }
-                    })
-                    const regionInfo = $('/response/content/chl/param/regionInfo/item').map((item) => {
+                    }),
+                    mutexList: $param('mutexList/item').map((item) => {
                         const $item = queryXml(item.element)
                         return {
-                            X1: Number($item('X1').text()),
-                            Y1: Number($item('Y1').text()),
-                            X2: Number($item('X2').text()),
-                            Y2: Number($item('Y2').text()),
+                            object: $item('object').text(),
+                            status: $item('status').text().bool(),
                         }
-                    })
-                    const mutexList = $('/response/content/chl/param/mutexList/item').map((item) => {
+                    }),
+                    mutexListEx: $param('mutexListEx/item').map((item) => {
                         const $item = queryXml(item.element)
-                        return { object: $item('object').text(), status: $item('status').text() == 'true' }
-                    })
-                    const mutexListEx = $('/response/content/chl/param/mutexListEx/item').map((item) => {
-                        const $item = queryXml(item.element)
-                        return { object: $item('object').text(), status: $item('status').text() == 'true' }
-                    })
-                    const record = $('/response/content/chl/trigger/sysRec/chls/item').map((item) => {
                         return {
-                            value: item.attr('id')!,
+                            object: $item('object').text(),
+                            status: $item('status').text().bool(),
+                        }
+                    }),
+                    saveFacePicture: $param('saveFacePicture').text().undef()?.bool(),
+                    saveSourcePicture: $param('saveSourcePicture').text().undef()?.bool(),
+                    snapInterval: $param('senceMode/customize/intervalTime').text(),
+                    captureCycle,
+                    captureCycleChecked,
+                    minFaceFrame: $param('minFaceFrame').text().num(),
+                    minRegionInfo: [],
+                    maxFaceFrame: $param('maxFaceFrame').text().num(),
+                    maxRegionInfo: [],
+                    triggerAudio: $param('triggerAudio').text(),
+                    triggerWhiteLight: $param('triggerWhiteLight').text(),
+                    faceExpSwitch: $param('faceExp/switch').text().bool(),
+                    faceExpStrength: $param('faceExp/faceExpStrength').text().num(),
+                    schedule: getScheduleId(pageData.value.scheduleList, $('content/chl').attr('scheduleGuid')),
+                    record: $trigger('sysRec/chls/item').map((item) => {
+                        return {
+                            value: item.attr('id'),
                             label: item.text(),
                         }
-                    })
-                    const alarmOut = $('/response/content/chl/trigger/alarmOut/alarmOuts/item').map((item) => {
+                    }),
+                    alarmOut: $trigger('alarmOut/alarmOuts/item').map((item) => {
                         return {
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: item.text(),
                         }
-                    })
-                    const preset = $('/response/content/chl/trigger/preset/presets/item').map((item) => {
+                    }),
+                    preset: $trigger('preset/presets/item').map((item) => {
                         const $item = queryXml(item.element)
                         return {
                             index: $item('index').text(),
                             name: $item('name').text(),
                             chl: {
-                                value: $item('chl').attr('id')!,
+                                value: $item('chl').attr('id'),
                                 label: $item('chl').text(),
                             },
                         }
-                    })
-                    faceDetectionData.value = {
-                        enabledSwitch,
-                        originalSwitch: enabledSwitch,
-                        holdTime,
-                        holdTimeList,
-                        regionInfo,
-                        mutexList,
-                        mutexListEx,
-                        saveFacePicture: $('/response/content/chl/param/saveFacePicture').text(),
-                        saveSourcePicture: $('/response/content/chl/param/saveSourcePicture').text(),
-                        snapInterval: $('/response/content/chl/param/senceMode/customize/intervalTime').text(),
-                        captureCycle: $('/response/content/chl/param/senceMode/customize/captureCycle').text(),
-                        minFaceFrame: Number($('/response/content/chl/param/minFaceFrame').text()),
-                        minRegionInfo: [],
-                        maxFaceFrame: Number($('/response/content/chl/param/maxFaceFrame').text()),
-                        maxRegionInfo: [],
-                        triggerAudio: $('/response/content/chl/param/triggerAudio').text(),
-                        triggerWhiteLight: $('/response/content/chl/param/triggerWhiteLight').text(),
-                        faceExpSwitch: $('/response/content/chl/param/faceExp/switch').text() == 'true',
-                        faceExpStrength: Number($('/response/content/chl/param/senceMode/customize/faceExpStrength').text()),
-                        schedule: $('/response/content/chl').attr('scheduleGuid'),
-                        record,
-                        alarmOut,
-                        preset,
-                        msgPushSwitch: $('/response/content/chl/trigger/msgPushSwitch').text() == 'true',
-                        buzzerSwitch: $('/response/content/chl/trigger/buzzerSwitch').text() == 'true',
-                        popVideoSwitch: $('/response/content/chl/trigger/popVideoSwitch').text() == 'true',
-                        emailSwitch: $('/response/content/chl/trigger/emailSwitch').text() == 'true',
-                        catchSnapSwitch: $('/response/content/chl/trigger/snapSwitch').text() == 'true',
-                        sysAudio: $('/response/content/chl/trigger/sysAudio').attr('id'),
-                    }
-                })
-            } else {
-                const sendXml = rawXml`
+                    }),
+                    trigger: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch'].filter((item) => {
+                        return $trigger(item).text().bool()
+                    }),
+                    sysAudio: $trigger('sysAudio').attr('id'),
+                }
+
+                if (!$param('senceMode/customize/faceExpStrength').length) {
+                    // 先判断人脸曝光是否为空，确定是否禁用，再赋给其默认值50
+                    detectionPageData.value.faceExpDisabled = true
+                    detectionFormData.value.faceExpStrength = 50
+                } else {
+                    detectionPageData.value.faceExpDisabled = false
+                }
+            })
+
+            if (detectionFormData.value.triggerAudio && chlData.value.supportAudio) {
+                detectionPageData.value.triggerList.push('triggerAudio')
+                if (detectionFormData.value.triggerAudio === 'true') {
+                    detectionFormData.value.trigger.push('triggerAudio')
+                }
+            }
+
+            if (detectionFormData.value.triggerWhiteLight && chlData.value.supportWhiteLight) {
+                detectionPageData.value.triggerList.push('triggerWhiteLight')
+                if (detectionFormData.value.triggerWhiteLight === 'true') {
+                    detectionFormData.value.trigger.push('triggerWhiteLight')
+                }
+            }
+
+            detectionPageData.value.isDispalyRangeChecked = false
+        }
+
+        /**
+         * @description 获取人脸比对配置
+         */
+        const getBackFaceMatchData = async () => {
+            const sendXml = rawXml`
                     <condition>
-                        <chlId>${chlData.id}</chlId>
+                        <chlId>${chlData.value.id}</chlId>
                     </condition>
                 `
-                const result = await queryBackFaceMatch(sendXml)
-                const $ = queryXml(result)
-                $('/response/content/param/chls/item').forEach((item) => {
-                    if (item.attr('guid') == pageData.value.curChl) {
+            const result = await queryBackFaceMatch(sendXml)
+            const $ = queryXml(result)
+            $('content/param/chls/item').forEach((item) => {
+                if (item.attr('guid') === pageData.value.curChl) {
+                    const $item = queryXml(item.element)
+                    const enabledSwitch = $item('switch').text().bool()
+                    detectionFormData.value.enabledSwitch = enabledSwitch
+                    detectionFormData.value.originalSwitch = enabledSwitch
+                    detectionFormData.value.mutexList = $item('mutexList/item').map((item) => {
                         const $item = queryXml(item.element)
-                        const enabledSwitch = $item('switch').text() == 'true'
-                        faceDetectionData.value.enabledSwitch = enabledSwitch
-                        faceDetectionData.value.originalSwitch = enabledSwitch
-                        faceDetectionData.value.mutexList = $item('mutexList/item').map((item) => {
-                            const $item = queryXml(item.element)
-                            return { object: $item('object').text(), status: $item('status').text() == 'true' }
-                        })
-                        faceDetectionData.value.schedule = item.attr('scheduleGuid')!
-                    }
-                })
-            }
-            handleFaceDetectionData()
+                        return {
+                            object: $item('object').text(),
+                            status: $item('status').text().bool(),
+                        }
+                    })
+                    detectionFormData.value.schedule = getScheduleId(pageData.value.scheduleList, item.attr('scheduleGuid'))
+                }
+            })
         }
 
-        // 处理人脸侦测数据，判断元素的显示、禁用等
-        const handleFaceDetectionData = () => {
-            const chlData = chlList[pageData.value.curChl]
-            detectionPageData.value.deviceInfo = Translate('IDCS_DETECTION_BY_DEVICE').formatForLang(chlData.supportVfd ? 'IPC' : 'NVR')
-            if (chlData.supportVfd) {
-                detectionPageData.value.isParamRightShow = true
-                detectionPageData.value.isLinkageShow = true
-                detectionPageData.value.isDispalyRangeChecked = false
-                detectionPageData.value.isPlayerBottomShow = true
-                detectionPageData.value.isMoreWrapShow = true
-                // 这里faceDetectionData.value.saveSourcePicture为字符串，"false"判断为真
-                if (faceDetectionData.value.saveSourcePicture) {
-                    // 将存储原图/目标图是否选中给到pagedata与元素绑定
-                    detectionPageData.value.isSaveSourcePicChecked = faceDetectionData.value.saveSourcePicture == 'true'
-                    detectionPageData.value.isSaveFacePicChecked = faceDetectionData.value.saveFacePicture == 'true'
-                    detectionPageData.value.isSavePicDisabled = false
-                } else {
-                    detectionPageData.value.isSavePicDisabled = true
-                }
-                if (faceDetectionData.value.snapInterval == '') {
-                    detectionPageData.value.isSnapNumberChecked = false
-                } else {
-                    const checked = faceDetectionData.value.captureCycle != '65535' // true自定义可输入1-65534，false显示“无限制”，值为65535
-                    if (!checked) faceDetectionData.value.captureCycle = '3' // 防止返回值是65535时，是“无限制”状态，值取默认值3
-                    detectionPageData.value.snapNumber = checked ? faceDetectionData.value.captureCycle : Translate('IDCS_NO_LIMITED')
-                    detectionPageData.value.isSnapNumberDisabled = !checked
-                    detectionPageData.value.isSnapNumberChecked = checked
-                }
-                // 先判断人脸曝光是否为空，确定是否禁用，再赋给其默认值50
-                detectionPageData.value.faceExpDisabled = faceDetectionData.value.faceExpStrength == 0
-                faceDetectionData.value.faceExpStrength = faceDetectionData.value.faceExpStrength || 50
-                // 常规联动相关选项
-                if (faceDetectionData.value.triggerAudio && chlData.supportAudio && normalParamList.value.findIndex((item) => item.value == 'triggerAudio') == -1) {
-                    normalParamList.value.push({ value: 'triggerAudio', label: 'IPC_' + Translate('IDCS_AUDIO') })
-                    if (faceDetectionData.value.triggerAudio == 'true') normalParamCheckList.value.push('triggerAudio')
-                }
-                if (faceDetectionData.value.triggerWhiteLight && chlData.supportWhiteLight && normalParamList.value.findIndex((item) => item.value == 'triggerWhiteLight') == -1) {
-                    normalParamList.value.push({ value: 'triggerWhiteLight', label: 'IPC_' + Translate('IDCS_LIGHT') })
-                    if (faceDetectionData.value.triggerWhiteLight == 'true') normalParamCheckList.value.push('triggerWhiteLight')
-                }
-                if (faceDetectionData.value.catchSnapSwitch) normalParamCheckList.value.push('catchSnapSwitch')
-                if (faceDetectionData.value.msgPushSwitch) normalParamCheckList.value.push('msgPushSwitch')
-                if (faceDetectionData.value.buzzerSwitch) normalParamCheckList.value.push('buzzerSwitch')
-                if (faceDetectionData.value.popVideoSwitch) normalParamCheckList.value.push('popVideoSwitch')
-                if (faceDetectionData.value.emailSwitch) normalParamCheckList.value.push('emailSwitch')
-                if (normalParamCheckList.value.length == normalParamList.value.length) {
-                    normalParamCheckAll.value = true
-                }
+        /**
+         * @description 获取人脸侦测的数据
+         */
+        const getDetectionData = async () => {
+            watchDetection.reset()
+
+            if (chlData.value.supportVfd) {
+                await getVfdData()
             } else {
-                detectionPageData.value.isParamRightShow = false
-                detectionPageData.value.isLinkageShow = false
-                detectionPageData.value.isPlayerBottomShow = false
-                detectionPageData.value.isMoreWrapShow = false
+                await getBackFaceMatchData()
             }
+
+            watchDetection.listen()
+            detectionPageData.value.deviceInfo = Translate('IDCS_DETECTION_BY_DEVICE').formatForLang(chlData.value.supportVfd ? 'IPC' : 'NVR')
             setCurrChlView('vfdArea')
         }
-        // 当前通道play上的视图
+
+        /**
+         * @description 当前通道play上的视图
+         * @param {string} type
+         */
         const setCurrChlView = (type: string) => {
-            if (type == 'vfdArea') {
-                if (faceDetectionData.value.regionInfo && faceDetectionData.value.regionInfo.length > 0) {
+            if (type === 'vfdArea') {
+                if (detectionFormData.value.regionInfo && detectionFormData.value.regionInfo.length > 0) {
                     if (mode.value === 'h5') {
-                        vfdDrawer.setArea(faceDetectionData.value.regionInfo[0])
-                    } else {
-                        const sendXML = OCX_XML_SetVfdArea(faceDetectionData.value.regionInfo[0], type, '#00ff00', 'TYPE_VFD_BLOCK')
-                        plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                        drawer.setArea(detectionFormData.value.regionInfo[0])
+                    }
+
+                    if (mode.value === 'ocx') {
+                        const sendXML = OCX_XML_SetVfdArea(detectionFormData.value.regionInfo[0], type, '#00ff00', OCX_AI_EVENT_TYPE_VFD_BLOCK)
+                        plugin.ExecuteCmd(sendXML)
                     }
                 }
-            } else if (type == 'faceMax') {
+            } else if (type === 'faceMax') {
                 if (mode.value === 'h5') {
-                    vfdDrawer.setRangeMax(faceDetectionData.value.maxRegionInfo[0])
-                } else {
-                    const sendXML = OCX_XML_SetVfdArea(faceDetectionData.value.maxRegionInfo[0], type, '#00ff00', 'TYPE_VFD_BLOCK')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    drawer.setRangeMax(detectionFormData.value.maxRegionInfo[0])
                 }
-            } else if (type == 'faceMin') {
+
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_SetVfdArea(detectionFormData.value.maxRegionInfo[0], type, '#00ff00', OCX_AI_EVENT_TYPE_VFD_BLOCK)
+                    plugin.ExecuteCmd(sendXML)
+                }
+            } else if (type === 'faceMin') {
                 if (mode.value === 'h5') {
-                    vfdDrawer.setRangeMin(faceDetectionData.value.minRegionInfo[0])
-                } else {
-                    const sendXML = OCX_XML_SetVfdArea(faceDetectionData.value.minRegionInfo[0], type, '#00ff00', 'TYPE_VFD_BLOCK')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    drawer.setRangeMin(detectionFormData.value.minRegionInfo[0])
+                }
+
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_SetVfdArea(detectionFormData.value.minRegionInfo[0], type, '#00ff00', OCX_AI_EVENT_TYPE_VFD_BLOCK)
+                    plugin.ExecuteCmd(sendXML)
                 }
             }
         }
 
-        // 计算位置
+        /**
+         * @description 计算位置
+         * @param {number} percent
+         * @returns {Object}
+         */
         const calcRegionInfo = (percent: number) => {
             const X1 = ((100 - percent) * 10000) / 100 / 2
             const X2 = ((100 - percent) * 10000) / 100 / 2 + (percent * 10000) / 100
@@ -842,444 +559,262 @@ export default defineComponent({
             return regionInfo
         }
 
-        // 启用侦测的checkbox
-        const enabledSwitchChange = () => {
-            if (!chlList[pageData.value.curChl].supportVfd) {
-                getAIResourceData(true)
-            }
-        }
-        // 原图checkbox
-        const saveSourcePicChange = (value: CheckboxValueType) => {
-            // saveSourcePicture属性被用于判断其是否禁用，接收为string类型，这里手动赋值
-            faceDetectionData.value.saveSourcePicture = value ? 'true' : 'false'
-        }
-        // 目标图checkbox
-        const saveFacePicChange = (value: CheckboxValueType) => {
-            faceDetectionData.value.saveFacePicture = value ? 'true' : 'false'
-        }
-        // 抓图次数
-        const snapNumberCheckChange = (value: CheckboxValueType) => {
-            // 全部采用!value确保CheckboxValueType为boolean
-            if (!value) faceDetectionData.value.captureCycle = '3'
-            detectionPageData.value.snapNumber = !value ? Translate('IDCS_NO_LIMITED') : faceDetectionData.value.captureCycle
-            detectionPageData.value.isSnapNumberDisabled = !value
-        }
-        // 人脸最大小值范围
-        const minFaceBlur = () => {
-            const min = Number(faceDetectionData.value.minFaceFrame)
-            const max = Number(faceDetectionData.value.maxFaceFrame)
-            if (min > max) {
-                faceDetectionData.value.minFaceFrame = faceDetectionData.value.maxFaceFrame
-            }
-            if (min < 3) faceDetectionData.value.minFaceFrame = 3
-            if (min > 50) faceDetectionData.value.minFaceFrame = 50
+        /**
+         * @description 绘制最小框
+         */
+        const blurMinFaceFrame = () => {
             if (detectionPageData.value.isDispalyRangeChecked) {
-                // 绘制最小框
-                const minRegionInfo = calcRegionInfo(faceDetectionData.value.minFaceFrame)
-                faceDetectionData.value.minRegionInfo = []
-                faceDetectionData.value.minRegionInfo.push(minRegionInfo)
+                const minRegionInfo = calcRegionInfo(detectionFormData.value.minFaceFrame)
+                detectionFormData.value.minRegionInfo = []
+                detectionFormData.value.minRegionInfo.push(minRegionInfo)
                 setCurrChlView('faceMin')
             }
         }
-        const maxFaceBlur = () => {
-            const min = Number(faceDetectionData.value.minFaceFrame)
-            const max = Number(faceDetectionData.value.maxFaceFrame)
-            if (max < min) {
-                faceDetectionData.value.maxFaceFrame = faceDetectionData.value.minFaceFrame
-            }
-            if (max < 3) faceDetectionData.value.maxFaceFrame = 3
-            if (max > 50) faceDetectionData.value.maxFaceFrame = 50
+
+        /**
+         * @description 绘制最大框
+         */
+        const blurMaxFaceFrame = () => {
             if (detectionPageData.value.isDispalyRangeChecked) {
-                // 绘制最大框
-                const maxRegionInfo = calcRegionInfo(faceDetectionData.value.maxFaceFrame)
-                faceDetectionData.value.maxRegionInfo = []
-                faceDetectionData.value.maxRegionInfo.push(maxRegionInfo)
+                const maxRegionInfo = calcRegionInfo(detectionFormData.value.maxFaceFrame)
+                detectionFormData.value.maxRegionInfo = []
+                detectionFormData.value.maxRegionInfo.push(maxRegionInfo)
                 setCurrChlView('faceMax')
             }
         }
-        // 是否显示范围框
-        const dispalyRangeChange = (value: CheckboxValueType) => {
+
+        /**
+         * @description 是否显示范围框
+         * @param {boolean} value
+         */
+        const changeDisplayRange = (value: CheckboxValueType) => {
             if (value) {
                 // 显示范围框
-                const minRegionInfo = calcRegionInfo(faceDetectionData.value.minFaceFrame)
-                faceDetectionData.value.minRegionInfo = []
-                faceDetectionData.value.minRegionInfo.push(minRegionInfo)
+                const minRegionInfo = calcRegionInfo(detectionFormData.value.minFaceFrame)
+                detectionFormData.value.minRegionInfo = []
+                detectionFormData.value.minRegionInfo.push(minRegionInfo)
                 setCurrChlView('faceMin')
-                const maxRegionInfo = calcRegionInfo(faceDetectionData.value.maxFaceFrame)
-                faceDetectionData.value.maxRegionInfo = []
-                faceDetectionData.value.maxRegionInfo.push(maxRegionInfo)
+                const maxRegionInfo = calcRegionInfo(detectionFormData.value.maxFaceFrame)
+                detectionFormData.value.maxRegionInfo = []
+                detectionFormData.value.maxRegionInfo.push(maxRegionInfo)
                 setCurrChlView('faceMax')
                 if (mode.value === 'h5') {
-                    vfdDrawer.toggleRange(true)
+                    drawer.toggleRange(true)
                 }
             } else {
                 if (mode.value === 'h5') {
-                    vfdDrawer.toggleRange(false)
-                } else {
+                    drawer.toggleRange(false)
+                }
+
+                if (mode.value === 'ocx') {
                     const sendFaceMinXML = OCX_XML_SetVfdAreaAction('NONE', 'faceMin')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendFaceMinXML)
+                    plugin.ExecuteCmd(sendFaceMinXML)
+
                     const sendFaceMaxXML = OCX_XML_SetVfdAreaAction('NONE', 'faceMax')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendFaceMaxXML)
+                    plugin.ExecuteCmd(sendFaceMaxXML)
                 }
             }
         }
 
+        /**
+         * @description 清空绘制区域
+         */
         const clearDrawArea = () => {
             if (mode.value === 'h5') {
-                vfdDrawer.clear()
-            } else {
-                const sendXML = OCX_XML_SetVfdAreaAction('NONE', 'vfdArea')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                drawer.clear()
             }
-            faceDetectionData.value.regionInfo = [{ X1: 0, Y1: 0, X2: 0, Y2: 0 }]
+
+            if (mode.value === 'ocx') {
+                const sendXML = OCX_XML_SetVfdAreaAction('NONE', 'vfdArea')
+                plugin.ExecuteCmd(sendXML)
+            }
+
+            detectionFormData.value.regionInfo = [
+                {
+                    X1: 0,
+                    Y1: 0,
+                    X2: 0,
+                    Y2: 0,
+                },
+            ]
         }
 
-        const faceTabChange = async (name: TabPaneName) => {
-            if (name == 'faceDetection') {
-                play()
-            } else if (name == 'faceLibrary') {
+        /**
+         * @description 更改Tab
+         * @param {TabPaneName} name
+         */
+        const changeTab = (name: TabPaneName) => {
+            // if (name === 'faceDetection') {
+            //     play()
+            // } else
+            if (name === 'faceLibrary') {
                 router.push({
                     path: '/intelligent-analysis/sample-data-base/sample-data-base-face',
-                })
-            }
-        }
-        const detectionTabChange = (name: TabPaneName) => {
-            if (name == 'param') {
-                play()
-            }
-        }
-
-        // 打开AI资源弹窗
-        const openAIResourcePop = () => {
-            AIResourcePopOpen.value = true
-        }
-        // 删除AI资源行数据
-        const handleDelAIResource = async (row: AIResource) => {
-            openMessageTipBox({
-                type: 'question',
-                message: Translate('IDCS_DELETE_MP_S'),
-            }).then(async () => {
-                let sendXml = rawXml`
-                <content>
-                    <chl id='${row.id}'>
-                        <param>`
-                row.eventType.forEach((item) => {
-                    sendXml += `<item>${item}</item>`
-                })
-                sendXml += rawXml`</param>
-                    </chl>
-                </content>
-                `
-
-                const result = await freeAIOccupyResource(sendXml)
-                commLoadResponseHandler(result, async () => {
-                    await getChlData()
-                })
-            })
-        }
-
-        // 常规联动多选
-        const handleNormalParamCheckAll = (value: CheckboxValueType) => {
-            normalParamCheckList.value = value ? normalParamList.value.map((item) => item.value) : []
-            if (value) {
-                faceDetectionData.value.catchSnapSwitch = true
-                faceDetectionData.value.msgPushSwitch = true
-                faceDetectionData.value.buzzerSwitch = true
-                faceDetectionData.value.popVideoSwitch = true
-                faceDetectionData.value.emailSwitch = true
-                normalParamList.value.forEach((item) => {
-                    if (item.value == 'triggerAudio') {
-                        faceDetectionData.value.triggerAudio = 'true'
-                    } else if (item.value == 'triggerWhiteLight') {
-                        faceDetectionData.value.triggerWhiteLight = 'true'
-                    }
-                })
-            }
-        }
-        const handleNormalParamCheck = (value: CheckboxValueType[]) => {
-            normalParamCheckAll.value = value.length === normalParamList.value.length
-            faceDetectionData.value.catchSnapSwitch = value.includes('catchSnapSwitch')
-            faceDetectionData.value.msgPushSwitch = value.includes('msgPushSwitch')
-            faceDetectionData.value.buzzerSwitch = value.includes('buzzerSwitch')
-            faceDetectionData.value.popVideoSwitch = value.includes('popVideoSwitch')
-            faceDetectionData.value.emailSwitch = value.includes('emailSwitch')
-            normalParamList.value.forEach((item) => {
-                if (item.value == 'triggerAudio') {
-                    faceDetectionData.value.triggerAudio = value.includes('triggerAudio') ? 'true' : 'false'
-                } else if (item.value == 'triggerWhiteLight') {
-                    faceDetectionData.value.triggerWhiteLight = value.includes('triggerWhiteLight') ? 'true' : 'false'
-                }
-            })
-        }
-
-        // 录像配置相关处理
-        const recordConfirm = (e: { value: string; label: string }[]) => {
-            faceDetectionData.value.record = cloneDeep(e)
-            pageData.value.recordIsShow = false
-        }
-        const recordClose = () => {
-            pageData.value.recordIsShow = false
-        }
-
-        // 报警输出相关处理
-        const alarmOutConfirm = (e: { value: string; label: string }[]) => {
-            faceDetectionData.value.alarmOut = cloneDeep(e)
-            pageData.value.alarmOutIsShow = false
-        }
-        const alarmOutClose = () => {
-            pageData.value.alarmOutIsShow = false
-        }
-
-        // 获取联动预置点数据
-        const getPresetData = async () => {
-            const result = await getChlList({
-                isSupportPtz: true,
-            })
-
-            let rowData = [] as PresetList[]
-            commLoadResponseHandler(result, async ($) => {
-                rowData = $('/response/content/item').map((item) => {
-                    const $item = queryXml(item.element)
-                    return {
-                        id: item.attr('id')!,
-                        name: $item('name').text(),
-                        chlType: $item('chlType').text(),
-                        preset: { value: '', label: Translate('IDCS_NULL') },
-                        presetList: [{ value: '', label: Translate('IDCS_NULL') }],
-                        isGetPresetList: false,
-                    }
-                })
-                rowData.forEach((row) => {
-                    faceDetectionData.value.preset?.forEach((item) => {
-                        if (row.id == item.chl.value) {
-                            row.preset = { value: item.index, label: item.name }
-                            row.presetList.push({ value: item.index, label: item.name })
-                        }
-                    })
-                })
-                for (let i = rowData.length - 1; i >= 0; i--) {
-                    //预置点里过滤掉recorder通道
-                    if (rowData[i].chlType == 'recorder') {
-                        rowData.splice(i, 1)
-                    }
-                }
-                PresetTableData.value = rowData
-            })
-        }
-        // 预置点选择框下拉时获取预置点列表数据
-        const getPresetById = async (row: PresetList) => {
-            if (!row.isGetPresetList) {
-                row.presetList.splice(1)
-                const sendXml = rawXml`
-                <condition>
-                    <chlId>${row.id}</chlId>
-                </condition>
-            `
-                const result = await queryChlPresetList(sendXml)
-                commLoadResponseHandler(result, ($) => {
-                    $('/response/content/presets/item').forEach((item) => {
-                        row.presetList.push({
-                            value: item.attr('index')!,
-                            label: item.text(),
-                        })
-                    })
-                })
-                row.isGetPresetList = true
-            }
-        }
-
-        const presetChange = (row: PresetList) => {
-            const ids = faceDetectionData.value.preset.map((item) => item.chl.value)
-            if (ids.includes(row.id)) {
-                faceDetectionData.value.preset = faceDetectionData.value.preset.filter((item) => row.id != item.chl.value)
-            }
-            if (row.preset.value !== '') {
-                faceDetectionData.value.preset.push({
-                    index: row.preset.value,
-                    name: row.preset.label,
-                    chl: {
-                        value: row.id,
-                        label: row.name,
+                    state: {
+                        backChlId: pageData.value.curChl,
                     },
                 })
             }
-            if (faceDetectionData.value.preset.length > MAX_TRIGGER_PRESET_COUNT) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_PRESET_LIMIT'),
-                })
+        }
+
+        /**
+         * @description 获取AI资源列表数据
+         */
+        const handleAIResourceError = () => {
+            if (pageData.value.tab === 'faceDetection') {
+                detectionFormData.value.enabledSwitch = false
+            } else if (pageData.value.tab === 'faceCompare') {
+                faceMatchData.value.hitEnable = false
+                faceMatchData.value.notHitEnable = false
             }
         }
 
-        // 获取互斥通道名称
-        const getMutexChlNameObj = () => {
-            let normalChlName = ''
-            let thermalChlName = ''
-            const sameIPChlList = []
-            const chlData = chlList[pageData.value.curChl]
-            for (const item in chlList) {
-                if (chlList[item].ip == chlData.ip) {
-                    sameIPChlList.push(chlList[item])
-                }
-            }
-            if (sameIPChlList.length > 1) {
-                sameIPChlList.forEach((chl) => {
-                    if (chl.accessType == '1') {
-                        thermalChlName = chl.name == chlData.name ? '' : chl.name
-                    } else {
-                        normalChlName = chl.name == chlData.name ? '' : chl.name
-                    }
-                })
-            }
-            return {
-                normalChlName,
-                thermalChlName,
-            }
+        /**
+         * @description 删除AI资源行数据
+         */
+        const handleAIResourceDel = () => {
+            getChlData()
         }
 
-        // 提交人脸侦测数据
+        /**
+         * @description 提交人脸侦测数据
+         */
         const applyFaceDetectionData = () => {
-            let isSwitchChange = false
-            const switchChangeTypeArr: string[] = []
-            if (faceDetectionData.value.enabledSwitch && faceDetectionData.value.enabledSwitch != faceDetectionData.value.originalSwitch) {
-                isSwitchChange = true
-            }
-            const mutexChlNameObj = getMutexChlNameObj()
-            faceDetectionData.value.mutexList?.forEach((item) => {
-                if (item.status) {
-                    const prefixName = mutexChlNameObj['normalChlName'] ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj['normalChlName']) : ''
-                    const showInfo = prefixName ? prefixName + closeTip[item['object']].toLowerCase() : closeTip[item['object']]
-                    switchChangeTypeArr.push(showInfo)
+            checkMutexChl({
+                tips: 'IDCS_SIMPLE_FACE_DETECT_TIPS',
+                isChange: detectionFormData.value.enabledSwitch && detectionFormData.value.enabledSwitch !== detectionFormData.value.originalSwitch,
+                mutexList: detectionFormData.value.mutexList,
+                mutexListEx: detectionFormData.value.mutexListEx,
+                chlList: pageData.value.chlList,
+                chlIp: chlData.value.ip,
+                chlName: chlData.value.name,
+            }).then(() => {
+                if (chlData.value.supportVfd) {
+                    setDetectionData()
+                } else {
+                    setDetectionBackUpData()
                 }
             })
-            faceDetectionData.value.mutexListEx?.forEach((item) => {
-                if (item.status) {
-                    const prefixName = mutexChlNameObj['thermalChlName'] ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj['thermalChlName']) : ''
-                    const showInfo = prefixName ? prefixName + closeTip[item['object']].toLowerCase() : closeTip[item['object']]
-                    switchChangeTypeArr.push(showInfo)
-                }
-            })
-            if (isSwitchChange && switchChangeTypeArr.length > 0) {
-                const switchChangeType = switchChangeTypeArr.join(',')
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_SIMPLE_FACE_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + chlList[pageData.value.curChl].name, switchChangeType),
-                }).then(() => {
-                    chlList[pageData.value.curChl].supportVfd ? setFaceDetectionData() : setFaceDetectionBackUpData()
-                })
-            } else {
-                chlList[pageData.value.curChl].supportVfd ? setFaceDetectionData() : setFaceDetectionBackUpData()
-            }
         }
 
+        /**
+         * @description
+         * @returns {string}
+         */
         const getFaceDetectionSaveData = () => {
-            const chlData = chlList[pageData.value.curChl]
-            let sendXml = rawXml``
-            const captureCycle = !detectionPageData.value.isSnapNumberChecked ? 65535 : faceDetectionData.value.captureCycle
-            sendXml += rawXml`<content>
-            <chl id='${pageData.value.curChl}' scheduleGuid='${faceDetectionData.value.schedule}'><param>
-            <switch>${String(faceDetectionData.value.enabledSwitch)}</switch>
-            <holdTime>${faceDetectionData.value.holdTime}</holdTime>
+            const sendXml = rawXml`
+                <content>
+                    <chl id='${pageData.value.curChl}' scheduleGuid='${detectionFormData.value.schedule}'><param>
+                    <switch>${detectionFormData.value.enabledSwitch}</switch>
+                    <holdTime>${detectionFormData.value.holdTime}</holdTime>
+                    ${typeof detectionFormData.value.saveFacePicture === 'boolean' ? `<saveFacePicture>${detectionFormData.value.saveFacePicture}</saveFacePicture>` : ''}
+                    ${typeof detectionFormData.value.saveSourcePicture === 'boolean' ? `<saveSourcePicture>${detectionFormData.value.saveSourcePicture}</saveSourcePicture>` : ''}
+                    ${
+                        detectionFormData.value.snapInterval
+                            ? rawXml`
+                                <senceMode>
+                                    <Mode>customize</Mode>
+                                    <customize>
+                                        <intervalTime>${detectionFormData.value.snapInterval}</intervalTime>
+                                        <captureCycle>${!detectionFormData.value.captureCycleChecked ? 65535 : detectionFormData.value.captureCycle}</captureCycle>
+                                    </customize>
+                                </senceMode>
+                            `
+                            : ''
+                    }
+                    ${detectionFormData.value.minFaceFrame ? `<minFaceFrame>${detectionFormData.value.minFaceFrame}</minFaceFrame>` : ''}
+                    ${detectionFormData.value.maxFaceFrame ? `<maxFaceFrame>${detectionFormData.value.maxFaceFrame}</maxFaceFrame>` : ''}
+                    ${detectionFormData.value.triggerAudio && chlData.value.supportAudio ? `<triggerAudio>${detectionFormData.value.trigger.includes('triggerAudio')}</triggerAudio>` : ''}
+                    ${detectionFormData.value.triggerWhiteLight && chlData.value.supportWhiteLight ? `<triggerWhiteLight>${detectionFormData.value.trigger.includes('triggerWhiteLight')}</triggerWhiteLight>` : ''}
+                    ${
+                        !detectionPageData.value.faceExpDisabled
+                            ? rawXml`
+                                <faceExp>
+                                    <switch>${detectionFormData.value.faceExpSwitch}</switch>
+                                    <faceExpStrength>${detectionFormData.value.faceExpStrength}</faceExpStrength>
+                                </faceExp>
+                            `
+                            : ''
+                    }
+                    <regionInfo type='list'>
+                        ${detectionFormData.value.regionInfo
+                            .map(
+                                (item) => rawXml`
+                                    <item>
+                                        <X1>${item.X1}</X1>
+                                        <Y1>${item.Y1}</Y1>
+                                        <X2>${item.X2}</X2>
+                                        <Y2>${item.Y2}</Y2>
+                                    </item>
+                                `,
+                            )
+                            .join('')}
+                    </regionInfo>
+                    </param>
+                        <trigger>
+                            <sysRec>
+                                <chls type='list'>
+                                    ${detectionFormData.value.record.map((item) => `<item id='${item.value}'>${wrapCDATA(item.label)}</item>`).join('')}
+                                </chls>
+                            </sysRec>
+                            <alarmOut>
+                                <alarmOuts type='list'>
+                                    ${detectionFormData.value.alarmOut.map((item) => `<item id='${item.value}'>${wrapCDATA(item.label)}</item>`).join('')}
+                                </alarmOuts>
+                            </alarmOut>
+                            <preset>
+                                <presets type='list'>
+                                    ${detectionFormData.value.preset
+                                        .map((item) => {
+                                            return rawXml`
+                                                <item>
+                                                    <index>${item.index}</index>
+                                                    <name>${wrapCDATA(item.name)}</name>
+                                                    <chl id='${item.chl.value}'>${wrapCDATA(item.chl.label)}</chl>
+                                                </item>
+                                            `
+                                        })
+                                        .join('')}
+                                </presets>
+                            </preset>
+                            <snapSwitch>${detectionFormData.value.trigger.includes('snapSwitch')}</snapSwitch>
+                            <msgPushSwitch>${detectionFormData.value.trigger.includes('msgPushSwitch')}</msgPushSwitch>
+                            <buzzerSwitch>${detectionFormData.value.trigger.includes('buzzerSwitch')}</buzzerSwitch>
+                            <popVideoSwitch>${detectionFormData.value.trigger.includes('popVideoSwitch')}</popVideoSwitch>
+                            <emailSwitch>${detectionFormData.value.trigger.includes('emailSwitch')}</emailSwitch>
+                            <sysAudio id='${detectionFormData.value.sysAudio}'></sysAudio>
+                        </trigger>
+                    </chl>
+                </content>
             `
-            if (faceDetectionData.value.saveFacePicture) {
-                sendXml += rawXml`<saveFacePicture>${faceDetectionData.value.saveFacePicture}</saveFacePicture>`
-            }
-            if (faceDetectionData.value.saveSourcePicture) {
-                sendXml += rawXml`<saveSourcePicture>${faceDetectionData.value.saveSourcePicture}</saveSourcePicture>`
-            }
-            if (faceDetectionData.value.snapInterval) {
-                sendXml += rawXml`<senceMode>
-                        <Mode>customize</Mode>
-                        <customize>
-                        <intervalTime>${faceDetectionData.value.snapInterval}</intervalTime>
-                        <captureCycle>${String(captureCycle)}</captureCycle>
-                        </customize>
-                        </senceMode>
-                `
-            }
-            if (faceDetectionData.value.minFaceFrame) {
-                sendXml += rawXml`<minFaceFrame>${String(faceDetectionData.value.minFaceFrame)}</minFaceFrame>`
-            }
-            if (faceDetectionData.value.maxFaceFrame) {
-                sendXml += rawXml`<maxFaceFrame>${String(faceDetectionData.value.maxFaceFrame)}</maxFaceFrame>`
-            }
-            if (faceDetectionData.value.triggerAudio && chlData['supportAudio']) {
-                sendXml += rawXml`<triggerAudio>${faceDetectionData.value.triggerAudio}</triggerAudio>`
-            }
-            if (faceDetectionData.value.triggerWhiteLight && chlData['supportWhiteLight']) {
-                sendXml += rawXml`<triggerWhiteLight>${faceDetectionData.value.triggerWhiteLight}</triggerWhiteLight>`
-            }
-            if (faceDetectionData.value.faceExpStrength) {
-                sendXml += rawXml`<faceExp><switch>${String(faceDetectionData.value.faceExpSwitch)}</switch>
-                <faceExpStrength>${String(faceDetectionData.value.faceExpStrength)}</faceExpStrength></faceExp>`
-            }
-            sendXml += `<regionInfo type='list'>`
-            faceDetectionData.value.regionInfo.forEach((item) => {
-                sendXml += rawXml`<item>
-                    <X1>${String(item.X1)}</X1>
-                    <Y1>${String(item.Y1)}</Y1>
-                    <X2>${String(item.X2)}</X2>
-                    <Y2>${String(item.Y2)}</Y2>
-                    </item>
-                `
-            })
-            sendXml += rawXml`</regionInfo>
-                </param>
-                <trigger>
-                    <sysRec>
-                        <chls type='list'>
-            `
-            faceDetectionData.value.record.forEach((item) => {
-                sendXml += rawXml`<item id='${item.value}'>
-                    <![CDATA[${item.label}]]></item>`
-            })
-            sendXml += rawXml`</chls></sysRec>
-                <alarmOut>
-                <alarmOuts type='list'>`
-            faceDetectionData.value.alarmOut.forEach((item) => {
-                sendXml += rawXml`<item id='${item.value}'>
-                    <![CDATA[${item.label}]]></item>`
-            })
-            sendXml += rawXml`</alarmOuts>
-                </alarmOut>
-                <preset>
-                <presets type='list'>`
-            faceDetectionData.value.preset.forEach((item) => {
-                sendXml += rawXml`<item>
-                        <index>${item.index}</index>
-                        <name><![CDATA[${item.name}]]></name>
-                        <chl id='${item.chl.value}'><![CDATA[${item.chl.label}]]></chl>
-                        </item>`
-            })
-            sendXml += rawXml`</presets>
-                </preset>
-                <snapSwitch>${String(faceDetectionData.value.catchSnapSwitch)}</snapSwitch>
-                <msgPushSwitch>${String(faceDetectionData.value.msgPushSwitch)}</msgPushSwitch>
-                <buzzerSwitch>${String(faceDetectionData.value.buzzerSwitch)}</buzzerSwitch>
-                <popVideoSwitch>${String(faceDetectionData.value.popVideoSwitch)}</popVideoSwitch>
-                <emailSwitch>${String(faceDetectionData.value.emailSwitch)}</emailSwitch>
-                <sysAudio id='${faceDetectionData.value.sysAudio}'></sysAudio>
-                </trigger>
-                </chl></content>`
+
             return sendXml
         }
-        const setFaceDetectionData = async () => {
+
+        /**
+         * @description 保存人脸识别配置
+         */
+        const setDetectionData = async () => {
             const sendXml = getFaceDetectionSaveData()
             openLoading()
             await editVfd(sendXml)
             closeLoading()
-            if (faceDetectionData.value.enabledSwitch) {
-                faceDetectionData.value.originalSwitch = true
+            if (detectionFormData.value.enabledSwitch) {
+                detectionFormData.value.originalSwitch = true
             }
-            detectionPageData.value.applyDisabled = true
+            watchDetection.update()
         }
-        const setFaceDetectionBackUpData = async () => {
+
+        /**
+         * @description 保存人脸比对配置
+         */
+        const setDetectionBackUpData = async () => {
             const sendXml = rawXml`
                 <content>
                     <param>
                         <chls>
-                            <item guid='${pageData.value.curChl}' scheduleGuid='${faceDetectionData.value.schedule}'>
-                                <switch>${String(faceDetectionData.value.enabledSwitch)}</switch>
+                            <item guid='${pageData.value.curChl}' scheduleGuid='${detectionFormData.value.schedule}'>
+                                <switch>${detectionFormData.value.enabledSwitch}</switch>
                             </item>
                         </chls>
                     </param>
@@ -1288,36 +823,46 @@ export default defineComponent({
             openLoading()
             await editRealFaceMatch(sendXml)
             closeLoading()
-            detectionPageData.value.applyDisabled = true
+            watchDetection.update()
         }
 
         // 首次加载成功 播放视频
-        const stopWatchFirstPlay = watchEffect(() => {
-            if (ready.value && pageData.value.faceChlList.length) {
-                nextTick(() => play())
-                stopWatchFirstPlay()
+        watchEffect(() => {
+            if (ready.value && watchDetection.ready.value) {
+                nextTick(() => {
+                    if (mode.value === 'h5') {
+                        drawer.clear()
+                    }
+
+                    if (mode.value === 'ocx') {
+                        const sendXML = OCX_XML_SetVfdAreaAction('NONE', 'vfdArea')
+                        plugin.ExecuteCmd(sendXML)
+                    }
+
+                    play()
+
+                    changeDisplayRange(false)
+                })
             }
         })
 
-        /* 
-        人脸识别——识别
-        */
-        // 添加任务项
+        /**
+         * @description 添加任务项
+         */
         const addTask = () => {
             // 默认有识别成功、陌生人两项，添加的最多为3项
             if (taskTabs.value.length === 5) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
-                })
+                openMessageBox(Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
                 return false
             }
             const nameId = defaultNameId.find((item) => !haveUseNameId.includes(item))!
             haveUseNameId.push(nameId)
-            taskTabs.value.push({ value: 'hit' + nameId, label: Translate('IDCS_SUCCESSFUL_RECOGNITION') + nameId })
-            comparePageData.value.compareTab = 'hit' + nameId
-            comparePageData.value.removeDisabled = false
-            faceCompareData.value.task.push({
+            taskTabs.value.push({
+                value: 'hit' + nameId,
+                label: Translate('IDCS_SUCCESSFUL_RECOGNITION') + nameId,
+            })
+            recognitionPageData.value.tab = 'hit' + nameId
+            recognitionFormData.value.task.push({
                 guid: '',
                 id: '',
                 ruleType: 'hit',
@@ -1325,266 +870,293 @@ export default defineComponent({
                 groupId: [],
                 nameId: nameId,
                 hintword: '',
-                sysAudio: '{00000000-0000-0000-0000-000000000000}',
-                schedule: '{00000000-0000-0000-0000-000000000000}',
-                record: [{ value: pageData.value.curChl, label: chlList[pageData.value.curChl].name }], //添加的任务默认联动本通道
+                sysAudio: DEFAULT_EMPTY_ID,
+                schedule: DEFAULT_EMPTY_ID,
+                record: [
+                    {
+                        value: pageData.value.curChl,
+                        label: chlData.value.name,
+                    },
+                ], //添加的任务默认联动本通道
                 alarmOut: [],
                 snap: [],
                 preset: [],
-                msgPushSwitch: true,
-                buzzerSwitch: false,
-                popVideoSwitch: false,
-                emailSwitch: false,
-                popMsgSwitch: false,
+                trigger: ['msgPushSwitch'],
             })
         }
-        // 移除任务项
+
+        /**
+         * @description 移除任务项
+         */
         const removeTask = () => {
-            if (comparePageData.value.removeDisabled) {
+            if (['param', 'miss', 'hit'].includes(recognitionPageData.value.tab)) {
                 return false
             }
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(() => {
-                haveUseNameId = haveUseNameId.filter((item) => item != Number(comparePageData.value.compareTab[3]))
-                taskTabs.value = taskTabs.value.filter((item) => item.value != comparePageData.value.compareTab)
-                faceCompareData.value.task = faceCompareData.value.task.filter((item) => {
-                    if (item.ruleType == 'hit' && item.nameId == Number(comparePageData.value.compareTab[3])) {
+                haveUseNameId = haveUseNameId.filter((item) => item !== Number(recognitionPageData.value.tab[3]))
+                taskTabs.value = taskTabs.value.filter((item) => item.value !== recognitionPageData.value.tab)
+                recognitionFormData.value.task = recognitionFormData.value.task.filter((item) => {
+                    if (item.ruleType === 'hit' && item.nameId === Number(recognitionPageData.value.tab[3])) {
                         if (item.guid) {
-                            deleteFaceCompareData(item)
+                            deleteRecognitionData(item)
                         }
                     } else {
                         return item
                     }
                 })
-                comparePageData.value.compareTab = 'hit'
-                comparePageData.value.removeDisabled = true
+                recognitionPageData.value.tab = 'hit'
             })
         }
-        const compareTabChange = (name: TabPaneName) => {
-            if (name == 'param' || name == 'hit' || name == 'miss') {
-                comparePageData.value.removeDisabled = true
-            } else {
-                comparePageData.value.removeDisabled = false
-            }
-        }
-        // 获取人脸分组数据
-        const getFaceGroupData = async () => {
+
+        /**
+         * @description 获取人脸分组数据
+         */
+        const getGroupData = async () => {
             const result = await queryFacePersonnalInfoGroupList()
-            commLoadResponseHandler(result, ($) => {
-                $('/response/content/item').forEach((item) => {
-                    const $item = queryXml(item.element)
-                    const guid = item.attr('id')!
-                    let name = $item('name').text()
-                    const groupId = $item('groupId').text()
-                    if (!name) {
-                        if (groupId == '1' || groupId == '2') {
-                            name = Translate('IDCS_WHITE_LIST') + groupId
-                        } else if (groupId == '3') {
-                            name = Translate('IDCS_BLACK_LIST')
-                        }
+            const $ = queryXml(result)
+            $('content/item').forEach((item) => {
+                const $item = queryXml(item.element)
+                const guid = item.attr('id')
+                const groupId = $item('groupId').text()
+
+                let name = $item('name').text()
+                if (!name) {
+                    if (groupId === '1' || groupId === '2') {
+                        name = Translate('IDCS_WHITE_LIST') + groupId
+                    } else if (groupId === '3') {
+                        name = Translate('IDCS_BLACK_LIST')
                     }
-                    const enableAlarmSwitch = $item('enableAlarmSwitch').text() == 'true'
-                    faceGroupNameMap[guid] = name
-                    if (enableAlarmSwitch) {
-                        faceGroupData.push({
-                            guid: guid,
-                            name: name,
-                        })
-                    }
-                })
-            }).then(async () => {
-                await getFaceMatchData()
-                await getFaceCompareData()
-                comparePageData.value.initComplated = true
-            })
-        }
-        // 获取参数设置数据
-        const getFaceMatchData = async () => {
-            const sendXml = rawXml`
-            <condition><chlId>${pageData.value.curChl}</chlId></condition>
-            `
-            const result = await queryFaceMatchConfig(sendXml)
-            commLoadResponseHandler(result, ($) => {
-                const hitEnable = $('/response/content/chl/hitEnable').text() == 'true'
-                const notHitEnable = $('/response/content/chl/notHitEnable').text() == 'true'
-                const liveDisplaySwitch = $('/response/content/chl/liveDisplaySwitch').text() == 'true'
-                const groupInfo = [] as FaceGroupTableItem[]
-                $('/response/content/chl/groupId/item').forEach((item) => {
-                    const $item = queryXml(item.element)
-                    const guid = item.attr('guid')!
-                    const similarity = Number($item('similarity').text())
-                    const name = faceGroupNameMap[guid]
-                    groupInfo.push({
+                }
+                faceGrougMap[guid] = {
+                    name,
+                    groupId,
+                }
+
+                if ($item('enableAlarmSwitch').text().bool()) {
+                    faceGroupData.value.push({
                         guid: guid,
                         name: name,
-                        similarity: similarity,
                     })
+                }
+            })
+        }
+
+        /**
+         * @description 获取人脸组的人脸数量
+         * @param {AlarmFaceGroupDto} item
+         */
+        const getGroupFaceFeatureCount = async (item: AlarmFaceGroupDto) => {
+            const sendXml = rawXml`
+                <pageIndex>1</pageIndex>
+                <pageSize>15</pageSize>
+                <condition>
+                    <faceFeatureGroups type="list">
+                        <item id="${item.groupId}"></item>
+                    </faceFeatureGroups>
+                </condition>
+            `
+            const result = await queryFacePersonnalInfoList(sendXml)
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                item.count = $('content').attr('total').num()
+            } else {
+                item.count = 0
+            }
+        }
+
+        /**
+         * @description 获取人脸识别-参数设置数据
+         */
+        const getMatchData = async () => {
+            watchMatch.reset()
+
+            const sendXml = rawXml`
+                <condition>
+                    <chlId>${pageData.value.curChl}</chlId>
+                </condition>
+            `
+            const result = await queryFaceMatchConfig(sendXml)
+
+            commLoadResponseHandler(result, ($) => {
+                const hitEnable = $('content/chl/hitEnable').text().bool()
+                const notHitEnable = $('content/chl/notHitEnable').text().bool()
+                const liveDisplaySwitch = $('content/chl/liveDisplaySwitch').text().bool()
+                const groupInfo: AlarmFaceGroupDto[] = $('content/chl/groupId/item').map((item) => {
+                    const $item = queryXml(item.element)
+                    const guid = item.attr('guid')
+                    const similarity = $item('similarity').text().num()
+                    const data = faceGrougMap[guid]
+                    return {
+                        guid: guid,
+                        name: data.name,
+                        groupId: data.groupId,
+                        similarity: similarity,
+                        count: 0,
+                    }
                 })
-                faceGroupTable.value = cloneDeep(groupInfo)
+
+                groupInfo.forEach((item) => getGroupFaceFeatureCount(item))
+
                 faceMatchData.value = {
                     hitEnable: hitEnable,
                     notHitEnable: notHitEnable,
                     liveDisplaySwitch: !liveDisplaySwitch,
-                    groupInfo: groupInfo,
-                    editFlag: false,
+                    groupInfo,
                 }
+
+                watchMatch.listen()
             })
         }
-        // 相似度
-        const similarityChangeAll = () => {
-            faceGroupTable.value.forEach((item) => {
-                item.similarity = comparePageData.value.similarityNumber
-            })
+
+        /**
+         * @description 更改所有人脸分组相似度
+         */
+        const changeAllSimilarity = () => {
             faceMatchData.value.groupInfo.forEach((item) => {
-                item.similarity = comparePageData.value.similarityNumber
+                item.similarity = recognitionPageData.value.similarity
             })
-            similarityRef.value.handleClose()
+            recognitionPageData.value.isSimilarityPop = false
         }
-        const similarityInputBlur = (e: any, index?: number) => {
-            // vue的v-model是监听input框的input事件生效的
-            // 事件对象e.target.value赋值直接操作dom元素 vue的v-model监听不到
-            // e.target.value赋值后 需要手动触发input事件 v-model才能同步更新
-            // dispatchEvent(new Event(‘input’))
-            if (e.target.value < 1) {
-                e.target.value = 1
-                e.target.dispatchEvent(new Event('input'))
-            } else if (e.target.value > 100) {
-                e.target.value = 100
-                e.target.dispatchEvent(new Event('input'))
-            }
-            if (index != undefined) {
-                faceMatchData.value.groupInfo[index].similarity = e.target.value
-            }
-        }
-        // 回车键失去焦点
-        const enterBlur = (event: { target: { blur: () => void } }) => {
-            event.target.blur()
-        }
-        // 提交人脸匹配数据
-        const setFaceMatchData = async () => {
-            let sendXml = rawXml`
+
+        /**
+         * @description 提交人脸匹配数据
+         */
+        const setMatchData = async () => {
+            const sendXml = rawXml`
                 <content>
                     <chl id='${pageData.value.curChl}'>
-                    <hitEnable>${String(faceMatchData.value.hitEnable)}</hitEnable>
-                    <notHitEnable>${String(faceMatchData.value.notHitEnable)}</notHitEnable>
-                    <liveDisplaySwitch>${String(!faceMatchData.value.liveDisplaySwitch)}</liveDisplaySwitch>
-                    <groupId>
+                        <hitEnable>${faceMatchData.value.hitEnable}</hitEnable>
+                        <notHitEnable>${faceMatchData.value.notHitEnable}</notHitEnable>
+                        <liveDisplaySwitch>${!faceMatchData.value.liveDisplaySwitch}</liveDisplaySwitch>
+                        <groupId>
+                            ${faceMatchData.value.groupInfo
+                                .map((item) => {
+                                    return rawXml`
+                                        <item guid='${item.guid}'>
+                                            <similarity>${item.similarity}</similarity>
+                                        </item>
+                                    `
+                                })
+                                .join('')}
+                        </groupId>
+                    </chl>
+                </content>
             `
-            faceMatchData.value.groupInfo.forEach((item) => {
-                sendXml += rawXml`
-                            <item guid='${item.guid}'>
-                                <similarity>${String(item.similarity)}</similarity>
-                            </item>`
-            })
-            sendXml += `</groupId></chl></content>`
+
             openLoading()
             const result = await editFaceMatchConfig(sendXml)
             const $ = queryXml(result)
             closeLoading()
 
-            if ($('/response/status').text() !== 'success') {
-                const errorCode = Number($('/response/errorCode').text())
-                if (errorCode == ErrorCode.USER_ERROR_LIMITED_PLATFORM_VERSION_MISMATCH) {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_MAX_CHANNEL_LIMIT').formatForLang(faceMatchLimitMaxChlNum),
-                    })
+            if ($('status').text() === 'success') {
+                watchMatch.update()
+            } else {
+                const errorCode = $('errorCode').text().num()
+                if (errorCode === ErrorCode.USER_ERROR_LIMITED_PLATFORM_VERSION_MISMATCH) {
+                    openMessageBox(Translate('IDCS_MAX_CHANNEL_LIMIT').formatForLang(faceMatchLimitMaxChlNum))
                 } else if (errorCode === ErrorCode.USER_ERROR_PC_LICENSE_MISMATCH) {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_MAX_CHANNEL_LIMIT').formatForLang(faceMatchLimitMaxChlNum) + Translate('IDCS_REBOOT_DEVICE').formatForLang(Translate('IDCS_ENABLE') + 'AI'),
-                    }).then(async () => {
-                        //AISwitch 打开AI模式开关 NT-9997
-                        const sendXml = `<content><AISwitch>true</AISwitch></content>`
-                        await editBasicCfg(sendXml)
-                    })
+                    openMessageBox(Translate('IDCS_MAX_CHANNEL_LIMIT').formatForLang(faceMatchLimitMaxChlNum) + Translate('IDCS_REBOOT_DEVICE').formatForLang(Translate('IDCS_ENABLE') + 'AI')).then(
+                        async () => {
+                            //AISwitch 打开AI模式开关 NT-9997
+                            const sendXml = rawXml`
+                                <content>
+                                    <AISwitch>true</AISwitch>
+                                </content>
+                            `
+                            await editBasicCfg(sendXml)
+                        },
+                    )
+                } else {
+                    openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
                 }
             }
-            comparePageData.value.applyDisabled = true
         }
-        // 获取人脸识别数据
-        const getFaceCompareData = async () => {
-            taskTabs.value = []
-            faceCompareData.value.task = []
+
+        /**
+         * @description 获取人脸识别数据
+         */
+        const getRecognitionData = async () => {
+            watchRecognition.reset()
+
             const sendXml = rawXml`
-            <condition><chlId>${pageData.value.curChl}</chlId></condition>
+                <condition>
+                    <chlId>${pageData.value.curChl}</chlId>
+                </condition>
             `
             const result = await queryFaceMatchAlarmParam(sendXml)
+
             commLoadResponseHandler(result, ($) => {
-                faceCompareData.value.voiceList = [{ value: '', label: Translate('IDCS_NULL') }]
-                $('/response/content/voiceItem/item').forEach((item) => {
+                recognitionFormData.value.voiceList = [{ value: '', label: Translate('IDCS_NULL') }]
+                $('content/voiceItem/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    faceCompareData.value.voiceList.push({
+                    recognitionFormData.value.voiceList.push({
                         value: $item('filePath').text(),
                         label: $item('name').text(),
                     })
                 })
-                $('/response/content/chl/task/item').forEach((item) => {
+
+                recognitionFormData.value.task = $('content/chl/task/item').map((item) => {
                     const $item = queryXml(item.element)
-                    const nameId = Number($item('param/nameId').text())
+                    const nameId = $item('param/nameId').text().num()
+                    const $param = queryXml($item('param')[0].element)
+                    const $trigger = queryXml($item('trigger')[0].element)
                     haveUseNameId.push(nameId)
-                    const groupId = $item('param/groupId/item').map((item) => item.attr('guid')!)
-                    const record = $item('trigger/sysRec/chls/item').map((item) => {
-                        return {
-                            value: item.attr('id')!,
-                            label: item.text(),
-                        }
-                    })
-                    const alarmOut = $item('trigger/alarmOut/alarmOuts/item').map((item) => {
-                        return {
-                            value: item.attr('id')!,
-                            label: item.text(),
-                        }
-                    })
-                    const snap = $item('trigger/sysSnap/chls/item').map((item) => {
-                        return {
-                            value: item.attr('id')!,
-                            label: item.text(),
-                        }
-                    })
-                    const preset = $item('trigger/preset/presets/item').map((item) => {
-                        const $item = queryXml(item.element)
-                        return {
-                            index: $item('index').text(),
-                            name: $item('name').text(),
-                            chl: {
-                                value: $item('chl').attr('id')!,
-                                label: $item('chl').text(),
-                            },
-                        }
-                    })
-                    faceCompareData.value.task.push({
-                        guid: item.attr('guid')!,
-                        id: item.attr('id')!,
-                        ruleType: $item('param/ruleType').text(),
+                    return {
+                        guid: item.attr('guid'),
+                        id: item.attr('id'),
+                        ruleType: $param('ruleType').text(),
                         nameId,
-                        pluseSwitch: $item('param/pluseSwitch').text() == 'true',
-                        groupId,
-                        hintword: $item('param/hint/word').text(),
-                        schedule: $item('schedule').attr('id'),
-                        record,
-                        alarmOut,
-                        snap,
-                        preset,
-                        msgPushSwitch: $item('trigger/msgPushSwitch').text() == 'true',
-                        buzzerSwitch: $item('trigger/buzzerSwitch').text() == 'true',
-                        popVideoSwitch: $item('trigger/popVideoSwitch').text() == 'true',
-                        emailSwitch: $item('trigger/emailSwitch').text() == 'true',
-                        popMsgSwitch: $item('trigger/popMsgSwitch').text() == 'true',
-                        sysAudio: $item('trigger/sysAudio').attr('id'),
-                    })
+                        pluseSwitch: $param('pluseSwitch').text().bool(),
+                        groupId: $param('groupId/item').map((item) => item.attr('guid')),
+                        hintword: $param('hint/word').text(),
+                        schedule: getScheduleId(pageData.value.scheduleList, $item('schedule').attr('id')),
+                        record: $trigger('sysRec/chls/item').map((item) => {
+                            return {
+                                value: item.attr('id'),
+                                label: item.text(),
+                            }
+                        }),
+                        alarmOut: $trigger('alarmOut/alarmOuts/item').map((item) => {
+                            return {
+                                value: item.attr('id'),
+                                label: item.text(),
+                            }
+                        }),
+                        snap: $trigger('sysSnap/chls/item').map((item) => {
+                            return {
+                                value: item.attr('id'),
+                                label: item.text(),
+                            }
+                        }),
+                        preset: $trigger('preset/presets/item').map((item) => {
+                            const $item = queryXml(item.element)
+                            return {
+                                index: $item('index').text(),
+                                name: $item('name').text(),
+                                chl: {
+                                    value: $item('chl').attr('id'),
+                                    label: $item('chl').text(),
+                                },
+                            }
+                        }),
+                        trigger: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'popMsgSwitch'].filter((item) => {
+                            return $trigger(item).text().bool()
+                        }),
+                        sysAudio: $trigger('sysAudio').attr('id'),
+                    }
                 })
-            }).then(() => {
-                faceCompareData.value.task.forEach((item) => {
-                    if (item.ruleType == 'hit' && item.nameId == 0) {
+
+                recognitionFormData.value.task.forEach((item) => {
+                    if (item.ruleType === 'hit' && !item.nameId) {
                         taskTabs.value.push({
                             value: 'hit',
                             label: Translate('IDCS_SUCCESSFUL_RECOGNITION'),
                         })
-                        comparePageData.value.taskData = item
-                    } else if (item.ruleType == 'miss' && item.nameId == 0) {
+                        recognitionPageData.value.taskData = item
+                    } else if (item.ruleType === 'miss' && !item.nameId) {
                         taskTabs.value.push({
                             value: 'miss',
                             label: Translate('IDCS_GROUP_STRANGER'),
@@ -1596,106 +1168,111 @@ export default defineComponent({
                         })
                     }
                 })
+
+                watchRecognition.listen()
             })
-        }
-        // tab项对应的识别数据
-        const compareLinkData = (value: string) => {
-            let taskData = {} as CompareTask
-            if (value == 'hit') {
-                taskData = faceCompareData.value.task?.[0]
-            } else if (value == 'miss') {
-                taskData = faceCompareData.value.task?.[1]
-            } else {
-                faceCompareData.value.task?.forEach((item) => {
-                    if (item.nameId == Number(value[3])) {
-                        taskData = item
-                    }
-                })
-            }
-            return taskData
         }
 
+        /**
+         * @description
+         * @returns {string}
+         */
         const getFaceCompareSaveData = () => {
-            let sendXml = rawXml`
+            const sendXml = rawXml`
                 <content>
                     <chl id='${pageData.value.curChl}'>
-                    <task>
+                        <task>
+                            ${recognitionFormData.value.task
+                                .map((item) => {
+                                    return rawXml`
+                                        <item guid='${item.guid}' id='${item.id}'>
+                                            <param>
+                                                <ruleType>${item.ruleType}</ruleType>
+                                                <pluseSwitch>${item.pluseSwitch}</pluseSwitch>
+                                                <nameId>${item.nameId}</nameId>
+                                                <groupId>
+                                                    ${item.groupId.map((ele) => `<item guid='${ele}'></item>`).join('')}
+                                                </groupId>
+                                                <hint>
+                                                    <word>${item.hintword}</word>
+                                                </hint>
+                                            </param>
+                                            <schedule id='${item.schedule}'></schedule>
+                                            <trigger>
+                                                <sysAudio id='${item.sysAudio}'></sysAudio>
+                                                <buzzerSwitch>${item.trigger.includes('buzzerSwitch')}</buzzerSwitch>
+                                                <popMsgSwitch>${item.trigger.includes('popMsgSwitch')}</popMsgSwitch>
+                                                <emailSwitch>${item.trigger.includes('emailSwitch')}</emailSwitch>
+                                                <msgPushSwitch>${item.trigger.includes('msgPushSwitch')}</msgPushSwitch>
+                                                <popVideo>
+                                                    <switch>${item.trigger.includes('popVideoSwitch')}</switch>
+                                                    <chls>
+                                                        <item id='${pageData.value.curChl}'></item>
+                                                    </chls>
+                                                </popVideo>
+                                                <alarmOut>
+                                                    <switch>true</switch>
+                                                    <alarmOuts type='list'>
+                                                        ${item.alarmOut.map((ele) => `<item id='${ele.value}'></item>`).join('')}
+                                                    </alarmOuts>
+                                                </alarmOut>
+                                                <preset>
+                                                    <switch>${!!item.preset.length}</switch>
+                                                    <presets type='list'>
+                                                        ${item.preset
+                                                            .map((ele) => {
+                                                                return rawXml`
+                                                                    <item>
+                                                                        <index>${ele.index}</index>
+                                                                        <name>${wrapCDATA(ele.name)}</name>
+                                                                        <chl id='${ele.chl.value}'>${wrapCDATA(ele.chl.label)}</chl>
+                                                                    </item>
+                                                                `
+                                                            })
+                                                            .join('')}
+                                                    </presets>
+                                                </preset>
+                                                <sysRec>
+                                                    <switch>true</switch>
+                                                    <chls type='list'>
+                                                        ${item.record.map((ele) => `<item id='${ele.value}'></item>`).join('')}
+                                                    </chls>
+                                                </sysRec>
+                                                <sysSnap>
+                                                    <switch>true</switch>
+                                                    <chls type='list'>
+                                                        ${item.snap.map((ele) => `<item id='${ele.value}'></item>`).join('')}
+                                                    </chls>
+                                                </sysSnap>
+                                            </trigger>
+                                        </item>
+                                    `
+                                })
+                                .join('')}
+                        </task>
+                    </chl>
+                </content>
             `
-            faceCompareData.value.task.forEach((item) => {
-                sendXml += rawXml`<item guid='${item.guid}' id='${item.id}'>
-                    <param>
-                        <ruleType>${item.ruleType}</ruleType>
-                        <pluseSwitch>${String(item.pluseSwitch)}</pluseSwitch>
-                        <nameId>${String(item.nameId)}</nameId>
-                        <groupId>
-                `
-                item.groupId.forEach((ele) => {
-                    sendXml += `<item guid='${ele}'></item>`
-                })
-                sendXml += rawXml`</groupId>
-                    <hint>
-                        <word>${item.hintword}</word>
-                    </hint></param>
-                    <schedule id='${item.schedule}'></schedule>
-                    <trigger>
-                        <sysAudio id='${item.sysAudio}'></sysAudio>
-                        <buzzerSwitch>${String(item.buzzerSwitch)}</buzzerSwitch>
-                        <popMsgSwitch>${String(item.popMsgSwitch)}</popMsgSwitch>
-                        <emailSwitch>${String(item.emailSwitch)}</emailSwitch>
-                        <msgPushSwitch>${String(item.msgPushSwitch)}</msgPushSwitch>
-                        <popVideo><switch>${String(item.popVideoSwitch)}</switch><chls><item id='${pageData.value.curChl}'></item></chls></popVideo>
-                        <alarmOut><switch>true</switch><alarmOuts type='list'>
-                `
-                item.alarmOut.forEach((ele) => {
-                    sendXml += `<item id='${ele.value}'></item>`
-                })
-                sendXml += rawXml`
-                </alarmOuts></alarmOut>
-                <preset><switch>${item.preset.length == 0 ? 'false' : 'true'}</switch>
-                <presets type='list'>
-                `
-                item.preset.forEach((ele) => {
-                    sendXml += rawXml`
-                    <item>
-                        <index>${ele.index}</index>
-                        <name><![CDATA[${ele.name}]]></name>
-                        <chl id='${ele.chl.value}'><![CDATA[${ele.chl.label}]]></chl>
-                    </item>
-                `
-                })
-                sendXml += rawXml`
-                    </presets></preset>
-                    <sysRec><switch>true</switch><chls type='list'>
-                `
-                item.record.forEach((ele) => {
-                    sendXml += `<item id='${ele.value}'></item>`
-                })
-                sendXml += rawXml`
-                    </chls></sysRec>
-                    <sysSnap><switch>true</switch><chls type='list'>
-                `
-                item.snap.forEach((ele) => {
-                    sendXml += `<item id='${ele.value}'></item>`
-                })
-                sendXml += rawXml`
-                    </chls></sysSnap></trigger>
-                    </item>
-                `
-            })
-            sendXml += `</task></chl></content>`
             return sendXml
         }
 
+        /**
+         * @description 设置人脸比对配置
+         */
         const setFaceCompareData = async () => {
             const sendXml = getFaceCompareSaveData()
             openLoading()
             await editFaceMatchAlarmParam(sendXml)
             closeLoading()
-            comparePageData.value.compareTab = 'hit'
-            comparePageData.value.applyDisabled = true
+            recognitionPageData.value.tab = 'hit'
+            watchRecognition.update()
         }
 
-        const deleteFaceCompareData = async (data: CompareTask) => {
+        /**
+         * @description 删除人脸识别成功配置
+         * @param {AlarmRecognitionTaskDto} data
+         */
+        const deleteRecognitionData = async (data: AlarmRecognitionTaskDto) => {
             const sendXml = rawXml`
                 <condition>
                     <chl id='${pageData.value.curChl}'>
@@ -1707,194 +1284,129 @@ export default defineComponent({
             await deleteFaceMatchAlarmParam(sendXml)
         }
 
-        const applyFaceCompareData = async () => {
-            // 识别中监听faceMatchData和faceCompareData两个数据
-            if (faceMatchData.value.editFlag) {
-                await setFaceMatchData()
+        /**
+         * @description 提交人脸识别数据
+         */
+        const applyRecognitionData = async () => {
+            // 识别中监听faceMatchData和recognitionFormData两个数据
+            if (!watchMatch.disabled.value) {
+                await setMatchData()
             }
-            if (faceCompareData.value.editFlag) {
+
+            if (!watchRecognition.disabled.value) {
                 await setFaceCompareData()
             }
         }
 
-        const LiveNotify2Js = ($: (path: string) => XmlResult) => {
-            const $xmlNote = $("statenotify[@type='VfdArea']")
-            if ($xmlNote.length > 0) {
-                const points = [] as { X1: number; Y1: number; X2: number; Y2: number }[]
-                $('/statenotify/item').forEach((item) => {
+        const notify = ($: XMLQuery, stateType: string) => {
+            if (stateType === 'VfdArea') {
+                detectionFormData.value.regionInfo = $('statenotify/item').map((item) => {
                     const $item = queryXml(item.element)
-                    points.push({ X1: Number($item('X1').text()), Y1: Number($item('Y1').text()), X2: Number($item('X2').text()), Y2: Number($item('Y2').text()) })
+                    return {
+                        X1: $item('X1').text().num(),
+                        Y1: $item('Y1').text().num(),
+                        X2: $item('X2').text().num(),
+                        Y2: $item('Y2').text().num(),
+                    }
                 })
-                faceDetectionData.value.regionInfo = points
             }
         }
 
+        /**
+         * @description 获取排程列表
+         */
+        const getScheduleList = async () => {
+            pageData.value.scheduleList = await buildScheduleList()
+        }
+
+        /**
+         * @description 关闭排程弹窗
+         */
+        const closeSchedulePop = async () => {
+            pageData.value.isSchedulePop = false
+            await getScheduleList()
+            detectionFormData.value.schedule = getScheduleId(pageData.value.scheduleList, detectionFormData.value.schedule)
+        }
+
         onMounted(async () => {
-            if (mode.value != 'h5') {
-                Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
-            }
-            getSnapOptions()
             openLoading()
-            if (showAIReourceDetail) {
-                await getAIResourceData(false)
-            }
+
             if (supportAlarmAudioConfig) {
                 await getVoiceList()
             }
-            await getScheduleData()
-            await getRecordList()
-            await getAlarmOutData()
-            await getSnapList()
+
+            await getScheduleList()
             await getChlData()
+
+            if (history.state.chlId) {
+                if (pageData.value.chlList.some((item) => item.id === history.state.chlId)) {
+                    pageData.value.curChl = history.state.chlId
+                }
+                delete history.state.chlId
+            }
+
+            if (!pageData.value.curChl && pageData.value.chlList.length) {
+                pageData.value.curChl = pageData.value.chlList[0].id
+            }
+
             closeLoading()
-            await getPresetData()
+
+            await changeChl()
         })
 
         onBeforeUnmount(() => {
-            if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
-                Plugin.VideoPluginNotifyEmitter.removeListener(LiveNotify2Js)
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx') {
                 // 切到其他AI事件页面时清除一下插件显示的（线条/点/矩形/多边形）数据
                 const sendAreaXML = OCX_XML_SetVfdAreaAction('NONE', 'vfdArea')
-                plugin.GetVideoPlugin().ExecuteCmd(sendAreaXML)
+                plugin.ExecuteCmd(sendAreaXML)
+
                 const sendMaxXML = OCX_XML_SetVfdAreaAction('NONE', 'faceMax')
-                plugin.GetVideoPlugin().ExecuteCmd(sendMaxXML)
+                plugin.ExecuteCmd(sendMaxXML)
+
                 const sendMinXML = OCX_XML_SetVfdAreaAction('NONE', 'faceMin')
-                plugin.GetVideoPlugin().ExecuteCmd(sendMinXML)
+                plugin.ExecuteCmd(sendMinXML)
+
                 const sendXML = OCX_XML_StopPreview('ALL')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
-            if (mode.value == 'h5') {
-                vfdDrawer.destroy()
-            }
+
+            drawer.destroy()
         })
 
-        watch(
-            faceDetectionData,
-            () => {
-                if (detectionPageData.value.initComplated) {
-                    detectionPageData.value.applyDisabled = false
-                }
-            },
-            {
-                deep: true,
-            },
-        )
-        watch(
-            faceMatchData,
-            () => {
-                if (comparePageData.value.initComplated) {
-                    faceMatchData.value.editFlag = true
-                    comparePageData.value.applyDisabled = false
-                }
-            },
-            {
-                deep: true,
-            },
-        )
-        watch(
-            faceCompareData,
-            () => {
-                if (comparePageData.value.initComplated) {
-                    faceCompareData.value.editFlag = true
-                    comparePageData.value.applyDisabled = false
-                }
-            },
-            {
-                deep: true,
-            },
-        )
-
         return {
-            // 识别成功界面
-            SuccessfulRecognition,
-            ScheduleManagPop,
+            chlData,
             detectionPageData,
             pageData,
-            // ai资源table数据
-            AIResourceTableData,
-            // 人脸侦测数据
-            faceDetectionData,
-            // 是否显示语音提示性项
+            detectionFormData,
             supportAlarmAudioConfig,
-            // 是否支持人脸比对
+            AISwitch,
             supportFaceMatch,
             showAIReourceDetail,
-            getAIResourceData,
             playerRef,
-            // tab项
-            faceTabChange,
-            detectionTabChange,
-            // ai资源弹窗
-            AIResourcePopOpen,
-            // AI资源弹窗
-            openAIResourcePop,
-            handleDelAIResource,
-            // 高级设置
-            advancedVisible,
-            // 改变通道
-            chlChange,
-            // 启用
-            enabledSwitchChange,
-            // 存储
-            saveSourcePicChange,
-            saveFacePicChange,
-            // 抓拍次数的checkbox
-            snapNumberCheckChange,
-            // 人脸最大小范围
-            minFaceBlur,
-            maxFaceBlur,
-            // 显示范围框
-            dispalyRangeChange,
-            // 清空绘制区域
+            notify,
+            changeTab,
+            changeChl,
+            blurMinFaceFrame,
+            blurMaxFaceFrame,
+            changeDisplayRange,
             clearDrawArea,
-            // 常规联动
-            normalParamList,
-            normalParamCheckAll,
-            handleNormalParamCheckAll,
-            normalParamCheckList,
-            handleNormalParamCheck,
-            // 录像
-            recordConfirm,
-            recordClose,
-            // 报警输出
-            alarmOutConfirm,
-            alarmOutClose,
-            // 联动预置点
-            PresetTableData,
-            presetChange,
-            getPresetById,
-            // 提交人脸侦测数据
             applyFaceDetectionData,
-
             handlePlayerReady,
-
-            /* 人脸识别——识别 */
+            closeSchedulePop,
             taskTabs,
-            // 相似度下拉框
-            similarityRef,
-            // 人脸匹配
             faceMatchData,
-            // 人脸分组数据
             faceGroupData,
-            // 人脸分组表格
-            faceGroupTable,
-            // 识别页面数据
-            comparePageData,
-            // 增加/删除任务
+            recognitionPageData,
             addTask,
             removeTask,
-            // 人脸识别tab项切换
-            compareTabChange,
-            // 人脸分组表格——相似度
-            similarityChangeAll,
-            // 相似度中的输入框失焦
-            similarityInputBlur,
-            // 按下回车键失焦
-            enterBlur,
-            // 人脸识别项切换
-            compareLinkData,
-            // 提交人脸识别数据
-            applyFaceCompareData,
+            changeAllSimilarity,
+            applyRecognitionData,
+            handleAIResourceError,
+            handleAIResourceDel,
+            recognitionFormData,
+            watchDetection,
+            watchMatch,
+            watchRecognition,
         }
     },
 })

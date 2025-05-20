@@ -2,20 +2,14 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-21 18:46:23
  * @Description: 磁盘状态
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 14:31:38
  */
-import { type SystemDiskStatusList } from '@/types/apiType/system'
-
 export default defineComponent({
-    setup() {
-        const { openLoading, closeLoading } = useLoading()
+    setup(_prop, ctx) {
         const { Translate } = useLangStore()
         const dateTime = useDateTimeStore()
 
         // 状态值与显示文案的映射
         const TRANS_MAPPING: Record<string, string> = {
-            loadingTip: Translate('IDCS_DEVC_REQUESTING_DATA'),
             bad: Translate('IDCS_NOT_AVAILABLE'),
             local: Translate('IDCS_LOCAL'),
             net: Translate('IDCS_REMOTE'),
@@ -38,7 +32,6 @@ export default defineComponent({
             hotplug: Translate('IDCS_DISK'),
             esata: Translate('IDCS_ESATA'),
             sata: Translate('IDCS_DISK'),
-            sas: Translate('IDCS_SAS'),
         }
 
         // 磁盘类型与显示文案的映射
@@ -46,13 +39,10 @@ export default defineComponent({
             hotplug: Translate('IDCS_NORMAL_DISK'),
             esata: Translate('IDCS_NORMAL_DISK'),
             sata: Translate('IDCS_NORMAL_DISK'),
-            sas: Translate('IDCS_NORMAL_DISK'),
             raid: Translate('IDCS_ARRAY'),
             removable: 'UDISK',
         }
 
-        // 数组中包含的硬盘类型表示：开启raid模式的时候，这些类型的硬盘的数据需要从diskList里面获取
-        const DIST_TYPE_LIST = ['esata', 'sas']
         const excludeFlag = 'locked'
 
         type DiskStatus = {
@@ -72,7 +62,7 @@ export default defineComponent({
 
             const storageResult = await queryStorageDevInfo()
             const $storage = queryXml(storageResult)
-            const raidSwitch = $storage('//content/storageSysInfo/raidSwitch').text().toBoolean()
+            const raidSwitch = $storage('content/storageSysInfo/raidSwitch').text().bool()
             const enclosureIndex = 0
 
             const result = await queryDiskStatus()
@@ -80,30 +70,31 @@ export default defineComponent({
 
             const rowData: SystemDiskStatusList[] = []
 
-            $('//content/item').forEach((item) => {
+            $('content/item').forEach((item) => {
                 const $item = queryXml(item.element)
-                diskStatus[item.attr('id')!] = {
+                diskStatus[item.attr('id')] = {
                     diskStatus: $item('diskStatus').text(),
                     diskEncryptStatus: $item('diskEncryptStatus').text(),
                 }
             })
 
-            $storage('//content/diskList/item').forEach((item) => {
+            $storage('content/diskList/item').forEach((item) => {
                 const $item = queryXml(item.element)
                 const diskInterfaceType = $item('diskInterfaceType').text()
                 // 移动U盘不显示
-                if (diskInterfaceType === 'removable' || (raidSwitch && !DIST_TYPE_LIST.includes(diskInterfaceType))) {
+                if (diskInterfaceType === 'removable' || (raidSwitch && diskInterfaceType !== 'esata')) {
                     // NTA1-665 开启raid后，磁盘信息页面显示eSATA盘
                     return
                 }
-                const diskStatus = $(`//content/item[@id='${item.attr('id')}']/diskStatus`).text()
-                const diskEncryptStatus = $(`//content/item[@id='${item.attr('id')}']/diskEncryptStatus`).text()
+                const diskStatus = $(`content/item[@id='${item.attr('id')}']/diskStatus`).text()
+                const diskEncryptStatus = $(`content/item[@id='${item.attr('id')}']/diskEncryptStatus`).text()
 
                 let recStartDate = $item('recStartDate').text()
                 let recEndDate = $item('recEndDate').text()
                 if (recStartDate !== '') {
                     recStartDate = formatDate(recStartDate, dateTime.dateFormat)
                 }
+
                 if (recEndDate !== '') {
                     recEndDate = formatDate(recEndDate, dateTime.dateFormat)
                 }
@@ -122,42 +113,44 @@ export default defineComponent({
                 }
 
                 rowData.push({
-                    id: item.attr('id')!,
+                    id: item.attr('id'),
                     diskNum: DISK_MAPPING[$item('diskInterfaceType').text()] + $item('slotIndex').text(),
                     raidType: 'normal',
-                    size: Math.floor(Number($item('size').text()) / 1024),
-                    freeSpace: Number($item('freeSpace').text()) / 1024,
+                    size: Math.floor($item('size').text().num() / 1024),
+                    freeSpace: $item('freeSpace').text().num() / 1024,
                     combinedStatus,
                     diskStatus,
                     diskEncryptStatus,
                     type: $item('diskInterfaceType').text(),
                     source: '',
                     group: '',
-                    recTime: recStartDate == recEndDate ? recStartDate : recStartDate + '~' + recEndDate,
+                    recTime: recStartDate === recEndDate ? recStartDate : recStartDate + '~' + recEndDate,
                     detail: [],
-                    gridRowStatus: 'loading',
-                    gridRowDisabled: true,
-                    gridRowStatusInitTooltip: TRANS_MAPPING['loadingTip'],
-                    sortIndex: enclosureIndex * 1000 + Number($item('slotIndex').text()),
+                    status: 'loading',
+                    disabled: true,
+                    statusTip: '',
+                    recFileDate: $('recFileDate').text(),
+                    sortIndex: enclosureIndex * 1000 + $item('slotIndex').text().num(),
                 })
             })
 
             // const supportedRaidTypes = []
             if (raidSwitch) {
-                // $storage('//content/storageSysInfo/supportedRaidType/item').forEach((item) => {
+                // $storage('content/storageSysInfo/supportedRaidType/item').forEach((item) => {
                 //     supportedRaidTypes.push(item.text())
                 // })
-                $storage('//content/raidList/item').forEach((item) => {
+                $storage('content/raidList/item').forEach((item) => {
                     const $item = queryXml(item.element)
 
-                    const diskStatus = $(`//content/item[@id='${item.attr('logicDiskId')}']/diskStatus`).text()
-                    const diskEncryptStatus = $(`//content/item[@id='${item.attr('logicDiskId')}']/diskEncryptStatus`).text()
+                    const diskStatus = $(`content/item[@id='${item.attr('logicDiskId')}']/diskStatus`).text()
+                    const diskEncryptStatus = $(`content/item[@id='${item.attr('logicDiskId')}']/diskEncryptStatus`).text()
 
                     let recStartDate = $item('recStartDate').text()
                     let recEndDate = $item('recEndDate').text()
                     if (recStartDate !== '') {
                         recStartDate = formatDate(recStartDate, dateTime.dateFormat)
                     }
+
                     if (recEndDate !== '') {
                         recEndDate = formatDate(recEndDate, dateTime.dateFormat)
                     }
@@ -176,22 +169,23 @@ export default defineComponent({
                     }
 
                     rowData.push({
-                        id: item.attr('logicDiskId')!,
-                        diskNum: DISK_MAPPING[$item('name').text()] + $item('slotIndex').text(),
+                        id: item.attr('logicDiskId'),
+                        diskNum: $item('name').text(),
                         raidType: $item('raidType').text(),
-                        size: Math.floor(Number($item('realSize').text()) / 1024),
-                        freeSpace: Number($item('freeSpace').text()) / 1024,
+                        size: Math.floor($item('realSize').text().num() / 1024),
+                        freeSpace: $item('freeSpace').text().num() / 1024,
                         combinedStatus,
                         diskStatus,
                         diskEncryptStatus,
                         type: 'raid',
                         source: '',
                         group: '',
-                        recTime: recStartDate == recEndDate ? recStartDate : recStartDate + '~' + recEndDate,
+                        recTime: recStartDate === recEndDate ? recStartDate : recStartDate + '~' + recEndDate,
+                        recFileDate: '',
                         detail: [],
-                        gridRowStatus: 'loading',
-                        gridRowDisabled: true,
-                        gridRowStatusInitTooltip: TRANS_MAPPING['loadingTip'],
+                        status: 'loading',
+                        disabled: true,
+                        statusTip: '',
                         sortIndex: enclosureIndex * 1000,
                     })
                 })
@@ -204,11 +198,10 @@ export default defineComponent({
 
             tableData.value = rowData
 
+            closeLoading()
+
             // 请求显示设置数据
-            const task = tableData.value.map((item, index) => getDetail(item.id, index))
-            Promise.all(task).then(() => {
-                closeLoading()
-            })
+            tableData.value.forEach((item) => getDetail(item))
         }
 
         /**
@@ -216,29 +209,27 @@ export default defineComponent({
          * @param {string} id
          * @param {number} index
          */
-        const getDetail = async (id: string, index: number) => {
+        const getDetail = async (item: SystemDiskStatusList) => {
             const sendXml = rawXml`
                 <condition>
-                    <diskId>${id}</diskId>
+                    <diskId>${item.id}</diskId>
                 </condition>
             `
             const result = await queryDiskDetailInfo(sendXml)
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 let groupName = ''
-                if (diskStatus[id].diskEncryptStatus !== excludeFlag) {
-                    groupName = $('//content/groupName').text()
+                if (item.diskEncryptStatus !== excludeFlag) {
+                    groupName = $('content/groupName').text()
                 } else {
                     groupName = '--'
                 }
-                tableData.value[index].source = TRANS_MAPPING[$('//content/source').text()]
-                tableData.value[index].group = groupName
-                tableData.value[index].gridRowStatus = ''
-                tableData.value[index].gridRowDisabled = false
-            } else {
-                tableData.value[index].gridRowStatusInitTooltip = ''
+                item.source = TRANS_MAPPING[$('content/source').text()]
+                item.group = groupName
+                item.disabled = false
             }
+            item.status = ''
         }
 
         /**
@@ -264,7 +255,7 @@ export default defineComponent({
          * @param event
          * @returns
          */
-        const handleToolBarEvent = (event: ConfigToolBarEvent<ChannelToolBarEvent>) => {
+        const handleToolBarEvent = (event: ConfigToolBarEvent<SearchToolBarEvent>) => {
             if (event.type === 'refresh') {
                 getData()
                 return
@@ -275,8 +266,11 @@ export default defineComponent({
             getData()
         })
 
-        return {
+        ctx.expose({
             handleToolBarEvent,
+        })
+
+        return {
             tableData,
             formatDiskType,
             formatSizeAndFreeSpace,

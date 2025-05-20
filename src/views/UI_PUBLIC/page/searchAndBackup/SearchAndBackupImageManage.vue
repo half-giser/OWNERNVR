@@ -2,55 +2,50 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-09 15:02:25
  * @Description: 搜索与备份-图片管理
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 14:50:15
 -->
 <template>
     <div class="img-mgr base-flex-box">
         <div class="form">
             <div>
                 <label>{{ Translate('IDCS_START_TIME') }}</label>
-                <el-date-picker
+                <BaseDatePicker
                     v-model="pageData.startTime"
-                    :value-format="dateTime.dateTimeFormat"
-                    :format="dateTime.dateTimeFormat"
-                    :cell-class-name="highlightWeekend"
-                    clear-icon=""
                     type="datetime"
-                ></el-date-picker>
+                />
                 <label>{{ Translate('IDCS_END_TIME') }}</label>
-                <el-date-picker
+                <BaseDatePicker
                     v-model="pageData.endTime"
-                    :value-format="dateTime.dateTimeFormat"
-                    :format="dateTime.dateTimeFormat"
-                    :cell-class-name="highlightWeekend"
-                    clear-icon=""
                     type="datetime"
-                ></el-date-picker>
+                />
                 <el-button @click="search">{{ Translate('IDCS_SEARCH') }}</el-button>
             </div>
             <div>
                 <el-button
                     link
                     @click="showBackupTipPop"
-                    >{{ Translate('IDCS_EXPORT_NOTICE') }}</el-button
                 >
+                    {{ Translate('IDCS_EXPORT_NOTICE') }}
+                </el-button>
             </div>
         </div>
         <div class="base-table-box">
             <el-table
                 ref="tableRef"
+                v-title
                 :data="tableData"
-                border
-                stripe
+                show-overflow-tooltip
                 @row-click="handleRowClick"
             >
                 <el-table-column
                     :label="Translate('IDCS_SERIAL_NUMBER')"
                     prop="index"
+                    width="60"
                 />
                 <el-table-column type="selection" />
-                <el-table-column prop="chlName">
+                <el-table-column
+                    prop="chlName"
+                    min-width="220"
+                >
                     <template #header>
                         <div
                             class="sort-title"
@@ -67,7 +62,10 @@
                         </div>
                     </template>
                 </el-table-column>
-                <el-table-column prop="captureModeKey">
+                <el-table-column
+                    prop="captureModeKey"
+                    min-width="150"
+                >
                     <template #header>
                         <div
                             class="sort-title"
@@ -84,7 +82,7 @@
                         </div>
                     </template>
                 </el-table-column>
-                <el-table-column prop="captureTime">
+                <el-table-column min-width="220">
                     <template #header>
                         <div
                             class="sort-title"
@@ -100,36 +98,27 @@
                             />
                         </div>
                     </template>
-                    <template #default="scope">
-                        {{ displayDateTime(scope.row.captureTimeStamp) }}
+                    <template #default="{ row }: TableColumn<PlaybackSearchImgList>">
+                        {{ displayDateTime(row.captureTimeStamp) }}
                     </template>
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_CREATE_USER')"
                     prop="creator"
-                >
-                </el-table-column>
-                <el-table-column
-                    :label="Translate('IDCS_BROWSE')"
-                    prop="browser"
-                >
-                    <template #default="scope">
-                        <BaseImgSprite
+                    min-width="220"
+                />
+                <el-table-column :label="Translate('IDCS_BROWSE')">
+                    <template #default="{ $index }: TableColumn<PlaybackSearchImgList>">
+                        <BaseImgSpriteBtn
                             file="browser"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click="browseImg(scope.$index)"
+                            @click="browseImg($index)"
                         />
                     </template>
                 </el-table-column>
 
-                <el-table-column
-                    :label="Translate('IDCS_EXPORT')"
-                    prop="export"
-                >
+                <el-table-column :label="Translate('IDCS_EXPORT')">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_EXPORT') }}
                             </BaseTableDropdownLink>
@@ -140,22 +129,16 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
-                        <BaseImgSprite
+                    <template #default="{ row }: TableColumn<PlaybackSearchImgList>">
+                        <BaseImgSpriteBtn
                             file="export"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click="exportImg(scope.row)"
+                            @click="exportImg(row)"
                         />
                     </template>
                 </el-table-column>
-                <el-table-column
-                    :label="Translate('IDCS_DELETE')"
-                    prop="id"
-                >
+                <el-table-column :label="Translate('IDCS_DELETE')">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_DELETE') }}
                             </BaseTableDropdownLink>
@@ -166,30 +149,25 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
-                        <BaseImgSprite
+                    <template #default="{ row }: TableColumn<PlaybackSearchImgList>">
+                        <BaseImgSpriteBtn
                             file="del"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click="deleteImg(scope.row)"
+                            @click="deleteImg(row)"
                         />
                     </template>
                 </el-table-column>
             </el-table>
         </div>
-        <div class="base-btn-box">
-            <el-pagination
+        <div class="base-pagination-box">
+            <BasePagination
                 :current-page="formData.pageIndex"
                 :page-size="formData.pageSize"
-                :layout="DefaultPagerLayout"
                 :total="pageData.totalCount"
-                :page-sizes="[20, 30, 50]"
+                :page-sizes="[10, 30, 50]"
                 @update:current-page="changePageIndex"
                 @update:page-size="changePageSize"
             />
         </div>
-        <BasePluginNotice />
         <BackupImgPop
             v-model="pageData.isBackUpPop"
             :backup-list="pageData.backupImgList"
@@ -207,7 +185,6 @@
         />
         <el-dialog
             v-model="pageData.isBackUpTipPop"
-            draggable
             :title="Translate('IDCS_EXPORT_NOTICE')"
             :width="500"
         >
@@ -219,23 +196,19 @@
                 />
                 <div>
                     {{ Translate('IDCS_EXPORT_SELECT_ALARM') }}
-                    <template v-if="browserType === 'chrome'">
+                    <!-- <template v-if="browserType === 'chrome'">
                         <br />
                         <div v-clean-html="Translate('IDCS_EXPORT_ALARM_CHROME')"></div>
-                    </template>
+                    </template> -->
                 </div>
             </div>
-            <el-checkbox v-model="pageData.isBackUpTipNotAgain">{{ Translate('IDCS_NOT_SHOW_AGAIN') }}</el-checkbox>
-            <template #footer>
-                <el-row>
-                    <el-col
-                        :span="24"
-                        class="el-col-flex-end"
-                    >
-                        <el-button @click="closeBackupTipPop">{{ Translate('IDCS_OK') }}</el-button>
-                    </el-col>
-                </el-row>
-            </template>
+            <el-checkbox
+                v-model="pageData.isBackUpTipNotAgain"
+                :label="Translate('IDCS_NOT_SHOW_AGAIN')"
+            />
+            <div class="base-btn-box">
+                <el-button @click="closeBackupTipPop">{{ Translate('IDCS_OK') }}</el-button>
+            </div>
         </el-dialog>
     </div>
 </template>
@@ -252,9 +225,15 @@
     justify-content: space-between;
     margin: 10px;
 
+    & > div {
+        display: flex;
+        align-items: center;
+    }
+
     label {
         padding-right: 20px;
         font-size: 13px;
+        flex-shrink: 0;
 
         &:not(:first-child) {
             padding-left: 20px;
@@ -263,17 +242,6 @@
 
     .el-button {
         margin-left: 10px;
-    }
-
-    :deep(.el-button) {
-        &.is-link {
-            color: var(--main-text);
-
-            &:hover {
-                text-decoration: underline;
-                color: var(--primary);
-            }
-        }
     }
 }
 
@@ -288,6 +256,8 @@
     & > div:last-child {
         margin-left: 15px;
         color: var(--main-text);
+        display: flex;
+        align-items: center;
     }
 }
 

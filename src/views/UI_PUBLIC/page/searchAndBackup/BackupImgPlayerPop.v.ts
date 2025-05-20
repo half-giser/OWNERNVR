@@ -2,11 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-12 13:46:14
  * @Description: 图片浏览器
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 17:59:29
  */
-import { type PlaybackSearchImgList } from '@/types/apiType/playback'
-
 export default defineComponent({
     props: {
         /**
@@ -43,21 +39,20 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const dateTime = useDateTimeStore()
+        const { Translate } = useLangStore()
 
         const pageData = ref({
             visible: false,
             paused: true,
         })
 
-        let timer: NodeJS.Timeout | number = 0
-
         /**
          * @description 获取图像URL
          * @returns {String}
          */
         const getImg = () => {
-            if (!pageData.value.visible) return ''
-            if (!prop.item.chlId) return ''
+            if (!pageData.value.visible) return DEFAULT_EMPTY_IMG
+            if (!prop.item.chlId) return DEFAULT_EMPTY_IMG
             const data = {
                 chlId: prop.item.chlId,
                 captureMode: prop.item.captureMode,
@@ -67,6 +62,15 @@ export default defineComponent({
                 .map((item) => item.join('='))
                 .join(',')}`
             return url
+        }
+
+        const handleError = (e: Event) => {
+            if ((e.target as HTMLImageElement).src !== DEFAULT_EMPTY_IMG) {
+                openMessageBox({
+                    type: 'alarm',
+                    message: Translate('IDCS_CANT_FIND_IMG'),
+                })
+            }
         }
 
         /**
@@ -85,19 +89,21 @@ export default defineComponent({
             ctx.emit('close')
         }
 
+        const timer = useRefreshTimer(() => {
+            if (prop.item.index >= prop.total) {
+                pause()
+                return
+            }
+            ctx.emit('next')
+            play()
+        }, 3000)
+
         /**
          * @description 自动播放图像
          */
         const play = () => {
             pageData.value.paused = false
-            timer = setTimeout(() => {
-                if (prop.item.index >= prop.total) {
-                    pause()
-                    return
-                }
-                ctx.emit('next')
-                play()
-            }, 3000)
+            timer.repeat()
         }
 
         /**
@@ -105,7 +111,7 @@ export default defineComponent({
          */
         const pause = () => {
             pageData.value.paused = true
-            clearTimeout(timer)
+            timer.stop()
         }
 
         /**
@@ -118,10 +124,6 @@ export default defineComponent({
             return formatDate(timestamp, dateTime.dateTimeFormat)
         }
 
-        onBeforeUnmount(() => {
-            pause()
-        })
-
         return {
             pageData,
             open,
@@ -130,6 +132,7 @@ export default defineComponent({
             play,
             pause,
             displayDateTime,
+            handleError,
         }
     },
 })

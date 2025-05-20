@@ -2,16 +2,12 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-26 10:02:29
  * @Description: 日期范围
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 13:49:05
 -->
 <template>
     <div class="date-range">
         <BaseImgSprite
-            file="datePicker"
-            :index="0"
+            file="datePicker-first"
             :hover-index="0"
-            :chunk="7"
             @click="handlePrev"
         />
         <div class="date-range-box">
@@ -19,10 +15,8 @@
             <span v-show="type === 'custom' || type === 'week' || type === 'quarter'"> -- {{ displayDateValue(props.modelValue[1]) }}</span>
         </div>
         <BaseImgSprite
-            file="datePicker"
-            :index="3"
-            :hover-index="3"
-            :chunk="7"
+            file="datePicker-last"
+            :hover-index="0"
             @click="handleNext"
         />
     </div>
@@ -41,10 +35,15 @@ const props = withDefaults(
          * @property 当前时间 毫秒
          */
         modelValue?: [number, number]
+        /**
+         * @property 自定义时间类型
+         */
+        customType?: 'minute' | 'second' | 'day'
     }>(),
     {
         type: 'date',
         modelValue: () => [Date.now(), Date.now()],
+        customType: 'second',
     },
 )
 
@@ -53,7 +52,6 @@ const emits = defineEmits<{
     (e: 'change', data: [number, number], type: string): void
 }>()
 
-const { openMessageTipBox } = useMessageBox()
 const { Translate } = useLangStore()
 const dateTime = useDateTimeStore()
 
@@ -63,7 +61,6 @@ const dateTime = useDateTimeStore()
 const handlePrev = () => {
     const oldValue = [...props.modelValue]
     let current: [number, number] = [0, 0]
-    console.log(props.type)
 
     switch (props.type) {
         case 'date':
@@ -121,10 +118,7 @@ const handleNext = () => {
     }
 
     if (current[0] > dayjs().hour(23).minute(59).second(59).valueOf()) {
-        openMessageTipBox({
-            type: 'info',
-            message: Translate('IDCS_INVALID_TIME_RANGE'),
-        })
+        openMessageBox(Translate('IDCS_INVALID_TIME_RANGE'))
         return
     }
     emits('update:modelValue', current)
@@ -140,17 +134,35 @@ const displayDateValue = (timestamp: number) => {
         if (dayjs().isSame(timestamp, 'day')) {
             return Translate('IDCS_CALENDAR_TODAY')
         }
+
         if (dayjs().subtract(1, 'day').isSame(timestamp, 'day')) {
             return Translate('IDCS_CALENDAR_YESTERDAY')
         }
         return formatDate(timestamp, dateTime.dateFormat)
     }
+
     if (props.type === 'month' || props.type === 'quarter') {
         return formatDate(timestamp, dateTime.yearMonthFormat)
     }
+
     if (props.type === 'week') {
         return formatDate(timestamp, dateTime.dateFormat)
     }
+
+    if (props.type === 'custom') {
+        if (props.customType === 'day') {
+            return formatDate(timestamp, dateTime.dateFormat)
+        }
+
+        if (props.customType === 'minute') {
+            return formatDate(timestamp, dateTime.dateFormat + ' ' + dateTime.hourMinuteFormat)
+        }
+
+        if (props.customType === 'second') {
+            return formatDate(timestamp, dateTime.dateTimeFormat)
+        }
+    }
+
     return formatDate(timestamp, dateTime.dateTimeFormat)
 }
 </script>

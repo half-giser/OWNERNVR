@@ -2,30 +2,23 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-12 18:20:28
  * @Description: FTP
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-10 14:10:59
 -->
 <template>
     <div class="base-flex-box">
-        <div class="base-subheading-box">{{ Translate('IDCS_FTP') }}</div>
+        <div class="base-head-box">{{ Translate('IDCS_FTP') }}</div>
         <el-form
             ref="formRef"
-            :style="{
-                '--form-label-width': '200px',
-                '--form-input-width': '200px',
-            }"
-            inline-message
-            class="stripe narrow"
+            v-title
+            class="stripe"
             :rules="formRule"
             :model="formData"
-            label-position="left"
         >
             <el-form-item>
                 <el-checkbox
                     v-model="formData.switch"
+                    :label="Translate('IDCS_ENABLE')"
                     @change="changeSwitch"
-                    >{{ Translate('IDCS_ENABLE') }}</el-checkbox
-                >
+                />
             </el-form-item>
             <el-form-item>
                 <el-form-item
@@ -37,19 +30,18 @@
                         :disabled="!formData.switch"
                         :formatter="formatServerAddress"
                         :parser="formatServerAddress"
-                        maxlength="64"
+                        :maxlength="formData.serverAddrMaxLen"
                     />
                 </el-form-item>
                 <el-form-item
                     :label="Translate('IDCS_PORT')"
                     prop="port"
                 >
-                    <el-input-number
+                    <BaseNumberInput
                         v-model="formData.port"
                         :disabled="!formData.switch"
                         :min="10"
                         :max="65535"
-                        :controls="false"
                     />
                 </el-form-item>
             </el-form-item>
@@ -57,35 +49,32 @@
                 <el-checkbox
                     v-model="formData.anonymousSwitch"
                     :disabled="!formData.switch"
-                    >{{ Translate('IDCS_ANONYMOUS') }}</el-checkbox
-                >
+                    :label="Translate('IDCS_ANONYMOUS')"
+                />
             </el-form-item>
             <el-form-item>
                 <el-form-item
                     :label="Translate('IDCS_USERNAME')"
                     prop="userName"
                 >
-                    <el-input
+                    <BaseTextInput
                         v-model="formData.userName"
-                        maxlength="64"
+                        :maxlength="formData.userNameMaxByteLen"
                         :disabled="!formData.switch || formData.anonymousSwitch"
                     />
                 </el-form-item>
-                <el-form-item
-                    :label="Translate('IDCS_CHANGE_PWD')"
-                    prop="password"
-                >
-                    <el-input
+                <el-form-item prop="password">
+                    <template #label>
+                        {{ Translate('IDCS_PASSWORD') }}
+                        <el-checkbox
+                            v-model="pageData.passwordSwitch"
+                            :disabled="!formData.switch || formData.anonymousSwitch"
+                        />
+                    </template>
+                    <BasePasswordInput
                         v-model="formData.password"
-                        type="password"
                         maxlength="32"
                         :disabled="!formData.switch || formData.anonymousSwitch || !pageData.passwordSwitch"
-                        @paste.capture.prevent=""
-                        @copy.capture.prevent=""
-                    />
-                    <el-checkbox
-                        v-model="pageData.passwordSwitch"
-                        :disabled="!formData.switch || formData.anonymousSwitch"
                     />
                 </el-form-item>
             </el-form-item>
@@ -94,12 +83,11 @@
                     :label="Translate('IDCS_MAX_FILE_SIZE')"
                     prop="maxSize"
                 >
-                    <el-input-number
+                    <BaseNumberInput
                         v-model="formData.maxSize"
-                        :min="pageData.minFileSize"
-                        :max="pageData.maxFileSize"
+                        :min="formData.maxSizeMin"
+                        :max="formData.maxSizeMax"
                         :disabled="!formData.switch"
-                        :controls="false"
                     />
                     <el-text>M</el-text>
                 </el-form-item>
@@ -109,7 +97,7 @@
                 >
                     <el-input
                         v-model="formData.path"
-                        maxlength="64"
+                        :maxlength="formData.pathMaxLen"
                         :formatter="formatDir"
                         :parser="formatDir"
                         :disabled="!formData.switch"
@@ -120,64 +108,49 @@
                 <el-checkbox
                     v-model="formData.disNetUpLoad"
                     :disabled="!formData.switch"
-                    >{{ Translate('IDCS_DIS_NET_UPLOAD') }}</el-checkbox
-                >
-                <el-text>{{ Translate('IDCS_DIS_NET_UPLOAD_TIP') }}</el-text>
+                    :label="Translate('IDCS_DIS_NET_UPLOAD')"
+                />
+                <span>{{ Translate('IDCS_DIS_NET_UPLOAD_TIP') }}</span>
             </el-form-item>
         </el-form>
-        <div class="base-subheading-box">{{ Translate('IDCS_UPLOAD_SET') }}</div>
+        <div class="base-head-box">{{ Translate('IDCS_UPLOAD_SET') }}</div>
         <el-table
+            v-title
             height="100%"
-            stripe
-            border
             :data="tableData"
+            :row-class-name="handleRowClassName"
         >
             <el-table-column>
                 <!-- 通道号 -->
                 <el-table-column
                     :label="Translate('IDCS_CHANNEL_NUMBER')"
                     prop="chlNum"
+                    width="80"
                 />
                 <!-- 通道名称 -->
                 <el-table-column
                     :label="Translate('IDCS_CHANNEL_NAME')"
                     prop="name"
+                    width="150"
+                    show-overflow-tooltip
                 />
                 <!-- 排程 -->
                 <el-table-column>
                     <template #header>
-                        <el-dropdown
-                            trigger="click"
+                        <BaseScheduleTableDropdown
                             :disabled="!formData.switch"
-                        >
-                            <BaseTableDropdownLink>
-                                {{ Translate('IDCS_SCHEDULE') }}
-                            </BaseTableDropdownLink>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <el-dropdown-item
-                                        v-for="item in pageData.scheduleOptions"
-                                        :key="item.value"
-                                        :value="item.value"
-                                        @click="changeAllSwitch('schedule', item.value)"
-                                        >{{ item.label }}</el-dropdown-item
-                                    >
-                                </el-dropdown-menu>
-                            </template>
-                        </el-dropdown>
+                            :options="pageData.scheduleOptions"
+                            @change="changeAllSchedule"
+                            @edit="openSchedulePop"
+                        />
                     </template>
-                    <template #default="scope">
-                        <el-select
-                            v-model="scope.row.schedule"
+                    <template #default="{ row }: TableColumn<NetFTPList>">
+                        <BaseScheduleSelect
+                            v-model="row.schedule"
                             :disabled="!formData.switch"
-                        >
-                            <el-option
-                                v-for="item in pageData.scheduleOptions"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
+                            :options="pageData.scheduleOptions"
+                            @edit="openSchedulePop"
+                        />
                     </template>
                 </el-table-column>
             </el-table-column>
@@ -185,10 +158,7 @@
                 <!-- 移动侦测 -->
                 <el-table-column :label="Translate('IDCS_MOTION_DETECTION')">
                     <template #header>
-                        <el-dropdown
-                            trigger="click"
-                            :disabled="!formData.switch"
-                        >
+                        <el-dropdown :disabled="!formData.switch">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_MOTION_DETECTION') }}
                             </BaseTableDropdownLink>
@@ -197,7 +167,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.switchOptions"
                                         :key="item.value"
-                                        :value="item.value"
                                         @click="changeAllSwitch('motion', item.value)"
                                     >
                                         {{ item.label }}
@@ -206,27 +175,18 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
-                        <el-select
-                            v-model="scope.row.motion"
+                    <template #default="{ row }: TableColumn<NetFTPList>">
+                        <el-select-v2
+                            v-model="row.motion"
                             :disabled="!formData.switch"
-                        >
-                            <el-option
-                                v-for="item in pageData.switchOptions"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
+                            :options="pageData.switchOptions"
+                        />
                     </template>
                 </el-table-column>
                 <!-- 智能 -->
                 <el-table-column>
                     <template #header>
-                        <el-dropdown
-                            trigger="click"
-                            :disabled="!formData.switch"
-                        >
+                        <el-dropdown :disabled="!formData.switch">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_INTELLIGENT') }}
                             </BaseTableDropdownLink>
@@ -235,7 +195,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.switchOptions"
                                         :key="item.value"
-                                        :value="item.value"
                                         @click="changeAllSwitch('inteligence', item.value)"
                                     >
                                         {{ item.label }}
@@ -244,27 +203,18 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
-                        <el-select
-                            v-model="scope.row.inteligence"
+                    <template #default="{ row }: TableColumn<NetFTPList>">
+                        <el-select-v2
+                            v-model="row.inteligence"
+                            :options="pageData.switchOptions"
                             :disabled="!formData.switch"
-                        >
-                            <el-option
-                                v-for="item in pageData.switchOptions"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
+                        />
                     </template>
                 </el-table-column>
                 <!-- 传感器 -->
                 <el-table-column>
                     <template #header>
-                        <el-dropdown
-                            trigger="click"
-                            :disabled="!formData.switch"
-                        >
+                        <el-dropdown :disabled="!formData.switch">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SENSOR') }}
                             </BaseTableDropdownLink>
@@ -273,7 +223,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.switchOptions"
                                         :key="item.value"
-                                        :value="item.value"
                                         @click="changeAllSwitch('sensor', item.value)"
                                     >
                                         {{ item.label }}
@@ -282,27 +231,18 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
-                        <el-select
-                            v-model="scope.row.sensor"
+                    <template #default="{ row }: TableColumn<NetFTPList>">
+                        <el-select-v2
+                            v-model="row.sensor"
                             :disabled="!formData.switch"
-                        >
-                            <el-option
-                                v-for="item in pageData.switchOptions"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
+                            :options="pageData.switchOptions"
+                        />
                     </template>
                 </el-table-column>
                 <!-- 码流类型 -->
                 <el-table-column>
                     <template #header>
-                        <el-dropdown
-                            trigger="click"
-                            :disabled="!formData.switch"
-                        >
+                        <el-dropdown :disabled="!formData.switch">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_CODE_STREAM_TYPE') }}
                             </BaseTableDropdownLink>
@@ -311,7 +251,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.streamTypeOptions"
                                         :key="item.value"
-                                        :value="item.value"
                                         @click="changeAllSwitch('streamType', item.value)"
                                     >
                                         {{ item.label }}
@@ -320,18 +259,12 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
-                        <el-select
-                            v-model="scope.row.streamType"
+                    <template #default="{ row }: TableColumn<NetFTPList>">
+                        <el-select-v2
+                            v-model="row.streamType"
                             :disabled="!formData.switch"
-                        >
-                            <el-option
-                                v-for="item in pageData.streamTypeOptions"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
+                            :options="pageData.streamTypeOptions"
+                        />
                     </template>
                 </el-table-column>
             </el-table-column>
@@ -339,10 +272,7 @@
                 <!-- 抓图 -->
                 <el-table-column>
                     <template #header>
-                        <el-dropdown
-                            trigger="click"
-                            :disabled="!formData.switch"
-                        >
+                        <el-dropdown :disabled="!formData.switch">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SNAP') }}
                             </BaseTableDropdownLink>
@@ -351,7 +281,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.switchOptions"
                                         :key="item.value"
-                                        :value="item.value"
                                         @click="changeAllSwitch('ftpSnapSwitch', item.value)"
                                     >
                                         {{ item.label }}
@@ -360,18 +289,12 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
-                        <el-select
-                            v-model="scope.row.ftpSnapSwitch"
+                    <template #default="{ row }: TableColumn<NetFTPList>">
+                        <el-select-v2
+                            v-model="row.ftpSnapSwitch"
                             :disabled="!formData.switch"
-                        >
-                            <el-option
-                                v-for="item in pageData.switchOptions"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
+                            :options="pageData.switchOptions"
+                        />
                     </template>
                 </el-table-column>
             </el-table-column>
@@ -379,10 +302,7 @@
                 <!-- 报警信息 -->
                 <el-table-column>
                     <template #header>
-                        <el-dropdown
-                            trigger="click"
-                            :disabled="!formData.switch"
-                        >
+                        <el-dropdown :disabled="!formData.switch">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_ALARM_INFO') }}
                             </BaseTableDropdownLink>
@@ -391,7 +311,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.switchOptions"
                                         :key="item.value"
-                                        :value="item.value"
                                         @click="changeAllSwitch('ftpAlarmInfoSwitch', item.value)"
                                     >
                                         {{ item.label }}
@@ -400,18 +319,12 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
-                        <el-select
-                            v-model="scope.row.ftpAlarmInfoSwitch"
+                    <template #default="{ row }: TableColumn<NetFTPList>">
+                        <el-select-v2
+                            v-model="row.ftpAlarmInfoSwitch"
                             :disabled="!formData.switch"
-                        >
-                            <el-option
-                                v-for="item in pageData.switchOptions"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
+                            :options="pageData.switchOptions"
+                        />
                     </template>
                 </el-table-column>
             </el-table-column>
@@ -419,19 +332,15 @@
         <div class="base-btn-box">
             <el-button
                 :disabled="!formData.switch"
-                @click="manageSchedule"
-                >{{ Translate('IDCS_SCHEDULE_MANAGE') }}</el-button
-            >
-            <el-button
-                :disabled="!formData.switch"
                 @click="test"
-                >{{ Translate('IDCS_TEST') }}</el-button
             >
+                {{ Translate('IDCS_TEST') }}
+            </el-button>
             <el-button @click="verify">{{ Translate('IDCS_APPLY') }}</el-button>
         </div>
-        <ScheduleManagPop
+        <BaseScheduleManagePop
             v-model="pageData.isSchedulePop"
-            @close="confirmManageSchedule"
+            @close="closeSchedulePop"
         />
     </div>
 </template>

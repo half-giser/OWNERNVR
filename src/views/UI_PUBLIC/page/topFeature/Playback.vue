@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-09 18:39:25
  * @Description: 回放
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 10:07:11
 -->
 <template>
     <div class="playback">
@@ -15,7 +13,7 @@
             @play="handleChlPlay"
         >
             <PlaybackEventPanel
-                :smd-rec-log-play="pageData.smdRecLogPlay"
+                ref="eventRef"
                 @change="changeEvent"
             />
         </PlaybackChannelPanel>
@@ -26,15 +24,16 @@
                     :split="pageData.split"
                     :enable-pos="systemCaps.supportPOS"
                     type="record"
-                    @onready="handlePlayerReady"
-                    @ontime="handlePlayerTimeUpdate"
-                    @onselect="handlePlayerSelect"
-                    @onsuccess="handlePlayerSuccess"
-                    @onstop="handlePlayerStop"
-                    @onplay-status="handlePlayerStatus"
-                    @onerror="handlePlayerError"
-                    @ondblclickchange="handlePlayerDblclickChange"
-                    @onwinexchange="updateTimeline"
+                    @ready="handlePlayerReady"
+                    @time="handlePlayerTimeUpdate"
+                    @select="handlePlayerSelect"
+                    @success="handlePlayerSuccess"
+                    @stop="handlePlayerStop"
+                    @play-status="handlePlayerStatus"
+                    @error="handlePlayerError"
+                    @dblclickchange="handlePlayerDblclickChange"
+                    @winexchange="updateTimeline"
+                    @message="notify"
                 />
             </div>
             <div class="center-ctrl">
@@ -48,6 +47,7 @@
                     :watermark="pageData.watermark"
                     :playing-list="playingListNum"
                     :clip-range="pageData.timelineClipRange"
+                    :has-pos-event="pageData.hasPosEvent"
                     @fullscreen="fullScreen"
                     @update:split="setSplit"
                     @update:osd="toggleOSD"
@@ -79,6 +79,7 @@
                     :chl="pageData.winData.chlID"
                     :play-status="pageData.playStatus"
                     :chls="pageData.chls"
+                    :pos-keyword="pageData.posKeyword"
                     @callback="handleRecLogCallback"
                     @play="handleRecLogPlay"
                     @download="handleRecLogDownload"
@@ -86,26 +87,10 @@
                 />
             </div>
             <div class="bottom">
-                <el-calendar v-model="calendar.date.value">
-                    <template #header="scope">
-                        <div class="calendar-header">
-                            <span @click="calendar.prevMonth">&lt;</span>
-                            <span>{{ scope.date }}</span>
-                            <span @click="calendar.nextMonth">&gt;</span>
-                        </div>
-                    </template>
-                    <template #date-cell="scope">
-                        <div
-                            :class="{
-                                active: calendar.current.value.getTime() === scope.data.date.getTime(),
-                                badge: calendar.highlight(pageData.recTimeList, scope.data.date),
-                            }"
-                            @click="calendar.change(scope.data.date)"
-                        >
-                            {{ scope.data.day.split('-')[2] }}
-                        </div>
-                    </template>
-                </el-calendar>
+                <BaseCalendar
+                    v-model="pageData.calendarDate"
+                    :badge="pageData.recTimeList"
+                />
                 <div class="timeline">
                     <div class="timeline-view">
                         <BaseTimeline
@@ -120,7 +105,7 @@
                     </div>
                     <div class="legend">
                         <div
-                            v-for="item in pageData.legend"
+                            v-for="item in pageData.legend.toReversed()"
                             :key="item.value"
                         >
                             <span :style="{ backgroundColor: item.color }"></span>
@@ -135,9 +120,9 @@
             :support-fish-eye="!!pageData.fishEye"
             :win-data="pageData.winData"
         >
-            <template #default="scope">
+            <template #default="{ index }">
                 <PlaybackControlPanel
-                    v-show="scope.index === 0"
+                    v-show="index === 0"
                     :mode="mode"
                     :win-data="pageData.winData"
                     :volume="pageData.volume"
@@ -153,7 +138,7 @@
                 />
                 <PlaybackFisheyePanel
                     v-if="isFishEyePanel"
-                    v-show="scope.index === 1"
+                    v-show="index === 1"
                     ref="fisheyeRef"
                     :win-data="pageData.winData"
                     :install-type="pageData.fishEye"
@@ -174,7 +159,6 @@
             :backup-list="pageData.backupRecList"
             @close="pageData.isLocalBackUpPop = false"
         />
-        <BaseNotification v-model:notifications="pageData.notification" />
     </div>
 </template>
 
@@ -183,18 +167,19 @@
 <style lang="scss" scoped>
 .playback {
     width: 100%;
-    height: calc(var(--content-height) + 70px);
-    border: 1px solid var(--input-border);
+    height: 100%;
+    min-height: calc(var(--main-min-height) - 150px);
+    border: 1px solid var(--live-border);
     display: flex;
     font-size: 14px;
-    min-width: 1400px;
 }
 
 .center {
     width: 100%;
     height: 100%;
-    border-left: 1px solid var(--input-border);
-    border-right: 1px solid var(--input-border);
+    border-left: 1px solid var(--live-border);
+    border-right: 1px solid var(--live-border);
+    background-color: var(--main-bg);
 
     &-player {
         width: 100%;
@@ -212,29 +197,6 @@
 .bottom {
     height: 170px;
     display: flex;
-
-    .el-calendar {
-        width: 250px;
-        height: 170px;
-        flex-shrink: 0;
-    }
-}
-
-.calendar-header {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: var(--calendar-header-text);
-    font-weight: bolder;
-    background-color: var(---bg-table);
-
-    span:first-child,
-    span:last-child {
-        font-size: 24px;
-        font-weight: normal;
-        cursor: pointer;
-    }
 }
 
 .timeline {

@@ -2,125 +2,65 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-21 15:34:24
  * @Description: 前端掉线
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-10 14:31:54
 -->
 <template>
     <div class="base-flex-box">
-        <BaseTransferDialog
-            v-model="pageData.snapIsShow"
-            :header-title="pageData.snapHeaderTitle"
-            :source-title="pageData.snapSourceTitle"
-            :target-title="pageData.snapTargetTitle"
-            :source-data="getSnapListSingle(tableData[pageData.triggerDialogIndex])"
-            :linked-list="tableData[pageData.triggerDialogIndex]?.snapList || []"
-            :type="pageData.snapType"
-            @confirm="snapConfirm"
-            @close="snapClose"
-        >
-        </BaseTransferDialog>
-        <BaseTransferDialog
-            v-model="pageData.alarmOutIsShow"
-            :header-title="pageData.alarmOutHeaderTitle"
-            :source-title="pageData.alarmOutSourceTitle"
-            :target-title="pageData.alarmOutTargetTitle"
-            :source-data="getAlarmOutListSingle(tableData[pageData.triggerDialogIndex])"
-            :linked-list="tableData[pageData.triggerDialogIndex]?.alarmOutList || []"
-            :type="pageData.alarmOutType"
-            @confirm="alarmOutConfirm"
-            @close="alarmOutClose"
-        >
-        </BaseTransferDialog>
-        <SetPresetPop
-            v-model="pageData.isPresetPopOpen"
-            :filter-chl-id="pageData.presetChlId"
-            :linked-list="pageData.presetLinkedList"
-            :handle-preset-linked-list="handlePresetLinkedList"
-            @close="presetClose"
-        />
         <div class="base-table-box">
             <el-table
+                v-title
                 :data="tableData"
-                border
-                stripe
                 highlight-current-row
-                show-overflow-tooltip
             >
                 <!-- 状态列 -->
                 <el-table-column
                     label=" "
-                    width="50px"
-                    class-name="custom_cell"
+                    width="50"
                 >
-                    <template #default="scope">
-                        <BaseTableRowStatus :icon="scope.row.status"></BaseTableRowStatus>
+                    <template #default="{ row }: TableColumn<AlarmEventDto>">
+                        <BaseTableRowStatus :icon="row.status" />
                     </template>
                 </el-table-column>
                 <!-- 通道名 -->
                 <el-table-column
-                    prop="name"
                     :label="Translate('IDCS_NAME')"
-                    width="205px"
-                >
-                    <template #default="scope">
-                        <span>{{ scope.row.name }}</span>
-                    </template>
-                </el-table-column>
+                    min-width="205"
+                    show-overflow-tooltip
+                    prop="name"
+                />
                 <!-- 抓图   -->
-                <el-table-column
-                    prop="snap"
-                    width="195px"
-                >
+                <el-table-column min-width="150">
                     <template #header>
-                        <el-popover
-                            v-model:visible="pageData.snapPopoverVisible"
-                            trigger="click"
-                            width="fit-content"
-                            popper-class="no-padding"
-                        >
-                            <template #reference>
-                                <BaseTableDropdownLink>
-                                    {{ Translate('IDCS_SNAP') }}
-                                </BaseTableDropdownLink>
-                            </template>
-                            <BaseTransferPop
-                                v-if="pageData.snapPopoverVisible"
-                                :source-title="pageData.snapSourceTitle"
-                                :target-title="pageData.snapTargetTitle"
-                                :source-data="pageData.snapList"
-                                :linked-list="pageData.snapChosedIdsAll"
-                                :type="pageData.snapType"
-                                @confirm="snapConfirmAll"
-                                @close="snapCloseAll"
-                            >
-                            </BaseTransferPop>
-                        </el-popover>
+                        <AlarmBaseSnapPop
+                            :visible="pageData.isSnapPop"
+                            :data="tableData"
+                            :index="pageData.triggerDialogIndex"
+                            exclude
+                            @confirm="changeSnap"
+                        />
                     </template>
-                    <template #default="scope">
-                        <el-row class="row-together">
+                    <template #default="{ row, $index }: TableColumn<AlarmEventDto>">
+                        <div class="base-cell-box">
                             <el-checkbox
-                                v-model="scope.row.snap.switch"
-                                :disabled="scope.row.rowDisable"
-                                @change="snapSwitchChange(scope.row)"
-                            ></el-checkbox>
+                                v-model="row.snap.switch"
+                                :disabled="row.disabled"
+                                @change="switchSnap($index)"
+                            />
                             <el-button
-                                :disabled="!scope.row.snap.switch || scope.row.rowDisable"
-                                class="table_btn"
-                                @click="setSnap(scope.$index)"
+                                :disabled="!row.snap.switch || row.disabled"
+                                @click="openSnap($index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
-                        </el-row>
+                        </div>
                     </template>
                 </el-table-column>
                 <!-- 音频   -->
                 <el-table-column
                     v-if="pageData.supportAudio"
-                    prop="sysAudio"
-                    width="145px"
+                    width="150"
                 >
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_AUDIO') }}
                             </BaseTableDropdownLink>
@@ -129,9 +69,7 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.audioList"
                                         :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
-                                        @click="handleSysAudioChangeAll(item.value)"
+                                        @click="changeAllAudio(item.value)"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -139,32 +77,18 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
-                        <el-select
-                            v-model="scope.row.sysAudio"
-                            prop="sysAudio"
-                            value-key="value"
-                            :disabled="scope.row.rowDisable"
+                    <template #default="{ row }: TableColumn<AlarmEventDto>">
+                        <el-select-v2
+                            v-model="row.sysAudio"
                             :options="pageData.audioList"
-                            @change="addEditRow(scope.row)"
-                        >
-                            <el-option
-                                v-for="item in pageData.audioList"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            >
-                            </el-option>
-                        </el-select>
+                            :disabled="row.disabled"
+                        />
                     </template>
                 </el-table-column>
                 <!-- 消息推送   -->
-                <el-table-column
-                    prop="msgPush"
-                    width="170px"
-                >
+                <el-table-column width="150">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_PUSH') }}
                             </BaseTableDropdownLink>
@@ -173,9 +97,7 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.enableList"
                                         :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
-                                        @click="handleMsgPushChangeAll(item.value)"
+                                        @click="changeAllMsgPush(item.value)"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -183,104 +105,69 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
-                        <el-select
-                            v-model="scope.row.msgPush"
-                            prop="schedule"
-                            value-key="value"
-                            :disabled="scope.row.rowDisable"
+                    <template #default="{ row }: TableColumn<AlarmEventDto>">
+                        <el-select-v2
+                            v-model="row.msgPush"
+                            :disabled="row.disabled"
                             :options="pageData.enableList"
-                            @change="addEditRow(scope.row)"
-                        >
-                            <el-option
-                                v-for="item in pageData.enableList"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            >
-                            </el-option>
-                        </el-select>
+                        />
                     </template>
                 </el-table-column>
                 <!-- 报警输出   -->
-                <el-table-column
-                    prop="alarmOut"
-                    width="195px"
-                >
+                <el-table-column min-width="150">
                     <template #header>
-                        <el-popover
-                            v-model:visible="pageData.alarmOutPopoverVisible"
-                            trigger="click"
-                            width="fit-content"
-                            popper-class="no-padding"
-                        >
-                            <template #reference>
-                                <BaseTableDropdownLink>
-                                    {{ Translate('IDCS_ALARM_OUT') }}
-                                </BaseTableDropdownLink>
-                            </template>
-                            <BaseTransferPop
-                                v-if="pageData.alarmOutPopoverVisible"
-                                :source-title="pageData.alarmOutSourceTitle"
-                                :target-title="pageData.alarmOutTargetTitle"
-                                :source-data="pageData.alarmOutList"
-                                :linked-list="pageData.alarmOutChosedIdsAll"
-                                :type="pageData.alarmOutType"
-                                @confirm="alarmOutConfirmAll"
-                                @close="alarmOutCloseAll"
-                            >
-                            </BaseTransferPop>
-                        </el-popover>
+                        <AlarmBaseAlarmOutPop
+                            :visible="pageData.isAlarmOutPop"
+                            :data="tableData"
+                            :index="pageData.triggerDialogIndex"
+                            exclude
+                            @confirm="changeAlarmOut"
+                        />
                     </template>
-                    <template #default="scope">
-                        <el-row class="row-together">
+                    <template #default="{ row, $index }: TableColumn<AlarmEventDto>">
+                        <div class="base-cell-box">
                             <el-checkbox
-                                v-model="scope.row.alarmOut.switch"
-                                :disabled="scope.row.rowDisable"
-                                @change="alarmOutSwitchChange(scope.row)"
-                            ></el-checkbox>
+                                v-model="row.alarmOut.switch"
+                                :disabled="row.disabled"
+                                @change="switchAlarmOut($index)"
+                            />
                             <el-button
-                                :disabled="!scope.row.alarmOut.switch || scope.row.rowDisable"
-                                class="table_btn"
-                                @click="setAlarmOut(scope.$index)"
+                                :disabled="!row.alarmOut.switch || row.disabled"
+                                @click="openAlarmOut($index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
-                        </el-row>
+                        </div>
                     </template>
                 </el-table-column>
                 <!-- 预置点名称   -->
                 <el-table-column
-                    align="center"
-                    prop="preset"
-                    width="195px"
                     :label="Translate('IDCS_PRESET_NAME')"
+                    min-width="150"
                 >
-                    <template #default="scope">
-                        <el-row class="row-together">
+                    <template #default="{ row, $index }: TableColumn<AlarmEventDto>">
+                        <div class="base-cell-box">
                             <el-checkbox
-                                v-model="scope.row.preset.switch"
-                                :disabled="scope.row.rowDisable"
-                                @change="presetSwitchChange(scope.row)"
-                            ></el-checkbox>
+                                v-model="row.preset.switch"
+                                :disabled="row.disabled"
+                                @change="switchPreset($index)"
+                            />
                             <el-button
-                                :disabled="!scope.row.preset.switch || scope.row.rowDisable"
-                                class="table_btn"
-                                @click="openPresetPop(scope.row)"
+                                :disabled="!row.preset.switch || row.disabled"
+                                @click="openPreset($index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
-                        </el-row>
+                        </div>
                     </template>
                 </el-table-column>
                 <!-- FTPSnap   -->
                 <!-- <el-table-column
                 v-if="pageData.supportFTP"
-                prop="ftpSnap"
-                width="175px"
+                width="175"
             >
                 <template #header>
-                    <el-dropdown trigger="click">
+                    <el-dropdown >
                         <BaseTableDropdownLink>
                             {{ Translate('IDCS_SNAP_TO_FTP') }}
                         </BaseTableDropdownLink>
@@ -289,8 +176,6 @@
                                 <el-dropdown-item
                                     v-for="item in pageData.enableList"
                                     :key="item.value"
-                                    :value="item.value"
-                                    :label="item.label"
                                     @click="handleFtpSnapChangeAll(item.value)"
                                 >
                                     {{ item.label }}
@@ -299,32 +184,18 @@
                         </template>
                     </el-dropdown>
                 </template>
-                <template #default="scope">
-                    <el-select
-                        v-model="scope.row.ftpSnap"
-                        prop="ftpSnap"
-                        value-key="value"
-                        :disabled="scope.row.rowDisable"
+                <template #default="{ row }: TableColumn<AlarmEventDto>">
+                    <el-select-v2
+                        v-model="row.ftpSnap"
+                        :disabled="row.disabled"
                         :options="pageData.enableList"
-                        @change="addEditRow(scope.row)"
-                    >
-                        <el-option
-                            v-for="item in pageData.enableList"
-                            :key="item.value"
-                            :value="item.value"
-                            :label="item.label"
-                        >
-                        </el-option>
-                    </el-select>
+                    />
                 </template>
             </el-table-column> -->
                 <!-- 蜂鸣器   -->
-                <el-table-column
-                    prop="beeper"
-                    width="124px"
-                >
+                <el-table-column width="150">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_BUZZER') }}
                             </BaseTableDropdownLink>
@@ -333,9 +204,7 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.enableList"
                                         :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
-                                        @click="handleBeeperChangeAll(item.value)"
+                                        @click="changeAllBeeper(item.value)"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -343,35 +212,18 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
-                        <el-select
-                            v-model="scope.row.beeper"
-                            prop="beeper"
-                            value-key="value"
-                            :disabled="scope.row.rowDisable"
+                    <template #default="{ row }: TableColumn<AlarmEventDto>">
+                        <el-select-v2
+                            v-model="row.beeper"
                             :options="pageData.enableList"
-                            @change="addEditRow(scope.row)"
-                        >
-                            <el-option
-                                v-for="item in pageData.enableList"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            >
-                            </el-option>
-                        </el-select>
+                            :disabled="row.disabled"
+                        />
                     </template>
                 </el-table-column>
                 <!-- 视频弹出   -->
-                <el-table-column
-                    prop="videoPopupInfo"
-                    width="140px"
-                >
+                <el-table-column width="150">
                     <template #header>
-                        <el-dropdown
-                            trigger="click"
-                            max-height="400px"
-                        >
+                        <el-dropdown max-height="400">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_VIDEO_POPUP') }}
                             </BaseTableDropdownLink>
@@ -380,9 +232,7 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.videoPopupList"
                                         :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
-                                        @click="handleVideoPopupChangeAll(item.value)"
+                                        @click="changeAllVideoPopUp(item.value)"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -390,32 +240,18 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
-                        <el-select
-                            v-model="scope.row.videoPopupInfo.chl.value"
-                            prop="videoPopupInfo"
-                            value-key="value"
-                            :disabled="scope.row.rowDisable"
-                            :options="scope.row.videoPopupList"
-                            @change="addEditRow(scope.row)"
-                        >
-                            <el-option
-                                v-for="item in scope.row.videoPopupList"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            >
-                            </el-option>
-                        </el-select>
+                    <template #default="{ row }: TableColumn<AlarmEventDto>">
+                        <el-select-v2
+                            v-model="row.videoPopupInfo.chl.value"
+                            :disabled="row.disabled"
+                            :options="row.videoPopupList"
+                        />
                     </template>
                 </el-table-column>
                 <!-- 消息框弹出   -->
-                <el-table-column
-                    prop="msgBoxPopup"
-                    width="175px"
-                >
+                <el-table-column width="150">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_MESSAGEBOX_POPUP') }}
                             </BaseTableDropdownLink>
@@ -424,9 +260,7 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.enableList"
                                         :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
-                                        @click="handleMsgBoxPopupChangeAll(item.value)"
+                                        @click="changeAllMsgPopUp(item.value)"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -434,41 +268,25 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
-                        <el-select
-                            v-model="scope.row.msgBoxPopup"
-                            prop="msgBoxPopup"
-                            value-key="value"
-                            :disabled="scope.row.rowDisable"
+                    <template #default="{ row }: TableColumn<AlarmEventDto>">
+                        <el-select-v2
+                            v-model="row.msgBoxPopup"
+                            :disabled="row.disabled"
                             :options="pageData.enableList"
-                            @change="addEditRow(scope.row)"
-                        >
-                            <el-option
-                                v-for="item in pageData.enableList"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            >
-                            </el-option>
-                        </el-select>
+                        />
                     </template>
                 </el-table-column>
                 <!-- email   -->
-                <el-table-column
-                    prop="email"
-                    width="115px"
-                >
+                <el-table-column width="150">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink> Email </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
                                         v-for="item in pageData.enableList"
                                         :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
-                                        @click="handleEmailChangeAll(item.value)"
+                                        @click="changeAllEmail(item.value)"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -476,60 +294,40 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
-                        <el-select
-                            v-model="scope.row.email"
-                            prop="email"
-                            value-key="value"
-                            :disabled="scope.row.rowDisable"
+                    <template #default="{ row }: TableColumn<AlarmEventDto>">
+                        <el-select-v2
+                            v-model="row.email"
+                            :disabled="row.disabled"
                             :options="pageData.enableList"
-                            @change="addEditRow(scope.row)"
-                        >
-                            <el-option
-                                v-for="item in pageData.enableList"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            >
-                            </el-option>
-                        </el-select>
+                        />
                     </template>
                 </el-table-column>
             </el-table>
         </div>
-        <el-row class="row_pagination">
-            <el-pagination
+        <div class="base-pagination-box">
+            <BasePagination
                 v-model:current-page="pageData.pageIndex"
                 v-model:page-size="pageData.pageSize"
-                :page-sizes="pageData.pageDataCountItems"
-                layout="prev, pager, next, sizes, total, jumper"
                 :total="pageData.totalCount"
-                size="small"
                 @size-change="changePaginationSize"
                 @current-change="changePagination"
             />
-        </el-row>
-        <el-row class="base-btn-box">
+        </div>
+        <div class="base-btn-box">
             <el-button
-                :disabled="pageData.applyDisable"
+                :disabled="!editRows.size()"
                 @click="setData"
             >
                 {{ Translate('IDCS_APPLY') }}
             </el-button>
-        </el-row>
+        </div>
+        <AlarmBasePresetPop
+            v-model="pageData.isPresetPop"
+            :data="tableData"
+            :index="pageData.triggerDialogIndex"
+            @confirm="changePreset"
+        />
     </div>
 </template>
 
 <script lang="ts" src="./IpcOffline.v.ts"></script>
-
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
-</style>
-
-<style lang="scss" scoped>
-:deep(.el-table .cell) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-</style>

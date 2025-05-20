@@ -2,44 +2,34 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-03 11:57:44
  * @Description: OCX公共模块
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 18:49:24
  */
-import { ENV_MODE } from '@/utils/constants'
 
-// 测试环境
-export const ClientPluVerDebug = '2,4,5,1280'
-export const P2PClientPluVerDebug = '2,4,5,1280'
+// Windows本地插件
+let ClientPort = 13853
+let ClientPluDownLoadPath = 'OCX/WebClient_VPPlugin_v5.exe'
 
-// Windows插件
-export const ClientPluVer = '2,4,5,1982'
-export const ClientPort = 13853
-export const ClientPluMimeType = 'application/np-webclient_vpplugin_v5-plugin'
-export const ClientPluDownLoadPath = '/OCX/WebClient_VPPlugin_v5.exe'
-export const ClientPluClassId = '43a273a7-dc9e-418e-bb78-34bd54175199'
+// Windows_P2P插件
+let P2PClientPort = 12853
+let P2PClientPluDownLoadPath = 'OCX/WebClient_VPPlugin_v5_P2P.exe'
 
-// Windows P2P V5插件支持P2P 1.0和2.0，WebClient_VPPlugin_v1_P2P2.exe废弃
-export const P2PClientPluVer = '2,4,5,1982'
-export const P2PLoginPluVer = '1,0,0,3'
-export const P2PClientPort = 12853
-export const P2PClientPluMimeType = 'application/np-webclient_vpplugin_v5_p2p-plugin'
-export const P2PLoginPluginDownLoadPath = 'OCX/WebClient_p2p_conn_Plugin.exe'
-export const P2PClientPluDownLoadPath = 'OCX/WebClient_VPPlugin_v5_P2P.exe'
-export const P2PClientPluClassId = '6334c1eb-5f19-430a-a41b-d7b4bbe65177'
+// MAC_P2P插件
+let MacP2PClientPort = 14853
+let P2PMacClientPluDownLoadPath = 'OCX/WebClient_VPPlugin_v5_P2P.pkg'
 
-// MAC插件
-export const ClientPluVer_MAC = '4,0,0,8'
-export const ClientPluMimeType_MAC = 'application/x-webclient_vpplugin_v4'
-export const ClientPluDownLoadPath_MAC = 'OCX/WebClient_VPPlugin_v4.pkg'
+if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
+    ClientPort = 13863
+    P2PClientPort = 12863
+    MacP2PClientPort = 14863
+    ClientPluDownLoadPath = 'OCX/Speco_Technologies_v5.exe'
+    P2PClientPluDownLoadPath = 'OCX/Speco_Technologies_v5_p2p.exe'
+    P2PMacClientPluDownLoadPath = 'OCX/Speco_Technologies_v5_P2P.pkg'
+}
 
-// MAC插件 P2P 插件
-export const P2PClientPluVer_MAC = '4,0,0,8'
-export const P2PClientPluMimeType_MAC = 'application/x-webclient_vpplugin_v4_p2p'
-export const P2PClientPluDownLoadPath_MAC = 'OCX/WebClient_VPPlugin_v4_p2p.pkg'
+export { ClientPort, ClientPluDownLoadPath, P2PClientPort, P2PClientPluDownLoadPath, MacP2PClientPort, P2PMacClientPluDownLoadPath }
 
 // 插件初始化翻译条目
 export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
-    //English (United States)
+    // English (United States)
     '0x0409': {
         IDCS_NO_PLUGIN_FOR_WINDOWS: "The plugin is not installed, please click <a href='%1'>Here</a> to download and install. Before installation, please close your browser.",
         IDCS_NO_PLUGIN_FOR_MAC:
@@ -62,7 +52,7 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'Fail to login. Reason: The user has no permission.',
         IDCS_UNKNOWN_ERROR_CODE: 'Unknown error! Error code:',
     },
-    //Chinese (PRC)
+    // Chinese (PRC)
     '0x0804': {
         IDCS_NO_PLUGIN_FOR_WINDOWS: "插件没有安装，请点击<a href='%1'>这里</a>下载并安装插件。安装时请关闭浏览器！",
         IDCS_NO_PLUGIN_FOR_MAC: '插件没有安装，请点击<a href=\'%1\'>这里</a>下载并安装插件。 安装时请关闭浏览器！<br/>如果您已安装了插件，请在"Safari->偏好设置->安全性"检查插件是否被禁用。',
@@ -83,7 +73,7 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: '登录失败，原因：没有远程登录权限。',
         IDCS_UNKNOWN_ERROR_CODE: '未知错误! 错误代码：',
     },
-    //Chinese(Taiwan Region)
+    // Chinese(Taiwan Region)
     '0x0404': {
         IDCS_NO_PLUGIN_FOR_WINDOWS: "外掛程式沒有安裝，請按一下<a href='%1'>這裡</a>下載並安裝外掛程式。安裝時請關閉瀏覽器！",
         IDCS_NO_PLUGIN_FOR_MAC:
@@ -105,7 +95,7 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: '登入失败，原因：使用者沒有遠端登入權限。',
         IDCS_UNKNOWN_ERROR_CODE: '未知錯誤 ! 錯誤代碼：',
     },
-    //Croatian
+    // Croatian
     '0x041a': {
         IDCS_NO_PLUGIN_FOR_WINDOWS: "Plugin nije instaliran, kliknite <a href='%1'>Here</a> za preuzimanje i instalaciju. Prije instalacije, zatvorite pretraživač.",
         IDCS_NO_PLUGIN_FOR_MAC:
@@ -113,21 +103,22 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
         IDCS_NPAPI_NOT_SUPPORT:
             "NPAPI podrška je trenutno onemogućena. slijedite upute niže kako bi ju omogućili: <ul><li>1.Unesite \"chrome://flags/#enable-npapi\" u adresnu traku;</li><li>2.Kliknite 'Omogućiti' pod 'Omogućiti NPAPI';</li><li>3.U potpunosti zatvorite Chrome prezraživač;</li><li>4.Ponovno otvorite Chrome i upravljajte sustavom, plugin je dostupan.</li></ul>Ili plugin nije instaliran, kliknite <a href='%1'>ovdje</a> za preuzimanje i instalaciju. Prije instalacije, zatvorite pretraživač.",
         IDCS_PLUGIN_VERSION_UPDATE: "Plugin nije aktualiziran, kliknite <a href='%1'>Here</a> za preuzimanje i instalaciju.",
-        IDCS_IE_VERSION_WARNING: '',
-        IDCS_FIREFOX_VERSION_WARNING: '',
-        IDCS_OPERA_VERSION_WARNING: '',
-        IDCS_OTHER_VERSION_WARNING: '',
-        IDCS_CHROME_VERSION_WARNING: '',
-        IDCS_SAFARI_VERSION_WARNING: '',
+        IDCS_IE_VERSION_WARNING: 'Your IE browser version is not supported. Please use IE10 or later version of it.',
+        IDCS_FIREFOX_VERSION_WARNING: 'Your Firefox browser version is not supported. Please use Firefox53 or later version of it.',
+        IDCS_OPERA_VERSION_WARNING: 'Your Opera browser version not supported. Please use Opera44 or later version of it.',
+        IDCS_OTHER_VERSION_WARNING:
+            'Your browser does not support this plug-in. Please use the following browsers: ie10-11, Firefox 53 or later, chrome 57 or later, Safari 11 or later, opera 44 or later, edge16 or later.',
+        IDCS_CHROME_VERSION_WARNING: 'Your Chrome browser version is not supported, please use Chrome57 or later version of it.',
+        IDCS_SAFARI_VERSION_WARNING: 'Your Safari browser version is not supported, please use Safari11 or later version of it.',
         IDCS_SAFARI_VERSION_FOR_P2P: 'Vaša verzija Safari pretraživača nije podrška, molim vas koristite Safari10 ili stariju verziju njega.',
-        IDCS_EDGE_VERSION_WARNING: '',
-        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: '',
+        IDCS_EDGE_VERSION_WARNING: 'Your version of edge browser is too low. Please use edge16 or above',
+        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: 'Fail to login. Reason: device is offline.',
         IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'Neuspješna prijava. Razlog: neispravno korisničko ime ili zaporka.',
         IDCS_LOGIN_FAIL_USER_LOCKED: 'Neuspješna prijava. Razlog: korisnik je zaključan',
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'Neuspješna prijava. Razlog: korisnik nema ovlasti.',
-        IDCS_UNKNOWN_ERROR_CODE: '',
+        IDCS_UNKNOWN_ERROR_CODE: 'Unknown error! Error code:',
     },
-    //Czech
+    // Czech
     '0x0405': {
         IDCS_NO_PLUGIN_FOR_WINDOWS: "Není nainstalován plugin, klikněte <a href='%1'>ZDE</a> pro stažení a nainstalování.  Před instalací uzavřete prohlížeč.",
         IDCS_NO_PLUGIN_FOR_MAC:
@@ -150,7 +141,7 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'Přihlášení selhalo. Důvod: Uživatel nemá práva.',
         IDCS_UNKNOWN_ERROR_CODE: 'Neznámá chyba! Kód chyby:',
     },
-    //Farsi
+    // Farsi
     '0x0429': {
         IDCS_NO_PLUGIN_FOR_WINDOWS: "کليک کنيد. قبل از نصب, لطفا مرورگر خود را ببنديد </a> اينجا <a href='%1'> نصب نشده است, لطفا براي دانلود و نصب plugin",
         IDCS_NO_PLUGIN_FOR_MAC:
@@ -158,25 +149,28 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
         IDCS_NPAPI_NOT_SUPPORT:
             'کليک کنيد. قبل از نصب, لطفا مرورگر خود را ببنديد <a href=\'%1\'> اينجا </a > نصب نشده است, لطفا براي دانلود و نصب  plugin يا  </li></ul> .در دسترس است plugin ,دوباره کروم را باز کنيد و سيستم را هدايت کنيد  . </li><li> 1;در حال حاضر غير فعال است.لطفا براي فعال سازي آن دستورالعمل زير را دنبال کنيد NPAPI پشتيباني. </li><li>2 ; را در آدرس بار وارد کنيد "chrome://flags/#enable-npapi" .</li><li>3 ; کليک کنيد Npapi بر روي فعال سازيدر زير فعال سازي .</li><li>4 ;مرورگر کروم را به طور کامل ببنديد .<ul>',
         IDCS_PLUGIN_VERSION_UPDATE: "کليک کنيد. قبل از نصب,دوصلۀ هشدار داده نشده </a> اينجا <a href='%1'> نصب نشده است, لطفا براي دانلود و نصب plugin",
-        IDCS_IE_VERSION_WARNING: '',
-        IDCS_FIREFOX_VERSION_WARNING: '',
-        IDCS_OPERA_VERSION_WARNING: '',
-        IDCS_OTHER_VERSION_WARNING: '',
-        IDCS_CHROME_VERSION_WARNING: '',
-        IDCS_SAFARI_VERSION_WARNING: '',
+        IDCS_IE_VERSION_WARNING: 'Your IE browser version is not supported. Please use IE10 or later version of it.',
+        IDCS_FIREFOX_VERSION_WARNING: 'Your Firefox browser version is not supported. Please use Firefox53 or later version of it.',
+        IDCS_OPERA_VERSION_WARNING: 'Your Opera browser version not supported. Please use Opera44 or later version of it.',
+        IDCS_OTHER_VERSION_WARNING:
+            'Your browser does not support this plug-in. Please use the following browsers: ie10-11, Firefox 53 or later, chrome 57 or later, Safari 11 or later, opera 44 or later, edge16 or later.',
+        IDCS_CHROME_VERSION_WARNING: 'Your Chrome browser version is not supported, please use Chrome57 or later version of it.',
+        IDCS_SAFARI_VERSION_WARNING: 'Your Safari browser version is not supported, please use Safari11 or later version of it.',
         IDCS_SAFARI_VERSION_FOR_P2P: 'نسخه بررسی سافاری شما پشتیبانی نیست، لطفا از سافاری۱۰ یا نسخه قدیمی آن استفاده کنید.',
-        IDCS_EDGE_VERSION_WARNING: '',
-        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: '',
+        IDCS_EDGE_VERSION_WARNING: 'Your version of edge browser is too low. Please use edge16 or above',
+        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: 'Fail to login. Reason: device is offline.',
         IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'ورود ناموفق . دلیل: نام کاربری یا رمز عبور اشتباه است.',
         IDCS_LOGIN_FAIL_USER_LOCKED: 'ورود ناموفق . دلیل : کاربر قفل شده است.',
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'ورود ناموفق . دلیل : کاربر بدون اجازه.',
         IDCS_UNKNOWN_ERROR_CODE: 'خطای ناشناخته! کد خطا:',
     },
-    //German(Standard)
+    // German(Standard)
     '0x0407': {
-        IDCS_NO_PLUGIN_FOR_WINDOWS: '',
-        IDCS_NO_PLUGIN_FOR_MAC: '',
-        IDCS_NPAPI_NOT_SUPPORT: '',
+        IDCS_NO_PLUGIN_FOR_WINDOWS: "Das Plugin ist nicht installiert. Klicken Sie zum Herunterladen und Installieren auf <a href='%1'> Here </a>. Schließen Sie vor der Installation Ihren Browser.",
+        IDCS_NO_PLUGIN_FOR_MAC:
+            'Das Plugin ist nicht installiert. Klicken Sie zum Herunterladen und Installieren auf <a href=\'%1\'> Here </a>. Vor der Installation schließen Sie bitte Ihren Browser. <br/> Wenn Sie das Plugin installiert haben, überprüfen Sie bitte, ob das Plugin unter "Safari-> Einstellungen -> Sicherheit" deaktiviert ist.',
+        IDCS_NPAPI_NOT_SUPPORT:
+            'Die NPAPI-Unterstützung ist derzeit deaktiviert. Bitte befolgen Sie die folgenden Anweisungen, um sie zu aktivieren: <ul> <li> 1.Geben Sie "chrome: // flags / # enable-npapi" in die Adressleiste ein. </ Li> <li> 2.Klicken Sie auf "Aktivieren" unter "". Aktivieren Sie Npapi \'; </ li> <li> 3.Schließen Sie den Chrome-Browser vollständig; </ li> <li> 4.Starten Sie Chrome und navigieren Sie zum System, das Plugin ist verfügbar. </ Li> </ ul> Oder das Plugin ist nicht installiert. Klicken Sie zum Herunterladen und Installieren auf <a href=\'%1\'> Here </a>. Schließen Sie vor der Installation Ihren Browser.',
         IDCS_PLUGIN_VERSION_UPDATE: "Das Plugin wurde nicht aktualisiert, bitte klicken Sie <a href='%1'>Hier</a> zum Herunterladen und Installieren.",
         IDCS_IE_VERSION_WARNING: 'Ihre IE-Browserversion wird nicht unterstützt. Bitte verwenden Sie IE10 oder eine neuere Version davon.',
         IDCS_FIREFOX_VERSION_WARNING: 'Ihre Firefox-Browserversion wird nicht unterstützt. Bitte verwenden Sie Firefox53 oder eine neuere Version davon.',
@@ -187,13 +181,13 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
         IDCS_SAFARI_VERSION_WARNING: 'Ihre Safari-Browserversion wird nicht unterstützt. Bitte verwenden Sie Safari11 oder eine neuere Version.',
         IDCS_SAFARI_VERSION_FOR_P2P: 'Ihre Safari Browserversion wird nicht unterstützt. Bitte verwenden Sie Safari10 oder eine ältere Version.',
         IDCS_EDGE_VERSION_WARNING: 'Ihre Version des Edge-Browsers ist zu niedrig. Bitte verwenden Sie edge16 oder höher',
-        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: '',
+        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: 'Fail to login. Reason: device is offline.',
         IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'Anmelden fehlgeschlagen: Grund: Falscher/s Benutzername oder Passwort.',
         IDCS_LOGIN_FAIL_USER_LOCKED: 'Anmelden fehlgeschlagen: Grund: Der Benutzer ist gesperrt.',
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'Anmelden fehlgeschlagen: Grund: Der Benutzer ist nicht berechtigt.',
         IDCS_UNKNOWN_ERROR_CODE: 'Unbekannter Fehler! Fehlercode:',
     },
-    //Greek
+    // Greek
     '0x0408': {
         IDCS_NO_PLUGIN_FOR_WINDOWS: "Το πρόσθετο δεν έχει εγκατασταθεί, κάνετε click <a href='%1'>εδώ</a> για μεταφόρτωση και εγκατάσταση.  Πριν την εγκατάσταση κλείστε το φυλλομετρητή.",
         IDCS_NO_PLUGIN_FOR_MAC:
@@ -210,18 +204,19 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
         IDCS_SAFARI_VERSION_WARNING: 'Η έκδοση του προγράμματος περιήγησης δεν υποστηρίζεται, παρακαλούμε χρησιμοποιήστε τη Safari11 ή νεότερη έκδοση του.',
         IDCS_SAFARI_VERSION_FOR_P2P: 'Η έκδοση του προγράμματος περιήγησης δεν υποστηρίζεται, παρακαλούμε χρησιμοποιήστε το ή παλαιότερη έκδοση του.',
         IDCS_EDGE_VERSION_WARNING: 'Η έκδοση του προγράμματος περιήγησης ακρών είναι πολύ χαμηλή. Παρακαλούμε χρησιμοποιήστε το edge16 ή παραπάνω',
-        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: '',
+        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: 'Fail to login. Reason: device is offline.',
         IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'Αποτυχία σύνδεσης. Αιτία: Λάθος Χρήστης ή κωδικός.',
         IDCS_LOGIN_FAIL_USER_LOCKED: 'Αποτυχία σύνδεσης. Αιτία: Ο χρήστης είναι κλειδωμένος.',
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'Αποτυχία σύνδεσης. Αιτία: Ο χρήστης δεν έχει πρόσβαση.',
         IDCS_UNKNOWN_ERROR_CODE: 'Άγνωστο σφάλμα! Κωδικός Σφάλματος:',
     },
-    //Hebrew
+    // Hebrew
     '0x040d': {
         IDCS_NO_PLUGIN_FOR_WINDOWS: "תוסף הוידאו לא זמין. אנא לחץ <a href='%1'> כאן </a> בכדי להוריד את התוסף ולהתקינו. לפני תחילת ההתקנה יש לסגור את דפדפן האינטרנט",
         IDCS_NO_PLUGIN_FOR_MAC:
             "תוסף הוידאו לא זמין. אנא לחץ <a href='%1'> כאן </a> בכדי להוריד את התוסף ולהתקינו. לפני תחילת ההתקנה יש לסגור את דפדפן האינטרנט. אם כבר התקנת את הדפדפן, אנא ודא שהוא פעיל ברשימת התוספים של דפדפן האינטרנט שלך.",
-        IDCS_NPAPI_NOT_SUPPORT: '',
+        IDCS_NPAPI_NOT_SUPPORT:
+            "NPAPI Support is currently disabled. Please follow the instructions below to enable it:<ul><li>1.Input \"chrome://flags/#enable-npapi\" into address bar;</li><li>2.Click 'Enable' under the 'Enable Npapi';</li><li>3.Close the Chrome browser completely;</li><li>4.Reopen the Chrome and navigate to the system, the plugin is available.</li></ul>Or the plugin is not installed, please click <a href='%1'>Here</a> to download and install. Before installation, please close your browser.",
         IDCS_PLUGIN_VERSION_UPDATE: "התוספת אינה מעודכנת, בבקשה לחץ על <a href='% 1'>כאן</ a> כדי להוריד ולהתקין.",
         IDCS_IE_VERSION_WARNING: 'הגרסה של הדפדף IE שלך לא תומכת. בבקשה השתמש בגרסה IE10 או בגרסה מאוחרת יותר.',
         IDCS_FIREFOX_VERSION_WARNING: 'הגרסה שלך של דופקת Firefox לא תומכת. בבקשה השתמש בגרסה Firefox53 או אחר כך.',
@@ -238,7 +233,7 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'כניסה נכשלה. למשתמש אין הרשאה',
         IDCS_UNKNOWN_ERROR_CODE: 'שגיאה לא ידועה. קוד שגיאה:',
     },
-    //Hungarian
+    // Hungarian
     '0x040e': {
         IDCS_NO_PLUGIN_FOR_WINDOWS: "A beépülő modul nincs telepítve. Kattintson <a href='%1'> ide </a> a letöltéshez. ",
         IDCS_NO_PLUGIN_FOR_MAC: "A beépülő modul nincs telepítve. Kattintson <a href='%1'> ide </a> a letöltéshez. Telepítés előtt zárja be a böngészőt!",
@@ -253,13 +248,13 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
         IDCS_SAFARI_VERSION_WARNING: 'A Safari böngésző verziója nem támogatott, kérjük használja a Safari11 vagy újabb verzióját.',
         IDCS_SAFARI_VERSION_FOR_P2P: 'A Safari böngésző verziója nem támogatott, kérjük használja a Safari10 vagy annak régebbi verzióját.',
         IDCS_EDGE_VERSION_WARNING: 'Az edge böngésző verziója túl alacsony. Kérjük, használja az edge16 vagy újabb verzióját',
-        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: '',
+        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: 'Fail to login. Reason: device is offline.',
         IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'Bejelentkezés sikertelen. A felhasználó vagy a jelszó helytelen.',
         IDCS_LOGIN_FAIL_USER_LOCKED: 'Bejelentkezés sikertelen. A felhasználót kizárták.',
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'Bejelentkezés sikertelen. A felhasználónak nincs jogosultsága.',
         IDCS_UNKNOWN_ERROR_CODE: 'Ismeretlen hiba! Hibakód:',
     },
-    //Italian(Standard)
+    // Italian(Standard)
     '0x0410': {
         IDCS_NO_PLUGIN_FOR_WINDOWS: "Il plugin non è installato, cliccate <a href='%1'> qui </a> per scaricare e installare. Prima dell'installazione, si prega di chiudere il browser.",
         IDCS_NO_PLUGIN_FOR_MAC:
@@ -276,13 +271,13 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
         IDCS_SAFARI_VERSION_WARNING: 'La versione del browser Safari non è supportata, utilizza Safari11 o versioni successive.',
         IDCS_SAFARI_VERSION_FOR_P2P: 'La versione del browser Safari non è supportata, utilizza Safari10 o versioni precedenti.',
         IDCS_EDGE_VERSION_WARNING: 'La versione del browser edge è troppo bassa. Si prega di utilizzare edge16 o superiore',
-        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: '',
+        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: 'Fail to login. Reason: device is offline.',
         IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'Log in fallito. Motivo: username o password sbagliata.',
         IDCS_LOGIN_FAIL_USER_LOCKED: 'Log in fallito. Motivo: utente bloccato.',
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'Log in fallito. Motivo: utente non autorizzato.',
         IDCS_UNKNOWN_ERROR_CODE: 'Errore sconosciuto! Codice errore:',
     },
-    //Macedonian
+    // Macedonian
     '0x042f': {
         IDCS_NO_PLUGIN_FOR_WINDOWS: "Не е инсталиран plugin , кликнете на <a href='%1'>Овде</a> за да го симнете и инсталирате. Пред инсталирање треба да го исклучите пребарувачот.",
         IDCS_NO_PLUGIN_FOR_MAC:
@@ -299,13 +294,13 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
         IDCS_SAFARI_VERSION_WARNING: 'Вашата верзија на прелистувачот на Safari не е поддржана, ве молам користете ја Safari11 или подоцна.',
         IDCS_SAFARI_VERSION_FOR_P2P: 'Вашата верзија на прелистувачот на Safari не е поддржана, ве молам користете ја Safari10 или постарата верзија на неа.',
         IDCS_EDGE_VERSION_WARNING: 'Вашата верзија на прелистувачот е премногу ниска. Ве молам користете edge 16 или над',
-        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: '',
+        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: 'Fail to login. Reason: device is offline.',
         IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'Неуспешно логирање. Причина: Погрешно корисничко име или лозинка',
         IDCS_LOGIN_FAIL_USER_LOCKED: 'Failed to log in. Reason: Неуспешно логирање. Причина: Корисникот е заклучен',
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'Неуспешно логирање. Причина: Корисникот нема пристап.',
         IDCS_UNKNOWN_ERROR_CODE: '',
     },
-    //Polish
+    // Polish
     '0x0415': {
         IDCS_NO_PLUGIN_FOR_WINDOWS: "Wtyczka nie jest zainstalowana, kliknij <a href='%1'> Here </a>, aby pobrać i zainstalować. Przed instalacją należy zamknąć przeglądarkę.",
         IDCS_NO_PLUGIN_FOR_MAC:
@@ -321,13 +316,13 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
         IDCS_SAFARI_VERSION_WARNING: 'Wersja przeglądarki Safari nie jest obsługiwana, proszę użyć Safari11 lub nowszej wersji.',
         IDCS_SAFARI_VERSION_FOR_P2P: 'Wersja przeglądarki Safari nie jest obsługiwana, proszę użyć Safari10 lub jej starszej wersji.',
         IDCS_EDGE_VERSION_WARNING: 'Twoja wersja przeglądarki krawędziowej jest zbyt niska. Proszę użyć edge16 lub powyżej',
-        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: '',
+        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: 'Fail to login. Reason: device is offline.',
         IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'Logowanie nie powidło się. Powód: Podany uzytkownik lub hasło są nieprawidłowe.',
         IDCS_LOGIN_FAIL_USER_LOCKED: 'Logowanie nie powiodło się. Powód: Konto zostało zablokowane.',
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'Logowanie nie powiodło się. Powód: użytkownik nie posiada odpowiednich uprawnień do korzystania z tych zasobów!',
         IDCS_UNKNOWN_ERROR_CODE: 'Nieznany błąd! Kod błędu:',
     },
-    //Portuguese(Standard)
+    // Portuguese(Standard)
     '0x0816': {
         IDCS_NO_PLUGIN_FOR_WINDOWS: "O plugin não está instalado, por favor clique <a href='%1'>aqui</a> para baixa e instalar. Antes da instalação por favor feche o seu browser.",
         IDCS_NO_PLUGIN_FOR_MAC:
@@ -350,7 +345,7 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'Falha ao logar. Motivo: Usuário não possui permissão.',
         IDCS_UNKNOWN_ERROR_CODE: 'Erro desconhecido! Código de erro:',
     },
-    //Romanian
+    // Romanian
     '0x0418': {
         IDCS_NO_PLUGIN_FOR_WINDOWS: "Plugin neinstalat, apasati pe <a href='%1'>Here</a>  sa descarcati si sa instalati. Before installation, please close your browser.",
         IDCS_NO_PLUGIN_FOR_MAC:
@@ -358,21 +353,22 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
         IDCS_NPAPI_NOT_SUPPORT:
             "NPAPI Support dezactivat. urmati instr. pt. activare <ul><li>1.Input \"chrome://flags/#enable-npapi\" into address bar;</li><li>2.Click 'Enable' under the 'Enable Npapi';</li><li>3.Close the Chrome browser completely;</li><li>4.Reopen the Chrome and navigate to the system, the plugin is available.</li></ul>Or the plugin is not installed, please click <a href='%1'>Here</a> to download and install. Before installation, please close your browser.",
         IDCS_PLUGIN_VERSION_UPDATE: "Plugin nu este actualizat, vă rugăm să faceți clic pe <a href='%1'>Aici</a> pentru a descărca și instala.",
-        IDCS_IE_VERSION_WARNING: '',
-        IDCS_FIREFOX_VERSION_WARNING: '',
-        IDCS_OPERA_VERSION_WARNING: '',
-        IDCS_OTHER_VERSION_WARNING: '',
-        IDCS_CHROME_VERSION_WARNING: '',
-        IDCS_SAFARI_VERSION_WARNING: '',
+        IDCS_IE_VERSION_WARNING: 'Your IE browser version is not supported. Please use IE10 or later version of it.',
+        IDCS_FIREFOX_VERSION_WARNING: 'Your Firefox browser version is not supported. Please use Firefox53 or later version of it.',
+        IDCS_OPERA_VERSION_WARNING: 'Your Opera browser version not supported. Please use Opera44 or later version of it.',
+        IDCS_OTHER_VERSION_WARNING:
+            'Your browser does not support this plug-in. Please use the following browsers: ie10-11, Firefox 53 or later, chrome 57 or later, Safari 11 or later, opera 44 or later, edge16 or later.',
+        IDCS_CHROME_VERSION_WARNING: 'Your Chrome browser version is not supported, please use Chrome57 or later version of it.',
+        IDCS_SAFARI_VERSION_WARNING: 'Your Safari browser version is not supported, please use Safari11 or later version of it.',
         IDCS_SAFARI_VERSION_FOR_P2P: 'Versiunea browserului Safari nu este acceptată, vă rugăm să utilizați Safari10 sau versiunea mai veche a acestuia.',
-        IDCS_EDGE_VERSION_WARNING: '',
-        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: '',
+        IDCS_EDGE_VERSION_WARNING: 'Your version of edge browser is too low. Please use edge16 or above',
+        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: 'Fail to login. Reason: device is offline.',
         IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'Logare esuata.Motiv:Nume utilizator si parola gresite.',
         IDCS_LOGIN_FAIL_USER_LOCKED: 'Logare esuata.Motiv:utilizator blocat.',
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'Logare esuata.Motiv:lipsa permisiuni.',
         IDCS_UNKNOWN_ERROR_CODE: 'Eroare necunoscuta! Cod eroare:',
     },
-    //Russian
+    // Russian
     '0x0419': {
         IDCS_NO_PLUGIN_FOR_WINDOWS: "Плагин не установлен,нажимите <a href='%1'>сюда</a> , чтобы скачать и установить. Перед установкой закройте браузер.",
         IDCS_NO_PLUGIN_FOR_MAC:
@@ -395,27 +391,30 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'Вход в систему не удался: у пользователя нет прав.',
         IDCS_UNKNOWN_ERROR_CODE: 'Неизвестная ошибка! Код ошибки:',
     },
-    //Slovak
+    // Slovak
     '0x041b': {
-        IDCS_NO_PLUGIN_FOR_WINDOWS: '',
-        IDCS_NO_PLUGIN_FOR_MAC: '',
-        IDCS_NPAPI_NOT_SUPPORT: '',
+        IDCS_NO_PLUGIN_FOR_WINDOWS: "The plugin is not installed, please click <a href='%1'>Here</a> to download and install. Before installation, please close your browser.",
+        IDCS_NO_PLUGIN_FOR_MAC:
+            'The plugin is not installed, please click <a href=\'%1\'>Here</a> to download and install. Before installation, please close your browser.<br/>If you have installed plugin, please check if the plugin is disabled at "Safari->Preferences->Security".',
+        IDCS_NPAPI_NOT_SUPPORT:
+            "NPAPI Support is currently disabled. Please follow the instructions below to enable it:<ul><li>1.Input \"chrome://flags/#enable-npapi\" into address bar;</li><li>2.Click 'Enable' under the 'Enable Npapi';</li><li>3.Close the Chrome browser completely;</li><li>4.Reopen the Chrome and navigate to the system, the plugin is available.</li></ul>Or the plugin is not installed, please click <a href='%1'>Here</a> to download and install. Before installation, please close your browser.",
         IDCS_PLUGIN_VERSION_UPDATE: "Plugin nie je aktualizovaný, prosím kliknite na <a href='% 1'>Tu</ a> na stiahnutie a inštaláciu.",
-        IDCS_IE_VERSION_WARNING: '',
-        IDCS_FIREFOX_VERSION_WARNING: '',
-        IDCS_OPERA_VERSION_WARNING: '',
-        IDCS_OTHER_VERSION_WARNING: '',
-        IDCS_CHROME_VERSION_WARNING: '',
-        IDCS_SAFARI_VERSION_WARNING: '',
+        IDCS_IE_VERSION_WARNING: 'Your IE browser version is not supported. Please use IE10 or later version of it.',
+        IDCS_FIREFOX_VERSION_WARNING: 'Your Firefox browser version is not supported. Please use Firefox53 or later version of it.',
+        IDCS_OPERA_VERSION_WARNING: 'Your Opera browser version not supported. Please use Opera44 or later version of it.',
+        IDCS_OTHER_VERSION_WARNING:
+            'Your browser does not support this plug-in. Please use the following browsers: ie10-11, Firefox 53 or later, chrome 57 or later, Safari 11 or later, opera 44 or later, edge16 or later.',
+        IDCS_CHROME_VERSION_WARNING: 'Your Chrome browser version is not supported, please use Chrome57 or later version of it.',
+        IDCS_SAFARI_VERSION_WARNING: 'Your Safari browser version is not supported, please use Safari11 or later version of it.',
         IDCS_SAFARI_VERSION_FOR_P2P: 'Váš prehliadač Safari nie je podporovaný, prosím používajte Safari10 alebo jeho staršiu verziu.',
-        IDCS_EDGE_VERSION_WARNING: '',
-        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: '',
+        IDCS_EDGE_VERSION_WARNING: 'Your version of edge browser is too low. Please use edge16 or above',
+        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: 'Fail to login. Reason: device is offline.',
         IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'Prihlásenie zlyhalo. Dôvod: Užívateľské meno alebo heslo je nesprávne.',
         IDCS_LOGIN_FAIL_USER_LOCKED: 'Prihlásenie zlyhalo. Dôvod: Užívateľ je zablokovaný.',
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'Prihlásenie zlyhalo. Dôvod: Užívateľ nemá oprávnenie.',
         IDCS_UNKNOWN_ERROR_CODE: 'Neznáma chyba! Kód chyby:',
     },
-    //Slovenian
+    // Slovenian
     '0x0424': {
         IDCS_NO_PLUGIN_FOR_WINDOWS: "Dodatek ni inštaliran, klikni na <a href='%1'>Here</a> za prevzem in inštalacijo. Pred inštalacijo zaprite brskalnik.",
         IDCS_NO_PLUGIN_FOR_MAC:
@@ -423,41 +422,44 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
         IDCS_NPAPI_NOT_SUPPORT:
             "NPAPI podpora je trenutno onemogočena. Sledite navodilom spodaj za omogočanje:  <ul><li>1.Input \"chrome://flags/#enable-npapi\" into address bar;</li><li>2.Click 'Enable' under the 'Enable Npapi';</li><li>3.Close the Chrome browser completely;</li><li>4.Reopen the Chrome and navigate to the system, the plugin is available.</li></ul>Or the plugin is not installed, please click <a href='%1'>Here</a> za prevzem in inštalacijo. Pred inštalacijo zaprite brskalnik.",
         IDCS_PLUGIN_VERSION_UPDATE: "Vstavek ni posodobljen, prosimo kliknite <a href='%1'>Tukaj</a> za prenos in namestitev.",
-        IDCS_IE_VERSION_WARNING: '',
-        IDCS_FIREFOX_VERSION_WARNING: '',
-        IDCS_OPERA_VERSION_WARNING: '',
-        IDCS_OTHER_VERSION_WARNING: '',
-        IDCS_CHROME_VERSION_WARNING: '',
-        IDCS_SAFARI_VERSION_WARNING: '',
+        IDCS_IE_VERSION_WARNING: 'Your IE browser version is not supported. Please use IE10 or later version of it.',
+        IDCS_FIREFOX_VERSION_WARNING: 'Your Firefox browser version is not supported. Please use Firefox53 or later version of it.',
+        IDCS_OPERA_VERSION_WARNING: 'Your Opera browser version not supported. Please use Opera44 or later version of it.',
+        IDCS_OTHER_VERSION_WARNING:
+            'Your browser does not support this plug-in. Please use the following browsers: ie10-11, Firefox 53 or later, chrome 57 or later, Safari 11 or later, opera 44 or later, edge16 or later.',
+        IDCS_CHROME_VERSION_WARNING: 'Your Chrome browser version is not supported, please use Chrome57 or later version of it.',
+        IDCS_SAFARI_VERSION_WARNING: 'Your Safari browser version is not supported, please use Safari11 or later version of it.',
         IDCS_SAFARI_VERSION_FOR_P2P: 'Različica brskalnika Safari ni podprta, uporabite Safari10 ali starejšo različico brskalnika.',
-        IDCS_EDGE_VERSION_WARNING: '',
-        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: '',
+        IDCS_EDGE_VERSION_WARNING: 'Your version of edge browser is too low. Please use edge16 or above',
+        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: 'Fail to login. Reason: device is offline.',
         IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'Napaka pri prijavi. Razlog je napačno up. ime ali geslo.',
         IDCS_LOGIN_FAIL_USER_LOCKED: 'Napaka pri prijavi. Razlog je zaklenjen uporabnik.',
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'Napaka pri prijavi. Razlog je v tem, da uporabnik nima pravic.',
-        IDCS_UNKNOWN_ERROR_CODE: '',
+        IDCS_UNKNOWN_ERROR_CODE: 'Unknown error! Error code:',
     },
-    //Spanish(Mexican)
+    // Spanish(Mexican)
     '0x080a': {
-        IDCS_NO_PLUGIN_FOR_WINDOWS: '',
-        IDCS_NO_PLUGIN_FOR_MAC: '',
-        IDCS_NPAPI_NOT_SUPPORT: '',
+        IDCS_NO_PLUGIN_FOR_WINDOWS: "El plugin no está instalado, haga clic <a href='%1'> aquí </a> para descargar e instalar. Antes de la instalación, por favor cierre su navegador.",
+        IDCS_NO_PLUGIN_FOR_MAC:
+            "El plugin no está instalado, haga clic <a href='%1'> aquí </A> para descargar e instalar. Antes de la instalación, por favor cierre su navegador. <br/> Si usted tiene instalado el plug-in, por favor verifique si el plugin está deshabilitado en Safari-> Preferencias> Seguridad.",
+        IDCS_NPAPI_NOT_SUPPORT:
+            "El soporte NPAPI no está activo en este momento. Por favor, siga las instrucciones a fin de que: <ul> <li> 1.Ingrese chrome: // banderas / # enable-NPAPI  en la barra de direcciones </ li> <li> 2. Haga clic 'activar' y en 'habilitar NPAPI'; </ li> <li> 3.Cierre Chrome por completo;. </ li> <li> 4. Abrir Chrome y navegar por el sistema, el plugin está habilitado </ li> </ ul> Si el plugin no está instalado, por favor haga clic <a href='%1'> aquí </a> para descargar e instalar. Antes de la instalación, por favor, cierre su navegador.",
         IDCS_PLUGIN_VERSION_UPDATE: "El plugin no ha sido actualizado. Haga clic aquí para descargar <a href='%1'>y</a> actualizar el plugin",
-        IDCS_IE_VERSION_WARNING: '',
-        IDCS_FIREFOX_VERSION_WARNING: '',
-        IDCS_OPERA_VERSION_WARNING: '',
-        IDCS_OTHER_VERSION_WARNING: '',
-        IDCS_CHROME_VERSION_WARNING: '',
-        IDCS_SAFARI_VERSION_WARNING: '',
+        IDCS_IE_VERSION_WARNING: 'Your IE browser version is not supported. Please use IE10 or later version of it.',
+        IDCS_FIREFOX_VERSION_WARNING: 'Su versión del navegador Firefox no es compatible. Por favor utilice Internet Explorer.',
+        IDCS_OPERA_VERSION_WARNING: 'Su versión del navegador Opoera no es compatible. Por favor utilice Internet Explorer.',
+        IDCS_OTHER_VERSION_WARNING: 'Su versión del navegador no es compatible con el plugin. Por favor utilice Internet Explorer.',
+        IDCS_CHROME_VERSION_WARNING: 'La versión de su navegador Chrome es incompatible. Utilice Internet Explorer.',
+        IDCS_SAFARI_VERSION_WARNING: 'Your Safari browser version is not supported, please use Safari11 or later version of it.',
         IDCS_SAFARI_VERSION_FOR_P2P: 'Su versión del navegador Safari no está soportada, use Safari 10 o antes.',
-        IDCS_EDGE_VERSION_WARNING: '',
-        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: '',
-        IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'ERROR AL INICIAR SESIÓN EN LA RAZÓN: NOMBRE DE USUARIO O LA CONTRASEÑA ES INCORRECTA',
-        IDCS_LOGIN_FAIL_USER_LOCKED: 'NO SE HA PODIDO INICIAR LA SESIÓN MOTIVO: EL USUARIO ESTÁ BLOQUEADO',
-        IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'ERROR AL INICIAR SESIÓN: MOTIVO: EL USUARIO NO TIENE PERMISO',
-        IDCS_UNKNOWN_ERROR_CODE: '¡ERROR DESCONOCIDO! CÓDIGO DE ERROR:',
+        IDCS_EDGE_VERSION_WARNING: 'Your version of edge browser is too low. Please use edge16 or above',
+        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: 'Fail to login. Reason: device is offline.',
+        IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'Error de inicio de sesión. Motivo: usuario o contraseña incorrecto.',
+        IDCS_LOGIN_FAIL_USER_LOCKED: 'Error de inicio de sesión. Motivo: el usuario está bloqueado.',
+        IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'Error de inicio de sesión. Motivo: el usuario no tiene permisos.',
+        IDCS_UNKNOWN_ERROR_CODE: 'Error desconocido! Código de error:',
     },
-    //Spanish(Spain - Modern Sort)
+    // Spanish(Spain - Modern Sort)
     '0x0c0a': {
         IDCS_NO_PLUGIN_FOR_WINDOWS: "Si el plugin no está instalado, haga clic <a href='%1'> aquí </a> para descargar e instalar.  Antes de la instalación, por favor, cierre su navegador.",
         IDCS_NO_PLUGIN_FOR_MAC:
@@ -480,48 +482,51 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'Error de inicio de sesión. Motivo: El usuario no tiene permisos.',
         IDCS_UNKNOWN_ERROR_CODE: 'Error desconocido! Código de error:',
     },
-    //Thai
+    // Thai
     '0x041e': {
-        IDCS_NO_PLUGIN_FOR_WINDOWS: '',
-        IDCS_NO_PLUGIN_FOR_MAC: '',
-        IDCS_NPAPI_NOT_SUPPORT: '',
+        IDCS_NO_PLUGIN_FOR_WINDOWS: "The plugin is not installed, please click <a href='%1'>Here</a> to download and install. Before installation, please close your browser.",
+        IDCS_NO_PLUGIN_FOR_MAC:
+            'The plugin is not installed, please click <a href=\'%1\'>Here</a> to download and install. Before installation, please close your browser.<br/>If you have installed plugin, please check if the plugin is disabled at "Safari->Preferences->Security".',
+        IDCS_NPAPI_NOT_SUPPORT:
+            "NPAPI Support is currently disabled. Please follow the instructions below to enable it:<ul><li>1.Input \"chrome://flags/#enable-npapi\" into address bar;</li><li>2.Click 'Enable' under the 'Enable Npapi';</li><li>3.Close the Chrome browser completely;</li><li>4.Reopen the Chrome and navigate to the system, the plugin is available.</li></ul>Or the plugin is not installed, please click <a href='%1'>Here</a> to download and install. Before installation, please close your browser.",
         IDCS_PLUGIN_VERSION_UPDATE: "ปลั๊กอินมีการปรับปรุง, กรุณาคลิก<a href='%1'>ที่นี่</a>เพื่อดาวน์โหลดและปรับปรุงปลั๊กอิน",
-        IDCS_IE_VERSION_WARNING: '',
-        IDCS_FIREFOX_VERSION_WARNING: '',
-        IDCS_OPERA_VERSION_WARNING: '',
-        IDCS_OTHER_VERSION_WARNING: '',
-        IDCS_CHROME_VERSION_WARNING: '',
-        IDCS_SAFARI_VERSION_WARNING: '',
+        IDCS_IE_VERSION_WARNING: 'Your IE browser version is not supported. Please use IE10 or later version of it.',
+        IDCS_FIREFOX_VERSION_WARNING: 'เบราส์เซอร์ Firefox ของคุณใหม่เกินไป, กรุณาใช้ Firefox 51 ',
+        IDCS_OPERA_VERSION_WARNING: 'Your Opera browser version not supported. Please use Opera44 or later version of it.',
+        IDCS_OTHER_VERSION_WARNING: 'เบราเซอร์ไม่รองรับปลั๊กอิน กรุณาใช้ IE8-11, Firefox51 หรือเก่ากว่า, Chrome44 หรือเก่ากว่า, Opera36 หรือเก่ากว่า',
+        IDCS_CHROME_VERSION_WARNING: 'เบราส์เซอร์ Chrome ไม่รองรับ, กรุณาใช้ Chrome44 หรือ เก่ากว่า',
+        IDCS_SAFARI_VERSION_WARNING: 'Your Safari browser version is not supported, please use Safari11 or later version of it.',
         IDCS_SAFARI_VERSION_FOR_P2P: 'รุ่นเบราว์เซอร์ซาฟารีของคุณไม่รองรับกรุณาใช้ซาฟารีหรือรุ่นก่อนหน้า',
-        IDCS_EDGE_VERSION_WARNING: '',
-        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: '',
+        IDCS_EDGE_VERSION_WARNING: 'Your version of edge browser is too low. Please use edge16 or above',
+        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: 'Fail to login. Reason: device is offline.',
         IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'ล็อกอินล้มเหลวเพราะ:ชื่อหรือรหัสผ่านผิด',
         IDCS_LOGIN_FAIL_USER_LOCKED: 'ล็อกอินล้มเหลวเพราะ:ชื่อผู้ใช้นีี้ถูกล็อค',
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'ล็อกอินล้มเหลวเพราะ:ชื่อผู้ใช้นี้ไม่มีสิทธิ์',
         IDCS_UNKNOWN_ERROR_CODE: 'ข้อผิดพลาดที่ไม่รู้จัก! รหัสผิดพลาด:',
     },
-    //Turkish
+    // Turkish
     '0x041f': {
         IDCS_NO_PLUGIN_FOR_WINDOWS: "Eklenti kurulu değil, lütfen <a href='%1'>burayı</a> tıklayın ve kurun, kurulumdan önce lütfen tarayıcınızı kapatın",
         IDCS_NO_PLUGIN_FOR_MAC:
             'Eklenti kurulu değil, lütfen <a href=\'%1\'>burayı</a> tıklayın ve kurun, kurulumdan önce lütfen tarayıcınızı kapatın.<br/> eklentiyi kurduysanız, lütfen eklentinin "Safari->Preferences->Security" bölümünden aktif olduğundan emin olun',
-        IDCS_NPAPI_NOT_SUPPORT: '',
+        IDCS_NPAPI_NOT_SUPPORT:
+            "NPAPI Desteği şu anda devre dışı. Bunu etkinleştirmek için lütfen aşağıdaki talimatları izleyin: <ul> <li> 1. \"chrome: // flags / # enable-npapi\" adresini adres çubuğuna girin; </ li> <li> 2. 'Etkinleştir' altındaki 'Etkinleştir' seçeneğini tıklayın. Enable Npapi '; </ li> <li> 3. Chrome tarayıcısını tamamen kapayın; </ li> <li> 4. Chrome'u yeniden açın ve sisteme gidin, eklenti kullanılabilir. </ Li> </ ul> Veya eklenti yüklü değil, indirmek ve yüklemek için lütfen <a href='%1'> Buradan </a> tıklayın. Kurulumdan önce lütfen tarayıcınızı kapatın.",
         IDCS_PLUGIN_VERSION_UPDATE: "Plaginin güncellenmedi, lütfen <a href='%1'>Burada indirmek ve kurulmak için </a> tıklayın.",
-        IDCS_IE_VERSION_WARNING: '',
-        IDCS_FIREFOX_VERSION_WARNING: '',
-        IDCS_OPERA_VERSION_WARNING: '',
-        IDCS_OTHER_VERSION_WARNING: '',
-        IDCS_CHROME_VERSION_WARNING: '',
-        IDCS_SAFARI_VERSION_WARNING: '',
+        IDCS_IE_VERSION_WARNING: 'Your IE browser version is not supported. Please use IE10 or later version of it.',
+        IDCS_FIREFOX_VERSION_WARNING: 'Firefox tarayıcınızın sürümü çok yeni, lütfen tarayıcının Firefox 51veya daha alt bir sürümünü kullanın.',
+        IDCS_OPERA_VERSION_WARNING: 'Opera tarayıcınızın sürümü çok yeni, lütfen Opera36 veya daha alt sürümünü kullanın.',
+        IDCS_OTHER_VERSION_WARNING: 'Tarayıcınız bu eklentiyi desteklemiyor, lütfen şu tarayıcıyı kullanın: IE8-11, Firefox51 veya daha düşük, Chrome44 veya daha düşük, Opera36 veya daha düşük.',
+        IDCS_CHROME_VERSION_WARNING: 'Chrome tarayıcı sürümünüz desteklenmiyor, lütfen tarayıcınızın Chrome44 veya daha eski bir sürümünü kullanın.',
+        IDCS_SAFARI_VERSION_WARNING: 'Your Safari browser version is not supported, please use Safari11 or later version of it.',
         IDCS_SAFARI_VERSION_FOR_P2P: 'Safari tarayıcı sürümünüz desteklenmiyor. Lütfen Safari10 ya da eski sürümünü kullanın.',
-        IDCS_EDGE_VERSION_WARNING: '',
-        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: '',
+        IDCS_EDGE_VERSION_WARNING: 'Your version of edge browser is too low. Please use edge16 or above',
+        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: 'Fail to login. Reason: device is offline.',
         IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'Giriş başarısız. Nedeni: Kullanıcı adı veya şifre yalnış.',
         IDCS_LOGIN_FAIL_USER_LOCKED: 'Giriş başarısız. Nedeni: kullanıcı kilitli.',
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'Giriş başarısız. Nedeni: kullanıcı yetkisiz.',
         IDCS_UNKNOWN_ERROR_CODE: 'Bilinmeyen hata! Hata kodu:',
     },
-    //Korean(Korea)
+    // Korean(Korea)
     '0x0412': {
         IDCS_NO_PLUGIN_FOR_WINDOWS: "플러그인이 설치되어 있지 않습니다, 여기를 <a href='%1'>클릭</a> 하여 다운로드 후 설치 하세요. 설치 전 모든 창을 닫으세요.",
         IDCS_NO_PLUGIN_FOR_MAC:
@@ -543,28 +548,29 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: '승인된 사용자가 아니므로 로그인 할 수 없습니다.',
         IDCS_UNKNOWN_ERROR_CODE: '알려지지 않은 에러! 에러코드:',
     },
-    //Vietnamese(Vietnam)
+    // Vietnamese(Vietnam)
     '0x042a': {
         IDCS_NO_PLUGIN_FOR_WINDOWS: "Không Plugin cho Windows. Nhấn <a href='%1'>vào đây </a> để cài đặt",
         IDCS_NO_PLUGIN_FOR_MAC: 'Không Plugin cho MAC. Nhấn <a href=\'%1\'>vào đây </a>  để cài đặt. Kiểm tra tắt bảo mật tại "Safari->Preferences->Security".',
         IDCS_NPAPI_NOT_SUPPORT:
             "NPAPI Không hỗ trợ. Please follow the instructions below to enable it:<ul><li>1.Input \"chrome://flags/#enable-npapi\" into address bar;</li><li>2.Click 'Enable' under the 'Enable Npapi';</li><li>3.Close the Chrome browser completely;</li><li>4.Reopen the Chrome and navigate to the system, the plugin is available.</li></ul>Or the plugin is not installed, please click <a href='%1'>Here</a> to download and install. Before installation, please close your browser.",
         IDCS_PLUGIN_VERSION_UPDATE: "Bổ sung không cập nhật, Nhấn <a href='%1'>vào đây </a> để cài đặt",
-        IDCS_IE_VERSION_WARNING: '',
-        IDCS_FIREFOX_VERSION_WARNING: '',
-        IDCS_OPERA_VERSION_WARNING: '',
-        IDCS_OTHER_VERSION_WARNING: '',
-        IDCS_CHROME_VERSION_WARNING: '',
-        IDCS_SAFARI_VERSION_WARNING: '',
+        IDCS_IE_VERSION_WARNING: 'Your IE browser version is not supported. Please use IE10 or later version of it.',
+        IDCS_FIREFOX_VERSION_WARNING: 'Your Firefox browser version is not supported. Please use Firefox53 or later version of it.',
+        IDCS_OPERA_VERSION_WARNING: 'Your Opera browser version not supported. Please use Opera44 or later version of it.',
+        IDCS_OTHER_VERSION_WARNING:
+            'Your browser does not support this plug-in. Please use the following browsers: ie10-11, Firefox 53 or later, chrome 57 or later, Safari 11 or later, opera 44 or later, edge16 or later.',
+        IDCS_CHROME_VERSION_WARNING: 'Your Chrome browser version is not supported, please use Chrome57 or later version of it.',
+        IDCS_SAFARI_VERSION_WARNING: 'Your Safari browser version is not supported, please use Safari11 or later version of it.',
         IDCS_SAFARI_VERSION_FOR_P2P: 'Không hỗ trợ phiên bản duyệt Safari của em, xin dùng Safari10 hoặc phiên bản cũ của nó.',
-        IDCS_EDGE_VERSION_WARNING: '',
-        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: '',
+        IDCS_EDGE_VERSION_WARNING: 'Your version of edge browser is too low. Please use edge16 or above',
+        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: 'Fail to login. Reason: device is offline.',
         IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'Đăng nhập thất bại. Nguyên nhân: Người dùng và mật khẩu bị sai.',
         IDCS_LOGIN_FAIL_USER_LOCKED: 'Đăng nhập thất bại. Nguyên nhân: Người dùng bị khóa',
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'Đăng nhập thất bại. Nguyên nhân: Người dùng không có quyền',
         IDCS_UNKNOWN_ERROR_CODE: 'Lỗi không xác định! Mã lỗi:',
     },
-    //French(Standard)
+    // French(Standard)
     '0x040c': {
         IDCS_NO_PLUGIN_FOR_WINDOWS:
             "Le plugin n'étant pas installé, veuillez cliquer sur <a href='%1'> ici </a> pour le téléchargement et l'installation. Avant de l'installation, veuillez fermer le navigateur!",
@@ -582,33 +588,36 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
         IDCS_SAFARI_VERSION_WARNING: "Votre navigateur safari n'est pas pris en charge. Utilisez Safari 11 ou plus tard.",
         IDCS_SAFARI_VERSION_FOR_P2P: "Votre version de navigateur safari n'est pas prise en charge, utilisez Safari 10 ou plus tôt.",
         IDCS_EDGE_VERSION_WARNING: 'Votre navigateur Edge est trop bas. Veuillez utiliser Edge 16 ou plus',
-        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: '',
+        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: 'Fail to login. Reason: device is offline.',
         IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'Echec identification. Mauvais utilisateur et/ou mot de passe.',
         IDCS_LOGIN_FAIL_USER_LOCKED: "Echec identification. L'utilisateur est vérouillé.",
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: "Echec identification. L'utilisateur n'a pas de permission.",
         IDCS_UNKNOWN_ERROR_CODE: 'Erreur inconnue! Code Erreur:',
     },
-    //Dutch(Standard)
+    // Dutch(Standard)
     '0x0013': {
-        IDCS_NO_PLUGIN_FOR_WINDOWS: '',
-        IDCS_NO_PLUGIN_FOR_MAC: '',
-        IDCS_NPAPI_NOT_SUPPORT: '',
+        IDCS_NO_PLUGIN_FOR_WINDOWS: "The plugin is not installed, please click <a href='%1'>Here</a> to download and install. Before installation, please close your browser.",
+        IDCS_NO_PLUGIN_FOR_MAC:
+            'The plugin is not installed, please click <a href=\'%1\'>Here</a> to download and install. Before installation, please close your browser.<br/>If you have installed plugin, please check if the plugin is disabled at "Safari->Preferences->Security".',
+        IDCS_NPAPI_NOT_SUPPORT:
+            "NPAPI Support is currently disabled. Please follow the instructions below to enable it:<ul><li>1.Input \"chrome://flags/#enable-npapi\" into address bar;</li><li>2.Click 'Enable' under the 'Enable Npapi';</li><li>3.Close the Chrome browser completely;</li><li>4.Reopen the Chrome and navigate to the system, the plugin is available.</li></ul>Or the plugin is not installed, please click <a href='%1'>Here</a> to download and install. Before installation, please close your browser.",
         IDCS_PLUGIN_VERSION_UPDATE: "De plugin is niet bijgewerkt, klik op <a href='%1'>Hier</a> om te downloaden en te installeren.",
-        IDCS_IE_VERSION_WARNING: '',
-        IDCS_FIREFOX_VERSION_WARNING: '',
-        IDCS_OPERA_VERSION_WARNING: '',
-        IDCS_OTHER_VERSION_WARNING: '',
-        IDCS_CHROME_VERSION_WARNING: '',
-        IDCS_SAFARI_VERSION_WARNING: '',
+        IDCS_IE_VERSION_WARNING: 'Your IE browser version is not supported. Please use IE10 or later version of it.',
+        IDCS_FIREFOX_VERSION_WARNING: 'Your Firefox browser version is not supported. Please use Firefox53 or later version of it.',
+        IDCS_OPERA_VERSION_WARNING: 'Your Opera browser version not supported. Please use Opera44 or later version of it.',
+        IDCS_OTHER_VERSION_WARNING:
+            'Your browser does not support this plug-in. Please use the following browsers: ie10-11, Firefox 53 or later, chrome 57 or later, Safari 11 or later, opera 44 or later, edge16 or later.',
+        IDCS_CHROME_VERSION_WARNING: 'Your Chrome browser version is not supported, please use Chrome57 or later version of it.',
+        IDCS_SAFARI_VERSION_WARNING: 'Your Safari browser version is not supported, please use Safari11 or later version of it.',
         IDCS_SAFARI_VERSION_FOR_P2P: 'Uw Safari browserversie wordt niet ondersteund, gebruik Safari10 of oudere versie ervan.',
-        IDCS_EDGE_VERSION_WARNING: '',
-        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: '',
+        IDCS_EDGE_VERSION_WARNING: 'Your version of edge browser is too low. Please use edge16 or above',
+        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: 'Fail to login. Reason: device is offline.',
         IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'Login mislukt. Reden: foutieve gebruikernaam of paswoord ongeldig.',
         IDCS_LOGIN_FAIL_USER_LOCKED: 'Login mislukt. Reden: de gebruiker is geblokkeerd.',
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'Login mislukt. Reden: de gebruiker heeft geen toelating.',
         IDCS_UNKNOWN_ERROR_CODE: 'Onbekende fout! Fout code:',
     },
-    //Japanese(Japan)
+    // Japanese(Japan)
     '0x0411': {
         IDCS_NO_PLUGIN_FOR_WINDOWS:
             "このプラグインはインストールされていません。 <a href='%1'>こちら</a>をクリックし、ダウンロードとインストールを行って下さい。 インストールする前に、ブラウザを閉じてください。",
@@ -617,41 +626,45 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
         IDCS_NPAPI_NOT_SUPPORT:
             "NPAPIサポートは現在無効です。有効にするために、以下の説明へ進んでください。:<ul><li>1. \"chrome://flags/#enable-npapi\" をアドレスバーに入力;</li><li>2. 'Enable Npapi'下の'有効'をクリック;</li><li>3.クロームブラウザを全部閉じる;</li><li>4.クロームを再開し、システムを操作してプラグインが利用可能になります。< /li></ul>プラグインがインストールされていない場合は、<a href='%1'>こちら</a>をクリックし、ダウンロードとインストールを行って下さい。インストール前にブラウザを閉じてください。",
         IDCS_PLUGIN_VERSION_UPDATE: "プラグインが更新されません。 <a href='%1'>こちら</a>をクリックし、ダウンロードとインストールを行って下さい。 インストールする前に、ブラウザを閉じてください。",
-        IDCS_IE_VERSION_WARNING: '',
-        IDCS_FIREFOX_VERSION_WARNING: '',
-        IDCS_OPERA_VERSION_WARNING: '',
-        IDCS_OTHER_VERSION_WARNING: '',
-        IDCS_CHROME_VERSION_WARNING: '',
-        IDCS_SAFARI_VERSION_WARNING: '',
+        IDCS_IE_VERSION_WARNING: 'Your IE browser version is not supported. Please use IE10 or later version of it.',
+        IDCS_FIREFOX_VERSION_WARNING: 'Your Firefox browser version is not supported. Please use Firefox53 or later version of it.',
+        IDCS_OPERA_VERSION_WARNING: 'Your Opera browser version not supported. Please use Opera44 or later version of it.',
+        IDCS_OTHER_VERSION_WARNING:
+            'Your browser does not support this plug-in. Please use the following browsers: ie10-11, Firefox 53 or later, chrome 57 or later, Safari 11 or later, opera 44 or later, edge16 or later.',
+        IDCS_CHROME_VERSION_WARNING: 'Your Chrome browser version is not supported, please use Chrome57 or later version of it.',
+        IDCS_SAFARI_VERSION_WARNING: 'Your Safari browser version is not supported, please use Safari11 or later version of it.',
         IDCS_SAFARI_VERSION_FOR_P2P: 'あなたのSafariブラウザのバージョンは、Safari 10またはそれの古いバージョンを使用してくださいサポートされていません。',
-        IDCS_EDGE_VERSION_WARNING: '',
-        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: '',
+        IDCS_EDGE_VERSION_WARNING: 'Your version of edge browser is too low. Please use edge16 or above',
+        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: 'Fail to login. Reason: device is offline.',
         IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'ログインエラー。ユーザー名かパスワードが間違っています。',
         IDCS_LOGIN_FAIL_USER_LOCKED: 'ログインエラー。ユーザーがロックされています。',
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'ログインエラー。ユーザー権限がありません。',
         IDCS_UNKNOWN_ERROR_CODE: '不明なエラー! エラーコード:',
     },
-    //Indonesian(Indonesia)
+    // Indonesian(Indonesia)
     '0x0421': {
-        IDCS_NO_PLUGIN_FOR_WINDOWS: '',
-        IDCS_NO_PLUGIN_FOR_MAC: '',
-        IDCS_NPAPI_NOT_SUPPORT: '',
+        IDCS_NO_PLUGIN_FOR_WINDOWS: "The plugin is not installed, please click <a href='%1'>Here</a> to download and install. Before installation, please close your browser.",
+        IDCS_NO_PLUGIN_FOR_MAC:
+            'The plugin is not installed, please click <a href=\'%1\'>Here</a> to download and install. Before installation, please close your browser.<br/>If you have installed plugin, please check if the plugin is disabled at "Safari->Preferences->Security".',
+        IDCS_NPAPI_NOT_SUPPORT:
+            "NPAPI Support is currently disabled. Please follow the instructions below to enable it:<ul><li>1.Input \"chrome://flags/#enable-npapi\" into address bar;</li><li>2.Click 'Enable' under the 'Enable Npapi';</li><li>3.Close the Chrome browser completely;</li><li>4.Reopen the Chrome and navigate to the system, the plugin is available.</li></ul>Or the plugin is not installed, please click <a href='%1'>Here</a> to download and install. Before installation, please close your browser.",
         IDCS_PLUGIN_VERSION_UPDATE: "Plugin tidak diperbarui, silakan klik <a href='% 1'>Di sini</a> untuk mengunduh dan memasang.",
-        IDCS_IE_VERSION_WARNING: '',
-        IDCS_FIREFOX_VERSION_WARNING: '',
-        IDCS_OPERA_VERSION_WARNING: '',
-        IDCS_OTHER_VERSION_WARNING: '',
-        IDCS_CHROME_VERSION_WARNING: '',
-        IDCS_SAFARI_VERSION_WARNING: '',
+        IDCS_IE_VERSION_WARNING: 'Your IE browser version is not supported. Please use IE10 or later version of it.',
+        IDCS_FIREFOX_VERSION_WARNING: 'Your Firefox browser version is not supported. Please use Firefox53 or later version of it.',
+        IDCS_OPERA_VERSION_WARNING: 'Your Opera browser version not supported. Please use Opera44 or later version of it.',
+        IDCS_OTHER_VERSION_WARNING:
+            'Your browser does not support this plug-in. Please use the following browsers: ie10-11, Firefox 53 or later, chrome 57 or later, Safari 11 or later, opera 44 or later, edge16 or later.',
+        IDCS_CHROME_VERSION_WARNING: 'Your Chrome browser version is not supported, please use Chrome57 or later version of it.',
+        IDCS_SAFARI_VERSION_WARNING: 'Your Safari browser version is not supported, please use Safari11 or later version of it.',
         IDCS_SAFARI_VERSION_FOR_P2P: 'Versi pelayar Safari Anda tidak didukung, silakan gunakan versi Safari10 atau lebih tua dari itu.',
-        IDCS_EDGE_VERSION_WARNING: '',
-        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: '',
-        IDCS_LOGIN_FAIL_REASON_U_P_ERROR: '',
-        IDCS_LOGIN_FAIL_USER_LOCKED: '',
-        IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: '',
-        IDCS_UNKNOWN_ERROR_CODE: '',
+        IDCS_EDGE_VERSION_WARNING: 'Your version of edge browser is too low. Please use edge16 or above',
+        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: 'Fail to login. Reason: device is offline.',
+        IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'Fail to login. Reason: username or password is wrong.',
+        IDCS_LOGIN_FAIL_USER_LOCKED: 'Failed to log in. Reason: The user is locked.',
+        IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'Fail to login. Reason: The user has no permission.',
+        IDCS_UNKNOWN_ERROR_CODE: 'Unknown error! Error code:',
     },
-    //Bulgarian(Bulgaria)
+    // Bulgarian(Bulgaria)
     '0x0402': {
         IDCS_NO_PLUGIN_FOR_WINDOWS: "Добавката не е инсталирана. Моля кликнете <a href='%1'>тук</a> за да я свалите и инсталирате. Преди инсталацията, моля затворете браузъра.",
         IDCS_NO_PLUGIN_FOR_MAC:
@@ -659,21 +672,22 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
         IDCS_NPAPI_NOT_SUPPORT:
             "Поддръжката на NPAPI е забранена. Моля следвайте следните инструкции за да я разрешите: <ul><li>1. Въведете \"chrome://flags/#enable-npapi\" в адресното поле;</li><li>2. Кликнете 'Разреши' в 'Разреши Npapi';</li><li>3.Затворете изцяло браузера;</li><li>4. Отворете го отново и отидете към системата. Добавката е налична.</li></ul> Или ако добавката не е инсталирана, моля кликнете <a href='%1'>тук</a> за да я свалите и инсталирате. Преди инсталацията, моля затворете браузъра.",
         IDCS_PLUGIN_VERSION_UPDATE: "Приставката не е обновена. Моля кликнете <a href='%1'>тук</a> за да я свалите и инсталирате. Преди инсталацията, моля затворете браузъра.",
-        IDCS_IE_VERSION_WARNING: '',
-        IDCS_FIREFOX_VERSION_WARNING: '',
-        IDCS_OPERA_VERSION_WARNING: '',
-        IDCS_OTHER_VERSION_WARNING: '',
-        IDCS_CHROME_VERSION_WARNING: '',
-        IDCS_SAFARI_VERSION_WARNING: '',
+        IDCS_IE_VERSION_WARNING: 'Your IE browser version is not supported. Please use IE10 or later version of it.',
+        IDCS_FIREFOX_VERSION_WARNING: 'Your Firefox browser version is not supported. Please use Firefox53 or later version of it.',
+        IDCS_OPERA_VERSION_WARNING: 'Your Opera browser version not supported. Please use Opera44 or later version of it.',
+        IDCS_OTHER_VERSION_WARNING:
+            'Your browser does not support this plug-in. Please use the following browsers: ie10-11, Firefox 53 or later, chrome 57 or later, Safari 11 or later, opera 44 or later, edge16 or later.',
+        IDCS_CHROME_VERSION_WARNING: 'Your Chrome browser version is not supported, please use Chrome57 or later version of it.',
+        IDCS_SAFARI_VERSION_WARNING: 'Your Safari browser version is not supported, please use Safari11 or later version of it.',
         IDCS_SAFARI_VERSION_FOR_P2P: 'Версията на вашия браузър не се поддържа, моля използвайте или по-стара версия на него.',
-        IDCS_EDGE_VERSION_WARNING: '',
-        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: '',
+        IDCS_EDGE_VERSION_WARNING: 'Your version of edge browser is too low. Please use edge16 or above',
+        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: 'Fail to login. Reason: device is offline.',
         IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'Неуспешно вписване. Причина: Грешно потребителско име или парола.',
         IDCS_LOGIN_FAIL_USER_LOCKED: 'Неуспешно вписване. Причина: Потребителят е заключен.',
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'Неуспешно вписване. Причина: Потребителя няма права.',
         IDCS_UNKNOWN_ERROR_CODE: 'Неизвестна грешка! Код на грешката:',
     },
-    //Serbian
+    // Serbian
     '0x0c1a': {
         IDCS_NO_PLUGIN_FOR_WINDOWS: "Priključak nije instaliran, molim kliknite <a href='%1'>Here</a> za preuzimanje i instalaciju. pre instalacije, molim zatvorite svoj pretraživač.",
         IDCS_NO_PLUGIN_FOR_MAC:
@@ -681,62 +695,69 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
         IDCS_NPAPI_NOT_SUPPORT:
             "NPAPI Podrška je trenuitno onemogućena. Molim pratite instrukcije ispod da bi ga omogućili::<ul><li>1.Input \"chrome://flags/#enable-npapi\" u adres bar;;</li><li>2.Kliknite 'Enable'  u 'Enable Npapi';</li><li>3.Zatvorite Chrome pretraživač kompletno;</li><li>4. Otvorite ponovo Chrome i idite u System, priključak je dostupan..</li></ul>Ili priklju;ak nije instaliran, molim kliknite <a href='%1'>Here</a> za preuzimanje i instalaciju. Pre instalacije, molim zatvorite svoj pretraživač.",
         IDCS_PLUGIN_VERSION_UPDATE: "Додатак се не ажурира, molim kliknite <a href='%1'>Here</a> za preuzimanje i instalaciju. pre instalacije, molim zatvorite svoj pretraživač.",
-        IDCS_IE_VERSION_WARNING: '',
-        IDCS_FIREFOX_VERSION_WARNING: '',
-        IDCS_OPERA_VERSION_WARNING: '',
-        IDCS_OTHER_VERSION_WARNING: '',
-        IDCS_CHROME_VERSION_WARNING: '',
-        IDCS_SAFARI_VERSION_WARNING: '',
+        IDCS_IE_VERSION_WARNING: 'Your IE browser version is not supported. Please use IE10 or later version of it.',
+        IDCS_FIREFOX_VERSION_WARNING: 'Your Firefox browser version is not supported. Please use Firefox53 or later version of it.',
+        IDCS_OPERA_VERSION_WARNING: 'Your Opera browser version not supported. Please use Opera44 or later version of it.',
+        IDCS_OTHER_VERSION_WARNING:
+            'Your browser does not support this plug-in. Please use the following browsers: ie10-11, Firefox 53 or later, chrome 57 or later, Safari 11 or later, opera 44 or later, edge16 or later.',
+        IDCS_CHROME_VERSION_WARNING: 'Your Chrome browser version is not supported, please use Chrome57 or later version of it.',
+        IDCS_SAFARI_VERSION_WARNING: 'Your Safari browser version is not supported, please use Safari11 or later version of it.',
         IDCS_SAFARI_VERSION_FOR_P2P: 'Vaša verzija Safari pretraživača nije podrška, molim vas koristite Safari10 ili stariju verziju.',
-        IDCS_EDGE_VERSION_WARNING: '',
-        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: '',
+        IDCS_EDGE_VERSION_WARNING: 'Your version of edge browser is too low. Please use edge16 or above',
+        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: 'Fail to login. Reason: device is offline.',
         IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'Prijava nije uspela. Razlog: korisničko ime ili lozinka nisu ispravni',
         IDCS_LOGIN_FAIL_USER_LOCKED: 'prijava nije uspela. Razlog: Korisnik je zaključan',
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'Neuspela prijava. Razlog: Korisnik nema dozvolu',
         IDCS_UNKNOWN_ERROR_CODE: 'Nepoznata greška! Šifra greške:',
     },
-    //Kazakh(Kazakhstan)
+    // Kazakh(Kazakhstan)
     '0x043f': {
-        IDCS_NO_PLUGIN_FOR_WINDOWS: '',
-        IDCS_NO_PLUGIN_FOR_MAC: '',
-        IDCS_NPAPI_NOT_SUPPORT: '',
-        IDCS_PLUGIN_VERSION_UPDATE: '',
-        IDCS_IE_VERSION_WARNING: '',
-        IDCS_FIREFOX_VERSION_WARNING: '',
-        IDCS_OPERA_VERSION_WARNING: '',
-        IDCS_OTHER_VERSION_WARNING: '',
-        IDCS_CHROME_VERSION_WARNING: '',
-        IDCS_SAFARI_VERSION_WARNING: '',
-        IDCS_SAFARI_VERSION_FOR_P2P: '',
-        IDCS_EDGE_VERSION_WARNING: '',
-        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: '',
-        IDCS_LOGIN_FAIL_REASON_U_P_ERROR: '',
-        IDCS_LOGIN_FAIL_USER_LOCKED: '',
-        IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: '',
-        IDCS_UNKNOWN_ERROR_CODE: '',
+        IDCS_NO_PLUGIN_FOR_WINDOWS: "The plugin is not installed, please click <a href='%1'>Here</a> to download and install. Before installation, please close your browser.",
+        IDCS_NO_PLUGIN_FOR_MAC:
+            'The plugin is not installed, please click <a href=\'%1\'>Here</a> to download and install. Before installation, please close your browser.<br/>If you have installed plugin, please check if the plugin is disabled at "Safari->Preferences->Security".',
+        IDCS_NPAPI_NOT_SUPPORT:
+            "NPAPI Support is currently disabled. Please follow the instructions below to enable it:<ul><li>1.Input \"chrome://flags/#enable-npapi\" into address bar;</li><li>2.Click 'Enable' under the 'Enable Npapi';</li><li>3.Close the Chrome browser completely;</li><li>4.Reopen the Chrome and navigate to the system, the plugin is available.</li></ul>Or the plugin is not installed, please click <a href='%1'>Here</a> to download and install. Before installation, please close your browser.",
+        IDCS_PLUGIN_VERSION_UPDATE: "The Plugin is not updated, please click <a href='%1'>Here</a> to download and update.",
+        IDCS_IE_VERSION_WARNING: 'Your IE browser version is not supported. Please use IE10 or later version of it.',
+        IDCS_FIREFOX_VERSION_WARNING: 'Your Firefox browser version is not supported. Please use Firefox53 or later version of it.',
+        IDCS_OPERA_VERSION_WARNING: 'Your Opera browser version not supported. Please use Opera44 or later version of it.',
+        IDCS_OTHER_VERSION_WARNING:
+            'Your browser does not support this plug-in. Please use the following browsers: ie10-11, Firefox 53 or later, chrome 57 or later, Safari 11 or later, opera 44 or later, edge16 or later.',
+        IDCS_CHROME_VERSION_WARNING: 'Your Chrome browser version is not supported, please use Chrome57 or later version of it.',
+        IDCS_SAFARI_VERSION_WARNING: 'Your Safari browser version is not supported, please use Safari11 or later version of it.',
+        IDCS_SAFARI_VERSION_FOR_P2P: 'Your Safari browser version is not supported, please use Safari10 or older version of it.',
+        IDCS_EDGE_VERSION_WARNING: 'Your version of edge browser is too low. Please use edge16 or above',
+        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: 'Fail to login. Reason: device is offline.',
+        IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'Fail to login. Reason: username or password is wrong.',
+        IDCS_LOGIN_FAIL_USER_LOCKED: 'Failed to log in. Reason: The user is locked.',
+        IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'Fail to login. Reason: The user has no permission.',
+        IDCS_UNKNOWN_ERROR_CODE: 'Unknown error! Error code:',
     },
-    //Arabic(Egypt)
+    // Arabic(Egypt)
     '0x0c01': {
         // "IDCS_NO_PLUGIN_FOR_WINDOWS": "THE PLUGIN IS NOT INSTALLED, PLEASE CLICK <A HREF=\"لم يتم تثبيت المكون الإضافي، يرجى النقر <a href='%1'> هنا </a> للتنزيل والتثبيت. قبل التثبيت، يرجى إغلاق المتصفح.",
         IDCS_NO_PLUGIN_FOR_WINDOWS: "لم يتم تثبيت المكون الإضافي، يرجى النقر<a href='%1'> هنا </a>  للتنزيل والتثبيت. قبل التثبيت، يرجى إغلاق المتصفح.",
-        IDCS_NO_PLUGIN_FOR_MAC: '',
-        IDCS_NPAPI_NOT_SUPPORT: '',
+        IDCS_NO_PLUGIN_FOR_MAC:
+            'The plugin is not installed, please click <a href=\'%1\'>Here</a> to download and install. Before installation, please close your browser.<br/>If you have installed plugin, please check if the plugin is disabled at "Safari->Preferences->Security".',
+        IDCS_NPAPI_NOT_SUPPORT:
+            "NPAPI Support is currently disabled. Please follow the instructions below to enable it:<ul><li>1.Input \"chrome://flags/#enable-npapi\" into address bar;</li><li>2.Click 'Enable' under the 'Enable Npapi';</li><li>3.Close the Chrome browser completely;</li><li>4.Reopen the Chrome and navigate to the system, the plugin is available.</li></ul>Or the plugin is not installed, please click <a href='%1'>Here</a> to download and install. Before installation, please close your browser.",
         IDCS_PLUGIN_VERSION_UPDATE: "يتم تثبيت المكون الإضافي، يرجى النقر<a href='%1'> هنا </a>  للتنزيل والتثبيت. قبل التثبيت، يرجى إغلاق المتصفح.",
-        IDCS_IE_VERSION_WARNING: '',
-        IDCS_FIREFOX_VERSION_WARNING: '',
-        IDCS_OPERA_VERSION_WARNING: '',
-        IDCS_OTHER_VERSION_WARNING: '',
-        IDCS_CHROME_VERSION_WARNING: '',
-        IDCS_SAFARI_VERSION_WARNING: '',
+        IDCS_IE_VERSION_WARNING: 'Your IE browser version is not supported. Please use IE10 or later version of it.',
+        IDCS_FIREFOX_VERSION_WARNING: 'Your Firefox browser version is not supported. Please use Firefox53 or later version of it.',
+        IDCS_OPERA_VERSION_WARNING: 'Your Opera browser version not supported. Please use Opera44 or later version of it.',
+        IDCS_OTHER_VERSION_WARNING:
+            'Your browser does not support this plug-in. Please use the following browsers: ie10-11, Firefox 53 or later, chrome 57 or later, Safari 11 or later, opera 44 or later, edge16 or later.',
+        IDCS_CHROME_VERSION_WARNING: 'Your Chrome browser version is not supported, please use Chrome57 or later version of it.',
+        IDCS_SAFARI_VERSION_WARNING: 'Your Safari browser version is not supported, please use Safari11 or later version of it.',
         IDCS_SAFARI_VERSION_FOR_P2P: 'نسخة من متصفح سفاري غير معتمد ، يرجى استخدام سفاري 10 أو في وقت سابق .',
-        IDCS_EDGE_VERSION_WARNING: '',
-        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: '',
+        IDCS_EDGE_VERSION_WARNING: 'Your version of edge browser is too low. Please use edge16 or above',
+        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: 'Fail to login. Reason: device is offline.',
         IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'فشل تسجيل الدخول السبب: اسم المستخدم أو كلمة المرور خاطئة.',
         IDCS_LOGIN_FAIL_USER_LOCKED: 'فشل تسجيل الدخول السبب: تم تأمين المستخدم.',
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'أخفق تسجيل الدخول السبب: ليس لدى المستخدم إذن.',
         IDCS_UNKNOWN_ERROR_CODE: 'خطأ غير معروف رمز الخطأ:',
     },
-    //Afrikaans
+    // Afrikaans
     '0x0436': {
         IDCS_NO_PLUGIN_FOR_WINDOWS:
             "Sagteware is nie geinstalleer nie, kliek asb op die volgende skakel <a href='%1'>Here</a> om sagteware af te laai en te installeer. Maak asb alle webtuistes toe voor installasie.",
@@ -746,65 +767,71 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
             'NPAPI ondersteuning is tans af geskakel, Volg asb die onderstaande instuksies om dit te aktifeer :<ul><li> 1.Inset "chrome://flags/#enable-npapi" by webadres opsie. 2. Kliek op "aktiveer" onder die "aktiveer" npapi. 3. Maak die \'Chrome\' webtuiste heeltemal toe. 4. Heropen die \'Chrome\' Webtuiste en navigeer na die stelsel sagteware, maak seker die sagteware is beskikbaar, of die sagteware is nie geinstalleer. Kliek asb op die volgende skakel <a href=\'%1\'>Here</a>) om sagteware af te laai en te installeer. Maak asb seker om alle webtuistes toe te maak voor installasie.',
         IDCS_PLUGIN_VERSION_UPDATE:
             "Die inprop module is nie opgedateer nie, kliek asb op die volgende skakel <a href='%1'>Here</a> om sagteware af te laai en te installeer. Maak asb alle webtuistes toe voor installasie.",
-        IDCS_IE_VERSION_WARNING: '',
-        IDCS_FIREFOX_VERSION_WARNING: '',
-        IDCS_OPERA_VERSION_WARNING: '',
-        IDCS_OTHER_VERSION_WARNING: '',
-        IDCS_CHROME_VERSION_WARNING: '',
-        IDCS_SAFARI_VERSION_WARNING: '',
+        IDCS_IE_VERSION_WARNING: 'Your IE browser version is not supported. Please use IE10 or later version of it.',
+        IDCS_FIREFOX_VERSION_WARNING: 'Your Firefox browser version is not supported. Please use Firefox53 or later version of it.',
+        IDCS_OPERA_VERSION_WARNING: 'Your Opera browser version not supported. Please use Opera44 or later version of it.',
+        IDCS_OTHER_VERSION_WARNING:
+            'Your browser does not support this plug-in. Please use the following browsers: ie10-11, Firefox 53 or later, chrome 57 or later, Safari 11 or later, opera 44 or later, edge16 or later.',
+        IDCS_CHROME_VERSION_WARNING: 'Your Chrome browser version is not supported, please use Chrome57 or later version of it.',
+        IDCS_SAFARI_VERSION_WARNING: 'Your Safari browser version is not supported, please use Safari11 or later version of it.',
         IDCS_SAFARI_VERSION_FOR_P2P: 'Your Safari browser version is not supported, please use Safari10 or older version of it.',
-        IDCS_EDGE_VERSION_WARNING: '',
+        IDCS_EDGE_VERSION_WARNING: 'Your version of edge browser is too low. Please use edge16 or above',
         IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: 'Nie in staat om aan te teken rede: toestel is van lyn af',
         IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'Onsuksesvol om in te teken. Rede: Wagwoord of verbruikers naam is verkeerd.',
         IDCS_LOGIN_FAIL_USER_LOCKED: 'Onsuksesvol om in te teken. Rede: Die verbruiker is geblok.',
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'Onsuksesvol om in te teken. Rede: Die verbruiker het nie toegangsmag nie.',
         IDCS_UNKNOWN_ERROR_CODE: 'Onbekende fout! Fout kode:',
     },
-    //Lithuanian(Lithuania)
+    // Lithuanian(Lithuania)
     '0x0427': {
         IDCS_NO_PLUGIN_FOR_WINDOWS: "Įskiepas neįdiegtas, pasirinkite <a href='%1'>Here</a>",
         IDCS_NO_PLUGIN_FOR_MAC: "Įskiepas neįdiegtas, pasirinkite <a href='%1'>Here</a>",
-        IDCS_NPAPI_NOT_SUPPORT: '',
+        IDCS_NPAPI_NOT_SUPPORT: 'NPAPI palaikymas šiuo metu išjungtas. Norėdami jį įjungti, vadovaukitės toliau pateiktomis instrukcijomis:',
         IDCS_PLUGIN_VERSION_UPDATE: "Įskiepis nėra atnaujintas, pasirinkite <a href='%1'>Here</a>",
-        IDCS_IE_VERSION_WARNING: '',
-        IDCS_FIREFOX_VERSION_WARNING: '',
-        IDCS_OPERA_VERSION_WARNING: '',
-        IDCS_OTHER_VERSION_WARNING: '',
-        IDCS_CHROME_VERSION_WARNING: '',
-        IDCS_SAFARI_VERSION_WARNING: '',
+        IDCS_IE_VERSION_WARNING: 'Your IE browser version is not supported. Please use IE10 or later version of it.',
+        IDCS_FIREFOX_VERSION_WARNING: '„Jūsų Firefox naršyklės versija yra per nauja, naudokite Firefox51 arba kitą naršyklės versiją.',
+        IDCS_OPERA_VERSION_WARNING: 'Jūsų Opera naršyklės versija yra per nauja, naudokite Opera36 arba kitą naršylės versiją.',
+        IDCS_OTHER_VERSION_WARNING: 'Jūsų naršyklė nepalaiko šio papildinio, naudokite šią naršyklę: IE8-11, Firefox51 ar senesnė, Chrome44 ar senesnė, Opera36 ar senesnė.',
+        IDCS_CHROME_VERSION_WARNING: 'Jūsų Chrome naršyklės versija nepalaikoma, naudokite Chrome44 arba senesnę naršyklės versiją.',
+        IDCS_SAFARI_VERSION_WARNING: 'Your Safari browser version is not supported, please use Safari11 or later version of it.',
         IDCS_SAFARI_VERSION_FOR_P2P: 'Jūsų Safari naršyklės versija nepatvirtinama, prašome naudoti Safari10 arba senesnę versiją.',
-        IDCS_EDGE_VERSION_WARNING: '',
-        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: '',
+        IDCS_EDGE_VERSION_WARNING: 'Your version of edge browser is too low. Please use edge16 or above',
+        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: 'Fail to login. Reason: device is offline.',
         IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'Nepavyko prisijungti. Neteisingas vartotojas arba slaptažodis',
         IDCS_LOGIN_FAIL_USER_LOCKED: 'Nepavyko prisijungti. Ribotas vartotojas',
         IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'Nepavyko prisijungti. Šis vartotojas neturi prieigos.',
         IDCS_UNKNOWN_ERROR_CODE: 'Nežinoma klaida',
     },
-    //Lao(Lao P.D.R.)
+    // Lao(Lao P.D.R.)
     '0x0454': {
-        IDCS_NO_PLUGIN_FOR_WINDOWS: '',
-        IDCS_NO_PLUGIN_FOR_MAC: '',
-        IDCS_NPAPI_NOT_SUPPORT: '',
-        IDCS_PLUGIN_VERSION_UPDATE: '',
-        IDCS_IE_VERSION_WARNING: '',
-        IDCS_FIREFOX_VERSION_WARNING: '',
-        IDCS_OPERA_VERSION_WARNING: '',
-        IDCS_OTHER_VERSION_WARNING: '',
-        IDCS_CHROME_VERSION_WARNING: '',
-        IDCS_SAFARI_VERSION_WARNING: '',
+        IDCS_NO_PLUGIN_FOR_WINDOWS: "The plugin is not installed, please click <a href='%1'>Here</a> to download and install. Before installation, please close your browser.",
+        IDCS_NO_PLUGIN_FOR_MAC:
+            'The plugin is not installed, please click <a href=\'%1\'>Here</a> to download and install. Before installation, please close your browser.<br/>If you have installed plugin, please check if the plugin is disabled at "Safari->Preferences->Security".',
+        IDCS_NPAPI_NOT_SUPPORT:
+            "NPAPI Support is currently disabled. Please follow the instructions below to enable it:<ul><li>1.Input \"chrome://flags/#enable-npapi\" into address bar;</li><li>2.Click 'Enable' under the 'Enable Npapi';</li><li>3.Close the Chrome browser completely;</li><li>4.Reopen the Chrome and navigate to the system, the plugin is available.</li></ul>Or the plugin is not installed, please click <a href='%1'>Here</a> to download and install. Before installation, please close your browser.",
+        IDCS_PLUGIN_VERSION_UPDATE: "The Plugin is not updated, please click <a href='%1'>Here</a> to download and update.",
+        IDCS_IE_VERSION_WARNING: 'Your IE browser version is not supported. Please use IE10 or later version of it.',
+        IDCS_FIREFOX_VERSION_WARNING: 'Your Firefox browser version is not supported. Please use Firefox53 or later version of it.',
+        IDCS_OPERA_VERSION_WARNING: 'Your Opera browser version not supported. Please use Opera44 or later version of it.',
+        IDCS_OTHER_VERSION_WARNING:
+            'Your browser does not support this plug-in. Please use the following browsers: ie10-11, Firefox 53 or later, chrome 57 or later, Safari 11 or later, opera 44 or later, edge16 or later.',
+        IDCS_CHROME_VERSION_WARNING: 'Your Chrome browser version is not supported, please use Chrome57 or later version of it.',
+        IDCS_SAFARI_VERSION_WARNING: 'Your Safari browser version is not supported, please use Safari11 or later version of it.',
         IDCS_SAFARI_VERSION_FOR_P2P: 'Your Safari browser version is not supported, please use Safari10 or older version of it.',
-        IDCS_EDGE_VERSION_WARNING: '',
-        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: '',
-        IDCS_LOGIN_FAIL_REASON_U_P_ERROR: '',
-        IDCS_LOGIN_FAIL_USER_LOCKED: '',
-        IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: '',
-        IDCS_UNKNOWN_ERROR_CODE: '',
+        IDCS_EDGE_VERSION_WARNING: 'Your version of edge browser is too low. Please use edge16 or above',
+        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: 'Fail to login. Reason: device is offline.',
+        IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'Fail to login. Reason: username or password is wrong.',
+        IDCS_LOGIN_FAIL_USER_LOCKED: 'Failed to log in. Reason: The user is locked.',
+        IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'Fail to login. Reason: The user has no permission.',
+        IDCS_UNKNOWN_ERROR_CODE: 'Unknown error! Error code:',
     },
-    //Norwegian (Bokmal, Norway)
+    // Norwegian (Bokmal, Norway)
     '0x0414': {
-        IDCS_NO_PLUGIN_FOR_WINDOWS: '',
-        IDCS_NO_PLUGIN_FOR_MAC: '',
-        IDCS_NPAPI_NOT_SUPPORT: '',
+        IDCS_NO_PLUGIN_FOR_WINDOWS: "The plugin is not installed, please click <a href='%1'>Here</a> to download and install. Before installation, please close your browser.",
+        IDCS_NO_PLUGIN_FOR_MAC:
+            'The plugin is not installed, please click <a href=\'%1\'>Here</a> to download and install. Before installation, please close your browser.<br/>If you have installed plugin, please check if the plugin is disabled at "Safari->Preferences->Security".',
+        IDCS_NPAPI_NOT_SUPPORT:
+            "NPAPI Support is currently disabled. Please follow the instructions below to enable it:<ul><li>1.Input \"chrome://flags/#enable-npapi\" into address bar;</li><li>2.Click 'Enable' under the 'Enable Npapi';</li><li>3.Close the Chrome browser completely;</li><li>4.Reopen the Chrome and navigate to the system, the plugin is available.</li></ul>Or the plugin is not installed, please click <a href='%1'>Here</a> to download and install. Before installation, please close your browser.",
         IDCS_PLUGIN_VERSION_UPDATE: "Pluginen er ikke oppdatert, vennligst trykk <en href='%1'>Her</a> for å laste ned og installere.",
         IDCS_IE_VERSION_WARNING: 'IE-browser-versjonen din er ikke støttet. Bruk IE10 eller senere versjon av det.',
         IDCS_FIREFOX_VERSION_WARNING: 'Firefox-browser-versjonen din er ikke støttet. Bruk Firefox53 eller senere versjon av det.',
@@ -814,11 +841,11 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
         IDCS_SAFARI_VERSION_WARNING: 'Safari-browser-versjonen din er ikke støttet. Bruk Safari11 eller senere versjon av den.',
         IDCS_SAFARI_VERSION_FOR_P2P: 'Safari-browser-versjonen din er ikke støttet. Bruk Safari10 eller eldre versjon av den.',
         IDCS_EDGE_VERSION_WARNING: 'Din versjon av kantbrowser er for lav.',
-        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: '',
-        IDCS_LOGIN_FAIL_REASON_U_P_ERROR: '',
-        IDCS_LOGIN_FAIL_USER_LOCKED: '',
-        IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: '',
-        IDCS_UNKNOWN_ERROR_CODE: '',
+        IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE: 'Fail to login. Reason: device is offline.',
+        IDCS_LOGIN_FAIL_REASON_U_P_ERROR: 'Fail to login. Reason: username or password is wrong.',
+        IDCS_LOGIN_FAIL_USER_LOCKED: 'Failed to log in. Reason: The user is locked.',
+        IDCS_LOGIN_FAIL_USER_LIMITED_TELNET: 'Fail to login. Reason: The user has no permission.',
+        IDCS_UNKNOWN_ERROR_CODE: 'Unknown error! Error code:',
     },
     // Uzbekistan
     '0x0413': {
@@ -845,26 +872,36 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
     },
 }
 
-// AI事件类型映射（AI事件中插件绘制需要使用此类型）
-export const AIEventTypeMap = {
-    TYPE_NULL: 0,
-    TYPE_MOTION: 1, // 移动侦测区域
-    TYPE_OSD_TIME: 2, // 画osd位置
-    TYPE_VIDEO_BLOCK: 3, // 画视频遮挡区域
-    TYPE_WATCH_DETECTION: 4, // 画物品看护
-    TYPE_PEA_DETECTION: 5, // 画区域入侵
-    TYPE_TRIPWIRE_LINE: 6, // 越界侦测
-    TYPE_LOGO: 7, // 画Logo位置
-    TYPE_WATER_MASK: 8, // 画水印
-    TYPE_VFD_BLOCK: 9, // 画人脸识别区域
-    TYPE_CDD_BLOCK: 10, // 画人群密度区域
-    TYPE_CPC_BLOCK: 11, // 画人数统计区域
-    TYPE_POSRGB_SET: 12, //pos颜色配置界面
-    TYPE_VSD: 13, //视频结构化
-    TYPE_PLATE_DETECTION: 14, // 车牌侦测
+export const MAC_OCX_TASK_ID = 0 // 插件taskId
+export const OCX_REC_EVENT_TYPE = ['MOTION', 'SCHEDULE', 'SENSOR', 'MANUAL', 'INTELLIGENT']
+export const MAC_OCX_ERROR_CODE_MAP = {
+    '0': 536870961, // 回放结束
 }
 
-export const OCX_Plugin_Notice_Map = {
+// AI事件类型映射（AI事件中插件绘制需要使用此类型）
+export const OCX_AI_EVENT_TYPE_NULL = 0
+export const OCX_AI_EVENT_TYPE_MOTION = 1 // 移动侦测区域
+export const OCX_AI_EVENT_TYPE_OSD_TIME = 2 // 画osd位置
+export const OCX_AI_EVENT_TYPE_VIDEO_BLOCK = 3 // 画视频遮挡区域
+export const OCX_AI_EVENT_TYPE_WATCH_DETECTION = 4 // 画物品看护
+export const OCX_AI_EVENT_TYPE_PEA_DETECTION = 5 // 画区域入侵
+export const OCX_AI_EVENT_TYPE_TRIPWIRE_LINE = 6 // 越界侦测
+export const OCX_AI_EVENT_TYPE_LOGO = 7 // 画Logo位置
+export const OCX_AI_EVENT_TYPE_WATER_MASK = 8 // 画水印
+export const OCX_AI_EVENT_TYPE_VFD_BLOCK = 9 // 画人脸识别区域
+export const OCX_AI_EVENT_TYPE_CDD_BLOCK = 10 // 画人群密度区域
+export const OCX_AI_EVENT_TYPE_CPC_BLOCK = 11 // 画人数统计区域
+export const OCX_AI_EVENT_TYPE_POSRGB_SET = 12 //pos颜色配置界面
+export const OCX_AI_EVENT_TYPE_VSD = 13 //视频结构化
+export const OCX_AI_EVENT_TYPE_PLATE_DETECTION = 14 // 车牌侦测
+
+// 设备P2P访问方式
+export const P2P_ACCESS_TYPE_SMALL_PLUGIN = 'p2pSmallPlugin' // 区分由P2P登录页跳转小插件查询版本号后再进行跳转登录
+export const P2P_ACCESS_TYPE_LARGE_PLUGIN = 'p2pLargePlugin' // 区分由P2P登录页直接进行跳转大插件登录
+export const P2P_ACCESS_TYPE_USERNAME_LOGIN = 'UserName' // 设备P2P访问方式为：用户名+密码+SN
+export const P2P_ACCESS_TYPE_AUTHCODE_LOGIN = 'AuthCode' // 设备P2P访问方式为：授权码+SN
+
+export const OCX_Plugin_Notice_Map: Record<string, { warning: boolean; downloadUrl: boolean }> = {
     IDCS_PLUGIN_VERSION_UPDATE: {
         warning: false,
         downloadUrl: true,
@@ -915,67 +952,32 @@ export const OCX_Plugin_Notice_Map = {
     },
 }
 
-export const P2P_V: '1.0' | '2.0' = '2.0' // 1.0, 2.0
-
-export const TIMESLIDER_PLUGIN = 'TimeSlider'
-export const VIDEO_PLUGIN = 'VideoPlugin'
-
-export const SERVER_IP = '10.20.50.13'
-
-export const P2PACCESSTYPE = {
-    P2P_SMALL_PLUGIN: 'p2pSmallPlugin', // 区分由P2P登录页跳转小插件查询版本号后再进行跳转登录
-    P2P_LARGE_PLUGIN: 'p2pLargePlugin', // 区分由P2P登录页直接进行跳转大插件登录
-    P2P_USERNAME_LOGIN: 'UserName', // 设备P2P访问方式为：用户名+密码+SN
-    P2P_AUTHCODE_LOGIN: 'AuthCode', // 设备P2P访问方式为：授权码+SN
-}
-
 export const getPluginPath = () => {
-    const { name } = getUiAndTheme()
-    let _ClientPluDownLoadPath = ClientPluDownLoadPath
-    let _P2PClientPluDownLoadPath = P2PClientPluDownLoadPath
-    let _ClientPluDownLoadPath_MAC = ClientPluDownLoadPath_MAC
-    let _P2PClientPluDownLoadPath_MAC = P2PClientPluDownLoadPath_MAC
-    let _P2PClientPluVer = P2PClientPluVer
-    let _ClientPluVer = ClientPluVer
+    const userSession = useUserSessionStore()
+    const systemInfo = getSystemInfo()
 
-    if (ENV_MODE === 'development') {
-        _P2PClientPluVer = P2PClientPluVerDebug
-        _ClientPluVer = ClientPluVerDebug
-    }
-    if (name === 'UI1-E') {
-        _ClientPluDownLoadPath = '/OCX/Speco_Technologies_v5.exe'
-        _P2PClientPluDownLoadPath = 'OCX/Speco_Technologies_v5_p2p.exe'
-        _ClientPluDownLoadPath_MAC = 'OCX/Speco_Technologies_v4.pkg'
-        _P2PClientPluDownLoadPath_MAC = 'OCX/Speco_Technologies_v4_p2p.pkg'
-    }
-
-    return {
-        ClientPluDownLoadPath: _ClientPluDownLoadPath,
-        P2PClientPluDownLoadPath: _P2PClientPluDownLoadPath,
-        ClientPluDownLoadPath_MAC: _ClientPluDownLoadPath_MAC,
-        P2PClientPluDownLoadPath_MAC: _P2PClientPluDownLoadPath_MAC,
-        P2PClientPluMimeType_MAC,
-        P2PClientPluVer_MAC,
-        P2PClientPluVer: _P2PClientPluVer,
-        ClientPluVer: _ClientPluVer,
+    if (userSession.appType === 'STANDARD') {
+        return ClientPluDownLoadPath
+    } else {
+        if (systemInfo.platform === 'mac') {
+            return P2PMacClientPluDownLoadPath
+        } else {
+            return P2PClientPluDownLoadPath
+        }
     }
 }
 
-export type PluginSizeMode = 'relativeToScreen' | 'relativeToDom' | 'relativeToBrowser' | 'absolute'
+export const getPluginPort = () => {
+    const userSession = useUserSessionStore()
+    const systemInfo = getSystemInfo()
 
-// 浏览器类型与插件尺寸定位模式关系映射
-export const PluginSizeModeMapping: Record<BrowserType, PluginSizeMode> = {
-    ie: 'relativeToScreen',
-    lowEdge: 'relativeToScreen', // relativeToScreen：显示器左上角为0,0
-    firefox: 'relativeToBrowser', // relativeToBrowser: 浏览器左上角为0, 0;
-    unknow: 'relativeToDom', // relativeToDom：文档流里左上角为0, 0;
-    opera: 'relativeToDom',
-    edge: 'relativeToDom',
-    chrome: 'relativeToDom',
-    safari: 'relativeToDom',
-}
-
-export const OCX_XML_OpenFileBrowser_getpath = (xmlStr: string) => {
-    const $xmlDoc = queryXml(XMLStr2XMLDoc(xmlStr))
-    return $xmlDoc("response[@type='OpenFileBrowser']").text()
+    if (userSession.appType === 'STANDARD') {
+        return ClientPort
+    } else {
+        if (systemInfo.platform === 'mac') {
+            return MacP2PClientPort
+        } else {
+            return P2PClientPort
+        }
+    }
 }

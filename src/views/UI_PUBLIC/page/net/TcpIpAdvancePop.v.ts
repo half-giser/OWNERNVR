@@ -2,11 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-20 10:41:09
  * @Description: TCP/IP高级配置弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:06:45
  */
-import { type NetTcpIpForm, NetTcpIpAdvanceForm } from '@/types/apiType/net'
-import type { FormInstance, FormRules } from 'element-plus'
+import type { FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -29,24 +26,27 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new NetTcpIpAdvanceForm())
         const formRule = ref<FormRules>({
             secondIp: [
                 {
-                    validator(rule, value: string, callback) {
-                        if (pageData.value.secondIpIndex === -1 || !formData.value.secondIpSwitch) {
+                    validator(_rule, value: string, callback) {
+                        if (pageData.value.secondIpIndex === -1 || !formData.value.secondIpSwitch || isNetworkFaultTolerance.value) {
                             callback()
                             return
                         }
+
                         if (!checkIpV4(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_INVALID')))
                             return
                         }
+
                         if (pageData.value.ipList.includes(value)) {
                             callback(new Error(Translate('IDCS_IP_USED')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -54,15 +54,17 @@ export default defineComponent({
             ],
             secondMask: [
                 {
-                    validator(rule, value, callback) {
-                        if (pageData.value.secondIpIndex === -1 || !formData.value.secondIpSwitch) {
+                    validator(_rule, value: string, callback) {
+                        if (pageData.value.secondIpIndex === -1 || !formData.value.secondIpSwitch || isNetworkFaultTolerance.value) {
                             callback()
                             return
                         }
+
                         if (!checkIpV4(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_SUBNET_MASK_INVALID')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -75,15 +77,16 @@ export default defineComponent({
             ipList: [] as string[],
         })
 
+        const isNetworkFaultTolerance = computed(() => {
+            return prop.data.netConfig.curWorkMode === 'network_fault_tolerance'
+        })
+
         /**
          * @description 显示标题文本
          * @param {Number} i
          * @returns {String}
          */
         const displayTitle = (i: number) => {
-            if (prop.data.netConfig.curWorkMode === 'network_fault_tolerance') {
-                return Translate('IDCS_FAULT_ETH_NAME').formatForLang(i + 1)
-            }
             return Translate('IDCS_ETH_NAME').formatForLang(i + 1)
         }
 
@@ -94,11 +97,10 @@ export default defineComponent({
             pageData.value.secondIpIndex = -1
             pageData.value.ipList = []
 
-            formRef.value?.clearValidate()
             formData.value = new NetTcpIpAdvanceForm()
 
-            if (prop.data.netConfig.curWorkMode === 'network_fault_tolerance') {
-                formData.value.mtu = prop.data.bonds.map((item) => item.mtu)
+            if (isNetworkFaultTolerance.value) {
+                formData.value.mtu = [prop.data.ipGroupConfig.mtu] //bonds.map((item) => item.mtu)
             } else {
                 formData.value.mtu = prop.data.nicConfigs
                     .filter((item, index) => {
@@ -132,7 +134,7 @@ export default defineComponent({
          * @description 表单数据验证通过后 确认表单
          */
         const verify = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     ctx.emit('confirm', formData.value, pageData.value.secondIpIndex)
                 }
@@ -147,6 +149,7 @@ export default defineComponent({
             close,
             verify,
             displayTitle,
+            isNetworkFaultTolerance,
         }
     },
 })

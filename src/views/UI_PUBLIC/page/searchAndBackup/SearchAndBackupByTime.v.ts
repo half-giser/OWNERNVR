@@ -2,12 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-12 13:48:10
  * @Description: 按时间搜索
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 14:05:25
  */
 import dayjs from 'dayjs'
-import { type PlaybackChlList } from '@/types/apiType/playback'
-import { type PlaybackBackUpRecList } from '@/types/apiType/playback'
 import BackupPop from '../searchAndBackup/BackupPop.vue'
 import BackupLocalPop from '../searchAndBackup/BackupLocalPop.vue'
 
@@ -17,20 +13,15 @@ export default defineComponent({
         BackupLocalPop,
     },
     setup() {
-        const Plugin = inject('Plugin') as PluginType
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
         const router = useRouter()
         const systemCaps = useCababilityStore()
-
-        const mode = computed(() => {
-            return Plugin.IsSupportH5() ? 'h5' : 'ocx'
-        })
 
         const EVENTS = ['MANUAL', 'SENSOR', 'MOTION', 'SCHEDULE']
         if (systemCaps.ipChlMaxCount) {
             EVENTS.push('INTELLIGENT')
         }
+
         if (systemCaps.supportPOS) {
             EVENTS.push('POS')
         }
@@ -38,7 +29,6 @@ export default defineComponent({
         // 通道ID与通道名称的映射
         const chlMap = ref<Record<string, string>>({})
 
-        const dateTime = useDateTimeStore()
         const userAuth = useUserChlAuth()
 
         const pageData = ref({
@@ -63,6 +53,25 @@ export default defineComponent({
             chls: [] as string[],
         })
 
+        const plugin = usePlugin({
+            onReady: (mode, plugin) => {
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
+                    plugin.ExecuteCmd(sendXML)
+                }
+            },
+            onDestroy: (mode, plugin) => {
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_StopPreview('ALL')
+                    plugin.ExecuteCmd(sendXML)
+                }
+            },
+        })
+
+        const mode = computed(() => {
+            return plugin.IsSupportH5() ? 'h5' : 'ocx'
+        })
+
         // 支持的最大通道数
         const maxChl = computed(() => {
             return Math.min(pageData.value.chlList.length, pageData.value.maxChl)
@@ -70,7 +79,7 @@ export default defineComponent({
 
         // 通道全选
         const isChlAll = computed(() => {
-            return formData.value.chls.length >= maxChl.value
+            return !!formData.value.chls.length && formData.value.chls.length >= maxChl.value
         })
 
         /**
@@ -82,9 +91,9 @@ export default defineComponent({
 
             chlMap.value = {}
 
-            if ($('//status').text() === 'success') {
-                pageData.value.chlList = $('//content/item').map((item) => {
-                    const id = item.attr('id')!
+            if ($('status').text() === 'success') {
+                pageData.value.chlList = $('content/item').map((item) => {
+                    const id = item.attr('id')
 
                     // 新获取的通道列表若没有已选中的通道，移除该选中的通道
                     const index = formData.value.chls.indexOf('id')
@@ -110,20 +119,15 @@ export default defineComponent({
                 return
             }
 
-            const startTime = dayjs(formData.value.startTime, dateTime.dateTimeFormat).valueOf()
-            const endTime = dayjs(formData.value.endTime, dateTime.dateTimeFormat).valueOf()
+            const startTime = dayjs(formData.value.startTime, { format: DEFAULT_DATE_FORMAT, jalali: false }).valueOf()
+            const endTime = dayjs(formData.value.endTime, { format: DEFAULT_DATE_FORMAT, jalali: false }).valueOf()
             if (endTime <= startTime) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_END_TIME_GREATER_THAN_START'),
-                })
+                openMessageBox(Translate('IDCS_END_TIME_GREATER_THAN_START'))
                 return
             }
-            if (mode.value === 'ocx' && Plugin.BackUpTask.isExeed(formData.value.chls.length)) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_BACKUP_TASK_NUM_LIMIT').formatForLang(Plugin.BackUpTask.limit),
-                })
+
+            if (mode.value === 'ocx' && plugin.BackUpTask.isExeed(formData.value.chls.length)) {
+                openMessageBox(Translate('IDCS_BACKUP_TASK_NUM_LIMIT').formatForLang(plugin.BackUpTask.limit))
                 return
             }
             pageData.value.backupRecList = formData.value.chls.map((chl) => {
@@ -149,8 +153,10 @@ export default defineComponent({
             if (type === 'local') {
                 if (mode.value === 'h5') {
                     pageData.value.isLocalBackUpPop = true
-                } else if (mode.value === 'ocx') {
-                    Plugin.BackUpTask.addTask(pageData.value.backupRecList, path, format)
+                }
+
+                if (mode.value === 'ocx') {
+                    plugin.BackUpTask.addTask(pageData.value.backupRecList, path, format)
                     router.push({
                         path: '/search-and-backup/backup-state',
                     })
@@ -158,6 +164,9 @@ export default defineComponent({
                 pageData.value.isBackUpPop = false
             } else {
                 pageData.value.isBackUpPop = false
+                router.push({
+                    path: '/search-and-backup/backup-state',
+                })
             }
         }
 
@@ -173,52 +182,23 @@ export default defineComponent({
             }
         }
 
-        watch(
-            mode,
-            (newVal) => {
-                if (newVal !== 'h5' && !Plugin.IsPluginAvailable()) {
-                    Plugin.SetPluginNoResponse()
-                    Plugin.ShowPluginNoResponse()
-                }
-                if (newVal === 'ocx') {
-                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
-                    Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                }
-            },
-            {
-                immediate: true,
-            },
-        )
-
-        onMounted(async () => {
-            Plugin.SetPluginNotice('#layout2Main')
+        onMounted(() => {
             getChlsList()
 
             const date = new Date()
-            formData.value.startTime = dayjs(date).hour(0).minute(0).second(0).format(dateTime.dateTimeFormat)
-            formData.value.endTime = dayjs(date).hour(23).minute(59).second(59).format(dateTime.dateTimeFormat)
-        })
-
-        onBeforeUnmount(() => {
-            if (mode.value === 'ocx') {
-                const sendXML = OCX_XML_StopPreview('ALL')
-                Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-            }
+            formData.value.startTime = dayjs(date).hour(0).minute(0).second(0).calendar('gregory').format(DEFAULT_DATE_FORMAT)
+            formData.value.endTime = dayjs(date).hour(23).minute(59).second(59).calendar('gregory').format(DEFAULT_DATE_FORMAT)
         })
 
         return {
             mode,
             formData,
-            dateTime,
-            highlightWeekend,
             pageData,
             userAuth,
             confirmBackUp,
             backUp,
             toggleAllChl,
             isChlAll,
-            BackupPop,
-            BackupLocalPop,
         }
     },
 })

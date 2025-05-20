@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 11:47:13
  * @Description: 功能面板-系统
  */
-export default {
+const systemRoutes: FeatureItem = {
     component: 'layout/L2T1Layout.vue',
     path: 'system',
     meta: {
@@ -11,43 +11,37 @@ export default {
         lk: 'IDCS_SYSTEM',
         plClass: 'md3',
         icon: 'system',
-        enabled: 'remoteSysCfgAndMaintain',
+        auth: 'remoteSysCfgAndMaintain',
         groups: {
-            //基本配置
+            // 基本配置
             basicConfig: {
                 sort: 10,
                 lk: 'IDCS_BASIC_CONFIG',
                 icon: 'basicCfg_s',
             },
-            //系统维护
+            // 系统维护
             maintenance: {
                 sort: 20,
                 lk: 'IDCS_SYSTEM_MAINTENANCE',
                 icon: 'systemMaintenance_s',
             },
-            //磁盘管理
-            diskInfo: {
-                sort: 30,
-                lk: 'IDCS_SYSTEM_INFORMATION',
-                icon: 'diskInfo_s',
-            },
-            //系统信息
+            // 系统信息
             info: {
                 sort: 40,
                 lk: 'IDCS_SYSTEM_INFORMATION',
                 icon: 'sysInfo_s',
             },
             // 上海地标平台
-            // localPlatform: {
-            //     sort: 40,
-            //     lk: 'IDCS_LOCAL_PLATFORM_MANAGE',
-            //     icon: 'sysLandmark',
-            // },
+            localPlatform: {
+                sort: 40,
+                lk: 'IDCS_LOCAL_PLATFORM_MANAGE',
+                icon: 'sysLandmark',
+            },
         },
     },
     children: {
+        // 通用配置
         generalSettings: {
-            //通用配置
             path: 'common',
             component: 'system/GeneralSettings.vue',
             meta: {
@@ -55,80 +49,89 @@ export default {
                 lk: 'IDCS_GENERAL_SET',
                 group: 'basicConfig',
                 default: true,
+                homeDefault: true,
                 inHome: 'group',
                 homeSort: 10,
-                enabled: 'remoteSysCfgAndMaintain',
+                auth: 'remoteSysCfgAndMaintain',
             },
         },
+        // 日期和时间
         dateAndTime: {
-            //日期和时间
             path: 'time',
             component: 'system/DateAndTime.vue',
             meta: {
                 sort: 20,
                 lk: 'IDCS_DATE_AND_TIME',
                 group: 'basicConfig',
-                enabled: 'remoteSysCfgAndMaintain',
+                auth: 'remoteSysCfgAndMaintain',
             },
         },
+        // 输出配置
         outputSettings: {
-            //输出配置
             path: 'outputSetting',
             component: 'system/OutputSettings.vue',
             meta: {
                 sort: 30,
                 lk: 'IDCS_OUTPUT_CONFIG',
                 group: 'basicConfig',
-                enabled: 'remoteSysCfgAndMaintain',
-                auth(systemCaps, ui) {
-                    return ui !== 'UI3-A'
-                },
+                auth: 'remoteSysCfgAndMaintain',
+                minWidth: 1620,
             },
         },
+        // POS配置
         posSettings: {
-            //POS配置
             path: 'pos',
             component: 'system/PosSettings.vue',
             meta: {
                 sort: 40,
                 lk: 'IDCS_POS_CONFIG',
                 group: 'basicConfig',
-                enabled: 'remoteSysCfgAndMaintain',
-                auth(systemCaps) {
+                auth: 'remoteSysCfgAndMaintain',
+                hasCap(systemCaps) {
                     return systemCaps.supportPOS
                 },
             },
         },
+        // POE电源设置
         poeSettings: {
-            // POE电源设置
             path: 'poePower',
             component: 'system/PoeSettings.vue',
             meta: {
                 sort: 50,
                 lk: 'IDCS_SYSTEM_POE_SETUP',
                 group: 'basicConfig',
-                enabled: 'remoteSysCfgAndMaintain',
-                auth(systemCaps, ui) {
-                    return systemCaps.supportPoePowerManage && ui !== 'UI3-A'
+                auth: 'remoteSysCfgAndMaintain',
+                hasCap(systemCaps) {
+                    return systemCaps.poeChlMaxCount > 0
                 },
             },
         },
+        // 录像机OSD配置
         recorderOsdSettings: {
-            //录像机OSD配置
             path: 'osd',
             component: 'system/RecorderOsdSettings.vue',
             meta: {
                 sort: 60,
                 lk: 'IDCS_OSD_CONFIG',
                 group: 'basicConfig',
-                enabled: 'remoteSysCfgAndMaintain',
-                auth(systemCaps, ui) {
-                    return ui !== 'UI3-A'
+                auth: 'remoteSysCfgAndMaintain',
+            },
+        },
+        // RS485 1.4.13
+        rs485: {
+            path: 'rs485',
+            component: 'system/RS485.vue',
+            meta: {
+                sort: 70,
+                lk: 'IDCS_RS485_SET',
+                group: 'basicConfig',
+                hasCap(systemCaps) {
+                    return systemCaps.supportRS485
                 },
             },
         },
+        // 查看日志
         viewLog: {
-            //查看日志
             path: 'log',
             component: 'system/ViewLog.vue',
             meta: {
@@ -138,33 +141,33 @@ export default {
                 default: true,
                 inHome: 'self',
                 homeSort: 20,
-                enabled: 'remoteSysCfgAndMaintain',
+                auth: 'remoteSysCfgAndMaintain',
             },
         },
+        // 恢复出厂配置
         factoryDefault: {
-            //恢复出厂配置
             path: 'restore_factory_settings',
             component: 'system/FactoryDefault.vue',
             meta: {
                 sort: 20,
                 lk: 'IDCS_DEFAULT_SET',
                 group: 'maintenance',
-                enabled: 'remoteSysCfgAndMaintain',
+                auth: 'remoteSysCfgAndMaintain',
             },
         },
+        // 升级
         upgrade: {
-            //升级
             path: 'upgrade',
             component: 'system/Upgrade.vue',
             meta: {
                 sort: 30,
                 lk: 'IDCS_UPGRADE',
                 group: 'maintenance',
-                enabled: 'remoteSysCfgAndMaintain',
+                auth: 'remoteSysCfgAndMaintain',
             },
         },
+        // 备份和还原配置
         backupAndRestore: {
-            //备份和还原配置
             path: 'backup_and_restore',
             component: 'system/BackupAndRestore.vue',
             meta: {
@@ -173,46 +176,48 @@ export default {
                 group: 'maintenance',
                 inHome: 'self',
                 homeSort: 30,
-                enabled: 'remoteSysCfgAndMaintain',
+                auth: 'remoteSysCfgAndMaintain',
             },
         },
+        // 系统重启
         reboot: {
-            //系统重启
             path: 'reboot',
             component: 'system/Reboot.vue',
             meta: {
                 sort: 50,
                 lk: 'IDCS_SYSTEM_REBOOT',
                 group: 'maintenance',
-                enabled: 'remoteSysCfgAndMaintain',
+                auth: 'remoteSysCfgAndMaintain',
             },
         },
+        // 自动维护
         autoMaintenance: {
-            //自动维护
             path: 'maintenance/auto',
             component: 'system/AutoMaintenance.vue',
             meta: {
                 sort: 60,
                 lk: 'IDCS_AUTO_MAINTENANCE',
                 group: 'maintenance',
-                enabled: 'remoteSysCfgAndMaintain',
+                auth: 'remoteSysCfgAndMaintain',
             },
         },
-        upgradeOnline: {
-            //云升级
-            path: 'upgradeOnline',
-            component: 'net/CloudUpgrade.vue',
+        // 诊断数据 1.4.13
+        debugMode: {
+            path: 'maintenance/debugMode',
+            component: 'system/DebugMode.vue',
             meta: {
                 sort: 70,
-                lk: 'IDCS_ONLINE_UPGRADE',
+                lk: 'IDCS_DEBUG_DATA',
                 group: 'maintenance',
-                auth(systemCaps, ui) {
-                    return systemCaps.showCloudUpgrade && ui === 'UI3-A'
+                auth: 'remoteSysCfgAndMaintain',
+                hasCap() {
+                    const userSession = useUserSessionStore()
+                    return userSession.userType === USER_TYPE_DEFAULT_ADMIN
                 },
             },
         },
+        // 设备基本信息
         basic: {
-            //设备基本信息
             path: 'information',
             component: 'system/Basic.vue',
             meta: {
@@ -222,8 +227,8 @@ export default {
                 default: true,
             },
         },
+        // 通道状态
         cameraStatus: {
-            //通道状态
             path: 'channel/status',
             components: {
                 toolBar: 'system/SystemToolBar.vue',
@@ -235,21 +240,18 @@ export default {
                 group: 'info',
             },
         },
+        // 报警状态
         alarmStatus: {
-            //报警状态
             path: 'alarm/status',
             component: 'system/AlarmStatus.vue',
             meta: {
                 sort: 30,
                 lk: 'IDCS_ALARM_STATE',
                 group: 'info',
-                auth(systemCaps, ui) {
-                    return ui !== 'UI3-A'
-                },
             },
         },
+        // 录像状态
         recordStatus: {
-            //录像状态
             path: 'record/status',
             components: {
                 toolBar: 'system/SystemToolBar.vue',
@@ -259,13 +261,10 @@ export default {
                 sort: 40,
                 lk: 'IDCS_RECORD_STATE',
                 group: 'info',
-                auth(systemCaps, ui) {
-                    return ui !== 'UI3-A'
-                },
             },
         },
+        // 网络状态
         networkStatus: {
-            //网络状态
             path: 'net/status',
             components: {
                 toolBar: 'system/SystemToolBar.vue',
@@ -275,13 +274,10 @@ export default {
                 sort: 50,
                 lk: 'IDCS_NETWORK_STATE',
                 group: 'info',
-                auth(systemCaps, ui) {
-                    return ui !== 'UI3-A'
-                },
             },
         },
+        // 磁盘状态
         diskStatus: {
-            //磁盘状态
             path: 'disk/information',
             components: {
                 toolBar: 'system/SystemToolBar.vue',
@@ -291,116 +287,68 @@ export default {
                 sort: 60,
                 lk: 'IDCS_DISK_STATE_TOOLTIP',
                 group: 'info',
-                auth(systemCaps, ui) {
-                    return ui !== 'UI3-A'
-                },
             },
         },
-        systemDiskManagement: {
-            //磁盘管理
-            path: 'disk/management',
-            component: 'disk/DiskManagement.vue',
+        // 地标平台参数
+        platformParam: {
+            path: 'platform/parameter',
+            component: 'system/PlatformParameter.vue',
             meta: {
                 sort: 10,
-                lk: 'IDCS_DISK_MANAGE',
-                group: 'diskManagement',
-                default: true,
-                inHome: 'self',
-                homeSort: 70,
-                enabled: 'diskMgr',
-                auth(systemCaps, ui) {
-                    return ui === 'UI3-A'
+                lk: 'IDCS_PLATFORM_PARAMETER',
+                group: 'localPlatform',
+                auth: 'remoteSysCfgAndMaintain',
+                hasCap(systemCaps) {
+                    return systemCaps.supportSHDB
                 },
             },
         },
-        systemStorageMode: {
-            //存储模式配置
-            path: 'disk/storage/mode',
-            component: 'disk/StorageMode.vue',
+        // 定时图像上传
+        imageUpload: {
+            path: 'upload/image/timing',
+            components: {
+                toolBar: 'system/ImageUploadToolBar.vue',
+                default: 'system/ImageUpload.vue',
+            },
             meta: {
                 sort: 20,
-                lk: 'IDCS_STORAGE_MODE_SET',
-                group: 'storageMode',
-                inHome: 'self',
-                homeSort: 80,
-                enabled: 'diskMgr',
-                auth(systemCaps, ui) {
-                    return ui === 'UI3-A'
+                lk: 'IDCS_SCHEDULE_PIC_UPLOAD',
+                group: 'localPlatform',
+                auth: 'remoteSysCfgAndMaintain',
+                hasCap(systemCaps) {
+                    return systemCaps.supportSHDB
                 },
             },
         },
-        systemViewDiskInfo: {
-            //查看磁盘信息
-            path: 'disk/information',
-            components: {
-                toolBar: 'system/SystemToolBar.vue',
-                default: 'system/DiskStatus.vue',
-            },
-            // component: 'disk/ViewDiskInfo.vue',
+        // 报警图像上传
+        imageUploadAlarm: {
+            path: 'upload/image/alarm',
+            component: 'system/ImageUploadAlarm.vue',
             meta: {
                 sort: 30,
-                lk: 'IDCS_VIEW_DISK_INFORMATION',
-                group: 'diskInfo',
-                inHome: 'self',
-                homeSort: 90,
-                auth(systemCaps, ui) {
-                    return ui === 'UI3-A'
+                lk: 'IDCS_ALARM_PIC_UPLOAD',
+                group: 'localPlatform',
+                auth: 'remoteSysCfgAndMaintain',
+                hasCap(systemCaps) {
+                    return systemCaps.supportSHDB
                 },
             },
         },
-        systemSmartInfo: {
-            //SMART信息
-            path: 'disk/information/smart',
-            component: 'disk/SmartInfo.vue',
+        // 平台操作管理
+        platformOperation: {
+            path: 'platform/operation',
+            component: 'system/PlatformOperation.vue',
             meta: {
                 sort: 40,
-                lk: 'IDCS_DISK_SMART_INFO',
-                group: 'diskInfo',
-                auth(systemCaps, ui) {
-                    return ui === 'UI3-A'
+                lk: 'IDCS_PLATFORM_OPERATE_MANAGE',
+                group: 'localPlatform',
+                auth: 'remoteSysCfgAndMaintain',
+                hasCap(systemCaps) {
+                    return systemCaps.supportSHDB
                 },
             },
         },
-        // 以下页面没有在原项目中找到入口
-        // platformParam: {
-        //     // 地标平台参数
-        //     path: 'platform/parameter',
-        //     components: 'system/PlatformParameter.vue',
-        //     meta: {
-        //         sort: 10,
-        //         lk: 'IDCS_PLATFORM_PARAMETER',
-        //         group: 'localPlatform',
-        //     },
-        // },
-        // imageUpload: {
-        //     // 定时图像上传
-        //     path: 'upload/image/timing',
-        //     components: 'system/ImageUpload.vue',
-        //     meta: {
-        //         sort: 20,
-        //         lk: 'IDCS_SCHEDULE_PIC_UPLOAD',
-        //         group: 'localPlatform',
-        //     },
-        // },
-        // imageUploadAlarm: {
-        //     // 报警图像上传
-        //     path: 'upload/image/alarm',
-        //     components: 'system/ImageUploadAlarm.vue',
-        //     meta: {
-        //         sort: 30,
-        //         lk: 'IDCS_ALARM_PIC_UPLOAD',
-        //         group: 'localPlatform',
-        //     },
-        // },
-        // platformOperation: {
-        //     // 平台操作管理
-        //     path: 'platform/operation',
-        //     components: 'system/PlatformOperation.vue',
-        //     meta: {
-        //         sort: 40,
-        //         lk: 'IDCS_PLATFORM_OPERATE_MANAGE',
-        //         group: 'localPlatform',
-        //     },
-        // },
     },
-} as FeatureItem
+}
+
+export default systemRoutes

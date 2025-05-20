@@ -2,8 +2,6 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-04-20 19:53:54
  * @Description: 现场预览
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-25 18:14:37
 -->
 <template>
     <div class="live">
@@ -23,14 +21,14 @@
                     ref="playerRef"
                     :split="pageData.split"
                     :enable-pos="systemCaps.supportPOS"
-                    type="live"
-                    @onready="handlePlayerReady"
-                    @onselect="handlePlayerSelect"
-                    @onsuccess="handlePlayerSuccess"
-                    @onstop="handlePlayerStop"
-                    @onplay-status="handlePlayerStatus"
-                    @onerror="handlePlayerError"
-                    @onrecord-file="handlePlayerRecordFile"
+                    @ready="handlePlayerReady"
+                    @select="handlePlayerSelect"
+                    @success="handlePlayerSuccess"
+                    @stop="handlePlayerStop"
+                    @play-status="handlePlayerStatus"
+                    @error="handlePlayerError"
+                    @record-file="handlePlayerRecordFile"
+                    @message="notify"
                 />
             </div>
             <LiveScreenPanel
@@ -61,14 +59,14 @@
                 :chl="pageData.chlMap"
                 :auth="userAuth"
             >
-                <template #default="scope">
+                <template #default="{ index }">
                     <LiveSnapPanel
                         v-if="isSnapPanel"
-                        v-show="scope.index === 0"
+                        v-show="index === 0"
                         :auth="userAuth"
                     />
                     <LiveControlPanel
-                        v-show="scope.index === 1"
+                        v-show="index === 1"
                         :mode="mode"
                         :split="pageData.split"
                         :win-data="pageData.winData"
@@ -90,20 +88,20 @@
                         @talk="toggleTalk"
                     />
                     <LiveLensPanel
-                        v-show="scope.index === 2"
+                        v-show="index === 2"
                         :mode="mode"
                         :win-data="pageData.winData"
                         @update-support-az="updateSupportAz"
                     />
                     <LivePtzPanel
-                        v-show="scope.index === 3"
+                        v-show="index === 3"
                         :win-data="pageData.winData"
                         :chl="pageData.chlMap"
                         :mode="mode"
                     />
                     <LiveFishEyePanel
                         v-if="isFishEyePanel"
-                        v-show="scope.index === 4"
+                        v-show="index === 4"
                         ref="fisheyeRef"
                         :win-data="pageData.winData"
                         @update-support-fish-eye="updateSupportFishEye"
@@ -112,7 +110,6 @@
                 </template>
             </LiveAsidePanel>
         </div>
-        <BaseNotification v-model:notifications="pageData.notification" />
     </div>
 </template>
 
@@ -121,18 +118,19 @@
 <style lang="scss" scoped>
 .live {
     width: 100%;
-    height: calc(var(--content-height) + 70px);
-    border: 1px solid var(--input-border);
+    height: 100%;
+    min-height: calc(var(--main-min-height) - 150px);
+    border: 1px solid var(--live-border);
     display: flex;
     font-size: 14px;
-    min-width: 1400px;
 }
 
 .center {
     width: 100%;
     height: 100%;
-    border-left: 1px solid var(--input-border);
-    border-right: 1px solid var(--input-border);
+    border-left: 1px solid var(--live-border);
+    border-right: 1px solid var(--live-border);
+    background-color: var(--main-bg);
 
     &-player {
         width: 100%;

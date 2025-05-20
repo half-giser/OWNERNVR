@@ -2,11 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-21 17:52:33
  * @Description: 云台-巡航线-新增/编辑预置点弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 11:51:20
  */
-import type { FormInstance, FormRules } from 'element-plus'
-import { ChannelPtzCruisePresetDto, ChannelPtzCruisePresetForm } from '@/types/apiType/channel'
+import type { FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -45,20 +42,25 @@ export default defineComponent({
 
         const pageData = ref({
             // 持续时间选项
-            timeOptions: [5, 10, 15, 20, 25, 30, 60, 120, 180],
+            timeOptions: [5, 10, 15, 20, 25, 30, 60, 120, 180].map((value) => {
+                return {
+                    label: getTranslateForSecond(value),
+                    value,
+                }
+            }),
             // 速度选项
-            speedOptions: [1, 2, 3, 4, 5, 6, 7, 8],
+            speedOptions: arrayToOptions([1, 2, 3, 4, 5, 6, 7, 8]),
             // 预置点选项
             nameOptions: [] as SelectOption<number, string>[],
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new ChannelPtzCruisePresetForm())
         const formRule = ref<FormRules>({
             name: [
                 {
-                    validator(rule, value: string, callback) {
-                        if (!value) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return
                         }
@@ -73,7 +75,6 @@ export default defineComponent({
          * @description 打开弹窗时重置表单
          */
         const open = () => {
-            formRef.value?.clearValidate()
             getList()
 
             if (prop.type === 'add') {
@@ -97,10 +98,10 @@ export default defineComponent({
             `
             const result = await queryChlPresetList(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                pageData.value.nameOptions = $('//content/presets/item').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.nameOptions = $('content/presets/item').map((item) => {
                     return {
-                        value: Number(item.attr('index')!),
+                        value: item.attr('index').num(),
                         label: item.text(),
                     }
                 })
@@ -116,7 +117,7 @@ export default defineComponent({
         const confirm = () => {
             const data = {
                 ...formData.value,
-                index: pageData.value.nameOptions.findIndex((item) => item.label === formData.value.name),
+                index: pageData.value.nameOptions.find((item) => item.label === formData.value.name)!.value || 1,
                 id: prop.data.id,
             }
             ctx.emit('confirm', data)
@@ -135,7 +136,6 @@ export default defineComponent({
             formData,
             formRule,
             open,
-            getTranslateForSecond,
             confirm,
             close,
         }

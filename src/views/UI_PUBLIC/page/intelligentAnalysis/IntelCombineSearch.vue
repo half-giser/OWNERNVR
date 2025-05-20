@@ -2,13 +2,11 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-10 18:29:07
  * @Description: 智能分析 - 组合搜索
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 09:48:50
 -->
 <template>
     <div class="base-intel-box">
         <div class="base-intel-left base-intel-left-column">
-            <div>
+            <div class="base-intel-left-form">
                 <IntelBaseDateTimeSelector v-model="formData.dateRange" />
                 <IntelBaseChannelSelector
                     v-model="formData.chl"
@@ -30,23 +28,24 @@
                     :range="attributeRange"
                 />
                 <el-form
-                    label-position="left"
-                    class="narrow"
+                    v-title
+                    class="no-padding"
                     :style="{
-                        '--form-label-width': 'auto',
+                        '--form-label-width': '100px',
                     }"
                 >
                     <el-form-item :label="Translate('IDCS_LICENSE_PLATE_NUM')">
                         <el-input
                             v-model="formData.plateNumber"
                             :placeholder="Translate('IDCS_ENTER_PLATE_NUM')"
+                            maxlength="31"
                         />
                     </el-form-item>
                 </el-form>
                 <div class="base-intel-row">
                     <el-button @click="getData">{{ Translate('IDCS_SEARCH') }}</el-button>
                     <IntelBaseCollect
-                        storage-key="intel_combine_search"
+                        :storage-key="cacheKey"
                         :data="{
                             dateRange: formData.dateRange,
                             chl: formData.chl,
@@ -60,14 +59,13 @@
                 </div>
             </div>
             <div class="base-intel-playback-box">
-                <h3>{{ Translate('IDCS_REPLAY') }}</h3>
+                <h3>{{ playerData.chlName + Translate('IDCS_REPLAY') }}</h3>
                 <div class="player">
                     <BaseVideoPlayer
                         ref="playerRef"
-                        :split="1"
                         type="record"
                         only-wasm
-                        @ontime="handlePlayerTimeUpdate"
+                        @time="handlePlayerTimeUpdate"
                     />
                 </div>
                 <div class="control-bar">
@@ -84,6 +82,7 @@
                     />
                     <span class="end-time">{{ displayTime(playerData.endTime) }}</span>
                 </div>
+                <div class="current-time">{{ displayDateTime(playerData.currentTime) }}</div>
             </div>
         </div>
         <div class="base-intel-right">
@@ -98,8 +97,8 @@
                         v-for="item in pageData.chartTypeOptions"
                         :key="item.value"
                         :value="item.value"
-                        >{{ item.label }}</el-radio-button
-                    >
+                        :label="item.label"
+                    />
                 </el-radio-group>
             </div>
             <div class="base-intel-row space-between">
@@ -115,8 +114,8 @@
                             v-for="item in pageData.listTypeOptions"
                             :key="item.value"
                             :value="item.value"
-                            >{{ item.label }}</el-radio-button
-                        >
+                            :label="item.label"
+                        />
                     </el-radio-group>
                 </div>
                 <div>
@@ -128,47 +127,55 @@
                             v-for="item in pageData.sortOptions"
                             :key="item.value"
                             :value="item.value"
-                            >{{ item.label }}</el-radio-button
-                        >
+                            :label="item.label"
+                        />
                     </el-radio-group>
                 </div>
                 <div>
                     <el-checkbox
                         :model-value="sliceTableData.length && sliceTableData.length === selectionIds.length"
                         :disabled="!sliceTableData.length"
+                        :label="Translate('IDCS_SELECT_ALL')"
                         @update:model-value="handleSelectAll"
-                        >{{ Translate('IDCS_SELECT_ALL') }}</el-checkbox
-                    >
+                    />
                 </div>
             </div>
-            <div
+            <el-scrollbar
                 v-show="pageData.chartType === 'list'"
                 class="base-intel-pics-box"
             >
-                <IntelBaseSnapItem
-                    v-for="(item, index) in sliceTableData"
-                    :key="getUniqueKey(item)"
-                    :model-value="selectionIds.includes(getUniqueKey(item))"
-                    :src="pageData.listType === 'snap' ? item.pic : item.panorama"
-                    :play="playerData.playId === getUniqueKey(item)"
-                    :type="pageData.listType"
-                    :disabled="item.isDelSnap || item.isNoData || !item.pic || !item.panorama"
-                    :error-text="item.isDelSnap ? Translate('IDCS_DELETED') : item.isNoData ? Translate('IDCS_NO_RECORD_DATA') : ''"
-                    @update:model-value="handleSelect(index, $event)"
-                    @click="play(item)"
-                    @detail="showDetail(index)"
-                >
-                    {{ displayDateTime(item.timestamp) }}<br />{{ item.chlName }}
-                </IntelBaseSnapItem>
-            </div>
+                <div class="base-intel-pics-content">
+                    <IntelBaseSnapItem
+                        v-for="(item, index) in sliceTableData"
+                        :key="getUniqueKey(item)"
+                        :model-value="selectionIds.includes(getUniqueKey(item))"
+                        :src="pageData.listType === 'snap' ? item.pic : item.panorama"
+                        :play="playerData.playId === getUniqueKey(item)"
+                        :type="pageData.listType"
+                        :disabled="item.isDelSnap || item.isNoData || !item.pic || !item.panorama"
+                        :error-text="item.isDelSnap ? Translate('IDCS_DELETED') : item.isNoData ? Translate('IDCS_NO_RECORD_DATA') : ''"
+                        @update:model-value="handleSelect(index, $event)"
+                        @click="play(item)"
+                        @detail="showDetail(index)"
+                    >
+                        <div v-title>{{ displayDateTime(item.timestamp) }}</div>
+                        <div
+                            v-title
+                            class="text-ellipsis"
+                        >
+                            {{ item.chlName }}
+                        </div>
+                    </IntelBaseSnapItem>
+                </div>
+            </el-scrollbar>
             <div
                 v-show="pageData.chartType === 'table'"
                 class="base-table-box"
             >
                 <el-table
                     ref="tableRef"
-                    border
-                    stripe
+                    v-title
+                    show-overflow-tooltip
                     :data="sliceTableData"
                     @row-click="handleTableRowClick"
                     @selection-change="handleTableSelectionChange"
@@ -177,22 +184,20 @@
                         :label="Translate('IDCS_SERIAL_NUMBER')"
                         type="index"
                         width="60"
-                    >
-                    </el-table-column>
+                    />
                     <el-table-column
                         type="selection"
                         :selectable="getTableSelectable"
                     />
                     <el-table-column :label="Translate('IDCS_SNAP_TIME')">
-                        <template #default="scope">
-                            {{ displayDateTime(scope.row.timestamp) }}
+                        <template #default="{ row }: TableColumn<IntelSearchList>">
+                            {{ displayDateTime(row.timestamp) }}
                         </template>
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_CHANNEL')"
                         prop="chlName"
-                    >
-                    </el-table-column>
+                    />
                     <el-table-column
                         :label="Translate('IDCS_LICENSE_PLATE_NUM')"
                         prop="plateNumber"
@@ -201,13 +206,10 @@
                         width="100"
                         :label="Translate('IDCS_DETAIL_INFO')"
                     >
-                        <template #default="scope">
-                            <BaseImgSprite
+                        <template #default="{ $index }: TableColumn<IntelSearchList>">
+                            <BaseImgSpriteBtn
                                 file="browser"
-                                :index="0"
-                                :hover-index="1"
-                                :chunk="4"
-                                @click="showDetail(scope.$index)"
+                                @click="showDetail($index)"
                             />
                         </template>
                     </el-table-column>
@@ -215,22 +217,23 @@
             </div>
             <div
                 v-show="pageData.isSupportBackUp"
-                class="base-btn-box"
-                :span="2"
+                class="base-btn-box space-between"
             >
                 <div>
-                    <el-checkbox v-model="pageData.isBackUpPic">
-                        {{ Translate('IDCS_BACKUP_PICTURE') }}{{ sliceTableData.length && isSupportCSV ? ` (${Translate('IDCS_LICENSE_PLATE_NUM_LIST')})` : '' }}
-                    </el-checkbox>
-                    <el-checkbox v-model="pageData.isBackUpVideo">{{ Translate('IDCS_BACKUP_RECORD') }}</el-checkbox>
+                    <el-checkbox
+                        v-model="pageData.isBackUpPic"
+                        :label="`${Translate('IDCS_BACKUP_PICTURE')}${sliceTableData.length && pageData.isSupportCSV ? ` (${Translate('IDCS_LICENSE_PLATE_NUM_LIST')})` : ''}`"
+                    />
+                    <el-checkbox
+                        v-model="pageData.isBackUpVideo"
+                        :label="Translate('IDCS_BACKUP_RECORD')"
+                    />
                 </div>
-                <el-pagination
+                <BasePagination
                     v-model:current-page="formData.pageIndex"
                     v-model:page-size="formData.pageSize"
                     :page-sizes="[formData.pageSize]"
-                    layout="total, sizes, prev, pager, next"
                     :total="tableData.length"
-                    size="small"
                     @current-change="changePage"
                 />
             </div>
@@ -238,8 +241,9 @@
                 <el-button
                     :disabled="!selectionIds.length || (!pageData.isBackUpPic && !pageData.isBackUpVideo)"
                     @click="backUp"
-                    >{{ Translate('IDCS_BACKUP') }}</el-button
                 >
+                    {{ Translate('IDCS_BACKUP') }}
+                </el-button>
             </div>
         </div>
         <IntelBaseSnapPop

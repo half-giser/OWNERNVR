@@ -2,14 +2,11 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-12 16:04:15
  * @Description: 智能分析 - 人脸搜索 - 选择人脸弹窗
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-12 09:42:25
  */
 import IntelFaceDBChooseFaceSnapPanel from './IntelFaceDBChooseFaceSnapPanel.vue'
 import IntelFaceDBChooseFaceImportPanel from './IntelFaceDBChooseFaceImportPanel.vue'
 import IntelFaceDBChooseFaceFacePanel from './IntelFaceDBChooseFaceFacePanel.vue'
 import IntelBaseFaceItem from './IntelBaseFaceItem.vue'
-import { type IntelFaceDBSnapFaceList, type IntelFaceDBImportFaceDto, type IntelFaceDBFaceInfo, type IntelFaceDBGroupList } from '@/types/apiType/intelligentAnalysis'
 
 export default defineComponent({
     components: {
@@ -84,7 +81,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
         const dateTime = useDateTimeStore()
 
         const pageData = ref({
@@ -169,10 +165,7 @@ export default defineComponent({
                 ctx.emit('chooseSnap', pageData.value.currentSnap)
                 close()
             } else {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_SELECT_FACE_EMPTY'),
-                })
+                openMessageBox(Translate('IDCS_SELECT_FACE_EMPTY'))
             }
         }
 
@@ -184,10 +177,7 @@ export default defineComponent({
                 ctx.emit('chooseFace', pageData.value.currentFace)
                 close()
             } else {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_SELECT_FACE_EMPTY'),
-                })
+                openMessageBox(Translate('IDCS_SELECT_FACE_EMPTY'))
             }
         }
 
@@ -228,10 +218,7 @@ export default defineComponent({
                 return a + b.count
             }, 0)
             if (count >= 200) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_GROUP_FACE_NUM_IS_TOO_MANY').formatForLang(5),
-                })
+                openMessageBox(Translate('IDCS_GROUP_FACE_NUM_IS_TOO_MANY').formatForLang(5))
                 return
             } else {
                 ctx.emit('chooseGroup', pageData.value.currentFaceGroup)
@@ -259,10 +246,6 @@ export default defineComponent({
         })
 
         return {
-            IntelFaceDBChooseFaceFacePanel,
-            IntelFaceDBChooseFaceSnapPanel,
-            IntelFaceDBChooseFaceImportPanel,
-            IntelBaseFaceItem,
             pageData,
             confirmGroup,
             confirm,

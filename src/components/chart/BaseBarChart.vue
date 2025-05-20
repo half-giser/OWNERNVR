@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-04 16:08:10
  * @Description: 条形图组件
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-27 13:53:45
 -->
 <template>
     <div
@@ -25,27 +23,23 @@
                 <span class="text">{{ item }}</span>
             </div>
         </div>
-        <canvas ref="$canvas" />
+        <canvas ref="$canvas"></canvas>
         <div
             v-show="needPagination"
             class="pagination"
         >
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="prev_page"
                 :chunk="3"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="2"
-                :disabled="pageIndex === 0"
+                :index="[0, 1, 1, 2]"
+                :disabled="pageIndex <= 0"
                 @click="prevPage"
             />
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="next_page"
                 :chunk="3"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="2"
-                :disabled="pageIndex === pageCount - 1"
+                :index="[0, 1, 1, 2]"
+                :disabled="pageIndex >= pageCount - 1"
                 @click="nextPage"
             />
         </div>
@@ -171,7 +165,6 @@ const pageCount = computed(() => {
  * @description 上一页
  */
 const prevPage = () => {
-    if (pageIndex.value <= 0) return
     pageIndex.value--
     render()
 }
@@ -180,9 +173,6 @@ const prevPage = () => {
  * @description 下一页
  */
 const nextPage = () => {
-    if (pageIndex.value >= pageCount.value - 1) {
-        return
-    }
     pageIndex.value++
     render()
 }
@@ -264,16 +254,16 @@ const drawBars = () => {
 
         for (let j = 0; j < prop.unitNum; j++) {
             const offset = (j + 1) * splitWidth + j * colWidth + w * i
-            const yValueUnit = prop.unitNum == 1 ? (yValue as number[])[i] : Number((yValue as number[][])[i][j])
+            const yValueUnit = prop.unitNum === 1 ? (yValue as number[])[i] : Number((yValue as number[][])[i][j])
             const height = (prop.lineSpacing * yValueUnit) / prop.writeYSpacing
             const Y = oy + yLength - height
             drawRect(offset + ox, Y, colWidth, height, barColors[prop.color[j]]) // 画柱状
             if (yValueUnit > 99 && yValueUnit < 999) {
-                drawText(String(yValueUnit), offset + ox + colWidth / 2 - 9, yValueUnit == 0 ? Y - 2 : Y - 8) // 写Y柱图上的值
+                drawText(String(yValueUnit), offset + ox + colWidth / 2 - 9, yValueUnit === 0 ? Y - 2 : Y - 8) // 写Y柱图上的值
             } else if (yValueUnit > 999) {
-                drawText(String(yValueUnit), offset + ox + colWidth / 2 - 12, yValueUnit == 0 ? Y - 2 : Y - 8) // 写Y柱图上的值
+                drawText(String(yValueUnit), offset + ox + colWidth / 2 - 12, yValueUnit === 0 ? Y - 2 : Y - 8) // 写Y柱图上的值
             } else {
-                drawText(String(yValueUnit), offset + ox + colWidth / 2 - 6, yValueUnit == 0 ? Y - 2 : Y - 8) // 写Y柱图上的值
+                drawText(String(yValueUnit), offset + ox + colWidth / 2 - 6, yValueUnit === 0 ? Y - 2 : Y - 8) // 写Y柱图上的值
             }
         }
     }
@@ -372,6 +362,7 @@ watch(
             line-height: 20px;
         }
     }
+
     & > .pagination {
         display: flex;
         justify-content: center;

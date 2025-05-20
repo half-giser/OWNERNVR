@@ -2,13 +2,10 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-04 14:57:50
  * @Description: 智能分析-车辆统计
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:18:20
  */
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
 import IntelBaseEventSelector from './IntelBaseEventSelector.vue'
 import IntelBaseAttributeSelector from './IntelBaseAttributeSelector.vue'
-import { type IntelVehicleStatsList, IntelVehicleStatsForm } from '@/types/apiType/intelligentAnalysis'
 import { type BarChartXValueOptionItem } from '@/components/chart/BaseBarChart.vue'
 
 export default defineComponent({
@@ -19,8 +16,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         let chlMap: Record<string, string> = {}
         let eventMap: Record<string, string> = {}
@@ -118,10 +113,10 @@ export default defineComponent({
             const sendXml = rawXml`
                 <resultLimit>150000</resultLimit>
                 <condition>
-                    <startTime>${formatDate(formData.value.dateRange[0], 'YYYY-MM-DD HH:mm:ss')}</startTime>
-                    <endTime>${formatDate(formData.value.dateRange[1], 'YYYY-MM-DD HH:mm:ss')}</endTime>
-                    <timeQuantum>${stats.getTimeQuantum().toString()}</timeQuantum>
-                    <deduplicate>${formData.value.deduplicate.toString()}</deduplicate>
+                    <startTime>${formatGregoryDate(formData.value.dateRange[0], DEFAULT_DATE_FORMAT)}</startTime>
+                    <endTime>${formatGregoryDate(formData.value.dateRange[1], DEFAULT_DATE_FORMAT)}</endTime>
+                    <timeQuantum>${stats.getTimeQuantum()}</timeQuantum>
+                    <deduplicate>${formData.value.deduplicate}</deduplicate>
                     <chls type="list">${formData.value.chl.map((item) => `<item id="${item}"></item>`).join('')}</chls>
                     <events type="list">${formData.value.event.map((item) => `<item>${item}</item>`).join('')}</events>
                     <vehicle type="list">${formData.value.attribute.map((item) => `<item>${item}</item>`).join('')}</vehicle>
@@ -130,33 +125,30 @@ export default defineComponent({
             const result = await faceImgStatistic_v2(sendXml)
             const $ = queryXml(result)
             closeLoading()
-            if ($('//status').text() === 'success') {
-                tableData.value = $('//content/timeStatistic/item').map((item) => {
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/timeStatistic/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        imageTotalNum: Number($item('imageTotalNum').text()),
-                        imageTotalInNum: Number($item('imageTotalInNum').text()),
-                        imageTotalOutNum: Number($item('imageTotalOutNum').text()),
+                        imageTotalNum: $item('imageTotalNum').text().num(),
+                        imageTotalInNum: $item('imageTotalInNum').text().num(),
+                        imageTotalOutNum: $item('imageTotalOutNum').text().num(),
                         chl: $item('chls/item').map((chl) => {
                             const $chl = queryXml(chl.element)
                             return {
-                                chlId: chl.attr('id')!,
-                                imageNum: Number($chl('imageNum').text()),
-                                vehicleIn: Number($chl('vehicleIn').text()),
-                                vehicleOut: Number($chl('vehicleOut').text()),
-                                nonVehicleIn: Number($chl('nonVehicleIn').text()),
-                                nonVehicleOut: Number($chl('nonVehicleOut').text()),
+                                chlId: chl.attr('id'),
+                                imageNum: $chl('imageNum').text().num(),
+                                vehicleIn: $chl('vehicleIn').text().num(),
+                                vehicleOut: $chl('vehicleOut').text().num(),
+                                nonVehicleIn: $chl('nonVehicleIn').text().num(),
+                                nonVehicleOut: $chl('nonVehicleOut').text().num(),
                             }
                         }),
                     }
                 })
                 showMaxSearchLimitTips($)
             } else {
-                if (Number($('//errorCode').text()) === ErrorCode.USER_ERROR_JSU_HAVEACSSYSTEM) {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_SELECT_EVENT_TIP'),
-                    })
+                if ($('errorCode').text().num() === ErrorCode.USER_ERROR_JSU_HAVEACSSYSTEM) {
+                    openMessageBox(Translate('IDCS_SELECT_EVENT_TIP'))
                 }
                 tableData.value = []
             }
@@ -223,14 +215,15 @@ export default defineComponent({
                     csvHead.push(`${Translate('IDCS_DETECTION_VEHICLE')} (${Translate('IDCS_ENTRANCE')})`, `${Translate('IDCS_DETECTION_VEHICLE')} (${Translate('IDCS_LEAVE')})`)
                     csvTitle.colspan += 2
                 }
+
                 if (formData.value.attribute.includes('motor')) {
                     csvHead.push(`${Translate('IDCS_NON_VEHICLE')} (${Translate('IDCS_ENTRANCE')})`, `${Translate('IDCS_NON_VEHICLE')} (${Translate('IDCS_LEAVE')})`)
                     csvTitle.colspan += 2
                 }
             }
             const label = stats.calLabel()
-            const defaultValue = Array(csvTitle.colspan - 2).fill('0')
-            const csvBody = [] as string[][]
+            const defaultValue: string[] = Array(csvTitle.colspan - 2).fill('0')
+            const csvBody: string[][] = []
             label.forEach((labelItem, index) => {
                 const item = tableData.value[index]
                 if (!item || !item.chl.length) {
@@ -242,6 +235,7 @@ export default defineComponent({
                             if (formData.value.attribute.includes('car')) {
                                 data.push(chl.vehicleIn + '', chl.vehicleOut + '')
                             }
+
                             if (formData.value.attribute.includes('motor')) {
                                 data.push(chl.nonVehicleIn + '', chl.nonVehicleOut + '')
                             }
@@ -255,7 +249,7 @@ export default defineComponent({
             downloadExcel(csvHead, csvBody, xlsName, csvTitle)
         }
 
-        onMounted(async () => {
+        onActivated(() => {
             pageData.value.barData = getBarData()
         })
 
@@ -269,9 +263,6 @@ export default defineComponent({
             changeEvent,
             changeAttribute,
             exportChart,
-            IntelBaseChannelSelector,
-            IntelBaseEventSelector,
-            IntelBaseAttributeSelector,
         }
     },
 })

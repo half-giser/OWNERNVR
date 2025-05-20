@@ -9,8 +9,8 @@
             <div class="base-chl-box-player">
                 <BaseVideoPlayer
                     ref="playerRef"
-                    :split="1"
-                    @onready="onReady"
+                    @ready="onReady"
+                    @message="notify"
                 />
             </div>
             <div class="motionCtrl">
@@ -20,90 +20,60 @@
                 <el-button @click="handleClear">{{ Translate('IDCS_CLEAR') }}</el-button>
             </div>
             <el-form
-                ref="formRef"
-                :model="formData"
-                label-width="160px"
-                label-position="left"
-                :style="{
-                    '--form-label-width': '160px',
-                }"
-                class="narrow"
+                v-title
+                class="stripe"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select
+                    <el-select-v2
                         v-model="selectedChlId"
-                        placeholder=" "
+                        :options="chlOptions"
                         @change="handleChlSel"
-                    >
-                        <el-option
-                            v-for="(item, index) in tableData"
-                            :key="index"
-                            :value="item.id"
-                            :label="item.name || ' '"
-                        >
-                        </el-option>
-                    </el-select>
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ENABLE')">
-                    <el-select
+                    <el-select-v2
                         v-model="formData.switch"
-                        placeholder=" "
                         :disabled="formData.disabled"
-                        @change="handleChangeVal"
-                    >
-                        <el-option
-                            :value="true"
-                            :label="Translate('IDCS_ON')"
-                        />
-                        <el-option
-                            :value="false"
-                            :label="Translate('IDCS_OFF')"
-                        />
-                    </el-select>
+                        :options="switchOptions"
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_SENSITIVITY')">
-                    <el-slider
+                    <BaseSliderInput
                         v-model="formData.sensitivity"
-                        :min="isNaN(formData.sensitivityMinValue) ? 0 : formData.sensitivityMinValue"
-                        :max="isNaN(formData.sensitivityMaxValue) ? 8 : formData.sensitivityMaxValue"
+                        :min="formData.sensitivityMinValue"
+                        :max="formData.sensitivityMaxValue"
                         :disabled="formData.disabled"
-                        show-input
-                        :show-input-controls="false"
-                        class="slider"
-                        @change="handleChangeVal"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_DURATION')">
-                    <el-select
+                    <el-select-v2
+                        v-if="formData.isOnvifChl"
+                        model-value=""
+                        disabled
+                        :options="[]"
+                    />
+                    <el-select-v2
+                        v-else
                         v-model="formData.holdTime"
-                        placeholder=" "
-                        :disabled="formData.disabled || formData.holdTime === ''"
-                        @change="handleChangeVal"
-                    >
-                        <el-option
-                            v-for="(item, index) in formData.holdTimeList"
-                            :key="index"
-                            :value="item.value"
-                            :label="item.text"
-                        />
-                    </el-select>
+                        :disabled="formData.disabled"
+                        :options="formData.holdTimeList"
+                        :height="170"
+                    />
                 </el-form-item>
                 <el-form-item
                     v-if="formData.supportSMD"
                     :label="Translate('IDCS_DETECTION_TARGET')"
                 >
                     <el-checkbox
-                        v-if="formData.supportSMD && formData.objectFilterPerson !== undefined"
-                        v-model="formData.objectFilterPerson"
+                        v-if="formData.supportSMD && !formData.SMDHumanDisabled"
+                        v-model="formData.SMDHuman"
                         :label="Translate('IDCS_DETECTION_PERSON')"
-                        @change="handleChangeVal"
-                    ></el-checkbox>
+                    />
                     <el-checkbox
-                        v-if="formData.supportSMD && formData.objectFilterCar !== undefined"
-                        v-model="formData.objectFilterCar"
+                        v-if="formData.supportSMD && !formData.SMDVehicleDisabled"
+                        v-model="formData.SMDVehicle"
                         :label="Translate('IDCS_DETECTION_VEHICLE')"
-                        @change="handleChangeVal"
-                    ></el-checkbox>
+                    />
                 </el-form-item>
                 <el-form-item>
                     <template #label>
@@ -116,145 +86,128 @@
             <div class="base-table-box">
                 <el-table
                     ref="tableRef"
-                    border
-                    stripe
+                    v-title
                     :data="tableData"
-                    table-layout="fixed"
                     show-overflow-tooltip
-                    empty-text=" "
                     highlight-current-row
-                    :row-class-name="(data) => (data.row.disabled ? 'disabled' : '')"
                     @row-click="handleRowClick"
                 >
                     <el-table-column
                         label=" "
-                        width="50px"
-                        class-name="custom_cell"
+                        width="50"
                     >
-                        <template #default="scope">
+                        <template #default="{ row }: TableColumn<ChannelMotionDto>">
                             <BaseTableRowStatus
-                                :icon="scope.row.status"
-                                :error-text="scope.row.statusTip"
-                            ></BaseTableRowStatus>
+                                :icon="row.status"
+                                :error-text="row.statusTip"
+                            />
                         </template>
                     </el-table-column>
                     <el-table-column
                         prop="name"
                         :label="Translate('IDCS_CHANNEL_NAME')"
-                        min-width="180px"
-                    >
-                    </el-table-column>
+                        min-width="180"
+                    />
                     <el-table-column
                         :label="Translate('IDCS_ENABLE')"
-                        min-width="120px"
+                        min-width="120"
                     >
                         <template #header>
-                            <el-dropdown trigger="click">
+                            <el-dropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_ENABLE') }}
                                 </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
-                                        <el-dropdown-item @click="handleChangeAll('switch', true)">{{ Translate('IDCS_ON') }}</el-dropdown-item>
-                                        <el-dropdown-item @click="handleChangeAll('switch', false)">{{ Translate('IDCS_OFF') }}</el-dropdown-item>
+                                        <el-dropdown-item
+                                            v-for="item in switchOptions"
+                                            :key="item.label"
+                                            @click="handleChangeAll('switch', item.value)"
+                                        >
+                                            {{ item.label }}
+                                        </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope">
-                            <el-select
-                                v-model="scope.row.switch"
-                                size="small"
-                                placeholder=" "
-                                :disabled="scope.row.disabled"
-                                @focus="handleRowClick(scope.row)"
-                                @change="handleChangeVal"
-                            >
-                                <el-option
-                                    :value="true"
-                                    :label="Translate('IDCS_ON')"
-                                />
-                                <el-option
-                                    :value="false"
-                                    :label="Translate('IDCS_OFF')"
-                                />
-                            </el-select>
+                        <template #default="{ row }: TableColumn<ChannelMotionDto>">
+                            <el-select-v2
+                                v-model="row.switch"
+                                :disabled="row.disabled"
+                                :options="switchOptions"
+                                @focus="handleRowClick(row)"
+                            />
                         </template>
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_SENSITIVITY')"
-                        min-width="180px"
+                        min-width="180"
                     >
-                        <template #default="scope">
-                            <el-input
-                                v-model="scope.row.sensitivity"
-                                size="small"
-                                :disabled="scope.row.disabled"
-                                @change="handleChangeVal"
-                            ></el-input>
+                        <template #default="{ row }: TableColumn<ChannelMotionDto>">
+                            <BaseNumberInput
+                                v-model="row.sensitivity"
+                                :min="row.sensitivityMinValue"
+                                :max="row.sensitivityMaxValue"
+                                :disabled="row.disabled"
+                            />
                         </template>
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_DURATION')"
-                        min-width="180px"
+                        min-width="180"
                     >
                         <template #header>
-                            <el-dropdown trigger="click">
+                            <el-dropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_DURATION') }}
                                 </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item
-                                            v-for="(item, index) in holdTimeList"
-                                            :key="index"
-                                            :value="item.value"
+                                            v-for="item in holdTimeList"
+                                            :key="item.value"
                                             @click="handleChangeAll('holdTime', item.value)"
-                                            >{{ item.text }}</el-dropdown-item
                                         >
+                                            {{ item.label }}
+                                        </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope">
-                            <el-select
-                                v-model="scope.row.holdTime"
-                                size="small"
-                                placeholder=" "
-                                :disabled="scope.row.disabled"
-                                @focus="handleRowClick(scope.row)"
-                                @change="handleChangeVal"
-                            >
-                                <el-option
-                                    v-for="(item, index) in scope.row.holdTimeList"
-                                    :key="index"
-                                    :value="item.value"
-                                    :label="item.text"
-                                />
-                            </el-select>
+                        <template #default="{ row }: TableColumn<ChannelMotionDto>">
+                            <el-select-v2
+                                v-if="row.isOnvifChl"
+                                model-value=""
+                                :options="[]"
+                                disabled
+                            />
+                            <el-select-v2
+                                v-else
+                                v-model="row.holdTime"
+                                :disabled="row.disabled"
+                                :options="row.holdTimeList"
+                                @focus="handleRowClick(row)"
+                            />
                         </template>
                     </el-table-column>
                 </el-table>
             </div>
-            <div class="row_pagination">
-                <el-pagination
+            <div class="base-pagination-box">
+                <BasePagination
                     v-model:current-page="pageIndex"
                     v-model:page-size="pageSize"
-                    :page-sizes="DefaultPagerSizeOptions"
-                    size="small"
-                    :background="false"
-                    :layout="DefaultPagerLayout"
                     :total="pageTotal"
-                    @size-change="handleSizeChange"
-                    @current-change="handleCurrentChange"
+                    @size-change="getDataList"
+                    @current-change="getDataList"
                 />
             </div>
             <div class="base-btn-box">
                 <el-button @click="handleDisposeWayClick">{{ Translate('IDCS_DISPOSE_WAY') }} </el-button>
                 <el-button
-                    :disabled="btnOKDisabled"
+                    :disabled="!editRows.size()"
                     @click="save"
-                    >{{ Translate('IDCS_APPLY') }}
+                >
+                    {{ Translate('IDCS_APPLY') }}
                 </el-button>
             </div>
         </div>
@@ -262,10 +215,6 @@
 </template>
 
 <script lang="ts" src="./ChannelMotion.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/channel.scss';
-</style>
 
 <style scoped lang="scss">
 .motionCtrl {

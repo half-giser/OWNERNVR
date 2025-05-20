@@ -1,80 +1,52 @@
 <!--
- * @Description: AI 事件——人脸识别
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-28 13:41:57
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-12 16:12:07
+ * @Description: AI 事件——人脸识别
 -->
 <template>
-    <!-- 通道名称及选择器 -->
-    <el-form
-        class="stripe narrow"
-        :style="{
-            '--form-input-width': '430px',
-            '--el-form-label-font-size': '15px',
-        }"
-        label-position="left"
-        inline-message
-    >
-        <el-form-item
-            :label="Translate('IDCS_CHANNEL_NAME')"
-            label-width="108px"
-        >
-            <el-select
-                v-model="pageData.curChl"
-                class="base-ai-chl-select"
-                popper-class="base-ai-chl-option"
-                @change="chlChange"
-            >
-                <el-option
-                    v-for="item in pageData.faceChlList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                >
-                </el-option>
-            </el-select>
-        </el-form-item>
-    </el-form>
+    <AlarmBaseChannelSelector
+        v-model="pageData.curChl"
+        :list="pageData.chlList"
+        @change="changeChl"
+    />
     <el-tabs
-        v-model="pageData.faceTab"
+        :key="pageData.curChl"
+        v-model="pageData.tab"
+        v-title
         class="base-ai-menu-tabs"
-        @tab-change="faceTabChange"
+        @tab-change="changeTab"
     >
+        <div
+            v-if="pageData.notSupport"
+            class="base-ai-not-support-box"
+        >
+            {{ Translate('IDCS_FACE_EVENT_UNSUPORT_TIP') }}
+        </div>
         <!-- 侦测 -->
         <el-tab-pane
             :label="Translate('IDCS_DETECTION')"
             name="faceDetection"
-            :disabled="pageData.faceDetectionDisabled"
+            :disabled="pageData.detectionDisabled"
         >
-            <div>
-                <div
-                    class="base-btn-box padding collapse"
-                    :span="2"
-                >
-                    <div>
-                        <el-checkbox
-                            v-model="faceDetectionData.enabledSwitch"
-                            @change="enabledSwitchChange"
-                            >{{ detectionPageData.deviceInfo }}</el-checkbox
-                        >
-                    </div>
-                    <div v-show="showAIReourceDetail">
-                        <span>{{ `${Translate('IDCS_USAGE_RATE') + pageData.resourceOccupancy}` }}</span>
-                        <BaseImgSprite
-                            class="detailBtn"
-                            file="detail"
-                            :index="0"
-                            :chunk="4"
-                            @click="openAIResourcePop"
-                        />
-                    </div>
+            <div v-if="!pageData.notSupport">
+                <div class="base-btn-box space-between padding collapse">
+                    <el-checkbox
+                        v-model="detectionFormData.enabledSwitch"
+                        :label="detectionPageData.deviceInfo"
+                    />
+                    <AlarmBaseResourceData
+                        v-if="showAIReourceDetail"
+                        :chl-id="pageData.curChl"
+                        event="faceDetect"
+                        :enable="detectionFormData.enabledSwitch && !chlData.supportVfd"
+                        @error="handleAIResourceError"
+                        @change="handleAIResourceDel"
+                    />
                 </div>
-                <div>
+                <div class="base-ai-form">
                     <el-tabs
-                        v-model="detectionPageData.detectionTab"
+                        v-model="detectionPageData.tab"
                         class="base-ai-tabs"
-                        @tab-change="detectionTabChange"
                     >
                         <!-- 参数设置 -->
                         <el-tab-pane
@@ -86,365 +58,234 @@
                                 <div class="player">
                                     <BaseVideoPlayer
                                         ref="playerRef"
-                                        type="live"
-                                        @onready="handlePlayerReady"
+                                        @ready="handlePlayerReady"
+                                        @message="notify"
                                     />
                                 </div>
-                                <div v-show="detectionPageData.isPlayerBottomShow">
+                                <div v-show="detectionFormData.supportVfd">
                                     <div class="base-btn-box">
                                         <el-button @click="clearDrawArea">{{ Translate('IDCS_CLEAR') }}</el-button>
                                     </div>
-                                    <span class="base-ai-tip">{{ Translate('IDCS_DRAW_RECT_TIP') }}</span>
+                                    <div class="base-ai-tip">{{ Translate('IDCS_DRAW_RECT_TIP') }}</div>
                                 </div>
                             </div>
                             <div class="base-ai-param-box-right">
-                                <el-form
-                                    class="narrow"
-                                    :style="{
-                                        '--form-input-width': '215px',
-                                    }"
-                                    label-position="left"
-                                    inline-message
-                                >
+                                <el-form v-title>
                                     <!-- 排程 -->
                                     <div class="base-ai-subheading">{{ Translate('IDCS_SCHEDULE') }}</div>
                                     <!-- 排程配置 -->
                                     <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                                        <el-select v-model="faceDetectionData.schedule">
-                                            <el-option
-                                                v-for="item in pageData.scheduleList"
-                                                :key="item.value"
-                                                :value="item.value"
-                                                :label="item.label"
-                                            >
-                                            </el-option>
-                                        </el-select>
-                                        <el-button @click="pageData.scheduleManagPopOpen = true">{{ Translate('IDCS_MANAGE') }}</el-button>
+                                        <BaseScheduleSelect
+                                            v-model="detectionFormData.schedule"
+                                            :options="pageData.scheduleList"
+                                            @edit="pageData.isSchedulePop = true"
+                                        />
                                     </el-form-item>
-                                    <div
-                                        v-if="detectionPageData.isParamRightShow"
-                                        class="param-right-form-item"
-                                    >
+                                    <template v-if="detectionFormData.supportVfd">
                                         <!-- 规则 -->
                                         <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
                                         <!-- 持续时间 -->
                                         <el-form-item :label="Translate('IDCS_DURATION')">
-                                            <el-select v-model="faceDetectionData.holdTime">
-                                                <el-option
-                                                    v-for="item in faceDetectionData.holdTimeList"
-                                                    :key="item.value"
-                                                    :value="item.value"
-                                                    :label="item.label"
-                                                    :empty-values="[undefined, null]"
-                                                >
-                                                </el-option>
-                                            </el-select>
+                                            <el-select-v2
+                                                v-model="detectionFormData.holdTime"
+                                                :options="detectionFormData.holdTimeList"
+                                            />
                                         </el-form-item>
                                         <!-- 抓拍间隔 -->
                                         <el-form-item :label="Translate('IDCS_SNAPSHOT_INTERVAL')">
-                                            <el-select
-                                                v-model="faceDetectionData.snapInterval"
-                                                :disabled="faceDetectionData.snapInterval === ''"
-                                            >
-                                                <el-option
-                                                    v-for="item in detectionPageData.snapList"
-                                                    :key="item.value"
-                                                    :value="item.value"
-                                                    :label="item.label"
-                                                >
-                                                </el-option>
-                                            </el-select>
+                                            <el-select-v2
+                                                v-model="detectionFormData.snapInterval"
+                                                :options="detectionPageData.snapList"
+                                                :disabled="detectionFormData.snapInterval === ''"
+                                            />
                                         </el-form-item>
                                         <!-- 抓拍次数 -->
                                         <el-form-item :label="Translate('IDCS_SNAPSHOT_NUMBER')">
+                                            <BaseNumberInput
+                                                v-if="detectionFormData.captureCycleChecked"
+                                                v-model="detectionFormData.captureCycle"
+                                                :min="1"
+                                                :max="65534"
+                                                :disabled="detectionFormData.snapInterval === ''"
+                                            />
                                             <el-input
-                                                v-model="detectionPageData.snapNumber"
-                                                :disabled="faceDetectionData.snapInterval === '' || detectionPageData.isSnapNumberDisabled"
-                                            ></el-input>
+                                                v-else
+                                                :model-value="Translate('IDCS_NO_LIMITED')"
+                                                disabled
+                                            />
                                             <el-checkbox
-                                                v-model="detectionPageData.isSnapNumberChecked"
-                                                :disabled="faceDetectionData.snapInterval === ''"
-                                                @change="snapNumberCheckChange"
-                                            ></el-checkbox>
+                                                v-model="detectionFormData.captureCycleChecked"
+                                                :disabled="detectionFormData.snapInterval === ''"
+                                            />
                                         </el-form-item>
                                         <!-- 人脸曝光 -->
                                         <el-form-item :label="Translate('IDCS_FACE_DETECT_EXPOSURE')">
                                             <el-checkbox
-                                                v-model="faceDetectionData.faceExpSwitch"
+                                                v-model="detectionFormData.faceExpSwitch"
                                                 :disabled="detectionPageData.faceExpDisabled"
-                                            ></el-checkbox>
-                                            <el-slider
-                                                v-model="faceDetectionData.faceExpStrength"
+                                            />
+                                            <BaseSliderInput
+                                                v-model="detectionFormData.faceExpStrength"
                                                 :disabled="detectionPageData.faceExpDisabled"
-                                                show-input
-                                                :show-input-controls="false"
                                                 :min="1"
-                                                :max="100"
                                             />
                                         </el-form-item>
                                         <!-- 人脸大小(范围：3%~50%) -->
                                         <div class="base-ai-subheading">{{ Translate('IDCS_FACE_SIZE_TIP') }}</div>
                                         <el-form-item :label="Translate('IDCS_MIN')">
-                                            <el-input
-                                                v-model="faceDetectionData.minFaceFrame"
+                                            <BaseNumberInput
+                                                v-model="detectionFormData.minFaceFrame"
                                                 :min="3"
-                                                :max="50"
-                                                type="number"
-                                                @blur="minFaceBlur"
-                                            ></el-input
-                                            >%
+                                                :max="Math.min(50, detectionFormData.maxFaceFrame)"
+                                                @blur="blurMinFaceFrame"
+                                            />
+                                            <span>%</span>
                                         </el-form-item>
                                         <el-form-item :label="Translate('IDCS_MAX')">
-                                            <el-input
-                                                v-model="faceDetectionData.maxFaceFrame"
-                                                :min="3"
+                                            <BaseNumberInput
+                                                v-model="detectionFormData.maxFaceFrame"
+                                                :min="Math.max(detectionFormData.minFaceFrame, 3)"
                                                 :max="50"
-                                                type="number"
-                                                @blur="maxFaceBlur"
-                                            ></el-input
-                                            >%
+                                                @blur="blurMaxFaceFrame"
+                                            />
+                                            <span>%</span>
                                         </el-form-item>
                                         <el-form-item label=" ">
                                             <el-checkbox
                                                 v-model="detectionPageData.isDispalyRangeChecked"
-                                                @change="dispalyRangeChange"
-                                                >{{ Translate('IDCS_DISPLAY_RANGE_BOX') }}</el-checkbox
-                                            >
+                                                :label="Translate('IDCS_DISPLAY_RANGE_BOX')"
+                                                @change="changeDisplayRange"
+                                            />
                                         </el-form-item>
-                                    </div>
+                                    </template>
                                 </el-form>
                             </div>
                         </el-tab-pane>
                         <!-- 联动方式 -->
                         <el-tab-pane
-                            v-if="detectionPageData.isLinkageShow"
+                            v-if="detectionFormData.supportVfd"
                             :label="Translate('IDCS_LINKAGE_MODE')"
-                            name="linkage"
+                            name="trigger"
                         >
-                            <el-form
-                                class="narrow"
-                                :style="{
-                                    '--form-input-width': '215px',
-                                }"
-                                label-position="left"
-                            >
+                            <el-form v-title>
                                 <el-form-item
                                     v-show="supportAlarmAudioConfig"
                                     :label="Translate('IDCS_VOICE_PROMPT')"
                                 >
-                                    <el-select v-model="faceDetectionData.sysAudio">
-                                        <el-option
-                                            v-for="item in pageData.voiceList"
-                                            :key="item.value"
-                                            :label="item.label"
-                                            :value="item.value"
-                                        >
-                                        </el-option>
-                                    </el-select>
+                                    <el-select-v2
+                                        v-model="detectionFormData.sysAudio"
+                                        :options="pageData.voiceList"
+                                    />
                                 </el-form-item>
                             </el-form>
                             <div class="base-ai-linkage-content">
                                 <!-- 常规联动 -->
-                                <div class="base-ai-linkage-box">
-                                    <el-checkbox
-                                        v-model="normalParamCheckAll"
-                                        class="base-ai-linkage-title"
-                                        @change="handleNormalParamCheckAll"
-                                        >{{ Translate('IDCS_TRIGGER_NOMAL') }}</el-checkbox
-                                    >
-                                    <el-checkbox-group
-                                        v-model="normalParamCheckList"
-                                        @change="handleNormalParamCheck"
-                                    >
-                                        <el-checkbox
-                                            v-for="item in normalParamList"
-                                            :key="item.value"
-                                            :label="item.label"
-                                            :value="item.value"
-                                        >
-                                        </el-checkbox>
-                                    </el-checkbox-group>
-                                </div>
+                                <AlarmBaseTriggerSelector
+                                    v-model="detectionFormData.trigger"
+                                    :include="detectionPageData.triggerList"
+                                />
                                 <!-- 录像 -->
-                                <div class="base-ai-linkage-box">
-                                    <div class="base-ai-linkage-title">
-                                        <!-- 在文字后加个空格，和按钮隔开一点距离 -->
-                                        <span>{{ `${Translate('IDCS_RECORD')} ` }}</span>
-                                        <el-button
-                                            size="small"
-                                            @click="pageData.recordIsShow = true"
-                                            >{{ Translate('IDCS_CONFIG') }}</el-button
-                                        >
-                                    </div>
-                                    <el-table
-                                        :data="faceDetectionData.record"
-                                        empty-text=" "
-                                        stripe
-                                        :show-header="false"
-                                    >
-                                        <el-table-column prop="label" />
-                                    </el-table>
-                                </div>
+                                <AlarmBaseRecordSelector v-model="detectionFormData.record" />
                                 <!-- 报警输出 -->
-                                <div class="base-ai-linkage-box">
-                                    <div class="base-ai-linkage-title">
-                                        <span>{{ `${Translate('IDCS_ALARM_OUT')} ` }}</span>
-                                        <el-button
-                                            size="small"
-                                            @click="pageData.alarmOutIsShow = true"
-                                            >{{ Translate('IDCS_CONFIG') }}</el-button
-                                        >
-                                    </div>
-                                    <el-table
-                                        :data="faceDetectionData.alarmOut"
-                                        empty-text=" "
-                                        stripe
-                                        :show-header="false"
-                                    >
-                                        <el-table-column prop="label" />
-                                    </el-table>
-                                </div>
+                                <AlarmBaseAlarmOutSelector v-model="detectionFormData.alarmOut" />
                                 <!-- 联动预置点 -->
-                                <div
-                                    class="base-ai-linkage-box"
-                                    :style="{ width: '350px' }"
-                                >
-                                    <div class="base-ai-linkage-title">
-                                        <span>{{ Translate('IDCS_TRIGGER_ALARM_PRESET') }}</span>
-                                    </div>
-                                    <el-table
-                                        stripe
-                                        border
-                                        :data="PresetTableData"
-                                    >
-                                        <el-table-column
-                                            prop="name"
-                                            width="180px"
-                                            :label="Translate('IDCS_CHANNEL_NAME')"
-                                        >
-                                        </el-table-column>
-                                        <el-table-column
-                                            width="170px"
-                                            :label="Translate('IDCS_PRESET_NAME')"
-                                        >
-                                            <template #default="scope">
-                                                <el-select
-                                                    v-model="scope.row.preset.value"
-                                                    size="small"
-                                                    :empty-values="[undefined, null]"
-                                                    @visible-change="getPresetById(scope.row)"
-                                                    @change="presetChange(scope.row)"
-                                                >
-                                                    <el-option
-                                                        v-for="item in scope.row.presetList"
-                                                        :key="item.value"
-                                                        :label="item.label"
-                                                        :value="item.value"
-                                                    />
-                                                </el-select>
-                                            </template>
-                                        </el-table-column>
-                                    </el-table>
-                                </div>
+                                <AlarmBasePresetSelector v-model="detectionFormData.preset" />
                             </div>
                         </el-tab-pane>
                     </el-tabs>
                     <!-- 高级设置 -->
                     <el-popover
-                        v-model:visible="advancedVisible"
+                        v-model:visible="pageData.isAdvance"
                         width="300"
-                        trigger="click"
                         popper-class="no-padding"
                     >
                         <template #reference>
                             <div
-                                v-show="detectionPageData.isMoreWrapShow"
-                                class="more_wrap"
+                                v-show="detectionFormData.supportVfd"
+                                class="base-ai-advance-btn"
                             >
                                 <span>{{ Translate('IDCS_ADVANCED') }}</span>
                                 <BaseImgSprite
                                     file="arrow"
-                                    :index="0"
                                     :chunk="4"
                                 />
                             </div>
                         </template>
-                        <div class="advanced_box">
-                            <div class="base-ai-subheading">
-                                {{ Translate('IDCS_VIDEO_SAVE_PIC') }}
-                            </div>
-                            <el-checkbox
-                                v-model="detectionPageData.isSaveSourcePicChecked"
-                                :disabled="detectionPageData.isSavePicDisabled"
-                                @change="saveSourcePicChange"
-                                >{{ Translate('IDCS_SMART_SAVE_SOURCE_PIC') }}</el-checkbox
+                        <div class="base-ai-advance-box">
+                            <el-form
+                                v-title
+                                :style="{
+                                    '--form-label-width': '150px',
+                                    '--form-input-width': '170px',
+                                }"
                             >
-                            <el-checkbox
-                                v-model="detectionPageData.isSaveFacePicChecked"
-                                :disabled="detectionPageData.isSavePicDisabled"
-                                @change="saveFacePicChange"
-                                >{{ Translate('IDCS_SMART_SAVE_TARGET_PIC') }}</el-checkbox
-                            >
-                            <div class="base-btn-box">
-                                <el-button
-                                    small
-                                    @click="advancedVisible = false"
-                                    >{{ Translate('IDCS_CLOSE') }}</el-button
-                                >
-                            </div>
+                                <div class="base-ai-subheading">
+                                    {{ Translate('IDCS_VIDEO_SAVE_PIC') }}
+                                </div>
+                                <el-form-item>
+                                    <el-checkbox
+                                        v-model="detectionFormData.saveSourcePicture"
+                                        :disabled="detectionFormData.saveSourcePicture === undefined"
+                                        :label="Translate('IDCS_SMART_SAVE_SOURCE_PIC')"
+                                    />
+                                </el-form-item>
+                                <el-form-item>
+                                    <el-checkbox
+                                        v-model="detectionFormData.saveFacePicture"
+                                        :disabled="detectionFormData.saveFacePicture === undefined"
+                                        :label="Translate('IDCS_SMART_SAVE_TARGET_PIC')"
+                                    />
+                                </el-form-item>
+                                <div class="base-btn-box">
+                                    <el-button @click="pageData.isAdvance = false">{{ Translate('IDCS_CLOSE') }}</el-button>
+                                </div>
+                            </el-form>
                         </div>
                     </el-popover>
                 </div>
                 <div class="base-btn-box fixed">
                     <el-button
-                        :disabled="detectionPageData.applyDisabled"
+                        :disabled="watchDetection.disabled.value"
                         @click="applyFaceDetectionData"
-                        >{{ Translate('IDCS_APPLY') }}</el-button
                     >
+                        {{ Translate('IDCS_APPLY') }}
+                    </el-button>
                 </div>
             </div>
         </el-tab-pane>
         <!-- 识别 -->
         <el-tab-pane
-            v-if="pageData.isFaceCompareShow"
+            v-if="pageData.isRecognitionShow"
             :label="Translate('IDCS_RECOGNITION')"
             name="faceCompare"
-            :disabled="pageData.faceCompareDisabled"
+            :disabled="pageData.recognitionDisabled"
         >
-            <div>
-                <div
-                    class="base-btn-box collapse"
-                    :span="2"
-                >
+            <div v-if="!pageData.notSupport">
+                <div class="base-btn-box space-between collapse padding">
                     <div>
-                        <el-text :style="{ margin: '0 20px' }">{{ Translate('IDCS_ENABLE') }}</el-text>
+                        <el-text class="checkbox-label">{{ Translate('IDCS_ENABLE') }}</el-text>
                         <el-checkbox
                             v-model="faceMatchData.hitEnable"
-                            @change="getAIResourceData(true)"
-                            >{{ Translate('IDCS_SUCCESSFUL_RECOGNITION') }}</el-checkbox
-                        >
+                            :label="Translate('IDCS_SUCCESSFUL_RECOGNITION')"
+                        />
                         <el-checkbox
                             v-model="faceMatchData.notHitEnable"
-                            @change="getAIResourceData(true)"
-                            >{{ Translate('IDCS_GROUP_STRANGER') }}</el-checkbox
-                        >
-                    </div>
-                    <div v-show="showAIReourceDetail">
-                        <span>{{ `${Translate('IDCS_USAGE_RATE') + pageData.resourceOccupancy}` }}</span>
-                        <BaseImgSprite
-                            class="detailBtn"
-                            file="detail"
-                            :index="0"
-                            :chunk="4"
-                            @click="openAIResourcePop"
+                            :label="Translate('IDCS_GROUP_STRANGER')"
                         />
                     </div>
+                    <AlarmBaseResourceData
+                        v-if="showAIReourceDetail"
+                        :enable="faceMatchData.hitEnable || faceMatchData.notHitEnable"
+                        :chl-id="pageData.curChl"
+                        event="faceMatch"
+                        @error="handleAIResourceError"
+                        @change="handleAIResourceDel"
+                    />
                 </div>
-                <div>
+                <div class="base-ai-form">
                     <el-tabs
-                        v-model="comparePageData.compareTab"
+                        v-model="recognitionPageData.tab"
                         class="base-ai-tabs"
-                        @tab-change="compareTabChange"
                     >
                         <el-tab-pane
                             :label="Translate('IDCS_PARAM_SETTING')"
@@ -452,91 +293,95 @@
                         >
                             <div class="table-box">
                                 <el-table
-                                    stripe
-                                    border
-                                    :data="faceGroupTable"
-                                    height="300px"
+                                    v-title
+                                    :data="faceMatchData.groupInfo"
+                                    height="300"
                                     highlight-current-row
                                 >
                                     <el-table-column
                                         prop="name"
                                         :label="Translate('IDCS_FACE_LIBRARY_GROUP')"
-                                    ></el-table-column>
+                                        show-overflow-tooltip
+                                    >
+                                        <template #default="{ row }: TableColumn<AlarmFaceGroupDto>">
+                                            <span>{{ row.name }} ({{ row.count }})</span>
+                                        </template>
+                                    </el-table-column>
                                     <el-table-column>
                                         <template #header>
-                                            <el-dropdown
+                                            <el-popover
                                                 ref="similarityRef"
-                                                trigger="click"
                                                 :hide-on-click="false"
-                                                placement="bottom-start"
+                                                width="300"
                                             >
-                                                <BaseTableDropdownLink> {{ Translate('IDCS_SIMILARITY') }}(%) </BaseTableDropdownLink>
-                                                <template #dropdown>
-                                                    <div class="dropdownBox">
-                                                        <el-form
-                                                            class="stripe narrow"
-                                                            :style="{
-                                                                '--form-input-width': '100px',
-                                                            }"
-                                                            label-position="left"
-                                                            label-width="100px"
-                                                            inline-message
-                                                        >
-                                                            <el-form-item :label="Translate('IDCS_SIMILARITY')">
-                                                                <el-input
-                                                                    v-model="comparePageData.similarityNumber"
-                                                                    type="number"
-                                                                    @blur="similarityInputBlur($event)"
-                                                                ></el-input>
-                                                                <span>%</span>
-                                                            </el-form-item>
-                                                        </el-form>
-                                                        <div class="base-btn-box">
-                                                            <el-button @click="similarityChangeAll">{{ Translate('IDCS_OK') }}</el-button>
-                                                            <el-button @click="similarityRef.handleClose()">{{ Translate('IDCS_CANCEL') }}</el-button>
-                                                        </div>
-                                                    </div>
+                                                <template #reference>
+                                                    <BaseTableDropdownLink> {{ Translate('IDCS_SIMILARITY') }}(%) </BaseTableDropdownLink>
                                                 </template>
-                                            </el-dropdown>
+                                                <el-form
+                                                    v-title
+                                                    class="no-padding"
+                                                    :style="{
+                                                        '--form-label-width': '100px',
+                                                    }"
+                                                >
+                                                    <el-form-item :label="Translate('IDCS_SIMILARITY')">
+                                                        <BaseNumberInput
+                                                            v-model="recognitionPageData.similarity"
+                                                            :min="1"
+                                                            :max="100"
+                                                        />
+                                                        <span>%</span>
+                                                    </el-form-item>
+                                                </el-form>
+                                                <div class="base-btn-box">
+                                                    <el-button @click="changeAllSimilarity">{{ Translate('IDCS_OK') }}</el-button>
+                                                    <el-button @click="recognitionPageData.isSimilarityPop = false">{{ Translate('IDCS_CANCEL') }}</el-button>
+                                                </div>
+                                            </el-popover>
                                         </template>
-                                        <template #default="scope">
-                                            <el-input
-                                                v-model="scope.row.similarity"
-                                                type="number"
-                                                @blur="similarityInputBlur($event, scope.$index)"
-                                                @keyup.enter="enterBlur($event)"
-                                            ></el-input>
+                                        <template #default="{ row }: TableColumn<AlarmFaceGroupDto>">
+                                            <BaseNumberInput
+                                                v-model="row.similarity"
+                                                :min="1"
+                                                :max="100"
+                                                @keyup.enter="blurInput"
+                                            />
                                         </template>
                                     </el-table-column>
                                 </el-table>
-                                <div>{{ Translate('IDCS_FACE_MATCH_PARAM_TIP') }}</div>
-                                <el-checkbox v-model="faceMatchData.liveDisplaySwitch">{{ Translate('IDCS_NO_REALTIME_DISPLAY') }}</el-checkbox>
+                                <el-form class="no-padding">
+                                    <el-form-item>{{ Translate('IDCS_FACE_MATCH_PARAM_TIP') }}</el-form-item>
+                                    <el-form-item>
+                                        <el-checkbox
+                                            v-model="faceMatchData.liveDisplaySwitch"
+                                            :label="Translate('IDCS_NO_REALTIME_DISPLAY')"
+                                        />
+                                    </el-form-item>
+                                </el-form>
                             </div>
                         </el-tab-pane>
                         <el-tab-pane
-                            v-for="item in taskTabs"
+                            v-for="(item, index) in taskTabs"
                             :key="item.value"
                             :label="item.label"
                             :name="item.value"
                         >
                             <template #default>
-                                <SuccessfulRecognition
-                                    :curr-task-data="compareLinkData(item.value)"
+                                <RecognitionPanel
+                                    :curr-task-data="recognitionFormData.task[index]"
                                     :group-data="faceGroupData"
                                     :schedule-list="pageData.scheduleList"
                                     :voice-list="pageData.voiceList"
-                                    :record-list="pageData.recordList"
-                                    :alarm-out-list="pageData.alarmOutList"
-                                    :snap-list="pageData.snapList"
-                                ></SuccessfulRecognition>
+                                    @change="recognitionFormData.task[index] = $event"
+                                />
                             </template>
                         </el-tab-pane>
                     </el-tabs>
                     <!-- 增加/删除任务 -->
-                    <div class="taskBtn">
+                    <div class="base-ai-task-btn">
                         <span @click="addTask">+</span>
                         <span
-                            :class="{ removeDisabled: comparePageData.removeDisabled }"
+                            :class="{ disabled: ['param', 'miss', 'hit'].includes(recognitionPageData.tab) }"
                             @click="removeTask"
                             >-</span
                         >
@@ -544,21 +389,22 @@
                 </div>
                 <div class="base-btn-box fixed">
                     <el-button
-                        :disabled="comparePageData.applyDisabled"
-                        @click="applyFaceCompareData"
-                        >{{ Translate('IDCS_APPLY') }}</el-button
+                        :disabled="watchRecognition.disabled.value && watchMatch.disabled.value"
+                        @click="applyRecognitionData"
                     >
+                        {{ Translate('IDCS_APPLY') }}
+                    </el-button>
                 </div>
             </div>
         </el-tab-pane>
-        <!-- 人脸库跳转 -->
+        <!-- 人脸库跳转 NLYH-64：非AI模式下，不支持人脸比对，可根据是否支持人脸比对supportFaceMatch来隐藏人脸识别和人脸库  -->
         <el-tab-pane
-            v-if="pageData.isFaceLibraryShow"
+            v-if="pageData.isLibraryShow"
             name="faceLibrary"
-            :disabled="pageData.faceLibraryDisabled || !supportFaceMatch"
+            :disabled="pageData.libraryDisabled || !supportFaceMatch"
         >
             <template #label>
-                <span :title="Translate('IDCS_FEATURE_LIBRARY')">{{ Translate('IDCS_FEATURE_LIBRARY') }}</span>
+                <span>{{ Translate('IDCS_FEATURE_LIBRARY') }}</span>
                 <BaseImgSprite
                     class="link-icon"
                     file="jumpto"
@@ -566,173 +412,21 @@
             </template>
         </el-tab-pane>
     </el-tabs>
-    <div
-        v-if="pageData.notChlSupport"
-        class="base-ai-not-support-box"
-    >
-        {{ pageData.notSupportTip }}
-    </div>
-    <BaseNotification v-model:notifications="pageData.notification" />
-    <!-- AI资源的弹窗 -->
-    <el-dialog
-        v-model="AIResourcePopOpen"
-        :title="Translate('IDCS_DETAIL')"
-        width="600"
-        hight="400"
-        align-center
-        draggable
-        @open="openAIResourcePop"
-        @close="AIResourcePopOpen = false"
-    >
-        <el-table
-            :data="AIResourceTableData"
-            stripe
-            border
-            height="250px"
-            highlight-current-row
-            show-overflow-tooltip
-        >
-            <el-table-column
-                prop="name"
-                :label="Translate('IDCS_CHANNEL')"
-                width="110"
-            ></el-table-column>
-            <el-table-column
-                prop="eventTypeText"
-                :label="Translate('IDCS_EVENT_TYPE')"
-                width="110"
-            ></el-table-column>
-            <el-table-column
-                prop="percent"
-                :label="Translate('IDCS_USAGE_RATE')"
-                width="110"
-            >
-                <template #default="scope">
-                    <span>{{ scope.row.percent }}%</span>
-                </template>
-            </el-table-column>
-            <el-table-column
-                prop="decodeResourceText"
-                :label="Translate('IDCS_DECODE_RESOURCE')"
-                width="110"
-            >
-            </el-table-column>
-            <el-table-column
-                prop="del"
-                :label="Translate('IDCS_FREE_AI_RESOURCE')"
-                width="118"
-            >
-                <template #default="scope">
-                    <BaseImgSprite
-                        file="del"
-                        :chunk="4"
-                        :index="0"
-                        :hover-index="1"
-                        :active-index="1"
-                        @click="handleDelAIResource(scope.row)"
-                    />
-                </template>
-            </el-table-column>
-        </el-table>
-        <div class="base-btn-box">
-            <el-button
-                small
-                @click="AIResourcePopOpen = false"
-                >{{ Translate('IDCS_CLOSE') }}</el-button
-            >
-        </div>
-    </el-dialog>
     <!-- 排程管理弹窗 -->
-    <ScheduleManagPop
-        v-model="pageData.scheduleManagPopOpen"
-        @close="
-            () => {
-                pageData.scheduleManagPopOpen = false
-            }
-        "
+    <BaseScheduleManagePop
+        v-model="pageData.isSchedulePop"
+        @close="closeSchedulePop"
     />
-    <BaseTransferDialog
-        v-model="pageData.recordIsShow"
-        header-title="IDCS_TRIGGER_CHANNEL_RECORD"
-        source-title="IDCS_CHANNEL"
-        target-title="IDCS_CHANNEL_TRGGER"
-        :source-data="pageData.recordList"
-        :linked-list="faceDetectionData.record?.map((item) => item.value) || []"
-        type="record"
-        @confirm="recordConfirm"
-        @close="recordClose"
-    >
-    </BaseTransferDialog>
-    <BaseTransferDialog
-        v-model="pageData.alarmOutIsShow"
-        header-title="IDCS_TRIGGER_ALARM_OUT"
-        source-title="IDCS_ALARM_OUT"
-        target-title="IDCS_TRIGGER_ALARM_OUT"
-        :source-data="pageData.alarmOutList"
-        :linked-list="faceDetectionData.alarmOut?.map((item) => item.value) || []"
-        type="alarmOut"
-        @confirm="alarmOutConfirm"
-        @close="alarmOutClose"
-    >
-    </BaseTransferDialog>
 </template>
 
 <script lang="ts" src="./FaceRecognition.v.ts"></script>
 
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
-</style>
-
 <style lang="scss" scoped>
+.checkbox-label {
+    margin-right: 20px;
+}
+
 .table-box {
     width: 500px;
-}
-:deep(.el-form-item__label) {
-    display: inline-block;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-// 高级设置
-.more_wrap {
-    position: absolute;
-    right: 20px;
-    top: 45px;
-    cursor: pointer;
-}
-
-.advanced_box {
-    background-color: var(--ai-advance-bg);
-    padding: 10px;
-
-    .el-checkbox {
-        display: block;
-    }
-}
-
-.param-right-form-item {
-    .el-form-item {
-        margin-bottom: 0;
-        padding: 5px 15px;
-    }
-}
-.taskBtn {
-    position: absolute;
-    right: 20px;
-    top: 35px;
-    span {
-        font-size: 30px;
-        padding: 0 5px;
-        cursor: pointer;
-    }
-    .removeDisabled {
-        color: var(--main-text-light);
-    }
-}
-
-.dropdownBox {
-    width: 300px;
-    height: 100px;
-    padding: 10px;
 }
 </style>

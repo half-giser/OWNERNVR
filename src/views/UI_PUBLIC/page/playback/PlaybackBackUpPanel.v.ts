@@ -2,10 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-06 20:36:12
  * @Description: 回放-备份任务列表
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-10 17:51:32
  */
-import { type PlaybackBackUpTaskList } from '@/types/apiType/playback'
 import dayjs from 'dayjs'
 
 export default defineComponent({
@@ -24,19 +21,21 @@ export default defineComponent({
             return typeof bool === 'boolean'
         },
     },
-    setup(prop) {
-        const Plugin = inject('Plugin') as PluginType
+    setup(prop, ctx) {
+        const plugin = usePlugin()
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const dateTime = useDateTimeStore()
 
         // 任务列表刷新间隔3秒
         const REFRESH_IMTERVAL = 3000
         // 任务列表刷新定时器
-        let timer: NodeJS.Timeout | number = 0
+        const timer = useRefreshTimer(() => {
+            getRecBackUpTaskList()
+        }, REFRESH_IMTERVAL)
 
         // 本地任务列表（OCX）
         const localTableData = computed(() => {
-            return Plugin.BackUpTask.localTableData.value
+            return plugin.BackUpTask.localTableData.value
         })
         // 远程任务列表
         const remoteTableData = ref<PlaybackBackUpTaskList[]>([])
@@ -58,7 +57,14 @@ export default defineComponent({
         const editRecBackUpTask = async (taskIdList: string[], action: 'pause' | 'resume' | 'delete') => {
             const sendXml = rawXml`
                 <content>
-                    ${taskIdList.map((id) => `<item id="${id}">${action}</item>`).join('')}
+                    ${taskIdList
+                        .map((id) => {
+                            return rawXml`
+                                <item id="${id}">
+                                    <action>${action}</action>
+                                </item>`
+                        })
+                        .join('')}
                 </content>
             `
             await ctrlRecBackupTask(sendXml)
@@ -81,13 +87,13 @@ export default defineComponent({
          * @description 获取任务列表
          */
         const getRecBackUpTaskList = async () => {
-            clearTimeout(timer)
+            timer.stop()
 
             const result = await queryRecBackupTaskList()
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
-                remoteTableData.value = $('//content/item').map((item) => {
+            if ($('status').text() === 'success') {
+                remoteTableData.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     const startTime = $item('startTime').text()
                     const endTime = $item('endTime').text()
@@ -95,32 +101,32 @@ export default defineComponent({
                     const dataSize = $item('dataSize').text()
 
                     return {
-                        taskId: item.attr('id')!,
-                        startEndTime: startTime + '~' + endTime,
+                        taskId: item.attr('id'),
+                        startEndTime: formatDate(startTime, dateTime.dateTimeFormat) + '~' + formatDate(endTime, dateTime.dateTimeFormat),
                         duration,
                         chlName: $item('chls/item').text(),
                         destination: 'remote', // Translate('IDCS_REMOTE'),
                         backupFileFormat: $item('backupFileFormat').text(),
-                        backupPath: $('backupPath').text(),
-                        creator: $('creator').text(),
+                        backupPath: $item('backupPath').text(),
+                        creator: $item('creator').text(),
                         dataSize: dataSize ? dataSize + 'MB' : '--',
-                        eventType: $('eventType').text(),
-                        progress: $('progress').text(),
-                        status: $('status').text(),
+                        eventType: $item('eventType').text(),
+                        progress: $item('progress').text(),
+                        status: $item('status').text(),
                         chlIndex: 0,
                         startTime: '',
                         endTime: '',
                         startTimeEx: '',
                         endTimeEx: '',
-                        chlId: $item('chls/item').attr('id')!,
+                        chlId: $item('chls/item').attr('id'),
                         streamType: 0,
                         groupby: '',
+                        disabled: false,
+                        statusTip: '',
                     }
                 })
                 if (remoteTableData.value.length) {
-                    timer = setTimeout(() => {
-                        getRecBackUpTaskList()
-                    }, REFRESH_IMTERVAL)
+                    timer.repeat()
                 }
             }
         }
@@ -133,7 +139,7 @@ export default defineComponent({
             if (row.destination === 'remote') {
                 editRecBackUpTask([row.taskId], 'pause')
             } else {
-                Plugin.BackUpTask.pauseTask(row)
+                plugin.BackUpTask.pauseTask(row)
             }
         }
 
@@ -145,7 +151,7 @@ export default defineComponent({
             if (row.destination === 'remote') {
                 editRecBackUpTask([row.taskId], 'resume')
             } else {
-                Plugin.BackUpTask.resumeTask(row)
+                plugin.BackUpTask.resumeTask(row)
             }
         }
 
@@ -154,14 +160,14 @@ export default defineComponent({
          * @param {Object} row
          */
         const deleteTask = (row: PlaybackBackUpTaskList) => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_ARCHIVE_S'),
             }).then(() => {
                 if (row.destination === 'remote') {
                     editRecBackUpTask([row.taskId], 'delete')
                 } else {
-                    Plugin.BackUpTask.deleteTask(row)
+                    plugin.BackUpTask.deleteTask(row)
                 }
             })
         }
@@ -170,56 +176,63 @@ export default defineComponent({
          * @description 删除所有任务
          */
         const deleteAllTask = () => {
-            openMessageTipBox({
-                type: 'question',
-                message: Translate('IDCS_DELETE_ALL_ARCHIVE'),
-            }).then(() => {
-                editRecBackUpTask(
-                    remoteTableData.value.map((item) => item.taskId),
-                    'delete',
-                )
-                Plugin.BackUpTask.deleteAllTask()
-            })
+            setTimeout(() => {
+                ctx.emit('update:visible', true)
+                setTimeout(() => {
+                    openMessageBox({
+                        type: 'question',
+                        message: Translate('IDCS_DELETE_ALL_ARCHIVE'),
+                    }).then(() => {
+                        editRecBackUpTask(
+                            remoteTableData.value.map((item) => item.taskId),
+                            'delete',
+                        )
+                        plugin.BackUpTask.deleteAllTask()
+                    })
+                }, 10)
+            }, 0)
         }
 
         /**
          * @description 暂停所有任务
          */
         const pauseAllTask = () => {
+            setTimeout(() => {
+                ctx.emit('update:visible', true)
+            }, 0)
             editRecBackUpTask(
                 remoteTableData.value.map((item) => item.taskId),
                 'pause',
             )
-            Plugin.BackUpTask.pauseAllTask()
+            plugin.BackUpTask.pauseAllTask()
         }
 
         /**
          * @description 恢复所有任务
          */
         const resumeAllTask = () => {
+            setTimeout(() => {
+                ctx.emit('update:visible', true)
+            }, 0)
             editRecBackUpTask(
                 remoteTableData.value.map((item) => item.taskId),
                 'resume',
             )
 
-            Plugin.BackUpTask.resumeAllTask()
+            plugin.BackUpTask.resumeAllTask()
         }
 
         watch(
             () => prop.visible,
             (newVal) => {
                 if (newVal) {
-                    getRecBackUpTaskList()
+                    timer.repeat(true)
                 } else {
-                    clearTimeout(timer)
+                    timer.stop()
                 }
                 pageData.value.visible = prop.visible
             },
         )
-
-        onBeforeUnmount(() => {
-            clearTimeout(timer)
-        })
 
         return {
             pageData,

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-30 14:08:41
  * @Description: 回放-事件类型视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-27 17:20:54
 -->
 <template>
     <fieldset>
@@ -16,33 +14,22 @@
                 class="item"
                 @click="changeEvent(item.value)"
             >
-                <el-tooltip
-                    :content="item.name"
-                    :show-after="500"
-                >
-                    <BaseImgSprite
-                        :file="pageData.eventList.includes(item.value) ? item.checked : item.unchecked"
-                        :index="0"
-                        :chunk="4"
-                    />
-                </el-tooltip>
+                <BaseImgSprite
+                    :file="pageData.eventList.includes(item.value) ? item.checked : item.unchecked"
+                    :title="item.name"
+                    :chunk="4"
+                />
             </div>
-
             <el-popover
                 v-model:visible="pageData.isEventPop"
                 placement="right"
                 width="440"
-                trigger="click"
                 popper-class="no-padding"
-                :hide-after="0"
-                :show-after="0"
             >
                 <template #reference>
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         v-show="pageData.isEventPopBtn"
                         file="event_type_menu"
-                        :chunk="4"
-                        :hover-index="1"
                         class="btn"
                     />
                 </template>
@@ -52,7 +39,9 @@
                         <div
                             v-for="(item, index) in pageData.events"
                             :key="index"
-                            :class="{ active: index === pageData.activeEventIndex }"
+                            :class="{
+                                active: index === pageData.activeEventIndex,
+                            }"
                             @click="pageData.activeEventIndex = index"
                         >
                             <div
@@ -74,26 +63,30 @@
                             {{ tip }}
                         </p>
                     </div>
-                    <el-row>
-                        <el-col
-                            :span="24"
-                            class="el-col-flex-end"
+                    <div class="base-btn-box">
+                        <el-button
+                            class="event-btn"
+                            @click="changeEventList"
                         >
-                            <el-button
-                                class="event-btn"
-                                @click="changeEventList"
-                                >{{ Translate('IDCS_OK') }}</el-button
-                            >
-                            <el-button
-                                class="event-btn"
-                                @click="closeEventPop"
-                                >{{ Translate('IDCS_CLOSE') }}</el-button
-                            >
-                        </el-col>
-                    </el-row>
+                            {{ Translate('IDCS_OK') }}
+                        </el-button>
+                        <el-button
+                            class="event-btn"
+                            @click="closeEventPop"
+                        >
+                            {{ Translate('IDCS_CLOSE') }}
+                        </el-button>
+                    </div>
                 </div>
             </el-popover>
         </div>
+        <el-input
+            v-show="pageData.isPosInput"
+            v-model="pageData.posKeyword"
+            :disabled="!pageData.eventList.includes('POS')"
+            :placeholder="Translate('IDCS_POS_KEY')"
+            class="pos"
+        />
     </fieldset>
 </template>
 
@@ -103,13 +96,14 @@
 fieldset {
     flex-shrink: 0;
     border: 1px solid var(--input-border);
-    margin: 15px 15px;
+    margin: 15px;
+    padding-bottom: 15px;
 }
 
 .list {
     display: flex;
     justify-content: center;
-    padding: 5px 10px 0 0;
+    padding: 5px 10px 5px 0;
     position: relative;
 }
 
@@ -117,10 +111,13 @@ fieldset {
     margin: 0 5px;
 }
 
+.pos {
+    margin-top: 10px;
+}
+
 .btn {
     position: absolute;
     right: -5px;
-    cursor: pointer;
 }
 
 .event {
@@ -139,7 +136,7 @@ fieldset {
     &-list {
         & > div {
             display: flex;
-            padding: 10px 10px;
+            padding: 10px;
             cursor: pointer;
 
             &:hover {

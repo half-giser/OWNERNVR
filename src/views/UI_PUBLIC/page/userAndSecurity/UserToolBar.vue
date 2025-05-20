@@ -2,31 +2,35 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-05-07 19:40:23
  * @Description: 用户板块右上方工具栏
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 13:37:20
 -->
 <template>
     <el-input
         v-model="msg"
-        size="small"
-        class="toolBarText"
+        class="base-toolbar-input"
         :placeholder="Translate('IDCS_SEARCH_USER')"
-    ></el-input>
+    />
     <BaseImgSprite
         file="toolbar_search"
-        class="toolBarBtn"
+        class="base-toolbar-btn"
+        :title="Translate('IDCS_SEARCH_USER')"
         @click="search"
     />
     <BaseImgSprite
         file="toolbar_add"
-        class="toolBarBtn"
+        class="base-toolbar-btn"
+        :title="Translate('IDCS_ADD_USER')"
         @click="add"
     />
 </template>
 
 <script lang="ts">
 export default defineComponent({
-    emits: ['toolBarEvent'],
+    emits: {
+        toolBarEvent(data: ConfigToolBarEvent<SearchToolBarEvent>) {
+            return !!data
+        },
+    },
+
     setup(_props, ctx) {
         const msg = ref('')
 
@@ -55,19 +59,3 @@ export default defineComponent({
     },
 })
 </script>
-
-<style lang="scss" scoped>
-.toolBarText {
-    width: 200px;
-    margin-right: 5px;
-}
-
-.toolBarBtn {
-    background-color: var(--btn-bg);
-    margin-left: 5px;
-
-    &:hover {
-        background-color: var(--btn-bg-hover);
-    }
-}
-</style>

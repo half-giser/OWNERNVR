@@ -2,16 +2,15 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-30 11:58:12
  * @Description: 智能分析 - 选择人脸 - 从外部导入
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-12 11:54:31
 -->
 <template>
     <div class="upload">
         <input
             id="upload-import"
+            ref="uploadRef"
             type="file"
             hidden
-            :accept="type === 'both' ? '.csv,.txt,.jpg,.jpeg' : '.jpg,.jpeg'"
+            :accept="type === 'import' ? '.csv,.txt,.jpg,.jpeg' : '.jpg,.jpeg'"
             multiple
             @change="handleH5Import"
         />
@@ -20,15 +19,15 @@
             for="upload-import"
             class="el-button"
         >
-            {{ Translate('IDCS_IMPORT') }}
+            {{ btnName }}
         </label>
         <el-button
             v-show="mode === 'ocx'"
             @click="handleOCXImport"
         >
-            {{ Translate('IDCS_IMPORT') }}
+            {{ btnName }}
         </el-button>
-        <p>{{ Translate('IDCS_OPERATE_SNAPSHOT_MSPB') }} : *.jpg,*.jpeg {{ Translate('IDCS_FEATURE_LIBRARY_PICTRUE_LIMITE') }}</p>
+        <p>{{ tips }}</p>
     </div>
 </template>
 

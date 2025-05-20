@@ -2,20 +2,17 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-02 14:00:27
  * @Description: 车牌库
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-03 14:23:22
 -->
 <template>
     <div class="base-flex-box">
         <div class="base-table-box">
             <el-table
                 ref="tableRef"
+                v-title
                 :data="tableData"
                 :row-key="getRowKey"
                 :expand-row-key="pageData.expandRowKey"
                 highlight-current-row
-                border
-                stripe
                 @row-click="handleRowClick"
                 @expand-change="handleExpandChange"
             >
@@ -24,63 +21,65 @@
                     :width="80"
                     type="index"
                 />
-                <el-table-column :label="Translate('IDCS_GROUP')">
-                    <template #default="scope"> {{ scope.row.name }} ({{ scope.row.plateNum }}) </template>
+                <el-table-column
+                    :label="Translate('IDCS_GROUP')"
+                    show-overflow-tooltip
+                    min-width="300"
+                >
+                    <template #default="{ row }: TableColumn<IntelPlateDBGroupList>"> {{ row.name }} ({{ row.plateNum }}) </template>
                 </el-table-column>
-                <el-table-column />
-                <el-table-column :label="Translate('IDCS_EDIT')">
-                    <template #default="scope">
-                        <BaseImgSprite
-                            file="edit (2)"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click="editGroup(scope.row)"
+                <el-table-column
+                    :label="Translate('IDCS_EDIT')"
+                    width="100"
+                >
+                    <template #default="{ row }: TableColumn<IntelPlateDBGroupList>">
+                        <BaseImgSpriteBtn
+                            file="edit2"
+                            @click="editGroup(row)"
                         />
                     </template>
                 </el-table-column>
-                <el-table-column :label="Translate('IDCS_DELETE')">
-                    <template #default="scope">
-                        <BaseImgSprite
+                <el-table-column
+                    :label="Translate('IDCS_DELETE')"
+                    width="100"
+                >
+                    <template #default="{ row }: TableColumn<IntelPlateDBGroupList>">
+                        <BaseImgSpriteBtn
                             file="del"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click="deleteGroup(scope.row)"
+                            @click="deleteGroup(row)"
                         />
                     </template>
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_EXPAND_OR_COLLAPSE')"
                     type="expand"
-                    :width="200"
+                    width="200"
                 >
-                    <template #default="scope">
+                    <template #default="{ row }: TableColumn<IntelPlateDBGroupList>">
                         <div
-                            v-if="pageData.expandRowKey.includes(scope.row.id)"
+                            v-if="pageData.expandRowKey.includes(row.id)"
                             class="expand"
                         >
-                            <div class="base-btn-box padding form">
+                            <div class="base-btn-box form">
                                 <el-input
                                     v-model="formData.name"
                                     class="search"
                                     :placeholder="Translate('IDCS_SEARCH_TARGET_LICENSE_PLATE')"
                                     @focus="handleNameFocus"
-                                    @blur="searchPlate(scope.row.id)"
-                                    @keydown.enter="searchPlate(scope.row.id)"
+                                    @keyup="bounceSearchPlate(row.id)"
                                 />
-                                <el-button @click="addPlate(scope.row.id)">{{ Translate('IDCS_ADD_LICENSE_PLATE') }}</el-button>
+                                <el-button @click="addPlate(row.id)">{{ Translate('IDCS_ADD_LICENSE_PLATE') }}</el-button>
                             </div>
                             <el-table
+                                v-title
                                 :data="groupTableData"
                                 highlight-current-row
-                                border
-                                stripe
                                 height="300"
+                                @row-click="handleExpandRowClick"
                             >
                                 <el-table-column :label="Translate('IDCS_LICENSE_PLATE_NUM')">
-                                    <template #default="data">
-                                        {{ hideSensitiveInfo(data.row.plateNumber, 'medium') }}
+                                    <template #default="data: TableColumn<IntelPlateDBPlateInfo>">
+                                        {{ displayPlateNumber(data.row) }}
                                     </template>
                                 </el-table-column>
                                 <el-table-column
@@ -88,48 +87,40 @@
                                     prop="vehicleType"
                                 />
                                 <el-table-column :label="Translate('IDCS_VEHICLE_OWNER')">
-                                    <template #default="data">
-                                        {{ hideSensitiveInfo(data.row.owner, 'medium', 'name') }}
+                                    <template #default="data: TableColumn<IntelPlateDBPlateInfo>">
+                                        {{ displayOwner(data.row) }}
                                     </template>
                                 </el-table-column>
                                 <el-table-column :label="Translate('IDCS_PHONE_NUMBER')">
-                                    <template #default="data">
-                                        {{ hideSensitiveInfo(data.row.ownerPhone, 'medium') }}
+                                    <template #default="data: TableColumn<IntelPlateDBPlateInfo>">
+                                        {{ displayPhone(data.row) }}
                                     </template>
                                 </el-table-column>
                                 <el-table-column :label="Translate('IDCS_EDIT')">
-                                    <template #default="data">
-                                        <BaseImgSprite
-                                            file="edit (2)"
-                                            :index="0"
-                                            :hover-index="1"
-                                            :chunk="4"
+                                    <template #default="data: TableColumn<IntelPlateDBPlateInfo>">
+                                        <BaseImgSpriteBtn
+                                            file="edit2"
                                             @click="editPlate(data.row)"
                                         />
                                     </template>
                                 </el-table-column>
                                 <el-table-column :label="Translate('IDCS_DELETE')">
-                                    <template #default="data">
-                                        <BaseImgSprite
+                                    <template #default="data: TableColumn<IntelPlateDBPlateInfo>">
+                                        <BaseImgSpriteBtn
                                             file="del"
-                                            :index="0"
-                                            :hover-index="1"
-                                            :chunk="4"
                                             @click="deletePlate(data.row)"
                                         />
                                     </template>
                                 </el-table-column>
                             </el-table>
-                            <div class="base-btn-box padding">
-                                <el-pagination
+                            <div class="base-pagination-box">
+                                <BasePagination
                                     v-model:current-page="formData.pageIndex"
                                     v-model:page-size="formData.pageSize"
-                                    :page-sizes="pageData.pageSizes"
-                                    :layout="DefaultPagerLayout"
+                                    :page-sizes="[15, 20, 30]"
                                     :total="formData.total"
-                                    size="small"
-                                    @current-change="changePlatePage($event, scope.row.id)"
-                                    @size-change="changePlatePageSize($event, scope.row.id)"
+                                    @current-change="changePlatePage($event, row.id)"
+                                    @size-change="changePlatePageSize($event, row.id)"
                                 />
                             </div>
                         </div>
@@ -137,26 +128,23 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div
-            class="base-btn-box padding"
-            :span="2"
-        >
-            <div>
-                <el-button @click="handleVehicleRecognition">{{ Translate('IDCS_VEHICLE_DETECTION') }}</el-button>
-            </div>
+        <div class="base-btn-box space-between padding">
+            <el-button @click="handleVehicleRecognition">{{ Translate('IDCS_VEHICLE_DETECTION') }}</el-button>
             <div>
                 <el-button
                     :disabled="!tableData.length"
                     @click="addPlate('')"
-                    >{{ Translate('IDCS_ADD_LICENSE_PLATE') }}</el-button
                 >
+                    {{ Translate('IDCS_ADD_LICENSE_PLATE') }}
+                </el-button>
                 <el-button @click="addGroup">{{ Translate('IDCS_ADD_GROUP') }}</el-button>
                 <el-button
                     v-show="!pageData.isExportDisabled"
-                    :disabled="!tableData.length"
+                    :disabled="isExportDisabled"
                     @click="exportGroup"
-                    >{{ Translate('IDCS_EXPORT') }}</el-button
                 >
+                    {{ Translate('IDCS_EXPORT') }}
+                </el-button>
             </div>
         </div>
         <IntelLicencePlateDBExportPop
@@ -170,7 +158,7 @@
             :data="pageData.editData"
             :type="pageData.editType"
             @confirm="confirmEditGroup"
-            @close="pageData.isEditPop = false"
+            @close="confirmEditGroup"
         />
         <IntelLicencePlateDBAddPlatePop
             v-model="pageData.isEditPlatePop"
@@ -189,12 +177,12 @@
     margin-bottom: 10px;
 }
 
+.expand {
+    padding: 0 15px 15px;
+}
+
 .search {
     margin-right: 10px;
     width: 200px;
-}
-
-.el-table :deep(.cell) {
-    width: 100%;
 }
 </style>

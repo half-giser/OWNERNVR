@@ -2,59 +2,25 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-15 18:17:14
  * @Description: 网络码流设置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 17:04:39
  */
-import { type NetSubStreamList, type NetSubStreamResolutionList } from '@/types/apiType/net'
-import { cloneDeep } from 'lodash-es'
-
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
-
-        let cacheTableData: NetSubStreamList[] = []
-
-        // 码流类型与文本的映射
-        const STREAM_TYPE_MAPPING: Record<string, string> = {
-            h264: Translate('IDCS_VIDEO_ENCT_TYPE_H264'),
-            h264s: Translate('IDCS_VIDEO_ENCT_TYPE_H264_SMART'),
-            h264p: Translate('IDCS_VIDEO_ENCT_TYPE_H264_PLUS'),
-            h265: Translate('IDCS_VIDEO_ENCT_TYPE_H265'),
-            h265s: Translate('IDCS_VIDEO_ENCT_TYPE_H265_SMART'),
-            h265p: Translate('IDCS_VIDEO_ENCT_TYPE_H265_PLUS'),
-        }
-
-        // 视频编码类型
-        const VIDEO_ENCODE_TYPE_ARRAY = ['h264s', 'h265s', 'h264p', 'h265p']
-
-        // 图像质量与文本的映射
-        const IMAGE_LEVEL_MAPPING: Record<string, string> = {
-            highest: Translate('IDCS_HIGHEST'),
-            higher: Translate('IDCS_HIGHER'),
-            medium: Translate('IDCS_MEDIUM'),
-            low: Translate('IDCS_LOW'),
-            lower: Translate('IDCS_LOWER'),
-            lowest: Translate('IDCS_LOWEST'),
-        }
 
         // 主码流帧率限制
         const MAIN_STREAM_LIMIT_FPS = 1
-        // const maxFpsMap = {}
 
         const pageData = ref({
             // 支持的音频数量
             audioInNum: -1,
             // 最大码率
             maxQoI: 0,
-            // chlList: [] as NetStreamChlList[],
             // 码率选项
             videoQualityList: [] as SelectOption<number, string>[],
             // 图像质量选项
             levelList: [] as SelectOption<string, string>[],
             // 视频编码类型选项
-            videoEcodeTypeList: [] as string[],
+            videoEcodeTypeList: [] as SelectOption<string, string>[],
             // 码流类型选项
             bitTypeList: [] as string[],
             // 最大帧率
@@ -70,17 +36,12 @@ export default defineComponent({
         })
 
         const tableData = ref<NetSubStreamList[]>([])
-
-        /**
-         * @description 当前通道类型是否禁用
-         * @param {Number} index
-         * @returns {Boolean}
-         */
-        const isChlTypeDisabled = (index: number) => {
-            const item = tableData.value[index]
-            if (item.chlType === 'recorder' || !item.resolution) return true
-            return false
-        }
+        const editRows = useWatchEditRows<NetSubStreamList>()
+        const virtualTableData = computed<number[]>(() => {
+            return Array(tableData.value.length)
+                .fill(1)
+                .map((item, key) => item + key)
+        })
 
         /**
          * @description 显示码流文本
@@ -88,7 +49,7 @@ export default defineComponent({
          * @returns {String}
          */
         const displayStreamType = (key: string) => {
-            return STREAM_TYPE_MAPPING[key]
+            return Translate(DEFAULT_STREAM_TYPE_MAPPING[key])
         }
 
         /**
@@ -97,7 +58,8 @@ export default defineComponent({
          */
         const changeStreamType = (index: number) => {
             const item = tableData.value[index]
-            if (!item.subCaps.supEnct.includes(item.videoEncodeType)) {
+
+            if (!item.subCaps.supEnct.some((find) => find.value === item.videoEncodeType)) {
                 return
             }
             setDefaultVideoQuality(item)
@@ -108,8 +70,8 @@ export default defineComponent({
          * @param {String} key
          */
         const changeAllStreamType = (key: string) => {
-            tableData.value.forEach((item, index) => {
-                if (isChlTypeDisabled(index) || !item.subCaps.supEnct.includes(key)) {
+            tableData.value.forEach(async (item) => {
+                if (item.disabled || !item.subCaps.supEnct.some((find) => find.value === key)) {
                     return
                 }
                 item.videoEncodeType = key
@@ -133,7 +95,7 @@ export default defineComponent({
          * @description 更改分辨率
          * @param {Number} index
          */
-        const changeResolution = (index: number) => {
+        const changeResolution = async (index: number) => {
             const item = tableData.value[index]
             const find = item.subCaps.res.find((res) => res.value === item.resolution)
             if (find) {
@@ -170,6 +132,11 @@ export default defineComponent({
             return []
         }
 
+        const getFpsOptions = (index: number) => {
+            const maxFps = getMaxFps(index)
+            return arrayToOptions(maxFps)
+        }
+
         /**
          * @description 更改所有帧率
          * @param {Number} fps
@@ -188,21 +155,21 @@ export default defineComponent({
             })
         }
 
-        // TODO 分析代码后发现 本页面并没有用到此接口的数据
+        // 分析代码后发现 本页面并没有用到此接口的数据
         // const getChannelList = async () => {
-        //     const result = await getChlList({})
+        //     const result = await getChlList()
         //     commLoadResponseHandler(result, ($) => {
-        //         pageData.value.chlList = $('//content/item').map((item) => {
+        //         pageData.value.chlList = $('content/item').map((item) => {
         //             const $item = queryXml(item.element)
         //             return {
-        //                 id: item.attr('id')!,
+        //                 id: item.attr('id'),
         //                 addType: $item('addType').text(),
         //                 chlType: $item('chlType').text(),
         //                 chlIndex: $item('chlIndex').text(),
         //                 name: $item('name').text(),
         //                 poeIndex: $item('poeIndex').text(),
         //                 productModel: $item('productModel').text(),
-        //                 factoryName: $item('productModel').attr('factoryName')!,
+        //                 factoryName: $item('productModel').attr('factoryName'),
         //             }
         //         })
         //     })
@@ -215,7 +182,7 @@ export default defineComponent({
          */
         const isBitTypeDisabled = (index: number) => {
             const item = tableData.value[index]
-            return isChlTypeDisabled(index) || VIDEO_ENCODE_TYPE_ARRAY.includes(item.videoEncodeType)
+            return item.disabled || DEFAULT_VIDEO_ENCODE_TYPE_ARRAY.includes(item.videoEncodeType)
         }
 
         /**
@@ -246,7 +213,7 @@ export default defineComponent({
          */
         const isLevelDisabled = (index: number) => {
             const item = tableData.value[index]
-            return isChlTypeDisabled(index) || item.bitType === 'CBR' || !item.bitType
+            return item.disabled || item.bitType === 'CBR' || !item.bitType
         }
 
         /**
@@ -254,7 +221,7 @@ export default defineComponent({
          * @returns {Boolean}
          */
         const isAllLevelDisabled = () => {
-            return tableData.value.every((item, index) => isLevelDisabled(index))
+            return tableData.value.every((_item, index) => isLevelDisabled(index))
         }
 
         /**
@@ -275,7 +242,7 @@ export default defineComponent({
          */
         const isVideoQualityDisabled = (index: number) => {
             const item = tableData.value[index]
-            return isChlTypeDisabled(index) || VIDEO_ENCODE_TYPE_ARRAY.includes(item.videoEncodeType)
+            return item.disabled || DEFAULT_VIDEO_ENCODE_TYPE_ARRAY.includes(item.videoEncodeType)
         }
 
         /**
@@ -284,16 +251,70 @@ export default defineComponent({
          */
         const setDefaultVideoQuality = (item: NetSubStreamList) => {
             if (item.bitType === 'CBR') {
-                item.subStreamQualityCaps.forEach((cap) => {
-                    if (item.resolution === cap.res && item.videoEncodeType === cap.enct) {
-                        if (item.chlType === 'digital') {
-                            item.videoQuality = cap.digitalDefault
-                        } else if (item.chlType === 'analog') {
-                            item.videoQuality = cap.analogDefault
-                        }
-                    }
-                })
+                item.videoQuality = getVideoQuality(item)
             }
+        }
+
+        const getVideoQuality = (rowData: NetSubStreamList) => {
+            const videoEncodeType = rowData.videoEncodeType // h264、h265
+            const resolution = rowData.resolution // 2MP
+            const split = resolution.split('x')
+            if (!videoEncodeType || !split || split.length === 0) {
+                return 0
+            }
+
+            const row = Number(split[0])
+            const column = Number(split[1])
+            const isH264 = videoEncodeType.indexOf('h264') > -1
+            const isH265 = videoEncodeType.indexOf('h265') > -1
+            const product = row * column
+
+            let videoQuality = 0
+
+            // D1及以下
+            if (product <= 5e5) {
+                videoQuality = isH264 ? 768 : isH265 ? 512 : 0
+            }
+            // (D1, 720p]
+            else if (product > 5e5 && product <= 1e6) {
+                videoQuality = isH264 ? 1536 : isH265 ? 1024 : 0
+            }
+            // (720p, 2MP]
+            else if (product > 1e6 && product <= 2e6) {
+                videoQuality = isH264 ? 3072 : isH265 ? 2048 : 0
+            }
+            // (2MP, 3MP]
+            else if (product > 2e6 && product <= 3e6) {
+                videoQuality = isH264 ? 4096 : isH265 ? 3072 : 0
+            }
+            // (3MP, 4MP]
+            else if (product > 3e6 && product <= 4e6) {
+                videoQuality = isH264 ? 5120 : isH265 ? 4096 : 0
+            }
+            // (4MP, 6MP]
+            else if (product > 4e6 && product <= 6e6) {
+                videoQuality = isH264 ? 6144 : isH265 ? 5120 : 0
+            }
+            // (6MP, 12MP]
+            else if (product > 6e6 && product <= 12e6) {
+                videoQuality = isH264 ? 8192 : isH265 ? 6144 : 0
+            }
+            // 12MP以上
+            else if (product > 12e6) {
+                videoQuality = isH264 ? 8192 : isH265 ? 8192 : 0
+            }
+
+            if (rowData.qualitys.length > 1) {
+                // 找一个小的最接近的区间值
+                for (let i = rowData.qualitys.length - 1; i >= 0; i--) {
+                    if (videoQuality >= rowData.qualitys[i]) {
+                        videoQuality = rowData.qualitys[i]
+                        break
+                    }
+                }
+            }
+
+            return videoQuality
         }
 
         /**
@@ -327,7 +348,6 @@ export default defineComponent({
             if (bitRange) {
                 return `${bitRange.min}~${bitRange.max}Kbps`
             }
-            return '--'
         }
 
         /**
@@ -361,7 +381,7 @@ export default defineComponent({
                 const res = resolution.split('x')
                 qualityOptions.forEach((item) => {
                     const curRes = item.res.split('x')
-                    if (item.enct === enct && (Number(curRes[0]) < Number(res[0]) || (curRes[0] == res[0] && Number(curRes[1]) < Number(res[1])))) {
+                    if (item.enct === enct && (Number(curRes[0]) < Number(res[0]) || (curRes[0] === res[0] && Number(curRes[1]) < Number(res[1])))) {
                         if (item.value.length) {
                             isQualityCapsEmpty = false
                             item.value.forEach((quality) => {
@@ -400,15 +420,15 @@ export default defineComponent({
          */
         const isGOPDisabled = (index: number) => {
             const item = tableData.value[index]
-            return isChlTypeDisabled(index) || VIDEO_ENCODE_TYPE_ARRAY.includes(item.videoEncodeType)
+            return item.disabled || DEFAULT_VIDEO_ENCODE_TYPE_ARRAY.includes(item.videoEncodeType)
         }
 
         /**
          * @description 更改所有项GOP
          */
         const changeAllGOP = () => {
-            tableData.value.forEach((item, index) => {
-                if (isChlTypeDisabled(index)) {
+            tableData.value.forEach((item) => {
+                if (item.disabled) {
                     return
                 }
                 item.GOP = pageData.value.GOP
@@ -420,6 +440,8 @@ export default defineComponent({
          * @description 获取数据列表
          */
         const getData = async () => {
+            editRows.clear()
+
             const sendXml = rawXml`
                 <requireField>
                     <name/>
@@ -433,18 +455,20 @@ export default defineComponent({
             const result = await queryNetworkNodeEncodeInfo(sendXml)
             commLoadResponseHandler(result, ($) => {
                 const resolutionMap: Record<string, NetSubStreamResolutionList> = {}
+                const videoQualityList = new Set<number>()
 
-                tableData.value = $('//content/item').map((item, index) => {
+                tableData.value = $('content/item').map((item, index) => {
                     const $item = queryXml(item.element)
 
-                    const chlId = item.attr('id')!
+                    const chlId = item.attr('id')
                     const chlName = $item('name').text()
 
-                    let frameRate = Number($item('sub').attr('fps')!)
+                    let frameRate = $item('sub').attr('fps').num()
                     const res = $item('subCaps/res')
                         .map((res) => ({
-                            fps: Number(res.attr('fps')!),
+                            fps: res.attr('fps').num(),
                             value: res.text(),
+                            label: res.text(),
                         }))
                         .toSorted((a, b) => {
                             const na = Number(a.value.split('x')[0])
@@ -474,88 +498,108 @@ export default defineComponent({
                         }
                     }
 
-                    if (index === 0) {
-                        const levelList = $item('levelNote').text()
-                        if (levelList) {
-                            pageData.value.levelList = levelList
-                                .split(',')
-                                .reverse()
-                                .map((element) => {
-                                    return {
-                                        value: element,
-                                        label: IMAGE_LEVEL_MAPPING[element],
-                                    }
-                                })
-                        }
+                    if (!pageData.value.levelList.length) {
+                        pageData.value.levelList = $item('levelNote')
+                            .text()
+                            .array()
+                            .reverse()
+                            .map((element) => {
+                                return {
+                                    value: element,
+                                    label: Translate(DEFAULT_IMAGE_LEVEL_MAPPING[element]),
+                                }
+                            })
                     }
 
-                    const supEnct = $item('subCaps').length && $item('subCaps').attr('supEnct') ? $item('subCaps').attr('supEnct').split(',').sort() : []
+                    const supEnct = $item('subCaps')
+                        .attr('supEnct')
+                        .array()
+                        .sort()
+                        .map((item) => {
+                            return {
+                                value: item,
+                                label: Translate(DEFAULT_STREAM_TYPE_MAPPING[item]),
+                            }
+                        })
+
                     pageData.value.videoEcodeTypeList.push(...supEnct)
 
-                    const bitTypeList = $item('subCaps').length && $item('subCaps').attr('bitType') ? $item('subCaps').attr('bitType').split(',') : []
+                    const bitTypeList = $item('subCaps').attr('bitType').array()
                     pageData.value.bitTypeList.push(...bitTypeList)
 
-                    const level = $item('sub').attr('level')!
+                    const level = $item('sub').attr('level')
+                    const bitType = $item('sub').attr('bitType')
 
-                    const bitType = $item('sub').attr('bitType')!
-                    const resolution = $item('sub').attr('res')!
-                    const videoEncodeType = $item('sub').attr('enct')!
+                    let resolution = $item('sub').attr('res')
+                    if (!res.some((item) => item.value === resolution)) {
+                        resolution = res[0]?.value || resolution
+                    }
+
+                    let videoEncodeType = $item('sub').attr('enct')
+                    if (!supEnct.some((item) => item.value === videoEncodeType)) {
+                        videoEncodeType = supEnct[0]?.value || videoEncodeType
+                    }
+
+                    const chlType = $item('chlType').text()
 
                     return {
                         id: chlId,
                         name: chlName,
-                        chlType: $item('chlType').text(),
+                        chlType,
                         subCaps: {
                             supEnct,
                             bitType: bitTypeList,
                             res: res,
                         },
                         subStreamQualityCaps: $item('subStreamQualityCaps/item').map((caps) => {
-                            const enct = caps.attr('enct')!
-                            const res = caps.attr('res')!
-                            const value = caps.text() ? caps.text().split(',').toReversed() : []
-                            if (enct === 'h264' && res === '0x0' && !pageData.value.videoQualityList.length) {
-                                pageData.value.videoQualityList = value
-                                    .map((quality) => {
-                                        return {
-                                            label: quality + 'Kbps',
-                                            value: Number(quality),
-                                        }
-                                    })
-                                    .sort((a, b) => a.value - b.value)
-                            }
+                            const enct = caps.attr('enct')
+                            const res = caps.attr('res')
+                            const value = caps.text().array().toReversed()
+                            value.forEach((quality) => {
+                                videoQualityList.add(Number(quality))
+                            })
 
                             return {
                                 enct,
                                 res,
-                                digitalDefault: Number(caps.attr('digitalDefault')!),
-                                analogDefault: Number(caps.attr('analogDefault')!),
+                                digitalDefault: caps.attr('digitalDefault').num(),
+                                analogDefault: caps.attr('analogDefault').num(),
                                 value,
                             }
                         }),
                         videoEncodeType,
                         streamType: 'sub',
-                        GOP: Number($item('sub').attr('GOP')!),
+                        GOP: $item('sub').attr('GOP').num(),
                         resolution,
                         frameRate,
                         bitType,
                         level,
-                        videoQuality: Number($item('sub').attr('QoI')!),
+                        videoQuality: $item('sub').attr('QoI').num(),
+                        disabled: chlType === 'recorder' || !resolution || $item('sub').attr('OnlyRead').bool(),
+                        status: '',
+                        statusTip: '',
                     }
                 })
 
-                pageData.value.maxQoI = Math.max.apply(
-                    [],
-                    pageData.value.videoQualityList.map((item) => item.value),
-                )
+                tableData.value.forEach((item) => {
+                    if (!item.disabled) {
+                        editRows.listen(item)
+                    }
+                })
+
+                pageData.value.maxQoI = Math.max.apply([], Array.from(videoQualityList))
                 pageData.value.videoEcodeTypeList = Array.from(new Set(pageData.value.videoEcodeTypeList)).toSorted()
                 pageData.value.bitTypeList = Array.from(new Set(pageData.value.bitTypeList))
+                pageData.value.videoQualityList = Array.from(videoQualityList).map((quality) => {
+                    return {
+                        label: quality + 'Kbps',
+                        value: quality,
+                    }
+                })
 
                 pageData.value.maxFps = Math.max(MAIN_STREAM_LIMIT_FPS, Math.max.apply([], tableData.value.map((item) => item.subCaps.res.map((item) => item.fps)).flat()))
 
                 pageData.value.resolutionList = Object.values(resolutionMap)
-
-                cacheTableData = cloneDeep(tableData.value)
             })
         }
 
@@ -563,87 +607,65 @@ export default defineComponent({
          * @description 更改修改行的数据
          */
         const setData = async () => {
-            const edits: NetSubStreamList[] = []
-            tableData.value.forEach((item, index) => {
-                if (isChlTypeDisabled(index)) {
-                    return
-                }
-                const params = ['videoEncodeType', 'streamType', 'GOP', 'resolution', 'frameRate', 'bitType', 'level', 'videoQuality']
-                params.some((param) => {
-                    if (item[param] !== cacheTableData[index][param]) {
-                        edits.push(item)
-                        return true
-                    }
-                    return false
-                })
-            })
-
-            if (!edits.length) {
-                openMessageTipBox({
-                    type: 'success',
-                    message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                })
-                return
-            }
-
             openLoading()
 
-            const itemXml = edits
-                .map((item) => {
-                    const res = item.resolution
-                    const fps = item.frameRate.toString()
-                    const qoi = item.videoQuality ? item.videoQuality.toString() : ''
-                    const bittype = item.bitType || 'CBR'
-                    const level = item.level
-                    const enct = item.videoEncodeType
-                    const gop = item.GOP ? item.GOP.toString() : (item.frameRate * 4).toString()
-                    return rawXml`
-                        <item id="${item.id}">
-                            <sub res="${res}" fps="${fps}" QoI="${qoi}" bitType="${bittype}" level="${level}" enct="${enct}" GOP="${gop}" />
-                        </item>
-                    `
-                })
-                .join('')
-
-            const sendXml = `<content>${itemXml}</content>`
+            const sendXml = rawXml`
+                <content>
+                    ${editRows
+                        .toArray()
+                        .map((item) => {
+                            const res = item.resolution
+                            const fps = item.frameRate
+                            const qoi = item.videoQuality ? item.videoQuality : ''
+                            const bittype = item.bitType || 'CBR'
+                            const level = item.level
+                            const enct = item.videoEncodeType
+                            const gop = item.GOP ? item.GOP : item.frameRate * 4
+                            return rawXml`
+                                <item id="${item.id}">
+                                    <sub res="${res}" fps="${fps}" QoI="${qoi}" bitType="${bittype}" level="${level}" enct="${enct}" GOP="${gop}" />
+                                </item>
+                            `
+                        })
+                        .join('')}
+                </content>
+            `
             const result = await editNetworkNodeEncodeInfo(sendXml)
             const $ = queryXml(result)
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                openMessageTipBox({
+            if ($('status').text() === 'success') {
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
-                cacheTableData = cloneDeep(tableData.value)
-            } else {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_NOT_SUPPORTFUNC'),
+                editRows.toArray().forEach((item) => {
+                    editRows.remove(item)
                 })
+            } else {
+                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_NOT_SUPPORTFUNC'))
             }
         }
 
         onMounted(async () => {
             openLoading()
-
-            // await getChannelList()
             await getData()
-
             closeLoading()
         })
 
         return {
             pageData,
             tableData,
-            isChlTypeDisabled,
+            virtualTableData,
+            editRows,
             displayStreamType,
             changeStreamType,
             changeAllStreamType,
             changeResolution,
             changeAllResolution,
             getMaxFps,
+            getFpsOptions,
             changeAllFps,
             isBitTypeDisabled,
             changeBitType,
@@ -658,6 +680,7 @@ export default defineComponent({
             isGOPDisabled,
             setData,
             changeAllGOP,
+            arrayToOptions,
             handleResolutionVisibleChange,
         }
     },

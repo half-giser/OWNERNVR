@@ -2,36 +2,33 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-12 18:19:49
  * @Description: HTTPS
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 18:11:31
 -->
 <template>
     <div>
         <el-form
+            v-title
             :style="{
-                '--form-input-width': '340px',
+                '--form-label-width': '250px',
             }"
-            label-position="left"
-            inline-message
         >
             <el-form-item>
                 <el-checkbox
                     v-model="formData.httpsSwitch"
                     :disabled="pageData.httpSwitchDisabled"
-                    >{{ Translate('IDCS_ENABLE') }}</el-checkbox
-                >
+                    :label="Translate('IDCS_ENABLE')"
+                    @change="changeHttpsSwitch"
+                />
             </el-form-item>
         </el-form>
         <!-- 已有证书 -->
         <el-form
             v-show="pageData.hasCert"
+            v-title
             :style="{
-                '--form-input-width': '340px',
+                '--form-label-width': '250px',
             }"
-            label-position="left"
-            inline-message
         >
-            <div class="base-subheading-box">
+            <div class="base-head-box">
                 {{ Translate('IDCS_CERT_DETAILS') }}
             </div>
             <el-form-item :label="Translate('IDCS_INSTALLED_CERT')">
@@ -42,8 +39,9 @@
                 <el-button
                     :disabled="pageData.isDeleteCertDisabled"
                     @click="deleteCertificate"
-                    >{{ Translate('IDCS_DELETE') }}</el-button
                 >
+                    {{ Translate('IDCS_DELETE') }}
+                </el-button>
             </el-form-item>
             <el-form-item :label="Translate('IDCS_DETAIL_INFO')">
                 <el-input
@@ -57,19 +55,18 @@
         <!-- 证书安装 -->
         <el-form
             v-show="!pageData.hasCert"
+            v-title
             :style="{
-                '--form-input-width': '340px',
+                '--form-label-width': '250px',
             }"
-            label-position="left"
-            inline-message
         >
-            <div class="base-subheading-box">
+            <div class="base-head-box">
                 {{ Translate('IDCS_CERT_INSTALLATION') }}
             </div>
             <el-form-item :label="Translate('IDCS_CERT_INSTALLATION')">
                 <el-radio-group
                     v-model="formData.cert"
-                    class="radio-group"
+                    class="line-break"
                 >
                     <el-radio
                         v-for="item in pageData.certOptions"
@@ -83,11 +80,10 @@
         <!-- 创建私有证书 -->
         <el-form
             v-show="!pageData.hasCert && formData.cert === pageData.certOptions[0].value"
+            v-title
             :style="{
-                '--form-input-width': '340px',
+                '--form-label-width': '250px',
             }"
-            label-position="left"
-            inline-message
         >
             <el-form-item :label="Translate('IDCS_CERT_DETAILS')">
                 <el-button @click="createCertificate">{{ Translate('IDCS_CREATE') }}</el-button>
@@ -96,11 +92,10 @@
         <!-- 已有已签名证书，直接导入安装 -->
         <el-form
             v-show="!pageData.hasCert && formData.cert === pageData.certOptions[1].value"
+            v-title
             :style="{
-                '--form-input-width': '340px',
+                '--form-label-width': '250px',
             }"
-            label-position="left"
-            inline-message
         >
             <el-form-item :label="Translate('IDCS_INSTALL_SIGNED_CERT')">
                 <el-input
@@ -110,8 +105,9 @@
                 <el-button
                     v-show="!isSupportH5"
                     @click="handleOCXImport"
-                    >{{ Translate('IDCS_BROWSE') }}</el-button
                 >
+                    {{ Translate('IDCS_BROWSE') }}
+                </el-button>
                 <label
                     v-show="isSupportH5"
                     class="el-button"
@@ -126,8 +122,9 @@
                 <el-button
                     :disabled="pageData.isImportCertDirectDisabled"
                     @click="inputCertPassword"
-                    >{{ Translate('IDCS_IMPORT') }}</el-button
                 >
+                    {{ Translate('IDCS_IMPORT') }}
+                </el-button>
                 <input
                     id="h5BrowerImport2"
                     type="file"
@@ -141,46 +138,49 @@
         <!-- 创建证书请求 -->
         <el-form
             v-show="!pageData.hasCert && formData.cert === pageData.certOptions[2].value"
+            v-title
             :style="{
-                '--form-input-width': '340px',
+                '--form-label-width': '250px',
             }"
-            label-position="left"
-            inline-message
         >
             <el-form-item :label="Translate('IDCS_CREATE_CERT_REQUEST')">
                 <el-button
                     :disabled="pageData.isCreateCertReqDisabled"
                     @click="createCertificate"
-                    >{{ Translate('IDCS_CREATE') }}</el-button
                 >
+                    {{ Translate('IDCS_CREATE') }}
+                </el-button>
                 <el-text>{{ reqCertFormData.reqFileName || Translate('IDCS_NO_FILES') }}</el-text>
             </el-form-item>
             <!-- 导出证书请求 -->
             <el-form-item :label="Translate('IDCS_CERT_REQ_DOWNLOAD')">
                 <el-input
-                    v-show="!isSupportH5"
+                    v-if="!isSupportH5"
                     :model-value="reqCertFormData.exportFileName"
                     readonly
                 />
                 <el-button
-                    v-show="!isSupportH5"
+                    v-if="!isSupportH5"
                     :disabled="pageData.isBrowseExportCertReqDisabled"
                     @click="browseExportCertificateRequest"
-                    >{{ Translate('IDCS_BROWSE') }}</el-button
                 >
+                    {{ Translate('IDCS_BROWSE') }}
+                </el-button>
                 <el-button
                     :disabled="pageData.isExportCertReqDisabled"
                     @click="exportCertificateRequest"
-                    >{{ Translate('IDCS_EXPORT') }}</el-button
                 >
+                    {{ Translate('IDCS_EXPORT') }}
+                </el-button>
             </el-form-item>
             <!-- 删除证书请求 -->
             <el-form-item :label="Translate('IDCS_CERT_REQ_DELETION')">
                 <el-button
                     :disabled="pageData.isDeleteCertReqDisabled"
                     @click="deleteCertificateRequest"
-                    >{{ Translate('IDCS_DELETE') }}</el-button
                 >
+                    {{ Translate('IDCS_DELETE') }}
+                </el-button>
             </el-form-item>
             <!-- 导入证书请求 -->
             <el-form-item :label="Translate('IDCS_INSTALL_GENERATED_CERT')">
@@ -191,8 +191,9 @@
                 <el-button
                     v-show="!isSupportH5"
                     @click="handleOCXImport"
-                    >{{ Translate('IDCS_BROWSE') }}</el-button
                 >
+                    {{ Translate('IDCS_BROWSE') }}
+                </el-button>
                 <label
                     v-show="isSupportH5"
                     class="el-button"
@@ -204,8 +205,9 @@
                 <el-button
                     :disabled="pageData.isImportCertReqDisabled"
                     @click="importCertFile()"
-                    >{{ Translate('IDCS_IMPORT') }}</el-button
                 >
+                    {{ Translate('IDCS_IMPORT') }}
+                </el-button>
                 <input
                     id="h5BrowerImport3"
                     type="file"
@@ -215,16 +217,15 @@
                 />
             </el-form-item>
         </el-form>
-        <div
-            class="base-btn-box"
+        <el-form
             :style="{
-                '--form-input-width': '335px',
+                '--form-label-width': '250px',
             }"
         >
-            <el-button @click="setNetPortConfig">{{ Translate('IDCS_APPLY') }}</el-button>
-        </div>
-        <BasePluginNotice />
-        <BaseNotification v-model:notifications="pageData.notifications" />
+            <div class="base-btn-box">
+                <el-button @click="setNetPortConfig">{{ Translate('IDCS_APPLY') }}</el-button>
+            </div>
+        </el-form>
         <HttpsCertPasswordPop
             v-model="pageData.isCertPasswordPop"
             @confirm="importCertFile"
@@ -242,14 +243,6 @@
 <script lang="ts" src="./Https.v.ts"></script>
 
 <style lang="scss" scoped>
-.radio-group {
-    display: block;
-
-    :deep(.el-radio) {
-        display: flex;
-    }
-}
-
 .textarea :deep(.el-textarea__inner) {
     min-height: 100px !important;
 }

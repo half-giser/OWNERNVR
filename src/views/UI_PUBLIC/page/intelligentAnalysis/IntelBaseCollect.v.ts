@@ -2,11 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-06 16:38:42
  * @Description: 智能分析 - 添加收藏
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-12 20:37:31
  */
-import { IntelSearchCollectList } from '@/types/apiType/intelligentAnalysis'
-import type { FormInstance, FormRules } from 'element-plus'
+import type { FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -32,7 +29,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
 
         const listData = ref<IntelSearchCollectList[]>([])
 
@@ -44,7 +40,7 @@ export default defineComponent({
             isPop: false,
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
 
         const formData = ref({
             name: '',
@@ -53,15 +49,17 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             name: [
                 {
-                    validator(rule, value, callback) {
-                        if (!value) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return
                         }
+
                         if (listData.value.map((item) => item.name).includes(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_CHANNEL_NAME_EXIST')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -81,8 +79,6 @@ export default defineComponent({
          * @description 添加收藏
          */
         const addCollect = () => {
-            formRef.value?.clearValidate()
-            formData.value.name = ''
             pageData.value.isPop = true
         }
 
@@ -93,7 +89,7 @@ export default defineComponent({
             formRef.value!.validate((valid) => {
                 if (valid) {
                     if (listData.value.length >= MAX_STORAGE_LIMIT) {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'question',
                             title: Translate('IDCS_QUESTION_MSG'),
                             message: Translate('IDCS_MAX_COLLECT_QUESTION'),
@@ -127,7 +123,7 @@ export default defineComponent({
          * @param {number} index
          */
         const deleteCollect = (index: number) => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 title: Translate('IDCS_DELETE'),
                 message: Translate('IDCS_DELETE_MP_S'),

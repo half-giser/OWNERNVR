@@ -2,8 +2,6 @@
  * @Author: xujp xujp@tvt.net.cn
  * @Date: 2023-04-28 14:36:40
  * @Description:解析xml下指定路径的标签文本和属性
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-19 19:47:37
  */
 
 /*
@@ -25,6 +23,7 @@ export type XMLQuery = ReturnType<typeof queryXml>
 
 const eva = new XPathEvaluator()
 const parser = new DOMParser()
+const serializer = new XMLSerializer()
 
 /**
  * @description: xml文档解析
@@ -54,10 +53,10 @@ export const queryXml = (xmlDoc: XMLDocument | Element | null) => {
     return (path: string): XmlResult => xmlParse(path, xmlDoc)
 }
 
-export const getElementText = (xmlObj: XmlElement | Element, eleName: string, defaultValue: string = '') => {
-    const eleObj = xmlParse(eleName, (xmlObj as XmlElement).element ? (xmlObj as XmlElement).element : (xmlObj as Element))[0]
-    return eleObj ? eleObj.text() : defaultValue
-}
+// export const getElementText = (xmlObj: XmlElement | Element, eleName: string, defaultValue: string = '') => {
+//     const eleObj = xmlParse(eleName, (xmlObj as XmlElement).element ? (xmlObj as XmlElement).element : (xmlObj as Element))[0]
+//     return eleObj ? eleObj.text() : defaultValue
+// }
 
 // xml标签元素（类）
 export class XmlElement {
@@ -74,7 +73,7 @@ export class XmlElement {
      * @description: 返回标签文本
      * @return {string} value
      */
-    text(): string {
+    text() {
         return this.element.innerHTML.replace(/(<!\[CDATA\[)|(\]\]>$)/g, '')
     }
 
@@ -84,9 +83,11 @@ export class XmlElement {
      * @param {string} value
      * @return {string}
      */
-    attr(attribute: string, value?: string): string | undefined {
-        if (value) this.element.setAttribute(attribute, value)
-        else return this.element.getAttribute(attribute) || ''
+    attr(attribute: string, value?: string) {
+        if (value) {
+            this.element.setAttribute(attribute, value)
+            return value
+        } else return this.element.getAttribute(attribute) || ''
     }
 }
 
@@ -117,13 +118,7 @@ export const getXmlDoc = (xmlData: XMLDocument | string) => {
  * @return {XMLDocument} xmlDoc
  */
 export const XMLStr2XMLDoc = (str: string) => {
-    let xmlDoc: XMLDocument | null = null
-    if (DOMParser) {
-        // 非IE
-        const parser = new DOMParser()
-        xmlDoc = parser.parseFromString(str, 'text/xml')
-    }
-    return xmlDoc
+    return parser.parseFromString(str, 'text/xml')
 }
 
 /**
@@ -131,11 +126,8 @@ export const XMLStr2XMLDoc = (str: string) => {
  * @param {XMLDocument} doc
  * @return {*}
  */
-export const XMLDoc2XMLStr = (doc: XMLDocument) => {
-    if (XMLSerializer) {
-        return new XMLSerializer().serializeToString(doc)
-    }
-    return ''
+export const XMLDoc2XMLStr = (doc: Node) => {
+    return serializer.serializeToString(doc)
 }
 
 /**
@@ -144,11 +136,15 @@ export const XMLDoc2XMLStr = (doc: XMLDocument) => {
  * @return {string}
  */
 export const compressXml = (xml: string) => {
+    const tagPattern = /(?<=<\/?[^?!\s\/>]+\b(?:\s+[^=\s>]+\s*=\s*(?:"[^"]*"|'[^']*'))*%1)/.source
+
     return xml
-        .replace(/<!--[\s\S]*?-->/g, '')
-        .replace(/>\s+</g, '><')
-        .replace(/\s*([^\s=]+)\s*=\s*"([^"]*)"/g, ' $1="$2"')
-        .trim()
+        .replace(/<!\s*(?:--(?:[^-]|-[^-])*--\s*)>/g, '') // remove comments
+        .replace(/>\s+</g, '><') // remove whitespace between tags
+        .replace(/<([^\s\/>]+)([^<]*?)(?<!\/)><\/\1\s*>/g, '<$1$2/>') // collapse elements with start / end tags and no content to empty element tags
+        .replace(new RegExp(tagPattern.replace('%1', '') + /\s+/.source, 'g'), ' ') // collapse whitespace between attributes
+        .replace(new RegExp(tagPattern.replace('%1', /\s+[^=\s>]+/.source) + /\s*=\s*/.source, 'g'), '=') // remove leading / tailing whitespace around attribute equal signs
+        .replace(new RegExp(tagPattern.replace('%1', '') + /\s+(?=[/?]?>)/.source, 'g'), '') // remove whitespace before closing > /> ?> of tags
 }
 
 /**
@@ -157,12 +153,40 @@ export const compressXml = (xml: string) => {
  * @returns {Boolean}
  */
 export const checkXml = (xml: string) => {
-    const xmlDoc = parser.parseFromString(xml, 'text/xml')
-    if (xmlDoc.getElementsByTagName('parsererror')) {
-        console.error(xmlDoc)
-        return false
+    if (import.meta.env.DEV) {
+        const xmlDoc = XMLStr2XMLDoc(xml)
+        if (xmlDoc.getElementsByTagName('parsererror').length) {
+            console.error('xml parsererror')
+            console.error(xmlDoc)
+        }
+        return xml
     }
-    return true
+    return xml
+}
+
+export const compileXml = (xml: string) => {
+    const xmlDoc = XMLStr2XMLDoc(xml)
+
+    if (xmlDoc.getElementsByTagName('parsererror').length) {
+        if (import.meta.env.DEV) {
+            console.error(xmlDoc)
+        }
+        return xml
+    }
+
+    const ifSelectors = xmlDoc.querySelectorAll('[v-if]')
+    if (ifSelectors) {
+        ifSelectors.forEach((item) => {
+            const attribute = item.getAttribute('v-if')
+            if (attribute === 'false') {
+                item.remove()
+            } else {
+                item.removeAttribute('v-if')
+            }
+        })
+    }
+
+    return XMLDoc2XMLStr(xmlDoc)
 }
 
 /**
@@ -170,10 +194,6 @@ export const checkXml = (xml: string) => {
  * @param
  * @return {string}
  */
-export const rawXml = (strings: TemplateStringsArray, ...values: string[]) => {
-    // const result = String.raw({ raw: strings }, ...(values || []))
-    // if (import.meta.env.NODE_ENV === 'development') {
-    //     checkXml(result)
-    // }
-    return String.raw({ raw: strings }, ...(values || []))
+export const rawXml = (strings: TemplateStringsArray, ...values: (string | number | boolean)[]) => {
+    return String.raw({ raw: strings }, ...values)
 }

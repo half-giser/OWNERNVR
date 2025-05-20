@@ -2,60 +2,50 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-11 08:56:00
  * @Description: UPnP配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-26 10:02:19
 -->
 <template>
     <div class="base-flex-box">
         <el-form
-            :model="formData"
-            label-position="left"
-            inline-message
+            v-title
             class="stripe"
-            :style="{
-                '--form-input-width': '200px',
-            }"
         >
             <el-form-item>
                 <el-checkbox
                     v-model="formData.switch"
                     :disabled="pageData.wirelessSwitch || pageData.pppoeSwitch"
-                    >{{ Translate('IDCS_ENABLE') }}</el-checkbox
-                >
+                    :label="Translate('IDCS_ENABLE')"
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_MAP_TYPE')">
-                <el-select v-model="formData.mappingType">
-                    <el-option
-                        v-for="item in pageData.mapTypeOptions"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.label"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.mappingType"
+                    :disabled="!formData.switch || pageData.wirelessSwitch"
+                    :options="pageData.mapTypeOptions"
+                    @change="changeMappingType"
+                />
             </el-form-item>
         </el-form>
         <div class="base-table-box">
             <el-table
+                v-title
                 :data="tableData"
-                border
-                stripe
+                :row-class-name="handleRowClassName"
             >
-                <el-table-column :label="Translate('IDCS_PORT_TYPE')">
-                    <template #default="scope">
-                        <el-text>{{ displayPortType(scope.row.portType) }}</el-text>
+                <el-table-column
+                    :label="Translate('IDCS_PORT_TYPE')"
+                    show-overflow-tooltip
+                >
+                    <template #default="{ row }: TableColumn<NetUPnPPortDto>">
+                        {{ displayPortType(row.portType) }}
                     </template>
                 </el-table-column>
-                <el-table-column
-                    :label="Translate('IDCS_EXT_PORT')"
-                    prop="externalPort"
-                >
-                    <template #default="scope">
-                        <el-input-number
-                            v-model="scope.row.externalPort"
+                <el-table-column :label="Translate('IDCS_EXT_PORT')">
+                    <template #default="{ row }: TableColumn<NetUPnPPortDto>">
+                        <BaseNumberInput
+                            v-model="row.externalPort"
                             :min="10"
                             :max="65535"
-                            :disabled="!formData.switch || formData.mappingType !== 'manually'"
-                            :controls="false"
+                            :disabled="pageData.wirelessSwitch || !formData.switch || formData.mappingType !== 'manually'"
                         />
                     </template>
                 </el-table-column>
@@ -78,13 +68,15 @@
             <el-button
                 :disabled="pageData.wirelessSwitch || pageData.pppoeSwitch"
                 @click="setData"
-                >{{ Translate('IDCS_APPLY') }}</el-button
             >
+                {{ Translate('IDCS_APPLY') }}
+            </el-button>
             <el-button
                 :disabled="pageData.wirelessSwitch || pageData.pppoeSwitch || !formData.switch"
                 @click="getData"
-                >{{ theme.name === 'UI1-E' ? Translate('IDCS_TEST') : Translate('IDCS_REFRESH') }}</el-button
             >
+                {{ pageData.btnName }}
+            </el-button>
         </div>
     </div>
 </template>

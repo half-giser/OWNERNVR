@@ -2,11 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-06 20:38:08
  * @Description: 回放-底部控制视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:35:30
  */
-import { type LiveSharedWinData } from '@/types/apiType/live'
-
 export default defineComponent({
     props: {
         /**
@@ -70,6 +66,13 @@ export default defineComponent({
          */
         playStatus: {
             type: String,
+            required: true,
+        },
+        /**
+         * @property 是否有POS事件
+         */
+        hasPosEvent: {
+            type: Boolean,
             required: true,
         },
     },
@@ -156,6 +159,8 @@ export default defineComponent({
             speedList: [1 / 32, 1 / 16, 1 / 8, 1 / 4, 1 / 2, 1, 2, 4, 8, 16, 32],
             // 速度值索引
             speedIndex: 5,
+            // 是否显示POS按钮
+            isPosBtn: systemCaps.supportPOS,
         })
 
         // 没有播放视图时，禁用操作按钮
@@ -167,44 +172,11 @@ export default defineComponent({
          * @description 暂停播放
          */
         const pause = () => {
-            if (disabled.value) {
-                return
-            }
             if (prop.playStatus === 'backwards') {
                 ctx.emit('pauseBackwards')
             } else {
                 ctx.emit('pause')
             }
-        }
-
-        /**
-         * @description 停止播放
-         */
-        const stop = () => {
-            if (disabled.value) {
-                return
-            }
-            ctx.emit('stop')
-        }
-
-        /**
-         * @description 恢复播放
-         */
-        const resume = () => {
-            if (disabled.value) {
-                return
-            }
-            ctx.emit('resume')
-        }
-
-        /**
-         * @description 倒放
-         */
-        const backwards = () => {
-            if (disabled.value) {
-                return
-            }
-            ctx.emit('backwards')
         }
 
         // 当前速度值
@@ -236,9 +208,6 @@ export default defineComponent({
          * @description 慢速
          */
         const rewind = () => {
-            if (rewindDisabled.value) {
-                return
-            }
             pageData.value.speedIndex--
             setSpeed()
         }
@@ -252,9 +221,6 @@ export default defineComponent({
          * @description 倍速
          */
         const forward = () => {
-            if (forwardDisabled.value) {
-                return
-            }
             pageData.value.speedIndex++
             setSpeed()
         }
@@ -268,9 +234,6 @@ export default defineComponent({
          * @description 重置倍速播放
          */
         const resetSpeed = () => {
-            if (resetSpeedDisabled.value) {
-                return
-            }
             pageData.value.speedIndex = pageData.value.speedList.findIndex((index) => index === 1)
             setSpeed()
         }
@@ -289,81 +252,19 @@ export default defineComponent({
             },
         )
 
-        /**
-         * @description 跳转播放
-         * @param {number} seconds 单位：秒
-         */
-        const jump = (seconds: number) => {
-            if (disabled.value) {
-                return
-            }
-            ctx.emit('jump', seconds)
-        }
-
         // description 是否禁用切换帧
         const nextFrameDisabled = computed(() => {
             return disabled.value || prop.playStatus !== 'pause'
         })
 
-        /**
-         * @description 下一帧
-         */
-        const nextFrame = () => {
-            if (nextFrameDisabled.value) {
-                return
-            }
-            ctx.emit('nextFrame')
-        }
-
-        /**
-         * @description 上一帧
-         */
-        const prevFrame = () => {
-            if (nextFrameDisabled.value) {
-                return
-            }
-            ctx.emit('prevFrame')
-        }
-
         // 是否禁用POS
         const posDisabled = computed(() => {
-            return !systemCaps.supportPOS || disabled.value
+            return !prop.hasPosEvent || disabled.value
         })
-
-        /**
-         * @description 开启/关闭POS
-         * @param {Boolean} bool
-         */
-        const togglePos = (bool: boolean) => {
-            if (posDisabled.value) {
-                return
-            }
-            ctx.emit('update:pos', bool)
-        }
-
-        /**
-         * @description 设置备份开始点
-         */
-        const setClipStart = () => {
-            if (disabled.value) {
-                return
-            }
-            ctx.emit('clipStart')
-        }
-
-        /**
-         * @description 设置备份结束点
-         */
-        const setClipEnd = () => {
-            if (disabled.value) {
-                return
-            }
-            ctx.emit('clipEnd')
-        }
 
         // 禁用备份按钮
         const backUpDisabled = computed(() => {
-            return disabled.value || prop.clipRange.length !== 2 || prop.clipRange[0] === prop.clipRange[1]
+            return disabled.value || prop.clipRange.length !== 2 || prop.clipRange[0] >= prop.clipRange[1]
         })
 
         /**
@@ -373,10 +274,12 @@ export default defineComponent({
             if (disabled.value) {
                 return
             }
+
             if (backUpDisabled.value) {
-                ElMessage.info(Translate('IDCS_SELECT_BACKUP_START_END_TIME'))
+                openNotify(Translate('IDCS_SELECT_BACKUP_START_END_TIME'), true)
                 return
             }
+
             ctx.emit('backUp')
         }
 
@@ -384,9 +287,6 @@ export default defineComponent({
             speed,
             pageData,
             disabled,
-            stop,
-            resume,
-            backwards,
             pause,
             forward,
             rewind,
@@ -394,15 +294,9 @@ export default defineComponent({
             resetSpeedDisabled,
             forwardDisabled,
             rewindDisabled,
-            jump,
             nextFrameDisabled,
-            nextFrame,
-            prevFrame,
             posDisabled,
-            togglePos,
             displaySpeed,
-            setClipStart,
-            setClipEnd,
             backUpDisabled,
             backUp,
         }

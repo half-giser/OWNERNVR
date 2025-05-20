@@ -2,34 +2,30 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-21 16:31:50
  * @Description: 网络状态
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 14:50:33
  */
-import { type SystemNetStatusList } from '@/types/apiType/system'
-
 export default defineComponent({
-    setup() {
+    setup(_prop, ctx) {
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
 
         // 状态值与显示文案的映射
         const DEFAULT_LANG_MAPPING: Record<string, string> = {
-            online: 'IDCS_NIC_STATE_ONLINE',
-            offline: 'IDCS_NIC_STATE_OFFLINE',
-            disabled: 'IDCS_DISABLE',
-            success: 'IDCS_SUCCEED',
-            fail: 'IDCS_FAILED',
-            connected: 'IDCS_CONNECTED',
-            disconnected: 'IDCS_DISCONNECT',
-            enable: 'IDCS_ENABLE',
-            disable: 'IDCS_DISABLE',
+            online: Translate('IDCS_NIC_STATE_ONLINE'),
+            offline: Translate('IDCS_NIC_STATE_OFFLINE'),
+            disabled: Translate('IDCS_DISABLE'),
+            success: Translate('IDCS_SUCCEED'),
+            fail: Translate('IDCS_FAILED'),
+            connected: Translate('IDCS_CONNECTED'),
+            disconnected: Translate('IDCS_DISCONNECT'),
+            enable: Translate('IDCS_ENABLE'),
+            disable: Translate('IDCS_DISABLE'),
         }
 
         // 状态值与显示文案的映射
         const DEFAULT_PHONE_LANG_MAPPING: Record<string, string> = {
-            disabled: 'IDCS_DISABLE',
-            success: 'IDCS_WIRELESS_3G4G_SUCCESS',
-            fail: 'IDCS_WIRELESS_3G4G_FAIL',
+            disabled: Translate('IDCS_DISABLE'),
+            success: Translate('IDCS_WIRELESS_3G4G_SUCCESS'),
+            fail: Translate('IDCS_WIRELESS_3G4G_FAIL'),
         }
 
         const tableData = ref<SystemNetStatusList[]>([])
@@ -39,230 +35,231 @@ export default defineComponent({
          */
         const getData = async () => {
             const port = await queryNetPortCfg()
-            const $port = queryXml(port)
+            const $port = queryXml(queryXml(port)('content')[0].element)
             const net = await queryNetStatus()
-            const $ = queryXml(net)
+            const $ = queryXml(queryXml(net)('content')[0].element)
             const array: SystemNetStatusList[] = []
 
             const supportPOS = systemCaps.supportPOS
-            const netStatusContentNicPoe = $('//content/nic').attr('poe')
+            const netStatusContentNicPoe = $('nic').attr('poe')
             const poeCount = netStatusContentNicPoe ? 1 : 0
-            const ipGroupSwitch = $('//content/ipGroup/switch').text() === 'true'
+            const ipGroupSwitch = $('ipGroup/switch').text().bool()
             const toleranceAndPoe = ipGroupSwitch && netStatusContentNicPoe // 3535A:即支持网络容错又存在poe网卡
 
             if (ipGroupSwitch) {
-                // TODO ipGroup未有真实数据测试
-                $('//content/ipGroup/bonds/item').forEach((item) => {
-                    const $item = queryXml(item.element)
+                array.push({
+                    i: 1,
+                    k: Translate('IDCS_GROUP_IP'),
+                    v: '',
+                })
+                if (toleranceAndPoe) {
                     array.push({
-                        i: 0,
-                        k: Translate('IDCS_GROUP_IP'),
-                        v: '',
+                        i: 1,
+                        k: Translate('IDCS_FAULT_ETH_NAME'),
+                        v: DEFAULT_LANG_MAPPING[$('ipGroup/nicStatus').text()],
                     })
-                    if (toleranceAndPoe) {
-                        array.push({
-                            i: 0,
-                            k: Translate('IDCS_FAULT_ETH_NAME'),
-                            v: Translate(DEFAULT_LANG_MAPPING[$item('nicStatus').text()]),
-                        })
-                    }
+                }
+                array.push(
+                    {
+                        i: 2,
+                        k: 'IPv4 ' + Translate('IDCS_DHCP_STATE'),
+                        v: DEFAULT_LANG_MAPPING[$('ipGroup/dhcpStatus').text()],
+                    },
+                    {
+                        i: 2,
+                        k: 'IPv4 ' + Translate('IDCS_IP_ADDRESS'),
+                        v: $('ipGroup/ip').text(),
+                    },
+                    {
+                        i: 2,
+                        k: 'IPv4 ' + Translate('IDCS_SUBNET_MASK'),
+                        v: $('ipGroup/mask').text(),
+                    },
+                    {
+                        i: 2,
+                        k: 'IPv4 ' + Translate('IDCS_GATEWAY'),
+                        v: $('ipGroup/gateway').text(),
+                    },
+                    {
+                        i: 2,
+                        k: Translate('IDCS_FIRST_DNS'),
+                        v: $('ipGroup/dns1').text(),
+                    },
+                    {
+                        i: 2,
+                        k: Translate('IDCS_SECOND_DNS'),
+                        v: $('ipGroup/dns2').text(),
+                    },
+                    {
+                        i: 2,
+                        k: 'IPv6 ' + Translate('IDCS_COMMON_STATE'),
+                        v: DEFAULT_LANG_MAPPING[$('ipGroup/ipv6Status').text()],
+                    },
+                )
+                if ($('ipGroup/ipv6Status').text() === 'enable') {
                     array.push(
                         {
-                            i: 1,
-                            k: 'IPv4 ' + Translate('IDCS_DHCP_STATE'),
-                            v: Translate(DEFAULT_LANG_MAPPING[$item('dhcpStatus').text()]),
+                            i: 2,
+                            k: 'IPv6 ' + Translate('IDCS_DHCP_STATE'),
+                            v: DEFAULT_LANG_MAPPING[$('ipGroup/dhcpStatusV6').text()],
                         },
                         {
-                            i: 1,
-                            k: 'IPv4 ' + Translate('IDCS_IP_ADDRESS'),
-                            v: $item('ip').text(),
+                            i: 2,
+                            k: 'IPv6 ' + Translate('IDCS_IP_ADDRESS'),
+                            v: $('ipGroup/ipV6').text(),
                         },
                         {
-                            i: 1,
-                            k: 'IPv4 ' + Translate('IDCS_SUBNET_MASK'),
-                            v: $item('mask').text(),
+                            i: 2,
+                            k: Translate('IDCS_IPV6_ADDR_SLAAC'),
+                            v: $('ipGroup/ipV6Slaac').text(),
                         },
                         {
-                            i: 1,
-                            k: 'IPv4 ' + Translate('IDCS_GATEWAY'),
-                            v: $item('gateway').text(),
+                            i: 2,
+                            k: 'IPv6 ' + Translate('IDCS_SUBNET_MASK_LENGTH'),
+                            v: $('ipGroup/subLengthV6').text(),
                         },
                         {
-                            i: 1,
-                            k: Translate('IDCS_FIRST_DNS'),
-                            v: $item('dns1').text(),
+                            i: 2,
+                            k: 'IPv6 ' + Translate('IDCS_GATEWAY'),
+                            v: $('ipGroup/gatewayV6').text(),
                         },
                         {
-                            i: 1,
-                            k: Translate('IDCS_SECOND_DNS'),
-                            v: $item('dns2').text(),
+                            i: 2,
+                            k: Translate('IDCS_IPV6_FIRST_DNS'),
+                            v: $('ipGroup/ipv6Dns1').text(),
                         },
                         {
-                            i: 1,
-                            k: Translate('IDCS_COMMON_STATE'),
-                            v: Translate(DEFAULT_LANG_MAPPING[$item('ipv6Status').text()]),
+                            i: 2,
+                            k: Translate('IDCS_IPV6_SECOND_DNS'),
+                            v: $('ipGroup/ipv6Dns2').text(),
                         },
                     )
-                    if ($item('ipv6Status').text() === 'enable') {
-                        array.push(
-                            {
-                                i: 1,
-                                k: 'IPv6 ' + Translate('IDCS_DHCP_STATE'),
-                                v: Translate(DEFAULT_LANG_MAPPING[$item('dhcpStatusV6').text()]),
-                            },
-                            {
-                                i: 1,
-                                k: 'IPv6 ' + Translate('IDCS_IP_ADDRESS'),
-                                v: $item('ipV6').text(),
-                            },
-                            {
-                                i: 1,
-                                k: Translate('IDCS_IPV6_ADDR_SLAAC'),
-                                v: $item('ipV6Slaac').text(),
-                            },
-                            {
-                                i: 1,
-                                k: 'IPv6 ' + Translate('IDCS_SUBNET_MASK_LENGTH'),
-                                v: $item('subLengthV6').text(),
-                            },
-                            {
-                                i: 1,
-                                k: 'IPv6 ' + Translate('IDCS_GATEWAY'),
-                                v: $item('gatewayV6').text(),
-                            },
-                            {
-                                i: 1,
-                                k: Translate('IDCS_IPV6_FIRST_DNS'),
-                                v: $item('ipv6Dns1').text(),
-                            },
-                            {
-                                i: 1,
-                                k: Translate('IDCS_IPV6_SECOND_DNS'),
-                                v: $item('ipv6Dns2').text(),
-                            },
-                        )
+                }
+                $('nic/item').forEach((nicItem, index) => {
+                    if (nicItem.attr('id') === $('ipGroup/primaryNIC').text()) {
+                        array.push({
+                            i: 1,
+                            k: Translate('IDCS_PRIMARY_NETWORK_CARD'),
+                            v: netStatusContentNicPoe === nicItem.attr('id') ? Translate('IDCS_POE_ETH_NAME') : Translate('IDCS_ETH_NAME').formatForLang(index + 1),
+                        })
                     }
-                    $('//content/nic/item').forEach((nicItem, index) => {
-                        if (nicItem.attr('id') === $('primaryNIC').text()) {
-                            array.push({
-                                i: 1,
-                                k: Translate('IDCS_PRIMARY_NETWORK_CARD'),
-                                v: netStatusContentNicPoe === item.attr('id') ? Translate('IDCS_POE_ETH_NAME') : Translate('IDCS_ETH_NAME').formatForLang(String(index + 1)),
-                            })
-                        }
-                    })
                 })
             }
-            if ($('//content/nic/item').text()) {
-                $('//content/nic/item').forEach((item, index) => {
+
+            if ($('nic/item').length) {
+                $('nic/item').forEach((item, index) => {
                     const $item = queryXml(item.element)
                     array.push({
-                        i: 0,
-                        k: netStatusContentNicPoe === item.attr('id') ? Translate('IDCS_POE_ETH_NAME') : Translate('IDCS_ETH_NAME').formatForLang(String(index + 1)),
-                        v: Translate(DEFAULT_LANG_MAPPING[$item('nicStatus').text()]),
+                        i: 1,
+                        k: netStatusContentNicPoe === item.attr('id') ? Translate('IDCS_POE_ETH_NAME') : Translate('IDCS_ETH_NAME').formatForLang(index + 1),
+                        v: DEFAULT_LANG_MAPPING[$item('nicStatus').text()],
                     })
                     if (!ipGroupSwitch) {
                         if ($item('nicStatus').text() !== 'disabled') {
                             if (netStatusContentNicPoe !== item.attr('id')) {
                                 array.push({
-                                    i: 1,
+                                    i: 2,
                                     k: 'IPv4 ' + Translate('IDCS_DHCP_STATE'),
-                                    v: Translate(DEFAULT_LANG_MAPPING[$item('dhcpStatus').text()]),
+                                    v: DEFAULT_LANG_MAPPING[$item('dhcpStatus').text()],
                                 })
                             }
                             array.push({
-                                i: 1,
+                                i: 2,
                                 k: 'IPv4 ' + Translate('IDCS_IP_ADDRESS'),
                                 v: $item('ip').text(),
                             })
                             array.push({
-                                i: 1,
+                                i: 2,
                                 k: 'IPv4 ' + Translate('IDCS_SUBNET_MASK'),
                                 v: $item('mask').text(),
                             })
                             if (netStatusContentNicPoe !== item.attr('id')) {
                                 array.push({
-                                    i: 1,
+                                    i: 2,
                                     k: 'IPv4 ' + Translate('IDCS_GATEWAY'),
                                     v: $item('gateway').text(),
                                 })
                                 array.push({
-                                    i: 1,
+                                    i: 2,
                                     k: Translate('IDCS_FIRST_DNS'),
                                     v: $item('dns1').text(),
                                 })
                                 array.push({
-                                    i: 1,
+                                    i: 2,
                                     k: Translate('IDCS_SECOND_DNS'),
                                     v: $item('dns2').text(),
                                 })
                             }
+
                             if (netStatusContentNicPoe !== item.attr('id')) {
                                 array.push({
-                                    i: 1,
+                                    i: 2,
                                     k: 'IPv6 ' + Translate('IDCS_COMMON_STATE'),
-                                    v: Translate(DEFAULT_LANG_MAPPING[$item('ipv6Status').text()]),
+                                    v: DEFAULT_LANG_MAPPING[$item('ipv6Status').text()],
                                 })
                                 if ($item('ipv6Status').text() === 'enable') {
                                     array.push({
-                                        i: 1,
+                                        i: 2,
                                         k: 'IPv6 ' + Translate('IDCS_DHCP_STATE'),
-                                        v: Translate(DEFAULT_LANG_MAPPING[$item('dhcpStatusV6').text()]),
+                                        v: DEFAULT_LANG_MAPPING[$item('dhcpStatusV6').text()],
                                     })
                                     array.push({
-                                        i: 1,
+                                        i: 2,
                                         k: 'IPv6 ' + Translate('IDCS_IP_ADDRESS'),
                                         v: $item('ipV6').text(),
                                     })
                                     array.push({
-                                        i: 1,
+                                        i: 2,
                                         k: Translate('IDCS_IPV6_ADDR_SLAAC'),
                                         v: $item('ipV6Slaac').text(),
                                     })
                                     array.push({
-                                        i: 1,
+                                        i: 2,
                                         k: 'IPv6 ' + Translate('IDCS_SUBNET_MASK_LENGTH'),
                                         v: $item('subLengthV6').text(),
                                     })
                                     array.push({
-                                        i: 1,
+                                        i: 2,
                                         k: 'IPv6 ' + Translate('IDCS_GATEWAY'),
                                         v: $item('gatewayV6').text(),
                                     })
                                     array.push({
-                                        i: 1,
+                                        i: 2,
                                         k: Translate('IDCS_IPV6_FIRST_DNS'),
                                         v: $item('ipv6Dns1').text(),
                                     })
                                     array.push({
-                                        i: 1,
+                                        i: 2,
                                         k: Translate('IDCS_IPV6_SECOND_DNS'),
                                         v: $item('ipv6Dns2').text(),
                                     })
                                 }
-                                array.push({
-                                    i: 1,
-                                    k: Translate('IDCS_MAC_ADDRESS'),
-                                    v: $item('mac').text(),
-                                })
+
+                                if ((!$item('mac').attr('IsShow') || $item('mac').attr('IsShow').bool()) && $item('mac').text()) {
+                                    array.push({
+                                        i: 2,
+                                        k: Translate('IDCS_MAC_ADDRESS'),
+                                        v: $item('mac').text(),
+                                    })
+                                }
                             }
                         }
                     } else {
                         // 网络容错模式显示
-                        if (netStatusContentNicPoe !== item.attr('id')) {
+                        if (netStatusContentNicPoe === item.attr('id')) {
                             array.push({
-                                i: 1,
+                                i: 2,
                                 k: 'IPv4 ' + Translate('IDCS_IP_ADDRESS'),
                                 v: $item('ip').text(),
                             })
                             array.push({
-                                i: 1,
+                                i: 2,
                                 k: 'IPv4 ' + Translate('IDCS_SUBNET_MASK'),
                                 v: $item('mask').text(),
                             })
                         } else {
                             array.push({
-                                i: 1,
+                                i: 2,
                                 k: Translate('IDCS_MAC_ADDRESS'),
                                 v: $item('mac').text(),
                             })
@@ -271,120 +268,120 @@ export default defineComponent({
                 })
             }
 
-            const pppoeStatus = $('//content/pppoe/pppoeStatus').text()
+            const pppoeStatus = $('pppoe/pppoeStatus').text()
             array.push({
-                i: 0,
+                i: 1,
                 k: Translate('IDCS_PPPOE_STATE'),
-                v: Translate(DEFAULT_LANG_MAPPING[pppoeStatus]),
+                v: DEFAULT_LANG_MAPPING[pppoeStatus],
             })
 
             if (pppoeStatus === 'connected') {
                 array.push({
-                    i: 0,
+                    i: 1,
                     k: Translate('IDCS_PPOE_ADDRESS'),
-                    v: $('//content/pppoe/ip').text(),
+                    v: $('pppoe/ip').text(),
                 })
                 array.push({
-                    i: 0,
+                    i: 1,
                     k: Translate('IDCS_PPOE_SUBNET_MASK'),
-                    v: $('//content/pppoe/mask').text(),
+                    v: $('pppoe/mask').text(),
                 })
                 array.push({
-                    i: 0,
+                    i: 1,
                     k: Translate('IDCS_PPOE_GATEWAY'),
-                    v: $('//content/pppoe/gateway').text(),
+                    v: $('pppoe/gateway').text(),
                 })
             }
 
             array.push({
-                i: 0,
+                i: 1,
                 k: Translate('IDCS_PORT'),
                 v: '',
             })
             array.push({
-                i: 1,
+                i: 2,
                 k: Translate('IDCS_HTTP_PORT'),
-                v: $port('//content/httpPort').text(),
+                v: $port('httpPort').text(),
             })
             array.push({
-                i: 1,
+                i: 2,
                 k: Translate('IDCS_HTTPS_PORT'),
-                v: $port('//content/httpsPort').text(),
+                v: $port('httpsPort').text(),
             })
             array.push({
-                i: 1,
+                i: 2,
                 k: Translate('IDCS_SERVE_PORT'),
-                v: $port('//content/netPort').text(),
+                v: $port('netPort').text(),
             })
             array.push({
-                i: 1,
+                i: 2,
                 k: Translate('IDCS_RTSP_PORT'),
-                v: $port('//content/rtspPort').text(),
+                v: $port('rtspPort').text(),
             })
 
             if (supportPOS) {
                 array.push({
-                    i: 1,
+                    i: 2,
                     k: Translate('IDCS_POS_PORT'),
-                    v: $port('//content/posPort').text(),
+                    v: $port('posPort').text(),
                 })
             }
 
-            if ($('//content/bandwidth/totalBandwidth').text()) {
+            if ($('bandwidth/totalBandwidth').text()) {
                 array.push({
-                    i: 0,
+                    i: 1,
                     k: Translate('IDCS_TOTAL_BANDWIDTH'),
-                    v: $('//content/bandwidth/totalBandwidth').text() + 'Mb',
+                    v: $('bandwidth/totalBandwidth').text() + 'Mb',
                 })
                 array.push({
-                    i: 0,
+                    i: 1,
                     k: Translate('IDCS_REMAIN_BANDWIDTH'),
-                    v: $('//content/bandwidth/remainBandwidth').text() + 'Mb',
+                    v: $('bandwidth/remainBandwidth').text() + 'Mb',
                 })
                 array.push({
-                    i: 0,
+                    i: 1,
                     k: Translate('IDCS_SEND_TOTAL_BANDWIDTH'),
-                    v: $('//content/bandwidth/sendTotalBandwidth').text() + 'Mb',
+                    v: $('bandwidth/sendTotalBandwidth').text() + 'Mb',
                 })
                 array.push({
-                    i: 0,
+                    i: 1,
                     k: Translate('IDCS_SEND_REMAIN_BANDWIDTH'),
-                    v: $('//content/bandwidth/sendRemainBandwidth').text() + 'Mb',
+                    v: $('bandwidth/sendRemainBandwidth').text() + 'Mb',
                 })
             }
 
             array.push({
-                i: 0,
+                i: 1,
                 k: Translate('IDCS_NAT_STATUS'),
-                v: $('//content/natStatus').text().toBoolean() ? Translate('IDCS_ENABLE') : Translate('IDCS_DISABLE'),
+                v: $('natStatus').text().bool() ? Translate('IDCS_ENABLE') : Translate('IDCS_DISABLE'),
             })
-            if ($('//content/reportStatus').text()) {
+            if ($('reportStatus').text()) {
                 array.push({
-                    i: 0,
+                    i: 1,
                     k: Translate('IDCS_AUTO_REPORT_STATUS'),
-                    v: Translate(DEFAULT_LANG_MAPPING[$('//content/reportStatus').text()]),
+                    v: DEFAULT_LANG_MAPPING[$('reportStatus').text()],
                 })
             }
 
-            if ($('//content/threeOrFourG').text()) {
+            if ($('threeOrFourG').text()) {
                 array.push({
-                    i: 0,
+                    i: 1,
                     k: Translate('IDCS_WIRELESS_3G4G_STATE'),
-                    v: Translate(DEFAULT_PHONE_LANG_MAPPING[$('//content/threeOrFourG/threeOrFourGStatus').text()]),
+                    v: DEFAULT_PHONE_LANG_MAPPING[$('threeOrFourG/threeOrFourGStatus').text()],
                 })
                 array.push({
-                    i: 0,
+                    i: 1,
                     k: Translate('IDCS_WIRELESS_3G4G_IP'),
-                    v: $('//content/threeOrFourG/ip').text(),
+                    v: $('threeOrFourG/ip').text(),
                 })
             }
 
-            if ($('//content/nic/item').length - poeCount > 1) {
+            if ($('nic/item').length - poeCount > 1) {
                 if (ipGroupSwitch) {
                     array.shift()
                 }
                 array.unshift({
-                    i: 0,
+                    i: 1,
                     k: Translate('IDCS_WORK_PATTERN'),
                     v: Translate(ipGroupSwitch ? 'IDCS_NETWORK_FAULT_TOLERANCE' : 'IDCS_MULTIPLE_ADDRESS_SETTING'),
                 })
@@ -398,7 +395,7 @@ export default defineComponent({
          * @param event
          * @returns
          */
-        const handleToolBarEvent = (event: ConfigToolBarEvent<ChannelToolBarEvent>) => {
+        const handleToolBarEvent = (event: ConfigToolBarEvent<any>) => {
             if (event.type === 'refresh') {
                 getData()
                 return
@@ -409,8 +406,11 @@ export default defineComponent({
             getData()
         })
 
-        return {
+        ctx.expose({
             handleToolBarEvent,
+        })
+
+        return {
             tableData,
         }
     },

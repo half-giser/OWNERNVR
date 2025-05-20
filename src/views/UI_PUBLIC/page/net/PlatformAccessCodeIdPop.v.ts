@@ -2,10 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-16 14:52:59
  * @Description: 平台接入 设置Code ID弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:02:31
  */
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -42,7 +40,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref({
             name: '',
             code: '',
@@ -51,18 +49,20 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             code: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (prop.codeList.includes(value) && value !== prop.code) {
                             callback(new Error(Translate('IDCS_SIP_ID_REPEAT')))
                             return
                         }
+
                         if (!/^\d{20}$/.test(value)) {
                             callback(new Error(Translate('IDCS_SIP_ID_INVALID')))
                             return
                         }
+
                         callback()
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
         })
@@ -71,7 +71,6 @@ export default defineComponent({
          * @description 打开弹窗时重置表单
          */
         const open = () => {
-            formRef.value?.clearValidate()
             formData.value.name = prop.name
             formData.value.code = prop.code
         }
@@ -94,6 +93,12 @@ export default defineComponent({
             })
         }
 
+        const blurCode = () => {
+            if (formData.value.code.length < 20) {
+                formData.value.code = '10000000000000000000'
+            }
+        }
+
         return {
             formRef,
             formData,
@@ -102,7 +107,7 @@ export default defineComponent({
             verify,
             close,
             confirm,
-            formatDigit,
+            blurCode,
         }
     },
 })

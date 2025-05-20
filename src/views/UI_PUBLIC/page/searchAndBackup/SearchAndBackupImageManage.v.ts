@@ -2,12 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-12 13:47:57
  * @Description: 搜索与备份-图片管理
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 18:09:47
  */
 import dayjs from 'dayjs'
-import { type PlaybackChlList, type PlaybackRecLogList, PlaybackSearchImgForm, PlaybackSearchImgList } from '@/types/apiType/playback'
-import { DefaultPagerLayout } from '@/utils/constants'
 import { type TableInstance } from 'element-plus'
 import BackupImgPop from './BackupImgPop.vue'
 import BackupImgPlayerPop from './BackupImgPlayerPop.vue'
@@ -18,17 +14,10 @@ export default defineComponent({
         BackupImgPlayerPop,
     },
     setup() {
-        const Plugin = inject('Plugin') as PluginType
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const browser = getBrowserInfo()
 
         const tableRef = ref<TableInstance>()
-
-        const mode = computed(() => {
-            return Plugin.IsSupportH5() ? 'h5' : 'ocx'
-        })
 
         const dateTime = useDateTimeStore()
         const userAuth = useUserChlAuth()
@@ -63,6 +52,25 @@ export default defineComponent({
 
         const formData = ref(new PlaybackSearchImgForm())
 
+        const plugin = usePlugin({
+            onReady: (mode, plugin) => {
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
+                    plugin.ExecuteCmd(sendXML)
+                }
+            },
+            onDestroy: (mode, plugin) => {
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_StopPreview('ALL')
+                    plugin.ExecuteCmd(sendXML)
+                }
+            },
+        })
+
+        const mode = computed(() => {
+            return plugin.IsSupportH5() ? 'h5' : 'ocx'
+        })
+
         /**
          * @description 搜索
          */
@@ -94,27 +102,24 @@ export default defineComponent({
          * @description 获取列表数据
          */
         const getData = async () => {
-            const startTime = dayjs(formData.value.startTime, dateTime.dateTimeFormat).valueOf()
-            const endTime = dayjs(formData.value.endTime, dateTime.dateTimeFormat).valueOf()
+            const startTime = dayjs(formData.value.startTime, { jalali: false, format: DEFAULT_DATE_FORMAT }).valueOf()
+            const endTime = dayjs(formData.value.endTime, { jalali: false, format: DEFAULT_DATE_FORMAT }).valueOf()
             if (endTime <= startTime) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_END_TIME_GREATER_THAN_START'),
-                })
+                openMessageBox(Translate('IDCS_END_TIME_GREATER_THAN_START'))
                 return
             }
 
             openLoading()
 
-            tableRef.value?.clearSelection()
+            tableRef.value!.clearSelection()
             tableData.value = []
 
             const sendXml = rawXml`
-                <pageIndex>${formData.value.pageIndex.toString()}</pageIndex>
-                <pageSize>${formData.value.pageSize.toString()}</pageSize>
+                <pageIndex>${formData.value.pageIndex}</pageIndex>
+                <pageSize>${formData.value.pageSize}</pageSize>
                 <condition>
-                    <startTime>${formatDate(startTime, 'YYYY-MM-DD HH:mm:ss')}</startTime>
-                    <endTime>${formatDate(endTime, 'YYYY-MM-DD HH:mm:ss')}</endTime>
+                    <startTime>${formatGregoryDate(startTime, DEFAULT_DATE_FORMAT)}</startTime>
+                    <endTime>${formatGregoryDate(endTime, DEFAULT_DATE_FORMAT)}</endTime>
                     <startTimeEx>${localToUtc(startTime)}</startTimeEx>
                     <endTimeEx>${localToUtc(endTime)}</endTimeEx>
                 </condition>
@@ -128,18 +133,18 @@ export default defineComponent({
             closeLoading()
 
             showMaxSearchLimitTips($)
-            pageData.value.totalCount = Number($('//content').attr('total')!)
+            pageData.value.totalCount = $('content').attr('total').num()
 
-            tableData.value = $('//content/item').map((item, index) => {
+            tableData.value = $('content/item').map((item, index) => {
                 const $item = queryXml(item.element)
                 return {
                     index: (formData.value.pageIndex - 1) * formData.value.pageSize + index + 1,
-                    chlId: $item('chl').attr('id')!,
+                    chlId: $item('chl').attr('id'),
                     chlName: $item('chl').text(),
                     creator: Translate($item('creator').text()),
-                    captureMode: Number($item('captureMode').text()),
-                    captureModeKey: Translate($item('captureMode').attr('translateKey')!),
-                    captureTimeStamp: dayjs.utc($item('captureTime').text().substring(0, 19), 'YYYY-MM-DD HH:mm:ss').valueOf(),
+                    captureMode: $item('captureMode').text().num(),
+                    captureModeKey: Translate($item('captureMode').attr('translateKey')),
+                    captureTimeStamp: dayjs.utc($item('captureTime').text().substring(0, 19), DEFAULT_DATE_FORMAT).valueOf(),
                     captureTime: $item('captureTime').text(),
                 }
             })
@@ -177,10 +182,7 @@ export default defineComponent({
          */
         const exportImg = (row: PlaybackSearchImgList) => {
             if (!userAuth.value.hasAll && !userAuth.value.bk[row.chlId]) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_NODE_NO_AUTH').formatForLang(row.chlName),
-                })
+                openMessageBox(Translate('IDCS_NODE_NO_AUTH').formatForLang(row.chlName))
                 return
             }
             pageData.value.isBackUpPop = true
@@ -195,10 +197,7 @@ export default defineComponent({
             if (!userAuth.value.hasAll) {
                 const find = selection.find((item) => !userAuth.value.bk[item.chlId])
                 if (find) {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_NODE_NO_AUTH').formatForLang(find.chlName),
-                    })
+                    openMessageBox(Translate('IDCS_NODE_NO_AUTH').formatForLang(find.chlName))
                     return
                 }
             }
@@ -213,13 +212,10 @@ export default defineComponent({
          */
         const deleteImg = (row: PlaybackSearchImgList, cbk?: () => void) => {
             if (!userAuth.value.hasAll && !userAuth.value.bk[row.chlId]) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_NODE_NO_AUTH').formatForLang(row.chlName),
-                })
+                openMessageBox(Translate('IDCS_NODE_NO_AUTH').formatForLang(row.chlName))
                 return
             }
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_SELECT_ITEMS'),
             }).then(async () => {
@@ -228,7 +224,7 @@ export default defineComponent({
                         <pictures type='list'>
                             <item>
                                 <chl id="${row.chlId}">${row.chlName}</chl>
-                                <captureMode>${row.captureMode.toString()}</captureMode>
+                                <captureMode>${row.captureMode}</captureMode>
                                 <captureTime>${row.captureTime}</captureTime>
                             </item>
                         </pictures>
@@ -236,7 +232,7 @@ export default defineComponent({
                 `
                 const result = await delPictures(sendXml)
                 const $ = queryXml(result)
-                if ($('//status').text() === 'success') {
+                if ($('status').text() === 'success') {
                     if (tableData.value.length === 1 && formData.value.pageIndex > 1) {
                         formData.value.pageIndex--
                     }
@@ -254,36 +250,34 @@ export default defineComponent({
             if (!userAuth.value.hasAll) {
                 const find = selection.find((item) => !userAuth.value.bk[item.chlId])
                 if (find) {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_NODE_NO_AUTH').formatForLang(find.chlName),
-                    })
+                    openMessageBox(Translate('IDCS_NODE_NO_AUTH').formatForLang(find.chlName))
                     return
                 }
             }
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_SELECT_ITEMS'),
             }).then(async () => {
-                const items = selection
-                    .map((row) => {
-                        return rawXml`
-                        <item>
-                            <chl id="${row.chlId}">${row.chlName}</chl>
-                            <captureMode>${row.captureMode.toString()}</captureMode>
-                            <captureTime>${row.captureTime}</captureTime>
-                        </item>
-                    `
-                    })
-                    .join('')
                 const sendXml = rawXml`
                     <condition>
-                        <pictures type='list'>${items}</pictures>
+                        <pictures type='list'>
+                            ${selection
+                                .map((row) => {
+                                    return rawXml`
+                                        <item>
+                                            <chl id="${row.chlId}">${row.chlName}</chl>
+                                            <captureMode>${row.captureMode}</captureMode>
+                                            <captureTime>${row.captureTime}</captureTime>
+                                        </item>
+                                    `
+                                })
+                                .join('')}
+                        </pictures>
                     </condition>
                 `
                 const result = await delPictures(sendXml)
                 const $ = queryXml(result)
-                if ($('//status').text() === 'success') {
+                if ($('status').text() === 'success') {
                     formData.value.pageIndex = 1
                     getData()
                 }
@@ -302,7 +296,7 @@ export default defineComponent({
          */
         const closeBackupTipPop = () => {
             if (pageData.value.isBackUpTipNotAgain) {
-                sessionStorage.setItem('BackUpPictureTipNotAgain', 'true')
+                sessionStorage.setItem(LocalCacheKey.KEY_BACKUP_PIC_MSG, 'true')
             }
             pageData.value.isBackUpTipPop = false
         }
@@ -362,6 +356,7 @@ export default defineComponent({
             if (pageData.value.playerIndex === 0 && formData.value.pageIndex === 1) {
                 return
             }
+
             if (pageData.value.playerIndex === 0) {
                 formData.value.pageIndex--
                 await getData()
@@ -378,6 +373,7 @@ export default defineComponent({
             if (pageData.value.playerIndex === tableData.value.length - 1 && formData.value.pageIndex >= Math.ceil(pageData.value.totalCount / formData.value.pageSize)) {
                 return
             }
+
             if (pageData.value.playerIndex === tableData.value.length - 1) {
                 formData.value.pageIndex++
                 await getData()
@@ -387,56 +383,29 @@ export default defineComponent({
             pageData.value.playerIndex++
         }
 
-        watch(
-            mode,
-            (newVal) => {
-                if (newVal !== 'h5' && !Plugin.IsPluginAvailable()) {
-                    Plugin.SetPluginNoResponse()
-                    Plugin.ShowPluginNoResponse()
-                }
-                if (newVal === 'ocx') {
-                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
-                    Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                }
-            },
-            {
-                immediate: true,
-            },
-        )
-
-        onMounted(async () => {
-            Plugin.SetPluginNotice('#layout2Main')
-
+        onMounted(() => {
             const date = new Date()
-            pageData.value.startTime = dayjs(date).hour(0).minute(0).second(0).format(dateTime.dateTimeFormat)
-            pageData.value.endTime = dayjs(date).hour(23).minute(59).second(59).format(dateTime.dateTimeFormat)
-
-            search()
-
-            if (!sessionStorage.getItem('BackUpPictureTipNotAgain')) {
-                pageData.value.isBackUpTipPop = true
-            }
+            pageData.value.startTime = dayjs(date).hour(0).minute(0).second(0).calendar('gregory').format(DEFAULT_DATE_FORMAT)
+            pageData.value.endTime = dayjs(date).hour(23).minute(59).second(59).calendar('gregory').format(DEFAULT_DATE_FORMAT)
         })
 
-        onBeforeUnmount(() => {
-            if (mode.value === 'ocx') {
-                const sendXML = OCX_XML_StopPreview('ALL')
-                Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+        onActivated(() => {
+            search()
+
+            if (!sessionStorage.getItem(LocalCacheKey.KEY_BACKUP_PIC_MSG)) {
+                pageData.value.isBackUpTipPop = true
             }
         })
 
         return {
             mode,
             formData,
-            dateTime,
-            highlightWeekend,
             pageData,
             userAuth,
             sort,
             search,
             tableRef,
             tableData,
-            DefaultPagerLayout,
             handleRowClick,
             displayDateTime,
             browseImg,
@@ -454,8 +423,6 @@ export default defineComponent({
             handlePlayerNext,
             changePageIndex,
             changePageSize,
-            BackupImgPop,
-            BackupImgPlayerPop,
         }
     },
 })

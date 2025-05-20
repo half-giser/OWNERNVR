@@ -2,12 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-06 20:35:59
  * @Description: 本地备份任务 进度弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 10:25:06
  */
-import type { PlaybackBackUpRecList } from '@/types/apiType/playback'
-import WebsocketRecordBackup, { type WebsocketRecordBackupOnMessageParam } from '@/utils/websocket/websocketRecordBackup'
-import { type DownloadZipOptions } from '@/utils/tools'
+import { type DownloadZipOptions } from '@/utils/downloaders'
 
 export default defineComponent({
     props: {
@@ -54,9 +50,8 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
 
-        let recorder: WebsocketRecordBackup | null = null
+        let recorder: ReturnType<typeof WebsocketRecordBackup> | null = null
 
         const pageData = ref({
             // 下载进度
@@ -90,13 +85,12 @@ export default defineComponent({
                 return
             }
             destroy()
-            recorder = new WebsocketRecordBackup({
+            recorder = WebsocketRecordBackup({
                 maxSingleSize: prop.maxSingleSize,
                 onmessage: handleRecordFile,
                 onFrameTime: handleFrameTime,
                 onerror: handleError,
             })
-            console.log('backuplist', prop.backupList)
             const list = prop.backupList.map((item) => {
                 return {
                     chlID: item.chlId,
@@ -125,11 +119,12 @@ export default defineComponent({
             if (!data.finished) {
                 return
             }
+
             if (prop.downloadType === 'zip') {
                 ctx.emit('recordFile', zipDownloadData)
                 close()
             } else {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_BACKUP_SUCCESS'),
                 }).finally(() => {
@@ -146,7 +141,7 @@ export default defineComponent({
             } else {
                 zipNameMapping[name] = 1
             }
-            return `${name}(${('000' + zipNameMapping[name]).slice(-3)}).avi`
+            return `${name}${zipNameMapping[name] === 1 ? '' : `(${padStart(zipNameMapping[name], 3)})`}.avi`
         }
 
         /**
@@ -180,7 +175,7 @@ export default defineComponent({
             const item = prop.backupList[taskIndex]
             const progress = Math.floor(((frameTime - item.startTime) / (item.endTime - item.startTime)) * 100)
             // 返回的frameTime值可能小于startTime或大于endTime，因此这里需要clamp
-            pageData.value.progress = Math.min(100, Math.max(0, progress))
+            pageData.value.progress = clamp(progress, 0, 100)
             pageData.value.currentTask = taskIndex + 1
         }
 
@@ -201,11 +196,9 @@ export default defineComponent({
                     errorInfo = Translate('IDCS_NO_PERMISSION')
                     break
             }
+
             if (errorInfo) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: errorInfo,
-                }).finally(() => {
+                openMessageBox(errorInfo).finally(() => {
                     close()
                 })
             } else {

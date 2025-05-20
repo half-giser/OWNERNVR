@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-05 10:22:52
  * @Description: 智能分析 事件选择器
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-10 10:13:26
  */
 export default defineComponent({
     props: {
@@ -151,6 +149,7 @@ export default defineComponent({
                     }
                 })
             }
+
             if (prop.range.includes('person')) {
                 pageData.value.personOptions.forEach((item) => {
                     if (!item.hidden) {
@@ -158,6 +157,7 @@ export default defineComponent({
                     }
                 })
             }
+
             if (prop.range.includes('vehicle')) {
                 pageData.value.vehicleOptions.forEach((item) => {
                     if (!item.hidden) {

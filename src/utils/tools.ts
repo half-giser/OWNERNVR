@@ -2,48 +2,12 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 17:16:17
  */
 
-import { type QueryNodeListDto } from '@/types/apiType/channel'
 import { type ApiResult } from '@/api/api'
 import { type XMLQuery, type XmlResult } from './xmlParse'
-import JSZip from 'jszip'
-import { type CanvasBasePoint } from './canvas/canvasBase'
 
-export * from './transformers'
-export * from './validates'
-export * from './formats'
-export * from './xmlParse'
-export * from './encrypt'
-export * from './date'
-
-/**
- * @description: 获取对象的第一个属性的key和value
- * @param {any} obj
- * @return {*}
- */
-export const getObjFirstKV = (obj: any): [string, any] | undefined => {
-    for (const key in obj) {
-        return [key, obj[key]]
-    }
-}
-
-/**
- * @description: 获取当前网站的UI和主题
- * @return {UiAndTheme}
- */
-export const getUiAndTheme = (): UiAndTheme => {
-    const uiArr = (<string>import.meta.env.VITE_UI_TYPE).split('-')
-    const ui = uiArr[0] as UiName
-    const theme = uiArr[1]
-    return {
-        ui,
-        theme,
-        name: import.meta.env.VITE_UI_TYPE,
-    }
-}
+export { clamp, cloneDeep, debounce, isEqual } from 'lodash-es'
 
 /**
  * @description: 获取客户端操作系统
@@ -55,9 +19,9 @@ export const getSystemInfo = (): SystemInfo => {
     const userAgent = navigator.userAgent
     const platform = navigator.platform.toLowerCase()
 
-    const isWin = platform == 'win32' || platform == 'win64' || platform == 'windows'
-    const isMac = platform == 'mac68k' || platform == 'macppc' || platform == 'macintosh' || platform == 'macintel'
-    const isUnix = platform == 'x11' && !isWin && !isMac
+    const isWin = platform === 'win32' || platform === 'win64' || platform === 'windows'
+    const isMac = platform === 'mac68k' || platform === 'macppc' || platform === 'macintosh' || platform === 'macintel'
+    const isUnix = platform === 'x11' && !isWin && !isMac
     const isLinux = String(platform).indexOf('linux') > -1
 
     if (isWin) {
@@ -140,16 +104,17 @@ export const getBrowserInfo = (): BrowserInfo => {
             { name: 'safari', reg: /version\/(\d+(\.\d+)*).*safari/i },
         ]
         for (let i = 0; i < simpleBrowserList.length; i++) {
-            matches = userAgent.match(simpleBrowserList[i]['reg'])
+            matches = userAgent.match(simpleBrowserList[i].reg)
             if (matches) {
-                browserInfo.type = simpleBrowserList[i]['name'] as BrowserType
+                browserInfo.type = simpleBrowserList[i].name as BrowserType
                 browserInfo.version = matches[1]
                 break
             }
         }
     }
+
     if (browserInfo.version) {
-        browserInfo.majorVersion = (browserInfo.version as any).split('.')[0] * 1
+        browserInfo.majorVersion = Number(browserInfo.version.split('.')[0])
     }
     return browserInfo
 }
@@ -162,7 +127,7 @@ export const getBrowserInfo = (): BrowserInfo => {
  * @param {string} path
  * @return {string}
  */
-export const getFileNameFromPath = (path: string) => {
+export const getFileNameFromPath = (path: string): string => {
     return path.substring(path.lastIndexOf('/') + 1)
 }
 
@@ -174,7 +139,7 @@ export const getFileNameFromPath = (path: string) => {
  * @param {string} path
  * @return {string}
  */
-export const getFileNameNoExtFromPath = (path: string) => {
+export const getFileNameNoExtFromPath = (path: string): string => {
     return path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('.'))
 }
 
@@ -182,13 +147,22 @@ export const getFileNameNoExtFromPath = (path: string) => {
  * @description 判断当前是否为https访问
  * @returns {boolean}
  */
-export const isHttpsLogin = () => {
-    return window.location.protocol == 'https:'
+export const isHttpsLogin = (): boolean => {
+    const userSession = useUserSessionStore()
+    return window.location.protocol === 'https:' && userSession.appType === 'STANDARD'
 }
 
 // 判断浏览器是否支持webAssembly
 export const isBrowserSupportWasm = () => {
-    return 'WebAssembly' in window && import.meta.env.VITE_APP_TYPE == 'STANDARD'
+    const userSession = useUserSessionStore()
+    return 'WebAssembly' in window && userSession.appType === 'STANDARD'
+}
+
+// 判断浏览器是否不支持Websocket
+export const isNotSupportWebsocket = () => {
+    const plugin = usePlugin()
+    const userSession = useUserSessionStore()
+    return plugin.IsSupportH5() && isHttpsLogin() && userSession.appType === 'STANDARD'
 }
 
 /**
@@ -196,7 +170,7 @@ export const isBrowserSupportWasm = () => {
  * @param params 参数
  * @returns {string}
  */
-export const getURLSearchParams = (params: Record<string, string | number | boolean | null>) => {
+export const getURLSearchParams = (params: Record<string, string | number | boolean | null>): string => {
     const searchParams = new URLSearchParams()
     Object.entries(params).forEach(([key, value]) => {
         if (value !== null) searchParams.append(key, String(value))
@@ -229,168 +203,15 @@ export const matchRtspUrl = (str: string) => {
  * @param rtspUrl
  * @returns {string}
  */
-export const getRtspUrl = (ip: string, port: string, rtspUrl: string) => {
+export const getRtspUrl = (ip: string, port: string, rtspUrl: string): string => {
     return `rtsp://${ip}:${port}/${rtspUrl}`
-}
-
-/**
- * @description 下载文件
- * @param { Blob } blob 文件的blob
- * @param { string } fileName 文件名(包含扩展名)
- */
-export const download = (blob: Blob, fileName: string) => {
-    const link = document.createElement('a')
-    const url = window.URL.createObjectURL(blob)
-    link.setAttribute('href', url)
-    link.setAttribute('download', fileName)
-    link.style.display = 'none'
-    document.body.appendChild(link)
-    link.click()
-    setTimeout(() => {
-        document.body.removeChild(link)
-        window.URL.revokeObjectURL(url)
-    }, 1000)
-}
-
-/**
- * @description 下载文件
- * @param { imgBase64 } Base64 文件的blob
- * @param { string } fileName 文件名(包含扩展名)
- */
-export const downloadFromBase64 = (imgBase64: string, fileName: string) => {
-    const link = document.createElement('a')
-    link.setAttribute('href', imgBase64)
-    link.setAttribute('download', fileName)
-    link.style.display = 'none'
-    document.body.appendChild(link)
-    link.click()
-    setTimeout(() => {
-        document.body.removeChild(link)
-    }, 1000)
-}
-
-type XlsDesc = {
-    colspan: number | string
-    content: number | string
-}
-
-const createExcelTemplate = (titleArr: string[], contentArr: string[][], xlsDesc?: XlsDesc) => {
-    const content = contentArr
-        .map((tr) => {
-            return `<tr>${tr.map((td) => `<td style='vnd.ms-excel.numberformat:@'>${td}</td>`).join('')}</tr>`
-        })
-        .join('')
-    return rawXml`
-        <table cellspacing='0' cellpadding='0' border='1' style='display:none' class="excelTable">
-            <thead>
-                ${ternary(!!xlsDesc, `<tr><th colspan="${xlsDesc?.colspan}">${xlsDesc?.content}</th></tr>`, '')}
-                <tr>${titleArr.map((item) => `<th>${item}</th>`).join('')}</tr>
-            </thead>
-            <tbody>${content}</tbody>
-        </table>
-    `
-}
-
-export const downloadExcel = (titleArr: string[], contentArr: string[][], fileName?: string, xlsDesc?: XlsDesc) => {
-    // 替换table数据和worksheet名字
-    const table = createExcelTemplate(titleArr, contentArr, xlsDesc)
-    const template =
-        "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:excel'" +
-        "xmlns='http://www.w3.org/TR/REC-html40'><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>" +
-        `<x:Name>${fileName || 'Worksheet'}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets>` +
-        '</x:ExcelWorkbook></xml><![endif]-->' +
-        "<style type='text/css'>table td, table th {height: 50px;text-align: center;font-size: 18px;}</style>" +
-        `</head><body>${table}</body></html>`
-    const blob = new Blob([template], { type: 'text/csv' })
-    const link = document.createElement('a')
-    const url = window.URL.createObjectURL(blob)
-    link.setAttribute('href', url)
-    link.setAttribute('download', fileName || 'Worksheet.xls')
-    link.style.display = 'none'
-    document.body.appendChild(link)
-    link.click()
-    setTimeout(() => {
-        document.body.removeChild(link)
-        window.URL.revokeObjectURL(url)
-    }, 1000)
-}
-
-export type DownloadZipOptions = {
-    zipName: string
-    files: { name: string; content: string | ArrayBuffer; folder: string }[]
-}
-
-export const downloadZip = (options: DownloadZipOptions) => {
-    return new Promise((resolve) => {
-        const zipName = options.zipName || 'demo'
-        const files = options.files || []
-
-        if (!files.length) {
-            resolve(void 0)
-            return
-        }
-
-        const zip = new JSZip()
-        const folders: Record<string, JSZip | null> = {}
-
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i]
-            const name = file.name
-            const content = file.content
-            const folder = file.folder
-            if (folder && !folders[folder]) {
-                folders[folder] = zip.folder(folder)
-            }
-            const obj = folders[folder] || zip
-            // 判断是否为图片文件
-            const isImg = /\.(png|jpe?g|gif|svg)(\?.*)?$/.test(name)
-            if (isImg) {
-                obj.file(name, (content as string).replace(/data:image\/(png|jpg);base64,/, ''), { base64: true })
-            } else {
-                if (typeof content === 'string') {
-                    if (!content.length) {
-                        // 跳过空录像文件
-                        files.splice(i, 1)
-                        i--
-                        continue
-                    }
-                } else if (!content.byteLength) {
-                    files.splice(i, 1)
-                    i--
-                    continue
-                }
-                obj.file(name, content)
-            }
-        }
-
-        zip.generateAsync({ type: 'blob' }).then((content) => {
-            download(content, zipName + '.zip')
-            // see FileSaver.js
-            // saveAs(content, zipName + ".zip")
-            resolve(void 0)
-        })
-    })
-}
-
-/**
- * @description
- * @param arrayObject
- * @param property
- * @returns {Array}
- */
-export const filterProperty = (arrayObject: Record<string, string>[], property: string): Array<string> => {
-    const array: string[] = []
-    arrayObject.forEach((ele) => {
-        array.push(ele[property])
-    })
-    return array
 }
 
 /**
  * @description XML注入securityVer属性
  * @returns {string}
  */
-export const getSecurityVer = () => {
+export const getSecurityVer = (): string => {
     const userSessionStore = useUserSessionStore()
     return userSessionStore.sesionKey ? " securityVer='" + userSessionStore.securityVer + "'" : ''
 }
@@ -400,7 +221,7 @@ export const getSecurityVer = () => {
  * @param str
  * @returns {string}
  */
-export const wrapCDATA = (str: string) => {
+export const wrapCDATA = (str: string): string => {
     return `<![CDATA[${str}]]>`
 }
 
@@ -408,16 +229,21 @@ export const wrapCDATA = (str: string) => {
  * @description XML包裹ENUM值
  * @returns {string}
  */
-export const wrapEnums = (array: string[] | SelectOption<any, any>[]) => {
+export const wrapEnums = <T extends number | string | boolean, K>(array: string[] | SelectOption<T, K>[]): string => {
     if (array.length && typeof array[0] === 'string') {
         return array.map((item) => `<enum>${item}</enum>`).join('')
     } else {
-        return array.map((item) => `<enum>${String((item as SelectOption<any, any>).value)}</enum>`).join('')
+        return array.map((item) => `<enum>${(item as SelectOption<T, K>).value}</enum>`).join('')
     }
 }
 
-export const ternary = (condition: boolean | number | string | undefined | null, trueResult = '', falseResult = '') => {
-    return condition ? trueResult : falseResult
+/**
+ * @description base64字符串添加前缀
+ * @param {string} str
+ * @returns {string}
+ */
+export const wrapBase64Img = (str: string): string => {
+    return 'data:image/png;base64,' + str
 }
 
 /**
@@ -425,13 +251,14 @@ export const ternary = (condition: boolean | number | string | undefined | null,
  * @param options（options为过滤条件）
  * @returns {promise}
  */
-export const getChlList = (options: Partial<QueryNodeListDto>) => {
+export const getChlList = (options: Partial<ChannelQueryNodeListDto> = {}): Promise<any> => {
     const data = rawXml`
         <types>
             <nodeType>
                 <enum>chls</enum>
                 <enum>sensors</enum>
                 <enum>alarmOuts</enum>
+                <enum>voices</enum>
             </nodeType>
             <chlType>
                 <enum>analog</enum>
@@ -439,65 +266,67 @@ export const getChlList = (options: Partial<QueryNodeListDto>) => {
                 <enum>all</enum>
             </chlType>
         </types>
-        ${ternary(options.pageIndex, `<pageIndex>${options.pageIndex}</pageIndex>`)}
-        ${ternary(options.pageSize, `<pageSize>${options.pageSize}</pageSize>`)}
+        ${options.pageIndex ? `<pageIndex>${options.pageIndex}</pageIndex>` : ''}
+        ${options.pageSize ? `<pageSize>${options.pageSize}</pageSize>` : ''}
         <nodeType type='nodeType'>${options.nodeType || 'chls'}</nodeType>
         <condition>
-            ${ternary(options.chlName, `<name>${wrapCDATA(options.chlName!)}</name>`)}
-            ${ternary(options.isSupportPtz, `<supportPtz/>`)}
-            ${ternary(options.isSupportPtzGroupTraceTask, `<supportPTZGroupTraceTask/>`)}
-            ${ternary(options.isSupportTalkback, `<supportTalkback/>`)}
-            ${ternary(options.isSupportOsc, `<supportOsc/>`)}
-            ${ternary(options.isSupportSnap, '<supportSnap/>')}
-            ${ternary(options.isSupportVfd, '<supportVfd/>')}
-            ${ternary(options.isSupportBackEndVfd, '<supportBackEndVfd/>')}
-            ${ternary(options.isSupportCpc, '<supportCpc/>')}
-            ${ternary(options.isSupportCdd, '<supportCdd/>')}
-            ${ternary(options.isSupportIpd, '<supportIpd/>')}
-            ${ternary(options.isSupportAvd, '<supportAvd/>')}
-            ${ternary(options.isSupportPea, '<supportPea/>')}
-            ${ternary(options.isSupportTripwire, '<supportTripwire/>')}
-            ${ternary(options.isSupportImageRotate, '<supportImageRotate/>')}
-            ${ternary(options.isSupportFishEye, '<supportFishEye/>')}
-            ${ternary(options.isSupportMotion, '<supportMotion/>')}
-            ${ternary(options.isSupportOsd, '<supportOsd/>')}
-            ${ternary(options.isSupportAudioSetting, '<supportAudioSetting/>')}
-            ${ternary(options.isSupportMaskSetting, '<supportMaskSetting/>')}
-            ${ternary(options.isSupportImageSetting, '<supportImageSetting/>')}
-            ${ternary(options.isSupportWhiteLightAlarmOut, '<supportWhiteLightAlarmOut/>')}
-            ${ternary(options.isSupportAudioAlarmOut, '<supportAudioAlarmOut/>')}
-            ${ternary(options.isSupportAudioDev, '<supportAudioDev/>')}
-            ${ternary(options.isSupportAOIEntry, '<supportAOIEntry/>')}
-            ${ternary(options.isSupportAOILeave, '<supportAOILeave/>')}
-            ${ternary(options.isSupportPassLine, '<supportPassLine/>')}
-            ${ternary(options.isSupportVehiclePlate, '<supportVehiclePlate/>')}
-            ${ternary(options.isSupportAutoTrack, '<supportAutoTrack/>')}
-            ${ternary(options.isSupportAccessControl, '<supportAccessControl/>')}
-            ${ternary(options.isContainsDeletedItem, '<containsDeletedItem/>')}
-            ${ternary(options.authList, `<auth relation='or'>${options.authList}</auth>`)}
-            ${ternary(options.chlType, `<chlType type='chlType'>${options.chlType}</chlType>`)}
-            ${ternary(options.ignoreNdChl, '<ignoreNdChl/>')}
+            ${options.chlName ? `<name>${wrapCDATA(options.chlName)}</name>` : ''}
+            ${options.isSupportPtz ? '<supportPtz/>' : ''}
+            ${options.isSupportPtzGroupTraceTask ? '<supportPTZGroupTraceTask/>' : ''}
+            ${options.isSupportTalkback ? '<supportTalkback/>' : ''}
+            ${options.isSupportOsc ? '<supportOsc/>' : ''}
+            ${options.isSupportSnap ? '<supportSnap/>' : ''}
+            ${options.isSupportVfd ? '<supportVfd/>' : ''}
+            ${options.isSupportBackEndVfd ? '<supportBackEndVfd/>' : ''}
+            ${options.isSupportCpc ? '<supportCpc/>' : ''}
+            ${options.isSupportCdd ? '<supportCdd/>' : ''}
+            ${options.isSupportIpd ? '<supportIpd/>' : ''}
+            ${options.isSupportAvd ? '<supportAvd/>' : ''}
+            ${options.isSupportPea ? '<supportPea/>' : ''}
+            ${options.isSupportTripwire ? '<supportTripwire/>' : ''}
+            ${options.isSupportImageRotate ? '<supportImageRotate/>' : ''}
+            ${options.isSupportFishEye ? '<supportFishEye/>' : ''}
+            ${options.isSupportFishEyeConfig ? '<supportFishEyeConfig/>' : ''}
+            ${options.isSupportMotion ? '<supportMotion/>' : ''}
+            ${options.isSupportOsd ? '<supportOsd/>' : ''}
+            ${options.isSupportAudioSetting ? '<supportAudioSetting/>' : ''}
+            ${options.isSupportMaskSetting ? '<supportMaskSetting/>' : ''}
+            ${options.isSupportImageSetting ? '<supportImageSetting/>' : ''}
+            ${options.isSupportWhiteLightAlarmOut ? '<supportWhiteLightAlarmOut/>' : ''}
+            ${options.isSupportAudioAlarmOut ? '<supportAudioAlarmOut/>' : ''}
+            ${options.isSupportAudioDev ? '<supportAudioDev/>' : ''}
+            ${options.isSupportAOIEntry ? '<supportAOIEntry/>' : ''}
+            ${options.isSupportAOILeave ? '<supportAOILeave/>' : ''}
+            ${options.isSupportPassLine ? '<supportPassLine/>' : ''}
+            ${options.isSupportVehiclePlate ? '<supportVehiclePlate/>' : ''}
+            ${options.isSupportRegionStatistics ? '<supportRegionStatistics/>' : ''}
+            ${options.isSupportAutoTrack ? '<supportAutoTrack/>' : ''}
+            ${options.isSupportAccessControl ? '<supportAccessControl/>' : ''}
+            ${options.isSupportVehicleDirection ? '<supportVehicleDirection/>' : ''}
+            ${options.isSupportRS485Ptz ? '<supportRS485Ptz/>' : ''}
+            ${options.isContainsDeletedItem ? '<containsDeletedItem/>' : ''}
+            ${options.authList ? `<auth relation='or'>${options.authList}</auth>` : ''}
+            ${options.chlType ? `<chlType type='chlType'>${options.chlType}</chlType>` : ''}
+            ${options.ignoreNdChl ? '<ignoreNdChl/>' : ''}
         </condition>
         <requireField>
-            <name/>
-            <chlIndex/>
-            <chlType/>
-            ${options.requireField ? options.requireField.map((ele) => `<${ele}/>`).join('') : ''}
+            ${Array.from(new Set(['name', 'chlIndex', 'chlType'].concat(options.requireField || [])))
+                .map((ele) => `<${ele}/>`)
+                .join('')}
         </requireField>
     `
     return queryNodeList(data)
 }
 
 /**
- * @description 传入当前页的路由 检测通道能力集
+ * @description 传入当前页的路由 检测通道能力集. AI智能事件跳转时,若当前没有通道支持则提示添加通道不进行页面跳转
  * @param {string} route
  * @returns {Promise<Boolean>}
  */
-export const checkChlListCaps = async (route: string) => {
-    const { openLoading, closeLoading } = useLoading()
+export const checkChlListCaps = async (route: string): Promise<boolean> => {
     const systemCaps = useCababilityStore()
 
-    if (route.includes('faceRecognition') || route.includes('vehicleRecognition') || route.includes('boundary') || route.includes('more')) {
+    if (route.includes('faceRecognition') || route.includes('vehicleRecognition') || route.includes('boundary') || route.includes('more') || route.includes('videoStructure')) {
     } else {
         return false
     }
@@ -510,7 +339,7 @@ export const checkChlListCaps = async (route: string) => {
 
     const resultOnline = await queryOnlineChlList()
     const $online = queryXml(resultOnline)
-    const onlineList = $online('//content/item').map((item) => item.attr('id')!)
+    const onlineList = $online('content/item').map((item) => item.attr('id'))
 
     const result = await getChlList({
         requireField: [
@@ -525,7 +354,12 @@ export const checkChlListCaps = async (route: string) => {
             'supportCdd',
             'supportOsc',
             'supportPassLine',
-            'supportPassLine',
+            'supportLoitering',
+            'supportPvd',
+            'supportRegionStatistics',
+            'supportCrowdGathering',
+            'supportASD',
+            'supportHeatMap',
             'protocolType',
         ],
     })
@@ -533,27 +367,27 @@ export const checkChlListCaps = async (route: string) => {
 
     closeLoading()
 
-    const supportFlag = $('//content/item').some((item) => {
+    const supportFlag = $('content/item').some((item) => {
         const $item = queryXml(item.element)
         const protocolType = $('protocolType').text()
-        const factoryName = $('productModel').attr('factoryName')!
+        const factoryName = $('productModel').attr('factoryName')
         if (factoryName === 'Recorder') {
             return false
         }
-        const chlId = item.attr('id')!
+        const chlId = item.attr('id')
         if (protocolType !== 'RTSP' && onlineList.includes(chlId)) {
-            const supportOsc = $item('supportOsc').text().toBoolean()
-            const supportCdd = $item('supportCdd').text().toBoolean()
-            const supportVfd = $item('supportVfd').text().toBoolean()
-            const supportAvd = $item('supportAvd').text().toBoolean()
-            const supportPea = $item('supportPea').text().toBoolean()
-            const supportPeaTrigger = $item('supportPeaTrigger').text().toBoolean()
-            const supportTripwire = $item('supportTripwire').text().toBoolean()
-            const supportAOIEntry = $item('supportAOIEntry').text().toBoolean()
-            const supportAOILeave = $item('supportAOILeave').text().toBoolean()
-            const supportVehiclePlate = $item('supportVehiclePlate').text().toBoolean()
-            const supportPassLine = $item('supportPassLine').text().toBoolean()
-            const supportCpc = $item('supportCpc').text().toBoolean()
+            const supportOsc = $item('supportOsc').text().bool()
+            const supportCdd = $item('supportCdd').text().bool()
+            const supportVfd = $item('supportVfd').text().bool()
+            const supportAvd = $item('supportAvd').text().bool()
+            const supportPea = $item('supportPea').text().bool()
+            const supportPeaTrigger = $item('supportPeaTrigger').text().bool()
+            const supportTripwire = $item('supportTripwire').text().bool()
+            const supportAOIEntry = $item('supportAOIEntry').text().bool()
+            const supportAOILeave = $item('supportAOILeave').text().bool()
+            const supportVehiclePlate = $item('supportVehiclePlate').text().bool()
+            const supportPassLine = $item('supportPassLine').text().bool()
+            const supportCpc = $item('supportCpc').text().bool()
             let supportBackVfd = false
             if (localFaceDectEnabled && !supportVfd) {
                 supportBackVfd = true
@@ -584,30 +418,59 @@ export const checkChlListCaps = async (route: string) => {
     return supportFlag
 }
 
+export const commResponseHandler = (response: ApiResult) => {
+    return new Promise((resolve: ($: XMLQuery) => void, reject: ($: XMLQuery) => void) => {
+        const $ = queryXml(response)
+        if ($('status').text() === 'success') {
+            resolve($)
+        } else {
+            reject($)
+        }
+    })
+}
+
 /**
  * @description 通用的加载数据请求处理
  * @param {XMLDocument} $response 响应数据
  * @param {Function} successHandler 成功回调
  * @param {Function} failedHandler 失败回调
  */
-export const commLoadResponseHandler = ($response: any, successHandler?: (result: (path: string) => XmlResult) => void, failedHandler?: (result: (path: string) => XmlResult) => void) => {
-    return new Promise((resolve: ($: (path: string) => XmlResult) => void, reject: ($: (path: string) => XmlResult) => void) => {
-        const Translate = useLangStore().Translate
-        const openMessageTipBox = useMessageBox().openMessageTipBox
-        const $ = queryXml($response)
-        if ($('status').text() == 'success') {
+export const commLoadResponseHandler = (
+    $response: ApiResult,
+    successHandler?: (result: (path: string) => XmlResult) => void,
+    failedHandler?: (result: (path: string) => XmlResult) => void,
+): Promise<XMLQuery> => {
+    const Translate = useLangStore().Translate
+    return commResponseHandler($response)
+        .then(($) => {
             successHandler && successHandler($)
-            resolve($)
-        } else {
-            openMessageTipBox({
-                type: 'info',
-                message: Translate('IDCS_QUERY_DATA_FAIL'),
-            }).then(() => {
+            return Promise.resolve($)
+        })
+        .catch(($) => {
+            const errorCode = $('errorCode').text().num()
+            let errorInfo = Translate('IDCS_QUERY_DATA_FAIL')
+            switch (errorCode) {
+                case ErrorCode.USER_ERROR_NO_USER:
+                case ErrorCode.USER_ERROR_PWD_ERR:
+                    errorInfo = Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')
+                    break
+                case ErrorCode.USER_ERROR_SERVER_NO_EXISTS:
+                    errorInfo = Translate('IDCS_LOGIN_OVERTIME')
+                    break
+                case ErrorCode.USER_ERROR_NO_AUTH:
+                    errorInfo = Translate('IDCS_NO_PERMISSION')
+                    break
+                case ErrorCode.USER_ERROR_INVALID_PARAM:
+                    errorInfo = Translate('IDCS_USER_ERROR_INVALID_PARAM')
+                    break
+                default:
+                    break
+            }
+            return openMessageBox(errorInfo).then(() => {
                 failedHandler && failedHandler($)
-                reject($)
+                return Promise.reject($)
             })
-        }
-    })
+        })
 }
 
 /**
@@ -616,31 +479,46 @@ export const commLoadResponseHandler = ($response: any, successHandler?: (result
  * @param {Function} successHandler 成功回调
  * @param {Function} failedHandler 失败回调
  */
-export const commSaveResponseHadler = ($response: ApiResult, successHandler?: (result: (path: string) => XmlResult) => void, failedHandler?: (result: (path: string) => XmlResult) => void) => {
-    return new Promise((resolve: ($: (path: string) => XmlResult) => void, reject: ($: (path: string) => XmlResult) => void) => {
-        const Translate = useLangStore().Translate
-        const openMessageTipBox = useMessageBox().openMessageTipBox
-        const $ = queryXml($response)
-        if ($('//status').text() == 'success') {
-            openMessageTipBox({
+export const commSaveResponseHandler = ($response: ApiResult, successHandler?: (result: XMLQuery) => void, failedHandler?: (result: XMLQuery) => void) => {
+    const Translate = useLangStore().Translate
+    commResponseHandler($response)
+        .then(($) =>
+            openMessageBox({
                 type: 'success',
                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                showCancelButton: false,
-            }).then(() => {
+            }).finally(() => {
                 successHandler && successHandler($)
-                resolve($)
-            })
-        } else {
-            openMessageTipBox({
-                type: 'info',
-                message: Translate('IDCS_SAVE_DATA_FAIL'),
-                showCancelButton: false,
-            }).then(() => {
+            }),
+        )
+        .catch(($) =>
+            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL')).finally(() => {
                 failedHandler && failedHandler($)
-                reject($)
-            })
-        }
-    })
+            }),
+        )
+}
+
+/**
+ * @description 通用的删除数据请求处理
+ * @param {XMLDocument} $response 响应数据
+ * @param {Function} successHandler 成功回调
+ * @param {Function} failedHandler 失败回调
+ */
+export const commDelResponseHandler = ($response: ApiResult, successHandler?: (result: XMLQuery) => void, failedHandler?: (result: XMLQuery) => void) => {
+    const Translate = useLangStore().Translate
+    commResponseHandler($response)
+        .then(($) =>
+            openMessageBox({
+                type: 'success',
+                message: Translate('IDCS_DELETE_SUCCESS'),
+            }).finally(() => {
+                successHandler && successHandler($)
+            }),
+        )
+        .catch(($) =>
+            openMessageBox(Translate('IDCS_DELETE_FAIL')).finally(() => {
+                failedHandler && failedHandler($)
+            }),
+        )
 }
 
 /**
@@ -650,38 +528,30 @@ export const commSaveResponseHadler = ($response: ApiResult, successHandler?: (r
  * @param failedHandler 失败回调
  * @returns 结果的promise对象
  */
-export const commMutiSaveResponseHadler = (
-    responseList: ApiResult[],
-    successHandler?: (result: ((path: string) => XmlResult)[]) => void,
-    failedHandler?: (result: ((path: string) => XmlResult)[]) => void,
-) => {
+export const commMutiSaveResponseHandler = (responseList: ApiResult[], successHandler?: (result: XMLQuery[]) => void, failedHandler?: (result: XMLQuery[]) => void) => {
     let allSuccess = true
-    const responseXmlList: ((path: string) => XmlResult)[] = []
+    const responseXmlList: XMLQuery[] = []
     responseList.forEach((item) => {
-        const resultXml = queryXml(item as ApiResult)
-        responseXmlList.push(resultXml)
-        if (resultXml('status').text() !== 'success') {
+        const $ = queryXml(item)
+        responseXmlList.push($)
+        if ($('status').text() !== 'success') {
             allSuccess = false
             return
         }
     })
     const Translate = useLangStore().Translate
-    const openMessageTipBox = useMessageBox().openMessageTipBox
 
-    return new Promise((resolve: (responseXmlList: ((path: string) => XmlResult)[]) => void, reject: (responseXmlList: ((path: string) => XmlResult)[]) => void) => {
+    return new Promise((resolve: (responseXmlList: XMLQuery[]) => void, reject: (responseXmlList: XMLQuery[]) => void) => {
         if (allSuccess) {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'success',
                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-            }).then(() => {
+            }).finally(() => {
                 successHandler && successHandler(responseXmlList)
                 resolve(responseXmlList)
             })
         } else {
-            openMessageTipBox({
-                type: 'info',
-                message: Translate('IDCS_SAVE_DATA_FAIL'),
-            }).then(() => {
+            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL')).finally(() => {
                 failedHandler && failedHandler(responseXmlList)
                 reject(responseXmlList)
             })
@@ -721,35 +591,36 @@ export const getArrayDiffRows = (arr1: Record<string, any>[], arr2: Record<strin
  * @param {any} date 公历日期对象
  * @return {object} 波斯历日期对象
  */
-export const parseDateToPersianCalendar = (date: any) => {
-    if (typeof date === 'string') {
-        const dateParts = date.match(new RegExp('^(\\d{1,4})-(\\d{1,2})-(\\d{1,2})$'))
-        date = dateParts && dateParts.length === 4 ? new Date(Number(dateParts[1]), Number(dateParts[2]) - 1, Number(dateParts[3])) : null
-    }
-    if (!(date instanceof Date)) {
-        return null
-    }
+// export const parseDateToPersianCalendar = (date: any) => {
+//     if (typeof date === 'string') {
+//         const dateParts = date.match(new RegExp('^(\\d{1,4})-(\\d{1,2})-(\\d{1,2})$'))
+//         date = dateParts && dateParts.length === 4 ? new Date(Number(dateParts[1]), Number(dateParts[2]) - 1, Number(dateParts[3])) : null
+//     }
 
-    const pj = (year: number, month: number, day: number) => {
-        const a = year - 474
-        const b = a - 2820 * Math.floor(a / 2820) + 474
-        return 1948321 - 1 + 1029983 * Math.floor(a / 2820) + 365 * (b - 1) + Math.floor((682 * b - 110) / 2816) + (month > 6 ? 30 * month + 6 : 31 * month) + day
-    }
-    const julianDay = Math.floor((new Date(date.getFullYear(), date.getMonth(), date.getDate(), 8, 1, 1).getTime() + 210866803200000) / (24 * 60 * 60 * 1000))
-    const a = julianDay - pj(475, 0, 1)
-    const b = Math.floor(a / 1029983)
-    const c = a - 1029983 * Math.floor(a / 1029983)
-    const d = c !== 1029982 ? Math.floor((2816 * c + 1031337) / 1028522) : 2820
-    const year = 474 + 2820 * b + d
-    const f = 1 + julianDay - pj(year, 0, 1)
-    const month = f > 186 ? Math.ceil((f - 6) / 30) - 1 : Math.ceil(f / 31) - 1
-    const day = julianDay - (pj(year, month, 1) - 1)
-    const r = (year << 16) | (month << 8) | day
-    const persianYear = r >> 16
-    const persianMonth = (r & 0xff00) >> 8
-    const persianDay = r & 0xff
-    return { year: persianYear > 0 ? persianYear : persianYear - 1, month: persianMonth, day: persianDay }
-}
+//     if (!(date instanceof Date)) {
+//         return null
+//     }
+
+//     const pj = (year: number, month: number, day: number) => {
+//         const a = year - 474
+//         const b = a - 2820 * Math.floor(a / 2820) + 474
+//         return 1948321 - 1 + 1029983 * Math.floor(a / 2820) + 365 * (b - 1) + Math.floor((682 * b - 110) / 2816) + (month > 6 ? 30 * month + 6 : 31 * month) + day
+//     }
+//     const julianDay = Math.floor((new Date(date.getFullYear(), date.getMonth(), date.getDate(), 8, 1, 1).getTime() + 210866803200000) / (24 * 60 * 60 * 1000))
+//     const a = julianDay - pj(475, 0, 1)
+//     const b = Math.floor(a / 1029983)
+//     const c = a - 1029983 * Math.floor(a / 1029983)
+//     const d = c !== 1029982 ? Math.floor((2816 * c + 1031337) / 1028522) : 2820
+//     const year = 474 + 2820 * b + d
+//     const f = 1 + julianDay - pj(year, 0, 1)
+//     const month = f > 186 ? Math.ceil((f - 6) / 30) - 1 : Math.ceil(f / 31) - 1
+//     const day = julianDay - (pj(year, month, 1) - 1)
+//     const r = (year << 16) | (month << 8) | day
+//     const persianYear = r >> 16
+//     const persianMonth = (r & 0xff00) >> 8
+//     const persianDay = r & 0xff
+//     return { year: persianYear > 0 ? persianYear : persianYear - 1, month: persianMonth, day: persianDay }
+// }
 
 /**
  * @deprecated use dayjs
@@ -757,32 +628,33 @@ export const parseDateToPersianCalendar = (date: any) => {
  * @param {any} persianDate 波斯历日期对象
  * @return {Date} 公历日期对象
  */
-export const parsePersianCalendartoDate = (persianDate: any) => {
-    if (typeof persianDate === 'string') {
-        const persianDateParts = persianDate.match(new RegExp('^(\\d{1,4})-(\\d{1,2})$'))
-        persianDate =
-            persianDateParts && persianDateParts.length === 3
-                ? {
-                      year: Number(persianDateParts[1]),
-                      month: Number(persianDateParts[2]) - 1,
-                      day: 1,
-                  }
-                : null
-    }
-    if (typeof persianDate !== 'object' || typeof persianDate['year'] !== 'number' || typeof persianDate['month'] !== 'number' || typeof persianDate['day'] !== 'number') {
-        return null
-    }
+// export const parsePersianCalendartoDate = (persianDate: any) => {
+//     if (typeof persianDate === 'string') {
+//         const persianDateParts = persianDate.match(new RegExp('^(\\d{1,4})-(\\d{1,2})$'))
+//         persianDate =
+//             persianDateParts && persianDateParts.length === 3
+//                 ? {
+//                       year: Number(persianDateParts[1]),
+//                       month: Number(persianDateParts[2]) - 1,
+//                       day: 1,
+//                   }
+//                 : null
+//     }
 
-    const pj = (year: number, month: number, day: number) => {
-        const a = year - 474
-        const b = a - 2820 * Math.floor(a / 2820) + 474
-        return 1948321 - 1 + 1029983 * Math.floor(a / 2820) + 365 * (b - 1) + Math.floor((682 * b - 110) / 2816) + (month > 6 ? 30 * month + 6 : 31 * month) + day
-    }
-    const julianDay = pj(persianDate['year'] > 0 ? persianDate['year'] : persianDate['year'] + 1, persianDate['month'], persianDate['day'])
-    const date = new Date()
-    const baseTime = new Date(date.getFullYear(), date.getMonth() + 1, date.getDate(), 8, 1, 1).getTime()
-    return new Date(julianDay * 24 * 60 * 60 * 1000 + (baseTime + 210866803200000 - 24 * 60 * 60 * 1000 * Math.floor((baseTime + 210866803200000) / (24 * 60 * 60 * 1000))) - 210866803200000)
-}
+//     if (typeof persianDate !== 'object' || typeof persianDate.year !== 'number' || typeof persianDate.month !== 'number' || typeof persianDate.day !== 'number') {
+//         return null
+//     }
+
+//     const pj = (year: number, month: number, day: number) => {
+//         const a = year - 474
+//         const b = a - 2820 * Math.floor(a / 2820) + 474
+//         return 1948321 - 1 + 1029983 * Math.floor(a / 2820) + 365 * (b - 1) + Math.floor((682 * b - 110) / 2816) + (month > 6 ? 30 * month + 6 : 31 * month) + day
+//     }
+//     const julianDay = pj(persianDate.year > 0 ? persianDate.year : persianDate.year + 1, persianDate.month, persianDate.day)
+//     const date = new Date()
+//     const baseTime = new Date(date.getFullYear(), date.getMonth() + 1, date.getDate(), 8, 1, 1).getTime()
+//     return new Date(julianDay * 24 * 60 * 60 * 1000 + (baseTime + 210866803200000 - 24 * 60 * 60 * 1000 * Math.floor((baseTime + 210866803200000) / (24 * 60 * 60 * 1000))) - 210866803200000)
+// }
 
 /**
  * @deprecated use dayjs
@@ -880,24 +752,17 @@ export const parsePersianCalendartoDate = (persianDate: any) => {
  * @description 检测重启
  * @returns {NodeJS.Timeout}
  */
-export const reconnect = () => {
-    const { openMessageTipBox } = useMessageBox()
-    const { Translate } = useLangStore()
+export const reconnect = (): NodeJS.Timeout => {
     const pluginStore = usePluginStore()
-    const { closeLoading } = useLoading()
+    const userSession = useUserSessionStore()
 
-    if (import.meta.env.VITE_APP_TYPE === 'STANDARD') {
+    if (userSession.appType === 'STANDARD') {
         return setTimeout(() => {
             reconnectStandard(() => {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_LOGIN_OVERTIME'),
-                }).then(() => {
-                    closeLoading()
-                    Logout()
-                })
+                closeLoading()
+                Logout()
             })
-        }, 150000)
+        }, 5000)
     } else {
         pluginStore.isReconn = true
         return setTimeout(() => 0)
@@ -920,33 +785,174 @@ const reconnectStandard = async (callback?: () => void) => {
         })
 }
 
+type ScheduleListOption = {
+    isDefault: boolean
+    defaultValue: string
+}
+
 /**
- * @description: 构建排程选择列表
- * @return {*}
+ * @description 构建排程选择列表
+ * @return {SelectOption<string, string>[]}
  */
-export const buildScheduleList = async () => {
+export const buildScheduleList = async (option: Partial<ScheduleListOption> = {}) => {
+    const options = {
+        isManager: false,
+        isDefault: true,
+        defaultValue: DEFAULT_EMPTY_ID,
+        ...option,
+    }
     const Translate = useLangStore().Translate
     const result = await queryScheduleList()
-    let scheduleList = [] as SelectOption<string, string>[]
-    commLoadResponseHandler(result, async ($) => {
-        scheduleList = $('//content/item').map((item) => {
+    const $ = await commLoadResponseHandler(result)
+    const scheduleList = $('content/item').map((item) => {
+        return {
+            value: item.attr('id'),
+            label: item.text(),
+        }
+    })
+    if (options.isDefault) {
+        scheduleList.push({
+            value: options.defaultValue,
+            label: `<${Translate('IDCS_NULL')}>`,
+        })
+    }
+
+    return scheduleList
+}
+
+/**
+ * @description 判断排程ID是否在排程列表中存在，若存在，返回排程ID，否则返回默认ID
+ * @param {SelectOption<string, string>[]} scheduleList
+ * @param {string} scheduleId
+ * @param {string} defaultScheduleId
+ * @return {string}
+ */
+export const getScheduleId = (scheduleList: SelectOption<string, string>[], scheduleId: string, defaultScheduleId: string = DEFAULT_EMPTY_ID): string => {
+    if (scheduleId === '') {
+        return defaultScheduleId
+    }
+
+    if (scheduleList.some((item) => item.value === scheduleId)) {
+        return scheduleId
+    }
+
+    return defaultScheduleId
+}
+
+/**
+ * @description 返回持续时间列表
+ * @returns {SelectOption<string, string>[]}
+ */
+export const getAlarmHoldTimeList = (holdTimeList: string, holdTime: number) => {
+    const holdTimeArr = holdTimeList.array().map((item) => Number(item))
+    if (!holdTimeArr.includes(holdTime)) {
+        holdTimeArr.push(holdTime)
+    }
+    return holdTimeArr
+        .map((value) => {
             return {
-                value: item.attr('id')!,
-                label: item.text(),
+                value,
+                label: getTranslateForSecond(value),
             }
         })
-        scheduleList.push(
-            {
-                value: '',
-                label: `<${Translate('IDCS_NULL')}>`,
-            },
-            {
-                value: 'scheduleMgr',
-                label: Translate('IDCS_SCHEDULE_MANAGE'),
-            },
-        )
+        .toSorted((a, b) => {
+            return a.value - b.value
+        })
+}
+
+/**
+ * @description 构建语音播报列表
+ */
+export const buildAudioList = async () => {
+    const Translate = useLangStore().Translate
+    const result = await queryAlarmAudioCfg()
+    const $ = await commLoadResponseHandler(result)
+    const audioList = $('content/audioList/item').map((item) => {
+        const $item = queryXml(item.element)
+        return {
+            value: item.attr('id'),
+            label: $item('name').text(),
+        }
     })
-    return scheduleList
+    audioList.push({
+        value: DEFAULT_EMPTY_ID,
+        label: `<${Translate('IDCS_NULL')}>`,
+    })
+    return audioList
+}
+
+/**
+ * @description 判断本地声音ID是否在声音列表中存在，若存在，返回本地声音ID，否则返回默认ID
+ * @param {SelectOption<string, string>[]} voiceList
+ * @param {string} audioId
+ * @param {string} defaultAudioId
+ * @return {string}
+ */
+export const getSystemAudioID = getScheduleId
+
+/**
+ * @description 构建报警输出通道列表
+ */
+export const buildAlarmOutChlList = async () => {
+    const result = await getChlList({
+        requireField: ['device'],
+        nodeType: 'alarmOuts',
+    })
+    const $ = await commLoadResponseHandler(result)
+    const alarmOutList = $('content/item').map((item) => {
+        const $item = queryXml(item.element)
+        let label = $item('name').text()
+        if ($item('devDesc').text()) {
+            label = $item('devDesc').text() + '_' + label
+        }
+        return {
+            value: item.attr('id'),
+            label,
+            device: {
+                value: $item('device').attr('id'),
+                label: $item('device').text(),
+            },
+        }
+    })
+    return alarmOutList
+}
+
+/**
+ * @description 获取录像通道列表
+ */
+export const buildRecordChlList = async () => {
+    const result = await getChlList({
+        nodeType: 'chls',
+        isSupportSnap: false,
+    })
+    const $ = await commLoadResponseHandler(result)
+    const chlList = $('content/item').map((item) => {
+        const $item = queryXml(item.element)
+        return {
+            label: $item('name').text(),
+            value: item.attr('id'),
+        }
+    })
+    return chlList
+}
+
+/**
+ * @description 获取抓图通道列表
+ */
+export const buildSnapChlList = async () => {
+    const result = await getChlList({
+        nodeType: 'chls',
+        isSupportSnap: true,
+    })
+    const $ = await commLoadResponseHandler(result)
+    const chlList = $('content/item').map((item) => {
+        const $item = queryXml(item.element)
+        return {
+            label: $item('name').text(),
+            value: item.attr('id'),
+        }
+    })
+    return chlList
 }
 
 /**
@@ -966,15 +972,21 @@ export const getTranslateForMin = (value: number) => {
  */
 export const getTranslateForSecond = (value: number) => {
     const Translate = useLangStore().Translate
-    return getTranslateForTime(value, Translate('IDCS_MINUTE'), Translate('IDCS_MINUTES'), Translate('IDCS_SECONDS'), Translate('IDCS_SECOND'))
+    return getTranslateForTime(value, Translate('IDCS_MINUTE'), Translate('IDCS_MINUTES'), Translate('IDCS_SECOND'), Translate('IDCS_SECONDS'))
 }
 
 /**
  * @description: 获取时长翻译
  * @param {number} value
- * @return {*}
+ * @return {string}
  */
-const getTranslateForTime = (value: number, unit1: string, unit1s: string, unit2: string, unit2s: string) => {
+const getTranslateForTime = (value: number, unit1: string, unit1s: string, unit2: string, unit2s: string): string => {
+    value = Math.round(value)
+
+    if (value === 0) {
+        return value + unit2s
+    }
+
     const t1 = Math.floor(value / 60)
     const t2 = value % 60
 
@@ -982,26 +994,98 @@ const getTranslateForTime = (value: number, unit1: string, unit1s: string, unit2
     if (t1 > 0) {
         label += `${t1} ${t1 === 1 ? unit1 : unit1s}`
     }
+
     if (t2 > 0) {
         label += (t1 > 0 ? ' ' : '') + `${t2} ${t2 === 1 ? unit2 : unit2s}`
     }
+
     return label
+}
+
+/**
+ * @description 获取密码强度提示文本
+ */
+export const getTranslateForPasswordStrength = (key: keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING) => {
+    const Translate = useLangStore().Translate
+    switch (key) {
+        case 'weak':
+            return Translate('IDCS_PASSWORD_STRONG_WEAK').formatForLang(1, 16)
+        case 'medium':
+            return Translate('IDCS_PASSWORD_STRONG_MIDDLE').formatForLang(8, 16).replaceAll('\n', '<br>')
+        case 'strong':
+            return Translate('IDCS_PASSWORD_STRONG_HEIGHT').formatForLang(8, 16).replaceAll('\n', '<br>')
+        case 'stronger':
+            return Translate('IDCS_PASSWORD_STRONG_HEIGHEST').formatForLang(9, 16).replaceAll('\n', '<br>')
+        default:
+            return ''
+    }
+}
+
+/**
+ * @description 获取通用的开关选项
+ * @returns {SelectOption<boolean, string>[]}
+ */
+export const getBoolSwitchOptions = (): SelectOption<boolean, string>[] => {
+    const Translate = useLangStore().Translate
+    return DEFAULT_SWITCH_OPTIONS.map((item) => {
+        return {
+            label: Translate(item.label),
+            value: item.value.bool(),
+        }
+    })
+}
+
+/**
+ * @description 返回翻译label的选项
+ * @param {SelectOption[]} options
+ * @returns {SelectOption[]}
+ */
+export const getTranslateOptions = <K extends string | number | boolean>(options: SelectOption<K, string>[]): SelectOption<K, string>[] => {
+    const Translate = useLangStore().Translate
+    return options.map((item) => {
+        return {
+            label: Translate(item.label),
+            value: item.value,
+        }
+    })
+}
+
+/**
+ * @description 返回翻译value的Record<string, string>
+ * @param {Record<string, string>} options
+ * @returns {Record<string, string>}
+ */
+export const getTranslateMapping = (options: Record<string, string>): Record<string, string> => {
+    const translatedOptions: Record<string, string> = {}
+    const Translate = useLangStore().Translate
+    const keys = Object.keys(options)
+    keys.forEach((key) => {
+        translatedOptions[key] = Translate(options[key])
+    })
+    return translatedOptions
 }
 
 /**
  * @description 提示达到搜索最大数量
  * @param $
  */
-export const showMaxSearchLimitTips = ($: XMLQuery) => {
-    const isMaxSearchResultNum = $('//content/IsMaxSearchResultNum').text().toBoolean()
-    const { openMessageTipBox } = useMessageBox()
+export const showMaxSearchLimitTips = ($: XMLQuery, type?: string) => {
     const { Translate } = useLangStore()
 
+    let isMaxSearchResultNum = $('content/IsMaxSearchResultNum').text().bool()
+    let maxSearchLimit = $('content/IsMaxSearchResultNum').attr('maxSearchLimit').num() || 150000
+
+    if (type === 'smartSearch') {
+        const total = $('content').attr('total').num()
+        maxSearchLimit = 10000
+        if (total >= 10000) {
+            isMaxSearchResultNum = true
+        }
+    }
+
     if (isMaxSearchResultNum) {
-        openMessageTipBox({
-            type: 'info',
-            message: Translate('IDCS_SEARCH_RESULT_LIMIT_TIPS'),
-        })
+        const msg = (type === 'smartSearch' ? 'web ' : '') + Translate('IDCS_SEARCH_RESULT_LIMIT_TIPS').formatForLang(maxSearchLimit)
+        openMessageBox(msg)
     }
 }
 
@@ -1028,16 +1112,21 @@ export const getBitrateRange = (options: GetBitRateRangeOption) => {
     // const resolution = options.resolution
     const videoEncodeType = options.videoEncodeType
     let resolution = { width: 0, height: 0 }
-    if (typeof options.resolution == 'string') {
+    if (typeof options.resolution === 'string') {
         const resParts = options.resolution.split('x')
-        resolution = { width: Number(resParts[0]), height: Number(resParts[1]) }
+        resolution = {
+            width: Number(resParts[0]),
+            height: Number(resParts[1]),
+        }
     } else {
         resolution = options.resolution
     }
+
     const totalResolution = resolution.width * resolution.height
     if (!totalResolution) {
         return null
     }
+
     let resParam = Math.floor(totalResolution / (totalResolution >= 1920 * 1080 ? 200000 : 150000))
     if (!resParam) {
         resParam = 0.5
@@ -1051,53 +1140,30 @@ export const getBitrateRange = (options: GetBitRateRangeOption) => {
         lower: 34,
         lowest: 25,
     }
+
     const levelParam = levelParamMapping[options.level]
     if (!levelParam) {
         return null
     }
+
     // 根据帧率使用不同公式计算下限和上限
     const minBase = (768 * resParam * levelParam * (options.fps >= 10 ? options.fps : 10)) / 3000
     let min = minBase - (options.fps >= 10 ? 0 : ((10 - options.fps) * minBase * 2) / 27)
     const maxBase = (1280 * resParam * levelParam * (options.fps >= 10 ? options.fps : 10)) / 3000
     let max = maxBase - (options.fps >= 10 ? 0 : ((10 - options.fps) * maxBase * 2) / 27)
     min = options.maxQoI ? (options.maxQoI < min ? options.maxQoI : min) : min
-    max = videoEncodeType == 'h265' ? Math.floor(max * 0.55) : Math.floor(max)
-    if (videoEncodeType == 'h265' || videoEncodeType == 'h265p' || videoEncodeType == 'h265s') {
+    max = videoEncodeType === 'h265' ? Math.floor(max * 0.55) : Math.floor(max)
+    if (videoEncodeType === 'h265' || videoEncodeType === 'h265p' || videoEncodeType === 'h265s') {
         min = Math.floor(min * 0.55)
     } else {
         min = Math.floor(min)
     }
+
     if (!min || !max) {
         return null
     }
 
-    return { min: min, max: max }
-}
-
-// 将IPC音频文件转换为base64-导入摄像机声音/本地音频使用
-export const fileToBase64 = (file: Blob, callback: Function) => {
-    const reader = new FileReader()
-    reader.onload = (e) => {
-        const data = (e.target?.result as string).split(',')
-        const base64 = data[1]
-        const base64Str = formatBase64(base64)
-        if (typeof callback === 'function') {
-            callback(base64Str)
-        }
-    }
-    reader.readAsDataURL(file)
-}
-
-// base64 每76位加一个换行
-export const formatBase64 = (param: string) => {
-    let result = ''
-    for (let i = 0; i < param.length; i++) {
-        if (i != 0 && i % 76 == 0) {
-            result += '\r\n'
-        }
-        result += param[i]
-    }
-    return result
+    return { min, max }
 }
 
 // 获取base64文件大小，返回MB数字
@@ -1116,23 +1182,67 @@ export const base64FileSize = (base64url: string) => {
 /**
  * @description 填充通道id,获取guid
  * @param {string} id
- * @returns Pstring
+ * @returns {string} Pstring
  */
-export const getChlGuid16 = (id: string) => {
+export const getChlGuid16 = (id: string): string => {
+    const arr = ['00000000', '0000', '0000', '0000', '000000000000']
+    arr[0] = (arr[0] + id).slice(-8)
+    const guid = '{' + arr.join('-') + '}'
+    return guid
+}
+
+// 根据guid获取通道id，前面的数字为16进制
+export const getChlId16 = (guid: string) => {
     try {
-        while (id.length < 8) {
-            id = '0' + id
-        }
-        const arr = [id, '0000', '0000', '0000', '000000000000']
-        const guid = '{' + arr.join('-') + '}'
-        return guid
+        const id = guid.substring(1, 9)
+        return parseInt(id, 16)
     } catch (e) {
-        return '{00000001-0000-0000-0000-000000000000}'
+        return 1
     }
 }
 
-// 翻译key值拼接添加空格（排除简体中文、繁体中文）
-export const joinSpaceForLang = (str: string) => {
+/**
+ * @description 生成16进制字符随机guid, 格式: {00000000-0000-0000-0000-000000000000}
+ * @returns {string} Pstring
+ */
+export const getRandomGUID = (): string => {
+    const str = '0123456789abcdef'
+    const temp = '00000000-0000-0000-0000-000000000000'
+    let ret = ''
+    for (let i = 0; i < temp.length; i++) {
+        if (temp[i] === '-') {
+            ret += '-'
+            continue
+        }
+        ret += str[Math.floor(Math.random() * str.length)]
+    }
+    return `{${ret}}`
+}
+
+interface MutexChlDto {
+    id: string
+    ip: string
+    name: string
+    accessType: string
+}
+
+type MutexOptions = {
+    isChange: boolean
+    mutexList: AlarmMutexDto[]
+    mutexListEx?: AlarmMutexDto[]
+    chlList?: AlarmOnlineChlDto[]
+    chlIp?: string
+    chlName: string
+    tips: string
+    isShowCommonMsg?: boolean
+}
+
+/**
+ * @description 翻译key值拼接添加空格（排除简体中文、繁体中文）
+ * @param {string} str
+ * @returns {string}
+ */
+const joinSpaceForLang = (str: string): string => {
     if (!str) return ''
     const { langType } = useLangStore()
     const langTypeList = ['zh-cn', 'zh-tw']
@@ -1142,40 +1252,388 @@ export const joinSpaceForLang = (str: string) => {
     return str
 }
 
-/**
- * 判断线段AB和线段CD是否相交（不包含共端点）
- * 原理：如果线段CD的两个端点C和D，与另一条线段的一个端点（A或B，只能是其中一个）连成的向量，与向量AB做叉乘，
- *       若结果异号，表示C和D分别在直线AB的两边，
- *       若结果同号，则表示CD两点都在AB的一边，则肯定不相交。
- *       即判断CD是否在AB的两边、和AB是否在CD的两边，两者同时满足则证明线段相交
- * @see https://www.cnblogs.com/tuyang1129/p/9390376.html
- * @returns {Boolean} true:相交; false:不相交
- */
-const IsIntersect = (pointA: CanvasBasePoint, pointB: CanvasBasePoint, pointC: CanvasBasePoint, pointD: CanvasBasePoint) => {
-    const vectorAC = { X: pointC.X - pointA.X, Y: pointC.Y - pointA.Y }
-    const vectorAD = { X: pointD.X - pointA.X, Y: pointD.Y - pointA.Y }
-    const vectorAB = { X: pointB.X - pointA.X, Y: pointB.Y - pointA.Y }
-    const vectorCA = { X: pointA.X - pointC.X, Y: pointA.Y - pointC.Y }
-    const vectorCB = { X: pointB.X - pointC.X, Y: pointB.Y - pointC.Y }
-    const vectorCD = { X: pointD.X - pointC.X, Y: pointD.Y - pointC.Y }
-    const isBothSideCD = (vectorAC.X * vectorAB.Y - vectorAC.Y * vectorAB.X) * (vectorAD.X * vectorAB.Y - vectorAD.Y * vectorAB.X) < 0
-    const isBothSideAB = (vectorCA.X * vectorCD.Y - vectorCA.Y * vectorCD.X) * (vectorCB.X * vectorCD.Y - vectorCB.Y * vectorCD.X) < 0
-    return isBothSideCD && isBothSideAB
-}
-// 判断画点多边形区域是否可闭合（通过判断区域中的第一个点和最后一个点的连线是否与其他线相交）- true:可闭合; false:不可闭合
-export const judgeAreaCanBeClosed = (pointList: CanvasBasePoint[]) => {
-    let flag = true
-    const startPoint = pointList[0]
-    const lastPoint = pointList[pointList.length - 1]
-    for (let i = 0; i < pointList.length; i++) {
-        if (i < pointList.length - 1) {
-            const item = pointList[i]
-            const itemNext = pointList[i + 1]
-            if (IsIntersect(item, itemNext, startPoint, lastPoint)) {
-                flag = false
-                break
+const getMutexChlNameObj = (onlineChannelList: MutexChlDto[], chlIp: string, chlName: string) => {
+    let normalChlName = ''
+    let thermalChlName = ''
+    const sameIPChlList = onlineChannelList.filter((chl) => {
+        return chl.ip === chlIp
+    })
+    if (sameIPChlList.length > 1) {
+        sameIPChlList.forEach((chl) => {
+            if (chl.accessType === '1') {
+                thermalChlName = chl.name === chlName ? '' : chl.name
+            } else {
+                normalChlName = chl.name === chlName ? '' : chl.name
             }
+        })
+    }
+    return {
+        normalChlName: normalChlName,
+        thermalChlName: thermalChlName,
+    }
+}
+
+/**
+ * @description 查询是否有互斥通道
+ */
+export const checkMutexChl = async ({ isChange, mutexList, mutexListEx = [], chlList = [], chlIp = '', chlName, tips, isShowCommonMsg }: MutexOptions) => {
+    if (!isChange) {
+        return Promise.resolve()
+    }
+
+    const { Translate } = useLangStore()
+    const DEFAULT_ALARM_EVENT: Record<string, string> = {
+        cdd: Translate('IDCS_CROWD_DENSITY_DETECTION'),
+        cpc: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
+        ipd: Translate('IDCS_INVADE_DETECTION'),
+        tripwire: Translate('IDCS_BEYOND_DETECTION'),
+        osc: Translate('IDCS_WATCH_DETECTION'),
+        avd: Translate('IDCS_ABNORMAL_DETECTION'),
+        perimeter: Translate('IDCS_INVADE_DETECTION'),
+        vfd: Translate('IDCS_FACE_DETECTION'),
+        aoientry: Translate('IDCS_SMART_AOI_ENTRY_DETECTION'),
+        aoileave: Translate('IDCS_SMART_AOI_LEAVE_DETECTION'),
+        passlinecount: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
+        traffic: Translate('IDCS_REGION_STATISTICS'),
+        vehicle: Translate('IDCS_PLATE_DETECTION'),
+        fire: Translate('IDCS_FIRE_POINT_DETECTION'),
+        vsd: Translate('IDCS_VSD_DETECTION'),
+        asd: Translate('IDCS_AUDIO_EXCEPTION_DETECTION'),
+        pvd: Translate('IDCS_PARKING_DETECTION'),
+        loitering: Translate('IDCS_LOITERING_DETECTION'),
+        heatmap: Translate('IDCS_HEAT_MAP'),
+        motion: Translate('IDCS_MOTION_DETECTION'),
+        areaStatis: Translate('IDCS_REGION_STATISTICS_DETECT_TIPS'),
+    }
+
+    const switchChangeTypeArr: string[] = []
+
+    if (chlList.length) {
+        const mutexChlNameObj = getMutexChlNameObj(chlList, chlIp, chlName)
+
+        mutexList.forEach((item) => {
+            if (item.status) {
+                const prefixName = mutexChlNameObj.normalChlName ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj.normalChlName) : ''
+                const showInfo = prefixName ? prefixName + DEFAULT_ALARM_EVENT[item.object].toLowerCase() : DEFAULT_ALARM_EVENT[item.object].toLowerCase()
+                switchChangeTypeArr.push(showInfo)
+            }
+        })
+
+        mutexListEx.forEach((item) => {
+            if (item.status) {
+                const prefixName = mutexChlNameObj.thermalChlName ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj.thermalChlName) : ''
+                const showInfo = prefixName ? prefixName + DEFAULT_ALARM_EVENT[item.object].toLowerCase() : DEFAULT_ALARM_EVENT[item.object].toLowerCase()
+                switchChangeTypeArr.push(showInfo)
+            }
+        })
+    } else {
+        mutexList.forEach((item) => {
+            if (item.status) {
+                switchChangeTypeArr.push(DEFAULT_ALARM_EVENT[item.object].toLowerCase())
+            }
+        })
+    }
+
+    if (switchChangeTypeArr.length) {
+        const switchChangeType = switchChangeTypeArr.join(',')
+        const msg = isShowCommonMsg
+            ? Translate('IDCS_MUTEX_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + chlName, Translate(tips), switchChangeType)
+            : Translate(tips).formatForLang(Translate('IDCS_CHANNEL') + ':' + chlName, switchChangeType)
+        return openMessageBox({
+            type: 'question',
+            message: msg,
+        })
+    } else {
+        return Promise.resolve()
+    }
+}
+
+/**
+ * @description 将number[]/string[]转换为SelectOption<number,number>[]/SelectOption<string, string>[]
+ * @param {Array} array
+ * @returns {SelectOption[]}
+ */
+export const arrayToOptions = <T>(array: T[]) => {
+    return array.map((value) => ({
+        label: value,
+        value,
+    }))
+}
+
+/**
+ * @description 将Record<string,string>转换为SelectOption<T,string>[]
+ * @param {Record} object
+ * @param {valueType} string number | string | boolean
+ * @returns {SelectOption[]}
+ */
+export const objectToOptions = <T extends 'number' | 'string' | 'boolean', K extends T extends 'number' ? number : T extends 'boolean' ? boolean : string>(
+    object: Record<string, string>,
+    valueType: T,
+): SelectOption<K, string>[] => {
+    return Object.entries(object).map((item) => {
+        return {
+            label: item[1],
+            value: (valueType === 'number' ? item[0].num() : valueType === 'boolean' ? item[0].bool() : item[0]) as K,
+        }
+    })
+}
+
+/**
+ * @description INPUT输入框失去焦点
+ * @param {Event} event
+ */
+export const blurInput = (event: Event) => {
+    ;(event.target as HTMLInputElement).blur()
+}
+
+/**
+ * @description:
+ * 根据AP返回的xml信息判断当前AI事件配置模式
+ * 模式0：4.2.1普通摄像机，不支持设置检测目标和目标大小
+ * 模式1：支持统一设置目标和大小；
+ * 模式2：支持每个区域单独设置目标大小，支持统一设置检测目标；
+ * 模式3：支持每个区域单独设置检测目标和目标大小
+ * 模式4：低配版IPC，越界/区域入侵目标类型只支持人
+ * 模式5：NTA1-3160，ONVIF：支持每个区域单独配置检测目标开关，不能配置灵敏度、目标大小;
+ *       NTA1-3733，ONVIF接入YCX的IPC，越界配置缺少单独开关、灵敏度、检测目标配置
+ * 模式6：支持每个区域单独设置目标大小，不支持设置检测目标；
+ * @param {String} nodeKey 解析的目标节点：越界、过线统计：line；其他AI事件：boundary
+ * @param {*} xmlDoc 目标xml
+ * @returns {String}
+ */
+export const getCurrentAICfgMode = (nodeKey: string, xmlDoc: any): string => {
+    const $param = xmlDoc
+    let objectMode = 'mode1' // IPC5.3以下普遍为模式1
+    if ($param('sensitivity').length > 0) {
+        objectMode = 'mode4'
+    } else if ($param('objectFilter').length === 0) {
+        if ($param(`${nodeKey}/item/objectFilter`).length > 0) {
+            // boundary或line的objectFilter节点下存在检测目标开关或灵敏度，则为模式5
+            const $itemNode = $param(`${nodeKey}/item`)
+            const supportPersonDetectTarget = $itemNode('objectFilter/person/switch').length > 0 || $itemNode('objectFilter/person/sensitivity').length > 0
+            const supportCarDetectTarget = $itemNode('objectFilter/car/switch').length > 0 || $itemNode('objectFilter/car/sensitivity').length > 0
+            const supportMotorDetectTarget = $itemNode('objectFilter/motor/switch').length > 0 || $itemNode('objectFilter/motor/sensitivity').length > 0
+            if (supportPersonDetectTarget || supportCarDetectTarget || supportMotorDetectTarget) {
+                objectMode = 'mode5'
+            } else {
+                objectMode = 'mode6'
+            }
+        } else {
+            objectMode = 'mode0'
+        }
+    } else {
+        $param(`${nodeKey}/item`).forEach((item: { element: XMLDocument | Element | null }) => {
+            const $item = queryXml(item.element)
+            if ($item('objectFilter').length > 0) {
+                const personSence = $item('objectFilter/person/sensitivity').length > 0
+                const carSence = $item('objectFilter/car/sensitivity').length > 0
+                const motorSence = $item('objectFilter/motor/sensitivity').length > 0
+                // 人、车、非只要有一个在line/boundary>item>objectFilter节点下有灵敏度字段，则为模式3
+                if (personSence || carSence || motorSence) {
+                    objectMode = 'mode3'
+                } else {
+                    objectMode = 'mode2'
+                }
+            }
+        })
+    }
+    return objectMode
+}
+
+/**
+ * @description 解析各个AI事件下的objectFilter节点数据
+ * @param {string} objectMode AI配置模式
+ * @param {Object} itemObjectFilter boundary(line)/item/objectFilter节点数据
+ * @param {Object} paramObjectFilter chl/param/objectFilter节点数据
+ * @returns {Object}
+ */
+export const getObjectFilterData = (objectMode: string, itemObjectFilter: { element: XMLDocument | Element | null }[], paramObjectFilter: { element: XMLDocument | Element | null }[]) => {
+    const $itemNodeObj = queryXml(itemObjectFilter[0].element)
+    let $paramNodeObj = null
+    if (paramObjectFilter.length > 0) $paramNodeObj = queryXml(paramObjectFilter[0].element)
+
+    const objectFilter = ref(new AlarmObjectFilterCfgDto())
+    const supportPerson = $itemNodeObj('person').length > 0
+    const supportCar = $itemNodeObj('car').length > 0
+    const supportMotor = $itemNodeObj('motor').length > 0
+    const supportPersonMaxMin = $itemNodeObj('person/minDetectTarget').length > 0 ? true : false
+    const supportCarMaxMin = $itemNodeObj('car/minDetectTarget').length > 0 ? true : false
+    const supportMotorMaxMin = $itemNodeObj('motor/minDetectTarget').length > 0 ? true : false
+    const detectTargetList = []
+    if (supportPersonMaxMin) detectTargetList.push('person')
+    if (supportCarMaxMin) detectTargetList.push('car')
+    if (supportMotorMaxMin) detectTargetList.push('motor')
+
+    const supportMaxMinTarget =
+        $itemNodeObj('person/minDetectTarget').text() !== '' || $itemNodeObj('car/minDetectTarget').text() !== '' || $itemNodeObj('motor/minDetectTarget').text() !== '' ? true : false
+
+    if (objectMode === 'mode5') {
+        $itemNodeObj('person/minDetectTarget').text() !== '' ? true : false
+    }
+
+    let person = new AlarmTargetCfgDto(),
+        car = new AlarmTargetCfgDto(),
+        motor = new AlarmTargetCfgDto()
+    if (supportPerson) {
+        person = getDetectTargetData('person', objectMode, $itemNodeObj, $paramNodeObj)
+    }
+
+    if (supportCar) {
+        car = getDetectTargetData('car', objectMode, $itemNodeObj, $paramNodeObj)
+    }
+
+    if (supportMotor) {
+        motor = getDetectTargetData('motor', objectMode, $itemNodeObj, $paramNodeObj)
+    }
+    objectFilter.value = {
+        supportPerson: supportPerson,
+        supportCar: supportCar,
+        supportMotor: supportMotor,
+        supportMaxMinTarget: supportMaxMinTarget,
+        supportPersonMaxMin: supportPersonMaxMin,
+        supportCarMaxMin: supportCarMaxMin,
+        supportMotorMaxMin: supportMotorMaxMin,
+        detectTargetList: detectTargetList,
+        supportCommonEnable: false,
+        supportCommonSensitivity: false,
+        commonSensitivity: new AlarmSensitivityInfoDto(),
+        person: person,
+        car: car,
+        motor: motor,
+    }
+    return objectFilter
+}
+
+/**
+ * @description 获取对应的人、车、非节点数据
+ * @param {String} nodeType 节点类型：person、car、motor
+ * @param {String} objectMode 配置模式：mode1、2、3
+ * @param {Function} $itemNodeObj boundary(line)/item/objectFilter节点数据
+ * @param {any} $paramNodeObj chl/param/objectFilter节点数据
+ * @returns {Object}
+ */
+const getDetectTargetData = (nodeType: String, objectMode: String, $itemNodeObj: Function, $paramNodeObj: any) => {
+    let resultObj = new AlarmTargetCfgDto()
+    // 模式2：灵敏度相关配置从chl/param/objectFilter节点获取
+    const $itemNode = objectMode === 'mode2' ? $paramNodeObj : $itemNodeObj
+    // 过线统计多一个配置项：滞留报警阈值
+    let stayAlarmThreshold = new AlarmNumberInputDto()
+    const supportAlarmThreshold = $itemNode(`${nodeType}/stayAlarmThreshold`).text() !== ''
+    if (supportAlarmThreshold) {
+        const defaultValue = $itemNode(`${nodeType}/stayAlarmThreshold`).attr('default').num()
+        stayAlarmThreshold = {
+            value: $itemNode(`${nodeType}/stayAlarmThreshold`).text() === '' ? defaultValue : $itemNode(`${nodeType}/stayAlarmThreshold`).text().num(),
+            min: $itemNode(`${nodeType}/stayAlarmThreshold`).attr('min').num(),
+            max: $itemNode(`${nodeType}/stayAlarmThreshold`).attr('max').num(),
+            defaultValue: defaultValue,
         }
     }
-    return flag
+    // 默认值
+    const minDetectTargetWidthDefault = $itemNodeObj(`${nodeType}/minDetectTarget/width`).attr('default').num() / 100
+    const minDetectTargetHeightDefault = $itemNodeObj(`${nodeType}/minDetectTarget/height`).attr('default').num() / 100
+    const maxDetectTargetWidthDefault = $itemNodeObj(`${nodeType}/maxDetectTarget/width`).attr('default').num() / 100
+    const maxDetectTargetHeightDefault = $itemNodeObj(`${nodeType}/maxDetectTarget/height`).attr('default').num() / 100
+    const sensitivityDefault = $itemNode(`${nodeType}/sensitivity`).attr('default').num()
+    resultObj = {
+        supportAlarmThreshold: supportAlarmThreshold,
+        stayAlarmThreshold: stayAlarmThreshold,
+        supportSensitivity: $itemNode(`${nodeType}/sensitivity`).length > 0,
+        supportSensityEnable: $itemNode(`${nodeType}/switch`).length > 0,
+        sensitivity: {
+            enable: $itemNode(`${nodeType}/switch`).text().bool(),
+            value: $itemNode(`${nodeType}/sensitivity`).text() === '' ? sensitivityDefault : $itemNode(`${nodeType}/sensitivity`).text().num(),
+            max: $itemNode(`${nodeType}/sensitivity`).attr('max').num(),
+            min: $itemNode(`${nodeType}/sensitivity`).attr('min').num(),
+            default: sensitivityDefault,
+        },
+        minRegionInfo: {
+            region: [],
+            width: $itemNodeObj(`${nodeType}/minDetectTarget/width`).text() === '' ? minDetectTargetWidthDefault : $itemNodeObj(`${nodeType}/minDetectTarget/width`).text().num() / 100,
+            height: $itemNodeObj(`${nodeType}/minDetectTarget/height`).text() === '' ? minDetectTargetHeightDefault : $itemNodeObj(`${nodeType}/minDetectTarget/height`).text().num() / 100,
+            min: $itemNodeObj(`${nodeType}/minDetectTarget/height`).attr('min').num() / 100 || 0,
+            max: $itemNodeObj(`${nodeType}/minDetectTarget/height`).attr('max').num() / 100 || 100,
+            default: $itemNodeObj(`${nodeType}/minDetectTarget/height`).attr('default').num() / 100,
+        },
+        maxRegionInfo: {
+            region: [],
+            width: $itemNodeObj(`${nodeType}/maxDetectTarget/width`).text() === '' ? maxDetectTargetWidthDefault : $itemNodeObj(`${nodeType}/maxDetectTarget/width`).text().num() / 100,
+            height: $itemNodeObj(`${nodeType}/maxDetectTarget/height`).text() === '' ? maxDetectTargetHeightDefault : $itemNodeObj(`${nodeType}/maxDetectTarget/height`).text().num() / 100,
+            min: $itemNodeObj(`${nodeType}/maxDetectTarget/height`).attr('min').num() / 100 || 0,
+            max: $itemNodeObj(`${nodeType}/maxDetectTarget/height`).attr('max').num() / 100 || 100,
+            default: $itemNodeObj(`${nodeType}/maxDetectTarget/height`).attr('default').num() / 100,
+        },
+    }
+    return resultObj
+}
+
+/**
+ * @description 组装AI配置》编辑协议的objectFilter节点XML
+ * @param {Object} objectFilterData 各个区域的检测目标数据
+ * @param {Object} chlData 通道信息
+ * @returns {String}
+ */
+export const setObjectFilterXmlData = (objectFilterData: AlarmObjectFilterCfgDto, chlData: AlarmChlDto): string => {
+    return rawXml`
+        <objectFilter>
+            ${
+                objectFilterData.supportPerson
+                    ? ` <person>
+                            ${setSensitivityXmlData(objectFilterData.person)}
+                            ${objectFilterData.supportPersonMaxMin ? setMinMaxTargetXmlData(objectFilterData.person.minRegionInfo, objectFilterData.person.maxRegionInfo) : ''}
+                        </person>`
+                    : ''
+            }
+           
+             ${
+                 objectFilterData.supportCar
+                     ? ` <car>
+                            ${setSensitivityXmlData(objectFilterData.car)}
+                            ${objectFilterData.supportCarMaxMin ? setMinMaxTargetXmlData(objectFilterData.car.minRegionInfo, objectFilterData.car.maxRegionInfo) : ''}
+                        </car>`
+                     : ''
+             }
+             ${
+                 chlData.accessType === '0' && objectFilterData.supportMotor
+                     ? ` <motor>
+                            ${setSensitivityXmlData(objectFilterData.motor)}
+                            ${objectFilterData.supportMotorMaxMin ? setMinMaxTargetXmlData(objectFilterData.motor.minRegionInfo, objectFilterData.motor.maxRegionInfo) : ''}
+                        </motor>`
+                     : ''
+             }
+        </objectFilter>
+    `
+}
+
+/**
+ * @description 组装灵敏度、滞留报警节点XML
+ * @param {string} objectMode 配置模式
+ * @param {boolean} isSentySolo 是否可以单独配置灵敏度相关参数
+ * @param {AlarmTargetCfgDto} objectData
+ * @returns {String}
+ */
+const setSensitivityXmlData = (objectData: AlarmTargetCfgDto): string => {
+    return rawXml`
+        ${objectData.supportSensityEnable ? `<switch>${objectData.sensitivity.enable}</switch>` : ''}
+        ${objectData.supportSensitivity ? `<sensitivity>${objectData.sensitivity.value}</sensitivity>` : ''}
+        ${objectData.supportAlarmThreshold ? `<stayAlarmThreshold>${objectData.stayAlarmThreshold?.value}</stayAlarmThreshold>` : ''}
+    `
+}
+
+/**
+ * @description 组装最大最小范围节点XML
+ * @param {Object} minRegionInfo
+ * @param {Object} maxRegionInfo
+ * @returns {String}
+ */
+const setMinMaxTargetXmlData = (minRegionInfo: AlarmMaxMinRegionInfoDto, maxRegionInfo: AlarmMaxMinRegionInfoDto): string => {
+    return rawXml`
+        <minDetectTarget>
+            <width>${minRegionInfo.width * 100}</width>
+            <height>${minRegionInfo.height * 100}</height>
+        </minDetectTarget>
+        <maxDetectTarget>
+            <width>${maxRegionInfo.width * 100}</width>
+            <height>${maxRegionInfo.height * 100}</height>
+        </maxDetectTarget>
+    `
 }

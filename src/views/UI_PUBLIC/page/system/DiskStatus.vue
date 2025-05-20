@@ -2,60 +2,70 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-21 18:46:16
  * @Description: 磁盘状态
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 17:40:15
 -->
 <template>
     <div class="base-flex-box">
         <el-table
-            stripe
-            border
-            height="100%"
+            v-title
             :data="tableData"
+            highlight-current-row
+            show-overflow-tooltip
+            height="100%"
         >
-            <el-table-column :label="Translate('IDCS_SERIAL_NUMBER')">
-                <template #default="scope">
-                    {{ scope.$index + 1 }}
+            <el-table-column
+                label=" "
+                width="50"
+            >
+                <template #default="{ row }: TableColumn<SystemDiskStatusList>">
+                    <BaseTableRowStatus :icon="row.status" />
                 </template>
             </el-table-column>
             <el-table-column
+                :label="Translate('IDCS_SERIAL_NUMBER')"
+                type="index"
+                width="70"
+            />
+            <el-table-column
                 :label="Translate('IDCS_DISK')"
                 prop="diskNum"
-            >
-            </el-table-column>
+            />
             <!-- <el-table-column
                 :label="Translate('IDCS_DISK')"
                 prop="diskNum"
             >
             </el-table-column> -->
             <el-table-column :label="Translate('IDCS_TYPE')">
-                <template #default="scope">
-                    <span>{{ formatDiskType(scope.row) }}</span>
+                <template #default="{ row }: TableColumn<SystemDiskStatusList>">
+                    {{ formatDiskType(row) }}
                 </template>
             </el-table-column>
             <el-table-column :label="Translate('IDCS_DISK_FREE_CAPACITY')">
-                <template #default="scope">
-                    <span>{{ formatSizeAndFreeSpace(scope.row) }}</span>
+                <template #default="{ row }: TableColumn<SystemDiskStatusList>">
+                    {{ formatSizeAndFreeSpace(row) }}
                 </template>
             </el-table-column>
             <el-table-column
                 :label="Translate('IDCS_STATE')"
                 prop="combinedStatus"
-            >
-            </el-table-column>
+            />
             <el-table-column
                 :label="Translate('IDCS_SOURCE')"
                 prop="source"
-            >
-            </el-table-column>
+            />
             <el-table-column
                 :label="Translate('IDCS_REEL_GROUP')"
                 prop="group"
-            >
-            </el-table-column>
+            />
             <el-table-column :label="Translate('IDCS_DISK_RECORD_PERIOD')">
-                <template #default="scope">
-                    <span>{{ scope.row.recTime ? scope.row.recTime : '' }}</span>
+                <template #default="{ row }: TableColumn<SystemDiskStatusList>">
+                    <span>{{ row.recTime ? row.recTime : '' }}</span>
+                    <BaseImgSprite
+                        v-if="row.recFileDate"
+                        file="alarm"
+                        :index="0"
+                        :hover-index="0"
+                        :title="`${Translate('IDCS_WARNING_MSG')}: ${Translate('IDCS_RECORD_LOG_PERIOD').formatForLang(row.recFileDate)}`"
+                    />
                 </template>
             </el-table-column>
         </el-table>

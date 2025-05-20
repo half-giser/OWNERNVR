@@ -2,63 +2,41 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-09 17:23:56
  * @Description: 备份图像弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 17:41:32
 -->
 <template>
     <el-dialog
-        :title="Translate('IDCS_BACKUP')"
-        :width="500"
-        align-center
-        draggable
+        :title="Translate('IDCS_EXPORT')"
+        :width="450"
+        @open="open"
     >
-        <el-form
-            ref="formRef"
-            label-position="left"
-            class=""
-            :model="formData"
-            :style="{
-                '--form-label-width': '100px',
-            }"
-        >
+        <el-form v-title>
             <el-form-item :label="Translate('IDCS_DESTINATION')">
-                <el-select v-model="formData.destination">
-                    <el-option
-                        v-for="item in pageData.destinationOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.destination"
+                    :options="pageData.destinationOptions"
+                />
             </el-form-item>
             <el-form-item v-show="formData.destination === 'local'">
-                <el-text class="text-error">{{ Translate('IDCS_AVI_UNENCRYPTED_TIP') }}</el-text>
+                <span class="text-error">{{ Translate('IDCS_IMG_UNENCRYPTED_TIP') }}</span>
             </el-form-item>
             <el-form-item
                 v-show="formData.destination === 'remote'"
                 :label="Translate('IDCS_DEVICE_NAME')"
             >
-                <el-select v-model="formData.remoteDeviceName">
-                    <el-option
-                        v-for="item in pageData.remoteDeviceOptions"
-                        :key="item.name"
-                        :label="item.name"
-                        :value="item.name"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.remoteDeviceName"
+                    :options="pageData.remoteDeviceOptions"
+                    :props="{
+                        value: 'name',
+                        label: 'name',
+                    }"
+                />
             </el-form-item>
         </el-form>
-        <template #footer>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
-                >
-                    <el-button @click="confirm">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="confirm">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

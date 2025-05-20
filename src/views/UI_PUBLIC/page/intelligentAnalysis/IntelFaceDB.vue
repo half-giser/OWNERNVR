@@ -2,20 +2,17 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-29 10:06:12
  * @Description: 人脸库
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 11:08:51
 -->
 <template>
     <div class="base-flex-box">
         <div class="base-table-box">
             <el-table
                 ref="tableRef"
+                v-title
                 :data="tableData"
                 :row-key="getRowKey"
                 :expand-row-key="pageData.expandRowKey"
                 highlight-current-row
-                border
-                stripe
                 @row-click="handleRowClick"
                 @expand-change="handleExpandChange"
             >
@@ -24,96 +21,110 @@
                     :width="80"
                     type="index"
                 />
-                <el-table-column :label="Translate('IDCS_GROUP')">
-                    <template #default="scope"> {{ scope.row.name }} ({{ scope.row.count }}) </template>
+                <el-table-column
+                    :label="Translate('IDCS_GROUP')"
+                    show-overflow-tooltip
+                    min-width="300"
+                >
+                    <template #default="{ row }: TableColumn<IntelFaceDBGroupList>"> {{ row.name }} ({{ row.count }}) </template>
                 </el-table-column>
-                <el-table-column>
-                    <!-- <template #default="scope">
-                        <div :class="getAlarmClassName(scope.row.id, scope.row.property)">{{ displayAlarmText(scope.row.property) }}</div>
-                    </template> -->
-                </el-table-column>
-                <el-table-column :label="Translate('IDCS_EDIT')">
-                    <template #default="scope">
-                        <BaseImgSprite
-                            file="edit (2)"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click="editGroup(scope.row)"
+                <!-- <el-table-column>
+                    <template #default="{ row }: TableColumn<IntelFaceDBGroupList>">
+                        <div :class="getAlarmClassName(row.id, row.property)">{{ displayAlarmText(row.property) }}</div>
+                    </template>
+                </el-table-column> -->
+                <el-table-column
+                    :label="Translate('IDCS_EDIT')"
+                    width="100"
+                >
+                    <template #default="{ row }: TableColumn<IntelFaceDBGroupList>">
+                        <BaseImgSpriteBtn
+                            file="edit2"
+                            @click="editGroup(row)"
                         />
                     </template>
                 </el-table-column>
-                <el-table-column :label="Translate('IDCS_DELETE')">
-                    <template #default="scope">
-                        <BaseImgSprite
+                <el-table-column
+                    :label="Translate('IDCS_DELETE')"
+                    width="100"
+                >
+                    <template #default="{ row }: TableColumn<IntelFaceDBGroupList>">
+                        <BaseImgSpriteBtn
                             file="del"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click="deleteGroup(scope.row)"
+                            @click="deleteGroup(row)"
                         />
                     </template>
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_EXPAND_OR_COLLAPSE')"
                     type="expand"
-                    :width="200"
+                    width="200"
                 >
-                    <template #default="scope">
+                    <template #default="{ row }: TableColumn<IntelFaceDBGroupList>">
                         <div
-                            v-if="pageData.expandRowKey.includes(scope.row.groupId)"
+                            v-if="pageData.expandRowKey.includes(row.groupId)"
                             class="expand"
                         >
                             <div class="expand-btns">
-                                <el-button @click="addFace(scope.row.groupId)">{{ Translate('IDCS_ADD') }}</el-button>
+                                <el-button @click="addFace(row.groupId)">{{ Translate('IDCS_ADD') }}</el-button>
                                 <el-button
                                     :disabled="!formData.faceIndex.length"
-                                    @click="editFace(scope.row.groupId)"
-                                    >{{ Translate('IDCS_CHANGE') }}</el-button
+                                    @click="editFace(row.groupId)"
                                 >
+                                    {{ Translate('IDCS_CHANGE') }}
+                                </el-button>
                                 <!-- <el-button>{{ Translate('IDCS_COPY_TO') }}</el-button> -->
                                 <el-button
                                     :disabled="!formData.faceIndex.length"
                                     @click="deleteFace"
-                                    >{{ Translate('IDCS_DELETE') }}</el-button
                                 >
+                                    {{ Translate('IDCS_DELETE') }}
+                                </el-button>
                                 <el-button
                                     :disabled="!groupTableData.length"
                                     @click="deleteAllFace"
-                                    >{{ Translate('IDCS_CLEAR_ALL') }}</el-button
                                 >
+                                    {{ Translate('IDCS_CLEAR_ALL') }}
+                                </el-button>
                                 <el-button
                                     :disabled="!groupTableData.length"
                                     @click="selectAllFace"
-                                    >{{ Translate('IDCS_SELECT_ALL') }}</el-button
                                 >
+                                    {{ Translate('IDCS_SELECT_ALL') }}
+                                </el-button>
                                 <el-input
                                     v-model="formData.name"
                                     :placeholder="Translate('IDCS_SEARCH_TARGET_PERSON')"
                                 />
-                                <el-button @click="searchFace(scope.row.groupId)">{{ Translate('IDCS_SEARCH') }}</el-button>
+                                <el-button @click="searchFace(row.groupId)">{{ Translate('IDCS_SEARCH') }}</el-button>
                             </div>
                             <div class="expand-content">
                                 <div class="expand-list">
                                     <div>
-                                        <IntelBaseFaceItem
-                                            v-for="(item, index) in groupTableData"
-                                            :key="item.id"
-                                            :src="item.pic[0] || ''"
-                                            :model-value="formData.faceIndex.includes(index)"
-                                            @update:model-value="selectFace(index, $event)"
-                                        >
-                                            {{ hideSensitiveInfo(item.name, 'medium', 'name') }}
-                                        </IntelBaseFaceItem>
+                                        <div>
+                                            <IntelBaseFaceItem
+                                                v-for="(item, index) in groupTableData"
+                                                :key="item.id"
+                                                :src="item.pic[0] || ''"
+                                                :model-value="formData.faceIndex.includes(index)"
+                                                @update:model-value="selectFace(index, $event)"
+                                            >
+                                                <div
+                                                    v-title
+                                                    class="text-ellipsis"
+                                                >
+                                                    {{ hideSensitiveInfo(item.name, 'medium', 'name') }}
+                                                </div>
+                                            </IntelBaseFaceItem>
+                                        </div>
                                     </div>
-                                    <div class="row_pagination">
-                                        <el-pagination
+                                    <div class="base-pagination-box">
+                                        <BasePagination
                                             v-model:current-page="formData.pageIndex"
-                                            :page-size="16"
-                                            layout="prev, pager, next, total"
-                                            :total="scope.row.count"
-                                            size="small"
-                                            @current-change="changeFacePage($event, scope.row.groupId)"
+                                            v-model:page-size="pageData.pageSize"
+                                            :page-sizes="[pageData.pageSize]"
+                                            :total="row.count"
+                                            @current-change="changeFacePage($event, row.groupId)"
                                         />
                                     </div>
                                 </div>
@@ -126,8 +137,8 @@
                                         />
                                     </div>
                                     <el-form
-                                        label-position="left"
-                                        class="stripe narrow inline-message"
+                                        v-title
+                                        class="stripe"
                                     >
                                         <el-form-item :label="Translate('IDCS_NAME_PERSON')">
                                             <el-input
@@ -137,7 +148,7 @@
                                         </el-form-item>
                                         <el-form-item :label="Translate('IDCS_BIRTHDAY')">
                                             <el-input
-                                                :model-value="currentFace.birthday"
+                                                :model-value="displayDate(currentFace.birthday)"
                                                 disabled
                                             />
                                         </el-form-item>
@@ -179,24 +190,25 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div
-            class="base-btn-box padding"
-            :span="2"
-        >
-            <div>
-                <el-button @click="handleFaceRecognition">{{ Translate('IDCS_FACE_RECOGNITION') }}</el-button>
-            </div>
+        <div class="base-btn-box space-between padding">
+            <el-button @click="handleFaceRecognition">{{ Translate('IDCS_FACE_RECOGNITION') }}</el-button>
             <div>
                 <el-button
                     :disabled="!tableData.length"
                     @click="addFace('')"
-                    >{{ Translate('IDCS_ADD_FACE') }}</el-button
                 >
+                    {{ Translate('IDCS_ADD_FACE') }}
+                </el-button>
                 <el-button @click="addGroup">{{ Translate('IDCS_ADD_GROUP') }}</el-button>
-                <el-button v-show="!pageData.isExportDisabled">{{ Translate('IDCS_EXPORT') }}</el-button>
+                <el-button
+                    v-show="!pageData.isExportVisible"
+                    :disabled="isExportDisabled"
+                    @click="exportGroup"
+                >
+                    {{ Translate('IDCS_EXPORT') }}
+                </el-button>
             </div>
         </div>
-        <BaseNotification v-model:notifications="pageData.notifications" />
         <IntelFaceDBEditPop
             v-model="pageData.isEditPop"
             :data="pageData.editData"
@@ -204,22 +216,19 @@
             @confirm="confirmEditGroup"
             @close="pageData.isEditPop = false"
         />
-        <el-dialog v-model="pageData.isExportTipPop">
+        <el-dialog
+            v-model="pageData.isExportTipPop"
+            :title="Translate('IDCS_INFORMATION_MSG')"
+            width="400"
+        >
             <div>
                 <div>{{ Translate('IDCS_FILE_TYPE') }}: CSV+JPG</div>
                 <div class="text-error">{{ Translate('IDCS_EXPORT_UNENCRYPTED_TIP') }}</div>
             </div>
-            <template #footer>
-                <el-row>
-                    <el-col
-                        :span="24"
-                        class="el-col-flex-end"
-                    >
-                        <el-button @click="confirmExportGroup">{{ Translate('IDCS_OK') }}</el-button>
-                        <el-button @click="pageData.isExportTipPop = false">{{ Translate('IDCS_CANCEL') }}</el-button>
-                    </el-col>
-                </el-row>
-            </template>
+            <div class="base-btn-box">
+                <el-button @click="confirmExportGroup">{{ Translate('IDCS_OK') }}</el-button>
+                <el-button @click="pageData.isExportTipPop = false">{{ Translate('IDCS_CANCEL') }}</el-button>
+            </div>
         </el-dialog>
         <IntelFaceDBExportPop
             v-model="pageData.isExportPop"
@@ -249,7 +258,7 @@
 
     &-btns {
         width: 100%;
-        padding: 5px 10px 10px;
+        padding: 5px 15px 10px;
         box-sizing: border-box;
         display: flex;
         justify-content: flex-start;
@@ -263,43 +272,38 @@
     &-content {
         width: 100%;
         display: flex;
-        justify-content: space-between;
+        justify-content: space-around;
     }
 
     &-list {
-        width: 580px;
+        width: 100%;
         display: flex;
-        flex-shrink: 0;
         flex-direction: column;
-        border: 1px solid var(--content-border);
         justify-content: space-between;
-        margin: 0 10px;
+        margin: 0 15px;
 
         & > div:first-child {
-            display: flex;
-            flex-wrap: wrap;
-        }
+            border: 1px solid var(--table-border);
+            height: 100%;
 
-        & > div:last-child {
-            display: flex;
-            justify-content: flex-end;
-            padding: 2px 10px;
-            box-sizing: border-box;
-            height: 30px;
+            & > div {
+                display: flex;
+                flex-wrap: wrap;
+            }
         }
     }
 
     &-info {
         width: 500px;
-        border: 1px solid var(--content-border);
-        margin-right: 10px;
+        border: 1px solid var(--table-border);
+        margin-right: 15px;
         flex-shrink: 0;
     }
 
     &-avatar {
         box-sizing: border-box;
         width: 100%;
-        height: 300px;
+        height: 200px;
         display: flex;
         flex-wrap: wrap;
 
@@ -312,7 +316,7 @@
     }
 }
 
-.row_pagination {
+.base-pagination-box {
     border-top: 1px solid var(--content-border);
 }
 </style>

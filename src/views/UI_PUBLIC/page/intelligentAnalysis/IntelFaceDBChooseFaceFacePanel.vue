@@ -2,34 +2,31 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-30 11:57:52
  * @Description: 智能分析 - 选择人脸 - 从人脸库选择
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-12 20:21:37
 -->
 <template>
     <div class="feature">
-        <div
-            class="base-btn-box"
-            :span="2"
-        >
+        <div class="base-btn-box space-between">
             <div>
                 <span class="group-title">{{ Translate('IDCS_ADD_FACE_GROUP') }}</span>
                 <el-checkbox
                     v-model="pageData.isAllFaceGroup"
+                    :label="Translate('IDCS_ALL')"
                     @change="changeAllFaceGroup"
-                    >{{ Translate('IDCS_ALL') }}</el-checkbox
+                />
+                <div
+                    v-title
+                    class="group-list text-ellipsis"
                 >
-                <el-text class="group-list text-ellipsis">{{ formData.faceGroup.map((item) => item.name).join(';') }}</el-text>
+                    {{ formData.faceGroup.map((item) => item.name).join('; ') }}
+                </div>
             </div>
-            <div>
-                <el-button @click="changeGroup">{{ Translate('IDCS_CONFIGURATION') }}</el-button>
-            </div>
+            <el-button @click="changeGroup">{{ Translate('IDCS_CONFIGURATION') }}</el-button>
         </div>
         <el-form
-            label-position="left"
+            v-title
             :style="{
-                '--form-input-width': '200px',
+                '--form-input-width': '250px',
             }"
-            class="narrow"
         >
             <el-form-item>
                 <el-input
@@ -40,35 +37,36 @@
             </el-form-item>
         </el-form>
         <div class="choose">
-            <div class="choose-list">
-                <IntelBaseFaceItem
-                    v-for="(item, index) in filterListData"
-                    :key="item.id"
-                    :src="item.pic[0] || ''"
-                    :model-value="formData.faceIndex.includes(index + (formData.pageIndex - 1) * formData.pageSize)"
-                    :disabled="!item.pic[0]"
-                    @update:model-value="selectFace(index + (formData.pageIndex - 1) * formData.pageSize)"
-                >
-                    {{ item.name }}
-                </IntelBaseFaceItem>
-            </div>
-            <div
-                class="base-btn-box padding"
-                :span="2"
-            >
+            <el-scrollbar class="choose-list">
+                <div class="choose-wrapper">
+                    <IntelBaseFaceItem
+                        v-for="(item, index) in filterListData"
+                        :key="item.id"
+                        :src="item.pic[0] || ''"
+                        :model-value="formData.faceIndex.includes(index + (formData.pageIndex - 1) * formData.pageSize)"
+                        :disabled="!item.pic[0]"
+                        @update:model-value="selectFace(index + (formData.pageIndex - 1) * formData.pageSize)"
+                    >
+                        <div
+                            v-title
+                            class="text-ellipsis"
+                        >
+                            {{ item.name }}
+                        </div>
+                    </IntelBaseFaceItem>
+                </div>
+            </el-scrollbar>
+            <div class="base-btn-box space-between padding">
                 <div>
                     <span v-show="multiple">{{ Translate('IDCS_SELECTED_NUM_D').formatForLang(formData.faceIndex.length) }}</span>
                 </div>
-                <div>
-                    <el-pagination
-                        v-model:current-page="formData.pageIndex"
-                        :page-size="18"
-                        layout="prev, pager, next, total"
-                        :total="listData.length"
-                        size="small"
-                        @current-change="changePage"
-                    />
-                </div>
+                <BasePagination
+                    v-model:current-page="formData.pageIndex"
+                    v-model:page-size="formData.pageSize"
+                    :page-sizes="[formData.pageSize]"
+                    :total="listData.length"
+                    @current-change="changePage"
+                />
             </div>
         </div>
         <BaseTableSelectPop
@@ -113,18 +111,20 @@
 
 .choose {
     width: 100%;
-    height: 365px;
+    height: 375px;
     border: 1px solid var(--content-border);
-    margin-top: 10px;
+    margin-top: 13px;
 
     &-list {
-        height: 320px;
+        height: 330px;
+        border-bottom: 1px solid var(--content-border);
+        box-sizing: border-box;
+    }
+
+    &-wrapper {
+        padding: 10px 0;
         display: flex;
         flex-wrap: wrap;
-        border-bottom: 1px solid var(--content-border);
-        overflow-y: auto;
-        box-sizing: border-box;
-        padding: 10px 0;
     }
 }
 </style>

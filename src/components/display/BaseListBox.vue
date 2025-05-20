@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-11 19:26:58
  * @Description: 列表组件
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-09 15:28:33
 -->
 <template>
     <div
@@ -30,12 +28,12 @@ withDefaults(
 )
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .BaseListBox {
     width: 100%;
-    height: calc(100% - 80px);
-    overflow-y: scroll;
-    border-collapse: collapse;
+    height: calc(100% - 50px);
+    min-height: 100px;
+    overflow-y: auto;
 
     &.border {
         border: 1px solid var(--content-border);
@@ -44,11 +42,6 @@ withDefaults(
     ul {
         margin: 0;
         padding: 0;
-
-        :deep(.el-checkbox) {
-            margin-left: 10px;
-            display: flex;
-        }
     }
 }
 </style>

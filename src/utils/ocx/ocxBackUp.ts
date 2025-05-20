@@ -2,16 +2,14 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-08 17:43:50
  * @Description: OCX备份列表模块
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 21:28:08
  */
-import { type PlaybackBackUpTaskList, type PlaybackBackUpRecList } from '@/types/apiType/playback'
 import { type XMLQuery } from '@/utils/xmlParse'
 import dayjs from 'dayjs'
 
 export const useOcxBackUp = (cmd: (str: string) => void) => {
-    const { openMessageTipBox } = useMessageBox()
     const userSession = useUserSessionStore()
+    const { Translate } = useLangStore()
+    const dateTime = useDateTimeStore()
 
     // OCX本地下载任务限制
     const LOCAL_TASK_COUNT_LIMIT = 100
@@ -19,6 +17,9 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
 
     // 本地任务列表（OCX）
     const localTableData = ref<PlaybackBackUpTaskList[]>([])
+
+    const HEARTBEAT_TIME = 60000
+    let timer: NodeJS.Timeout | number = 0
 
     /**
      * @description 恢复所有任务
@@ -122,13 +123,17 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
         }
     }
 
+    const normalTaskNum = computed(() => {
+        return localTableData.value.filter((item) => !['failed', 'complete'].includes(item.status)).length
+    })
+
     /**
      * @description 判断本地下载数量是否超出限制
      * @param {Number} addNum
      * @returns {Boolean}
      */
     const isExeed = (addNum: number) => {
-        return localTableData.value.filter((item) => !['failed', 'complete'].includes(item.status)).length + addNum > LOCAL_TASK_COUNT_LIMIT
+        return normalTaskNum.value + addNum > LOCAL_TASK_COUNT_LIMIT
     }
 
     /**
@@ -181,40 +186,54 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
         }
     }
 
+    const errorCodeMap: Record<number, string> = {
+        [ErrorCode.USER_ERROR_NO_AUTH]: Translate('IDCS_NODE_NO_AUTH').formatForLang(''),
+        513: Translate('IDCS_NO_RECORD_DATA'),
+        [ErrorCode.USER_ERROR_SYSTEM_BUSY]: Translate('IDCS_DEVICE_BUSY'),
+    }
+
     /**
      * @description OCX通知回调
      * @param {XMLQuery} $
      */
-    const notify = ($: XMLQuery) => {
+    const notify = ($: XMLQuery, stateType: string) => {
         // 备份通知
-        if ($('statenotify[@type="BackUpRec"]').length) {
+        if (stateType === 'BackUpRec') {
             // var backupTaskGrid = $("#backupTaskGrid");
-            const errorCode = Number($('statenotify[@type="BackUpRec"]/errorCode').text())
+            const errorCode = $('statenotify/errorCode').text().num()
 
-            if ([ErrorCode.USER_ERROR_NO_AUTH, 513, ErrorCode.USER_ERROR_SYSTEM_BUSY].includes(errorCode)) {
-                const taskIds = $("statenotify[@type='BackUpRec']/errorDescription").text().split(',')
+            if (errorCodeMap[errorCode]) {
+                const taskIds = $('statenotify/errorDescription').text().array()
                 if (errorCode === ErrorCode.USER_ERROR_SYSTEM_BUSY) {
                     resendTask(taskIds)
                 } else {
                     localTableData.value.forEach((item) => {
                         if (taskIds.includes(item.taskId)) {
                             item.status = 'failed'
+                            item.statusTip = errorCodeMap[errorCode]
                             nextProcess()
                         }
                     })
                 }
-            } else if (errorCode == ErrorCode.USER_ERROR_DISK_SPACE_NO_ENOUGH) {
-                const errorDescription = $('statenotify[@type="BackUpRec"]/errorDescription').text()
-                localTableData.value = []
-                openMessageTipBox({
-                    type: 'info',
-                    message: errorDescription,
+            } else if (errorCode === 2) {
+                openMessageBox($('statenotify/errorDescription').text())
+            } else if (errorCode === ErrorCode.USER_ERROR_DISK_SPACE_NO_ENOUGH) {
+                const errorDescription = $('statenotify/errorDescription').text()
+                // localTableData.value = []
+                // openMessageBox(errorDescription)
+                localTableData.value.forEach((item) => {
+                    if (item.status !== 'complete') {
+                        item.status = 'failed'
+                        item.statusTip = errorDescription
+                    }
                 })
+                openMessageBox(errorDescription)
             }
         }
+
         //备份任务通知
-        else if ($("statenotify[@type='BackUpRecTasks']").length) {
-            const taskItems = $("statenotify[@type='BackUpRecTasks']/tasks/item")
+        if (stateType === 'BackUpRecTasks') {
+            const taskItems = $('statenotify/tasks/item')
 
             // 清理已完成或失败的数据
             if (localTableData.value.length > LOCAL_TASK_COUNT_LIMIT) {
@@ -222,6 +241,7 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
                     if (['complete', 'failed'].includes(localTableData.value[i].status)) {
                         localTableData.value.splice(i, 1)
                     }
+
                     if (localTableData.value.length <= LOCAL_TASK_COUNT_LIMIT) {
                         break
                     }
@@ -229,20 +249,20 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
             }
 
             taskItems.forEach((item) => {
-                console.log(item.attr('size')!)
-                const findIndex = localTableData.value.findIndex((data) => data.chlIndex === Number(item.attr('chlIndex')!))
+                const findIndex = localTableData.value.findIndex((data) => data.chlIndex === item.attr('chlIndex').num())
                 if (findIndex > -1) {
-                    localTableData.value[findIndex].dataSize = item.attr('size')! === '0.0MB' ? '--' : item.attr('size')!
-                    localTableData.value[findIndex].taskId = item.attr('id')!
+                    localTableData.value[findIndex].dataSize = item.attr('size') === '0.0MB' ? '--' : item.attr('size')
+                    localTableData.value[findIndex].taskId = item.attr('id')
                     if (localTableData.value[findIndex].status !== 'complete') {
                         localTableData.value[findIndex].status = 'ongoing'
                     }
                 }
             })
         }
+
         //备份任务进度通知
-        else if ($("statenotify[@type='BackUpRecProgress']").length) {
-            $("statenotify[@type='BackUpRecProgress']/tasks/item").forEach((item) => {
+        if (stateType === 'BackUpRecProgress') {
+            $('statenotify/tasks/item').forEach((item) => {
                 const taskId = item.attr('id')
                 const progress = item.text()
                 const findIndex = localTableData.value.findIndex((item) => item.taskId === taskId)
@@ -271,7 +291,7 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
             localTableData.value.push({
                 taskId: '',
                 chlIndex,
-                startEndTime: formatDate(item.endTime) + '~' + formatDate(item.startTime),
+                startEndTime: formatDate(item.startTime, dateTime.dateTimeFormat) + '~' + formatDate(item.endTime, dateTime.dateTimeFormat),
                 duration: dayjs.utc(item.endTime - item.startTime).format('HH:mm:ss'),
                 chlName: item.chlName,
                 destination: 'local', // Translate('IDCS_LOCAL'),
@@ -283,16 +303,47 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
                 progress: '0%',
                 status: 'pending',
                 chlId: item.chlId,
-                startTime: formatDate(item.startTime),
-                endTime: formatDate(item.endTime),
+                startTime: formatGregoryDate(item.startTime),
+                endTime: formatGregoryDate(item.endTime),
                 startTimeEx: localToUtc(item.startTime),
                 endTimeEx: localToUtc(item.endTime),
                 streamType: item.streamType,
                 groupby,
+                disabled: false,
+                statusTip: '',
             })
         })
         nextProcess()
     }
+
+    /**
+     * @description 开始心跳检测
+     */
+    const startHeartbeat = () => {
+        stopHeartbeat()
+        timer = setInterval(() => {
+            heartBeat()
+        }, HEARTBEAT_TIME)
+    }
+
+    /**
+     * @description 停止心跳检测
+     */
+    const stopHeartbeat = () => {
+        clearInterval(timer)
+    }
+
+    onBeforeUnmount(() => {
+        stopHeartbeat()
+    })
+
+    watch(normalTaskNum, (val, oldVal) => {
+        if (val === 0) {
+            stopHeartbeat()
+        } else if (val > 0 && oldVal === 0) {
+            startHeartbeat()
+        }
+    })
 
     return {
         localTableData,

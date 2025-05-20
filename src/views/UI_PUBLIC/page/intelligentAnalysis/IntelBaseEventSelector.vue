@@ -2,25 +2,19 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-03 15:07:31
  * @Description: 智能分析 事件选择器
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 16:59:04
 -->
 <template>
     <div>
         <el-popover
             v-model:visible="pageData.isPop"
-            placement="bottom"
-            width="350"
-            trigger="click"
-            :show-after="0"
-            :hide-after="0"
+            width="388"
+            popper-class="selector"
         >
             <template #reference>
                 <div class="base-intel-placeholder">
                     <div class="text-ellipsis">{{ content }}</div>
                     <BaseImgSprite
                         file="arrow"
-                        :index="0"
                         :chunk="4"
                     />
                 </div>
@@ -38,8 +32,8 @@
                         v-for="item in options"
                         :key="item.value"
                         :value="item.value"
-                        >{{ item.label }}</el-radio
-                    >
+                        :label="item.label"
+                    />
                 </el-radio-group>
             </el-scrollbar>
             <template v-else>
@@ -52,8 +46,8 @@
                             v-for="item in options"
                             :key="item.value"
                             :value="item.value"
-                            >{{ item.label }}</el-checkbox
-                        >
+                            :label="item.label"
+                        />
                     </el-checkbox-group>
                 </el-scrollbar>
                 <div class="base-btn-box">
@@ -66,7 +60,3 @@
 </template>
 
 <script lang="ts" src="./IntelBaseEventSelector.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/intelligentAnalysis.scss';
-</style>

@@ -2,11 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-02 16:42:46
  * @Description: 车牌导出弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-12 20:46:19
  */
-import WebsocketPlateLib, { type WebsocketPlateLibOnSuccessParam } from '@/utils/websocket/websocketPlatelib'
-
 export default defineComponent({
     props: {
         /**
@@ -31,11 +27,10 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
 
         const MAX_ZIP_FILE_LENGTH = 5000 // 一个压缩包最大图片文件数量
 
-        let websocket: WebsocketPlateLib | null = null
+        let websocket: ReturnType<typeof WebsocketPlateLib> | null = null
 
         const csvHeader = ['(B1)' + Translate('IDCS_LICENSE_PLATE_NUM'), '(B2)' + Translate('IDCS_VEHICLE_OWNER'), '(B3)' + Translate('IDCS_PHONE_NUMBER'), '(N1)' + Translate('IDCS_VEHICLE_TYPE')]
 
@@ -47,7 +42,7 @@ export default defineComponent({
         })
 
         const progress = computed(() => {
-            return Math.ceil((pageData.value.currentTask / pageData.value.totalTask) * 100)
+            return Math.ceil((Math.min(pageData.value.currentTask, pageData.value.totalTask) / pageData.value.totalTask) * 100)
         })
 
         type ExportData = {
@@ -58,6 +53,14 @@ export default defineComponent({
 
         const exportData: ExportData[] = []
         let currentGroupId = ''
+
+        /**
+         * @description 取消下载
+         */
+        const cancel = () => {
+            openMessageBox(Translate('IDCS_EXPORT_FAIL'))
+            close()
+        }
 
         /**
          * @description 关闭弹窗，停止下载
@@ -74,7 +77,7 @@ export default defineComponent({
             pageData.value.currentTask = 0
             pageData.value.totalTask = prop.total
 
-            websocket = new WebsocketPlateLib({
+            websocket = WebsocketPlateLib({
                 onsuccess(data) {
                     // 数据接收完毕, 执行导出
                     if (typeof data === 'number') {
@@ -83,7 +86,7 @@ export default defineComponent({
                                 zipName: getZipName(),
                                 files: exportData,
                             }).then(() => {
-                                openMessageTipBox({
+                                openMessageBox({
                                     type: 'success',
                                     title: Translate('IDCS_INFORMATION_MSG'),
                                     message: Translate('IDCS_EXPORT_SUCCESS'),
@@ -95,6 +98,8 @@ export default defineComponent({
                         }
                         return
                     }
+
+                    pageData.value.currentTask += data.length
 
                     data.forEach((item) => {
                         const groupName = prop.data[item.groupId]
@@ -128,10 +133,7 @@ export default defineComponent({
                             errorInfo = Translate('IDCS_EXPORT_FACE_DATABASE_TASK_TIP')
                             break
                     }
-                    openMessageTipBox({
-                        type: 'info',
-                        message: errorInfo,
-                    }).then(() => {
+                    openMessageBox(errorInfo).then(() => {
                         close()
                     })
                 },
@@ -201,6 +203,7 @@ export default defineComponent({
 
         return {
             open,
+            cancel,
             pageData,
             progress,
         }

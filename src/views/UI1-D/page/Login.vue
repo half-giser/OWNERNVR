@@ -2,39 +2,24 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-24 14:37:52
  * @Description: UI-D客制化 登录
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-29 13:32:19
 -->
 <template>
     <div class="login">
         <div class="login-lang">
-            <el-select
+            <el-select-v2
                 v-model="pageData.langId"
+                :options="pageData.langTypes"
                 @change="changeLang"
-            >
-                <el-option
-                    v-for="(value, key) in pageData.langTypes"
-                    :key="key"
-                    :label="value"
-                    :value="key"
-                />
-            </el-select>
-            <el-select
+            />
+            <el-select-v2
                 v-show="pageData.calendarOptions.length"
                 v-model="formData.calendarType"
-            >
-                <el-option
-                    v-for="item in pageData.calendarOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                />
-            </el-select>
+                :options="pageData.calendarOptions"
+            />
         </div>
         <div class="login-content">
             <el-form
                 ref="formRef"
-                label-position="left"
                 :rules="rules"
                 :model="formData"
             >
@@ -44,56 +29,53 @@
                         :placeholder="Translate('IDCS_USERNAME_TIP')"
                         type="text"
                         tabindex="1"
-                        size="large"
                     />
                 </el-form-item>
                 <el-form-item prop="password">
-                    <el-input
+                    <BasePasswordInput
                         v-model="formData.password"
                         :placeholder="Translate('IDCS_PASSWORD_TIP')"
-                        type="password"
                         tabindex="2"
-                        size="large"
-                        show-password
-                        @paste.capture.prevent=""
-                        @copy.capture.prevent=""
-                    >
-                    </el-input>
+                        @keyup.enter="keyUp"
+                    />
                 </el-form-item>
-                <el-radio-group v-model="pageData.quality">
-                    <el-radio
-                        v-for="item in pageData.qualityOptions"
-                        :key="item.value"
-                        size="large"
-                        :value="item.value"
-                        >{{ Translate(item.label) }}</el-radio
+                <div class="login-other">
+                    <el-radio-group
+                        v-model="pageData.quality"
+                        class="line-break"
                     >
-                </el-radio-group>
-                <div
-                    class="login-btns"
-                    span="center"
-                >
+                        <el-radio
+                            v-for="item in qualityOptions"
+                            :key="item.value"
+                            :value="item.value"
+                            :label="item.label"
+                        />
+                    </el-radio-group>
+                    <el-button
+                        link
+                        @click="forgetPassword"
+                    >
+                        {{ Translate('IDCS_FORGOT_PASSWORD') }}
+                    </el-button>
+                </div>
+                <div class="login-btns">
                     <el-button
                         class="login-submit"
-                        size="large"
-                        :disabled="pageData.btnDisabled"
+                        :disabled="btnDisabled"
                         @click="handleLogin"
                         @keyup.enter="keyUp"
                     >
-                        {{ Translate('IDCS_LOGIN_NBSP') }}
+                        <span v-clean-html="Translate('IDCS_LOGIN_NBSP')"></span>
                     </el-button>
                     <!-- 点击不会有任何作用 -->
-                    <el-button
-                        class="login-submit"
-                        size="large"
-                    >
+                    <el-button class="login-submit">
                         {{ Translate('IDCS_CANCEL') }}
                     </el-button>
                 </div>
             </el-form>
             <div
                 class="login-error"
-                v-text="pageData.errorMsg"
+                v-text="errorMsg"
             ></div>
         </div>
         <LoginPrivacyPop
@@ -135,19 +117,25 @@
         :deep(.el-input__wrapper) {
             box-shadow: none;
             border-radius: 0;
+            background-color: var(--login-input-bg);
+        }
+
+        :deep(.el-input__inner) {
+            color: var(--login-input-text);
+            font-size: 16px;
         }
 
         :deep(.el-form-item) {
-            margin: 0 0px 0px 419px;
+            margin: 0 0 0 419px;
             font-size: 16px;
-            padding: 0 0 22px 0;
+            padding: 0 0 22px;
         }
 
         :deep(.el-radio-group) {
-            padding-left: 367px;
-            width: 365px;
+            // padding-left: 367px;
+            // width: 365px;
             font-size: 18px;
-            padding-bottom: 22px;
+            // padding-bottom: 22px;
         }
 
         .login-submit {
@@ -175,8 +163,6 @@
 }
 
 .login-btns {
-    width: 313px;
-    display: flex;
     padding-left: 367px;
     width: 365px;
     display: flex;
@@ -185,8 +171,8 @@
 
 .login-lang {
     position: absolute;
-    top: 20px;
-    right: 30px;
+    top: 10px;
+    right: 15px;
     width: 180px;
 
     .el-select {
@@ -196,7 +182,23 @@
 
 .login-error {
     position: relative;
-    margin: 30px 0px 0px 10px;
+    margin: 50px 0 0 365px;
     color: var(--color-error);
+}
+
+.login-other {
+    width: 365px;
+    margin-left: 365px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-top: -10px;
+    margin-bottom: 10px;
+
+    #n9web & .el-button {
+        padding: 0;
+        min-width: unset;
+        text-decoration: underline;
+    }
 }
 </style>

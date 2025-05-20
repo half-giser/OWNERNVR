@@ -2,13 +2,9 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-09 13:43:11
  * @Description: 磁盘阵列
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:00:19
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import { DiskRaidList } from '@/types/apiType/disk'
 import RaidRebuildPop from './RaidRebuildPop.vue'
-import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     components: {
@@ -17,10 +13,10 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
-        let raidStatusTimer: NodeJS.Timeout | number = 0
+        const raidStatusTimer = useRefreshTimer(() => {
+            getRaidStatus()
+        }, 60000)
 
         // 状态值与显示文本的映射
         const STATE_MAPPING: Record<string, string> = {
@@ -39,7 +35,7 @@ export default defineComponent({
             // 当前选中的阵列
             activeIndex: -1,
             // 磁盘阵列重建弹窗弹窗
-            isRebuild: false,
+            isRebuild: true,
         })
 
         // 当前选中的阵列
@@ -52,13 +48,10 @@ export default defineComponent({
          * @returns
          */
         const refreshData = async () => {
+            raidStatusTimer.stop()
             const raidListHasRebuildArray = await getData()
-            if (!raidListHasRebuildArray) return
-            const raidStatusHasRebuildArray = await getRaidStatus()
-            if (raidStatusHasRebuildArray) {
-                startRefreshProgress()
-            } else {
-                stopRefreshProgress()
+            if (raidListHasRebuildArray) {
+                raidStatusTimer.repeat(true)
             }
         }
 
@@ -72,22 +65,26 @@ export default defineComponent({
 
             let hasRebuildArray = false
 
-            tableData.value = $('//content/raidList/item').map((item) => {
+            const spareHard = $('content/spareHard').text()
+
+            tableData.value = $('content/raidList/item').map((item) => {
                 const $item = queryXml(item.element)
 
                 if ($item('raidState').text() === 'rebuild') {
                     hasRebuildArray = true
                 }
 
+                const raidType = $item('raidType').text()
+
                 return {
-                    id: item.attr('id')!,
-                    logicDiskId: item.attr('logicDiskId')!,
+                    id: item.attr('id'),
+                    logicDiskId: item.attr('logicDiskId'),
                     name: $item('name').text(),
-                    capacity: Math.floor(Number($item('capacity').text()) / 1024),
+                    capacity: Math.floor($item('capacity').text().num() / 1024),
                     physicalDisk: $item('physicalDisks').text(),
                     raidState: $item('raidState').text(),
                     raidType: $item('raidType').text(),
-                    spareHard: $('//content/spareHard').text(),
+                    spareHard: raidType === 'RAID_TYPE_0' ? '' : spareHard,
                     task: '',
                 }
             })
@@ -119,10 +116,10 @@ export default defineComponent({
          * @param {number} index
          */
         const deleteRaid = (row: DiskRaidList, index: number) => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_NOTE_DELETE_RAID').formatForLang(row.name),
-            }).then(async () => {
+            }).then(() => {
                 pageData.value.isCheckAuth = true
                 pageData.value.activeIndex = index
             })
@@ -152,11 +149,11 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 refreshData()
                 pageData.value.isCheckAuth = false
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:
@@ -170,10 +167,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_DELETE_RAID_ERROR')
                 }
 
-                openMessageTipBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 
@@ -186,9 +180,9 @@ export default defineComponent({
             const $ = queryXml(result)
 
             let hasRebuildArray = false
-            $('//content/item').forEach((item) => {
+            $('content/item').forEach((item) => {
                 const $item = queryXml(item.element)
-                const raid = item.attr('id')!
+                const raid = item.attr('id')
                 const raidState = $item('raidState').text()
                 if (raidState === 'RAID_STATE_REBUILD') {
                     hasRebuildArray = true
@@ -196,51 +190,27 @@ export default defineComponent({
 
                 const findIndex = tableData.value.findIndex((data) => data.id === raid)
                 if (findIndex > -1) {
-                    const stateProgress = Number($item('stateProgress').text()) / 100
-                    tableData.value[findIndex].task = Translate('IDCS_REPAIRING') + stateProgress
+                    const stateProgress = $item('stateProgress').text().num() / 100
+                    tableData.value[findIndex].task = Translate('IDCS_REPAIRING') + ' ' + stateProgress + '%'
                 }
             })
 
-            return hasRebuildArray
-        }
-
-        /**
-         * @description 刷新阵列状态
-         */
-        const startRefreshProgress = () => {
-            stopRefreshProgress()
-            raidStatusTimer = setTimeout(() => {
-                getRaidStatus()
-            }, 60000)
-        }
-
-        /**
-         * @description 停止刷新阵列状态
-         */
-        const stopRefreshProgress = () => {
-            clearTimeout(raidStatusTimer)
-            raidStatusTimer = 0
+            if (hasRebuildArray) {
+                raidStatusTimer.repeat()
+            }
         }
 
         /**
          * @description 打开重建阵列弹窗
-         * @param {DiskRaidList} row
          * @param {number} index
          */
-        const rebuildRaid = (row: DiskRaidList, index: number) => {
-            if (row.raidState !== 'downgrade') {
-                return
-            }
+        const rebuildRaid = (index: number) => {
             pageData.value.isRebuild = true
             pageData.value.activeIndex = index
         }
 
         onMounted(() => {
             refreshData()
-        })
-
-        onBeforeUnmount(() => {
-            stopRefreshProgress()
         })
 
         return {
@@ -253,8 +223,6 @@ export default defineComponent({
             displayRaidState,
             displayRaidType,
             confirmDeleteRaid,
-            BaseCheckAuthPop,
-            RaidRebuildPop,
         }
     },
 })

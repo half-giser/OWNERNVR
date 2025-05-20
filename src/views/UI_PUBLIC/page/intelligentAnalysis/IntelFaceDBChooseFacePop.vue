@@ -2,15 +2,11 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-30 09:26:56
  * @Description: 人脸库 - 选择人脸
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-02 11:11:08
 -->
 <template>
     <el-dialog
         :title="Translate('IDCS_ADD')"
         :width="type === 'both' ? 1150 : 1000"
-        align-center
-        draggable
         append-to-body
         @open="open"
     >
@@ -22,7 +18,9 @@
                 <div
                     v-for="item in pageData.typeOptions"
                     :key="item.value"
-                    :class="{ active: item.value === pageData.type }"
+                    :class="{
+                        active: item.value === pageData.type,
+                    }"
                     @click="changeType(item.value)"
                 >
                     {{ item.label }}
@@ -37,6 +35,7 @@
                 <IntelFaceDBChooseFaceImportPanel
                     v-if="type !== 'snap'"
                     v-show="pageData.type === 'import'"
+                    type="import"
                     @change="importImg"
                 />
             </div>
@@ -74,26 +73,21 @@
                 </div>
             </el-dialog>
         </div>
-        <template #footer>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
-                >
-                    <el-button
-                        v-show="pageData.type === 'snap'"
-                        @click="confirmSnap"
-                        >{{ Translate('IDCS_OK') }}</el-button
-                    >
-                    <el-button
-                        v-show="pageData.type === 'import'"
-                        @click="pageData.isDescPop = true"
-                        >{{ Translate('IDCS_INFORMATION_DESCRIPTION') }}</el-button
-                    >
-                    <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
-        </template>
+        <div class="base-btn-box">
+            <el-button
+                v-show="pageData.type === 'snap'"
+                @click="confirmSnap"
+            >
+                {{ Translate('IDCS_OK') }}
+            </el-button>
+            <el-button
+                v-show="pageData.type === 'import'"
+                @click="pageData.isDescPop = true"
+            >
+                {{ Translate('IDCS_INFORMATION_DESCRIPTION') }}
+            </el-button>
+            <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 
@@ -123,6 +117,7 @@
             }
         }
     }
+
     &-right {
         height: 460px;
     }
@@ -130,10 +125,12 @@
 
 .desc {
     line-height: 2.5;
+
     & > div {
         & > div {
             margin-left: 60px;
         }
+
         & > span:last-child {
             margin-left: 60px;
         }

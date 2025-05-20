@@ -1,26 +1,26 @@
 /*
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-03 16:14:27
- * @Description: 录像与回放
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-11 14:44:55
+ * @Description: 录像配置的类型定义，类型命名的前缀统一为Record*
  */
+import { TableRowStatus } from './base'
 
 /**
- * 录像-模式配置
+ * @description 录像-模式配置
  */
-export class RecordDistributeInfo {
+export class RecordDistributeInfoDto {
     mode = '' // 录像模式类型
     autoMode = '' // 自动录像模式
-    autoModeEvents = [] as string[] // 自动录像模式事件列表
+    autoModeEvents: string[] = [] // 自动录像模式事件列表
     autoModeId = '' //自动模式Radio列表中选择的ID
     urgencyRecDuration = 0 // 手动录像时长
-    recordScheduleList = [] as RecordSchedule[]
+    // recordScheduleList: RecordScheduleDto[] = []
 }
+
 /**
- * 通道的录像排程配置
+ * @description 通道的录像排程配置
  */
-export class RecordSchedule {
+export class RecordScheduleDto extends TableRowStatus {
     id = '' //通道ID
     name = '' //通道名称
     alarmRec = '' //传感器录像排程
@@ -31,9 +31,9 @@ export class RecordSchedule {
 }
 
 /**
- * 录像模式
+ * @description 录像模式
  */
-export interface RecMode {
+export interface RecordModeDto {
     id: string
     text: string
     type: string
@@ -41,8 +41,10 @@ export interface RecMode {
     index: number //用于指定在自定义组合模式中出现的顺序
 }
 
-// 通道录像参数列表
-export class ChlRecParamList {
+/**
+ * @description 通道录像参数列表
+ */
+export class RecordParamDto extends TableRowStatus {
     id = ''
     index = 0
     name = ''
@@ -55,142 +57,121 @@ export class ChlRecParamList {
     expiration = ''
     expirationUnit = ''
     manufacturerEnable = false
-    expirationDisplay? = ''
-    week? = ''
-    holiday? = ''
-    singleExpirationUnit? = ''
+    expirationDisplay = ''
+    week = ''
+    holiday = ''
+    singleExpirationUnit = ''
 }
 
-// 页面选择项
-export class ItemList {
-    value = ''
-    label = ''
+/**
+ * @description 通道录像参数表单
+ */
+export class RecordParamForm {
+    loopRecSwitch = false
+    doubleStreamRecSwitch = 'double'
 }
 
-// 录像子码流列表
-export class RecordSubStreamList {
+/**
+ * @description
+ */
+export class RecordStreamQualityCapsDto {
+    enct = ''
+    res = ''
+    digitalDefault = 0
+    analogDefault = 0
+    value: string[] = []
+}
+
+/**
+ * @description 录像子码流列表
+ */
+export class RecordSubStreamList extends TableRowStatus {
     id = ''
     index = 0
     name = ''
-    isRTSPChl = ''
+    isRTSPChl = false
     chlType = ''
     subCaps = {
-        supEnct: [] as string[],
+        supEnct: [] as SelectOption<string, string>[],
         bitType: [] as string[],
-        res: [] as { fps: string; value: string }[],
+        res: [] as { fps: number; value: string; label: string }[],
     }
     streamType = ''
     streamLength = 0
     resolution = ''
-    frameRate = ''
+    frameRate = 0
     bitType = ''
     level = ''
-    videoQuality = ''
+    videoQuality = 0
     videoEncodeType = ''
-    subStreamQualityCaps = []
-    qualitys = [] as string[]
+    subStreamQualityCaps: RecordStreamQualityCapsDto[] = []
+    // frameRateList: number[] = []
+    // maxFps = 0
 }
-// 分辨率数据项
-export class ResolutionRow {
+
+/**
+ * @description 分辨率数据项
+ */
+export class RecordStreamResolutionDto {
     res = ''
-    resGroup = [] as string[]
-    chls = { expand: false, data: [] as SelectOption<string, string>[] }
+    resGroup: SelectOption<string, string>[] = []
+    chls = {
+        expand: false,
+        data: [] as SelectOption<string, string>[],
+    }
 }
 
-// 录像子码流页面，表格行中不存在的属性
-export class rowNonExistent {
-    videoEncodeType = ''
-    videoQuality = ''
-    frameRate = ''
-    resolution = ''
+export class RecordStreamInfoAttrDto {
+    res = ''
+    fps = 0
+    QoI = 0
+    audio = ''
+    type = ''
+    bitType = ''
+    level = ''
+    originalFps = 0
 }
 
-// 录像码流信息
-export class RecordStreamInfoDto {
-    '@id' = ''
+/**
+ * @description 录像码流信息
+ */
+export class RecordStreamInfoDto extends TableRowStatus {
+    id = ''
     name = ''
     streamType = ''
     videoEncodeType = ''
     resolution = ''
-    frameRate = ''
+    frameRate = 0
     bitRate = ''
     level = ''
-    videoQuality = ''
-    bitRange: { min: number; max: number } | null = { min: 0, max: 0 }
+    videoQuality = 0
     audio = ''
     recordStream = ''
-    GOP = ''
+    GOP: number | undefined = undefined
     chlType = ''
     mainCaps = {
         // 可选的编码类型
-        '@supEnct': [] as string[],
+        supEnct: [] as SelectOption<string, string>[],
         // 可选的码率
-        '@bitType': [] as string[],
-        res: [] as { '@fps': string; value: string }[],
+        bitType: [] as string[],
+        res: [] as { fps: number; value: string; label: string }[],
     }
     main = {
-        '@enct': '',
-        '@aGOP': '',
-        '@mGOP': '',
+        enct: '',
+        aGOP: '',
+        mGOP: '',
     }
-    an = {
-        '@res': '',
-        '@fps': '',
-        '@QoI': '',
-        '@audio': '',
-        '@type': '',
-        '@bitType': '',
-        '@level': '',
-    }
-    ae = {
-        '@res': '',
-        '@fps': '',
-        '@QoI': '',
-        '@audio': '',
-        '@type': '',
-        '@bitType': '',
-        '@level': '',
-    }
-    mn = {
-        '@res': '',
-        '@fps': '',
-        '@QoI': '',
-        '@audio': '',
-        '@type': '',
-        '@bitType': '',
-        '@level': '',
-    }
-    me = {
-        '@res': '',
-        '@fps': '',
-        '@QoI': '',
-        '@audio': '',
-        '@type': '',
-        '@bitType': '',
-        '@level': '',
-    }
-    mainStreamQualityCaps: { '@enct': string; '@res': string; '@digitalDefault': string; '@analogDefault': string; value: string[] }[] = []
-    levelNote: string[] = []
+    an = new RecordStreamInfoAttrDto()
+    ae = new RecordStreamInfoAttrDto()
+    mn = new RecordStreamInfoAttrDto()
+    me = new RecordStreamInfoAttrDto()
+    mainStreamQualityCaps: RecordStreamQualityCapsDto[] = []
+    levelNote: SelectOption<string, string>[] = []
     bitType = ''
     supportAudio = false
-    // 码率可选范围
-    qualitys = [] as { value: string; label: string }[]
-    // 帧率可选范围
-    frameRates = [] as { value: string; label: string }[]
-    resolutions = [] as { value: string; label: string }[]
-    // 元素禁用
-    rowDisable = false
-    videoEncodeTypeDisable = false
-    resolutionDisable = false
-    frameRateDisable = false
-    bitTypeDisable = false
-    imageLevelDisable = false
-    videoQualityDisable = false
-    bitRangeDisable = false
-    audioDisable = false
-    GOPDisable = false
-    // recordStream可能没用
-    recordStreamDisable = false
+}
 
-    bitTypeVisible = true
+export interface RecordStreamTableExpose {
+    setData: () => void
+    getRemainRecTime: () => void
 }

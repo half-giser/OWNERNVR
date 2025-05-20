@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-18 09:33:05
  * @Description: 开机向导
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-26 16:31:32
 -->
 <template>
     <div class="guide">
@@ -15,7 +13,7 @@
             >
                 <div class="title">{{ Translate('IDCS_WIZARD') }}</div>
                 <div class="box">
-                    <div>
+                    <div ref="langRef">
                         <div class="lang-title">{{ Translate('IDCS_LANGUAGE') }}</div>
                         <BaseListBox
                             class="lang-list"
@@ -31,7 +29,7 @@
                             </BaseListBoxItem>
                         </BaseListBox>
                     </div>
-                    <div>
+                    <div ref="regionRef">
                         <div class="lang-title">{{ Translate('IDCS_LOCALITY') }}</div>
                         <BaseListBox
                             class="region-list"
@@ -59,19 +57,24 @@
             >
                 <div class="title">{{ Translate('IDCS_PRIVACY') }}</div>
                 <div class="box">
-                    <textarea
+                    <el-input
                         class="privacy-text"
+                        type="textarea"
                         readonly
-                        :value="Translate('IDCS_PRIVACY_TEXT')"
-                    ></textarea>
+                        :model-value="Translate('IDCS_PRIVACY_TEXT')"
+                    />
                 </div>
                 <div class="base-btn-box padding">
-                    <el-checkbox v-model="privacyFormData.checked">{{ Translate('IDCS_PRIVACY_ALLOW') }}</el-checkbox>
+                    <el-checkbox
+                        v-model="privacyFormData.checked"
+                        :label="Translate('IDCS_PRIVACY_ALLOW')"
+                    />
                     <el-button
                         :disabled="!privacyFormData.checked"
                         @click="handleNext"
-                        >{{ Translate('IDCS_OK') }}</el-button
                     >
+                        {{ Translate('IDCS_OK') }}
+                    </el-button>
                 </div>
             </div>
             <!-- 日期与时间 -->
@@ -82,92 +85,94 @@
                 <div class="title">{{ Translate('IDCS_WIZARD') }}</div>
                 <div class="box">
                     <el-form
-                        label-position="left"
-                        class="narrow"
+                        ref="dateTimeFormRef"
+                        v-title
+                        :rules="dateTimeFormRules"
+                        :style="{
+                            '--form-input-width': '100%',
+                        }"
                     >
                         <el-form-item :label="Translate('IDCS_TIME_ZONE')">
-                            <el-select v-model="dateTimeFormData.timeZone">
-                                <el-option
-                                    v-for="(item, index) in pageData.timeZoneOption"
-                                    :key="item.timeZone"
-                                    :label="displayTimeZone(index)"
-                                    :value="item.timeZone"
-                                />
-                            </el-select>
+                            <el-select-v2
+                                v-model="dateTimeFormData.timeZone"
+                                :options="pageData.timeZoneOption"
+                                :props="{
+                                    value: 'timeZone',
+                                }"
+                            />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_SYSTEM_TIME')">
-                            <el-date-picker
+                            <BaseDatePicker
                                 v-model="dateTimeFormData.systemTime"
                                 :disabled="dateTimeFormData.syncType === 'NTP'"
-                                :value-format="formatSystemTime"
                                 :format="formatSystemTime"
-                                :cell-class-name="handleCalendarCellHighLight"
-                                clear-icon=""
                                 type="datetime"
-                                :placeholder="Translate('IDCS_SYSTEM_TIME')"
                                 @visible-change="pendingSystemTimeChange"
                                 @change="handleSystemTimeChange"
                             />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_DATE_FORMAT')">
-                            <el-select v-model="dateTimeFormData.dateFormat">
-                                <el-option
-                                    v-for="item in pageData.dateFormatOptions"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value"
-                                />
-                            </el-select>
+                            <el-select-v2
+                                v-model="dateTimeFormData.dateFormat"
+                                :options="pageData.dateFormatOptions"
+                            />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_TIME_FORMAT')">
-                            <el-select v-model="dateTimeFormData.timeFormat">
-                                <el-option
-                                    v-for="item in pageData.timeFormatOptions"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value"
-                                />
-                            </el-select>
+                            <el-select-v2
+                                v-model="dateTimeFormData.timeFormat"
+                                :options="pageData.timeFormatOptions"
+                            />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_DST')">
                             <el-checkbox
                                 v-model="dateTimeFormData.enableDST"
                                 :disabled="isDSTDisabled"
-                                >{{ Translate('IDCS_ENABLE') }}</el-checkbox
-                            >
+                                :label="Translate('IDCS_ENABLE')"
+                            />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_SYNC_WAY')">
-                            <el-select v-model="dateTimeFormData.syncType">
-                                <el-option
-                                    v-for="item in pageData.syncTypeOptions"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value"
-                                />
-                            </el-select>
+                            <el-select-v2
+                                v-model="dateTimeFormData.syncType"
+                                :options="pageData.syncTypeOptions"
+                            />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_TIME_SERVER')">
-                            <el-select
+                            <el-select-v2
                                 v-model="dateTimeFormData.timeServer"
+                                :options="pageData.timeServerOptions"
                                 filterable
-                            >
-                                <el-option
-                                    v-for="item in pageData.timeServerOptions"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value"
-                                />
-                            </el-select>
+                                :disabled="dateTimeFormData.syncType !== 'NTP'"
+                            />
+                        </el-form-item>
+                        <el-form-item
+                            v-if="dateTimeFormData.syncType === 'Gmouse'"
+                            :label="Translate('IDCS_BAUD_RATE')"
+                        >
+                            <el-select-v2
+                                v-model="dateTimeFormData.gpsBaudRate"
+                                :options="pageData.gpsBaudRateOptions"
+                                filterable
+                                allow-create
+                                :disabled="dateTimeFormData.syncType !== 'Gmouse'"
+                            />
+                        </el-form-item>
+                        <el-form-item
+                            :label="`${Translate('IDCS_NTP_INTERVAL')}[${Translate('IDCS_MINUTE')}]`"
+                            prop="ntpInterval"
+                        >
+                            <BaseNumberInput
+                                v-model="dateTimeFormData.ntpInterval"
+                                :min="dateTimeFormData.ntpIntervalMin"
+                                :max="dateTimeFormData.ntpIntervalMax"
+                                :disabled="dateTimeFormData.syncType !== 'NTP'"
+                                @out-of-range="handleNtpIntervalOutOfRange"
+                            />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_VIDEO_FORMAT')">
-                            <el-select v-model="dateTimeFormData.videoType">
-                                <el-option
-                                    v-for="item in pageData.videoTypeOptions"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value"
-                                />
-                            </el-select>
+                            <el-select-v2
+                                v-model="dateTimeFormData.videoType"
+                                :options="pageData.videoTypeOptions"
+                            />
                         </el-form-item>
                     </el-form>
                 </div>
@@ -188,8 +193,10 @@
                 <div class="title">{{ Translate('IDCS_WIZARD') }}</div>
                 <div class="box">
                     <el-form
-                        label-position="left"
-                        class="narrow"
+                        v-title
+                        :style="{
+                            '--form-input-width': '100%',
+                        }"
                     >
                         <el-form-item>
                             <el-text class="user-title">{{ Translate('IDCS_ADMIN_PASSWORD_SETUP').formatForLang(userFormData.userName) }}</el-text>
@@ -201,30 +208,25 @@
                             />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_NEW_PASSWORD')">
-                            <el-input
+                            <BasePasswordInput
                                 v-model="userFormData.password"
-                                type="password"
-                                autocomplete="new-password"
                                 maxlength="16"
-                                @paste.capture.prevent=""
-                                @copy.capture.prevent=""
                             />
                         </el-form-item>
                         <el-form-item>
-                            <BasePasswordStrength :strength="passwordStrength" />
+                            <BasePasswordStrength :strength="passwordStrengthForUser" />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_CONFIRM_NEW_PASSWORD')">
-                            <el-input
+                            <BasePasswordInput
                                 v-model="userFormData.confirmPassword"
-                                type="password"
-                                autocomplete="new-password"
                                 maxlength="16"
-                                @paste.capture.prevent=""
-                                @copy.capture.prevent=""
                             />
                         </el-form-item>
                         <el-form-item>
-                            <el-text>{{ pageData.passwordNoticeMsg }}</el-text>
+                            <span
+                                v-clean-html="pageData.passwordNoticeMsg"
+                                class="base-rich-text"
+                            ></span>
                         </el-form-item>
                     </el-form>
                 </div>
@@ -232,89 +234,198 @@
                     <el-button
                         v-show="steps.indexOf('user') > 0"
                         @click="handlePrev"
-                        >{{ Translate('IDCS_PREVIOUS_STEP') }}</el-button
                     >
+                        {{ Translate('IDCS_PREVIOUS_STEP') }}
+                    </el-button>
                     <el-button @click="handleNext">{{ Translate('IDCS_NEXT_STEP') }}</el-button>
                 </div>
             </div>
-            <!-- 创建问题答案 -->
+            <!-- 通道配置（通道默认协议密码/通道IP规划） -->
             <div
-                v-show="pageData.current === 'questionAndAnswer'"
-                class="qa"
+                v-show="pageData.current === 'chlConfig'"
+                class="chlConfig"
             >
                 <div class="title">{{ Translate('IDCS_WIZARD') }}</div>
                 <div class="box">
-                    <el-form
-                        label-position="left"
-                        class="narrow inline-message"
-                        :style="{
-                            '--form-input-width': '340px',
-                        }"
+                    <el-tabs
+                        v-model="pageData.chlConfigTab"
+                        class="base-chlConfig-tabs"
                     >
-                        <el-form-item :label="Translate('IDCS_QUESTION')">
-                            <el-input
-                                v-if="!isDefeultQuestion"
-                                v-model="qaFormData.question"
-                            />
-                            <el-select
-                                v-else
-                                v-model="qaFormData.id"
-                                @change="changeQuestion"
-                            >
-                                <el-option
-                                    v-for="item in pageData.questionOptions"
-                                    :key="item.id"
-                                    :label="item.question"
-                                    :value="item.id"
-                                />
-                            </el-select>
-                        </el-form-item>
-                        <el-form-item :label="Translate('IDCS_ANSWER')">
-                            <el-input v-model="qaFormData.answer" />
-                            <el-button @click="addQuestion">{{ isDefeultQuestion ? Translate('IDCS_APPLY') : Translate('IDCS_ADD') }}</el-button>
-                        </el-form-item>
-                    </el-form>
-                    <div class="base-table-box">
-                        <el-table
-                            :data="qaTableData"
-                            border
-                            stripe
+                        <!-- 通道预设密码 -->
+                        <el-tab-pane
+                            v-if="pageData.supportsIPCActivation"
+                            :label="Translate('IDCS_DEV_DEFAULT_PWD')"
+                            name="pwd"
                         >
-                            <el-table-column
-                                :label="Translate('IDCS_QUESTION')"
-                                prop="question"
+                            <el-form
+                                v-title
+                                :style="{
+                                    '--form-input-width': '100%',
+                                }"
                             >
-                            </el-table-column>
-                            <el-table-column :label="Translate('IDCS_ANSWER')">
-                                <template #default="scope">
-                                    <template v-if="!isDefeultQuestion || (isDefeultQuestion && !scope.row.answer)">******</template>
-                                    <template v-else>{{ scope.row.answer }}</template>
-                                </template>
-                            </el-table-column>
-                            <el-table-column
-                                v-if="!isDefeultQuestion"
-                                :label="Translate('IDCS_DELETE')"
-                            >
-                                <template #default="scope">
-                                    <BaseImgSprite
-                                        file="del"
-                                        :chunk="4"
-                                        :index="0"
-                                        :hover-index="1"
-                                        :active-index="1"
-                                        @click="deleteQuestion(scope.$index)"
+                                <el-form-item :label="Translate('IDCS_DEFAULT_PASSWORD')">
+                                    <BasePasswordInput
+                                        v-model="chlConfigFormData.password"
+                                        maxlength="16"
                                     />
-                                </template>
-                            </el-table-column>
-                        </el-table>
-                    </div>
+                                </el-form-item>
+                                <el-form-item>
+                                    <BasePasswordStrength :strength="passwordStrengthForChlConfig" />
+                                </el-form-item>
+                                <el-form-item>
+                                    <span
+                                        v-clean-html="pageData.passwordNoticeMsg"
+                                        class="base-rich-text"
+                                    ></span>
+                                </el-form-item>
+                                <el-form-item>
+                                    <span class="base-rich-text ipc-password-tip">{{ Translate('IDCS_DEFAULT_PASSWORD_TIP') }}</span>
+                                </el-form-item>
+                            </el-form>
+                        </el-tab-pane>
+                        <!-- 通道IP规划 -->
+                        <el-tab-pane
+                            :label="Translate('IDCS_DEV_CHANNEL_IP_PLANNING')"
+                            name="ip"
+                        >
+                            <el-form
+                                v-title
+                                :style="{
+                                    '--form-input-width': '100%',
+                                }"
+                            >
+                                <el-form-item>
+                                    <el-checkbox
+                                        v-model="chlConfigFormData.checked"
+                                        :label="Translate('IDCS_ENABLE')"
+                                    />
+                                </el-form-item>
+                                <el-form-item>
+                                    <span class="base-rich-text ipc-ip-tip">{{ Translate('IDCS_DEV_CHANNEL_IP_PLANNING_TEXT') }}</span>
+                                </el-form-item>
+                            </el-form>
+                        </el-tab-pane>
+                    </el-tabs>
                 </div>
                 <div class="base-btn-box padding">
                     <el-button @click="handlePrev">{{ Translate('IDCS_PREVIOUS_STEP') }}</el-button>
                     <el-button @click="handleNext">{{ Translate('IDCS_NEXT_STEP') }}</el-button>
                 </div>
             </div>
-            <!-- 磁盘 -->
+            <!-- Email和创建问题答案 -->
+            <div
+                v-show="pageData.current === 'emailAndQa'"
+                class="emailAndQa"
+            >
+                <div class="title">{{ Translate('IDCS_WIZARD') }}</div>
+                <div class="box">
+                    <el-tabs
+                        v-model="pageData.emailAndQaTab"
+                        class="base-emailAndQa-tabs"
+                    >
+                        <!-- E-mail -->
+                        <el-tab-pane
+                            v-if="pageData.supportsIPCActivation"
+                            :label="Translate('IDCS_EMAIL')"
+                            name="email"
+                        >
+                            <el-form
+                                v-title
+                                :style="{
+                                    '--form-input-width': '69%',
+                                }"
+                            >
+                                <el-form-item>
+                                    <el-checkbox
+                                        v-model="qaEmailData.checked"
+                                        :label="Translate('IDCS_ENABLE')"
+                                    />
+                                </el-form-item>
+                                <el-form-item :label="Translate('IDCS_EMAIL_ADDRESS')">
+                                    <el-input
+                                        v-model="qaEmailData.email"
+                                        :placeholder="Translate('IDCS_EMAIL_ADDRESS_INPUT').formatForLang(Translate('IDCS_EMAIL_ADDRESS'))"
+                                        maxlength="256"
+                                    />
+                                </el-form-item>
+                                <el-form-item>
+                                    <span class="base-rich-text email-tip">{{ `'*' ${Translate('IDCS_EMAIL_ADDRESS_TIP')}` }}</span>
+                                </el-form-item>
+                            </el-form>
+                        </el-tab-pane>
+                        <!-- 密保问题 -->
+                        <el-tab-pane
+                            :label="Translate('IDCS_PASSWORD_PROTECT_QUESTION')"
+                            name="qa"
+                        >
+                            <el-form
+                                v-title
+                                :style="{
+                                    '--form-input-width': '340px',
+                                }"
+                            >
+                                <el-form-item :label="Translate('IDCS_QUESTION')">
+                                    <el-input
+                                        v-if="!isDefeultQuestion"
+                                        v-model="qaFormData.question"
+                                    />
+                                    <el-select-v2
+                                        v-else
+                                        v-model="qaFormData.id"
+                                        :options="questionOptions"
+                                        :props="{
+                                            label: 'question',
+                                            value: 'id',
+                                        }"
+                                        @change="changeQuestion"
+                                    />
+                                </el-form-item>
+                                <el-form-item :label="Translate('IDCS_ANSWER')">
+                                    <el-input v-model="qaFormData.answer" />
+                                    <el-button @click="addQuestion">{{ isDefeultQuestion ? Translate('IDCS_APPLY') : Translate('IDCS_ADD') }}</el-button>
+                                </el-form-item>
+                            </el-form>
+                            <div class="base-table-box">
+                                <el-table
+                                    v-title
+                                    :height="238"
+                                    :data="qaTableData"
+                                    show-overflow-tooltip
+                                >
+                                    <el-table-column :label="Translate('IDCS_QUESTION')">
+                                        <template #default="{ row }: TableColumn<SystemGuideQuestionForm>">
+                                            <template v-if="isDefeultQuestion">{{ Translate(row.question) }}</template>
+                                            <template v-else>{{ row.question }}</template>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column :label="Translate('IDCS_ANSWER')">
+                                        <template #default="{ row }: TableColumn<SystemGuideQuestionForm>">
+                                            <template v-if="!isDefeultQuestion || (isDefeultQuestion && !row.answer)">******</template>
+                                            <template v-else>{{ row.answer }}</template>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column
+                                        v-if="!isDefeultQuestion"
+                                        :label="Translate('IDCS_DELETE')"
+                                    >
+                                        <template #default="{ $index }: TableColumn<SystemGuideQuestionForm>">
+                                            <BaseImgSpriteBtn
+                                                file="del"
+                                                @click="deleteQuestion($index)"
+                                            />
+                                        </template>
+                                    </el-table-column>
+                                </el-table>
+                            </div>
+                        </el-tab-pane>
+                    </el-tabs>
+                </div>
+                <div class="base-btn-box padding">
+                    <el-button @click="handlePrev">{{ Translate('IDCS_PREVIOUS_STEP') }}</el-button>
+                    <el-button @click="handleNext">{{ Translate('IDCS_DONE') }}</el-button>
+                </div>
+            </div>
+            <!-- 磁盘（将“激活向导”中的磁盘配置转移到“开机向导”中（web只有激活向导，没有开机向导，所以直接隐藏磁盘配置）） -->
             <div
                 v-show="pageData.current === 'disk'"
                 class="disk"
@@ -322,44 +433,40 @@
                 <div class="title">{{ Translate('IDCS_DISK_CONFIG') }}</div>
                 <div class="box">
                     <el-table
+                        v-title
                         :data="diskTableData"
-                        border
-                        stripe
+                        show-overflow-tooltip
+                        highlight-current-row
                         height="100%"
                     >
                         <el-table-column
                             :label="Translate('IDCS_DISK')"
                             prop="name"
-                        >
-                        </el-table-column>
-
+                        />
                         <el-table-column
                             :label="Translate('IDCS_TYPE')"
-                            prop="combinedStatus"
-                        >
-                        </el-table-column>
+                            prop="type"
+                        />
                         <el-table-column
                             :label="Translate('IDCS_CAPACITY')"
                             prop="size"
-                        >
-                        </el-table-column>
+                        />
                         <el-table-column
                             :label="Translate('IDCS_DISK_SERIAL_NUMBER')"
                             prop="serialNum"
-                        >
-                        </el-table-column>
+                        />
                         <el-table-column
                             :label="Translate('IDCS_STATE')"
                             prop="combinedStatus"
-                        >
-                        </el-table-column>
+                        />
                         <el-table-column>
-                            <template #default="scope">
+                            <template #default="{ row, $index }: TableColumn<SystemGuideDiskList>">
                                 <el-button
-                                    :disabled="scope.row.diskStatus !== 'bad'"
-                                    @click="formatCurrentDisk(scope.$index)"
-                                    >{{ Translate('IDCS_FORMATTING') }}</el-button
+                                    :disabled="row.diskStatus !== 'bad'"
+                                    @click="formatCurrentDisk($index)"
                                 >
+                                    {{ Translate('IDCS_FORMATTING') }}
+                                </el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -446,15 +553,18 @@
 }
 
 .privacy {
-    &-text {
-        overflow: auto;
+    :deep(.el-textarea__inner) {
         width: 100%;
+        height: 100%;
         resize: none;
-        padding: 10px;
     }
 
     .el-checkbox {
         margin-right: 15px;
+    }
+
+    .base-btn-box {
+        align-items: center;
     }
 }
 
@@ -489,9 +599,47 @@
     }
 }
 
-.qa {
+.chlConfig {
+    .box {
+        .base-chlConfig-tabs {
+            width: 100%;
+            height: 100%;
+            :deep(.el-tabs__header) {
+                background-color: var(--subheading-bg);
+                padding: 0px 14px;
+                .el-tabs__nav-wrap:after,
+                .el-tabs__active-bar {
+                    display: none;
+                }
+            }
+            :deep(.el-tabs__content) {
+                padding: 4px 40px;
+            }
+            .ipc-password-tip {
+                margin-top: 44px;
+            }
+        }
+    }
+}
+
+.emailAndQa {
     .box {
         flex-direction: column;
+        .base-emailAndQa-tabs {
+            width: 100%;
+            height: 100%;
+            :deep(.el-tabs__header) {
+                background-color: var(--subheading-bg);
+                padding: 0px 14px;
+                .el-tabs__nav-wrap:after,
+                .el-tabs__active-bar {
+                    display: none;
+                }
+            }
+            :deep(.el-tabs__content) {
+                padding: 0px 4px;
+            }
+        }
     }
 }
 </style>

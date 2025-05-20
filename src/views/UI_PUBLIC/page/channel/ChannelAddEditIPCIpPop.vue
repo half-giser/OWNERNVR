@@ -7,19 +7,17 @@
     <el-dialog
         :title="Translate('IDCS_EDIT_IP')"
         width="450"
-        align-center
         @opened="opened"
+        @closed="close"
     >
         <el-form
             ref="formRef"
+            v-title
             :model="formData"
-            label-width="160px"
-            label-position="left"
+            :rules
+            class="stripe"
         >
-            <el-form-item
-                prop="mac"
-                :label="Translate('IDCS_MAC_ADDRESS')"
-            >
+            <el-form-item :label="Translate('IDCS_MAC_ADDRESS')">
                 <el-input
                     v-model="formData.mac"
                     disabled
@@ -49,10 +47,7 @@
                     :disabled="gatewayDisabled"
                 />
             </el-form-item>
-            <el-form-item
-                prop="userName"
-                :label="Translate('IDCS_USERNAME')"
-            >
+            <el-form-item :label="Translate('IDCS_USERNAME')">
                 <el-input
                     v-model="formData.userName"
                     disabled
@@ -62,29 +57,18 @@
                 prop="password"
                 :label="Translate('IDCS_PASSWORD')"
             >
-                <el-input
+                <BasePasswordInput
                     v-model="formData.password"
-                    type="password"
                     maxlength="16"
-                    autocomplete="new-password"
                     :placeholder="Translate('IDCS_PASSWORD_TIP')"
                     :title="Translate('IDCS_PASSWORD_TIP')"
-                    @paste.capture.prevent=""
-                    @copy.capture.prevent=""
                 />
             </el-form-item>
         </el-form>
-        <template #footer>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
-                >
-                    <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

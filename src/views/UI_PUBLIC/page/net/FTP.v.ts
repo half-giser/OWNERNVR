@@ -2,28 +2,15 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-12 18:20:34
  * @Description: FTP配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:21:14
  */
-import { NetFTPForm, type NetFTPList } from '@/types/apiType/net'
-import { type FormInstance, type FormRules } from 'element-plus'
-import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
-    components: {
-        ScheduleManagPop,
-    },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
 
         const pageData = ref({
-            // 最大文件长度 最小值
-            minFileSize: 0,
-            // 最大文件长度 最大值
-            maxFileSize: 4096,
             // 是否开启更改密码
             passwordSwitch: false,
             // 排程选项
@@ -40,89 +27,84 @@ export default defineComponent({
                 },
             ] as SelectOption<string, string>[],
             // 开关选项
-            switchOptions: DEFAULT_SWITCH_OPTIONS.map((item) => ({ ...item, label: Translate(item.label) })),
+            switchOptions: getTranslateOptions(DEFAULT_SWITCH_OPTIONS),
             // 显示排程管理弹窗
             isSchedulePop: false,
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new NetFTPForm())
         const formRule = ref<FormRules>({
             serverAddr: [
                 {
-                    validator: (rule, value: string, callback) => {
-                        if (!value.length) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_DDNS_SERVER_ADDR_EMPTY')))
                             return
                         }
-                        return
+                        callback()
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
             port: [
                 {
-                    validator: (rule, value, callback) => {
+                    validator: (_rule, value: number, callback) => {
                         if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_RTSP_PORT_EMPTY')))
                             return
                         }
                         callback()
-                        return
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
             userName: [
                 {
-                    validator: (rule, value: string, callback) => {
-                        if (!formData.value.anonymousSwitch && !value.trim().length) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!formData.value.anonymousSwitch && !value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
                         }
                         callback()
-                        return
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
             password: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (!formData.value.anonymousSwitch && pageData.value.passwordSwitch && !value.length) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
                         callback()
-                        return
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
             maxSize: [
                 {
-                    validator: (rule, value: string, callback) => {
-                        if (!value) {
+                    validator: (_rule, value: string, callback) => {
+                        if (value === null || value === '') {
                             callback(new Error(Translate('IDCS_MAX_FILE_SIZE_EMPTY')))
                             return
                         }
                         callback()
-                        return
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
             path: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (!checkDir(value.trim())) {
                             callback(new Error(Translate('IDCS_REMOTE_DIRECTORY_ILLEGAL')))
                             return
                         }
                         callback()
-                        return
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
         })
@@ -161,21 +143,17 @@ export default defineComponent({
          * @description 获取排程选项
          */
         const getScheduleList = async () => {
-            const result = await queryScheduleList()
-            const $ = queryXml(result)
+            pageData.value.scheduleOptions = await buildScheduleList()
+        }
 
-            if ($('//status').text() === 'success') {
-                pageData.value.scheduleOptions = $('//content/item').map((item) => {
-                    return {
-                        label: item.text(),
-                        value: item.attr('id')!,
-                    }
-                })
-                pageData.value.scheduleOptions.push({
-                    value: '{00000000-0000-0000-0000-000000000000}',
-                    label: '<' + Translate('IDCS_NULL') + '>',
-                })
-            }
+        const openSchedulePop = () => {
+            pageData.value.isSchedulePop = true
+        }
+
+        const changeAllSchedule = (value: string) => {
+            tableData.value.forEach((item) => {
+                item.schedule = value
+            })
         }
 
         /**
@@ -183,10 +161,7 @@ export default defineComponent({
          */
         const changeSwitch = () => {
             if (formData.value.switch) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_RTSP_OR_FTP_ENABLE_REMIND'),
-                })
+                openMessageBox(Translate('IDCS_RTSP_OR_FTP_ENABLE_REMIND'))
             }
         }
 
@@ -207,27 +182,31 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryFTPCfg()
             commLoadResponseHandler(result, ($) => {
-                const $content = queryXml($('//content')[0].element)
-                formData.value.switch = $content('switch').text().toBoolean()
+                const $content = queryXml($('content')[0].element)
+                formData.value.switch = $content('switch').text().bool()
+                formData.value.serverAddrMaxLen = $content('serverAddr').attr('maxLen').num() || 64
                 formData.value.serverAddr = $content('serverAddr').text()
-                formData.value.port = Number($content('port').text())
+                formData.value.portMin = $content('port').attr('min').num() || 10
+                formData.value.portMax = $content('port').attr('max').num() || 65535
+                formData.value.port = $content('port').text().num()
+                formData.value.userNameMaxByteLen = $content('userName').attr('maxByteLen').num() || 63
                 formData.value.userName = $content('userName').text()
-                formData.value.anonymousSwitch = $content('anonymousSwitch').text().toBoolean()
-                formData.value.maxSize = Number($content('maxSize').text()) || 64
+                formData.value.anonymousSwitch = $content('anonymousSwitch').text().bool()
+                formData.value.maxSize = $content('maxSize').text().num() || 64
+                formData.value.pathMaxLen = $content('path').attr('maxLen').num() || 64
                 formData.value.path = $content('path').text()
-                formData.value.disNetUpLoad = $content('disNetUpLoad').text().toBoolean()
-
-                pageData.value.minFileSize = Number($content('maxSize').attr('min')) || 0
-                pageData.value.maxFileSize = Number($content('maxSize').attr('max')) || 4096
+                formData.value.disNetUpLoad = $content('disNetUpLoad').text().bool()
+                formData.value.maxSizeMin = $content('maxSize').attr('min').num() || 0
+                formData.value.maxSizeMax = $content('maxSize').attr('max').num() || 4096
 
                 tableData.value = $content('chls/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         chlNum: $item('chlNum').text(),
                         name: $item('name').text(),
                         streamType: $item('streamType').text(),
-                        schedule: $item('ftpRecSwitch/schedule').attr('id')!,
+                        schedule: $item('ftpRecSwitch/schedule').attr('id'),
                         motion: $item('ftpRecSwitch/motion').text(),
                         inteligence: $item('ftpRecSwitch/inteligence').text(),
                         sensor: $item('ftpRecSwitch/sensor').text(),
@@ -247,7 +226,6 @@ export default defineComponent({
                 .map((item) => {
                     return rawXml`
                         <item id="${item.id}">
-                            <name>${wrapCDATA(item.name)}</name>
                             <streamType>${item.streamType}</streamType>
                             <chlNum>${item.chlNum}</chlNum>
                             <ftpRecSwitch>
@@ -264,15 +242,15 @@ export default defineComponent({
                 .join('')
             const sendXml = rawXml`
                 <content>
-                    <switch>${formData.value.switch.toString()}</switch>
+                    <switch>${formData.value.switch}</switch>
                     <serverAddr>${wrapCDATA(formData.value.serverAddr)}</serverAddr>
-                    <port>${formData.value.port.toString()}</port>
+                    <port>${formData.value.port}</port>
                     <userName>${wrapCDATA(formData.value.userName)}</userName>
                     ${pageData.value.passwordSwitch ? `<password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.password, userSession.sesionKey))}</password>` : ''}
-                    <anonymousSwitch>${formData.value.anonymousSwitch.toString()}</anonymousSwitch>
-                    <maxSize min="${pageData.value.minFileSize.toString()}" max="${pageData.value.maxFileSize.toString()}">${formData.value.maxSize.toString()}</maxSize>
+                    <anonymousSwitch>${formData.value.anonymousSwitch}</anonymousSwitch>
+                    <maxSize min="${formData.value.maxSizeMin}" max="${formData.value.maxSizeMin}">${formData.value.maxSize}</maxSize>
                     <path>${formData.value.path}</path>
-                    <disNetUpLoad>${formData.value.disNetUpLoad.toString()}</disNetUpLoad>
+                    <disNetUpLoad>${formData.value.disNetUpLoad}</disNetUpLoad>
                     ${isTest ? '' : `<chls type='list'>${chlXml}</chls>`}
                 </content>
             `
@@ -292,16 +270,10 @@ export default defineComponent({
                 const result = await testFTPCfg(getXmlData(true))
                 const $ = queryXml(result)
 
-                if ($('//status').text() === 'success') {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_FTP_TEST_SUCCESS'),
-                    })
+                if ($('status').text() === 'success') {
+                    openMessageBox(Translate('IDCS_FTP_TEST_SUCCESS'))
                 } else {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_FTP_TEST_FAIL'),
-                    })
+                    openMessageBox(Translate('IDCS_FTP_TEST_FAIL'))
                 }
 
                 closeLoading()
@@ -315,7 +287,7 @@ export default defineComponent({
             openLoading()
 
             const result = await editFTPCfg(getXmlData())
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
 
             closeLoading()
         }
@@ -323,7 +295,7 @@ export default defineComponent({
         /**
          * @description 验证
          */
-        const verify = async () => {
+        const verify = () => {
             // TODO: 未启用情况下 如果一些表单项为空，提交会报错. 原项目也是如此
             if (formData.value.switch) {
                 formRef.value!.validate((valid) => {
@@ -338,18 +310,18 @@ export default defineComponent({
         }
 
         /**
-         * @description 打开排程管理弹窗
-         */
-        const manageSchedule = () => {
-            pageData.value.isSchedulePop = true
-        }
-
-        /**
          * @description 修改并关闭排程管理弹窗
          */
-        const confirmManageSchedule = () => {
+        const closeSchedulePop = async () => {
             pageData.value.isSchedulePop = false
-            getScheduleList()
+            await getScheduleList()
+            tableData.value.forEach((item) => {
+                item.schedule = getScheduleId(pageData.value.scheduleOptions, item.schedule)
+            })
+        }
+
+        const handleRowClassName = () => {
+            return formData.value.switch ? '' : 'disabled'
         }
 
         onMounted(async () => {
@@ -368,14 +340,15 @@ export default defineComponent({
             pageData,
             tableData,
             changeAllSwitch,
-            manageSchedule,
-            confirmManageSchedule,
+            changeAllSchedule,
+            openSchedulePop,
+            closeSchedulePop,
             test,
             verify,
             formatServerAddress,
             formatDir,
             changeSwitch,
-            ScheduleManagPop,
+            handleRowClassName,
         }
     },
 })

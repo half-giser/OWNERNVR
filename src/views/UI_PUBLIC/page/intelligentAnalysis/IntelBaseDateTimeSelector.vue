@@ -2,25 +2,19 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-05 17:02:01
  * @Description: 智能分析 - 时间日期选择器
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-11 14:59:41
 -->
 <template>
     <div>
         <el-popover
             v-model:visible="pageData.isPop"
-            placement="bottom"
-            :width="350"
-            trigger="click"
-            :show-after="0"
-            :hide-after="0"
+            width="388"
+            popper-class="selector"
         >
             <template #reference>
                 <div class="base-intel-placeholder">
                     <div class="text-ellipsis">{{ content }}</div>
                     <BaseImgSprite
                         file="arrow"
-                        :index="0"
                         :chunk="4"
                     />
                 </div>
@@ -39,30 +33,24 @@
                 </div>
             </div>
             <el-form
-                label-position="left"
+                v-title
+                class="stripe"
                 :style="{
-                    '--form-label-width': '80px',
+                    '--form-label-width': '100px',
+                    '--form-input-width': '100%',
                 }"
             >
                 <el-form-item :label="Translate('IDCS_START_TIME')">
-                    <el-date-picker
+                    <BaseDatePicker
                         v-model="formData.startTime"
-                        :value-format="dateTime.dateTimeFormat"
-                        :format="dateTime.dateTimeFormat"
-                        :cell-class-name="highlightWeekend"
-                        clear-icon=""
                         type="datetime"
                         :teleported="false"
                         @change="changeType('custom')"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_END_TIME')">
-                    <el-date-picker
+                    <BaseDatePicker
                         v-model="formData.endTime"
-                        :value-format="dateTime.dateTimeFormat"
-                        :format="dateTime.dateTimeFormat"
-                        :cell-class-name="highlightWeekend"
-                        clear-icon=""
                         type="datetime"
                         :teleported="false"
                         @change="changeType('custom')"
@@ -77,10 +65,6 @@
 </template>
 
 <script lang="ts" src="./IntelBaseDateTimeSelector.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/intelligentAnalysis.scss';
-</style>
 
 <style lang="scss" scoped>
 .btns {
@@ -99,6 +83,7 @@
     color: var(--btn-text);
     text-align: center;
     font-size: 12px;
+    user-select: none;
 
     &:nth-child(3n) {
         margin-right: 0;

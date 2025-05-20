@@ -2,43 +2,33 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-01 10:55:14
  * @Description: 本地备份任务 进度弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 17:30:46
 -->
 <template>
     <el-dialog
         :title="Translate('IDCS_EXPORT')"
         :show-close="false"
         :width="600"
-        align-center
-        draggable
         @open="open"
     >
-        <div>
+        <div class="box">
             <el-progress
                 :percentage="pageData.progress"
-                :stroke-width="14"
+                :stroke-width="8"
             />
             <div class="chunk">{{ pageData.currentTask }} / {{ backupList.length }}</div>
             <p class="tip">{{ Translate('IDCS_BACKUP_HOLD_ON') }}</p>
         </div>
-        <template #footer>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
-                >
-                    <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 
 <script lang="ts" src="./BackupLocalPop.v.ts"></script>
 
 <style lang="scss" scoped>
-.chunk {
+.chunk,
+.box {
     margin-top: 10px;
 }
 

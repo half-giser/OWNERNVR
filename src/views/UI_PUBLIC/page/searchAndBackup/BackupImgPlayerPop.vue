@@ -2,157 +2,86 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-09 17:38:29
  * @Description: 图片浏览器
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-12 16:38:29
 -->
 <template>
     <el-dialog
         :title="Translate('IDCS_IMAGE_BROWSE')"
-        align-center
-        draggable
         :width="600"
         @open="open"
         @close="close"
     >
         <div>
-            <div class="form">
-                <div>
-                    <label>{{ Translate('IDCS_IP_CHANNEL_NAME') }}</label>
-                    <span>{{ item.chlName }}</span>
-                </div>
-                <div>
-                    <label>{{ Translate('IDCS_TIME') }}</label>
-                    <span>{{ displayDateTime(item.captureTimeStamp) }}</span>
-                </div>
-                <div>
-                    <label>{{ Translate('IDCS_CREATE_USER') }}</label>
-                    <span>{{ item.creator }}</span>
-                </div>
-            </div>
+            <el-form>
+                <el-form-item :label="Translate('IDCS_IP_CHANNEL_NAME')">
+                    {{ item.chlName }}
+                </el-form-item>
+                <el-form-item :label="Translate('IDCS_TIME')">
+                    {{ displayDateTime(item.captureTimeStamp) }}
+                </el-form-item>
+                <el-form-item :label="Translate('IDCS_CREATE_USER')">
+                    {{ item.creator }}
+                </el-form-item>
+            </el-form>
             <img
                 class="pic"
                 :src="getImg()"
+                @error="handleError"
             />
             <div class="btns">
-                <el-tooltip
-                    :content="Translate('IDCS_EXPORT')"
-                    :show-after="500"
-                >
-                    <BaseImgSprite
+                <el-tooltip :content="Translate('IDCS_EXPORT')">
+                    <BaseImgSpriteBtn
                         file="image_preview_export"
-                        :index="0"
-                        :hover-index="1"
-                        :chunk="4"
                         :disabled="!pageData.paused"
                         @click="$emit('export')"
                     />
                 </el-tooltip>
-                <el-tooltip
-                    :content="Translate('IDCS_PREVIOUS_IMAGE')"
-                    :show-after="500"
-                >
-                    <BaseImgSprite
+                <el-tooltip :content="Translate('IDCS_PREVIOUS_IMAGE')">
+                    <BaseImgSpriteBtn
                         file="image_preview_pre"
-                        :index="0"
-                        :hover-index="1"
-                        :chunk="4"
                         :disabled="item.index === 1 || !pageData.paused"
                         :disabled-index="3"
                         @click="$emit('prev')"
                     />
                 </el-tooltip>
-                <el-tooltip
-                    :content="Translate('IDCS_PLAY')"
-                    :show-after="500"
-                >
-                    <BaseImgSprite
+                <el-tooltip :content="Translate('IDCS_PLAY')">
+                    <BaseImgSpriteBtn
                         v-show="pageData.paused"
                         file="image_preview_play"
-                        :index="0"
-                        :hover-index="1"
-                        :chunk="4"
                         @click="play"
                     />
                 </el-tooltip>
-                <el-tooltip
-                    :content="Translate('IDCS_PAUSE')"
-                    :show-after="500"
-                >
-                    <BaseImgSprite
+                <el-tooltip :content="Translate('IDCS_PAUSE')">
+                    <BaseImgSpriteBtn
                         v-show="!pageData.paused"
                         file="image_preview_pause"
-                        :index="0"
-                        :hover-index="1"
-                        :chunk="4"
                         @click="pause"
                     />
                 </el-tooltip>
-                <el-tooltip
-                    :content="Translate('IDCS_NEXT_IMAGE')"
-                    :show-after="500"
-                >
-                    <BaseImgSprite
+                <el-tooltip :content="Translate('IDCS_NEXT_IMAGE')">
+                    <BaseImgSpriteBtn
                         file="image_preview_next"
-                        :index="0"
-                        :hover-index="1"
-                        :chunk="4"
                         :disabled="item.index === total || !pageData.paused"
-                        :disabled-index="3"
                         @click="$emit('next')"
                     />
                 </el-tooltip>
-                <el-tooltip
-                    :content="Translate('IDCS_DELETE')"
-                    :show-after="500"
-                >
-                    <BaseImgSprite
+                <el-tooltip :content="Translate('IDCS_DELETE')">
+                    <BaseImgSpriteBtn
                         file="image_preview_delete"
-                        :index="0"
-                        :hover-index="1"
-                        :chunk="4"
                         :disabled="!pageData.paused"
-                        :disabled-index="3"
                         @click="$emit('delete')"
                     />
                 </el-tooltip>
             </div>
         </div>
-        <template #footer>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
-                >
-                    <el-button @click="close()">{{ Translate('IDCS_CLOSE') }}</el-button>
-                </el-col>
-            </el-row>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="close()">{{ Translate('IDCS_CLOSE') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 
 <script lang="ts" src="./BackupImgPlayerPop.v.ts"></script>
 
 <style lang="scss" scoped>
-.form {
-    padding: 0 10px;
-    margin-bottom: 10px;
-
-    & > div {
-        padding: 0;
-        height: 30px;
-        line-height: 30px;
-        box-sizing: border-box;
-        display: flex;
-        align-items: center;
-        font-size: 15px;
-
-        label {
-            width: 150px;
-            flex-shrink: 0;
-        }
-    }
-}
-
 .pic {
     width: 100%;
     height: 381px;
@@ -166,6 +95,7 @@
     justify-content: center;
     align-items: center;
     margin-top: 10px;
+
     & > * {
         margin: 0 5px;
     }

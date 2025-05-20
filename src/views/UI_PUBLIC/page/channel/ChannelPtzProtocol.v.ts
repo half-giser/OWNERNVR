@@ -2,51 +2,47 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-23 10:36:12
  * @Description: 云台-协议
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:38:33
  */
-import { cloneDeep } from 'lodash-es'
 import { type TableInstance } from 'element-plus'
-import { type ChannelPtzProtocolDto } from '@/types/apiType/channel'
 
 export default defineComponent({
-    setup() {
-        const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
+    setup(_prop, ctx) {
         const playerRef = ref<PlayerInstance>()
 
         const pageData = ref({
-            notification: [] as string[],
             // 云台选项
-            ptzOptions: [
-                {
-                    label: Translate('IDCS_ON'),
-                    value: true,
-                },
-                {
-                    label: Translate('IDCS_OFF'),
-                    value: false,
-                },
-            ],
+            ptzOptions: getTranslateOptions(DEFAULT_BOOL_SWITCH_OPTIONS),
             // 云台索引
             tableIndex: 0,
+            pageIndex: 1,
+            pageSize: 10,
+            total: 10,
+            keyword: '',
         })
 
         const tableRef = ref<TableInstance>()
         const tableData = ref<ChannelPtzProtocolDto[]>([])
+        const editRows = useWatchEditRows<ChannelPtzProtocolDto>()
 
-        let cacheTableData: ChannelPtzProtocolDto[] = []
-
-        // 播放模式
-        const mode = computed(() => {
-            if (!playerRef.value) {
-                return ''
-            }
-            return playerRef.value.mode
+        const chlOptions = computed(() => {
+            return tableData.value.map((item, index) => {
+                return {
+                    label: item.chlName,
+                    value: index,
+                }
+            })
         })
 
         const ready = computed(() => {
             return playerRef.value?.ready || false
+        })
+
+        // 播放模式
+        const mode = computed(() => {
+            if (!ready.value) {
+                return ''
+            }
+            return playerRef.value!.mode
         })
 
         let player: PlayerInstance['player']
@@ -59,22 +55,9 @@ export default defineComponent({
             player = playerRef.value!.player
             plugin = playerRef.value!.plugin
 
-            if (mode.value === 'h5') {
-                if (isHttpsLogin()) {
-                    pageData.value.notification = [formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`)]
-                }
-            }
             if (mode.value === 'ocx') {
-                if (!plugin.IsInstallPlugin()) {
-                    plugin.SetPluginNotice('#layout2Content')
-                    return
-                }
-                if (!plugin.IsPluginAvailable()) {
-                    plugin.SetPluginNoResponse()
-                    plugin.ShowPluginNoResponse()
-                }
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -84,7 +67,9 @@ export default defineComponent({
          */
         const changeAllPtz = (bool: boolean) => {
             tableData.value.forEach((item) => {
-                item.ptz = bool
+                if (!item.disabled) {
+                    item.ptz = bool
+                }
             })
         }
 
@@ -93,81 +78,28 @@ export default defineComponent({
          */
         const play = () => {
             const { chlId, chlName } = tableData.value[pageData.value.tableIndex]
+
             if (mode.value === 'h5') {
                 player.play({
                     chlID: chlId,
                     streamType: 2,
                 })
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 plugin.RetryStartChlView(chlId, chlName)
             }
-        }
-
-        /**
-         * @description 获取行数据
-         * @param {string} chlId
-         * @param {number} index
-         */
-        const getConfig = async (chlId: string, index: number) => {
-            const sendXml = rawXml`
-                <condition>
-                    <chlId>${chlId}</chlId>
-                </condition>
-            `
-            const result = await queryPtzProtocol(sendXml)
-            const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                tableData.value[index].baudRate = $('//content/chl/baudRate').text()
-                tableData.value[index].protocol = $('//content/chl/protocol').text()
-                tableData.value[index].address = Number($('//content/chl/address').text())
-                tableData.value[index].addressMin = Number($('//content/chl/address').attr('min')!)
-                tableData.value[index].addressMax = Number($('//content/chl/address').attr('max')!)
-                tableData.value[index].ptz = $('//content/chl/ptz').text().toBoolean()
-                tableData.value[index].baudRateOptions = $('//types/baudRate/enum').map((item) => {
-                    return {
-                        value: item.text(),
-                        label: item.text(),
-                    }
-                })
-                tableData.value[index].protocolOptions = $('//types/protocol/enum').map((item) => {
-                    return {
-                        value: item.text(),
-                        label: item.text(),
-                    }
-                })
-            }
-            tableData.value[index].status = ''
-            cacheTableData.push({ ...tableData.value[index] })
         }
 
         /**
          * @description 保存编辑行数据
          */
         const setData = async () => {
-            const edits: ChannelPtzProtocolDto[] = []
-            const editIndex: number[] = []
-            tableData.value.forEach((item, index) => {
-                if (item.status === 'loading') {
-                    return
-                }
-                const params = ['address', 'baudRate', 'protocol', 'ptz']
-                params.some((param) => {
-                    if (!cacheTableData[index]) {
-                        return false
-                    }
-                    if (item[param] !== cacheTableData[index][param]) {
-                        editIndex.push(index)
-                        edits.push(item)
-                        return true
-                    }
-                    return false
-                })
-            })
-
             openLoading()
 
-            for (let i = 0; i < edits.length; i++) {
-                const item = edits[i]
+            tableData.value.forEach((item) => (item.status = ''))
+
+            for (const item of editRows.toArray()) {
                 const sendXml = rawXml`
                     <types>
                         <baudRate>${wrapEnums(item.baudRateOptions)}</baudRate>
@@ -177,21 +109,25 @@ export default defineComponent({
                         <chl id="${item.chlId}">
                             <baudRate type="baudRate">${item.baudRate}</baudRate>
                             <protocol type="protocol">${item.protocol}</protocol>
-                            <address min="${item.addressMin.toString()}" max="${item.addressMax.toString()}">${item.address.toString()}</address>
-                            <ptz>${item.ptz.toString()}</ptz>
+                            <address min="${item.addressMin}" max="${item.addressMax}">${item.address}</address>
+                            <ptz>${item.ptz}</ptz>
                         </chl>
                     </content>
                 `
-                const result = await editPtzProtocol(sendXml)
-                const $ = queryXml(result)
-                if ($('//status').text() === 'success') {
-                    tableData.value[editIndex[i]].status = 'success'
-                } else {
-                    tableData.value[editIndex[i]].status = 'error'
+                try {
+                    const result = await editPtzProtocol(sendXml)
+                    const $ = queryXml(result)
+                    if ($('status').text() === 'success') {
+                        item.status = 'success'
+                        editRows.remove(item)
+                    } else {
+                        item.status = 'error'
+                    }
+                } catch {
+                    item.status = 'error'
                 }
             }
 
-            cacheTableData = cloneDeep(tableData.value)
             closeLoading()
         }
 
@@ -199,34 +135,99 @@ export default defineComponent({
          * @description 获取数据
          */
         const getData = async () => {
+            editRows.clear()
+
+            await getList()
+
+            tableData.value.forEach(async (item, i) => {
+                await getConfig(item.chlId, i)
+
+                if (!tableData.value.some((find) => find === item)) {
+                    return
+                }
+
+                editRows.listen(item)
+
+                if (i === 0) {
+                    pageData.value.tableIndex = i
+                    tableRef.value!.setCurrentRow(item)
+                }
+            })
+        }
+
+        /**
+         * @description 获取列表数据
+         */
+        const getList = async () => {
             openLoading()
 
             const result = await getChlList({
-                pageIndex: 1,
-                pageSize: 999,
+                pageIndex: pageData.value.pageIndex,
+                pageSize: pageData.value.pageSize,
+                chlName: pageData.value.keyword,
                 chlType: 'analog',
             })
             const $ = queryXml(result)
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                tableData.value = $('//content/item').map((item) => {
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
-                    return {
-                        chlId: item.attr('id')!,
-                        chlName: $item('name').text(),
-                        baudRate: '',
-                        protocol: '',
-                        address: 1,
-                        addressMin: 1,
-                        addressMax: 1,
-                        ptz: false,
-                        baudRateOptions: [],
-                        protocolOptions: [],
-                        status: 'loading',
-                    }
+                    const rowData = new ChannelPtzProtocolDto()
+                    rowData.disabled = true
+                    rowData.status = 'loading'
+                    rowData.chlId = item.attr('id')
+                    rowData.chlName = $item('name').text()
+                    return rowData
                 })
+                pageData.value.total = $('content').attr('total').num()
+            }
+        }
+
+        /**
+         * @description 获取行数据
+         * @param {string} chlId
+         * @param {number} index
+         */
+        const getConfig = async (chlId: string, index: number) => {
+            const item = tableData.value[index]
+
+            try {
+                const sendXml = rawXml`
+                    <condition>
+                        <chlId>${chlId}</chlId>
+                    </condition>
+                `
+                const result = await queryPtzProtocol(sendXml)
+                const $ = queryXml(result)
+                if ($('status').text() === 'success') {
+                    item.baudRate = $('content/chl/baudRate').text()
+                    item.protocol = $('content/chl/protocol').text()
+                    item.address = $('content/chl/address').text().num()
+                    item.addressMin = $('content/chl/address').attr('min').num()
+                    item.addressMax = $('content/chl/address').attr('max').num()
+                    item.ptz = $('content/chl/ptz').text().bool()
+                    item.baudRateOptions = $('types/baudRate/enum').map((item) => {
+                        return {
+                            value: item.text(),
+                            label: item.text(),
+                        }
+                    })
+                    item.protocolOptions = $('types/protocol/enum').map((item) => {
+                        return {
+                            value: item.text(),
+                            label: item.text(),
+                        }
+                    })
+                    item.disabled = false
+                } else {
+                    item.disabled = true
+                }
+            } catch {
+                item.disabled = true
+            } finally {
+                item.status = ''
             }
         }
 
@@ -234,7 +235,7 @@ export default defineComponent({
          * @description 修改通道选项
          */
         const changeChl = () => {
-            tableRef.value?.setCurrentRow(tableData.value[pageData.value.tableIndex])
+            tableRef.value!.setCurrentRow(tableData.value[pageData.value.tableIndex])
         }
 
         /**
@@ -246,6 +247,16 @@ export default defineComponent({
             if (index !== pageData.value.tableIndex) {
                 pageData.value.tableIndex = index
             }
+        }
+
+        /**
+         * @description 处理右上角搜索通道
+         * @param {ConfigToolBarEvent<SearchToolBarEvent>} toolBarEvent
+         */
+        const handleToolBarEvent = (toolBarEvent: ConfigToolBarEvent<SearchToolBarEvent>) => {
+            pageData.value.keyword = toolBarEvent.data.searchText
+            pageData.value.pageIndex = 1
+            getData()
         }
 
         // 首次加载成功 播放视频
@@ -263,11 +274,19 @@ export default defineComponent({
             },
         )
 
-        onMounted(async () => {
-            await getData()
-            for (let i = 0; i < tableData.value.length; i++) {
-                await getConfig(tableData.value[i].chlId, i)
+        onMounted(() => {
+            getData()
+        })
+
+        onBeforeUnmount(() => {
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx') {
+                const sendXML = OCX_XML_StopPreview('ALL')
+                plugin.ExecuteCmd(sendXML)
             }
+        })
+
+        ctx.expose({
+            handleToolBarEvent,
         })
 
         return {
@@ -275,10 +294,13 @@ export default defineComponent({
             handlePlayerReady,
             pageData,
             tableData,
+            chlOptions,
             changeChl,
             setData,
+            getData,
             handleRowClick,
             changeAllPtz,
+            editRows,
         }
     },
 })

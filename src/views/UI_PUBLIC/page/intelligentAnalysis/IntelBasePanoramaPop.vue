@@ -2,15 +2,11 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-12 09:39:23
  * @Description: 智能分析 - 查看原图弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-12 20:39:56
 -->
 <template>
     <el-dialog
         :title="Translate('IDCS_VIEW_SNAPSHOT')"
-        align-center
-        draggable
-        width="540px"
+        width="540"
         append-to-body
         @opened="open"
     >
@@ -32,6 +28,7 @@
     position: relative;
     width: 500px;
     height: 300px;
+
     img {
         width: 100%;
         height: 100%;

@@ -2,37 +2,37 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-20 10:38:40
  * @Description: 编辑黑白名单弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 11:51:51
 -->
 <template>
     <el-dialog
-        draggable
-        center
-        width="600px"
+        width="450"
         :title
-        @open="handleOpen"
+        @open="open"
+        @closed="formRef?.resetFields()"
     >
         <el-form
             ref="formRef"
+            v-title
             class="stripe"
-            label-position="left"
-            inline-message
             :rules
             :model="formData"
-            :style="{
-                '--form-input-width': '220px',
-                '--form-label-width': '80px',
-            }"
-            hide-required-asterisk
         >
             <el-form-item>
-                <el-checkbox v-model="formData.switch">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
+                <el-checkbox
+                    v-model="formData.switch"
+                    :label="Translate('IDCS_ENABLE')"
+                />
             </el-form-item>
             <el-form-item v-if="formData.addressType !== 'mac'">
                 <el-radio-group v-model="formData.addressType">
-                    <el-radio value="ip">{{ Translate('IDCS_IP_WHOLE') }}</el-radio>
-                    <el-radio value="iprange">{{ Translate('IDCS_IP_SEGMENT') }}</el-radio>
+                    <el-radio
+                        value="ip"
+                        :label="Translate('IDCS_IP_WHOLE')"
+                    />
+                    <el-radio
+                        value="iprange"
+                        :label="Translate('IDCS_IP_SEGMENT')"
+                    />
                 </el-radio-group>
             </el-form-item>
             <el-form-item
@@ -64,21 +64,10 @@
                 <BaseMacInput v-model="formData.mac" />
             </el-form-item>
         </el-form>
-        <template #footer>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
-                >
-                    <el-button
-                        class="btn-ok"
-                        @click="verify"
-                        >{{ Translate('IDCS_OK') }}</el-button
-                    >
-                    <el-button @click="goBack">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="goBack">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

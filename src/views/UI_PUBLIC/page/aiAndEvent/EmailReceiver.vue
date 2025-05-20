@@ -2,42 +2,33 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-12 15:34:24
  * @Description: email通知
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-09 11:49:02
 -->
 <template>
     <div>
-        <!-- <span class="lblReceiver">{{ Translate('IDCS_RECIPIENT') }}</span> -->
         <el-form
             ref="formRef"
+            v-title
             :model="pageData.form"
             :rules="rules"
             :style="{
-                '--form-label-width': '260px',
-                '--form-input-width': '180px',
+                '--form-label-width': '105px',
             }"
             class="top"
-            label-position="left"
-            hide-required-asterisk
         >
             <el-form-item
                 :label="Translate('IDCS_RECIPIENT')"
                 prop="recipient"
             >
-                <el-input v-model="pageData.form.recipient" />
-                <el-select v-model="pageData.schedule">
-                    <el-option
-                        v-for="item in pageData.scheduleList"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    >
-                    </el-option>
-                </el-select>
-                <el-button
-                    type="primary"
-                    @click="addRecipient()"
-                >
+                <el-input
+                    v-model="pageData.form.recipient"
+                    maxlength="63"
+                />
+                <BaseScheduleSelect
+                    v-model="pageData.schedule"
+                    :options="pageData.scheduleList"
+                    @edit="openSchedulePop"
+                />
+                <el-button @click="addRecipient()">
                     {{ Translate('IDCS_ADD') }}
                 </el-button>
             </el-form-item>
@@ -45,106 +36,66 @@
         <div class="main">
             <el-table
                 ref="tableRef"
+                v-title
                 :data="tableData"
-                stripe
-                border
-                height="343px"
-                highlight-current-row
-                show-overflow-tooltip
-                @row-click="handleRowClick($event)"
+                height="343"
+                @row-click="handleRowClick"
             >
                 <el-table-column
                     :label="Translate('IDCS_SERIAL_NUMBER')"
                     width="80"
-                >
-                    <template #default="{ $index }">
-                        {{ $index + 1 }}
-                    </template>
-                </el-table-column>
+                    type="index"
+                />
                 <el-table-column
-                    prop="addressShow"
-                    width="325px"
+                    width="325"
                     :label="Translate('IDCS_RECIPIENT')"
+                    show-overflow-tooltip
                 >
-                    <template #default="scope">
-                        <span>{{ formatAddress(scope.row) }}</span>
+                    <template #default="{ row }: TableColumn<AlarmEmailReceiverDto>">
+                        {{ formatAddress(row) }}
                     </template>
                 </el-table-column>
-                <el-table-column
-                    prop="schedule"
-                    width="205px"
-                >
+                <el-table-column width="205">
                     <template #header>
-                        <el-dropdown trigger="click">
-                            <BaseTableDropdownLink>
-                                {{ Translate('IDCS_SCHEDULE') }}
-                            </BaseTableDropdownLink>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <el-dropdown-item
-                                        v-for="item in pageData.scheduleList"
-                                        :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
-                                        @click="handleScheduleChangeAll(item.value)"
-                                    >
-                                        {{ item.label }}
-                                    </el-dropdown-item>
-                                </el-dropdown-menu>
-                            </template>
-                        </el-dropdown>
-                    </template>
-                    <template #default="scope">
-                        <el-select
-                            v-model="scope.row.schedule"
-                            prop="schedule"
-                            value-key="value"
+                        <BaseScheduleTableDropdown
                             :options="pageData.scheduleList"
-                            @focus="handleScheduleChange(scope.row)"
-                        >
-                            <el-option
-                                v-for="item in pageData.scheduleList"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            >
-                            </el-option>
-                        </el-select>
+                            @change="changeAllSchedule"
+                            @edit="openSchedulePop"
+                        />
+                    </template>
+                    <template #default="{ row }: TableColumn<AlarmEmailReceiverDto>">
+                        <BaseScheduleSelect
+                            v-model="row.schedule"
+                            :options="pageData.scheduleList"
+                            @edit="openSchedulePop"
+                        />
                     </template>
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_DELETE')"
-                    width="90px"
+                    width="90"
                 >
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_DELETE') }}
                             </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
-                                    <el-dropdown-item @click="handleDelReceiverAll()">{{ Translate('IDCS_DELETE_ALL') }}</el-dropdown-item>
+                                    <el-dropdown-item @click="delAllReceiver()">{{ Translate('IDCS_DELETE_ALL') }}</el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
-                        <BaseImgSprite
+                    <template #default="{ row }: TableColumn<AlarmEmailReceiverDto>">
+                        <BaseImgSpriteBtn
                             file="del"
-                            :chunk="4"
-                            :index="0"
-                            :hover-index="1"
-                            :active-index="1"
-                            :class="{ disabled: scope.row.delDisabled }"
-                            @click="handleDelReceiver(scope.row)"
+                            @click="delReceiver(row)"
                         />
                     </template>
                 </el-table-column>
             </el-table>
-            <div
-                class="base-btn-box"
-                :span="2"
-            >
+            <div class="base-btn-box space-between">
                 <div>
                     <span>{{ Translate('IDCS_SENDER') }} :</span>
                     <span class="sender">{{ formatSender(pageData.sender) }}</span>
@@ -153,27 +104,23 @@
                         :index="getIconStatus()"
                         :hover-index="getIconStatus()"
                         :chunk="4"
-                        @click="maskShow()"
+                        @click="toggleMask()"
                     />
                 </div>
                 <div>
-                    <el-button @click="handleSenderEdit()">
+                    <el-button @click="editSender()">
                         {{ Translate('IDCS_SENDER_EDIT') }}
                     </el-button>
-                    <el-button @click="handleScheduleManage()">
-                        {{ Translate('IDCS_SCHEDULE_MANAGE') }}
-                    </el-button>
-                    <el-button @click="handleApply()">
+                    <el-button @click="setData()">
                         {{ Translate('IDCS_APPLY') }}
                     </el-button>
                 </div>
             </div>
         </div>
-        <ScheduleManagPop
-            v-model="pageData.scheduleManagePopOpen"
-            @close="pageData.scheduleManagePopOpen = false"
-        >
-        </ScheduleManagPop>
+        <BaseScheduleManagePop
+            v-model="pageData.isSchedulePop"
+            @close="closeSchedulePop"
+        />
     </div>
 </template>
 
@@ -181,18 +128,19 @@
 
 <style lang="scss" scoped>
 .top {
-    width: 700px;
-    height: 50px;
     :deep(.el-form-item) {
         padding-inline: 0 !important;
     }
+
     :deep(.el-select) {
         --el-color-danger: var(--input-border);
     }
 }
+
 .main {
     width: 700px;
 }
+
 .sender {
     margin-left: 5px;
     margin-right: 5px;

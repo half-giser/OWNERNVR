@@ -2,22 +2,20 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-18 18:41:51
  * @Description: 网络安全
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 13:57:40
  */
-import { type UserNetworkSecurityForm } from '@/types/apiType/userAndSecurity'
-
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
+
+        const NETWORK_CARD_MAPPING: Record<string, string> = {
+            bond0: Translate('IDCS_NETWORK_FAULT_TOLERANCE'),
+            eth0: Translate('IDCS_ETH0_NAME'),
+            eth1: Translate('IDCS_ETH1_NAME'),
+            ppp0: Translate('IDCS_PPPOE'),
+        }
 
         const tableData = ref<UserNetworkSecurityForm[]>([])
-
-        const pageData = ref({
-            submitDisabled: true,
-            mounted: false,
-        })
+        const watchEdit = useWatchEditData(tableData)
 
         /**
          * @description 获取数据
@@ -29,26 +27,23 @@ export default defineComponent({
 
             closeLoading()
             commLoadResponseHandler(result, ($) => {
-                tableData.value = []
-                $('//content/nicConfigs/item').forEach((item) => {
+                tableData.value = $('content/nicConfigs/item').map((item) => {
                     const $item = queryXml(item.element)
-                    const autoGetGatewayMac = $item('autoGetGatewayMac').text().toBoolean()
-                    const gatewayMac = item.attr('gatewayMac')!
+                    const autoGetGatewayMac = $item('autoGetGatewayMac').text().bool()
+                    const gatewayMac = item.attr('gatewayMac')
                     const manualInputGatewayMac = $item('manualInputGatewayMac').text()
-                    tableData.value.push({
-                        id: item.attr('id')!,
-                        gateway: item.attr('gateway')!,
-                        gatewayMac,
-                        arpSwitch: $item('arpSwitch').text().toBoolean(),
+                    return {
+                        id: item.attr('id'),
+                        gateway: item.attr('gateway'),
+                        gatewayMac, // 存放自动网关mac地址信息，不能被修改
+                        arpSwitch: $item('arpSwitch').text().bool(),
                         autoGetGatewayMac,
                         manualInputGatewayMac,
-                        preventDetection: $item('preventDetection').text().toBoolean(),
-                        getGatewayMac: autoGetGatewayMac ? gatewayMac : manualInputGatewayMac,
-                    })
+                        preventDetection: $item('preventDetection').text().bool(),
+                        getGatewayMac: $item('manualInputGatewayMac').text(),
+                    }
                 })
-                nextTick(() => {
-                    pageData.value.mounted = true
-                })
+                watchEdit.listen()
             })
         }
 
@@ -56,33 +51,55 @@ export default defineComponent({
          * @description 提交数据
          */
         const setData = async () => {
+            if (!verification()) {
+                return
+            }
+
             openLoading()
 
-            const table = tableData.value
-                .map((item) => {
-                    return rawXml`
-                    <item id="${item.id}">
-                        <arpSwitch>${String(item.arpSwitch)}</arpSwitch>
-                        <gateway>${item.gateway}</gateway>
-                        <autoGetGatewayMac>${String(item.autoGetGatewayMac)}</autoGetGatewayMac>
-                        <getGatewayMac>${item.getGatewayMac}</getGatewayMac>
-                        <manualInputGatewayMac>${item.manualInputGatewayMac}</manualInputGatewayMac>
-                        <preventDetection>${String(item.preventDetection)}</preventDetection>
-                    </item>
-                `
-                })
-                .join('')
             const sendXml = rawXml`
                 <content>
                     <nicConfigs type='list'>
-                        ${table}
+                        ${tableData.value
+                            .map((item) => {
+                                return rawXml`
+                                    <item id="${item.id}">
+                                        <arpSwitch>${item.arpSwitch}</arpSwitch>
+                                        <gateway>${item.gateway}</gateway>
+                                        <autoGetGatewayMac>${item.autoGetGatewayMac}</autoGetGatewayMac>
+                                        <getGatewayMac>${item.getGatewayMac}</getGatewayMac>
+                                        <manualInputGatewayMac>${item.manualInputGatewayMac}</manualInputGatewayMac>
+                                        <preventDetection>${item.preventDetection}</preventDetection>
+                                    </item>
+                                `
+                            })
+                            .join('')}
                     </nicConfigs>
                 </content>
             `
             const result = await editArpCfg(sendXml)
 
             closeLoading()
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
+            watchEdit.update()
+        }
+
+        const verification = () => {
+            const macReg = /([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})/
+            const isGatewayMacInvalid = tableData.value.some((item) => {
+                if (!item.arpSwitch) {
+                    return false
+                }
+
+                return item.getGatewayMac === DEFAULT_EMPTY_MAC || !macReg.test(item.getGatewayMac)
+            })
+
+            if (isGatewayMacInvalid) {
+                openMessageBox(Translate('IDCS_PROMPT_MACADDRESS_INVALID'))
+                return false
+            }
+
+            return true
         }
 
         /**
@@ -90,30 +107,21 @@ export default defineComponent({
          * @param {string} value
          */
         const formatNetworkCardName = (value: string) => {
-            switch (value) {
-                case 'bond0':
-                    return Translate('IDCS_NETWORK_FAULT_TOLERANCE')
-                case 'eth0':
-                    return Translate('IDCS_ETH0_NAME')
-                case 'eth1':
-                    return Translate('IDCS_ETH1_NAME')
-                case 'ppp0':
-                    return Translate('IDCS_PPPOE')
-                default:
-                    return Translate(value)
-            }
+            return NETWORK_CARD_MAPPING[value] || Translate(value)
         }
 
         /**
          * @description 自动获取网关MAC时, 赋值gatewayMac；否组赋值manualInputGatewayMac
          * @param {UserNetworkSecurityForm} row
-         * @param {number} index
          */
-        const handleChangeAutoGetGatewayMac = (row: UserNetworkSecurityForm, index: number) => {
+        const changeAutoGetGatewayMac = (row: UserNetworkSecurityForm) => {
             if (row.autoGetGatewayMac) {
-                tableData.value[index].getGatewayMac = row.gatewayMac || '00:00:00:00:00:00'
+                row.getGatewayMac = row.gatewayMac
+                if (!row.gatewayMac) {
+                    openMessageBox(Translate('IDCS_ERROR_GET_GATEWAY_MAC'))
+                }
             } else {
-                tableData.value[index].getGatewayMac = row.manualInputGatewayMac || '00:00:00:00:00:00'
+                row.getGatewayMac = row.manualInputGatewayMac
             }
         }
 
@@ -122,22 +130,9 @@ export default defineComponent({
          * @param {UserNetworkSecurityForm} row
          * @param {number} index
          */
-        const handleChangeMannualGatewayMac = (row: UserNetworkSecurityForm, index: number) => {
-            tableData.value[index].manualInputGatewayMac = row.getGatewayMac
+        const changeMannualGatewayMac = (row: UserNetworkSecurityForm) => {
+            row.manualInputGatewayMac = row.getGatewayMac
         }
-
-        const stopTableDataWatch = watch(
-            tableData,
-            () => {
-                if (pageData.value.mounted) {
-                    pageData.value.submitDisabled = false
-                    stopTableDataWatch()
-                }
-            },
-            {
-                deep: true,
-            },
-        )
 
         onMounted(() => {
             getData()
@@ -146,10 +141,10 @@ export default defineComponent({
         return {
             tableData,
             setData,
-            pageData,
+            watchEdit,
             formatNetworkCardName,
-            handleChangeAutoGetGatewayMac,
-            handleChangeMannualGatewayMac,
+            changeAutoGetGatewayMac,
+            changeMannualGatewayMac,
         }
     },
 })

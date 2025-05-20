@@ -2,36 +2,39 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-29 09:12:33
  * @Description: ai与事件版块的一些公共样式，仅在需要用到的ai与事件版块下import
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-14 15:06:44
  */
 
 .base-ai-menu-tabs {
     width: 100%;
     margin-top: 10px;
+
     & > .el-tabs__header {
         .el-tabs__item {
-            min-width: 150px;
+            width: 166px;
+            line-height: 35px;
+            height: 35px;
             color: var(--main-text);
-            width: fit-content;
             border: 1px solid var(--content-border);
-            // border: 2px solid var(--content-border);
-            margin-right: -2px; /* 处理border重合 */
             padding: 0 5px;
             text-align: center;
+            box-sizing: border-box;
+
             span {
                 display: block;
-                line-height: 36px;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
             }
         }
 
+        .el-tabs__nav {
+            flex-wrap: wrap;
+            float: unset;
+        }
+
         /* 长分割线 */
         .el-tabs__nav-wrap::after {
-            /* position: static !important; 可以去掉长分割线 */
-            background-color: var(--content-border);
+            height: 0;
         }
 
         /* 去掉下划线 */
@@ -50,8 +53,49 @@
         }
 
         .el-tabs__item.is-disabled {
-            background: var(--btn-bg-disabled);
-            color: var(--btn-text-disabled);
+            background-color: var(--ai-menu-bg-disabled);
+            color: var(--ai-menu-text-disabled);
+        }
+    }
+
+    & > .el-tabs__content {
+        overflow: auto;
+    }
+}
+
+.base-ai-form {
+    position: relative;
+}
+
+.base-ai-advance-btn {
+    position: absolute;
+    right: 20px;
+    top: 12px;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.base-ai-advance-box {
+    background-color: var(--ai-advance-bg);
+    padding: 10px;
+
+    .el-checkbox {
+        display: block;
+    }
+}
+
+.base-ai-task-btn {
+    position: absolute;
+    right: 20px;
+    top: 12px;
+
+    span {
+        font-size: 20px;
+        padding: 0 5px;
+        cursor: pointer;
+
+        &.disabled {
+            color: var(--main-text-light);
         }
     }
 }
@@ -59,7 +103,7 @@
 .base-ai-tabs {
     & > .el-tabs__header {
         border-bottom: 1px solid var(--content-border);
-        
+
         .el-tabs__item {
             width: fit-content;
             color: var(--main-text);
@@ -70,7 +114,7 @@
 
         /* 长分割线 */
         .el-tabs__nav-wrap::after {
-            position: static; //可以去掉长分割线
+            position: static; // 可以去掉长分割线
         }
 
         /* 去掉下划线 */
@@ -97,9 +141,15 @@
         }
     }
 
-    &>.el-tabs__content .el-tab-pane {
-        position: relative;
-        min-height: calc(100vh - 450px);
+    & > .el-tabs__content {
+        overflow: hidden;
+        height: fit-content;
+        min-height: 450px;
+        padding-bottom: 40px;
+
+        .el-tab-pane {
+            position: relative;
+        }
     }
 }
 
@@ -109,41 +159,11 @@
     height: 30px;
     line-height: 30px;
     padding-left: 8px;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
 
     &:first-child {
         margin-top: 0;
-    }
-}
-
-.base-ai-param-box {
-    width: 100%;
-    display: flex;
-
-    &-left {
-        width: 400px;
-        min-height: 450px;
-        padding: 8px 100px 0 20px;
-        flex-shrink: 0;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-
-        .player {
-            width: 400px;
-            height: 300px;
-        }
-
-        &.fixed {
-            position: absolute;
-            top: 102px;
-            z-index: 1;
-        }
-    }
-
-    &-right {
-        width: 100%;
     }
 }
 
@@ -153,49 +173,74 @@
     width: 100%;
     box-sizing: border-box;
     padding-inline: 15px;
+    min-width: 1200px;
 }
 
 .base-ai-linkage-title {
     text-align: center;
-    font-size: 15px;
+    font-size: 14px;
     width: 100%;
-    height: 33px;
-    padding: 4px 10px;
+    height: 34px;
+    padding: 0 10px;
     background: var(--ai-linkbox-bg);
     box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-    &>span {
+    & > span {
         margin-right: 5px;
     }
 }
+
 .base-ai-linkage-title-checkbox {
     padding-left: 15px;
+    justify-content: flex-start;
+
     .el-checkbox__label {
         padding-left: 3px;
     }
 }
+
 .base-ai-linkage-box {
     width: 250px;
     height: 400px;
     margin-right: 2px;
     border: 1px solid var(--ai-linkbox-border);
 
-    .el-checkbox-group {
-        .el-checkbox {
-            width: 200px;
-            height: 45px;
-            padding-left: 10px;
-        }
+    &.preset-box {
+        width: 350px;
     }
 
-    .el-table {
-        width: 100%;
-        height: 367px;
+    .el-checkbox-group {
+        .el-checkbox {
+            display: flex;
+            height: 43px;
+            padding-left: 15px;
+        }
+    }
+}
 
-        .el-table__cell {
-            padding: 3px;
-            height: 46px;
-            border-bottom: none;
+.base-ai-linkage-list {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+
+    li {
+        margin: 0;
+        padding: 0 10px;
+        list-style: none;
+        line-height: 43px;
+        text-align: center;
+        width: 100%;
+        font-size: 14px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        box-sizing: border-box;
+
+        &:nth-child(odd) {
+            background-color: var(--form-stripe);
         }
     }
 }
@@ -217,17 +262,26 @@
 
     &-left {
         width: 400px;
-        height: 100%;
         padding: 0 100px 0 20px;
         flex-shrink: 0;
         display: flex;
         flex-direction: column;
         margin-right: 5px;
-        overflow: hidden;
 
         .player {
             width: 400px;
             height: 300px;
+
+            &.resize {
+                height: 301px;
+            }
+        }
+
+        &.fixed {
+            position: absolute;
+            top: 87px;
+            z-index: 1;
+            min-height: unset;
         }
     }
 
@@ -239,62 +293,41 @@
 .base-ai-tip {
     font-size: 12px;
     color: var(--main-text-light);
+    margin-top: 5px;
 }
 
-.base-ai-chl-select {
-    .el-select__selection {
-        text-align: center;
-    }
+.base-ai-slider-label {
+    margin-right: 15px;
+    flex-shrink: 0;
 }
 
-.base-ai-chl-option {
-    width: 430px;
-    height: 140px;
-    padding: 10px;
-    box-sizing: border-box;
-    overflow-y: auto;
-    overflow-x: hidden;
-
-    .el-select-dropdown__list {
-        width: 100%;
-        flex-wrap: wrap;
-        display: flex;
-        justify-content: flex-start;
-        align-items: flex-start;
-    }
-
-    .el-select-dropdown__item {
-        width: 120px;
-        height: 30px;
-        line-height: 30px;
-        text-align: center;
-        margin: 5px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        cursor: pointer;
-        border: 1px solid var(--content-border);
-    }
+#n9web .el-form > div > .el-form-item,
+#n9web .el-form > div > div > .el-form-item {
+    padding: 2px 15px;
+    margin-bottom: 0;
+    flex-wrap: nowrap;
 }
 
-.base-popover-icon {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: var(--el-table-header-text-color);
-    .el-icon {
-        cursor: pointer;
-        &:hover {
-            color: var(--input-text);
-        }
-    }
+.rectangleBorder {
+    border: solid 1px #d1d1d1;
+    padding: 12px;
+    margin: 10px 15px;
 }
 
-.row-together {
-    width: fit-content;
-    .table_btn {
-        margin-left: 5px;
-    }
+.spanWidth {
+    display: inline-block;
+    max-width: 75px;
+    margin-right: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.targetInput {
+    width: 45px !important;
+}
+
+.percentLabel {
+    margin-right: 30px;
 }

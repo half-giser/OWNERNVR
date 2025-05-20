@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-20 13:58:22
  * @Description: 云台-智能追踪
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:25:25
 -->
 <template>
     <div class="base-chl-box">
@@ -11,85 +9,86 @@
             <div class="base-chl-box-player">
                 <BaseVideoPlayer
                     ref="playerRef"
-                    type="live"
-                    @onready="handlePlayerReady"
+                    @ready="handlePlayerReady"
                 />
             </div>
             <el-form
-                v-if="tableData.length"
-                label-position="left"
-                :style="{
-                    '--form-label-width': '150px',
-                }"
-                class="inline-message"
+                v-title
+                class="stripe"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select
+                    <el-select-v2
+                        v-if="tableData.length"
                         v-model="pageData.tableIndex"
+                        :options="chlOptions"
                         @change="changeChl"
-                    >
-                        <el-option
-                            v-for="(item, index) in tableData"
-                            :key="item.chlId"
-                            :value="index"
-                            :label="item.chlName"
-                        />
-                    </el-select>
+                    />
+                    <el-select-v2
+                        v-else
+                        model-value=""
+                        :options="[]"
+                        disabled
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_AUTO_TRACK_MODE')">
-                    <el-select
+                    <el-select-v2
+                        v-if="tableData.length"
                         v-model="tableData[pageData.tableIndex].ptzControlMode"
-                        :disabled="tableData[pageData.tableIndex].status !== 'success'"
-                    >
-                        <el-option
-                            v-for="item in pageData.trackModeOptions"
-                            :key="item.value"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-select>
+                        :disabled="tableData[pageData.tableIndex].disabled"
+                        :options="pageData.trackModeOptions"
+                    />
+                    <el-select-v2
+                        v-else
+                        model-value=""
+                        :options="[]"
+                        disabled
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_HOMING_AFTER_TARGET_STATIONARY')">
-                    <el-checkbox
-                        v-model="tableData[pageData.tableIndex].autoBackSwitch"
-                        :disabled="tableData[pageData.tableIndex].status !== 'success'"
-                    ></el-checkbox>
-                    <el-slider
-                        v-model="tableData[pageData.tableIndex].autoBackTime"
-                        :disabled="!tableData[pageData.tableIndex].autoBackSwitch || tableData[pageData.tableIndex].status !== 'success'"
-                        :min="0"
-                        :max="100"
-                    ></el-slider>
-                    <el-text class="time">{{ tableData[pageData.tableIndex].autoBackTime }}(s)</el-text>
+                    <template v-if="tableData.length">
+                        <el-checkbox
+                            v-model="tableData[pageData.tableIndex].autoBackSwitch"
+                            :disabled="tableData[pageData.tableIndex].disabled"
+                        />
+                        <BaseSliderInput
+                            v-model="tableData[pageData.tableIndex].autoBackTime"
+                            :disabled="!tableData[pageData.tableIndex].autoBackSwitch || tableData[pageData.tableIndex].disabled"
+                        />
+                        <span class="time">(s)</span>
+                    </template>
+                    <template v-else>
+                        <el-checkbox disabled />
+                        <BaseSliderInput disabled />
+                        <span class="time">(s)</span>
+                    </template>
                 </el-form-item>
             </el-form>
         </div>
         <div class="base-chl-box-right">
             <div class="base-table-box">
                 <el-table
+                    v-title
                     :data="tableData"
-                    border
-                    stripe
                     highlight-current-row
                     @row-click="handleRowClick"
                 >
                     <!-- 状态列 -->
                     <el-table-column
                         label=" "
-                        width="50px"
-                        class-name="custom_cell"
+                        width="50"
                     >
-                        <template #default="scope">
-                            <BaseTableRowStatus :icon="scope.row.status" />
+                        <template #default="{ row }: TableColumn<ChannelPtzSmartTrackDto>">
+                            <BaseTableRowStatus :icon="row.status" />
                         </template>
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_CHANNEL_NAME')"
                         prop="chlName"
+                        show-overflow-tooltip
                     />
                     <el-table-column :label="Translate('IDCS_HOMING_AFTER_TARGET_STATIONARY')">
                         <template #header>
-                            <el-dropdown trigger="click">
+                            <el-dropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_HOMING_AFTER_TARGET_STATIONARY') }}
                                 </BaseTableDropdownLink>
@@ -106,51 +105,35 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope">
-                            <el-select
-                                v-model="scope.row.autoBackSwitch"
-                                :disabled="scope.row.status !== 'success'"
-                            >
-                                <el-option
-                                    v-for="item in pageData.autoBackOptions"
-                                    :key="item.label"
-                                    :value="item.value"
-                                    :label="item.label"
-                                />
-                            </el-select>
+                        <template #default="{ row }: TableColumn<ChannelPtzSmartTrackDto>">
+                            <el-select-v2
+                                v-model="row.autoBackSwitch"
+                                :options="pageData.autoBackOptions"
+                                :disabled="row.disabled"
+                            />
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_HOMING_AFTER_TARGET_STATIONARY_TIME')">
-                        <template #default="scope">
-                            <el-input-number
-                                v-model="scope.row.autoBackTime"
-                                :min="0"
+                        <template #default="{ row }: TableColumn<ChannelPtzSmartTrackDto>">
+                            <BaseNumberInput
+                                v-model="row.autoBackTime"
                                 :max="100"
-                                :disabled="!scope.row.autoBackSwitch || scope.row.status !== 'success'"
-                                value-on-clear="min"
-                                :controls="false"
+                                :disabled="!row.autoBackSwitch || row.disabled"
                             />
                         </template>
                     </el-table-column>
                 </el-table>
             </div>
             <div class="base-btn-box">
-                <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
+                <el-button
+                    :disabled="!editRows.size()"
+                    @click="setData"
+                >
+                    {{ Translate('IDCS_APPLY') }}
+                </el-button>
             </div>
         </div>
-        <BaseNotification v-model:notifications="pageData.notification" />
     </div>
 </template>
 
 <script lang="ts" src="./ChannelSmartTrack.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/channel.scss';
-</style>
-
-<style lang="scss" scoped>
-.time {
-    width: 80px;
-    text-align: center;
-}
-</style>

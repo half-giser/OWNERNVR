@@ -1,9 +1,7 @@
 /*
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-21 18:15:30
- * @Description: 磁盘
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 20:29:10
+ * @Description: 磁盘的类型定义，类型命名的前缀统一为Disk*
  */
 
 /**
@@ -17,6 +15,7 @@ export class DiskModeForm {
  * @description S.M.A.R.T信息磁盘列表项
  */
 export class DiskSmartInfoDiskList {
+    index = 0
     id = ''
     diskNum = ''
     serialNum = ''
@@ -92,8 +91,8 @@ export class StorageModeDiskGroupListDatum {
  */
 export class StorageModeDiskGroupList {
     id = ''
-    diskList = [] as StorageModeDiskGroupListDatum[]
-    chlList = [] as StorageModeDiskGroupListDatum[]
+    diskList: StorageModeDiskGroupListDatum[] = []
+    chlList: StorageModeDiskGroupListDatum[] = []
     diskCount = 0
     totalSize = ''
 }
@@ -139,7 +138,7 @@ export class DiskCreateRaidForm {
     name = ''
     type = 'RAID_TYPE_5' // 同步设备端，默认选择raid5
     space = ''
-    diskId = [] as string[]
+    diskId: string[] = []
 }
 
 /**

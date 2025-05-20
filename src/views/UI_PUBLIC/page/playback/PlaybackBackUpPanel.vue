@@ -2,46 +2,43 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-30 18:30:11
  * @Description: 回放-备份任务列表
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-10 18:15:03
 -->
 <template>
     <div class="backup">
         <el-popover
             :visible="pageData.visible"
-            trigger="click"
             :width="1000"
             placement="top-end"
-            :hide-after="0"
-            :show-after="0"
-            popper-class="playback-backup-panel"
+            popper-class="no-padding"
             @update:visible="$emit('update:visible', $event)"
         >
             <template #reference>
-                <div>
-                    <el-tooltip
-                        :content="Translate('IDCS_BACKUP_TASKS')"
-                        :show-after="500"
-                    >
-                        <BaseImgSprite
-                            file="backUpTask"
-                            :index="0"
-                            :hover-index="1"
-                            :disabled-index="3"
-                            :chunk="4"
-                        />
-                    </el-tooltip>
-                </div>
+                <BaseImgSpriteBtn
+                    file="backUpTask"
+                    :title="Translate('IDCS_BACKUP_TASKS')"
+                />
             </template>
             <el-table
+                v-title
                 :data="tableData"
-                border
-                stripe
-                height="400px"
+                height="400"
+                show-overflow-tooltip
             >
+                <el-table-column
+                    label=" "
+                    width="50"
+                >
+                    <template #default="{ row }: TableColumn<PlaybackBackUpTaskList>">
+                        <BaseTableRowStatus
+                            :icon="row.status === 'failed' ? 'error' : ''"
+                            :error-text="row.statusTip"
+                        />
+                    </template>
+                </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_SERIAL_NUMBER')"
                     type="index"
+                    width="50"
                 />
                 <el-table-column
                     :label="Translate('IDCS_TIME_SEGMENT')"
@@ -56,8 +53,8 @@
                     prop="dataSize"
                 />
                 <el-table-column :label="Translate('IDCS_DESTINATION')">
-                    <template #default="scope">
-                        {{ displayDestination(scope.row.description) }}
+                    <template #default="{ row }: TableColumn<PlaybackBackUpTaskList>">
+                        {{ displayDestination(row.destination) }}
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -73,17 +70,11 @@
                     prop="progress"
                 />
                 <el-table-column
+                    width="110"
                     :label="Translate('IDCS_OPERATION')"
-                    prop="operate"
                 >
                     <template #header>
-                        <el-dropdown
-                            trigger="click"
-                            :popper-options="{
-                                boundariesElement: '.playback-backup-panel',
-                            }"
-                            :teleported="false"
-                        >
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_OPERATION') }}
                             </BaseTableDropdownLink>
@@ -95,32 +86,27 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="{ row }: TableColumn<PlaybackBackUpTaskList>">
                         <el-button
-                            v-if="scope.row.status === 'ongoing'"
-                            @click="pauseTask(scope.row)"
-                            >{{ Translate('IDCS_PAUSE') }}</el-button
+                            v-if="row.status === 'ongoing'"
+                            @click="pauseTask(row)"
                         >
+                            {{ Translate('IDCS_PAUSE') }}
+                        </el-button>
                         <el-button
-                            v-else-if="scope.row.status === 'pause'"
-                            @click="resumeTask(scope.row)"
-                            >{{ Translate('IDCS_RESUME') }}</el-button
+                            v-else-if="row.status === 'pause'"
+                            @click="resumeTask(row)"
                         >
-                        <el-text v-else-if="scope.row.status === 'failed'">{{ Translate('IDCS_FAILED') }}</el-text>
+                            {{ Translate('IDCS_RESUME') }}
+                        </el-button>
                     </template>
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_DELETE')"
-                    prop="delete"
+                    width="110"
                 >
                     <template #header>
-                        <el-dropdown
-                            trigger="click"
-                            :popper-options="{
-                                boundariesElement: '.playback-backup-panel',
-                            }"
-                            :teleported="false"
-                        >
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_DELETE') }}
                             </BaseTableDropdownLink>
@@ -131,8 +117,8 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
-                        <el-button @click="deleteTask(scope.row)">{{ Translate('IDCS_DELETE') }}</el-button>
+                    <template #default="{ row }: TableColumn<PlaybackBackUpTaskList>">
+                        <el-button @click="deleteTask(row)">{{ Translate('IDCS_DELETE') }}</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -152,24 +138,21 @@
     margin: 0 5px;
 
     &-tip {
-        margin-top: 5px;
+        margin: 5px;
         display: flex;
         align-items: center;
+
         span:last-child {
             padding-left: 5px;
         }
     }
 }
-:deep(.el-table__header-wrapper) {
-    overflow: unset !important;
+
+:deep(.el-table__header .el-table__cell) {
+    z-index: 2;
 }
-:deep(.cell) {
-    overflow: unset !important;
-}
+
 :deep(.el-dropdown-menu__item) {
     font-weight: normal;
-}
-:deep(.el-dropdown__popper) .el-popper__arrow::before {
-    background-color: var(--color-white) !important;
 }
 </style>

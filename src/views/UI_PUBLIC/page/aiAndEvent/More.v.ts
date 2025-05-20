@@ -2,31 +2,36 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-10 17:50:35
  * @Description: 更多功能页面的框架
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-11 10:55:57
  */
-import { type chlCaps } from '@/types/apiType/aiAndEvent'
-import { type TabsPaneContext } from 'element-plus'
-import FireDetection from './FireDetections.vue'
-import TemperatureDetection from './TemperatureDetection.vue'
-import ObjectLeft from './ObjectLeft.vue'
-import PassLine from './PassLines.vue'
-import AbnormalDispose from './AbnormalDispose.vue'
-import Cdd from './Cdd.vue'
-import VideoStructure from './VideoStructure.vue'
+import AlarmBaseChannelSelector from './AlarmBaseChannelSelector.vue'
+import FireDetectionPanel from './FireDetectionPanel.vue'
+import TemperatureDetectionPanel from './TemperatureDetectionPanel.vue'
+import ObjectLeftPanel from './ObjectLeftPanel.vue'
+import PassLinePanel from './PassLinePanel.vue'
+import AbnormalDisposePanel from './AbnormalDisposePanel.vue'
+import CddPanel from './CddPanel.vue'
+import AreaStatisPanel from './AreaStatisPanel.vue'
+import AsdPanel from './AsdPanel.vue'
+import HeatMapPanel from './HeatMapPanel.vue'
+import CrowdGatherPanel from './CrowdGatherPanel.vue'
+import BinocularCountPanel from './BinocularCountPanel.vue'
 
 export default defineComponent({
     components: {
-        FireDetection,
-        VideoStructure,
-        PassLine,
-        TemperatureDetection,
-        ObjectLeft,
-        AbnormalDispose,
-        Cdd,
+        AlarmBaseChannelSelector,
+        FireDetectionPanel,
+        AreaStatisPanel,
+        PassLinePanel,
+        TemperatureDetectionPanel,
+        ObjectLeftPanel,
+        AbnormalDisposePanel,
+        CddPanel,
+        AsdPanel,
+        HeatMapPanel,
+        CrowdGatherPanel,
+        BinocularCountPanel,
     },
     setup() {
-        const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
         const pageData = ref({
             // 当前选中的通道
@@ -34,101 +39,71 @@ export default defineComponent({
             // 在线通道id列表
             onlineChannelIdList: [] as string[],
             // 在线通道列表
-            onlineChannelList: [] as { id: string; ip: string; name: string; accessType: string }[],
-            // 当前选择通道数据
-            chlData: {} as chlCaps,
+            onlineChannelList: [] as AlarmOnlineChlDto[],
             // 通道能力集
-            chlCaps: {} as Record<string, chlCaps>,
+            chlCaps: {} as Record<string, AlarmChlDto>,
             // 当前选择的功能
-            chosenFunction: 'tripwire',
+            tab: '',
+            notSupport: false,
             // 声音列表
-            voiceList: [] as { value: string; label: string }[],
-            // 排程列表
-            scheduleList: [] as { value: string; label: string }[],
-            scheduleDefaultId: '{00000000-0000-0000-0000-000000000000}',
-
-            // 是否支持声音设置
-            supportAlarmAudioConfig: true,
-            // 默认声音id
-            defaultAudioId: '{00000000-0000-0000-0000-000000000000}',
-
-            // 设备能力集
-            localFaceDectEnabled: false,
-            localTargetDectEnabled: false,
-            faceMatchLimitMaxChlNum: 0,
-            supportFaceMatch: false,
-            supportPlateMatch: false,
-            showAIReourceDetail: false,
-
-            // fireDetection是否禁用
-            fireDetectionDisable: false,
-            // videoStructure是否禁用
-            videoStructureDisable: false,
-            // passLine是否禁用
-            passLineDisable: false,
-            // cdd是否禁用
-            cddDisable: false,
-            // temperatureDetection是否禁用
-            temperatureDetectionDisable: false,
-            // objectLeft是否禁用
-            objectLeftDisable: false,
-            // avd是否禁用
-            avdDisable: false,
-
-            // 筛选出第一个支持人脸的通道
-            checkFirstFaceChlId: '',
-            // 筛选出第一个支持车辆的通道
-            checkFirstVehicleChlId: '',
-            // 保存所有支持人车非周界的通道
-            boundaryChlCapsObj: [],
-            // 保存所有支持更多分类的通道
-            moreChlCapsObj: [],
-
-            // tabkey
-            tabKey: 0,
+            voiceList: [] as SelectOption<string, string>[],
         })
+
+        const chlData = computed(() => {
+            return pageData.value.chlCaps[pageData.value.currChlId] || new AlarmChlDto()
+        })
+
         // 切换通道
-        const handleChangeChannel = async () => {
-            pageData.value.chlData = pageData.value.chlCaps[pageData.value.currChlId]
-            pageData.value.tabKey += 1
-            initPage()
+        const changeChannel = () => {
+            const tabList: [string, boolean][] = [
+                ['loiter', chlData.value.supportLoitering],
+                ['pvd', chlData.value.supportPvd],
+                ['fireDetection', chlData.value.supportFire],
+                ['areaStatis', chlData.value.supportRegionStatistics],
+                ['passLine', chlData.value.supportPassLine || chlData.value.supportCpc],
+                ['cdd', chlData.value.supportCdd],
+                ['temperatureDetection', chlData.value.supportTemperature],
+                ['objectLeft', chlData.value.supportOsc],
+                ['asd', chlData.value.supportASD],
+                ['heatMap', chlData.value.supportHeatMap],
+                ['sbc', chlData.value.supportBinocularCountConfig],
+                ['avd', chlData.value.supportAvd],
+                ['cgd', chlData.value.supportCrowdGathering],
+            ]
+
+            tabList.some((item) => {
+                if (item[1]) {
+                    pageData.value.tab = item[0]
+                }
+                return item[1]
+            })
+
+            // 若都不可用，则显示提示
+            if (!pageData.value.tab) {
+                pageData.value.notSupport = true
+            } else {
+                pageData.value.notSupport = false
+            }
         }
-        // 大tab点击事件,切换功能
-        const handleTabClick = (pane: TabsPaneContext) => {
-            pageData.value.chosenFunction = pane.props.name?.toString() ? pane.props.name?.toString() : ''
-            pageData.value.tabKey += 1
-        }
+
         // 获取在线通道
         const getOnlineChannel = async () => {
             const res = await queryOnlineChlList()
             const $ = queryXml(res)
-            if ($('status').text() == 'success') {
-                $('//content/item').forEach((item) => {
-                    const id = item.attr('id')
-                    pageData.value.onlineChannelIdList.push(id ? id : '')
+            if ($('status').text() === 'success') {
+                pageData.value.onlineChannelIdList = $('content/item').map((item) => {
+                    return item.attr('id')
                 })
             }
-            if (pageData.value.onlineChannelIdList.length == 0) {
-                pageData.value.chosenFunction = ''
-                pageData.value.fireDetectionDisable = true
-                pageData.value.videoStructureDisable = true
-                pageData.value.passLineDisable = true
-                pageData.value.cddDisable = true
-                pageData.value.temperatureDetectionDisable = true
-                pageData.value.objectLeftDisable = true
-                pageData.value.avdDisable = true
+
+            if (!pageData.value.onlineChannelIdList.length) {
+                pageData.value.notSupport = true
             }
         }
+
         // 获取通道数据
         const getChannelData = async () => {
-            pageData.value.localFaceDectEnabled = systemCaps.localFaceDectMaxCount != 0
-            pageData.value.localTargetDectEnabled = systemCaps.localTargetDectMaxCount != 0
-            pageData.value.faceMatchLimitMaxChlNum = systemCaps.faceMatchLimitMaxChlNum
-            pageData.value.supportFaceMatch = systemCaps.supportFaceMatch
-            pageData.value.supportPlateMatch = systemCaps.supportPlateMatch
-            pageData.value.showAIReourceDetail = systemCaps.showAIReourceDetail
-
-            const resb = await getChlList({
+            const result = await getChlList({
                 requireField: [
                     'ip',
                     'supportVfd',
@@ -148,60 +123,76 @@ export default defineComponent({
                     'supportAutoTrack',
                     'supportFire',
                     'supportWhiteLightAlarmOut',
-                    'supportAudioAlarmOut',
                     'supportTemperature',
                     'protocolType',
                     'supportVideoMetadata',
+                    'supportLoitering',
+                    'supportPvd',
+                    'supportRegionStatistics',
+                    'supportASD',
+                    'supportHeatMap',
+                    'supportCrowdGathering',
+                    'supportBinocularCountConfig',
                 ],
             })
-            const res = queryXml(resb)
-            if (res('status').text() == 'success') {
-                res('//content/item').forEach((element) => {
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                $('content/item').forEach((element) => {
                     const $item = queryXml(element.element)
                     const protocolType = $item('protocolType').text()
                     const factoryName = $item('productModel').attr('factoryName')
                     if (factoryName === 'Recorder') return
                     const curChlId = element.attr('id')
                     if (protocolType !== 'RTSP' && pageData.value.onlineChannelIdList.some((item) => item === curChlId)) {
-                        const id = element.attr('id')!
+                        const id = element.attr('id')
                         const name = $item('name').text()
                         const ip = $item('ip').text()
                         const chlType = $item('chlType').text()
                         const accessType = $item('AccessType').text()
-                        const supportOsc = $item('supportOsc').text() == 'true'
-                        const supportCdd = $item('supportCdd').text() == 'true'
-                        const supportVfd = $item('supportVfd').text() == 'true'
-                        const supportAvd = $item('supportAvd').text() == 'true'
-                        const supportPea = $item('supportPea').text() == 'true'
-                        const supportPeaTrigger = $item('supportPeaTrigger').text() == 'true' // NT-9829
-                        const supportIpd = $item('supportIpd').text() == 'true'
-                        const supportTripwire = $item('supportTripwire').text() == 'true'
-                        const supportAOIEntry = $item('supportAOIEntry').text() == 'true'
-                        const supportAOILeave = $item('supportAOILeave').text() == 'true'
-                        const supportVehiclePlate = $item('supportVehiclePlate').text() == 'true'
-                        const supportPassLine = $item('supportPassLine').text() == 'true'
-                        const supportCpc = $item('supportCpc').text() == 'true'
-                        const supportAudio = $item('supportAudioAlarmOut').text() == 'true'
-                        const supportWhiteLight = $item('supportWhiteLightAlarmOut').text() == 'true'
-                        const supportAutoTrack = $item('supportAutoTrack').text() == 'true'
-                        const supportFire = $item('supportFire').text() == 'true'
-                        const supportTemperature = $item('supportTemperature').text() == 'true'
-                        const supportVideoMetadata = $item('supportVideoMetadata').text() == 'true'
+                        const supportOsc = $item('supportOsc').text().bool()
+                        const supportCdd = $item('supportCdd').text().bool()
+                        const supportVfd = $item('supportVfd').text().bool()
+                        const supportAvd = $item('supportAvd').text().bool()
+                        const supportPvd = $item('supportPvd').text().bool()
+                        const supportPea = $item('supportPea').text().bool()
+                        const supportPeaTrigger = $item('supportPeaTrigger').text().bool() // NT-9829
+                        const supportIpd = $item('supportIpd').text().bool()
+                        const supportTripwire = $item('supportTripwire').text().bool()
+                        const supportAOIEntry = $item('supportAOIEntry').text().bool()
+                        const supportAOILeave = $item('supportAOILeave').text().bool()
+                        const supportVehiclePlate = $item('supportVehiclePlate').text().bool()
+                        const supportPassLine = $item('supportPassLine').text().bool()
+                        const supportCpc = $item('supportCpc').text().bool()
+                        const supportAudio = $item('supportAudioAlarmOut').text().bool()
+                        const supportWhiteLight = $item('supportWhiteLightAlarmOut').text().bool()
+                        const supportAutoTrack = $item('supportAutoTrack').text().bool()
+                        const supportFire = $item('supportFire').text().bool()
+                        const supportLoitering = $item('supportLoitering').text().bool()
+                        const supportTemperature = $item('supportTemperature').text().bool()
+                        const supportVideoMetadata = $item('supportVideoMetadata').text().bool()
+                        const supportRegionStatistics = $item('supportRegionStatistics').text().bool()
+                        const supportASD = $item('supportASD').text().bool()
+                        const supportHeatMap = $item('supportHeatMap').text().bool()
+                        const supportCrowdGathering = $item('supportCrowdGathering').text().bool()
+                        const supportBinocularCountConfig = $item('supportBinocularCountConfig').text().bool()
                         let supportBackVfd = false
                         let supportBackTripwire = false
                         let supportBackPea = false
                         let supportBackAOIEntry = false
                         let supportBackAOILeave = false
-                        if (pageData.value.localFaceDectEnabled) {
+
+                        if (!!systemCaps.localFaceDectMaxCount) {
                             // 支持人脸后侦测且人脸前侦测为false，才算支持人脸后侦测
                             supportBackVfd = !supportVfd
                         }
-                        if (pageData.value.localTargetDectEnabled) {
+
+                        if (!!systemCaps.localTargetDectMaxCount) {
                             supportBackTripwire = !supportTripwire
                             supportBackPea = !supportPea
                             supportBackAOIEntry = !supportAOIEntry
                             supportBackAOILeave = !supportAOILeave
                         }
+
                         // 热成像通道（火点检测/温度检测）不支持后侦测
                         if (supportFire || supportTemperature) {
                             supportBackVfd = false
@@ -228,32 +219,16 @@ export default defineComponent({
                             supportFire,
                             supportTemperature,
                             supportBackVfd,
-                            pageData.value.localTargetDectEnabled,
                             supportVideoMetadata,
+                            supportLoitering,
+                            supportPvd,
+                            supportRegionStatistics,
+                            supportASD,
+                            supportHeatMap,
+                            supportCrowdGathering,
+                            supportBinocularCountConfig,
                         ]
                         if (allCapsArr.includes(true)) {
-                            if (pageData.value.checkFirstFaceChlId == '') {
-                                if (supportVfd || supportBackVfd) {
-                                    pageData.value.checkFirstFaceChlId = id
-                                }
-                            }
-                            if (pageData.value.checkFirstVehicleChlId == '' && supportVehiclePlate) {
-                                pageData.value.checkFirstVehicleChlId = id
-                            }
-                            // 保存人车非周界的能力集，用于筛选出第一个支持的通道
-                            // 保存能力集为true的通道
-                            // 区域入侵界面包含了区域进入和离开
-                            // const areaIntellCfg = [supportPea, supportBackPea, supportPeaTrigger, supportAOIEntry, supportBackAOIEntry, supportAOILeave, supportBackAOILeave]
-                            // supportTripwire || supportBackTripwire || supportPeaTrigger ? pageData.value.tripwireCaps.push(id) : pageData.value.tripwireCaps
-                            // areaIntellCfg.includes(true) ? pageData.value.peaCaps.push(id) : pageData.value.peaCaps
-                            // 更多模块 其他页面用
-                            // supportOsc ? oscCaps.push(id) : oscCaps
-                            // supportCdd ? cddCaps.push(id) : cddCaps
-                            // supportPassLine || supportCpc ? passLinecaps.push(id) : passLinecaps
-                            // supportAvd ? avdCaps.push(id) : avdCaps
-                            // supportFire ? fireCaps.push(id) : fireCaps
-                            // supportTemperature ? temperatureCaps.push(id) : temperatureCaps
-
                             pageData.value.onlineChannelList.push({
                                 id: id,
                                 ip: ip,
@@ -290,89 +265,40 @@ export default defineComponent({
                                 supportFire: supportFire,
                                 supportTemperature: supportTemperature,
                                 supportVideoMetadata: supportVideoMetadata,
-                                showAIReourceDetail: pageData.value.showAIReourceDetail,
-                                faceMatchLimitMaxChlNum: pageData.value.faceMatchLimitMaxChlNum,
+                                supportLoitering: supportLoitering,
+                                supportPvd: supportPvd,
+                                supportRegionStatistics: supportRegionStatistics,
+                                supportASD: supportASD,
+                                supportHeatMap: supportHeatMap,
+                                supportCrowdGathering: supportCrowdGathering,
+                                supportBinocularCountConfig: supportBinocularCountConfig,
                             }
                         }
                     }
                 })
+
                 pageData.value.currChlId = pageData.value.onlineChannelList[0].id
-                pageData.value.chlData = pageData.value.chlCaps[pageData.value.currChlId]
             }
         }
+
         // 获取音频列表
         const getVoiceList = async () => {
-            pageData.value.supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
-            if (pageData.value.supportAlarmAudioConfig == true) {
-                queryAlarmAudioCfg().then(async (resb) => {
-                    pageData.value.voiceList = []
-                    const res = queryXml(resb)
-                    if (res('status').text() == 'success') {
-                        res('//content/audioList/item').forEach((item) => {
-                            const $item = queryXml(item.element)
-                            pageData.value.voiceList.push({
-                                value: item.attr('id')!,
-                                label: $item('name').text(),
-                            })
-                        })
-                        pageData.value.voiceList.push({ value: pageData.value.defaultAudioId, label: '<' + Translate('IDCS_NULL') + '>' })
-                    }
-                })
+            if (systemCaps.supportAlarmAudioConfig) {
+                pageData.value.voiceList = await buildAudioList()
             }
         }
-        // 切换通道及初始化时判断tab是否可用，若不可用则切换到可用的tab，都不可用再显示提示
-        const isTabDisabled = () => {
-            pageData.value.fireDetectionDisable = !pageData.value.chlData['supportFire']
-            pageData.value.videoStructureDisable = !pageData.value.chlData['supportVideoMetadata']
-            pageData.value.passLineDisable = !(pageData.value.chlData['supportPassLine'] || pageData.value.chlData['supportCpc'])
-            pageData.value.cddDisable = !pageData.value.chlData['supportCdd']
-            pageData.value.temperatureDetectionDisable = !pageData.value.chlData['supportTemperature']
-            pageData.value.objectLeftDisable = !pageData.value.chlData['supportOsc']
-            pageData.value.avdDisable = !pageData.value.chlData['supportAvd']
-            // 遍历上述七个tab，找到第一个可用的tab，切换到该tab
-            const tabList = ['fireDetection', 'videoStructure', 'passLine', 'cdd', 'temperatureDetection', 'objectLeft', 'avd']
-            let flag = false
-            tabList.forEach((item) => {
-                const tabDisable = item + 'Disable'
-                if (!pageData.value[tabDisable as keyof typeof pageData.value] && !flag) {
-                    pageData.value.chosenFunction = item
-                    flag = true
-                }
-            })
-            // 若都不可用，则显示提示
-            if (!flag) {
-                pageData.value.chosenFunction = ''
-            }
-        }
-        const initPage = () => {
-            isTabDisabled()
-        }
-        watchEffect(() => {
-            if (pageData.value.chosenFunction !== '') {
-                const popper = document.querySelector('.base-ai-chl-option')
-                if (popper) {
-                    ;(popper as HTMLElement).style.height = pageData.value.chosenFunction == 'avd' ? '105px' : '140px'
-                }
-            }
-        })
+
         onMounted(async () => {
             await getOnlineChannel()
             await getChannelData()
             await getVoiceList()
-            initPage()
-            pageData.value.tabKey += 1
+            changeChannel()
         })
+
         return {
-            FireDetection,
-            PassLine,
-            Cdd,
-            VideoStructure,
-            TemperatureDetection,
-            ObjectLeft,
-            AbnormalDispose,
+            chlData,
             pageData,
-            handleChangeChannel,
-            handleTabClick,
+            changeChannel,
         }
     },
 })

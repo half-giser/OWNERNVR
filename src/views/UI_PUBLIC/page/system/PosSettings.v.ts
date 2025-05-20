@@ -2,28 +2,19 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-02 09:08:32
  * @Description: POS配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 17:20:35
  */
-import { cloneDeep } from 'lodash-es'
-import type { SystemPosList, SystemPosListChls, SystemPostColorData, SystemPosConnectionForm, SystemPosDisplaySetting } from '@/types/apiType/system'
-import { SystemPostDisplaySet } from '@/types/apiType/system'
 import PosConnectionSettingsPop from './PosConnectionSettingsPop.vue'
-// import PosTriggerChannelPop from './PosTriggerChannelPop.vue'
 import PosHayleyTriggerChannelPop from './PosHayleyTriggerChannelPop.vue'
 import PosDisplaySettingPop from './PosDisplaySettingPop.vue'
 
 export default defineComponent({
     components: {
         PosConnectionSettingsPop,
-        // PosTriggerChannelPop,
         PosHayleyTriggerChannelPop,
         PosDisplaySettingPop,
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         // 连接类型与显示文本的映射
         const CONNECTION_TYPE_MAPPING: Record<string, string> = {
@@ -35,13 +26,13 @@ export default defineComponent({
 
         const pageData = ref({
             // 连接类型选项列表
-            connectionTypeList: [] as { name: string; value: string }[],
+            connectionTypeList: [] as SelectOption<string, string>[],
             // 开关选项列表
-            switchOption: DEFAULT_SWITCH_OPTIONS,
+            switchOption: getTranslateOptions(DEFAULT_SWITCH_OPTIONS),
             // 协议选项列表
-            manufacturersList: [] as { name: string; value: string }[],
+            manufacturersList: [] as SelectOption<string, string>[],
             // 编码选项列表
-            encodeList: [] as { name: string; value: string }[],
+            encodeList: [] as SelectOption<string, string>[],
             // 显示模式数据列表
             colorData: [] as SystemPostColorData[],
             // 显示位置的限制值
@@ -64,15 +55,14 @@ export default defineComponent({
             tillNumberMax: Infinity,
             // hayley联动通道设置弹窗
             isHayleyTriggerChannleDialog: false,
-            mounted: false,
-            // 是否禁用提交
-            submitDisabled: true,
             // 通道列表
             chlList: [] as SelectOption<string, string>[],
+            networkPortList: [] as number[],
         })
 
         // 表格数据
         const tableData = ref<SystemPosList[]>([])
+        const watchEdit = useWatchEditData(tableData)
 
         // 已经选择的联动通道的通道ID
         const linkChls = computed(() => {
@@ -101,71 +91,74 @@ export default defineComponent({
             openLoading()
 
             const result = await queryPosList()
-            const $ = queryXml(result)
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                pageData.value.tillNumberMax = Number($('//types/tillNumber').attr('max'))
+            commLoadResponseHandler(result, ($) => {
+                pageData.value.tillNumberMax = $('types/tillNumber').attr('max').num()
 
-                pageData.value.connectionTypeList = $('//types/connectionType/enum').map((item) => {
+                pageData.value.connectionTypeList = $('types/connectionType/enum').map((item) => {
                     return {
                         value: item.text(),
-                        name: CONNECTION_TYPE_MAPPING[item.text()],
+                        label: CONNECTION_TYPE_MAPPING[item.text()],
                     }
                 })
 
-                pageData.value.colorData = $('//channel/chl').map((item) => {
+                pageData.value.colorData = $('channel/chl').map((item, index) => {
                     const $item = queryXml(item.element)
 
                     return {
-                        chlId: item.attr('id')!,
-                        name: item.attr('name')!,
+                        index,
+                        chlId: item.attr('id'),
+                        name: item.attr('name'),
                         colorList: $item('color/item').map((color) => color.text()),
                         printMode: $item('printMode').text(),
-                        previewDisplay: $item('previewDisplay').text().toBoolean(),
+                        previewDisplay: $item('previewDisplay').text().bool(),
                     }
                 })
 
-                const displaysetString = '//content/itemType/param/displaySetting/displayPosition/'
-                pageData.value.displaysetList.xmin = Number($(`${displaysetString}coordinateSystem/X`).attr('min'))
-                pageData.value.displaysetList.xmax = Number($(`${displaysetString}coordinateSystem/X`).attr('max'))
-                pageData.value.displaysetList.ymin = Number($(`${displaysetString}coordinateSystem/Y`).attr('min'))
-                pageData.value.displaysetList.ymax = Number($(`${displaysetString}coordinateSystem/Y`).attr('max'))
-                pageData.value.displaysetList.wmin = Number($(`${displaysetString}width`).attr('min'))
-                pageData.value.displaysetList.hmin = Number($(`${displaysetString}height`).attr('min'))
+                const $position = queryXml($('content/itemType/param/displaySetting/displayPosition')[0].element)
+                const displaysetList = pageData.value.displaysetList
+                displaysetList.xmin = $position('coordinateSystem/X').attr('min').num()
+                displaysetList.xmax = $position('coordinateSystem/X').attr('max').num()
+                displaysetList.ymin = $position('coordinateSystem/Y').attr('min').num()
+                displaysetList.ymax = $position('coordinateSystem/Y').attr('max').num()
+                displaysetList.wmin = $position('width').attr('min').num()
+                displaysetList.hmin = $position('height').attr('min').num()
 
-                pageData.value.manufacturersList = $('//types/manufacturers/enum').map((item) => {
+                pageData.value.manufacturersList = $('types/manufacturers/enum').map((item) => {
                     const value = item.text()
                     return {
                         value,
-                        name: value === 'General' ? Translate('IDCS_PROTOCOL_TYPE') : value,
+                        label: value === 'General' ? Translate('IDCS_PROTOCOL_TYPE') : value,
                     }
                 })
 
-                pageData.value.encodeList = $('//types/encodeFormat/enum').map((item) => ({
+                pageData.value.networkPortList = $('existedPortList/item').map((item) => item.text().num())
+
+                pageData.value.encodeList = $('types/encodeFormat/enum').map((item) => ({
                     value: item.text(),
-                    name: item.text(),
+                    label: item.text(),
                 }))
 
-                const data: SystemPosList[] = $('//content/item').map((item) => {
+                tableData.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
-                    const manufacturers = $item('param/manufacturers').text()
-                    const connectionType = $item('param/connectionType').text()
+
                     return {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         name: $item('param/name').text(),
                         switch: $item('param/switch').text(),
-                        connectionType,
-                        manufacturers,
+                        connectionType: $item('param/connectionType').text(),
+                        manufacturers: $item('param/manufacturers').text(),
                         connectionSetting: {
                             posIp: $item('param/connectionSetting/posIp').text(),
-                            filterDstIpSwitch: $item('param/connectionSetting/filterDstIpSwitch').text().toBoolean(),
+                            filterDstIpSwitch: $item('param/connectionSetting/filterDstIpSwitch').text().bool(),
                             dstIp: $item('param/connectionSetting/dstIp').text(),
-                            filterPostPortSwitch: $item('param/connectionSetting/filterPostPortSwitch').text().toBoolean(),
-                            posPort: Number($item('param/connectionSetting/posPort').text()),
-                            filterDstPortSwitch: $item('param/connectionSetting/filterDstPortSwitch').text().toBoolean(),
-                            dstPort: Number($item('param/connectionSetting/dstPort').text()),
+                            filterPostPortSwitch: $item('param/connectionSetting/filterPostPortSwitch').text().bool(),
+                            posPort: $item('param/connectionSetting/posPort').text().num(),
+                            filterDstPortSwitch: $item('param/connectionSetting/filterDstPortSwitch').text().bool(),
+                            dstPort: $item('param/connectionSetting/dstPort').text().num(),
+                            posPortType: $item('param/connectionSetting/posPortType').text(),
                         },
                         encodeFormat: $item('param/encodeFormat').text(),
                         displaySetting: {
@@ -185,144 +178,151 @@ export default defineComponent({
                                 ignoreChar: $item('param/displaySetting/common/ignoreChar/item')
                                     .map((child) => child.text())
                                     .filter((child) => !!child),
-                                ignoreCase: $item('param/displaySetting/common/ignoreCase').text().toBoolean(),
-                                timeOut: Number($item('param/displaySetting/common/timeOut').text()),
+                                ignoreCase: $item('param/displaySetting/common/ignoreCase').text().bool(),
+                                timeOut: $item('param/displaySetting/common/timeOut').text().num(),
                             },
                             displayPosition: {
-                                width: Number($item('param/displaySetting/displayPosition/width').text()),
-                                height: Number($item('param/displaySetting/displayPosition/height').text()),
-                                X: Number($item('param/displaySetting/displayPosition/X').text()),
-                                Y: Number($item('param/displaySetting/displayPosition/Y').text()),
+                                width: $item('param/displaySetting/displayPosition/width').text().num(),
+                                height: $item('param/displaySetting/displayPosition/height').text().num(),
+                                X: $item('param/displaySetting/displayPosition/X').text().num(),
+                                Y: $item('param/displaySetting/displayPosition/Y').text().num(),
                             },
                         },
                         triggerChl: {
-                            switch: $item('trigger/triggerChl/switch').text().toBoolean(),
-                            chls: $item('triggerChl/chls/item').map((chl) => ({
-                                value: chl.attr('id')!,
+                            switch: $item('trigger/triggerChl/switch').text().bool(),
+                            chls: $item('trigger/triggerChl/chls/item').map((chl) => ({
+                                value: chl.attr('id'),
                                 label: chl.text(),
                                 till: chl.attr('till'),
                             })),
                         },
                     }
                 })
-                tableData.value = data
 
-                nextTick(() => {
-                    pageData.value.mounted = true
-                })
-            }
+                watchEdit.listen()
+            })
         }
 
         /**
          * @description 提交数据
          */
         const setData = async () => {
-            if (!verify) return
+            if (!verify()) return
 
             openLoading()
 
-            const listXml = tableData.value
-                .map((item) => {
-                    const chls = item.triggerChl.chls
-                        .map((chl) => {
-                            return `<item id="${chl.value}" ${chl.till && Number(chl.till) > 0 ? `till="${chl.till}"` : ''}>${wrapCDATA(chl.label)}</item>`
-                        })
-                        .join('')
-                    const startEndChar = item.displaySetting.common.startEndChar
-                        .filter((child) => child.startChar && child.endChar)
-                        .map((child) => {
+            const sendXml = rawXml`
+                <content>
+                    ${tableData.value
+                        .map((item) => {
                             return rawXml`
-                                <item>
-                                    <startChar>${wrapCDATA(child.startChar)}</startChar>
-                                    <endChar>${wrapCDATA(child.endChar)}</endChar>
+                                <item id="${item.id}">
+                                    <trigger>
+                                        <triggerChl>
+                                            <switch>${item.triggerChl.switch}</switch>
+                                            <chls>
+                                                ${
+                                                    item.triggerChl.switch
+                                                        ? item.triggerChl.chls
+                                                              .map((chl) => {
+                                                                  return `<item id="${chl.value}" ${chl.till && Number(chl.till) > 0 ? ` till="${chl.till}"` : ''}>${wrapCDATA(chl.label)}</item>`
+                                                              })
+                                                              .join('')
+                                                        : ''
+                                                }
+                                            </chls>
+                                        </triggerChl>
+                                    </trigger>
+                                    <param>
+                                        <name>${wrapCDATA(item.name)}</name>
+                                        <switch>${item.switch}</switch>
+                                        <connectionType>${item.connectionType}</connectionType>
+                                        <manufacturers>${item.manufacturers}</manufacturers>
+                                        <encodeFormat>${item.encodeFormat}</encodeFormat>
+                                        <connectionSetting>
+                                            <posIp>${item.connectionSetting.posIp}</posIp>
+                                            <filterDstIpSwitch>${item.connectionSetting.filterDstIpSwitch}</filterDstIpSwitch>
+                                            <dstIp>${item.connectionSetting.dstIp}</dstIp>
+                                            <filterPostPortSwitch>${item.connectionSetting.filterPostPortSwitch}</filterPostPortSwitch>
+                                            <posPort>${item.connectionSetting.posPort}</posPort>
+                                            <filterDstPortSwitch>${item.connectionSetting.filterDstPortSwitch}</filterDstPortSwitch>
+                                            <posPortType>${item.connectionSetting.posPortType}</posPortType>
+                                        </connectionSetting>
+                                        <displaySetting>
+                                            <common>
+                                                <startAndEndList>
+                                                    ${item.displaySetting.common.startEndChar
+                                                        .filter((child) => child.startChar && child.endChar)
+                                                        .map((child) => {
+                                                            return rawXml`
+                                                                <item>
+                                                                    <startChar>${wrapCDATA(child.startChar)}</startChar>
+                                                                    <endChar>${wrapCDATA(child.endChar)}</endChar>
+                                                                </item>
+                                                            `
+                                                        })
+                                                        .join('')}
+                                                </startAndEndList>
+                                                <lineBreak>
+                                                    ${item.displaySetting.common.lineBreak
+                                                        .filter((child) => !!child)
+                                                        .map((child) => `<item>${wrapCDATA(child)}</item>`)
+                                                        .join('')}
+                                                </lineBreak>
+                                                <ignoreChar>
+                                                    ${item.displaySetting.common.ignoreChar
+                                                        .filter((child) => !!child)
+                                                        .map((child) => `<item>${wrapCDATA(child)}</item>`)
+                                                        .join('')}
+                                                </ignoreChar>
+                                                <ignoreCase>${item.displaySetting.common.ignoreCase}</ignoreCase>
+                                                <timeOut unit="s">${item.displaySetting.common.timeOut}</timeOut>
+                                            </common>
+                                            <displayPosition>
+                                                <width>${item.displaySetting.displayPosition.width}</width>
+                                                <height>${item.displaySetting.displayPosition.height}</height>
+                                                <X>${item.displaySetting.displayPosition.X}</X>
+                                                <Y>${item.displaySetting.displayPosition.Y}</Y>
+                                            </displayPosition>
+                                        </displaySetting>
+                                    </param>
                                 </item>
                             `
                         })
-                        .join('')
-                    const lineBreak = item.displaySetting.common.lineBreak
-                        .filter((child) => !!child)
-                        .map((child) => `<item>${wrapCDATA(child)}</item>`)
-                        .join('')
-                    const ignoreChar = item.displaySetting.common.ignoreChar
-                        .filter((child) => !!child)
-                        .map((child) => `<item>${wrapCDATA(child)}</item>`)
-                        .join('')
-
-                    return rawXml`
-                        <item id="${item.id}">
-                            <trigger>
-                                <triggerChl>
-                                    <switch>${String(item.triggerChl.switch)}</switch>
-                                    <chls>${item.triggerChl.switch ? chls : ''}</chls>
-                                </triggerChl>
-                            </trigger>
-                            <param>
-                                <name>${wrapCDATA(item.name)}</name>
-                                <switch>${item.switch}</switch>
-                                <connectionType>${item.connectionType}</connectionType>
-                                <manufacturers>${item.manufacturers}</manufacturers>
-                                <encodeFormat>${item.encodeFormat}</encodeFormat>
-                                <connectionSetting>
-                                    <posIp>${item.connectionSetting.posIp}</posIp>
-                                    <filterDstIpSwitch>${String(item.connectionSetting.filterDstIpSwitch)}</filterDstIpSwitch>
-                                    <dstIp>${item.connectionSetting.dstIp}</dstIp>
-                                    <filterPostPortSwitch>${String(item.connectionSetting.filterPostPortSwitch)}</filterPostPortSwitch>
-                                    <posPort>${String(item.connectionSetting.posPort)}</posPort>
-                                    <filterDstPortSwitch>${String(item.connectionSetting.filterDstPortSwitch)}</filterDstPortSwitch>
-                                </connectionSetting>
-                                <displaySetting>
-                                    <common>
-                                        <startAndEndList>${startEndChar}</startAndEndList>
-                                        <lineBreak>${lineBreak}</lineBreak>
-                                        <ignoreChar>${ignoreChar}</ignoreChar>
-                                        <ignoreCase>${String(item.displaySetting.common.ignoreCase)}</ignoreCase>
-                                        <timeOut unit="s">${String(item.displaySetting.common.timeOut)}</timeOut>
-                                    </common>
-                                    <displayPosition>
-                                        <width>${String(item.displaySetting.displayPosition.width)}</width>
-                                        <height>${String(item.displaySetting.displayPosition.height)}</height>
-                                        <X>${String(item.displaySetting.displayPosition.X)}</X>
-                                        <Y>${String(item.displaySetting.displayPosition.Y)}</Y>
-                                    </displayPosition>
-                                </displaySetting>
-                            </param>
-                        </item>
-                    `
-                })
-                .join('')
-
-            const channelXml = pageData.value.colorData
-                .map((item) => {
-                    return rawXml`
-                        <chl id="${item.chlId}">
-                            <color>${item.colorList.map((color) => `<item>${color}</item>`).join('')}</color>
-                            <printMode>${item.printMode}</printMode>
-                            <previewDisplay>${String(item.previewDisplay)}</previewDisplay>
-                        </chl>
-                    `
-                })
-                .join('')
-
-            const sendXml = rawXml`
-                <content>${listXml}</content>
-                <channel>${channelXml}</channel>
+                        .join('')}
+                </content>
+                <channel>
+                    ${pageData.value.colorData
+                        .map((item) => {
+                            return rawXml`
+                                <chl id="${item.chlId}">
+                                    <color>${item.colorList.map((color) => `<item>${color}</item>`).join('')}</color>
+                                    <printMode>${item.printMode}</printMode>
+                                    <previewDisplay>${item.previewDisplay}</previewDisplay>
+                                </chl>
+                            `
+                        })
+                        .join('')}
+                </channel>
             `
 
             const result = await editPosList(sendXml)
             const $ = queryXml(result)
 
             closeLoading()
-
-            if ($('//status').text() === 'success') {
-                openMessageTipBox({
+            if ($('status').text() === 'success') {
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
+                watchEdit.update()
             } else {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_SAVE_DATA_FAIL'),
-                })
+                const errorCode = $('errorCode').text().num()
+                if (errorCode === 536870943) {
+                    openMessageBox(Translate('IDCS_USER_ERROR_INVALID_PARAM'))
+                } else {
+                    openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
+                }
             }
         }
 
@@ -330,83 +330,96 @@ export default defineComponent({
          * @description 表单校验
          */
         const verify = () => {
-            // pos开启时,IP组播的有效地址是 >=224 <=239
-            const isValidAddress = tableData.value.every((item) => {
+            let isEmptyIp = false // IP地址是否为空
+            let isEmptyPort = false // 端口是否为空
+            let isValidMulIp = false // 连接方式为组播时, 组播网段：IP >= 224 && IP <= 239
+            let isValidNonMulIp = false // 连接方式为非组播时, IP地址不能为组播网段
+            const hasUseLocalPort: number[] = []
+            let isSameLocalPort = false // 连接方式为UDP时, 多个POS配置的本地接收端口不可相同
+            const hasUseIPAndPort: string[] = []
+            let isSameIPAndPort = false // ip、端口是否指向同一个地址, 如10.10.1.1:9000
+
+            tableData.value.forEach((item) => {
+                const posSwitch = item.switch
                 const connectionType = item.connectionType
-                const connectionSettingIp = item.connectionSetting.posIp.split('.')
-                if (item.switch.toBoolean() && connectionSettingIp.length) {
-                    const d1 = Number(connectionSettingIp[0])
-                    const d2 = Number(connectionSettingIp[1])
-                    const d3 = Number(connectionSettingIp[2])
-                    const d4 = Number(connectionSettingIp[3])
-                    const firstPart = connectionType == 'Multicast' ? d1 >= 224 && d1 <= 239 : d1 >= 1 && d1 <= 223
-                    if (!(firstPart && d2 >= 0 && d2 <= 255 && d3 >= 0 && d3 <= 255 && d4 >= 0 && d4 <= 255)) {
+                const connectionSetting = item.connectionSetting
+                const posIp = connectionSetting.posIp.split('.').map((item) => Number(item))
+                const isValidIp = posIp && posIp.length > 0 && posIp[0]
+                const posPort = connectionSetting.posPort
+                const isValidPort = posPort && posPort * 1 >= 10
+                const posPortType = connectionSetting.posPortType
+
+                // IP地址为空
+                if (posSwitch === 'true' && !isValidIp) {
+                    isEmptyIp = true
+                    return false
+                }
+                // 端口为空
+                else if (posSwitch === 'true' && connectionType !== 'TCP-Listen' && !isValidPort) {
+                    // TCP-Listen TCP服务器端
+                    isEmptyPort = true
+                    return false
+                }
+
+                // IP地址的有效性
+                if (isValidIp) {
+                    const d1 = posIp[0]
+                    const d2 = posIp[1]
+                    const d3 = posIp[2]
+                    const d4 = posIp[3]
+                    const firstPart = d1 >= 224 && d1 <= 239
+                    const otherPart = d2 >= 0 && d2 <= 255 && d3 >= 0 && d3 <= 255 && d4 >= 0 && d4 <= 255
+                    const isMulticast = connectionType === 'Multicast'
+                    if (isMulticast && !(firstPart && otherPart)) {
+                        // 组播的IP地址网段错误
+                        isValidMulIp = true
+                        return false
+                    } else if (!isMulticast && firstPart && otherPart) {
+                        // 非组播的IP地址不能包含组播网段
+                        isValidNonMulIp = true
                         return false
                     }
                 }
-                return true
-            })
-            if (!isValidAddress) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_PROMPT_IPADDRESS_INVALID'),
-                })
-                return false
-            }
 
-            // pos开启时,ip不能为空
-            const isNoEmptyIp = tableData.value.every((item) => {
-                const connectionSetting = item.connectionSetting
-                if (item.switch.toBoolean() && connectionSetting.posIp === '') {
-                    return false
-                }
-                return true
-            })
-            if (!isNoEmptyIp) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_POS_IP_EMPTY'),
-                })
-                return false
-            }
-
-            // 连接方式为UDP/组播时端口号不能为空
-            const isNoEmptyPort = tableData.value.every((item) => {
-                const connectionSetting = item.connectionSetting
-                if (item.switch.toBoolean() && item.connectionType !== 'TCP-Listen') {
-                    if (connectionSetting.posPort === 0 || connectionSetting.posPort < 10) {
+                // 多个配置, 本地接收端口不能相同
+                if (posSwitch === 'true' && posPortType === 'local' && isValidPort) {
+                    if (hasUseLocalPort.includes(posPort)) {
+                        isSameLocalPort = true
                         return false
+                    } else {
+                        hasUseLocalPort.push(posPort)
                     }
                 }
-                return true
+
+                // 多个配置, IP和端口不能相同
+                if (posSwitch === 'true' && connectionSetting.posIp) {
+                    const ipPort = connectionSetting.posIp + ':' + (posPort || 0)
+                    if (hasUseIPAndPort.includes(ipPort)) {
+                        isSameIPAndPort = true
+                        return false
+                    } else {
+                        hasUseIPAndPort.push(ipPort)
+                    }
+                }
             })
-            if (!isNoEmptyPort) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_POS_PORT_EMPTY'),
-                })
-                return false
+
+            let msg = ''
+            if (isEmptyIp) {
+                msg = Translate('IDCS_POS_IP_EMPTY')
+            } else if (isEmptyPort) {
+                msg = Translate('IDCS_POS_PORT_EMPTY')
+            } else if (isValidMulIp) {
+                msg = Translate('IDCS_PROMPT_MULTICAST_IPADDRESS_INVALID')
+            } else if (isValidNonMulIp) {
+                msg = Translate('IDCS_PROMPT_PROTOCOL_IPADDRESS_INVALID')
+            } else if (isSameLocalPort) {
+                msg = Translate('IDCS_NETWORK_PORT_CONFLICT')
+            } else if (isSameIPAndPort) {
+                msg = Translate('IDCS_POS_IP_SAME')
             }
 
-            // 启用pos时，ip+端口不能指向同一个地址 10.10.1.1:9000
-            const useIPAndPort = tableData.value
-                .filter((item) => {
-                    const connectionSetting = item.connectionSetting
-                    if (item.switch.toBoolean() && connectionSetting.posIp) {
-                        return true
-                    }
-                    return false
-                })
-                .map((item) => {
-                    const connectionSetting = item.connectionSetting
-                    return `${connectionSetting.posIp}:${connectionSetting.posPort || 0}`
-                })
-            const isSameIPAndPort = useIPAndPort.length && useIPAndPort.length !== Array.from(new Set(useIPAndPort)).length
-            if (isSameIPAndPort) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_POS_IP_SAME'),
-                })
+            if (msg) {
+                openMessageBox(Translate(msg))
                 return false
             }
 
@@ -450,7 +463,7 @@ export default defineComponent({
          */
         const confirmSetConnection = (e: SystemPosConnectionForm) => {
             tableData.value[pageData.value.connectionDialogIndex].connectionSetting.posIp = e.ip
-            tableData.value[pageData.value.connectionDialogIndex].connectionSetting.posPort = e.port
+            tableData.value[pageData.value.connectionDialogIndex].connectionSetting.posPort = e.port ? e.port : 0
             tableData.value[pageData.value.connectionDialogIndex].connectionSetting.filterPostPortSwitch = e.switch
             pageData.value.isConnectionDialog = false
         }
@@ -472,7 +485,7 @@ export default defineComponent({
         const setTriggerChannel = (index: number) => {
             const item = tableData.value[index]
             pageData.value.triggerChannelDialogIndex = index
-            pageData.value.triggerChannels = tableData.value[index].triggerChl.chls.map((item) => item.value)
+            pageData.value.triggerChannels = item.triggerChl.chls.map((item) => item.value)
             nextTick(() => {
                 if (item.manufacturers === 'Hayley' && item.connectionType === 'Multicast') {
                     pageData.value.isHayleyTriggerChannleDialog = true
@@ -572,28 +585,15 @@ export default defineComponent({
                 requireField: ['device'],
             })
             commLoadResponseHandler(result, ($) => {
-                pageData.value.chlList = $('//content/item').map((item) => {
+                pageData.value.chlList = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        value: item.attr('id')!,
+                        value: item.attr('id'),
                         label: $item('name').text(),
                     }
                 })
             })
         }
-
-        const stopWatchTableData = watch(
-            tableData,
-            () => {
-                if (pageData.value.mounted) {
-                    pageData.value.submitDisabled = false
-                    stopWatchTableData()
-                }
-            },
-            {
-                deep: true,
-            },
-        )
 
         onMounted(() => {
             getData()
@@ -603,6 +603,7 @@ export default defineComponent({
         return {
             pageData,
             tableData,
+            watchEdit,
             linkChls,
             filterChlList,
             changeAllSwitch,
@@ -619,10 +620,6 @@ export default defineComponent({
             setTriggerChannel,
             confirmSetTriggerChannel,
             confirmSetDisplay,
-            PosConnectionSettingsPop,
-            // PosTriggerChannelPop,
-            PosHayleyTriggerChannelPop,
-            PosDisplaySettingPop,
         }
     },
 })

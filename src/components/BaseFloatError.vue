@@ -1,78 +1,68 @@
 <!--
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-07-12 16:58:29
- * @Description:
+ * @Description: 成功/错误浮动提示框
 -->
 <template>
-    <teleport :to="container || 'body'">
-        <div
-            v-if="visiable"
-            class="tip_wrap"
-            :style="{ 'border-color': index === 1 ? 'var(--float-ok)' : 'var(--float-error)' }"
-            @click="handleClick"
-        >
-            <BaseImgSprite
-                file="floatTip"
-                :chunk="5"
-                :index="index"
-            />
-            <span
-                class="tip_msg"
-                :style="{ color: index === 1 ? 'var(--float-ok)' : 'var(--float-error)' }"
-            >
-                {{ msg }}
-            </span>
-        </div>
-    </teleport>
+    <div
+        v-if="!!message"
+        class="tip_wrap"
+        :class="index === 1 ? 'ok' : 'error'"
+        @click="handleClick"
+    >
+        <BaseImgSprite
+            file="floatTip"
+            :chunk="5"
+            :index="index"
+        />
+        <span class="tip_msg">
+            {{ message }}
+        </span>
+    </div>
 </template>
 
-<script lang="ts">
-import { ref, defineComponent } from 'vue'
-import BaseImgSprite from '@/components/sprite/BaseImgSprite.vue'
+<script lang="ts" setup>
+const props = withDefaults(
+    defineProps<{
+        type?: string
+        message: string
+    }>(),
+    {
+        type: 'error',
+        message: '',
+    },
+)
 
-export default defineComponent({
-    components: { BaseImgSprite },
-    setup() {
-        const container = ref('')
-        const visiable = ref(false)
-        const index = ref(0)
-        const msg = ref('')
-        const typeIndexMap = {
-            ok: 1,
-            error: 2,
-        }
-        let timer: NodeJS.Timeout | number = 0
+const emits = defineEmits<{
+    (e: 'update:message', str: string): void
+}>()
 
-        const show = ($container: string, message: string, type?: 'ok' | 'error') => {
-            clearTimer()
-            container.value = $container
-            msg.value = message
-            index.value = typeIndexMap[type || 'error']
-            visiable.value = true
+let timer: NodeJS.Timeout | number = 0
+
+watch(
+    () => props.message,
+    (message) => {
+        clearTimer()
+        if (message) {
             timer = setTimeout(() => {
-                visiable.value = false
+                emits('update:message', '')
             }, 5000)
         }
-
-        const clearTimer = () => {
-            if (timer) clearTimeout(timer)
-        }
-
-        const handleClick = () => {
-            clearTimer()
-            visiable.value = false
-        }
-
-        return {
-            container,
-            visiable,
-            index,
-            msg,
-            show,
-            handleClick,
-        }
     },
+)
+
+const index = computed(() => {
+    return props.type === 'ok' ? 1 : 2
 })
+
+const clearTimer = () => {
+    if (timer) clearTimeout(timer)
+}
+
+const handleClick = () => {
+    clearTimer()
+    emits('update:message', '')
+}
 </script>
 
 <style lang="scss" scoped>
@@ -87,6 +77,16 @@ export default defineComponent({
 
     .tip_msg {
         margin-left: 3px;
+    }
+
+    &.ok {
+        border-color: var(--float-ok);
+        color: var(--float-ok);
+    }
+
+    &.error {
+        border-color: var(--float-error);
+        color: var(--float-error);
     }
 }
 </style>

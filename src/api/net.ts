@@ -2,346 +2,378 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-11 20:22:27
  * @Description: 网络相关API
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-27 19:34:29
  */
-import http from './api'
+import fetch from './api'
 
 /**
  * @description 获取网络状态
  * @returns
  */
-export const queryNetStatus = () => http.fetch('queryNetStatus', getXmlWrapData(''))
+export const queryNetStatus = () => fetch('queryNetStatus', '')
 
 /**
  * @description 获取网络配置
  * @returns
  */
-export const queryNetCfgV2 = () => http.fetch('queryNetCfgV2', getXmlWrapData(''))
+export const queryNetCfgV2 = () => fetch('queryNetCfgV2', '')
+
+/**
+ * @description
+ * @param data
+ * @returns
+ */
+export const editNetCfgV2 = (data: string) => fetch('editNetCfgV2', data)
 
 /**
  * @description 获取网络配置
  * @returns
  */
-export const queryNetCfgV3 = () => http.fetch('queryNetCfgV3', getXmlWrapData(''))
+export const queryNetCfgV3 = () => fetch('queryNetCfgV3', '')
 
 /**
  * @description 更新网络配置
  * @param {string} data
  * @returns
  */
-export const editNetCfgV3 = (data: string) => http.fetch('editNetCfgV3', getXmlWrapData(data))
+export const editNetCfgV3 = (data: string) => fetch('editNetCfgV3', data)
 
 /**
  * @description 获取UPnP配置
  * @returns
  */
-export const queryUPnPCfg = () => http.fetch('queryUPnPCfg', getXmlWrapData(''))
+export const queryUPnPCfg = () => fetch('queryUPnPCfg', '')
 
 /**
  * @description 修改UPnP配置
  * @returns
  */
-export const editUPnPCfg = (data: string) => http.fetch('editUPnPCfg', getXmlWrapData(data))
+export const editUPnPCfg = (data: string) => fetch('editUPnPCfg', data)
 
 /**
  * @description 获取网络端口数据
  * @returns
  */
-export const queryNetPortCfg = () => http.fetch('queryNetPortCfg', getXmlWrapData(''))
+export const queryNetPortCfg = () => fetch('queryNetPortCfg', '')
 
 /**
  * @description 修改网络状态数据
  * @returns
  */
-export const editNetPortCfg = (data: string) => http.fetch('editNetPortCfg', getXmlWrapData(data))
+export const editNetPortCfg = (data: string) => fetch('editNetPortCfg', data)
 
 /**
  * @description 获取获取网络状态配置
  * @returns
  */
-export const queryWirelessNetworkCfg = () => http.fetch('queryWirelessNetworkCfg', getXmlWrapData(''))
+export const queryWirelessNetworkCfg = () => fetch('queryWirelessNetworkCfg', '')
 
 /**
  * @description 获取API服务配置
  * @returns
  */
-export const queryApiServer = () => http.fetch('queryApiServer', getXmlWrapData(''))
+export const queryApiServer = () => fetch('queryApiServer', '')
 
 /**
  * @description 更新API服务配置
  * @param {string} data
  * @returns
  */
-export const editApiServer = (data: string) => http.fetch('editApiServer', getXmlWrapData(data))
+export const editApiServer = (data: string) => fetch('editApiServer', data)
 
 /**
  * @description 获取RTSP服务配置
  * @returns
  */
-export const queryRTSPServer = () => http.fetch('queryRTSPServer', getXmlWrapData(''))
+export const queryRTSPServer = () => fetch('queryRTSPServer', '')
 
 /**
  * @description 更新RTSP服务配置
  * @param {string} data
  * @returns
  */
-export const editRTSPServer = (data: string) => http.fetch('editRTSPServer', getXmlWrapData(data))
+export const editRTSPServer = (data: string) => fetch('editRTSPServer', data)
 
 /**
  * @description 获取PPPoE配置
  * @returns
  */
-export const queryPPPoECfg = () => http.fetch('queryPPPoECfg', getXmlWrapData(''))
+export const queryPPPoECfg = () => fetch('queryPPPoECfg', '')
 
 /**
  * @description 更新PPPoE配置
  * @returns
  */
-export const editPPPoECfg = (data: string) => http.fetch('editPPPoECfg', getXmlWrapData(data))
+export const editPPPoECfg = (data: string) => fetch('editPPPoECfg', data)
 
 /**
  * @description 更新DDNS配置
  * @returns
  */
-export const queryDDNSCfg = () => http.fetch('queryDDNSCfg', getXmlWrapData(''))
+export const queryDDNSCfg = () => fetch('queryDDNSCfg', '')
 
 /**
  * @description 更新DDNS配置
  * @param {string} data
  * @returns
  */
-export const editDDNSCfg = (data: string) => http.fetch('editDDNSCfg', getXmlWrapData(data))
+export const editDDNSCfg = (data: string) => fetch('editDDNSCfg', data)
 
 /**
  * @description 测试DDNS
  * @param {string} data
  * @returns
  */
-export const testDDNSCfg = (data: string) => http.fetch('testDDNSCfg', getXmlWrapData(data))
+export const testDDNSCfg = (data: string) => fetch('testDDNSCfg', data)
 
 /**
  * @description 获取Email配置
  * @param {string} data
  * @returns
  */
-export const queryEmailCfg = () => http.fetch('queryEmailCfg', getXmlWrapData(''))
+export const queryEmailCfg = () => fetch('queryEmailCfg', '')
 
 /**
  * @description 更新Email配置
  * @param {string} data
  * @returns
  */
-export const editEmailCfg = (data: string) => http.fetch('editEmailCfg', getXmlWrapData(data))
+export const editEmailCfg = (data: string) => fetch('editEmailCfg', data)
 
 /**
  * @description 测试Email配置
  * @param {string} data
  * @returns
  */
-export const testEmailCfg = (data: string) => http.fetch('testEmailCfg', getXmlWrapData(data))
+export const testEmailCfg = (data: string) => fetch('testEmailCfg', data)
 
 /**
  * @description 获取802.1x配重
  * @returns
  */
-export const query802xCfg = () => http.fetch('query802xCfg', getXmlWrapData(''))
+export const query802xCfg = () => fetch('query802xCfg', '')
 
 /**
  * @description 更新802.1x配置
  * @param {string} data
  * @returns
  */
-export const edit802xCfg = (data: string) => http.fetch('edit802xCfg', getXmlWrapData(data))
+export const edit802xCfg = (data: string) => fetch('edit802xCfg', data)
 
 /**
  * @description 获取云更新配置
  * @returns
  */
-export const queryCloudUpgradeCfg = () => http.fetch('queryCloudUpgradeCfg', getXmlWrapData(''))
+export const queryCloudUpgradeCfg = () => fetch('queryCloudUpgradeCfg', '')
 
 /**
- * @description 获取云更新下载状态
+ * @description 获取云升级设备信息和通道信息
  * @returns
  */
-export const getPackageDownloadStatus = () => http.fetch('getPackageDownloadStatus', getXmlWrapData(''))
+export const getCloudUpgradeInfo = () => fetch('getCloudUpgradeInfo', '')
 
 /**
  * @description 编辑云更新配置
  * @param {string} data
  * @returns
  */
-export const editCloudUpgradeCfg = (data: string) => http.fetch('editCloudUpgradeCfg', getXmlWrapData(data))
+export const editCloudUpgradeCfg = (data: string) => fetch('editCloudUpgradeCfg', data)
 
 /**
  * @description 检查版本
  * @param {string} data
  * @returns
  */
-export const checkVersion = (data: string) => http.fetch('checkVersion', getXmlWrapData(data))
+export const checkVersion = (data: string) => fetch('checkVersion', data)
 
 /**
- * @description 检查版本
+ * @description 设备云升级
  * @param {string} data
  * @returns
  */
-export const cloudUpgrade = (data: string) => http.fetch('cloudUpgrade', getXmlWrapData(data))
+export const cloudUpgrade = (data: string) => fetch('cloudUpgrade', data)
+
+/**
+ * @description IPC云升级
+ * @param {string} data
+ * @returns
+ */
+export const cloudUpgradeNode = (data: string) => fetch('cloudUpgradeNode', data)
 
 /**
  * @description 获取P2P配置
  * @param {string} data
  * @returns
  */
-export const queryP2PCfg = () => http.fetch('queryP2PCfg', getXmlWrapData(''))
+export const queryP2PCfg = () => fetch('queryP2PCfg', '')
 
 /**
  * @description 更新P2P配置
  * @param {stirng} data
  * @returns
  */
-export const editP2PCfg = (data: string) => http.fetch('editP2PCfg', getXmlWrapData(data))
+export const editP2PCfg = (data: string) => fetch('editP2PCfg', data)
+
+/**
+ * @description
+ * @returns
+ */
+export const querySecurityAccess = () => fetch('querySecurityAccess', '')
+
+/**
+ * @description
+ * @param data
+ * @returns
+ */
+export const editSecurityAccess = (data: string) => fetch('editSecurityAccess', data)
 
 /**
  * @description 获取证书配置
  * @param {string} data
  * @returns
  */
-export const queryCert = () => http.fetch('queryCert', getXmlWrapData(''))
+export const queryCert = () => fetch('queryCert', '')
 
 /**
  * @description 删除证书
  * @returns
  */
-export const delCert = () => http.fetch('delCert', getXmlWrapData(''))
+export const delCert = () => fetch('delCert', '')
 
 /**
  * @description 创建证书
  * @param {string} data
  * @returns
  */
-export const createCert = (data: string) => http.fetch('createCert', getXmlWrapData(data))
+export const createCert = (data: string) => fetch('createCert', data)
 
 /**
  * @description 获取证书请求
  * @returns
  */
-export const queryCertReq = () => http.fetch('queryCertReq', getXmlWrapData(''))
+export const queryCertReq = () => fetch('queryCertReq', '')
 
 /**
  * @description 删除证书请求
  * @returns
  */
-export const delCertReq = () => http.fetch('delCertReq', getXmlWrapData(''))
+export const delCertReq = () => fetch('delCertReq', '')
 
 /**
  * @description 创建证书请求
  * @param {string} data
  * @returns
  */
-export const createCertReq = (data: string) => http.fetch('createCertReq', getXmlWrapData(data))
+export const createCertReq = (data: string) => fetch('createCertReq', data)
 
 /**
  * @description 导入证书
  * @returns
  */
-export const importCert = () => http.fetch('importCert', getXmlWrapData(''))
+export const importCert = () => fetch('importCert', '')
 
 /**
  * @description 获取FTP配置
  * @returns
  */
-export const queryFTPCfg = () => http.fetch('queryFTPCfg', getXmlWrapData(''))
+export const queryFTPCfg = () => fetch('queryFTPCfg', '')
 
 /**
  * @description 测试FTP配置
  * @param {string} data
  * @returns
  */
-export const testFTPCfg = (data: string) => http.fetch('testFTPCfg', getXmlWrapData(data))
+export const testFTPCfg = (data: string) => fetch('testFTPCfg', data)
 
 /**
  * @description 更新FTP配置
  * @param {string} data
  * @returns
  */
-export const editFTPCfg = (data: string) => http.fetch('editFTPCfg', getXmlWrapData(data))
+export const editFTPCfg = (data: string) => fetch('editFTPCfg', data)
 
 /**
  * @description 获取SNMP配置
  * @returns
  */
-export const querySNMPCfg = () => http.fetch('querySNMPCfg', getXmlWrapData(''))
+export const querySNMPCfg = () => fetch('querySNMPCfg', '')
 
 /**
  * @description 更新SNMP配置
  * @param {string} data
  * @returns
  */
-export const editSNMPCfg = (data: string) => http.fetch('editSNMPCfg', getXmlWrapData(data))
+export const editSNMPCfg = (data: string) => fetch('editSNMPCfg', data)
 
 /**
  * @description 获取网络节点编码信息
  * @param {string} data
  * @returns
  */
-export const queryNetworkNodeEncodeInfo = (data: string) => http.fetch('queryNetworkNodeEncodeInfo', getXmlWrapData(data))
+export const queryNetworkNodeEncodeInfo = (data: string) => fetch('queryNetworkNodeEncodeInfo', data)
 
 /**
  * @description 更新网络节点编码信息
  * @param {string} data
  * @returns
  */
-export const editNetworkNodeEncodeInfo = (data: string) => http.fetch('editNetworkNodeEncodeInfo', getXmlWrapData(data))
+export const editNetworkNodeEncodeInfo = (data: string) => fetch('editNetworkNodeEncodeInfo', data)
 
 /**
  * @description 获取OVNIF配置信息
  * @returns
  */
-export const queryOnvifCfg = () => http.fetch('editNetworkNodeEncodeInfo', getXmlWrapData(''))
+export const queryOnvifCfg = () => fetch('queryOnvifCfg', '')
 
 /**
  * @description 修改OVNIF配置信息
  * @param {string} data
  * @returns
  */
-export const editOnvifCfg = (data: string) => http.fetch('editOnvifCfg', getXmlWrapData(data))
+export const editOnvifCfg = (data: string) => fetch('editOnvifCfg', data)
 
 /**
  * @description 获取OVNIF用户列表
  * @returns
  */
-export const queryOnvifUserList = () => http.fetch('queryOnvifUserList', getXmlWrapData(''))
+export const queryOnvifUserList = () => fetch('queryOnvifUserList', '')
 
 /**
  * @description 创建OVNIF用户
  * @param {string} data
  * @returns
  */
-export const createOnvifUser = (data: string) => http.fetch('createOnvifUser', getXmlWrapData(data))
+export const createOnvifUser = (data: string) => fetch('createOnvifUser', data)
 
 /**
  * @description 编辑OVNIF用户
  * @param {string} data
  * @returns
  */
-export const editOnvifUser = (data: string) => http.fetch('editOnvifUser', getXmlWrapData(data))
+export const editOnvifUser = (data: string) => fetch('editOnvifUser', data)
 
 /**
  * @description 删除ONVIF用户
  * @param {string} data
  * @returns
  */
-export const deleteOnivfUser = (data: string) => http.fetch('deleteOnivfUser', getXmlWrapData(data))
+export const deleteOnivfUser = (data: string) => fetch('deleteOnivfUser', data)
 
 /**
  * @description 获取平台接入配置
  * @returns
  */
-export const queryPlatformCfg = () => http.fetch('queryPlatformCfg', getXmlWrapData(''))
+export const queryPlatformCfg = () => fetch('queryPlatformCfg', '')
 
 /**
  * @description 编辑平台接入配置
  * @param {String} data
  * @returns
  */
-export const editPlatformCfg = (data: string) => http.fetch('editPlatformCfg', getXmlWrapData(data), {}, false)
+export const editPlatformCfg = (data: string) => fetch('editPlatformCfg', data, {}, false)
+
+/**
+ * @description 检查网络
+ * @param {string} data
+ * @returns
+ */
+export const queryPingCmdResult = (data: string) => fetch('queryPingCmdResult', data)

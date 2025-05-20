@@ -2,12 +2,9 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-15 18:19:00
  * @Description: 平台接入
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:24:30
  */
-import { NetPlatformAccessForm, type NetPlatformSipList, NetPlatformSipCodeList } from '@/types/apiType/net'
 import PlatformAccessCodeIdPop from './PlatformAccessCodeIdPop.vue'
-import type { FormInstance, FormRules } from 'element-plus'
+import type { FormRules } from 'element-plus'
 
 export default defineComponent({
     components: {
@@ -15,8 +12,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
 
         // 平台接入类型与显示文本的映射
@@ -38,24 +33,27 @@ export default defineComponent({
             reservedPort: [] as number[],
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new NetPlatformAccessForm())
         const formRules = ref<FormRules>({
             serverAddr: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (formData.value.accessType === 'GB28181' || !formData.value.nwms5000Switch) {
                             callback()
                             return
                         }
-                        if (!value) {
+
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_DDNS_SERVER_ADDR_EMPTY')))
                             return
                         }
+
                         if (!checkDomain(value.trim())) {
                             callback(new Error(Translate('IDCS_INVALID_CHAR')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -63,15 +61,17 @@ export default defineComponent({
             ],
             reportId: [
                 {
-                    validator(rule, value: number, callback) {
+                    validator(_rule, value: number, callback) {
                         if (formData.value.accessType === 'GB28181' || !formData.value.nwms5000Switch) {
                             callback()
                             return
                         }
+
                         if (!value) {
                             callback(new Error(Translate('IDCS_REPORT_ID_EMPTY')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -79,157 +79,175 @@ export default defineComponent({
             ],
             port: [
                 {
-                    validator(rule, value: number, callback) {
+                    validator(_rule, value: number, callback) {
                         if (formData.value.accessType === 'GB28181' || !formData.value.nwms5000Switch) {
                             callback()
                             return
                         }
+
                         const index = pageData.value.reservedPort.indexOf(value)
                         if (index > -1) {
                             callback(new Error(Translate('IDCS_SYSTEM_RESERVED_PORT').formatForLang(value)))
+                            return
                         }
+
                         callback()
-                        return
                     },
                     trigger: 'manual',
                 },
             ],
             sipAddr: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (formData.value.accessType !== 'GB28181' || !formData.value.gb28181Switch) {
                             callback()
                             return
                         }
-                        if (!value) {
+
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_SIP_SERVER_ADDR_EMPTY')))
                             return
                         }
+
+                        callback()
                     },
                     trigger: 'manual',
                 },
             ],
             sipRelm: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (formData.value.accessType !== 'GB28181' || !formData.value.gb28181Switch) {
                             callback()
                             return
                         }
-                        if (!value) {
+
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_SIP_SERVER_DOMIN_EMPTY')))
                             return
                         }
+
+                        callback()
                     },
                     trigger: 'manual',
                 },
             ],
             sipId: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (formData.value.accessType !== 'GB28181' || !formData.value.gb28181Switch) {
                             callback()
                             return
                         }
+
                         if (!value.trim()) {
                             callback(new Error(Translate('IDCS_DDNS_SERVER_ADDR_EMPTY')))
                             return
                         }
+
                         if (sipCodeList.value.includes(value) || value === formData.value.sipDeviceId) {
                             callback(new Error(Translate('IDCS_SIP_ID_REPEAT')))
                             return
                         }
+
                         callback()
-                        return
                     },
                     trigger: 'manual',
                 },
             ],
             sipDeviceId: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (formData.value.accessType !== 'GB28181' || !formData.value.gb28181Switch) {
                             callback()
                             return
                         }
+
                         if (!value.trim()) {
                             callback(new Error(Translate('IDCS_SIP_DEVICE_ID_EMPTY')))
                             return
                         }
+
                         if (sipCodeList.value.includes(value)) {
                             callback(new Error(Translate('IDCS_SIP_ID_REPEAT')))
                             return
                         }
+
                         callback()
-                        return
                     },
                     trigger: 'manual',
                 },
             ],
             sipUserName: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (formData.value.accessType !== 'GB28181' || !formData.value.gb28181Switch) {
                             callback()
                             return
                         }
+
                         if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
                         }
+
                         callback()
-                        return
                     },
                     trigger: 'manual',
                 },
             ],
             sipPassword: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (formData.value.accessType !== 'GB28181' || !formData.value.gb28181Switch) {
                             callback()
                             return
                         }
+
                         if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
+
                         callback()
-                        return
                     },
                     trigger: 'manual',
                 },
             ],
             sipPort: [
                 {
-                    validator(rule, value: number, callback) {
+                    validator(_rule, value: number, callback) {
                         if (formData.value.accessType !== 'GB28181' || !formData.value.gb28181Switch) {
                             callback()
                             return
                         }
+
                         const index = pageData.value.reservedPort.indexOf(value)
                         if (index > -1) {
                             callback(new Error(Translate('IDCS_SYSTEM_RESERVED_PORT').formatForLang(value)))
+                            return
                         }
+
                         callback()
-                        return
                     },
                     trigger: 'manual',
                 },
             ],
             sipLocalPort: [
                 {
-                    validator(rule, value: number, callback) {
+                    validator(_rule, value: number, callback) {
                         if (formData.value.accessType !== 'GB28181' || !formData.value.gb28181Switch) {
                             callback()
                             return
                         }
+
                         const index = pageData.value.reservedPort.indexOf(value)
                         if (index > -1) {
                             callback(new Error(Translate('IDCS_SYSTEM_RESERVED_PORT').formatForLang(value)))
+                            return
                         }
+
                         callback()
-                        return
                     },
                     trigger: 'manual',
                 },
@@ -249,34 +267,36 @@ export default defineComponent({
             closeLoading()
 
             commLoadResponseHandler(reulst, ($) => {
-                formData.value.accessType = $('//content').attr('current')
+                formData.value.accessType = $('content').attr('current')
 
                 // 老版本升级之后可能会找不到current属性,默认为"NVMS5000"
                 if (!formData.value.accessType) {
                     formData.value.accessType = 'NVMS5000'
                 }
 
-                $('//content/item').forEach((item) => {
+                $('content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     if (item.attr('id') === 'NVMS5000') {
-                        formData.value.nwms5000Switch = $item('switch').text().toBoolean()
+                        formData.value.nwms5000Switch = $item('switch').text().bool()
                         formData.value.serverAddr = $item('serverAddr').text()
-                        formData.value.reportId = Number($item('reportId').text())
-                        formData.value.port = Number($item('port').text())
+                        formData.value.serverAddrMaxByteLen = $item('serverAddr').attr('maxByteLen').num() || nameByteMaxLen
+                        formData.value.reportId = $item('reportId').text().undef()?.num()
+                        formData.value.reportIdMax = Math.pow(10, $item('reportId').attr('maxByteLen').num() || 8) - 1
+                        formData.value.port = $item('port').text().num()
                     } else if (item.attr('id') === 'GB28181') {
-                        formData.value.gb28181Switch = $item('switch').text().toBoolean()
+                        formData.value.gb28181Switch = $item('switch').text().bool()
                         formData.value.sipRelm = $item('sipServerInfo/relm').text()
                         formData.value.sipAddr = $item('sipServerInfo/addr').text()
-                        formData.value.sipLocalPort = Number($item('sipServerInfo/localPort').text())
-                        formData.value.sipPort = Number($item('sipServerInfo/port').text())
+                        formData.value.sipLocalPort = $item('sipServerInfo/localPort').text().num()
+                        formData.value.sipPort = $item('sipServerInfo/port').text().num()
                         formData.value.sipDeviceId = $item('sipServerInfo/deviceId').text()
                         formData.value.sipUserName = $item('sipServerInfo/username').text()
-                        formData.value.sipId = $item('sipServerInfo').attr('id')!
+                        formData.value.sipId = $item('sipServerInfo').attr('id')
                     }
                 })
-                $('//types/platformType/enum').forEach((item) => {
+                $('types/platformType/enum').forEach((item) => {
                     if (item.text() === 'GB28181') {
-                        if ($('//content/item[@id="GB28181"]').length) {
+                        if ($('content/item[@id="GB28181"]').length) {
                             pageData.value.platformTypeList.push({
                                 label: ACCESS_TYPE_MAPPING.GB28181,
                                 value: item.text(),
@@ -290,15 +310,15 @@ export default defineComponent({
                     }
                 })
 
-                if ($('//content/item/sipChl').length) {
+                if ($('content/item/sipChl').length) {
                     tableData.value.push({
                         value: 'chl',
-                        type: $('//content/item/sipChl').attr('type')!,
+                        type: $('content/item/sipChl').attr('type'),
                         label: Translate('IDCS_CHANNEL'),
-                        list: $('//content/item/sipChl/item').map((item) => {
+                        list: $('content/item/sipChl/item').map((item) => {
                             return {
-                                id: item.attr('id')!,
-                                gbId: item.attr('gbId')!,
+                                id: item.attr('id'),
+                                gbId: item.attr('gbId'),
                                 text: item.text(),
                             }
                         }),
@@ -306,33 +326,31 @@ export default defineComponent({
 
                     tableData.value.push({
                         value: 'alarm',
-                        type: $('//content/item/sipSensor').attr('type')!,
+                        type: $('content/item/sipSensor').attr('type'),
                         label: Translate('IDCS_ALARM_IN'),
-                        list: $('//content/item/sipSensor/item').map((item) => {
+                        list: $('content/item/sipSensor/item').map((item) => {
                             return {
-                                id: item.attr('id')!,
-                                gbId: item.attr('gbId')!,
+                                id: item.attr('id'),
+                                gbId: item.attr('gbId'),
                                 text: item.text(),
                             }
                         }),
                     })
                 }
 
-                const reservedPort = $('//content').attr('reservedPort')
-                if (reservedPort) {
-                    pageData.value.reservedPort = reservedPort
-                        .split(',')
-                        .map((port) => {
-                            const split = port.split('-')
-                            if (split.length === 1) return [Number(port)]
-                            const ports: number[] = []
-                            for (let i = Number(split[0]); i <= Number(split[1]); i++) {
-                                ports.push(i)
-                            }
-                            return ports
-                        })
-                        .flat()
-                }
+                pageData.value.reservedPort = $('content')
+                    .attr('reservedPort')
+                    .array()
+                    .map((port) => {
+                        const split = port.split('-')
+                        if (split.length === 1) return [Number(port)]
+                        const ports: number[] = []
+                        for (let i = Number(split[0]); i <= Number(split[1]); i++) {
+                            ports.push(i)
+                        }
+                        return ports
+                    })
+                    .flat()
             })
         }
 
@@ -342,9 +360,6 @@ export default defineComponent({
          * @param {NetPlatformSipCodeList} item
          */
         const editCodeId = (index: number, item: NetPlatformSipCodeList) => {
-            if (!formData.value.gb28181Switch) {
-                return
-            }
             pageData.value.codeData = item
             pageData.value.codeListIndex = index
             pageData.value.isCodePop = true
@@ -366,7 +381,7 @@ export default defineComponent({
          * @description 验证表单通过后 更新数据
          */
         const verify = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     setData()
                 }
@@ -380,30 +395,29 @@ export default defineComponent({
             let sendXml = ''
             // TODO GB28181 需数据才能测试
             if (formData.value.accessType === 'GB28181') {
-                const tableXml = tableData.value
-                    .map((item) => {
-                        const tag = item.value === 'chl' ? 'sipChl' : 'sipSensor'
-                        return rawXml`
-                        <${tag}>
-                            ${item.list.map((code) => `<item id="${code.id}" gbId="${code.gbId}">${code.text}</item>`).join('')}
-                        </${tag}>
-                    `
-                    })
-                    .join('')
                 sendXml = rawXml`
                     <content current="${formData.value.accessType}">
                         <item id="${formData.value.accessType}">
-                            ${tableXml}
-                            <switch>${formData.value.gb28181Switch.toString()}</switch>
+                            ${tableData.value
+                                .map((item) => {
+                                    const tag = item.value === 'chl' ? 'sipChl' : 'sipSensor'
+                                    return rawXml`
+                                        <${tag}>
+                                            ${item.list.map((code) => `<item id="${code.id}" gbId="${code.gbId}">${code.text}</item>`).join('')}
+                                        </${tag}>
+                                    `
+                                })
+                                .join('')}
+                            <switch>${formData.value.gb28181Switch}</switch>
                             <sipServerInfo id="${formData.value.sipId}">
                                 <relm>${formData.value.sipRelm}</relm>
                                 <addr>${formData.value.sipAddr}</addr>
-                                <localPort>${formData.value.sipLocalPort.toString()}</localPort>
-                                <port>${formData.value.sipPort.toString()}</port>
+                                <localPort>${formData.value.sipLocalPort}</localPort>
+                                <port>${formData.value.sipPort}</port>
                                 <deviceId>${formData.value.sipDeviceId}</deviceId>
                                 <username>${formData.value.sipUserName}</username>
-                                ${ternary(formData.value.sipPassword === '******' || !formData.value.sipPassword, '', `<password${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.sipPassword, userSession.sesionKey))}</password>`)}
-                                <expireTime>${formData.value.sipExpireTime.toString()}</expireTime>
+                                ${formData.value.sipPassword === '******' || !formData.value.sipPassword ? '' : `<password${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.sipPassword, userSession.sesionKey))}</password>`}
+                                <expireTime>${formData.value.sipExpireTime}</expireTime>
                             </sipServerInfo>
                         </item>
                     </content>
@@ -413,9 +427,9 @@ export default defineComponent({
                     <content current="${formData.value.accessType}">
                         <item id="${formData.value.accessType}">
                             <serverAddr>${formData.value.serverAddr}</serverAddr>
-                            <reportId>${formData.value.reportId.toString()}</reportId>
-                            <port>${formData.value.port.toString()}</port>
-                            <switch>${formData.value.nwms5000Switch.toString()}</switch>
+                            <reportId>${formData.value.reportId || 0}</reportId>
+                            <port>${formData.value.port}</port>
+                            <switch>${formData.value.nwms5000Switch}</switch>
                         </item>
                     </content> 
                 `
@@ -425,7 +439,7 @@ export default defineComponent({
 
             const result = await editPlatformCfg(sendXml)
             closeLoading()
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
         }
 
         // 编码ID列表
@@ -447,10 +461,26 @@ export default defineComponent({
          */
         const changeNWMS5000Switch = () => {
             if (formData.value.nwms5000Switch) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_RTSP_OR_FTP_ENABLE_REMIND'),
-                })
+                openMessageBox(Translate('IDCS_RTSP_OR_FTP_ENABLE_REMIND'))
+            }
+        }
+
+        /**
+         * @description 表格禁用行
+         */
+        const handleRowClassName = () => {
+            return formData.value.gb28181Switch ? '' : 'disabled'
+        }
+
+        const blurSipId = () => {
+            if (formData.value.sipId.length < 20) {
+                formData.value.sipId = '10000000000000000000'
+            }
+        }
+
+        const blurSipDeviceId = () => {
+            if (formData.value.sipDeviceId.length < 20) {
+                formData.value.sipDeviceId = '10000000000000000000'
             }
         }
 
@@ -464,16 +494,15 @@ export default defineComponent({
             formData,
             formRules,
             tableData,
-            nameByteMaxLen: nameByteMaxLen,
-            formatDigit: formatDigit,
-            formatInputMaxLength: formatInputMaxLength,
             editCodeId,
             confirmEditCodeId,
             verify,
-            PlatformAccessCodeIdPop,
             sipCodeList,
             handlePasswordFocus,
             changeNWMS5000Switch,
+            handleRowClassName,
+            blurSipId,
+            blurSipDeviceId,
         }
     },
 })

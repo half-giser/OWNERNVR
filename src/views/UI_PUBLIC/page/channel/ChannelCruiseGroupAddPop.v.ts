@@ -2,11 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-22 10:15:51
  * @Description: 巡航线组 新增巡航线弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:36:15
  */
-import type { FormInstance, FormRules } from 'element-plus'
-import { type ChannelPtzCruiseDto } from '@/types/apiType/channel'
+import type { FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -42,23 +39,21 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
             // 预置点选项
             cruiseOptions: [] as SelectOption<string, string>[],
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref({
-            name: '' as string,
+            name: '',
         })
         const formRule = ref<FormRules>({
             name: [
                 {
-                    validator(rule, value: string, callback) {
-                        if (!value) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return
                         }
@@ -81,10 +76,10 @@ export default defineComponent({
             const result = await queryChlCruiseList(sendXml)
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
-                pageData.value.cruiseOptions = $('//content/cruises/item').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.cruiseOptions = $('content/cruises/item').map((item) => {
                     return {
-                        value: item.attr('index')!,
+                        value: item.attr('index'),
                         label: item.text(),
                     }
                 })
@@ -100,8 +95,6 @@ export default defineComponent({
          * @description 打开弹窗时，重置表单和选项数据
          */
         const open = () => {
-            formRef.value?.clearValidate()
-            formData.value.name = ''
             getData()
         }
 
@@ -118,7 +111,7 @@ export default defineComponent({
         const setData = async () => {
             openLoading()
 
-            let cruiseXml = prop.cruise.map((item) => `<item index="${item.index.toString()}"><name>${wrapCDATA(item.name)}</name></item>`).join('')
+            let cruiseXml = prop.cruise.map((item) => `<item index="${item.index}"><name>${wrapCDATA(item.name)}</name></item>`).join('')
             const find = pageData.value.cruiseOptions.find((item) => item.value === formData.value.name)
             if (find) {
                 cruiseXml += `<item index="${formData.value.name}"><name>${wrapCDATA(find.label)}</name></item>`
@@ -137,31 +130,28 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                openMessageTipBox({
+            if ($('status').text() === 'success') {
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).finally(() => {
                     ctx.emit('confirm')
                 })
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NAME_EXISTED:
                         errorInfo = Translate('IDCS_PROMPT_CRUISE_NAME_EXIST')
                         break
                     case ErrorCode.USER_ERROR_OVER_LIMIT:
-                        errorInfo = $('//errorDescription').text() === 'Cruise' ? Translate('IDCS_CRUISE_MAX_NUM').formatForLang(prop.max) : Translate('IDCS_SAVE_DATA_FAIL')
+                        errorInfo = $('errorDescription').text() === 'Cruise' ? Translate('IDCS_CRUISE_MAX_NUM').formatForLang(prop.max) : Translate('IDCS_SAVE_DATA_FAIL')
                         break
                     default:
                         errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                         break
                 }
-                openMessageTipBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 
@@ -169,7 +159,7 @@ export default defineComponent({
          * @description 验证表单
          */
         const verify = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     setData()
                 }

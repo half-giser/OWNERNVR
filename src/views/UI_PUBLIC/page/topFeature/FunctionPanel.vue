@@ -19,7 +19,7 @@
         >
             <BaseImgSprite
                 :file="moduleItem.meta.icon"
-                :index="getMenuDisabled(moduleItem) ? 1 : 0"
+                :index="getMenuDisabled(moduleItem) ? pageData.activeIconIndex : pageData.normalIconIndex"
                 :chunk="2"
                 class="icon"
             />
@@ -31,10 +31,10 @@
                     <span
                         v-for="subMenu in moduleItem.children"
                         :key="subMenu.meta.fullPath"
+                        v-title
                         :class="{
                             disabled: getMenuDisabled(subMenu),
                         }"
-                        :title="Translate(subMenu.meta.lk || '')"
                         @click.stop="goToPage(subMenu, moduleItem)"
                         v-text="Translate(subMenu.meta.lk || '')"
                     ></span>
@@ -49,17 +49,18 @@
 <style lang="scss" scoped>
 #configHomeContainer {
     width: 1160px;
-    margin: 35px auto 0px;
+    margin: 0 auto;
+    padding-top: 35px;
     display: flex;
     flex-wrap: wrap;
 
     .moduleItem {
         position: relative;
-        padding: 10px 0px 0px 20px;
+        padding: 10px 0 0 20px;
         overflow: hidden;
         border: solid 2px var(--config-menu-border);
         height: 135px;
-        margin: 0px 8px 10px 0px;
+        margin: 0 8px 10px 0;
         display: flex;
         background-color: var(--config-menu-bg);
 
@@ -81,7 +82,7 @@
         }
 
         .icon {
-            margin: 20px 0px 0px 0px;
+            margin: 20px 0 0;
             flex-shrink: 0;
         }
 
@@ -106,7 +107,7 @@
                     text-decoration: none;
                     color: var(--config-submenu-text-disabled);
 
-                    &:not(:last-of-type):after {
+                    &:not(:last-of-type)::after {
                         background-color: var(--config-submenu-text-disabled);
                     }
                 }
@@ -127,7 +128,7 @@
         font-weight: bold;
         cursor: pointer;
         color: var(--config-menu-text);
-        margin: 6px 0px 0px 8px;
+        margin: 6px 0 0 8px;
         max-width: 260px;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -140,8 +141,8 @@
 
     .subMenus {
         position: relative;
-        margin: 8px 0px 0px 8px;
-        padding: 4px 6px 0px 0px;
+        margin: 8px 0 0 8px;
+        padding: 4px 6px 0 0;
         width: 100%;
 
         span {
@@ -155,10 +156,10 @@
             color: var(--config-submenu-text);
             max-width: 100%;
 
-            &:not(:last-of-type):after {
+            &:not(:last-of-type)::after {
                 content: '';
                 display: inline-block;
-                margin: 0px 2px;
+                margin: 0 2px;
                 position: relative;
                 top: 2px;
                 width: 1px;

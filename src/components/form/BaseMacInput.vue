@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-04 10:26:32
  * @Description: MAC地址输入框
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 11:54:12
 -->
 <template>
     <div
@@ -23,6 +21,7 @@
                 @input="handleInput($event, index)"
                 @focus="handleFocus"
                 @blur="handleBlur(index)"
+                @paste.prevent="handlePaste($event, index)"
             />
             <span v-if="index !== address.length - 1">:</span>
         </template>
@@ -30,8 +29,6 @@
 </template>
 
 <script lang="ts" setup>
-import { hexToDec, decToHex } from '@/utils/tools'
-
 type InvalidateMode = 'REPLACE' | 'PREVENT'
 type InputMode = 'IPv6' | 'MAC'
 
@@ -50,13 +47,11 @@ const prop = withDefaults(
          */
         modelValue: string
         mode?: InputMode
-        size?: string
     }>(),
     {
         disabled: false,
         invalidateMode: 'PREVENT',
         mode: 'MAC',
-        size: '',
     },
 )
 
@@ -101,7 +96,7 @@ const updateValue = (value: number, index: number) => {
             current = hexToDec(address.value[index])
         }
     } else if (prop.invalidateMode === 'REPLACE') {
-        current = Math.min(MAX_VALUE, Math.max(MIN_VALUE, current))
+        current = clamp(current, MIN_VALUE, MAX_VALUE)
     }
     const split = [...address.value]
     const hex = decToHex(current)
@@ -118,8 +113,8 @@ const updateValue = (value: number, index: number) => {
  * @returns {boolean}
  */
 const isTextSelected = (input: HTMLInputElement) => {
-    if (typeof input.selectionStart == 'number') {
-        return input.selectionStart === 0 && input.selectionEnd == input.value.length
+    if (typeof input.selectionStart === 'number') {
+        return input.selectionStart === 0 && input.selectionEnd === input.value.length
     } else return false
     // else if (typeof document.selection != 'undefined') {
     //     input.focus()
@@ -132,8 +127,8 @@ const isTextSelected = (input: HTMLInputElement) => {
  * @param {Event} e
  * @param {number} index
  */
-const handleKeyDown = (e: Event, index: number) => {
-    const keyCode = (e as KeyboardEvent).key
+const handleKeyDown = (e: KeyboardEvent, index: number) => {
+    const keyCode = e.key
     let isPreventDefault = true
 
     switch (keyCode) {
@@ -161,6 +156,16 @@ const handleKeyDown = (e: Event, index: number) => {
             break
         case 'Backspace':
             isPreventDefault = false
+            break
+        case 'v':
+            if (e.ctrlKey) {
+                isPreventDefault = false
+            }
+            break
+        case 'c':
+            if (e.ctrlKey) {
+                isPreventDefault = false
+            }
             break
         default:
             if (/[0-9a-fA-F]/.test(keyCode)) {
@@ -209,48 +214,51 @@ const handleBlur = (index: number) => {
     emits('update:modelValue', join)
     emits('change', join)
 }
+
+/**
+ * @description 粘贴
+ * @param {ClipboardEvent} e
+ * @param {number} index
+ */
+const handlePaste = (e: ClipboardEvent, index: number) => {
+    const text = e.clipboardData?.getData('text')?.trim()
+    if (text) {
+        if (/^[a-fA-F0-9]{1,2}$/.test(text)) {
+            updateValue(parseInt(text, 16), index)
+        } else if (/([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})/.test(text)) {
+            emits('update:modelValue', text.toUpperCase())
+            emits('change', text.toUpperCase())
+        }
+    }
+}
 </script>
 
 <style lang="scss">
 .MacInput {
-    --el-input-inner-height: 28px;
-
-    align-items: left;
-    border: 1px solid var(--input-border);
     border-radius: var(--el-input-border-radius, var(--el-border-radius-base));
-    box-shadow: 0 0 0 1px var(--el-input-border-color, var(--el-border-color)) inset;
+    box-shadow: 0 0 0 1px var(--input-border) inset;
     cursor: text;
     display: inline-flex;
     justify-content: flex-start;
-    padding: 0 11px;
+    padding: 0 5px;
     transform: translateZ(0);
     transition: var(--el-transition-box-shadow);
     font-size: var(--el-font-size-base);
-    line-height: var(--el-input-inner-height);
-    width: var(--el-input-width);
+    width: 100%;
+    height: var(--el-component-size);
     box-sizing: border-box;
-    background: var(--el-input-bg-color, var(--el-fill-color-blank));
+    background: var(--input-bg);
+    color: var(--input-text);
 
-    &:hover,
-    &.is-focus {
-        box-shadow: 0 0 0 1px var(--el-input-hover-border-color) inset;
+    &:hover:not(.disabled),
+    &.is-focus:not(.disabled) {
+        box-shadow: 0 0 0 1px var(--primary) inset;
         border-color: var(--primary);
-
-        &.disabled {
-            background-color: var(--input-bg-disabled);
-            border-color: var(--input-border-disabled);
-        }
-    }
-
-    &.small {
-        --el-input-inner-height: 20px;
-        font-size: 12px;
     }
 
     &.disabled {
-        box-shadow: none;
+        box-shadow: 0 0 0 1px var(--input-border-disabled) inset;
         background-color: var(--input-bg-disabled);
-        border-color: var(--input-border-disabled);
         color: var(--el-disabled-text-color);
         cursor: not-allowed;
 
@@ -260,17 +268,16 @@ const handleBlur = (index: number) => {
     }
 
     input {
-        height: 100%;
-        border: none;
-        max-width: 25%;
-        width: 25px;
+        width: 20px;
         font-size: inherit;
-        line-height: var(--el-input-inner-height);
-        height: var(--el-input-inner-height);
+        line-height: var(--el-component-size);
+        height: var(--el-component-size);
         border: none;
         outline: 0;
         text-align: center;
         background: transparent;
+        color: var(--input-text);
+        padding: 0;
 
         &:disabled {
             color: var(--el-disabled-text-color);
@@ -280,6 +287,7 @@ const handleBlur = (index: number) => {
 
     span {
         color: var(--input-text);
+        line-height: calc(var(--el-component-size) - 2px);
     }
 }
 </style>

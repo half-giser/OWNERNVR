@@ -2,12 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-12 13:46:24
  * @Description: 备份图像弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:23:02
  */
-import { type FormInstance } from 'element-plus'
-import { type PlaybackSearchImgList } from '@/types/apiType/playback'
-
 export default defineComponent({
     props: {
         /**
@@ -25,7 +20,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
         const userSession = useUserSessionStore()
 
         const pageData = ref({
@@ -44,7 +38,6 @@ export default defineComponent({
             remoteDeviceOptions: [] as { name: string; remainSize: string }[],
         })
 
-        const formRef = ref<FormInstance>()
         const formData = ref({
             // 备份目的地
             destination: 'local',
@@ -58,10 +51,10 @@ export default defineComponent({
         const getExternalDisk = async () => {
             const result = await queryExternalDisks()
             const $ = queryXml(result)
-            pageData.value.remoteDeviceOptions = $('//content/item').map((item) => {
+            pageData.value.remoteDeviceOptions = $('content/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
-                    name: item.attr('name')!,
+                    name: item.attr('name'),
                     remainSize: $item('remainSize').text(),
                 }
             })
@@ -92,29 +85,28 @@ export default defineComponent({
          * @description 备份图像到远程设备
          */
         const backupRemotePicture = async () => {
-            const items = prop.backupList
-                .map((row) => {
-                    return rawXml`
-                    <item>
-                        <chl id="${row.chlId}">${row.chlName}</chl>
-                        <captureMode>${row.captureMode.toString()}</captureMode>
-                        <captureTime>${row.captureTime}</captureTime>
-                    </item>
-                `
-                })
-                .join('')
             const sendXml = rawXml`
                 <condition>
-                    <pictures>${items}</pictures>
+                    <pictures>
+                        ${prop.backupList
+                            .map((row) => {
+                                return rawXml`
+                                    <item>
+                                        <chl id="${row.chlId}">${row.chlName}</chl>
+                                        <captureMode>${row.captureMode}</captureMode>
+                                        <captureTime>${row.captureTime}</captureTime>
+                                    </item>
+                                `
+                            })
+                            .join('')}
+                    </pictures>
+                    <backupPath>${formData.value.remoteDeviceName}</backupPath>
                 </condition>
             `
             const result = await backupPicture(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() !== 'success') {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_SAVE_FAIL'),
-                })
+            if ($('status').text() !== 'success') {
+                openMessageBox(Translate('IDCS_SAVE_FAIL'))
             }
             ctx.emit('close')
         }
@@ -168,7 +160,6 @@ export default defineComponent({
 
                 await nextTick()
 
-                console.log(img.width, img.height)
                 context.drawImage(img, 0, 0, img.width, img.height)
 
                 const dataURL = canvas.toDataURL('image/jpeg')
@@ -181,27 +172,27 @@ export default defineComponent({
                 try {
                     link.click()
                 } catch (e) {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: 'Your browser does not support downloading pictures',
-                    })
+                    openMessageBox('Your browser does not support downloading pictures')
                 }
 
                 context.clearRect(0, 0, canvas.width, canvas.height)
             }
+
+            setTimeout(() => {
+                document.body.removeChild(link)
+            }, 1000)
         }
 
         /**
          * @description 打开弹窗，初始化表单和数据
          */
-        const open = async () => {
-            formRef.value?.resetFields()
-            formRef.value?.clearValidate()
+        const open = () => {
+            formData.value.destination = 'local'
+            formData.value.remoteDeviceName = ''
             getExternalDisk()
         }
 
         return {
-            formRef,
             pageData,
             formData,
             open,

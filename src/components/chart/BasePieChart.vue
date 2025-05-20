@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-04 16:09:43
  * @Description: 饼状图组件
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-04 20:24:11
 -->
 <template>
     <div
@@ -14,7 +12,7 @@
             ref="$canvas"
             :width="width"
             :height="height"
-        />
+        ></canvas>
     </div>
 </template>
 
@@ -210,7 +208,7 @@ const update = () => {
  * @description 渲染
  */
 const render = () => {
-    if (prop.nums.length !== 0) {
+    if (prop.nums.length) {
         drawRectangle()
     }
     context.save()

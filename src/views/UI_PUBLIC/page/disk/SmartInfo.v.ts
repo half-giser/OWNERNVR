@@ -2,22 +2,16 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-04 16:45:27
  * @Description: S.M.A.R.T信息
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:07:53
  */
-import { type DiskSmartInfoList, type DiskSmartInfoDiskList } from '@/types/apiType/disk'
-
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
 
         // 磁盘类型与文本的映射
         const DISK_TYPE_MAPPING: Record<string, string> = {
             hotplug: Translate('IDCS_DISK'),
             esata: Translate('IDCS_ESATA'),
             sata: Translate('IDCS_DISK'),
-            sas: Translate('IDCS_SAS'),
         }
 
         // SMART状态与文本的映射
@@ -113,8 +107,8 @@ export default defineComponent({
         const tableData = ref<DiskSmartInfoList[]>([])
 
         // 选中的磁盘序号
-        const diskNum = computed(() => {
-            return pageData.value.diskList[pageData.value.diskIndex]?.diskNum || ''
+        const diskSerialNum = computed(() => {
+            return pageData.value.diskList[pageData.value.diskIndex]?.serialNum || ''
         })
 
         // 选中的磁盘Model
@@ -134,7 +128,7 @@ export default defineComponent({
             const result = await queryStorageDevInfo()
             const $ = queryXml(result)
 
-            pageData.value.diskList = $('//content/diskList/item')
+            pageData.value.diskList = $('content/diskList/item')
                 .filter((item) => {
                     const $item = queryXml(item.element)
                     // 移动U盘不显示
@@ -143,10 +137,11 @@ export default defineComponent({
                     }
                     return true
                 })
-                .map((item) => {
+                .map((item, index) => {
                     const $item = queryXml(item.element)
                     return {
-                        id: item.attr('id')!,
+                        index,
+                        id: item.attr('id'),
                         diskNum: DISK_TYPE_MAPPING[$item('diskInterfaceType').text()] + $item('slotIndex').text(),
                         serialNum: $item('serialNum').text(),
                         model: $item('model').text(),
@@ -166,11 +161,11 @@ export default defineComponent({
             const result = await queryDiskSmartInfo(sendXml)
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
-                tableData.value = $('//content/smartItems/item').map((item) => {
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/smartItems/item').map((item) => {
                     const $item = queryXml(item.element)
-                    let id = Number(item.attr('id')).toString(16)
-                    id = `${id.length === 1 ? '0x0' : '0x'}${id}`
+                    let id = item.attr('id').num().toString(16)
+                    id = '0x' + id.padStart(2, '0')
                     return {
                         id,
                         attribute: ATTRIBUTE_MAPPING[id],
@@ -182,9 +177,9 @@ export default defineComponent({
                     }
                 })
 
-                pageData.value.diskPowerOnHours = $('//content/powerOnDays').text()
-                pageData.value.diskTemperature = $('//content/temperature').text()
-                pageData.value.diskStatus = DISK_STATUS_MAPPING[$('//content/diskStatus').text()]
+                pageData.value.diskPowerOnHours = $('content/powerOnDays').text()
+                pageData.value.diskTemperature = $('content/temperature').text()
+                pageData.value.diskStatus = DISK_STATUS_MAPPING[$('content/diskStatus').text()]
             }
         }
 
@@ -198,7 +193,7 @@ export default defineComponent({
         return {
             pageData,
             tableData,
-            diskNum,
+            diskSerialNum,
             diskModel,
             getDetail,
         }

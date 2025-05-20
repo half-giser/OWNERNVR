@@ -2,11 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-01 19:23:38
  * @Description: 查看日志详情
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:30:53
  */
-import { SystemLogList } from '@/types/apiType/system'
-
 export default defineComponent({
     props: {
         /**
@@ -33,6 +29,8 @@ export default defineComponent({
         },
     },
     setup(prop, ctx) {
+        const dateTime = useDateTimeStore()
+
         const isContentPlainText = ref(true)
 
         const pageData = ref({
@@ -80,39 +78,30 @@ export default defineComponent({
             return new SystemLogList()
         })
 
-        // TODO: 需测试数据
         /**
          * @description 处理组合类型
          */
         const handleCombinedType = async () => {
             if (item.value.logType === 'LOG_ALARM_COMBINED' && item.value.content) {
+                const hasFaceMatch = !!item.value.combFaceID
                 const content = item.value.content.trim()
-                const contentReg = /\/|:|\n|;/g
-                if (content.indexOf(';') !== -1) {
+                if (hasFaceMatch) {
                     isContentPlainText.value = false
-                    if (content.trim().match(contentReg)) {
-                        const resultArr = content.split('\n')
-                        pageData.value.type1 = resultArr[0].split(':')[0].trim()
-                        pageData.value.name1 = resultArr[0].split(':')[1].trim()
-                        pageData.value.type2 = resultArr[1].split(':')[0].trim()
-                        pageData.value.name2 = resultArr[1].split(':')[1].trim()
-                        // content有分号可视为组合报警含有人脸识别
-                    } else {
-                        pageData.value.type1 = ''
-                        pageData.value.name1 = ''
-                        pageData.value.type2 = ''
-                        pageData.value.name2 = ''
-                    }
+
                     /*设备端的逻辑如下
                      *有分号且分号后面内容解析正确：查抓拍图和原图
                      *否则：直接显示content内容
                      *分号后面内容解析正确：分号后面逗号分开四个参数，第一个参数是数字（imgId），第二个参数是时间，第四个参数符合GUID（chlId）
                      **/
                     // 请求抓拍图片和场景图片
+                    const imgId = item.value.combFaceID
+                    const frameTime = item.value.combTime
+                    const imgName = item.value.combFaceName
+                    const chlId = item.value.combChl
                     const imgData = content.split('/')[1].split(';')[1].split(',')
                     // 这里先判断是否有值，不做解析正确的判断
-                    if (imgData[0] && imgData[1] && imgData[3]) {
-                        pageData.value.imgName = imgData[2]
+                    if (imgId && frameTime && chlId) {
+                        pageData.value.imgName = imgName
                         const sendXML1 = rawXml`
                             <condition>
                                 <imgId>${imgData[0]}</imgId>
@@ -133,12 +122,13 @@ export default defineComponent({
                         const captureImg = queryXml(result1)('content').text()
                         const scenesImg = queryXml(result2)('content').text()
                         if (captureImg) {
-                            pageData.value.captureImg = 'data:image/png;base64,' + captureImg
+                            pageData.value.captureImg = wrapBase64Img(captureImg)
                         } else {
                             pageData.value.captureImg = ''
                         }
+
                         if (scenesImg) {
-                            pageData.value.scenesImg = 'data:image/png;base64,' + scenesImg
+                            pageData.value.scenesImg = wrapBase64Img(scenesImg)
                         } else {
                             pageData.value.scenesImg = ''
                         }
@@ -155,6 +145,10 @@ export default defineComponent({
             }
         }
 
+        const displayTime = (time: string) => {
+            return utcToLocal(time, dateTime.dateTimeFormat)
+        }
+
         return {
             isContentPlainText,
             prev,
@@ -162,6 +156,7 @@ export default defineComponent({
             close,
             item,
             pageData,
+            displayTime,
             handleCombinedType,
         }
     },

@@ -2,11 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-02 13:36:25
  * @Description: POS连接设置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:05:11
  */
-import { type FormInstance, type FormRules } from 'element-plus'
-import { SystemPosList, SystemPosConnectionForm } from '@/types/apiType/system'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -16,6 +13,10 @@ export default defineComponent({
         data: {
             type: Object as PropType<SystemPosList>,
             default: () => new SystemPosList(),
+        },
+        portList: {
+            type: Array as PropType<number[]>,
+            default: () => [],
         },
     },
     emits: {
@@ -29,21 +30,36 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new SystemPosConnectionForm())
+
+        const pageData = ref({
+            posPortOptions: [
+                {
+                    label: Translate('IDCS_POS_PORT'),
+                    value: 'remote',
+                },
+                {
+                    label: Translate('IDCS_POS_LOCAL_RECEIVE_PORT'),
+                    value: 'local',
+                },
+            ],
+        })
 
         const rules = ref<FormRules>({
             ip: [
                 {
-                    validator: (rule, value: string, callback) => {
-                        if (!value || value === '0.0.0.0') {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value || value === DEFAULT_EMPTY_IP) {
                             callback(new Error(Translate('IDCS_POS_IP_EMPTY')))
                             return
                         }
+
                         if (!/^([1-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/.test(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_INVALID')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -51,21 +67,27 @@ export default defineComponent({
             ],
             port: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: number | null | undefined, callback) => {
                         if (formData.value.switch) {
-                            if (value === '') {
+                            if (!value) {
                                 callback(new Error(Translate('IDCS_POS_PORT_EMPTY')))
                                 return
                             }
-                            if (Number(value) < 10 || Number(value) > 65535) {
+
+                            if (value < 10 || value > 65535) {
                                 callback(new Error(Translate('IDCS_PROMPT_PORT_INVALID')))
                                 return
                             }
-                            callback()
-                        } else {
-                            callback()
                         }
+
+                        if (prop.data.connectionType === 'UDP' && formData.value.posPortType) {
+                            callback(new Error(Translate('IDCS_NETWORK_PORT_CONFLICT')))
+                            return
+                        }
+
+                        callback()
                     },
+                    trigger: 'manual',
                 },
             ],
         })
@@ -81,12 +103,13 @@ export default defineComponent({
          * @description 验证表单，保存数据
          */
         const verify = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     ctx.emit('confirm', {
                         ip: formData.value.ip,
                         port: formData.value.port,
                         switch: prop.data.connectionType === 'TCP-Listen' ? formData.value.switch : true,
+                        posPortType: prop.data.connectionType === 'UDP' ? formData.value.posPortType : 'remote',
                     })
                 }
             })
@@ -96,13 +119,18 @@ export default defineComponent({
          * @description 打开弹窗时，初始化弹窗数据
          */
         const open = () => {
-            formRef.value?.clearValidate()
-            formData.value.ip = prop.data.connectionSetting.posIp || '0.0.0.0'
+            formData.value.ip = prop.data.connectionSetting.posIp || DEFAULT_EMPTY_IP
             formData.value.switch = prop.data.connectionSetting.filterPostPortSwitch
             if (prop.data.connectionType === 'TCP-Listen') {
-                formData.value.port = formData.value.switch ? prop.data.connectionSetting.posPort : 0
+                formData.value.port = formData.value.switch ? (prop.data.connectionSetting.posPort ? prop.data.connectionSetting.posPort : undefined) : undefined
             } else {
-                formData.value.port = prop.data.connectionSetting.posPort
+                formData.value.port = prop.data.connectionSetting.posPort ? prop.data.connectionSetting.posPort : undefined
+            }
+        }
+
+        const changeSwitch = () => {
+            if (!formData.value.switch) {
+                formData.value.port = undefined
             }
         }
 
@@ -113,6 +141,8 @@ export default defineComponent({
             verify,
             close,
             rules,
+            changeSwitch,
+            pageData,
         }
     },
 })

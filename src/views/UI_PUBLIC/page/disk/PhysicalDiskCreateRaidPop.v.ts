@@ -2,13 +2,9 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-08 18:01:16
  * @Description: 创建磁盘阵列弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 10:59:52
  */
-import { type DiskPhysicalList, DiskCreateRaidForm } from '@/types/apiType/disk'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     components: {
@@ -40,25 +36,33 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
 
         const formData = ref(new DiskCreateRaidForm())
 
         const pageData = ref({
             isCheckAuth: false,
+            raidList: [] as string[],
         })
+
+        const MAX_RAID_NUM = 2
 
         const rules = ref<FormRules>({
             name: [
                 {
-                    validator: (rule, value: string, callback) => {
-                        if (!value.length) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_NOTE_CONFIG_RAID_NAME')))
                             return
                         }
+
+                        // 创建RAID判断是否重名时，不区分大小写
+                        if (pageData.value.raidList.includes(value.trim().toLowerCase())) {
+                            callback(new Error(Translate('IDCS_NOTE_CONFIG_RAID_NAME_REPEAT')))
+                            return
+                        }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -66,7 +70,7 @@ export default defineComponent({
             ],
             type: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         const length = formData.value.diskId.length
                         switch (value) {
                             case 'RAID_TYPE_0':
@@ -89,9 +93,17 @@ export default defineComponent({
                                 break
                             case 'RAID_TYPE_6':
                                 if (length < 4) {
+                                    callback(new Error(Translate('IDCS_NOTE_RAID6_DISK_ERROR')))
+                                    return
+                                }
+
+                                break
+                            case 'RAID_TYPE_10':
+                                if (length < 4) {
                                     callback(new Error(Translate('IDCS_NOTE_RAID10_DISK_ERROR_MIN')))
                                     return
                                 }
+
                                 if (length % 2 !== 0) {
                                     callback(new Error(Translate('IDCS_NOTE_RAID10_DISK_ERROR_MAX')))
                                     return
@@ -113,7 +125,10 @@ export default defineComponent({
          * @returns {string}
          */
         const formatChar = (str: string) => {
-            return str.replace(/[^a-zA-Z][^-_a-zA-Z0-9]+/, '')
+            if (str.length && !/[a-zA-Z]/.test(str[0])) {
+                return ''
+            }
+            return str.replace(/[^-_a-zA-Z0-9]/g, '')
         }
 
         /**
@@ -134,6 +149,11 @@ export default defineComponent({
          * @description 验证表单，验证成功后打开鉴权弹窗
          */
         const verify = () => {
+            if (pageData.value.raidList.length >= MAX_RAID_NUM) {
+                openMessageBox(Translate('IDCS_NOTE_BEYOND_MAX_RAID_NUM'))
+                return
+            }
+
             formRef.value!.validate((valid) => {
                 if (valid) {
                     pageData.value.isCheckAuth = true
@@ -151,33 +171,33 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <raidInfo>
-                        <name>${formData.value.name}</name>
+                        <name>${wrapCDATA(formData.value.name)}</name>
                         <raidType>${formData.value.type}</raidType>
                         <disks>${formData.value.diskId.map((id) => `<item>${id}</item>`).join('')}</disks>
                         <isNeedFormat>true</isNeedFormat>
                     </raidInfo>
-                    <auth>
-                        <userName>${e.userName}</userName>
-                        <password>${e.hexHash}</password>
-                    </auth>
                 </content>
+                <auth>
+                    <userName>${e.userName}</userName>
+                    <password>${e.hexHash}</password>
+                </auth>
             `
 
-            // TODO 需要测试数据
             const result = await createRaid(sendXml)
             const $ = queryXml(result)
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                openMessageTipBox({
+            if ($('status').text() === 'success') {
+                pageData.value.isCheckAuth = false
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).finally(() => {
                     ctx.emit('confirm')
                 })
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:
@@ -197,20 +217,17 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                         break
                 }
-                openMessageTipBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 
         /**
          * @description 打开弹窗时更新表单
          */
-        const open = () => {
-            formRef.value?.clearValidate()
+        const open = async () => {
             formData.value = new DiskCreateRaidForm()
             formData.value.diskId = prop.list.filter((item) => item.switch).map((item) => item.id)
+            await getRaidList()
             getRaidCapacity()
         }
 
@@ -236,7 +253,18 @@ export default defineComponent({
             `
             const result = await queryCreateRaidCapacity(sendXml)
             const $ = queryXml(result)
-            formData.value.space = Math.floor(Number($('//content/capacity').text()) / 1024) + ' GB'
+            formData.value.space = Math.floor($('content/capacity').text().num() / 1024) + ' GB'
+        }
+
+        const getRaidList = async () => {
+            const result = await queryRaidDetailInfo()
+            const $ = queryXml(result)
+
+            pageData.value.raidList = $('content/raidList/item').map((item) => {
+                const $item = queryXml(item.element)
+
+                return $item('name').text().toLowerCase()
+            })
         }
 
         return {
@@ -247,7 +275,6 @@ export default defineComponent({
             formData,
             formRef,
             rules,
-            BaseCheckAuthPop,
             diskOptions,
             hotDisks,
             getRaidCapacity,

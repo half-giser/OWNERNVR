@@ -2,50 +2,40 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-26 19:58:43
  * @Description: 多选弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-11 11:24:29
 -->
 <template>
     <el-dialog
         :model-value="modelValue"
         :title="title"
         width="400"
-        align-center
-        draggable
         append-to-body
         @open="open"
         @update:model-value="emits('update:modelValue', $event)"
     >
         <el-table
             ref="tableRef"
+            v-title
             height="400"
-            border
-            stripe
             :data="data"
             :row-key="value"
             @selection-change="handleCurrentChange"
+            @row-click="handleRowClick"
         >
             <el-table-column
                 type="selection"
-                width="50px"
+                width="60"
             />
             <el-table-column
                 :label="labelTitle"
                 :prop="label"
+                show-overflow-tooltip
             />
         </el-table>
         <slot></slot>
-        <template #footer>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
-                >
-                    <el-button @click="confirm">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="emits('update:modelValue', false)">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="confirm">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="emits('update:modelValue', false)">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 
@@ -104,6 +94,15 @@ const selected = ref<any[]>([])
  */
 const handleCurrentChange = (row: any[]) => {
     selected.value = row
+}
+
+/**
+ * @description 点击行 仅选中该行
+ * @param {any} row
+ */
+const handleRowClick = (row: any) => {
+    tableRef.value!.clearSelection()
+    tableRef.value!.toggleRowSelection(row, true)
 }
 
 /**

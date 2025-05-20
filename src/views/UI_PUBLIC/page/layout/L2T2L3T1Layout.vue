@@ -2,8 +2,6 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-04-20 16:04:39
  * @Description: 二级类型2布局页--三级类型1布局页--适用于“智能分析-搜索”、“业务应用-停车场管理”等
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-08 14:42:20
 -->
 <template>
     <el-container id="layout3">
@@ -24,7 +22,8 @@
                     </template>
                     <template #title>
                         <span
-                            :title="Translate(menu3.meta.lk || '')"
+                            v-title
+                            class="text-ellipsis"
                             v-text="Translate(menu3.meta.lk || '')"
                         ></span>
                     </template>
@@ -32,7 +31,11 @@
             </el-menu>
         </el-aside>
         <el-main id="layout3Content">
-            <RouterView />
+            <RouterView v-slot="{ Component }">
+                <KeepAlive :max="6">
+                    <component :is="Component" />
+                </KeepAlive>
+            </RouterView>
         </el-main>
     </el-container>
 </template>
@@ -51,7 +54,7 @@
     background-color: var(--main-bg);
 
     .el-menu {
-        border-right: 0px;
+        border-right: 0;
         background-color: var(--main-bg);
 
         .el-menu-item {
@@ -60,9 +63,10 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 0px !important;
+            padding: 0 !important;
             height: 90px;
             color: var(--sidebar-text);
+
             --el-menu-hover-bg-color: var(--sidebar-bg-hover);
             --el-menu-text-color: var(--sidebar-text);
 
@@ -83,8 +87,8 @@
             span {
                 width: 100%;
                 font-size: 12px;
-                line-height: 1.4;
-                white-space: pre-wrap;
+                line-height: 30px;
+                display: block;
             }
         }
     }

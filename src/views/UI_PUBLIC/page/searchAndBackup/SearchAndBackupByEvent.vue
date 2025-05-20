@@ -2,86 +2,34 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-09 09:37:10
  * @Description: 按事件搜索
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 18:01:20
 -->
 <template>
     <div class="by-event">
         <div class="left">
-            <div class="event">
-                <el-checkbox
-                    :model-value="isEventAll"
-                    @change="toggleAllEvent"
-                    >{{ Translate('IDCS_RECORD_TYPE') }}</el-checkbox
-                >
-                <el-popover
-                    trigger="click"
-                    popper-class="no-padding"
-                >
-                    <template #reference>
-                        <BaseImgSprite file="filterBtn" />
-                    </template>
-                    <div class="base-subheading-box">{{ Translate('IDCS_TARGET') }}</div>
-                    <el-checkbox-group
-                        v-model="formData.targets"
-                        class="event-target"
-                    >
-                        <el-checkbox
-                            v-for="item in pageData.targetOptions"
-                            :key="item.value"
-                            :value="item.value"
-                        >
-                            {{ item.label }}
-                        </el-checkbox>
-                    </el-checkbox-group>
-                </el-popover>
-            </div>
-            <div class="event-box">
-                <div class="event-list">
-                    <div
-                        v-for="item in filterEvents"
-                        :key="item.value"
-                        class="event-item"
-                        @click="changeEvent(item.value)"
-                    >
-                        <el-tooltip
-                            :content="item.label"
-                            :show-after="500"
-                        >
-                            <BaseImgSprite
-                                :file="formData.events.includes(item.value) ? item.checked : item.unchecked"
-                                :index="0"
-                                :chunk="4"
-                            />
-                        </el-tooltip>
-                    </div>
-                </div>
-                <el-input
-                    v-model="pageData.posKeyword"
-                    size="small"
-                    :disabled="!formData.events.includes('POS')"
-                    :placeholder="Translate('IDCS_POS_KEY')"
-                />
-            </div>
-            <el-form label-position="top">
+            <el-form
+                v-title
+                label-position="top"
+                :style="{
+                    '--form-input-width': '100%',
+                }"
+            >
+                <el-form-item>
+                    <el-input
+                        v-model="formData.pos"
+                        :disabled="!enablePos"
+                        :placeholder="Translate('IDCS_POS_KEY')"
+                    />
+                </el-form-item>
                 <el-form-item :label="Translate('IDCS_START_TIME')">
-                    <el-date-picker
+                    <BaseDatePicker
                         v-model="formData.startTime"
-                        :value-format="dateTime.dateTimeFormat"
-                        :format="dateTime.dateTimeFormat"
-                        :cell-class-name="highlightWeekend"
-                        clear-icon=""
                         type="datetime"
                         :placeholder="Translate('IDCS_START_TIME')"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_END_TIME')">
-                    <el-date-picker
+                    <BaseDatePicker
                         v-model="formData.endTime"
-                        :value-format="dateTime.dateTimeFormat"
-                        :format="dateTime.dateTimeFormat"
-                        :cell-class-name="highlightWeekend"
-                        clear-icon=""
                         type="datetime"
                         :placeholder="Translate('IDCS_END_TIME')"
                     />
@@ -91,152 +39,152 @@
                 <el-text>{{ Translate('IDCS_CHANNEL') }}</el-text>
                 <el-checkbox
                     :model-value="isChlAll"
+                    :label="Translate('IDCS_ALL')"
                     @change="toggleAllChl"
-                    >{{ Translate('IDCS_ALL') }}</el-checkbox
-                >
+                />
             </div>
             <div class="chl-box">
                 <BaseListBox>
                     <el-checkbox-group v-model="formData.chls">
-                        <el-checkbox
+                        <BaseListBoxItem
                             v-for="item in pageData.chlList"
                             :key="item.id"
-                            :value="item.id"
-                            :disabled="isChlAll && !formData.chls.includes(item.id)"
+                            :show-hover="false"
                         >
-                            {{ item.value }}
-                        </el-checkbox>
+                            <el-checkbox
+                                :value="item.id"
+                                :label="item.value"
+                                :disabled="isChlAll && !formData.chls.includes(item.id)"
+                            />
+                        </BaseListBoxItem>
                     </el-checkbox-group>
                 </BaseListBox>
                 <div class="base-btn-box">
                     <el-button
                         :disabled="!formData.chls.length"
                         @click="search"
-                        >{{ Translate('IDCS_SEARCH') }}</el-button
                     >
+                        {{ Translate('IDCS_SEARCH') }}
+                    </el-button>
                 </div>
             </div>
         </div>
         <div class="main">
             <div class="center">
+                <div class="base-head-box">
+                    <span class="filter-title">{{ Translate('IDCS_EVENT_FILTER') }}</span>
+                    <BaseImgSprite
+                        file="filterBtn"
+                        :index="0"
+                        :hover-index="0"
+                        class="filter-btn"
+                        @click="openEventSelector"
+                    />
+                    <span class="filter-event text-ellipsis">{{ `( ${eventsStr} )` }}</span>
+                </div>
                 <div class="base-table-box">
                     <el-table
                         ref="tableRef"
+                        v-title
                         :data="filterTableData"
-                        border
-                        stripe
+                        show-overflow-tooltip
                         @row-click="handleRecClick"
                         @selection-change="handleRecChange"
                     >
-                        <el-table-column :label="Translate('IDCS_SERIAL_NUMBER')">
-                            <template #default="scope">
-                                {{ displayIndex(scope.$index) }}
+                        <el-table-column
+                            :label="Translate('IDCS_SERIAL_NUMBER')"
+                            min-width="50"
+                        >
+                            <template #default="{ $index }: TableColumn<PlaybackRecLogList>">
+                                {{ displayIndex($index) }}
                             </template>
                         </el-table-column>
                         <el-table-column type="selection" />
                         <el-table-column
                             :label="Translate('IDCS_CHANNEL_NAME')"
                             prop="chlName"
-                        >
-                        </el-table-column>
+                            min-width="150"
+                        />
                         <el-table-column
                             :label="Translate('IDCS_TYPE')"
-                            prop="event"
+                            min-width="100"
                         >
-                            <template #default="scope">
-                                <el-text>{{ displayEvent(scope.row) }}</el-text>
+                            <template #default="{ row }: TableColumn<PlaybackRecLogList>">
+                                <span>{{ displayEvent(row) }}</span>
                                 <BaseImgSprite
-                                    v-if="displayEventIcon(scope.row)"
-                                    :file="scope.row.event"
+                                    v-if="displayEventIcon(row)"
+                                    :file="row.event"
                                 />
                             </template>
                         </el-table-column>
                         <el-table-column
                             :label="Translate('IDCS_START_TIME')"
-                            prop="startTime"
+                            min-width="150"
                         >
-                            <template #default="scope">
-                                {{ displayDateTime(scope.row.startTime) }}
+                            <template #default="{ row }: TableColumn<PlaybackRecLogList>">
+                                {{ displayDateTime(row.startTime) }}
                             </template>
                         </el-table-column>
                         <el-table-column
                             :label="Translate('IDCS_END_TIME')"
-                            prop="@endTime"
+                            min-width="150"
                         >
-                            <template #default="scope">
-                                {{ displayDateTime(scope.row.endTime) }}
+                            <template #default="{ row }: TableColumn<PlaybackRecLogList>">
+                                {{ displayDateTime(row.endTime) }}
                             </template>
                         </el-table-column>
                         <el-table-column
                             :label="Translate('IDCS_RECORD_TIME')"
                             prop="duration"
-                        >
-                        </el-table-column>
+                            min-width="100"
+                        />
                         <el-table-column
                             :label="Translate('IDCS_BIG_SMALL')"
                             prop="size"
-                        >
-                        </el-table-column>
-                        <el-table-column
-                            :label="Translate('IDCS_PLAY')"
-                            prop="play"
-                        >
-                            <template #default="scope">
-                                <BaseImgSprite
-                                    file="play (3)"
-                                    :index="0"
-                                    :hover-index="1"
-                                    :chunk="4"
-                                    @click.stop="playRec(scope.row)"
+                            min-width="100"
+                        />
+                        <el-table-column :label="Translate('IDCS_PLAY')">
+                            <template #default="{ row }: TableColumn<PlaybackRecLogList>">
+                                <BaseImgSpriteBtn
+                                    file="preview"
+                                    @click="playRec(row)"
                                 />
                             </template>
                         </el-table-column>
-                        <el-table-column
-                            :label="Translate('IDCS_INFORMATION')"
-                            prop="info"
-                        >
-                            <template #default="scope">
-                                <BaseImgSprite
-                                    v-if="scope.row.event === 'POS'"
+                        <el-table-column :label="Translate('IDCS_INFORMATION')">
+                            <template #default="{ row }: TableColumn<PlaybackRecLogList>">
+                                <BaseImgSpriteBtn
+                                    v-if="row.event === 'POS'"
                                     file="detail"
-                                    :index="0"
-                                    :hover-index="1"
-                                    :chunk="4"
-                                    @click="showPosInfo(scope.row)"
+                                    @click="showPosInfo(row)"
                                 />
-                                <el-text v-else>--</el-text>
+                                <span v-else>--</span>
                             </template>
                         </el-table-column>
                     </el-table>
                 </div>
-                <div class="base-btn-box">
-                    <el-pagination
+                <div class="base-pagination-box">
+                    <BasePagination
                         v-model:current-page="pageData.currentPage"
                         v-model:page-size="pageData.pageSize"
-                        :layout="DefaultPagerLayout"
                         :total="tableData.length"
                         :page-sizes="[20, 30, 50]"
                     />
                 </div>
-                <div
-                    class="base-btn-box"
-                    span="2"
-                >
+                <div class="base-btn-box space-between">
                     <div>
                         <BaseImgSprite file="caution" />
                         <span>{{ Translate('IDCS_BACKUP_NOTICE').formatForLang(Translate('IDCS_BACKUP')) }}</span>
                     </div>
-                    <div>
-                        <el-button
-                            :disabled="!pageData.selectedRecList.length"
-                            @click="backUp"
-                            >{{ Translate('IDCS_BACKUP') }}</el-button
-                        >
-                    </div>
+                    <el-button
+                        :disabled="!pageData.selectedRecList.length"
+                        @click="backUp"
+                    >
+                        {{ Translate('IDCS_BACKUP') }}
+                    </el-button>
                 </div>
             </div>
         </div>
-        <BasePluginNotice />
         <BackupPop
             v-model="pageData.isBackUpPop"
             :mode="mode"
@@ -261,6 +209,10 @@
             :play-list="pageData.playbackList"
             @close="pageData.isPlaybackPop = false"
         />
+        <RecordBaseEventSelector
+            ref="baseEventSelectorRef"
+            v-model="pageData.events"
+        />
     </div>
 </template>
 
@@ -269,7 +221,6 @@
 <style lang="scss" scoped>
 .by-event {
     width: 100%;
-    height: calc(var(--content-height) + 30px);
     display: flex;
 }
 
@@ -307,12 +258,11 @@
 
 .left {
     width: 260px;
-    height: 100%;
     flex-shrink: 0;
-    border-right: 1px solid var(--input-border);
     display: flex;
     flex-direction: column;
-
+    height: var(--content-height);
+    padding-top: 14px;
     .el-form {
         flex-shrink: 0;
         margin-bottom: 0 !important;
@@ -328,7 +278,7 @@
 
     &-box {
         width: calc(100% - 30px);
-        height: calc(100% - 400px);
+        height: calc(100% - 300px);
         display: flex;
         flex-direction: column;
         margin: 0 auto 15px;
@@ -350,6 +300,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+    border-left: 1px solid var(--input-border);
 }
 
 .center {
@@ -359,6 +310,25 @@
     width: 100%;
     height: 100%;
     box-sizing: border-box;
+    .base-head-box {
+        height: 44px;
+        padding: 10px;
+        margin-bottom: 10px;
+        box-sizing: border-box;
+        background-color: transparent;
+        border: 1px solid var(--content-border);
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        font-weight: unset;
+        .filter-title,
+        .filter-event {
+            padding-top: 2px;
+        }
+        .filter-btn {
+            margin: 0px 10px;
+        }
+    }
 }
 
 .backup {
@@ -369,6 +339,7 @@
         padding-left: 15px;
         display: flex;
         align-items: center;
+
         span:last-child {
             padding-left: 5px;
         }

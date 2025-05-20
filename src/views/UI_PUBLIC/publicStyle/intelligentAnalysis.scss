@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-06 10:32:09
  * @Description: 智能分析版块的一些公共样式，仅在需要用到的智能分析版块下import
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-25 16:10:05
  */
 .base-intel-placeholder {
     width: 100%;
@@ -18,7 +16,8 @@
     box-sizing: border-box;
     padding: 0 5px;
     cursor: pointer;
-    transition: border-color .2s;
+    transition: border-color 0.2s;
+    user-select: none;
 
     div {
         width: 100%;
@@ -38,14 +37,17 @@
     flex-wrap: wrap;
 
     .el-checkbox {
+        --el-checkbox-font-size: 12px;
+
         width: 100%;
-        margin-left: 0!important;
+        margin-left: 0 !important;
+        height: 30px;
     }
 }
 
 .base-intel-radio-group {
     display: flex;
-    
+
     .el-radio {
         width: 100%;
     }
@@ -73,14 +75,17 @@
     justify-content: space-between;
 }
 
+.base-intel-left-form {
+    padding: 0 10px;
+}
+
 .base-intel-right {
     width: 100%;
-    height: 100%;
     box-sizing: border-box;
     padding: 15px;
     display: flex;
     flex-direction: column;
-    height: calc(var(--content-height) + 30px);
+    height: var(--content-height);
 }
 
 .base-intel-row {
@@ -94,7 +99,7 @@
     &.space-between {
         justify-content: space-between;
 
-        &>div {
+        & > div {
             flex: 1;
             display: flex;
             justify-content: center;
@@ -103,8 +108,10 @@
                 justify-content: flex-start;
                 flex: 2;
             }
+
             &:last-child {
                 justify-content: flex-end;
+                align-items: center;
             }
         }
     }
@@ -136,7 +143,7 @@
         padding-bottom: 10px;
         margin: 0;
     }
-    
+
     .player {
         width: 410px;
         height: 160px;
@@ -173,12 +180,14 @@
 }
 
 .base-intel-pics-box {
-    box-sizing: border-box;
     height: 100%;
     width: 100%;
+    border: 1px solid var(--content-border);
+}
+
+.base-intel-pics-content {
     padding: 10px;
     display: flex;
     flex-wrap: wrap;
-    border: 1px solid var(--content-border);
-    overflow-y: scroll;
+    box-sizing: border-box;
 }

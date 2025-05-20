@@ -1,30 +1,37 @@
 /*
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-07-29 14:15:46
- * @Description:
- * @LastEditors: tengxiang tengxiang@tvt.net.cn
- * @LastEditTime: 2024-08-02 14:39:57
+ * @Description: 新建录像模式
  */
-import { type RecMode } from '@/types/apiType/record'
-
 export default defineComponent({
     props: {
         advanceRecModes: {
-            type: Array as PropType<Array<RecMode>>,
+            type: Array as PropType<Array<RecordModeDto>>,
+            required: true,
+        },
+        advanceRecModeId: {
+            type: String,
             required: true,
         },
     },
-    emits: ['confirm', 'close'],
-    setup() {
-        const userSessionStore = useUserSessionStore()
+    emits: {
+        confirm(e: string[]) {
+            return Array.isArray(e)
+        },
+        close() {
+            return true
+        },
+    },
+    setup(prop) {
+        const open = () => {
+            // 选中当前生效的高级模式的时间
+            if (prop.advanceRecModeId) {
+                selectedEvents.value = prop.advanceRecModeId.split('_')
+            }
+        }
 
         //选择的值
         const selectedEvents = ref<string[]>([])
-
-        // 选中当前生效的高级模式的时间
-        if (userSessionStore.advanceRecModeId) {
-            selectedEvents.value = userSessionStore.advanceRecModeId.split('_')
-        }
 
         const isIntensiveDisabled = computed(() => {
             return selectedEvents.value.includes(REC_MODE_TYPE.POS)
@@ -37,6 +44,7 @@ export default defineComponent({
         })
 
         return {
+            open,
             selectedEvents,
             isIntensiveDisabled,
         }

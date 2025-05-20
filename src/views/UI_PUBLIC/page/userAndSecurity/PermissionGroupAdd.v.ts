@@ -2,12 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-17 20:32:26
  * @Description: 添加权限组
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 11:28:29
  */
-import { UserPermissionSystemAuthList, UserPermissionChannelAuthList } from '@/types/apiType/userAndSecurity'
-import { UserPermissionGroupAddForm } from '@/types/apiType/userAndSecurity'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 import type { XMLQuery } from '@/utils/xmlParse'
 import PermissionGroupInfoPop from './PermissionGroupInfoPop.vue'
 
@@ -18,19 +14,17 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const userSession = useUserSessionStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { closeLoading, openLoading } = useLoading()
         const router = useRouter()
         const systemCaps = useCababilityStore()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new UserPermissionGroupAddForm())
 
         const rules = ref<FormRules>({
             name: [
                 {
-                    validator: (rule, value: string, callback) => {
-                        if (!value.length) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_USER_GROUP_EMPTY_TIPS')))
                             return
                         }
@@ -54,16 +48,11 @@ export default defineComponent({
             // 当前选中的通道权限Tab
             activeChannelTab: DEFAULT_CHANNEL_AUTH_TABS[0],
             // 通道权限选项
-            channelOption: DEFAULT_SWITCH_OPTIONS.map((item) => {
-                return {
-                    value: item.value,
-                    label: Translate(item.label),
-                }
-            }),
+            channelOption: getTranslateOptions(DEFAULT_BOOL_SWITCH_OPTIONS),
             // 本地通道权限列表
-            localChannelIds: DEFAULT_LOCAL_CHANNEL_AUTH_LIST,
+            localChannelIds: getTranslateOptions(DEFAULT_LOCAL_CHANNEL_AUTH_LIST),
             // 远程通道权限列表
-            remoteChannelIds: DEFAULT_REMOTE_CHANNEL_AUTH_LIST,
+            remoteChannelIds: getTranslateOptions(DEFAULT_REMOTE_CHANNEL_AUTH_LIST),
         })
 
         /**
@@ -89,14 +78,16 @@ export default defineComponent({
                 commLoadResponseHandler(result, ($) => {
                     getSystemAuth($)
                     getChannelAuth($, true)
-                    getAuthGroupName($('//content/name').text())
+                    getAuthGroupList($('content/name').text())
                 })
             }
             // 从新建入口进来，所有选项默认为false
             else {
-                const result = await getChlList({})
+                const result = await getChlList()
                 commLoadResponseHandler(result, ($) => {
+                    getSystemAuth()
                     getChannelAuth($, false)
+                    getAuthGroupList()
                 })
             }
             closeLoading()
@@ -105,8 +96,9 @@ export default defineComponent({
         /**
          * @description 创建从另存为入口进来的回显名称
          */
-        const getAuthGroupName = async (name: string) => {
-            const sendXml = rawXml`
+        const getAuthGroupList = async (name?: string) => {
+            const sendXml = name
+                ? rawXml`
                 <condition>
                     <name>${wrapCDATA(name)}</name>
                     <requireField>
@@ -114,33 +106,49 @@ export default defineComponent({
                     </requireField>
                 </condition>
             `
+                : ''
             const result = await queryAuthGroupList(sendXml)
             const $ = queryXml(result)
 
-            const nameList = $('//content/item').map((item) => {
-                const $item = queryXml(item.element)
-                return $item('name').text()
-            })
+            formData.value.nameMaxByteLen = $('content/itemType/name').attr('maxByteLen').num() || nameByteMaxLen
 
-            let groupName = ''
-            for (let i = 1; i < Number.POSITIVE_INFINITY; i++) {
-                groupName = (DEFAULT_AUTH_GROUP_MAPPING[groupName] ? Translate(DEFAULT_AUTH_GROUP_MAPPING[groupName]) : name) + i
-                if (nameList.includes(groupName)) {
-                    continue
-                } else break
+            if (name) {
+                const nameList = $('content/item').map((item) => {
+                    const $item = queryXml(item.element)
+                    return $item('name').text()
+                })
+
+                let groupName = ''
+                for (let i = 1; i < Number.POSITIVE_INFINITY; i++) {
+                    groupName = (DEFAULT_AUTH_GROUP_MAPPING[groupName] ? Translate(DEFAULT_AUTH_GROUP_MAPPING[groupName]) : name) + i
+                    if (nameList.includes(groupName)) {
+                        continue
+                    } else break
+                }
+                formData.value.name = groupName
             }
-            formData.value.name = groupName
         }
 
         /**
          * @description 更新系统权限
          * @param {Function} $doc
          */
-        const getSystemAuth = ($doc: XMLQuery) => {
-            const $ = queryXml($doc('//content/systemAuth')[0].element)
-            Object.keys(systemAuthList.value).forEach((classify: string) => {
+        const getSystemAuth = ($doc?: XMLQuery) => {
+            const $ = $doc ? queryXml($doc('content/systemAuth')[0].element) : ''
+            Object.keys(systemAuthList.value).forEach((classify) => {
+                systemAuthList.value[classify].label = Translate(systemAuthList.value[classify].key)
                 Object.keys(systemAuthList.value[classify].value).forEach((key) => {
-                    systemAuthList.value[classify].value[key].value = $(key).text().toBoolean()
+                    if ($) {
+                        systemAuthList.value[classify].value[key].value = $(key).text().bool()
+                    }
+
+                    if (systemAuthList.value[classify].value[key].formatForLang?.length) {
+                        systemAuthList.value[classify].value[key].label = Translate(systemAuthList.value[classify].value[key].key).formatForLang(
+                            ...systemAuthList.value[classify].value[key].formatForLang.map((item) => Translate(item)),
+                        )
+                    } else {
+                        systemAuthList.value[classify].value[key].label = Translate(systemAuthList.value[classify].value[key].key)
+                    }
                 })
             })
             if (userSession.userType === USER_TYPE_DEFAULT_ADMIN) {
@@ -155,29 +163,29 @@ export default defineComponent({
          */
         const getChannelAuth = ($: XMLQuery, isQueryFromGroupID: boolean) => {
             if (isQueryFromGroupID) {
-                channelAuthList.value = $('//content/chlAuth/item').map((item) => {
+                channelAuthList.value = $('content/chlAuth/item').map((item) => {
                     const arrayItem = new UserPermissionChannelAuthList()
                     const $item = queryXml(item.element)
-                    arrayItem.id = item.attr('id')!
+                    arrayItem.id = item.attr('id')
                     arrayItem.name = $item('name').text()
                     const auth = $item('auth').text()
                     DEFAULT_CHANNEL_AUTH_LIST.forEach((key) => {
                         if (auth.includes(key)) {
-                            arrayItem[key] = Translate('IDCS_ON') // 'true'
+                            arrayItem[key] = true
                         } else {
-                            arrayItem[key] = Translate('IDCS_OFF') // 'false'
+                            arrayItem[key] = false
                         }
                     })
                     return arrayItem
                 })
             } else {
-                channelAuthList.value = $('//content/item').map((item) => {
+                channelAuthList.value = $('content/item').map((item) => {
                     const arrayItem = new UserPermissionChannelAuthList()
                     const $item = queryXml(item.element)
-                    arrayItem.id = item.attr('id')!
+                    arrayItem.id = item.attr('id')
                     arrayItem.name = $item('name').text()
                     DEFAULT_CHANNEL_AUTH_LIST.forEach((key) => {
-                        arrayItem[key] = Translate('IDCS_OFF') // 'false'
+                        arrayItem[key] = false
                     })
                     return arrayItem
                 })
@@ -189,7 +197,7 @@ export default defineComponent({
          * @param {string} key
          * @param {string} value
          */
-        const changeAllChannelAuth = (key: keyof UserPermissionChannelAuthList, value: string) => {
+        const changeAllChannelAuth = (key: UserPermissionAuthKey, value: boolean) => {
             channelAuthList.value.forEach((item) => {
                 item[key] = value
             })
@@ -199,7 +207,7 @@ export default defineComponent({
          * @description 验证表单，通过后打开授权弹窗
          */
         const verify = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     doCreateAuthGroup()
                 }
@@ -212,36 +220,36 @@ export default defineComponent({
         const doCreateAuthGroup = async () => {
             openLoading()
 
-            const channelAuthListXml = channelAuthList.value
-                .map((item) => {
-                    return rawXml`
-                        <item id="${item.id}">
-                            ${wrapCDATA(DEFAULT_CHANNEL_AUTH_LIST.filter((key) => item[key] === Translate('IDCS_ON')).join(','))}
-                        </item>
-                    `
-                })
-                .join('')
-            const systemAuthListXml = Object.keys(systemAuthList.value)
-                .map((item) => {
-                    return Object.keys(systemAuthList.value[item].value)
-                        .map((key) => {
-                            return `<${key}>${systemAuthList.value[item].value[key].value}</${key}>`
-                        })
-                        .join('')
-                })
-                .join('')
             const sendXml = rawXml`
                 <content>
-                    <name>${wrapCDATA(formData.value.name)}</name>
-                    <chlAuthNote><![CDATA[local: [_lp:live preview, _spr: search and play record, _bk:backup, _ptz:PTZ control],remote: [@lp:live preview, @spr: search and play record, @bk:backup, @ptz: PTZ control]]]></chlAuthNote>
+                    <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
+                    <chlAuthNote>${wrapCDATA('local: [_lp:live preview, _spr: search and play record, _bk:backup, _ptz:PTZ control],remote: [@lp:live preview, @spr: search and play record, @bk:backup, @ptz: PTZ control]')}</chlAuthNote>
                     <chlAuth type="list">
                         <itemType>
                             <name/>
                             <auth/>
                         </itemType>
-                        ${channelAuthListXml}
+                        ${channelAuthList.value
+                            .map((item) => {
+                                return rawXml`
+                                    <item id="${item.id}">
+                                        ${wrapCDATA(DEFAULT_CHANNEL_AUTH_LIST.filter((key) => item[key]).join(','))}
+                                    </item>
+                                `
+                            })
+                            .join('')}
                     </chlAuth>
-                    <systemAuth>${systemAuthListXml}</systemAuth>
+                    <systemAuth>
+                        ${Object.keys(systemAuthList.value)
+                            .map((item) => {
+                                return Object.keys(systemAuthList.value[item].value)
+                                    .map((key) => {
+                                        return `<${key}>${systemAuthList.value[item].value[key].value}</${key}>`
+                                    })
+                                    .join('')
+                            })
+                            .join('')}
+                    </systemAuth>
                 </content>
             `
             const result = await createAuthGroup(sendXml)
@@ -249,10 +257,10 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 goBack()
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NAME_EXISTED:
@@ -265,10 +273,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                         break
                 }
-                openMessageTipBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 
@@ -296,15 +301,12 @@ export default defineComponent({
             formRef,
             formData,
             rules,
-            formatInputMaxLength,
-            nameByteMaxLen,
             systemAuthList,
             channelAuthList,
             pageData,
             goBack,
             verify,
             changeAllChannelAuth,
-            PermissionGroupInfoPop,
         }
     },
 })

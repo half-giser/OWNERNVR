@@ -2,29 +2,21 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-19 13:37:56
  * @Description: 现场预览-云台视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-26 14:10:11
 -->
 <template>
     <div class="ptz">
         <div class="pane">
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 v-for="item in pageData.steer"
                 :key="item.file"
                 :file="item.file"
-                :index="0"
-                :hover-index="1"
-                :chunk="4"
                 @mousedown="addCmd(item)"
                 @mouseup="stopCmd()"
             />
         </div>
         <div class="speed">
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="SpeedSlow"
-                :index="0"
-                :hover-index="1"
-                :chunk="4"
                 @click="decreaseSpeed()"
             />
             <el-slider
@@ -33,11 +25,8 @@
                 :max="pageData.maxSpeed"
                 :step="1"
             />
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="SpeedQuick"
-                :index="0"
-                :hover-index="1"
-                :chunk="4"
                 @click="increaseSpeed()"
             />
         </div>
@@ -46,30 +35,23 @@
             :key="item.name"
             class="row"
         >
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 :file="item.control[0].file"
-                :index="0"
-                :hover-index="1"
-                :chunk="4"
                 @mousedown="addCmd(item.control[0])"
                 @mouseup="stopCmd()"
             />
             <span>{{ item.name }}</span>
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 :file="item.control[1].file"
-                :index="0"
-                :hover-index="1"
-                :chunk="4"
                 @mousedown="addCmd(item.control[1])"
                 @mouseup="stopCmd()"
             />
         </div>
         <div class="list">
             <div class="list-menu">
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     file="left"
-                    :index="1"
-                    :hover-index="0"
+                    :index="[1, 0, 0, 1]"
                     :chunk="2"
                     @click="changeMenu(pageData.activeMenu - 1)"
                 />
@@ -80,34 +62,33 @@
                 >
                     {{ item.label }}
                 </div>
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     file="right"
-                    :index="1"
-                    :hover-index="0"
+                    :index="[1, 0, 0, 1]"
                     :chunk="2"
                     @click="changeMenu(pageData.activeMenu + 1)"
                 />
             </div>
-            <LivePtzPreset
+            <LivePtzPresetPanel
                 v-show="pageData.activeMenu === 0"
                 :enabled="hasAuth"
                 :chl-id="chlId"
                 :chl-name="winData.chlName"
                 :speed="pageData.speed"
             />
-            <LivePtzCruise
+            <LivePtzCruisePanel
                 v-show="pageData.activeMenu === 1"
                 :enabled="hasAuth"
                 :chl-id="chlId"
                 :chl-name="winData.chlName"
                 :speed="pageData.speed"
             />
-            <LivePtzGroup
+            <LivePtzGroupPanel
                 v-show="pageData.activeMenu === 2"
                 :enabled="hasAuth"
                 :chl-id="chlId"
             />
-            <LivePtzTrace
+            <LivePtzTracePanel
                 v-show="pageData.activeMenu === 3"
                 :enabled="hasAuth"
                 :chl-id="chlId"
@@ -144,23 +125,25 @@
 
 .speed {
     width: 190px;
-    margin: 0 auto 10px;
+    margin: 0 auto 3px;
     display: flex;
     align-items: center;
     flex-shrink: 0;
 
     span:first-child {
-        margin-right: 5px;
+        margin-right: 10px;
+        flex-shrink: 0;
     }
 
     span:last-child {
-        margin-left: 5px;
+        margin-left: 10px;
+        flex-shrink: 0;
     }
 }
 
 .row {
     width: 190px;
-    margin: 5px auto;
+    margin: 3px auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -181,6 +164,7 @@
         justify-content: space-between;
         flex-shrink: 0;
         margin: 10px 0;
+        font-size: 16px;
     }
 
     &-main {
@@ -203,6 +187,7 @@
         margin: 0 5%;
         padding-top: 5px;
         border-top: 1px solid var(--btn-border);
+
         span {
             margin-left: 5px;
         }

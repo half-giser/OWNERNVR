@@ -2,34 +2,24 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-24 14:37:52
  * @Description: UI2-A客制化 登录
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-26 19:25:37
 -->
 <template>
     <div class="authCodeLogin">
         <div class="authCodeLogin-lang">
-            <el-select
+            <el-select-v2
                 v-model="pageData.langId"
+                :options="lang.langTypes.value"
+                :props="{
+                    label: 'name',
+                    value: 'id',
+                }"
                 @change="changeLang"
-            >
-                <el-option
-                    v-for="(item, key) in lang.langTypes.value"
-                    :key="key"
-                    :label="item.name"
-                    :value="item.id"
-                />
-            </el-select>
-            <el-select
+            />
+            <el-select-v2
                 v-show="pageData.calendarOptions.length"
                 v-model="formData.calendarType"
-            >
-                <el-option
-                    v-for="item in pageData.calendarOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                />
-            </el-select>
+                :options="pageData.calendarOptions"
+            />
         </div>
         <div class="authCodeLogin-main">
             <div class="authCodeLogin-logo"></div>
@@ -57,14 +47,12 @@
                         <div class="authCodeLogin-item">
                             <div class="authCodeLogin-icon icon-code"></div>
                             <div class="authCodeLogin-input">
-                                <el-input
+                                <BasePasswordInput
                                     v-model="formData.code"
                                     :placeholder="`${Translate('IDCS_AUTHCODE_TIP')} ${pageData.authCodeIndex}`"
                                     tabindex="2"
                                     size="large"
-                                    type="password"
-                                    @paste.capture.prevent=""
-                                    @copy.capture.prevent=""
+                                    @keyup.enter="verify"
                                 />
                             </div>
                             <div class="authCodeLogin-btns">
@@ -74,18 +62,16 @@
                                     link
                                     :disabled="pageData.authCodeDisabled"
                                     @click="getAuthCode"
-                                    >{{ Translate('IDCS_OBTAIN') }}</el-button
                                 >
+                                    {{ Translate('IDCS_OBTAIN') }}
+                                </el-button>
                                 <div
                                     v-show="pageData.expireTime > 0"
                                     class="authCodeLogin-expiretime"
                                 >
                                     {{ expireTime }}
                                 </div>
-                                <el-tooltip
-                                    :content="Translate('IDCS_AUTHCODE_RECV_TIP')"
-                                    :show-after="500"
-                                >
+                                <el-tooltip :content="Translate('IDCS_AUTHCODE_RECV_TIP')">
                                     <div
                                         v-show="pageData.expireTime > 0"
                                         class="authCodeLogin-question"
@@ -102,7 +88,7 @@
                             @click="verify"
                             @keyup.enter="verify"
                         >
-                            {{ Translate('IDCS_LOGIN_NBSP') }}
+                            <span v-clean-html="Translate('IDCS_LOGIN_NBSP')"></span>
                         </el-button>
                     </el-form-item>
                     <div
@@ -146,7 +132,8 @@
     flex-direction: column;
     border-bottom: 3px solid var(--primary);
     position: relative;
-    &:after {
+
+    &::after {
         content: '';
         width: 62%;
         position: absolute;
@@ -163,7 +150,7 @@
     font-size: 16px;
     border: 1px solid var(--color-black);
     display: flex;
-    background-color: var(--input-bg);
+    background-color: #fff;
 
     &.disabled {
         background-color: var(--authcode-input-bg-disabled);
@@ -225,6 +212,10 @@
             :deep(.el-input__wrapper) {
                 background: transparent;
             }
+
+            :deep(.el-input__inner) {
+                color: var(--authcode-input-text);
+            }
         }
 
         :deep(.el-input__wrapper) {
@@ -238,7 +229,7 @@
         }
 
         :deep(.el-form-item__error) {
-            margin: 2px 0px 0px 55px;
+            margin: 2px 0 0 55px;
         }
 
         .authCodeLogin-submit {
@@ -273,6 +264,7 @@
         margin-left: 10px;
         font-size: 18px;
         color: var(--primary);
+
         &:hover {
             color: var(--primary);
             opacity: 0.8;
@@ -282,8 +274,8 @@
 
 .authCodeLogin-lang {
     position: absolute;
-    top: 20px;
-    right: 30px;
+    top: 10px;
+    right: 15px;
     width: 180px;
 
     .el-select {

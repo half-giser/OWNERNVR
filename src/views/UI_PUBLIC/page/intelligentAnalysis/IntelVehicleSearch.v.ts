@@ -2,10 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-10 09:15:27
  * @Description: 智能分析 - 车辆搜索
- * @LastEditors: luoyiming a11593@tvt.net.cn
- * @LastEditTime: 2024-10-09 16:09:02
  */
-import { type IntelSearchCollectList, type IntelSearchList, IntelSnapImgDto, IntelSearchVehicleForm, type IntelSnapPopList } from '@/types/apiType/intelligentAnalysis'
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
 import IntelBaseDateTimeSelector from './IntelBaseDateTimeSelector.vue'
 import IntelBaseEventSelector from './IntelBaseEventSelector.vue'
@@ -16,12 +13,11 @@ import IntelBaseSnapItem from './IntelBaseSnapItem.vue'
 import IntelBaseSnapPop from './IntelBaseSnapPop.vue'
 import IntelBaseVehicleDirectionSelector from './IntelBaseVehicleDirectionSelector.vue'
 import IntelLicencePlateDBAddPlatePop from './IntelLicencePlateDBAddPlatePop.vue'
+import ParkLotPop from '../businessApplication/ParkLotPop.vue'
 import type { TableInstance, CheckboxValueType } from 'element-plus'
-import { type PlaybackPopList } from '@/components/player/BasePlaybackPop.vue'
 import BackupPop from '../searchAndBackup/BackupPop.vue'
 import BackupLocalPop from '../searchAndBackup/BackupLocalPop.vue'
-import { type PlaybackBackUpRecList } from '@/types/apiType/playback'
-import { type DownloadZipOptions } from '@/utils/tools'
+import { type DownloadZipOptions } from '@/utils/downloaders'
 import dayjs from 'dayjs'
 
 export default defineComponent({
@@ -38,11 +34,10 @@ export default defineComponent({
         IntelLicencePlateDBAddPlatePop,
         BackupPop,
         BackupLocalPop,
+        ParkLotPop,
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
         const auth = useUserChlAuth()
         const userSession = useUserSessionStore()
@@ -50,7 +45,7 @@ export default defineComponent({
         // 图像失败重新请求最大次数
         const REPEAR_REQUEST_IMG_TIMES = 2
         // 图像缓存，避免重复请求相同的图片
-        const cachePic: Record<string, IntelSnapImgDto> = {}
+        const cachePic = new Map<string, IntelSnapVehicleImgDto>()
 
         let chlMap: Record<string, string> = {}
 
@@ -126,7 +121,7 @@ export default defineComponent({
             // 备份列表
             backupList: [] as PlaybackBackUpRecList[],
             // 勾选列表
-            selection: [] as IntelSearchList[],
+            selection: [] as IntelSearchVehicleList[],
             // 是否打开抓怕详情弹窗
             isDetailPop: false,
             // 当前选中的抓拍的索引
@@ -141,6 +136,12 @@ export default defineComponent({
             isAddPlatePop: false,
             // 新增车牌的车牌号码
             addPlateNumber: '',
+            // 车牌侦测、车牌识别才下载CSV
+            isSupportCSV: false,
+            // 是否打开停车记录详情弹窗
+            isParkDetailPop: false,
+            // 当前选中的停车记录详情的索引
+            parkDetailIndex: 0,
         })
 
         const formData = ref(new IntelSearchVehicleForm())
@@ -156,20 +157,17 @@ export default defineComponent({
             lockSlider: false,
             // 当前播放的项
             playId: '',
+            // 通道名称
+            chlName: '',
         })
 
         const playerRef = ref<PlayerInstance>()
 
         const tableRef = ref<TableInstance>()
 
-        const tableData = ref<IntelSearchList[]>([])
+        const tableData = ref<IntelSearchVehicleList[]>([])
 
-        const sliceTableData = ref<IntelSearchList[]>([])
-
-        // 车牌侦测、车牌识别才下载CSV
-        const isSupportCSV = computed(() => {
-            return !['plateDetection', 'plateMatchWhiteList', 'plateMatchStranger'].some((event) => !formData.value.event.includes(event))
-        })
+        const sliceTableData = ref<IntelSearchVehicleList[]>([])
 
         /**
          * @description 获取通道ID与通道名称的映射
@@ -177,6 +175,66 @@ export default defineComponent({
          */
         const getChlMap = (e: Record<string, string>) => {
             chlMap = e
+
+            // 如果路由跳转包含搜索条件，则执行搜索
+            if (history.state.eventType || history.state.targetType || history.state.searchType) {
+                if (history.state.eventType) {
+                    const eventType: string[] = []
+                    switch (history.state.eventType) {
+                        case 'aoi_entry':
+                        case 'aoi_leave':
+                        case 'perimeter':
+                            eventType.push('intrusion')
+                            break
+                        case 'tripwire':
+                            eventType.push('tripwire')
+                            break
+                        case 'pass_line':
+                            eventType.push('passLine')
+                            break
+                        case 'plateDetection':
+                            eventType.push('plateDetection')
+                            break
+                        case 'plateMatchWhiteList':
+                            eventType.push('plateMatchWhiteList')
+                            break
+                        case 'plateMatchStranger':
+                            eventType.push('plateMatchStranger')
+                            break
+                        case 'video_metavideo':
+                            eventType.push('videoMetadata')
+                            break
+                    }
+
+                    if (eventType.length) {
+                        formData.value.event = eventType
+                    }
+
+                    delete history.state.eventType
+                }
+
+                if (history.state.targetType) {
+                    const targetType: string[] = []
+                    if (history.state.targetType === 'vehicle') {
+                        formData.value.target.push('car')
+                    } else {
+                        formData.value.target.push('motor')
+                    }
+
+                    if (targetType.length) {
+                        formData.value.target = targetType
+                    }
+
+                    delete history.state.targetType
+                }
+
+                if (history.state.searchType) {
+                    pageData.value.searchType = history.state.searchType
+                    delete history.state.searchType
+                }
+
+                getData()
+            }
         }
 
         /**
@@ -236,22 +294,27 @@ export default defineComponent({
         }
 
         const getUniqueKey = (row: { imgId: string; frameTime: string }) => {
-            if (!row.imgId || !row.frameTime) {
-                return Math.floor(Math.random() * 1e8) + ''
+            if (!row || !row.imgId || !row.frameTime) {
+                return getNonce() + ''
             }
             return `${row.imgId}:${row.frameTime}`
         }
 
         /**
          * @description 播放
-         * @param {IntelSearchList} row
+         * @param {IntelSearchVehicleList} row
          */
-        const play = (row: IntelSearchList) => {
+        const play = (row: IntelSearchVehicleList) => {
             stop()
+
+            if (formData.value.searchType === 'park') {
+                return
+            }
 
             playerData.value.playId = getUniqueKey(row)
             playerData.value.startTime = row.recStartTime
             playerData.value.endTime = row.recEndTime
+            playerData.value.chlName = row.chlName
 
             playerRef.value?.player.play({
                 chlID: row.chlId,
@@ -272,6 +335,7 @@ export default defineComponent({
             playerData.value.startTime = 0
             playerData.value.endTime = 0
             playerData.value.currentTime = 0
+            playerData.value.chlName = ''
             playerRef.value?.player.stop(0)
         }
 
@@ -313,7 +377,7 @@ export default defineComponent({
          * @param {TVTPlayerWinDataListItem} data
          * @param {Number} timestamp
          */
-        const handlePlayerTimeUpdate = (index: number, data: any, timestamp: number) => {
+        const handlePlayerTimeUpdate = (_index: number, _data: any, timestamp: number) => {
             if (playerData.value.lockSlider) {
                 return
             }
@@ -325,37 +389,36 @@ export default defineComponent({
          * @param {number} pageIndex
          */
         const changePage = async (pageIndex: number) => {
-            stop()
             tableRef.value!.clearSelection()
             formData.value.pageIndex = pageIndex
             sliceTableData.value = tableData.value.slice((pageIndex - 1) * formData.value.pageSize, pageIndex * formData.value.pageSize)
-            for (let i = 0; i < sliceTableData.value.length; i++) {
-                const item = sliceTableData.value[i]
+            sliceTableData.value.forEach(async (item, i) => {
+                const key = getUniqueKey(item)
                 const flag = await getPic(item, false, i)
+
                 if (flag) {
                     const flag2 = await getPic(item, true, i)
                     if (flag2) {
-                        sliceTableData.value[i] = {
-                            ...sliceTableData.value[i],
-                            ...cachePic[getUniqueKey(item)],
-                        }
-                        continue
-                    } else {
-                        break
+                        const pic = cachePic.get(key)!
+                        item.pic = pic.pic
+                        item.panorama = pic.panorama
+                        item.width = pic.width
+                        item.height = pic.height
+                        item.X1 = pic.X1
+                        item.Y1 = pic.Y1
+                        item.X2 = pic.X2
+                        item.Y2 = pic.Y2
+                        item.isDelSnap = pic.isDelSnap
+                        item.isNoData = pic.isNoData
+                        item.attribute = pic.attribute
+                        item.eventType = pic.eventType
+                        item.targetType = pic.targetType
+                        item.plateNumber = pic.plateNumber
+                        item.owner = pic.owner
+                        item.ownerPhone = pic.ownerPhone
                     }
-                } else {
-                    break
                 }
-            }
-        }
-
-        /**
-         * @description 更改搜索类型
-         */
-        const changeSearchType = () => {
-            if (pageData.value.searchType === 'park') {
-                pageData.value.listType = 'panorama'
-            }
+            })
         }
 
         /**
@@ -381,48 +444,49 @@ export default defineComponent({
 
         /**
          * @description 获取抓拍图或原图
-         * @param {IntelSearchList} row
+         * @param {IntelSearchVehicleList} row
          * @param {boolean} isPanorama
          * @param {number} index
          */
-        const getPic = async (row: IntelSearchList, isPanorama: boolean, index: number, times = 0) => {
+        const getPic = async (row: IntelSearchVehicleList, isPanorama: boolean, index: number, times = 0) => {
             try {
                 const key = getUniqueKey(row)
-                if (!row.isDelSnap && (!cachePic[key] || !cachePic[key].pic || !cachePic[key].panorama)) {
+                const pic = cachePic.get(key)
+                if (!row.isDelSnap && (!pic || !pic.pic || !pic.panorama)) {
                     const sendXml = rawXml`
                         <condition>
                             <imgId>${row.imgId}</imgId>
                             <chlId>${row.chlId}</chlId>
                             <frameTime>${row.frameTime}</frameTime>
                             <pathGUID>${row.pathGUID}</pathGUID>
-                            <sectionNo>${row.sectionNo.toString()}</sectionNo>
-                            <fileIndex>${row.fileIndex.toString()}</fileIndex>
-                            <blockNo>${row.bolckNo.toString()}</blockNo>
-                            <offset>${row.offset.toString()}</offset>
-                            <eventType>${row.eventTypeID.toString()}</eventType>
-                            ${ternary(isPanorama, '<isPanorama />')}
+                            <sectionNo>${row.sectionNo}</sectionNo>
+                            <fileIndex>${row.fileIndex}</fileIndex>
+                            <blockNo>${row.bolckNo}</blockNo>
+                            <offset>${row.offset}</offset>
+                            <eventType>${row.eventTypeID}</eventType>
+                            ${isPanorama ? '<isPanorama />' : ''}
                         </condition>
                     `
                     const result = await requestSmartTargetSnapImage(sendXml)
                     const $ = queryXml(result)
 
-                    if ($('//status').text() === 'success') {
-                        const content = $('//content').text()
+                    if ($('status').text() === 'success') {
+                        const content = $('content').text()
                         if (!content && times < REPEAR_REQUEST_IMG_TIMES) {
                             return getPic(row, isPanorama, index, times + 1)
                         }
-                        const width = Number($('//rect/ptWidth').text()) || 1
-                        const height = Number($('//rect/ptHeight').text()) || 1
-                        const leftTopX = Number($('//rect/leftTopX').text())
-                        const leftTopY = Number($('//rect/leftTopY').text())
-                        const rightBottomX = Number($('//rect/rightBottomX').text())
-                        const rightBottomY = Number($('//rect/rightBottomY').text())
+                        const width = $('rect/ptWidth').text().num() || 1
+                        const height = $('rect/ptHeight').text().num() || 1
+                        const leftTopX = $('rect/leftTopX').text().num()
+                        const leftTopY = $('rect/leftTopY').text().num()
+                        const rightBottomX = $('rect/rightBottomX').text().num()
+                        const rightBottomY = $('rect/rightBottomY').text().num()
                         const item = {
-                            pic: cachePic[key] ? cachePic[key].pic : '',
-                            panorama: cachePic[key] ? cachePic[key].panorama : '',
-                            eventType: $('//eventType').text(),
-                            targetType: $('//targetType').text(),
-                            plateNumber: $('//plateNumber').text() || '--',
+                            pic: pic ? pic.pic : '',
+                            panorama: pic ? pic.panorama : '',
+                            eventType: $('eventType').text(),
+                            targetType: $('targetType').text(),
+                            plateNumber: $('plateNumber').text() || '--',
                             width,
                             height,
                             X1: leftTopX / width,
@@ -431,24 +495,36 @@ export default defineComponent({
                             Y2: rightBottomY / height,
                             isDelSnap: false,
                             isNoData: !content,
+                            attribute: {} as Record<string, string>,
+                            owner: $('owner').text(),
+                            ownerPhone: $('ownerPhone').text(),
+                            // OpenGateType: $('OpenGateType').text(),
                         }
+
+                        $('attribute/item').forEach((attribute) => {
+                            item.attribute[attribute.attr('type')] = attribute.text()
+                        })
+
                         if (isPanorama) {
-                            item.panorama = 'data:image/png;base64,' + content
+                            item.panorama = wrapBase64Img(content)
                         } else {
-                            item.pic = 'data:image/png;base64,' + content
+                            item.pic = wrapBase64Img(content)
                         }
-                        cachePic[key] = item
+
+                        cachePic.set(key, item)
                     } else {
-                        cachePic[key] = cachePic[key] || new IntelSnapImgDto()
-                        const errorCode = Number($('//errorCode').text())
+                        const item = pic || new IntelSnapVehicleImgDto()
+                        const errorCode = $('errorCode').text().num()
                         switch (errorCode) {
                             case ErrorCode.HTTPS_CERT_EXIST:
-                                cachePic[key].isDelSnap = true
-                                cachePic[key].isNoData = false
+                                item.isDelSnap = true
+                                item.isNoData = false
+                                cachePic.set(key, item)
                                 break
                             case ErrorCode.USER_ERROR_NO_RECORDDATA:
-                                cachePic[key].isDelSnap = false
-                                cachePic[key].isNoData = true
+                                item.isDelSnap = false
+                                item.isNoData = true
+                                cachePic.set(key, item)
                                 break
                             default:
                                 // 重复获取数据
@@ -458,6 +534,7 @@ export default defineComponent({
                         }
                     }
                 }
+
                 if (getUniqueKey(row) === getUniqueKey(sliceTableData.value[index])) {
                     return true
                 } else {
@@ -480,7 +557,22 @@ export default defineComponent({
          * @description 获取列表数据
          */
         const getData = async () => {
-            const eventXml = pageData.value.searchType === 'event' ? `<events type="list">${formData.value.event.map((item) => `<item>${item}</item>`).join('')}</events>` : ''
+            stop()
+
+            if (pageData.value.searchType === 'park') {
+                pageData.value.listType = 'panorama'
+            }
+
+            let eventXml = ''
+            if (pageData.value.searchType === 'park') {
+                eventXml = rawXml`
+                    <events type="list">
+                        <item>openGates</item>
+                    </events>
+                `
+            } else {
+                eventXml = `<events type="list">${formData.value.event.map((item) => `<item>${item}</item>`).join('')}</events>`
+            }
 
             const attributeXml = Object.keys(formData.value.attribute)
                 .filter((key) => formData.value.target.includes(key))
@@ -497,12 +589,11 @@ export default defineComponent({
                 })
                 .join('')
 
-            let vehicleXml = ''
-            if (pageData.value.searchType === 'event') {
-                vehicleXml += formData.value.target.map((item) => `<item>${item}</item>`).join('')
-            } else {
-                vehicleXml += formData.value.direction.map((item) => `<item directionType="${item.toString()}">plate</item>`).join('')
+            let vehicleXml = formData.value.target.map((item) => `<item>${item}</item>`).join('')
+            if (pageData.value.searchType === 'park') {
+                vehicleXml += formData.value.direction.map((item) => `<item directionType="${item}">plate</item>`).join('')
             }
+
             if (formData.value.plateNumber) {
                 vehicleXml += `<item num="${formData.value.plateNumber}">plate</item>`
             }
@@ -510,8 +601,8 @@ export default defineComponent({
             const sendXml = rawXml`
                 <resultLimit>10000</resultLimit>
                 <condition>
-                    <startTime>${formatDate(formData.value.dateRange[0], 'YYYY-MM-DD HH:mm:ss')}</startTime>
-                    <endTime>${formatDate(formData.value.dateRange[1], 'YYYY-MM-DD HH:mm:ss')}</endTime>
+                    <startTime>${localToUtc(formData.value.dateRange[0], DEFAULT_DATE_FORMAT)}</startTime>
+                    <endTime>${localToUtc(formData.value.dateRange[1], DEFAULT_DATE_FORMAT)}</endTime>
                     <chls type="list">${formData.value.chl.map((item) => `<item id="${item}"></item>`).join('')}</chls>
                     ${eventXml}
                     <vehicle>${vehicleXml}</vehicle>
@@ -521,39 +612,43 @@ export default defineComponent({
 
             openLoading()
             formData.value.searchType = pageData.value.searchType
+            formData.value.eventType = [...formData.value.event]
+            pageData.value.isSupportCSV = formData.value.searchType === 'event' && formData.value.event.every((item) => ['plateDetection', 'plateMatchWhiteList', 'plateMatchStranger'].includes(item))
             tableData.value = []
+            cachePic.clear()
 
             const result = await searchSmartTarget(sendXml)
             const $ = queryXml(result)
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                tableData.value = $('//content/i').map((item) => {
-                    const isDelSnap = item.attr('s')! === 'd'
-                    const split = item.text().split(',')
-                    const guid = parseInt(split[3], 16)
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/i').map((item) => {
+                    const isDelSnap = item.attr('s') === 'd'
+                    const split = item.text().array()
+                    const guid = hexToDec(split[3])
                     const chlId = getChlGuid16(split[3]).toUpperCase()
-                    const timestamp = parseInt(split[0], 16) * 1000
+                    const timestamp = hexToDec(split[0]) * 1000
 
                     return {
                         isDelSnap: isDelSnap,
                         isNoData: false,
-                        imgId: parseInt(split[2], 16) + '',
+                        imgId: hexToDec(split[2]) + '',
                         timestamp,
-                        frameTime: localToUtc(timestamp) + ':' + ('0000000' + parseInt(split[1], 16)).slice(-7),
+                        frameTime: localToUtc(timestamp) + ':' + padStart(hexToDec(split[1]), 7),
                         guid,
                         chlId,
-                        chlName: chlMap[chlId],
-                        recStartTime: parseInt(split[4], 16) * 1000,
-                        recEndTime: parseInt(split[5], 16) * 1000,
+                        chlName: chlMap[chlId] || Translate('IDCS_HISTORY_CHANNEL'),
+                        recStartTime: hexToDec(split[4]) * 1000,
+                        recEndTime: hexToDec(split[5]) * 1000,
                         pathGUID: split[6],
-                        sectionNo: parseInt(split[7], 16),
-                        fileIndex: parseInt(split[8], 16),
-                        bolckNo: parseInt(split[9], 16),
-                        offset: parseInt(split[10], 16),
-                        eventTypeID: parseInt(split[11], 16),
+                        sectionNo: hexToDec(split[7]),
+                        fileIndex: hexToDec(split[8]),
+                        bolckNo: hexToDec(split[9]),
+                        offset: hexToDec(split[10]),
+                        eventTypeID: hexToDec(split[11]),
                         direction: split[13],
+                        openType: split[12],
                         plateNumber: '--',
                         pic: '',
                         panorama: '',
@@ -565,15 +660,17 @@ export default defineComponent({
                         Y1: 0,
                         X2: 0,
                         Y2: 0,
+                        attribute: {},
+                        owner: '',
+                        ownerPhone: '',
+                        isRelative: split[13] ? true : false,
                     }
                 })
                 showMaxSearchLimitTips($)
             }
+
             if (!tableData.value.length) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_RECORD_DATA'),
-                })
+                openMessageBox(Translate('IDCS_NO_RECORD_DATA'))
             }
 
             changeSortType()
@@ -585,8 +682,13 @@ export default defineComponent({
          */
         const showDetail = (index: number) => {
             stop()
-            pageData.value.detailIndex = index
-            pageData.value.isDetailPop = true
+            if (formData.value.searchType === 'event') {
+                pageData.value.detailIndex = index
+                pageData.value.isDetailPop = true
+            } else {
+                pageData.value.parkDetailIndex = index
+                pageData.value.isParkDetailPop = true
+            }
         }
 
         // 已选选项
@@ -596,9 +698,9 @@ export default defineComponent({
 
         /**
          * @description 点击表格行，勾选当前行
-         * @param {IntelSearchList} row
+         * @param {IntelSearchVehicleList} row
          */
-        const handleTableRowClick = (row: IntelSearchList) => {
+        const handleTableRowClick = (row: IntelSearchVehicleList) => {
             play(row)
             tableRef.value!.clearSelection()
             tableRef.value!.toggleRowSelection(row, true)
@@ -606,18 +708,18 @@ export default defineComponent({
 
         /**
          * @description 表格勾选项改变回调
-         * @param {IntelSearchList[]} row
+         * @param {IntelSearchVehicleList[]} row
          */
-        const handleTableSelectionChange = (row: IntelSearchList[]) => {
+        const handleTableSelectionChange = (row: IntelSearchVehicleList[]) => {
             pageData.value.selection = row
         }
 
         /**
          * @description 禁用表格选项
-         * @param {IntelSearchList} row
+         * @param {IntelSearchVehicleList} row
          * @returns {boolean}
          */
-        const getTableSelectable = (row: IntelSearchList) => {
+        const getTableSelectable = (row: IntelSearchVehicleList) => {
             return !row.isDelSnap && !!row.pic && !!row.panorama
         }
 
@@ -684,10 +786,7 @@ export default defineComponent({
                 return !auth.value.bk[item.chlId]
             })
             if (find) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_CHANNEL_BACUP_NO_PERMISSION').formatForLang(find.chlName),
-                })
+                openMessageBox(Translate('IDCS_CHANNEL_BACUP_NO_PERMISSION').formatForLang(find.chlName))
                 return false
             }
             return true
@@ -707,7 +806,7 @@ export default defineComponent({
                 downloadCSV()
             }
 
-            if (pageData.value.isBackUpVideo) {
+            if (pageData.value.isBackUpVideo && pageData.value.searchType === 'event') {
                 pageData.value.isBackUpPop = true
             } else {
                 createZip()
@@ -756,7 +855,7 @@ export default defineComponent({
          * @description 生成CSV文件名
          */
         const getCsvName = () => {
-            return 'EXPORT_SNAP_PLATE_LIST-' + dayjs().format('YYYYMMDDHHmmss')
+            return 'EXPORT_SNAP_PLATE_LIST-' + dayjs().format('YYYYMMDDHHmmss') + '.csv'
         }
 
         /**
@@ -787,10 +886,7 @@ export default defineComponent({
             if (downloadData.length) {
                 createZip()
             } else {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_RECORD_DATA'),
-                })
+                openMessageBox(Translate('IDCS_NO_RECORD_DATA'))
             }
         }
 
@@ -798,7 +894,7 @@ export default defineComponent({
          * @description 添加CSV到ZIP
          */
         const downloadCSV = () => {
-            if (isSupportCSV.value) {
+            if (pageData.value.isSupportCSV) {
                 const csvContent: string[] = []
                 const csvTitle = [
                     Translate('IDCS_SERIAL_NUMBER'),
@@ -830,7 +926,7 @@ export default defineComponent({
             })
                 .then(() => {
                     closeLoading()
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'success',
                         message: Translate('IDCS_BACKUP_SUCCESS'),
                     })
@@ -840,50 +936,11 @@ export default defineComponent({
                 })
         }
 
-        onMounted(() => {
-            // 如果路由跳转包含搜索条件，则执行搜索
-            if (history.state.eventType || history.state.targetType) {
-                if (history.state.eventType) {
-                    switch (history.state.eventType) {
-                        case 'aoi_entry':
-                        case 'aoi_leave':
-                        case 'perimeter':
-                            formData.value.event.push('intrusion')
-                            break
-                        case 'tripwire':
-                            formData.value.event.push('tripwire')
-                            break
-                        case 'pass_line':
-                            formData.value.event.push('passLine')
-                            break
-                        case 'plateDetection':
-                            formData.value.event.push('plateDetection')
-                            break
-                        case 'plateMatchWhiteList':
-                            formData.value.event.push('plateMatchWhiteList')
-                            break
-                        case 'plateMatchStranger':
-                            formData.value.event.push('plateMatchStranger')
-                            break
-                        case 'video_metavideo':
-                            formData.value.event.push('videoMetadata')
-                            break
-                    }
-                    delete history.state.eventType
-                }
-
-                if (history.state.targetType === 'vehicle') {
-                    formData.value.target.push('car')
-                } else {
-                    formData.value.target.push('motor')
-                }
-                delete history.state.targetType
-
-                getData()
-            }
+        const cacheKey = computed(() => {
+            return pageData.value.searchType === 'event' ? LocalCacheKey.KEY_VEHICLE_SEARCH_COLLECTION : LocalCacheKey.KEY_PARK_SEARCH_COLLECTION
         })
 
-        onBeforeUnmount(() => {
+        onBeforeRouteLeave(() => {
             stop()
         })
 
@@ -910,7 +967,6 @@ export default defineComponent({
             displayTime,
             getData,
             changeSortType,
-            changeSearchType,
             handleTableRowClick,
             handleTableSelectionChange,
             getTableSelectable,
@@ -922,9 +978,9 @@ export default defineComponent({
             downloadVideo,
             auth,
             displayDirection,
-            isSupportCSV,
             addPlate,
             getUniqueKey,
+            cacheKey,
         }
     },
 })

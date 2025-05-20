@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-20 13:58:09
  * @Description: 云台-任务
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 14:58:43
 -->
 <template>
     <div class="base-chl-box">
@@ -11,133 +9,117 @@
             <div class="base-chl-box-player">
                 <BaseVideoPlayer
                     ref="playerRef"
-                    type="live"
-                    @onready="handlePlayerReady"
+                    @ready="handlePlayerReady"
                 />
             </div>
             <el-form
                 ref="formRef"
-                label-position="left"
-                :style="{
-                    '--form-label-width': '100px',
-                }"
+                v-title
                 :model="formData"
                 :rules="formRule"
+                class="stripe"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select
+                    <el-select-v2
+                        v-if="tableData.length"
                         v-model="pageData.tableIndex"
+                        :options="chlOptions"
                         @change="changeChl"
-                    >
-                        <el-option
-                            v-for="(item, index) in tableData"
-                            :key="item.chlId"
-                            :value="index"
-                            :label="item.chlName"
-                        />
-                    </el-select>
+                    />
+                    <el-select-v2
+                        v-else
+                        model-value=""
+                        :options="[]"
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_FUNCTION')">
-                    <el-select
+                    <el-select-v2
                         v-model="formData.type"
+                        :options="pageData.typeOptions"
+                        :disabled="!tableData.length"
                         @change="changeType"
-                    >
-                        <el-option
-                            v-for="item in pageData.typeOptions"
-                            :key="item.value"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-select>
+                    />
                 </el-form-item>
                 <el-form-item
                     :label="Translate('IDCS_NAME')"
                     prop="name"
                 >
-                    <el-select v-model="formData.name">
-                        <el-option
-                            v-for="item in pageData.nameOptions"
-                            :key="item.value"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-select>
+                    <el-select-v2
+                        v-model="formData.name"
+                        :options="pageData.nameOptions"
+                        :disabled="!tableData.length"
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_START_TIME')">
-                    <el-time-picker
+                    <BaseTimePicker
                         v-model="formData.startTime"
-                        format="HH:mm"
-                        value-format="HH:mm"
-                        editable
-                        prefix-icon=""
-                        :placeholder="Translate('IDCS_POINT_TIME')"
+                        unit="minute"
+                        :disabled="!tableData.length"
+                        :range="[null, formData.endTime]"
                     />
                 </el-form-item>
                 <el-form-item
                     :label="Translate('IDCS_END_TIME')"
                     prop="endTime"
                 >
-                    <el-time-picker
+                    <BaseTimePicker
                         v-model="formData.endTime"
-                        format="HH:mm"
-                        value-format="HH:mm"
-                        editable
-                        prefix-icon=""
-                        :placeholder="Translate('IDCS_POINT_TIME')"
+                        unit="minute"
+                        :disabled="!tableData.length"
+                        :range="[formData.startTime, null]"
                     />
                 </el-form-item>
                 <div class="base-btn-box">
                     <el-button
                         :disabled="!tableData.length || !formData.name"
                         @click="setData"
-                        >{{ Translate('IDCS_ADD') }}</el-button
                     >
+                        {{ Translate('IDCS_ADD') }}
+                    </el-button>
                 </div>
             </el-form>
         </div>
         <div class="base-chl-box-right">
-            <div class="base-flex-box">
+            <div class="base-table-box">
                 <el-table
                     ref="tableRef"
                     :show-header="false"
                     :data="tableData"
                     :row-key="getRowKey"
                     :expand-row-key="pageData.expandRowKey"
+                    :border="false"
                     highlight-current-row
-                    border
-                    stripe
+                    show-overflow-tooltip
                     @row-click="handleRowClick"
                     @expand-change="handleExpandChange"
                 >
                     <el-table-column prop="chlName" />
                     <el-table-column>
-                        <template #default="scope">
-                            {{ Translate('IDCS_TASK_NUM_D').formatForLang(scope.row.taskItemCount) }}
+                        <template #default="{ row }: TableColumn<ChannelPtzTaskChlDto>">
+                            {{ Translate('IDCS_TASK_NUM_D').formatForLang(row.taskItemCount) }}
                         </template>
                     </el-table-column>
                     <el-table-column type="expand">
                         <template #default="data">
                             <el-table
+                                v-title
                                 :data="pageData.expandRowKey.includes(data.row.chlId) ? taskTableData : []"
                                 highlight-current-row
-                                border
-                                stripe
                                 show-overflow-tooltip
-                                height="300px"
+                                height="300"
                                 class="expand-table"
                             >
                                 <el-table-column
                                     :label="Translate('IDCS_SERIAL_NUMBER')"
                                     type="index"
-                                    width="60px"
-                                >
-                                </el-table-column>
+                                    width="60"
+                                />
                                 <el-table-column
                                     :label="Translate('IDCS_ENABLE')"
                                     prop="enable"
                                 >
                                     <template #header>
-                                        <el-dropdown trigger="click">
+                                        <el-dropdown>
                                             <BaseTableDropdownLink>
                                                 {{ Translate('IDCS_ENABLE') }}
                                             </BaseTableDropdownLink>
@@ -152,28 +134,28 @@
                                     </template>
                                 </el-table-column>
                                 <el-table-column :label="Translate('IDCS_START_TIME')">
-                                    <template #default="scope">
-                                        {{ displayTime(scope.row.startTime) }}
+                                    <template #default="{ row }: TableColumn<ChannelPtzTaskDto>">
+                                        {{ displayTime(row.startTime) }}
                                     </template>
                                 </el-table-column>
                                 <el-table-column :label="Translate('IDCS_END_TIME')">
-                                    <template #default="scope">
-                                        {{ displayTime(scope.row.endTime) }}
+                                    <template #default="{ row }: TableColumn<ChannelPtzTaskDto>">
+                                        {{ displayTime(row.endTime) }}
                                     </template>
                                 </el-table-column>
                                 <el-table-column :label="Translate('IDCS_FUNCTION')">
-                                    <template #default="scope">
-                                        {{ displayType(scope.row.type) }}
+                                    <template #default="{ row }: TableColumn<ChannelPtzTaskDto>">
+                                        {{ displayType(row.type) }}
                                     </template>
                                 </el-table-column>
                                 <el-table-column :label="Translate('IDCS_NAME')">
-                                    <template #default="scope">
-                                        {{ displayName(scope.row.name) }}
+                                    <template #default="{ row }: TableColumn<ChannelPtzTaskDto>">
+                                        {{ displayName(row.name) }}
                                     </template>
                                 </el-table-column>
                                 <el-table-column>
                                     <template #header>
-                                        <el-dropdown trigger="click">
+                                        <el-dropdown>
                                             <BaseTableDropdownLink>
                                                 {{ Translate('IDCS_OPERATION') }}
                                             </BaseTableDropdownLink>
@@ -184,13 +166,10 @@
                                             </template>
                                         </el-dropdown>
                                     </template>
-                                    <template #default="scope">
-                                        <BaseImgSprite
-                                            file="edit (2)"
-                                            :index="0"
-                                            :hover-index="1"
-                                            :chunk="4"
-                                            @click="editTask(scope.row)"
+                                    <template #default="{ row }: TableColumn<ChannelPtzTaskDto>">
+                                        <BaseImgSpriteBtn
+                                            file="edit2"
+                                            @click="editTask(row)"
                                         />
                                     </template>
                                 </el-table-column>
@@ -207,18 +186,7 @@
             @confirm="confirmEditTask"
             @close="closeEditTask"
         />
-        <BaseNotification v-model:notifications="pageData.notification" />
     </div>
 </template>
 
 <script lang="ts" src="./ChannelPtzTask.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/channel.scss';
-</style>
-
-<style lang="scss" scoped>
-.el-table :deep(.cell) {
-    width: 100%;
-}
-</style>

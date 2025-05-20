@@ -2,11 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-02 14:01:05
  * @Description: 车牌库
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:17:17
  */
 import { type TableInstance } from 'element-plus'
-import { IntelPlateDBGroupList, IntelPlateDBPlateInfo } from '@/types/apiType/intelligentAnalysis'
 import IntelLicencePlateDBEditPop from './IntelLicencePlateDBEditPop.vue'
 import IntelLicencePlateDBExportPop from './IntelLicencePlateDBExportPop.vue'
 import IntelLicencePlateDBAddPlatePop from './IntelLicencePlateDBAddPlatePop.vue'
@@ -19,8 +16,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
         const router = useRouter()
 
@@ -36,21 +31,21 @@ export default defineComponent({
             // 展开的行
             tableIndex: 0,
             // 导出按钮不显示
-            isExportDisabled: import.meta.env.VITE_APP_TYPE === 'P2P' || isHttpsLogin(),
+            isExportDisabled: userSession.appType === 'P2P' || isHttpsLogin(),
             // 是否显示编辑车牌弹窗
             isEditPlatePop: false,
             // 编辑车牌的数据
             editPlateData: new IntelPlateDBPlateInfo(),
             // 编辑车牌/新增车牌 add | edit
             editPlateType: 'add',
-            // 页码带下选项
-            pageSizes: [15, 20, 30],
             // 是否显示导出弹窗
             isExportPop: false,
             // 组ID与组名称的映射
             exportMap: {} as Record<string, string>,
             // 导出数据总条数
             exportTotal: 0,
+            // 当前选中的车牌列表行
+            currentPlateRow: new IntelPlateDBPlateInfo(),
         })
 
         const formData = ref({
@@ -65,16 +60,20 @@ export default defineComponent({
         const tableData = ref<IntelPlateDBGroupList[]>([])
         const groupTableData = ref<IntelPlateDBPlateInfo[]>([])
 
+        const isExportDisabled = computed(() => {
+            const total = tableData.value.reduce((a, b) => {
+                return a + b.plateNum
+            }, 0)
+            return !total
+        })
+
         /**
          * @description 检查是否有操作权限
          * @returns {boolean}
          */
         const checkPermission = () => {
             if (!userSession.facePersonnalInfoMgr) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_PERMISSION'),
-                })
+                openMessageBox(Translate('IDCS_NO_PERMISSION'))
                 return false
             }
             return true
@@ -111,7 +110,7 @@ export default defineComponent({
             if (pageData.value.expandRowKey.length) {
                 const find = tableData.value.find((item) => item.id === pageData.value.expandRowKey[0])
                 if (find) {
-                    tableRef.value?.toggleRowExpansion(find, false)
+                    tableRef.value!.toggleRowExpansion(find, false)
                 }
                 pageData.value.expandRowKey = []
             }
@@ -128,7 +127,7 @@ export default defineComponent({
             if (!checkPermission()) {
                 return
             }
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_NOTE_DELETE_ALL_LICENSE_PLATE'),
             }).then(async () => {
@@ -147,26 +146,23 @@ export default defineComponent({
 
                     closeLoading()
 
-                    if ($('//status').text() === 'success') {
+                    if ($('status').text() === 'success') {
                         if (pageData.value.expandRowKey.length) {
                             const find = tableData.value.find((item) => item.id === pageData.value.expandRowKey[0])
                             if (find) {
-                                tableRef.value?.toggleRowExpansion(find, false)
+                                tableRef.value!.toggleRowExpansion(find, false)
                             }
                             pageData.value.expandRowKey = []
                         }
                         getGroupList()
                     } else {
-                        openMessageTipBox({
-                            type: 'info',
-                            message: Translate('IDCS_NO_AUTH'),
-                        })
+                        openMessageBox(Translate('IDCS_NO_AUTH'))
                     }
                 } catch (e) {
                     if (pageData.value.expandRowKey.length) {
                         const find = tableData.value.find((item) => item.id === pageData.value.expandRowKey[0])
                         if (find) {
-                            tableRef.value?.toggleRowExpansion(find, false)
+                            tableRef.value!.toggleRowExpansion(find, false)
                         }
                         pageData.value.expandRowKey = []
                     }
@@ -189,10 +185,7 @@ export default defineComponent({
                 return a + b.plateNum
             }, 0)
             if (!totalTask) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_EXPORT_FAIL'),
-                })
+                openMessageBox(Translate('IDCS_EXPORT_FAIL'))
                 return
             }
 
@@ -207,38 +200,22 @@ export default defineComponent({
         /**
          * @description 跳转车牌识别页面
          */
-        const handleVehicleRecognition = async () => {
+        const handleVehicleRecognition = () => {
             if (!userSession.hasAuth('alarmMgr')) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_AUTH'),
-                })
+                openMessageBox(Translate('IDCS_NO_AUTH'))
             }
+
             if (history.state.backChlId) {
-                // $.webSession("ignoreAIJudge", true)
+                router.push({
+                    path: '/config/alarm/vehicleRecognition',
+                    state: {
+                        chlId: history.state.backChlId,
+                    },
+                })
+            } else {
                 router.push({
                     path: '/config/alarm/vehicleRecognition',
                 })
-                // if (appInfo.uiName =="UI2-A") {
-                //     $("#config_menu>div").removeClass("selected");
-                //     $("#config_menu>div[routeurl='config/alarm/faceRecognition']").addClass("selected");
-                // }
-            } else {
-                const flag = await checkChlListCaps('faceRecognition')
-                if (flag) {
-                    router.push({
-                        path: '/config/alarm/vehicleRecognition',
-                    })
-                    // if (appInfo.uiName =="UI2-A") {
-                    //     $("#config_menu>div").removeClass("selected");
-                    //     $("#config_menu>div[routeurl='config/alarm/faceRecognition']").addClass("selected");
-                    // }
-                } else {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_ADD_INTEL_CHANNEL_TIP'),
-                    })
-                }
             }
         }
 
@@ -250,6 +227,11 @@ export default defineComponent({
             if (!checkPermission()) {
                 return
             }
+
+            if (!groupId) {
+                groupId = tableData.value[pageData.value.tableIndex]?.id || ''
+            }
+
             pageData.value.editPlateData.groupId = groupId
             pageData.value.editPlateType = 'add'
             pageData.value.isEditPlatePop = true
@@ -273,11 +255,10 @@ export default defineComponent({
          */
         const confirmEditPlate = async () => {
             pageData.value.isEditPlatePop = false
-            if (pageData.value.editPlateType === 'add') {
-                await getGroupList()
-            }
+            await getGroupList()
+
             if (pageData.value.expandRowKey.length) {
-                searchPlate(pageData.value.expandRowKey[0], true)
+                searchPlate(pageData.value.expandRowKey[0])
             }
         }
 
@@ -288,7 +269,7 @@ export default defineComponent({
             if (!checkPermission()) {
                 return
             }
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(async () => {
@@ -306,15 +287,13 @@ export default defineComponent({
 
                 closeLoading()
 
-                if ($('//status').text() === 'success') {
-                    searchPlate(row.groupId, true)
+                if ($('status').text() === 'success') {
+                    await getGroupList()
+                    searchPlate(row.groupId)
                 } else {
-                    const errorCode = Number($('//errorCode').text())
+                    const errorCode = $('errorCode').text().num()
                     if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
-                        openMessageTipBox({
-                            type: 'info',
-                            message: Translate('IDCS_NO_AUTH'),
-                        })
+                        openMessageBox(Translate('IDCS_NO_AUTH'))
                     }
                 }
             })
@@ -336,7 +315,7 @@ export default defineComponent({
          */
         const changePlatePageSize = (pageSize: number, groupId: string) => {
             formData.value.pageSize = pageSize
-            searchPlate(groupId, true)
+            searchPlate(groupId)
         }
 
         /**
@@ -349,15 +328,13 @@ export default defineComponent({
         /**
          * @description 搜索车牌列表
          * @param {string} groupId
-         * @param {boolean} forced 关键字没变时是否刷新
          */
-        const searchPlate = async (groupId: string, forced = false) => {
-            if (!forced && formData.value.cacheName === formData.value.name) {
-                return
-            }
+        const searchPlate = async (groupId: string) => {
             formData.value.pageIndex = 1
             await getPlate(1, groupId)
         }
+
+        const bounceSearchPlate = debounce((groupId: string) => searchPlate(groupId), 500)
 
         /**
          * @description 获取车牌列表
@@ -370,11 +347,11 @@ export default defineComponent({
             groupTableData.value = []
 
             const sendXml = rawXml`
-                <pageIndex>${pageIndex.toString()}</pageIndex>
-                <pageSize>${formData.value.pageSize.toString()}</pageSize>
+                <pageIndex>${pageIndex}</pageIndex>
+                <pageSize>${formData.value.pageSize}</pageSize>
                 <condition>
                     <groupId>${groupId}</groupId>
-                    ${ternary(!!formData.value.name, `<plateInfoKeyword>${wrapCDATA(formData.value.name)}</plateInfoKeyword>`)}
+                    ${formData.value.name ? `<plateInfoKeyword>${wrapCDATA(formData.value.name)}</plateInfoKeyword>` : ''}
                 </condition>
             `
             const result = await queryPlateNumber(sendXml)
@@ -382,11 +359,11 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                groupTableData.value = $('//content/plate/item').map((item) => {
+            if ($('status').text() === 'success') {
+                groupTableData.value = $('content/plate/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         groupId: $item('groupId').text(),
                         plateNumber: $item('plateNumber').text(),
                         owner: $item('owner').text(),
@@ -395,7 +372,7 @@ export default defineComponent({
                         ownerFaceId: $item('ownerFaceId').text(),
                     }
                 })
-                formData.value.total = Number($('//content/plate').attr('total')!)
+                formData.value.total = $('content/plate').attr('total').num()
             }
         }
 
@@ -403,21 +380,61 @@ export default defineComponent({
          * @description 获取分组列表
          */
         const getGroupList = async () => {
-            openLoading()
-
             const result = await queryPlateLibrary()
             const $ = queryXml(result)
 
-            closeLoading()
-
-            tableData.value = $('//content/group/item').map((item) => {
+            tableData.value = $('content/group/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
-                    id: item.attr('id')!,
+                    id: item.attr('id'),
                     name: $item('name').text(),
-                    plateNum: Number($item('plateNum').text()),
+                    plateNum: $item('plateNum').text().num(),
                 }
             })
+        }
+
+        /**
+         * @description 点击车牌列表项回调
+         * @param row
+         */
+        const handleExpandRowClick = (row: IntelPlateDBPlateInfo) => {
+            pageData.value.currentPlateRow = row
+        }
+
+        /**
+         * @description 选中该行时 显示车牌号码 否则隐藏
+         * @param {IntelPlateDBPlateInfo} row
+         * @returns {string}
+         */
+        const displayPlateNumber = (row: IntelPlateDBPlateInfo) => {
+            if (row === pageData.value.currentPlateRow) {
+                return row.plateNumber
+            }
+            return hideSensitiveInfo(row.plateNumber, 'medium')
+        }
+
+        /**
+         * @description 选中改行时 显示手机号码 否则隐藏
+         * @param {IntelPlateDBPlateInfo} row
+         * @returns {string}
+         */
+        const displayPhone = (row: IntelPlateDBPlateInfo) => {
+            if (row === pageData.value.currentPlateRow) {
+                return row.ownerPhone
+            }
+            return hideSensitiveInfo(row.ownerPhone, 'medium')
+        }
+
+        /**
+         * @description 选中改行时 显示车主信息 否则隐藏
+         * @param {IntelPlateDBPlateInfo} row
+         * @returns {string}
+         */
+        const displayOwner = (row: IntelPlateDBPlateInfo) => {
+            if (row === pageData.value.currentPlateRow) {
+                return row.owner
+            }
+            return hideSensitiveInfo(row.owner, 'medium', 'name')
         }
 
         /**
@@ -436,22 +453,24 @@ export default defineComponent({
          * @param {IntelPlateDBGroupList} row
          * @param {boolean} expanded
          */
-        const handleExpandChange = async (row: IntelPlateDBGroupList, expanded: IntelPlateDBGroupList[]) => {
+        const handleExpandChange = (row: IntelPlateDBGroupList, expanded: IntelPlateDBGroupList[]) => {
             if (expanded.length > 1) {
                 const find = tableData.value.find((item) => item.id === expanded[0].id)!
-                tableRef.value?.toggleRowExpansion(find, false)
+                tableRef.value!.toggleRowExpansion(find, false)
             }
+
             if (!expanded.length) {
                 groupTableData.value = []
                 pageData.value.expandRowKey = []
             }
+
             if (expanded.some((item) => item.id === row.id)) {
-                tableRef.value?.setCurrentRow(row)
+                tableRef.value!.setCurrentRow(row)
                 groupTableData.value = []
                 pageData.value.expandRowKey = [row.id]
 
                 formData.value.name = ''
-                searchPlate(row.id, true)
+                searchPlate(row.id)
             }
         }
 
@@ -459,8 +478,16 @@ export default defineComponent({
             return row.id
         }
 
-        onMounted(async () => {
-            getGroupList()
+        onActivated(async () => {
+            openLoading()
+            await getGroupList()
+            closeLoading()
+        })
+
+        onBeforeRouteLeave(() => {
+            if (history.state.backChlId) {
+                delete history.state.backChlId
+            }
         })
 
         return {
@@ -470,6 +497,7 @@ export default defineComponent({
             editGroup,
             deleteGroup,
             exportGroup,
+            isExportDisabled,
             confirmEditGroup,
             addPlate,
             editPlate,
@@ -477,20 +505,20 @@ export default defineComponent({
             deletePlate,
             tableRef,
             tableData,
+            handleExpandRowClick,
             handleRowClick,
             handleExpandChange,
             getRowKey,
             groupTableData,
             changePlatePage,
             changePlatePageSize,
-            hideSensitiveInfo,
+            displayPlateNumber,
+            displayOwner,
+            displayPhone,
             handleNameFocus,
             searchPlate,
+            bounceSearchPlate,
             handleVehicleRecognition,
-            DefaultPagerLayout,
-            IntelLicencePlateDBEditPop,
-            IntelLicencePlateDBExportPop,
-            IntelLicencePlateDBAddPlatePop,
         }
     },
 })

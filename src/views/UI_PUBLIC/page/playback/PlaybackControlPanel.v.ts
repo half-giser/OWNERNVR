@@ -2,11 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-06 20:37:13
  * @Description: 回放-操作视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 18:32:10
  */
-import { type LiveSharedWinData } from '@/types/apiType/live'
-
 export default defineComponent({
     props: {
         /**
@@ -92,69 +88,21 @@ export default defineComponent({
             if (!chlID.value) {
                 return true
             }
+
             if (prop.winData.PLAY_STATUS === 'stop') {
                 return true
             }
+
             if (prop.winData.PLAY_STATUS === 'play') {
                 return false
             }
             return true
         })
 
-        /**
-         * @description 抓图
-         */
-        const snap = () => {
-            if (disabled.value) {
-                return
-            }
-            ctx.emit('snap')
-        }
-
-        /**
-         * @description 关闭图像
-         */
-        const closeImg = () => {
-            if (disabled.value) {
-                return
-            }
-            ctx.emit('closeImg')
-        }
-
-        /**
-         * @description 放大
-         */
-        const zoomIn = () => {
-            if (disabled.value) {
-                return
-            }
-            ctx.emit('zoomIn')
-        }
-
-        /**
-         * @description 缩小
-         */
-        const zoomOut = () => {
-            if (disabled.value) {
-                return
-            }
-            ctx.emit('zoomOut')
-        }
-
         // 是否禁用原始比例
         const originalDisplayDisabled = computed(() => {
             return !systemCaps.supportOriginalDisplay || disabled.value
         })
-
-        /**
-         * @description 原始比例
-         */
-        const originalDisplay = () => {
-            if (originalDisplayDisabled.value) {
-                return
-            }
-            ctx.emit('originalDisplay', !prop.winData.original)
-        }
 
         // 是否禁用码流类型
         const streamTypeDisabled = computed(() => {
@@ -173,6 +121,7 @@ export default defineComponent({
             if (prop.winData.streamType === type) {
                 return
             }
+
             if (streamTypeDisabled.value && type === 0) {
                 return
             }
@@ -212,11 +161,6 @@ export default defineComponent({
             pageData,
             disabled,
             originalDisplayDisabled,
-            snap,
-            closeImg,
-            zoomIn,
-            zoomOut,
-            originalDisplay,
             streamTypeDisabled,
             changeStreamType,
             audioDisabled,

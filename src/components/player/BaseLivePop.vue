@@ -8,8 +8,6 @@
         v-model="dialogOpened"
         :title="Translate('IDCS_CHANNEL_PREVIEW')"
         width="642"
-        align-center
-        draggable
         @opened="opened"
         @close="close"
     >
@@ -17,8 +15,7 @@
             <BaseVideoPlayer
                 v-if="playerOpened"
                 ref="playerRef"
-                :split="1"
-                @onready="ready"
+                @ready="ready"
             />
         </div>
     </el-dialog>
@@ -53,16 +50,21 @@ const openLiveWin = (_chlId: string, _chlName: string, _isOnline = true) => {
  */
 const play = () => {
     if (!playerRef.value || !playerRef.value.ready) return
+
     if (playerRef.value.mode === 'ocx') {
-        let sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-        playerRef.value.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-        sendXML = OCX_XML_SetProperty({
+        const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
+        playerRef.value.plugin.ExecuteCmd(sendXML)
+
+        const sendXML2 = OCX_XML_SetProperty({
             calendarType: userSessionStore.calendarType,
             supportRecStatus: false,
         })
-        playerRef.value.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-        playerRef.value!.plugin.RetryStartChlView(chlId, chlName)
-    } else {
+        playerRef.value.plugin.ExecuteCmd(sendXML2)
+
+        playerRef.value.plugin.RetryStartChlView(chlId, chlName)
+    }
+
+    if (playerRef.value.mode === 'h5') {
         playerRef.value.player.play({
             chlID: chlId,
             streamType: 2,
@@ -87,7 +89,7 @@ const close = () => {
     if (playerRef.value && playerRef.value.ready) {
         if (playerRef.value.mode === 'ocx') {
             const sendXML = OCX_XML_StopPreview('CURRENT')
-            playerRef.value.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+            playerRef.value.plugin.ExecuteCmd(sendXML)
         }
     }
     playerOpened.value = false
@@ -101,9 +103,13 @@ const ready = () => {
     play()
 }
 
-defineExpose<LivePopInstance>({
+const expose = {
     openLiveWin,
-})
+}
+
+export type LivePopReturnsType = typeof expose
+
+defineExpose(expose)
 </script>
 
 <style scoped lang="scss">

@@ -2,572 +2,335 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-16 18:13:56
  * @Description: 移动侦测
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-10 10:55:23
  */
-import { cloneDeep } from 'lodash-es'
-import { MotionEventConfig, type PresetItem } from '@/types/apiType/aiAndEvent'
-import SetPresetPop from './SetPresetPop.vue'
-// import { DropdownInstance } from 'element-plus'
+import AlarmBasePresetPop from './AlarmBasePresetPop.vue'
+import AlarmBaseSnapPop from './AlarmBaseSnapPop.vue'
+import AlarmBaseRecordPop from './AlarmBaseRecordPop.vue'
+import AlarmBaseAlarmOutPop from './AlarmBaseAlarmOutPop.vue'
+
 export default defineComponent({
     components: {
-        SetPresetPop,
+        AlarmBasePresetPop,
+        AlarmBaseSnapPop,
+        AlarmBaseRecordPop,
+        AlarmBaseAlarmOutPop,
     },
     setup() {
-        const chosedList = ref<any[]>([])
         const { Translate } = useLangStore()
-        const tableData = ref<MotionEventConfig[]>([])
-
-        // ;(snapRef.value as InstanceType<typeof ElDropdown>).handleOpen()
-        // ;(alarmOutRef.value as InstanceType<typeof ElDropdown>).handleOpen()
-        // ;(recordRef.value as InstanceType<typeof ElDropdown>).handleOpen()
-        const { openLoading, closeLoading } = useLoading()
-        const scheduleList = buildScheduleList()
         const systemCaps = useCababilityStore()
         const userSession = useUserSessionStore()
         const router = useRouter()
-        const openMessageTipBox = useMessageBox().openMessageTipBox
+
         const pageData = ref({
-            initComplated: false,
             pageIndex: 1,
             pageSize: 10,
             totalCount: 0,
-            pageDataCountItems: [10, 20, 30],
-            enableList: [
-                { value: 'true', label: Translate('IDCS_ON') },
-                { value: 'false', label: Translate('IDCS_OFF') },
-            ],
-            defaultAudioId: '{00000000-0000-0000-0000-000000000000}',
+            enableList: getTranslateOptions(DEFAULT_SWITCH_OPTIONS),
             supportAudio: false,
-            scheduleList: [] as [] as SelectOption<string, string>[],
-            audioList: [] as { value: string; label: string }[],
+            scheduleList: [] as SelectOption<string, string>[],
+            isSchedulePop: false,
+            audioList: [] as SelectOption<string, string>[],
             // 打开穿梭框时选择行的索引
             triggerDialogIndex: 0,
-
-            // record穿梭框数据源
-            recordList: [] as { value: string; label: string }[],
-            recordHeaderTitle: 'IDCS_TRIGGER_CHANNEL_RECORD',
-            recordSourceTitle: 'IDCS_CHANNEL',
-            recordTargetTitle: 'IDCS_CHANNEL_TRGGER',
-            // 表头选中id
-            recordChosedIdsAll: [] as string[],
-            // 表头选中的数据
-            recordChosedListAll: [] as { value: string; label: string }[],
-            recordIsShow: false,
-            recordType: 'record',
-
-            // snap穿梭框数据源
-            snapList: [] as { value: string; label: string }[],
-            snapHeaderTitle: 'IDCS_TRIGGER_CHANNEL_SNAP',
-            snapSourceTitle: 'IDCS_CHANNEL',
-            snapTargetTitle: 'IDCS_CHANNEL_TRGGER',
-            // 表头选中id
-            snapChosedIdsAll: [] as string[],
-            // 表头选中的数据
-            snapChosedListAll: [] as { value: string; label: string }[],
-            snapIsShow: false,
-            snapType: 'snap',
-
-            // alarmOut穿梭框数据源
-            alarmOutList: [] as { value: string; label: string; device: { value: string; label: string } }[],
-            alarmOutHeaderTitle: 'IDCS_TRIGGER_ALARM_OUT',
-            alarmOutSourceTitle: 'IDCS_ALARM_OUT',
-            alarmOutTargetTitle: 'IDCS_TRIGGER_ALARM_OUT',
-            // 表头选中id
-            alarmOutChosedIdsAll: [] as string[],
-            // 表头选中的数据
-            alarmOutChosedListAll: [] as { value: string; label: string }[],
-            alarmOutIsShow: false,
-            alarmOutType: 'alarmOut',
-
-            isPresetPopOpen: false,
-            presetChlId: '',
-            presetLinkedList: [] as PresetItem[],
-
-            // disable
-            applyDisable: true,
-            editRows: [] as MotionEventConfig[],
-
-            // popover
-            recordPopoverVisible: false,
-            snapPopoverVisible: false,
-            alarmOutPopoverVisible: false,
+            isRecordPop: false,
+            isSnapPop: false,
+            isAlarmOutPop: false,
+            isPresetPop: false,
         })
+
+        const tableData = ref<AlarmEventDto[]>([])
+
+        const editRows = useWatchEditRows<AlarmEventDto>()
+
         const getScheduleList = async () => {
-            pageData.value.scheduleList = await buildScheduleList()
-            pageData.value.scheduleList.forEach((item) => {
-                if (item.value == '') {
-                    item.value = ' '
-                }
+            pageData.value.scheduleList = await buildScheduleList({
+                defaultValue: ' ',
             })
         }
+
         const getAudioList = async () => {
             pageData.value.supportAudio = systemCaps.supportAlarmAudioConfig
-            if (pageData.value.supportAudio == true) {
-                queryAlarmAudioCfg().then(async (resb) => {
-                    pageData.value.audioList = []
-                    const res = queryXml(resb)
-                    if (res('status').text() == 'success') {
-                        res('//content/audioList/item').forEach((item) => {
-                            const $item = queryXml(item.element)
-                            pageData.value.audioList.push({
-                                value: item.attr('id')!,
-                                label: $item('name').text(),
-                            })
-                        })
-                        pageData.value.audioList.push({ value: pageData.value.defaultAudioId, label: '<' + Translate('IDCS_NULL') + '>' })
-                    }
-                })
+            if (pageData.value.supportAudio) {
+                pageData.value.audioList = await buildAudioList()
             }
         }
-        const getRecordList = async () => {
-            getChlList({
-                nodeType: 'chls',
-                isSupportSnap: false,
-            }).then(async (resb) => {
-                const res = queryXml(resb)
-                if (res('status').text() == 'success') {
-                    res('//content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        pageData.value.recordList.push({
-                            value: item.attr('id')!,
-                            label: $item('name').text(),
-                        })
-                    })
-                }
-            })
-        }
-        const getSnapList = async () => {
-            getChlList({
-                nodeType: 'chls',
-                isSupportSnap: true,
-            }).then(async (resb) => {
-                const res = queryXml(resb)
-                if (res('status').text() == 'success') {
-                    res('//content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        pageData.value.snapList.push({
-                            value: item.attr('id')!,
-                            label: $item('name').text(),
-                        })
-                    })
-                }
-            })
-        }
-        const getAlarmOutList = async () => {
-            getChlList({
-                requireField: ['device'],
-                nodeType: 'alarmOuts',
-            }).then(async (resb) => {
-                const res = queryXml(resb)
-                if (res('status').text() == 'success') {
-                    res('//content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        let name = $item('name').text()
-                        if ($item('devDesc').text()) {
-                            name = $item('devDesc').text() + '-' + name
-                        }
-                        pageData.value.alarmOutList.push({
-                            value: item.attr('id')!,
-                            label: name,
-                            device: {
-                                value: $item('device').attr('id')!,
-                                label: $item('device').text(),
-                            },
-                        })
-                    })
-                }
-            })
-        }
-        const buildTableData = () => {
-            pageData.value.initComplated = false
-            tableData.value.length = 0
+
+        const getData = () => {
+            editRows.clear()
+            tableData.value = []
             getChlList({
                 pageIndex: pageData.value.pageIndex,
                 pageSize: pageData.value.pageSize,
                 isSupportMotion: true,
-            }).then(async (resb) => {
-                const $chl = queryXml(resb)
-                pageData.value.totalCount = Number($chl('//content').attr('total'))
-                $chl('//content/item').forEach(async (item) => {
+            }).then((result) => {
+                const $chl = queryXml(result)
+                pageData.value.totalCount = $chl('content').attr('total').num()
+                tableData.value = $chl('content/item').map((item) => {
                     const $ele = queryXml(item.element)
-                    const row = new MotionEventConfig()
-                    row.id = item.attr('id')!
+                    const row = new AlarmEventDto()
+                    row.id = item.attr('id')
                     row.addType = $ele('addType').text()
                     row.chlType = $ele('chlType').text()
                     row.name = $ele('name').text()
                     row.poeIndex = $ele('poeIndex').text()
-                    row.productModel = { value: $ele('productModel').text(), factoryName: $ele('productModel').attr('factoryName') }
+                    row.productModel = {
+                        value: $ele('productModel').text(),
+                        factoryName: $ele('productModel').attr('factoryName'),
+                    }
                     row.status = 'loading'
-                    tableData.value.push(row)
+                    return row
                 })
-                for (let i = 0; i < tableData.value.length; i++) {
-                    const row = tableData.value[i]
-                    const sendXml = rawXml`<condition>
-                                        <chlId>${row.id}</chlId>
-                                    </condition>
-                                    <requireField>
-                                        <trigger/>
-                                    </requireField>`
-                    const motion = await queryMotion(sendXml)
-                    const res = queryXml(motion)
+                tableData.value.forEach(async (row) => {
+                    const sendXml = rawXml`
+                        <condition>
+                            <chlId>${row.id}</chlId>
+                        </condition>
+                        <requireField>
+                            <trigger/>
+                        </requireField>
+                    `
+                    const result = await queryMotion(sendXml)
+                    const $ = queryXml(result)
+
+                    if (!tableData.value.some((item) => item === row)) {
+                        return
+                    }
+
                     row.status = ''
 
-                    if (res('status').text() == 'success') {
-                        row.rowDisable = false
-                        row.schedule = {
-                            value: res('//content/chl/trigger/triggerSchedule/schedule').attr('id') == '' ? ' ' : res('//content/chl/trigger/triggerSchedule/schedule').attr('id'),
-                            label: res('//content/chl/trigger/triggerSchedule/schedule').text(),
-                        }
-                        row.oldSchedule = row.schedule
+                    if ($('status').text() === 'success') {
+                        const $trigger = queryXml($('content/chl/trigger')[0].element)
+
+                        row.disabled = false
+                        row.schedule = $trigger('triggerSchedule/schedule').attr('id') || ' '
                         row.record = {
-                            switch: res('//content/chl/trigger/sysRec/switch').text().toBoolean(),
-                            chls: res('//content/chl/trigger/sysRec/chls/item').map((item) => {
+                            switch: $trigger('sysRec/switch').text().bool(),
+                            chls: $trigger('sysRec/chls/item').map((item) => {
                                 return {
-                                    value: item.attr('id')!,
+                                    value: item.attr('id'),
                                     label: item.text(),
                                 }
                             }),
                         }
-                        // 获取record中chls的value列表
-                        row.recordList = row.record.chls.map((item) => item.value)
-                        row.sysAudio = res('//content/chl/trigger/sysAudio').attr('id') || pageData.value.defaultAudioId
+                        row.sysAudio = getSystemAudioID(pageData.value.audioList, $trigger('sysAudio').attr('id'))
                         row.snap = {
-                            switch: res('//content/chl/trigger/sysSnap/switch').text().toBoolean(),
-                            chls: res('//content/chl/trigger/sysSnap/chls/item').map((item) => {
+                            switch: $trigger('sysSnap/switch').text().bool(),
+                            chls: $trigger('sysSnap/chls/item').map((item) => {
                                 return {
-                                    value: item.attr('id')!,
+                                    value: item.attr('id'),
                                     label: item.text(),
                                 }
                             }),
                         }
-                        // 获取snap中chls的value列表
-                        row.snapList = row.snap.chls.map((item) => item.value)
                         row.alarmOut = {
-                            switch: res('//content/chl/trigger/alarmOut/switch').text() == 'true' ? true : false,
-                            chls: res('//content/chl/trigger/alarmOut/alarmOuts/item').map((item) => {
+                            switch: $trigger('alarmOut/switch').text().bool(),
+                            alarmOuts: $trigger('alarmOut/alarmOuts/item').map((item) => {
                                 return {
-                                    value: item.attr('id')!,
+                                    value: item.attr('id'),
                                     label: item.text(),
                                 }
                             }),
                         }
-                        row.alarmOutList = row.alarmOut.chls.map((item) => item.value)
-                        row.beeper = res('//content/chl/trigger/buzzerSwitch').text()
-                        row.email = res('//content/chl/trigger/emailSwitch').text()
-                        row.msgPush = res('//content/chl/trigger/msgPushSwitch').text()
-                        row.videoPopup = res('//content/chl/trigger/popVideoSwitch').text()
-                        row.preset.switch = res('//content/chl/trigger/preset/switch').text() == 'true' ? true : false
-                        res('//content/chl/trigger/preset/presets/item').forEach((item) => {
+                        row.beeper = $trigger('buzzerSwitch').text()
+                        row.email = $trigger('emailSwitch').text()
+                        row.msgPush = $trigger('msgPushSwitch').text()
+                        row.videoPopup = $trigger('popVideoSwitch').text()
+                        row.preset.switch = $trigger('preset/switch').text().bool()
+                        row.preset.presets = $trigger('preset/presets/item').map((item) => {
                             const $item = queryXml(item.element)
-                            row.preset.presets.push({
+                            return {
                                 index: $item('index').text(),
                                 name: $item('name').text(),
                                 chl: {
-                                    value: $item('chl').attr('id')!,
+                                    value: $item('chl').attr('id'),
                                     label: $item('chl').text(),
                                 },
-                            })
+                            }
                         })
-                        // 设置的声音文件被删除时，显示为none
-                        const AudioData = pageData.value.audioList.filter((element: { value: string; label: string }) => {
-                            return element.value === row.sysAudio
-                        })
-                        if (AudioData.length === 0) {
-                            row.sysAudio = pageData.value.defaultAudioId
-                        }
+
+                        editRows.listen(row)
                     } else {
-                        row.rowDisable = true
+                        row.disabled = true
                     }
-                }
+                })
             })
         }
+
         const changePagination = () => {
-            buildTableData()
+            getData()
         }
+
         const changePaginationSize = () => {
             const totalPage = Math.ceil(pageData.value.totalCount / pageData.value.pageSize)
             if (pageData.value.pageIndex > totalPage) {
                 pageData.value.pageIndex = totalPage
             }
-            buildTableData()
+            getData()
         }
-        const handleScheduleChangeAll = (schedule: { value: string; label: string }) => {
+
+        const changeAllSchedule = (schedule: string) => {
             tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
+                if (!item.disabled) {
                     item.schedule = schedule
-                    addEditRow(item)
                 }
             })
         }
 
-        // 下列为record穿梭框相关
-        const recordConfirmAll = (e: any[]) => {
-            if (e.length !== 0) {
-                pageData.value.recordChosedListAll = cloneDeep(e)
-                pageData.value.recordChosedIdsAll = e.map((item) => item.value)
-                tableData.value.forEach((item) => {
-                    if (!item.rowDisable) {
-                        addEditRow(item)
-                        item.record.switch = true
-                        item.record.chls = pageData.value.recordChosedListAll
-                        item.recordList = pageData.value.recordChosedListAll.map((item) => item.value)
-                    }
-                })
-            } else {
-                tableData.value.forEach((item) => {
-                    if (!item.rowDisable) {
-                        addEditRow(item)
-                        item.record.switch = false
-                        item.record.chls = []
-                        item.recordList = []
-                    }
-                })
-            }
-            pageData.value.recordChosedListAll = []
-            pageData.value.recordChosedIdsAll = []
-            pageData.value.recordPopoverVisible = false
-        }
-        const recordCloseAll = () => {
-            pageData.value.recordChosedListAll = []
-            pageData.value.recordChosedIdsAll = []
-            pageData.value.recordPopoverVisible = false
-        }
-        const setRecord = (index: number) => {
-            pageData.value.recordIsShow = true
-            pageData.value.triggerDialogIndex = index
-        }
-        const recordConfirm = (e: { value: string; label: string }[]) => {
-            addEditRow(tableData.value[pageData.value.triggerDialogIndex])
-            if (e.length !== 0) {
-                tableData.value[pageData.value.triggerDialogIndex].record.chls = cloneDeep(e)
-                const chls = tableData.value[pageData.value.triggerDialogIndex].record.chls
-                tableData.value[pageData.value.triggerDialogIndex].recordList = chls.map((item) => item.value)
-            } else {
-                tableData.value[pageData.value.triggerDialogIndex].record.chls = []
-                tableData.value[pageData.value.triggerDialogIndex].recordList = []
-                tableData.value[pageData.value.triggerDialogIndex].record.switch = false
-            }
-            pageData.value.recordIsShow = false
-        }
-        const recordClose = () => {
-            if (!tableData.value[pageData.value.triggerDialogIndex].record.chls.length) {
-                tableData.value[pageData.value.triggerDialogIndex].record.switch = false
-                tableData.value[pageData.value.triggerDialogIndex].recordList = []
-                tableData.value[pageData.value.triggerDialogIndex].record.chls = []
-            }
-            pageData.value.recordIsShow = false
+        const openSchedulePop = () => {
+            pageData.value.isSchedulePop = true
         }
 
-        // 下列为snap穿梭框相关
-        const snapConfirmAll = (e: any[]) => {
-            if (e.length !== 0) {
-                pageData.value.snapChosedListAll = cloneDeep(e)
-                pageData.value.snapChosedIdsAll = e.map((item) => item.value)
-                tableData.value.forEach((item) => {
-                    if (!item.rowDisable) {
-                        addEditRow(item)
-                        item.snap.switch = true
-                        item.snap.chls = pageData.value.snapChosedListAll
-                        item.snapList = pageData.value.snapChosedListAll.map((item) => item.value)
-                    }
-                })
-            } else {
-                tableData.value.forEach((item) => {
-                    if (!item.rowDisable) {
-                        addEditRow(item)
-                        item.snap.switch = false
-                        item.snap.chls = []
-                        item.snapList = []
-                    }
-                })
-            }
-            pageData.value.snapChosedListAll = []
-            pageData.value.snapChosedIdsAll = []
-            pageData.value.snapPopoverVisible = false
-        }
-        const snapCloseAll = () => {
-            pageData.value.snapChosedListAll = []
-            pageData.value.snapChosedIdsAll = []
-            pageData.value.snapPopoverVisible = false
-        }
-        const setSnap = (index: number) => {
-            pageData.value.snapIsShow = true
-            pageData.value.triggerDialogIndex = index
-        }
-        const snapConfirm = (e: { value: string; label: string }[]) => {
-            addEditRow(tableData.value[pageData.value.triggerDialogIndex])
-            if (e.length !== 0) {
-                tableData.value[pageData.value.triggerDialogIndex].snap.chls = cloneDeep(e)
-                const chls = tableData.value[pageData.value.triggerDialogIndex].snap.chls
-                tableData.value[pageData.value.triggerDialogIndex].snapList = chls.map((item) => item.value)
-            } else {
-                tableData.value[pageData.value.triggerDialogIndex].snap.chls = []
-                tableData.value[pageData.value.triggerDialogIndex].snapList = []
-                tableData.value[pageData.value.triggerDialogIndex].snap.switch = false
-            }
-            pageData.value.snapIsShow = false
-        }
-        const snapClose = () => {
-            if (!tableData.value[pageData.value.triggerDialogIndex].snap.chls.length) {
-                tableData.value[pageData.value.triggerDialogIndex].snap.switch = false
-                tableData.value[pageData.value.triggerDialogIndex].snapList = []
-                tableData.value[pageData.value.triggerDialogIndex].snap.chls = []
-            }
-            pageData.value.snapIsShow = false
-        }
-
-        // 下列为alarmOut穿梭框相关
-        const alarmOutConfirmAll = (e: any[]) => {
-            if (e.length !== 0) {
-                pageData.value.alarmOutChosedListAll = cloneDeep(e)
-                pageData.value.alarmOutChosedIdsAll = e.map((item) => item.value)
-                tableData.value.forEach((item) => {
-                    if (!item.rowDisable) {
-                        addEditRow(item)
-                        item.alarmOut.switch = true
-                        item.alarmOut.chls = pageData.value.alarmOutChosedListAll
-                        item.alarmOutList = pageData.value.alarmOutChosedListAll.map((item) => item.value)
-                    }
-                })
-            } else {
-                tableData.value.forEach((item) => {
-                    if (!item.rowDisable) {
-                        addEditRow(item)
-                        item.alarmOut.switch = false
-                        item.alarmOut.chls = []
-                        item.alarmOutList = []
-                    }
-                })
-            }
-            pageData.value.alarmOutChosedListAll = []
-            pageData.value.alarmOutChosedIdsAll = []
-            pageData.value.alarmOutPopoverVisible = false
-        }
-        const alarmOutCloseAll = () => {
-            pageData.value.alarmOutChosedListAll = []
-            pageData.value.alarmOutChosedIdsAll = []
-            pageData.value.alarmOutPopoverVisible = false
-        }
-        const setAlarmOut = (index: number) => {
-            pageData.value.alarmOutIsShow = true
-            pageData.value.triggerDialogIndex = index
-        }
-        const alarmOutConfirm = (e: { value: string; label: string }[]) => {
-            addEditRow(tableData.value[pageData.value.triggerDialogIndex])
-            if (e.length !== 0) {
-                tableData.value[pageData.value.triggerDialogIndex].alarmOut.chls = cloneDeep(e)
-                const chls = tableData.value[pageData.value.triggerDialogIndex].alarmOut.chls
-                tableData.value[pageData.value.triggerDialogIndex].alarmOutList = chls.map((item) => item.value)
-            } else {
-                tableData.value[pageData.value.triggerDialogIndex].alarmOut.chls = []
-                tableData.value[pageData.value.triggerDialogIndex].alarmOutList = []
-                tableData.value[pageData.value.triggerDialogIndex].alarmOut.switch = false
-            }
-            pageData.value.alarmOutIsShow = false
-        }
-        const alarmOutClose = () => {
-            if (!tableData.value[pageData.value.triggerDialogIndex].alarmOut.chls.length) {
-                tableData.value[pageData.value.triggerDialogIndex].alarmOut.switch = false
-                tableData.value[pageData.value.triggerDialogIndex].alarmOutList = []
-                tableData.value[pageData.value.triggerDialogIndex].alarmOut.chls = []
-            }
-            pageData.value.alarmOutIsShow = false
-        }
-
-        // presetPop相关
-        const openPresetPop = (row: MotionEventConfig) => {
-            pageData.value.presetChlId = row.id
-            pageData.value.presetLinkedList = row.preset.presets
-            pageData.value.isPresetPopOpen = true
-        }
-
-        const handlePresetLinkedList = (id: string, linkedList: PresetItem[]) => {
+        const closeSchedulePop = async () => {
+            pageData.value.isSchedulePop = false
+            await getScheduleList()
             tableData.value.forEach((item) => {
-                if (item.id == id) {
-                    item.preset.presets = linkedList
-                    addEditRow(item)
+                if (!item.disabled) {
+                    item.schedule = getScheduleId(pageData.value.scheduleList, item.schedule, ' ')
                 }
             })
         }
-        const presetClose = (id: string) => {
-            pageData.value.isPresetPopOpen = false
-            tableData.value.forEach((item) => {
-                if (item.id == id && item.preset.presets.length == 0) {
-                    item.preset.switch = false
-                }
-            })
-        }
-        // 四个按钮checkBox切换
-        const recordSwitchChange = (row: MotionEventConfig) => {
-            addEditRow(row)
-            if (row.record.switch === false) {
-                row.record.chls = []
-                row.recordList = []
+
+        const switchRecord = (index: number) => {
+            const row = tableData.value[index].record
+            if (row.switch) {
+                openRecord(index)
+            } else {
+                row.chls = []
             }
         }
-        const snapSwitchChange = (row: MotionEventConfig) => {
-            addEditRow(row)
-            if (row.snap.switch === false) {
-                row.snap.chls = []
-                row.snapList = []
+
+        const openRecord = (index: number) => {
+            tableData.value[index].record.switch = true
+            pageData.value.triggerDialogIndex = index
+            pageData.value.isRecordPop = true
+        }
+
+        const changeRecord = (index: number, data: SelectOption<string, string>[]) => {
+            if (tableData.value[index].disabled) {
+                return
+            }
+            pageData.value.isRecordPop = false
+            tableData.value[index].record = {
+                switch: !!data.length,
+                chls: cloneDeep(data),
             }
         }
-        const alarmOutSwitchChange = (row: MotionEventConfig) => {
-            addEditRow(row)
-            if (row.alarmOut.switch === false) {
-                row.alarmOut.chls = []
-                row.alarmOutList = []
+
+        const switchSnap = (index: number) => {
+            const row = tableData.value[index].snap
+            if (row.switch) {
+                openSnap(index)
+            } else {
+                row.chls = []
             }
         }
-        const presetSwitchChange = (row: MotionEventConfig) => {
-            addEditRow(row)
-            if (row.preset.switch === false) {
-                row.preset.presets = []
+
+        const openSnap = (index: number) => {
+            tableData.value[index].snap.switch = true
+            pageData.value.triggerDialogIndex = index
+            pageData.value.isSnapPop = true
+        }
+
+        const changeSnap = (index: number, data: SelectOption<string, string>[]) => {
+            if (tableData.value[index].disabled) {
+                return
+            }
+            pageData.value.isSnapPop = false
+            tableData.value[index].snap = {
+                switch: !!data.length,
+                chls: cloneDeep(data),
+            }
+        }
+
+        const switchAlarmOut = (index: number) => {
+            const row = tableData.value[index].alarmOut
+            if (row.switch) {
+                openAlarmOut(index)
+            } else {
+                row.alarmOuts = []
+            }
+        }
+
+        const openAlarmOut = (index: number) => {
+            tableData.value[index].alarmOut.switch = true
+            pageData.value.triggerDialogIndex = index
+            pageData.value.isAlarmOutPop = true
+        }
+
+        const changeAlarmOut = (index: number, data: SelectOption<string, string>[]) => {
+            if (tableData.value[index].disabled) {
+                return
+            }
+            pageData.value.isAlarmOutPop = false
+            tableData.value[index].alarmOut = {
+                switch: !!data.length,
+                alarmOuts: cloneDeep(data),
+            }
+        }
+
+        const switchPreset = (index: number) => {
+            const row = tableData.value[index].preset
+            if (row.switch) {
+                openPreset(index)
+            } else {
+                row.presets = []
+            }
+        }
+
+        const openPreset = (index: number) => {
+            tableData.value[index].alarmOut.switch = true
+            pageData.value.triggerDialogIndex = index
+            pageData.value.isPresetPop = true
+        }
+
+        const changePreset = (index: number, data: AlarmPresetItem[]) => {
+            pageData.value.isPresetPop = false
+            tableData.value[index].preset = {
+                switch: !!data.length,
+                presets: cloneDeep(data),
             }
         }
 
         // 系统音频
-        const handleSysAudioChangeAll = (sysAudio: string) => {
+        const changeAllAudio = (sysAudio: string) => {
             tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
-                    addEditRow(item)
+                if (!item.disabled) {
                     item.sysAudio = sysAudio
                 }
             })
         }
+
         // 消息推送
-        const handleMsgPushChangeAll = (msgPush: string) => {
+        const changeAllMsgPush = (msgPush: string) => {
             tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
-                    addEditRow(item)
+                if (!item.disabled) {
                     item.msgPush = msgPush
                 }
             })
         }
+
         // 蜂鸣器
-        const handleBeeperChangeAll = (beeper: string) => {
+        const changeAllBeeper = (beeper: string) => {
             tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
-                    addEditRow(item)
+                if (!item.disabled) {
                     item.beeper = beeper
                 }
             })
         }
+
         // 视频弹出
-        const handleVideoPopupChangeAll = (videoPopup: string) => {
+        const changeAllVideoPopUp = (videoPopup: string) => {
             tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
-                    addEditRow(item)
+                if (!item.disabled) {
                     item.videoPopup = videoPopup
                 }
             })
         }
+
         // 邮件
-        const handleEmailChangeAll = (email: string) => {
+        const changeAllEmail = (email: string) => {
             tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
-                    addEditRow(item)
+                if (!item.disabled) {
                     item.email = email
                 }
             })
@@ -576,187 +339,134 @@ export default defineComponent({
         const handleMotionSetting = () => {
             // 跳转到移动侦测设置页面
             // router.push('/config/channel/settings/motion')
-            if (userSession.hasAuth('RemoteChlMgr')) {
+            if (userSession.hasAuth('remoteChlMgr')) {
                 router.push('/config/channel/settings/motion')
             } else {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_AUTH'),
-                })
+                openMessageBox(Translate('IDCS_NO_AUTH'))
             }
         }
-        const addEditRow = (row: MotionEventConfig) => {
-            // 若该行不存在于编辑行中，则添加
-            const isExist = pageData.value.editRows.some((item) => item.id === row.id)
-            if (!isExist) {
-                pageData.value.editRows.push(row)
-            }
-            pageData.value.applyDisable = false
-        }
-        const getSavaData = (rowData: MotionEventConfig) => {
-            const recordSwitch = rowData.record.switch
-            const snapSwitch = rowData.snap.switch
-            const alarmOutSwitch = rowData.alarmOut.switch
-            const presetSwitch = rowData.preset.switch
-            let sendXml = rawXml`<content>
-                                <chl id="${rowData.id}">
-                                <trigger>`
-            sendXml += rawXml`<sysRec>
-                            <switch>${recordSwitch.toString()}</switch>
-                            <chls type="list">`
-            if (!recordSwitch) {
-                rowData.record = { switch: false, chls: [] }
-            }
-            const recordChls = rowData.record.chls
-            recordChls.forEach((item) => {
-                sendXml += rawXml` <item id="${item.value}">
-                                <![CDATA[${item.label}]]>
-                            </item>`
-            })
-            sendXml += rawXml`</chls>
-                    </sysRec>`
-            sendXml += rawXml`<alarmOut>
-                            <switch>${alarmOutSwitch.toString()}</switch>
-                            <alarmOuts type="list">`
-            if (!alarmOutSwitch) {
-                rowData.alarmOut = { switch: false, chls: [] }
-            }
-            const alarmOutChls = rowData.alarmOut.chls
-            alarmOutChls.forEach((item) => {
-                sendXml += rawXml` <item id="${item.value}">
-                                <![CDATA[${item.label}]]>
-                            </item>`
-            })
-            sendXml += rawXml`</alarmOuts>
-                    </alarmOut>`
-            sendXml += rawXml`<preset>
-                            <switch>${presetSwitch.toString()}</switch>
-                            <presets type="list">`
-            if (!presetSwitch) {
-                rowData.preset = { switch: false, presets: [] }
-            }
-            let presets = rowData.preset.presets
-            if (!presets) {
-                presets = []
-            }
-            if (!(presets instanceof Array)) {
-                presets = [presets]
-            }
-            presets.forEach((item) => {
-                if (item.index) {
-                    sendXml += rawXml`
-                        <item>
-                            <index>${item.index}</index>
-                            <name><![CDATA[${item.name}]]></name>
-                            <chl id="${item.chl.value}"><![CDATA[${item.chl.label}]]></chl>
-                        </item>`
-                }
-            })
-            sendXml += rawXml`</presets>
-                    </preset>`
-            sendXml += rawXml`<sysSnap>
-                            <switch>${snapSwitch.toString()}</switch>
-                            <chls type="list">`
-            if (!snapSwitch) {
-                rowData.snap = { switch: false, chls: [] }
-            }
-            const snapChls = rowData.snap.chls
-            snapChls.forEach((item) => {
-                sendXml += rawXml` <item id="${item.value}">
-                                <![CDATA[${item.label}]]>
-                            </item>`
-            })
-            sendXml += rawXml`</chls>
-                    </sysSnap>`
-            const schedule = rowData.schedule.value == ' ' ? true : false
-            sendXml += rawXml`
-                        <buzzerSwitch>${rowData.beeper}</buzzerSwitch>
-                        <msgPushSwitch>${rowData.msgPush}</msgPushSwitch>
-                        <sysAudio id='${rowData.sysAudio}'></sysAudio>
-                        <triggerSchedule>
-                            <switch>${schedule.toString()}</switch>
-                            <schedule id="${rowData.schedule.value == ' ' ? '' : rowData.schedule.value}"></schedule>
-                        </triggerSchedule>
-                        <popVideoSwitch>${rowData.videoPopup}</popVideoSwitch>
-                        <emailSwitch>${rowData.email}</emailSwitch>
+
+        const getSavaData = (rowData: AlarmEventDto) => {
+            const sendXml = rawXml`
+                <content>
+                    <chl id="${rowData.id}">
+                        <trigger>
+                            <sysRec>
+                                <switch>${rowData.record.switch}</switch>
+                                <chls type="list">
+                                    ${rowData.record.chls.map((item) => `<item id="${item.value}">${wrapCDATA(item.label)}</item>`).join('')}
+                                </chls>
+                            </sysRec>
+                            <alarmOut>
+                                <switch>${rowData.alarmOut.switch}</switch>
+                                <alarmOuts type="list">
+                                    ${rowData.alarmOut.alarmOuts.map((item) => `<item id="${item.value}">${wrapCDATA(item.label)}</item>`).join('')}
+                                </alarmOuts>
+                            </alarmOut>
+                            <preset>
+                                <switch>${rowData.preset.switch}</switch>
+                                <presets type="list">
+                                    ${rowData.preset.presets
+                                        .map((item) => {
+                                            if (item.index) {
+                                                return rawXml`
+                                                    <item>
+                                                        <index>${item.index}</index>
+                                                        <name>${wrapCDATA(item.name)}</name>
+                                                        <chl id="${item.chl.value}">${wrapCDATA(item.chl.label)}</chl>
+                                                    </item>`
+                                            }
+                                            return ''
+                                        })
+                                        .join('')}
+                                </presets>
+                            </preset>
+                            <sysSnap>
+                                <switch>${rowData.snap.switch}</switch>
+                                <chls type="list">
+                                    ${rowData.snap.chls.map((item) => `<item id="${item.value}">${wrapCDATA(item.label)}</item>`).join('')}
+                                </chls>
+                            </sysSnap>
+                            <buzzerSwitch>${rowData.beeper}</buzzerSwitch>
+                            <msgPushSwitch>${rowData.msgPush}</msgPushSwitch>
+                            <sysAudio id='${rowData.sysAudio}'></sysAudio>
+                            <triggerSchedule>
+                                <switch>${rowData.schedule !== ' '}</switch>
+                                <schedule id="${rowData.schedule === ' ' ? '' : rowData.schedule}"></schedule>
+                            </triggerSchedule>
+                            <popVideoSwitch>${rowData.videoPopup}</popVideoSwitch>
+                            <emailSwitch>${rowData.email}</emailSwitch>
                         </trigger>
                     </chl>
-                </content>`
+                </content>
+            `
             return sendXml
         }
-        const setData = () => {
+
+        const setData = async () => {
             openLoading()
-            pageData.value.editRows.forEach((item: MotionEventConfig) => {
-                const sendXml = getSavaData(item)
-                editMotion(sendXml).then((resb) => {
-                    const res = queryXml(resb)
-                    if (res('status').text() == 'success') {
+
+            tableData.value.forEach((ele) => (ele.status = ''))
+
+            for (const item of editRows.toArray()) {
+                try {
+                    const sendXml = getSavaData(item)
+                    const result = await editMotion(sendXml)
+                    const $ = queryXml(result)
+                    if ($('status').text() === 'success') {
                         item.status = 'success'
+                        editRows.remove(item)
                     } else {
-                        item.status = 'error'
-                        const errorCode = Number(res('errorCode').text())
+                        const errorCode = $('errorCode').text().num()
                         if (errorCode === ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL) {
                             item.status = 'success'
+                            editRows.remove(item)
                         } else {
                             item.status = 'error'
                         }
                     }
-                    // buildTableData()
-                })
-            })
+                } catch {
+                    item.status = 'error'
+                }
+            }
+
             closeLoading()
-            pageData.value.editRows = []
-            pageData.value.applyDisable = true
         }
 
         onMounted(async () => {
             await getScheduleList()
             await getAudioList()
-            await getRecordList()
-            await getSnapList()
-            await getAlarmOutList()
-            buildTableData()
+            getData()
         })
+
         return {
             changePagination,
             changePaginationSize,
-            scheduleList,
-            chosedList,
             pageData,
             tableData,
-            openMessageTipBox,
-            handleScheduleChangeAll,
-            recordConfirmAll,
-            recordCloseAll,
-            setRecord,
-            recordConfirm,
-            recordClose,
-            snapConfirmAll,
-            snapCloseAll,
-            setSnap,
-            snapConfirm,
-            snapClose,
-            alarmOutConfirmAll,
-            alarmOutCloseAll,
-            setAlarmOut,
-            alarmOutConfirm,
-            alarmOutClose,
-            openPresetPop,
-            handlePresetLinkedList,
-            presetClose,
-            recordSwitchChange,
-            snapSwitchChange,
-            alarmOutSwitchChange,
-            presetSwitchChange,
-            handleSysAudioChangeAll,
-            handleMsgPushChangeAll,
-            handleBeeperChangeAll,
-            handleVideoPopupChangeAll,
-            handleEmailChangeAll,
+            editRows,
+            changeAllSchedule,
+            closeSchedulePop,
+            openSchedulePop,
+            switchRecord,
+            openRecord,
+            changeRecord,
+            switchAlarmOut,
+            openAlarmOut,
+            changeAlarmOut,
+            switchSnap,
+            openSnap,
+            changeSnap,
+            switchPreset,
+            openPreset,
+            changePreset,
+            changeAllAudio,
+            changeAllMsgPush,
+            changeAllBeeper,
+            changeAllVideoPopUp,
+            changeAllEmail,
             handleMotionSetting,
             setData,
-            addEditRow,
-            SetPresetPop,
         }
     },
 })

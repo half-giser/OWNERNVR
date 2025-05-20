@@ -2,23 +2,23 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-04-20 16:04:39
  * @Description: 二级类型1布局页--适用于所有配置页
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-08 16:49:04
  */
-
 import { getMenuItem } from '@/router'
 
 export default defineComponent({
     setup() {
         const route = useRoute()
         const router = useRouter()
-        const chilComponent = ref()
+        const chilComponent = ref<ConfigComponentInstance>()
         const layoutStore = useLayoutStore()
         const userSession = useUserSessionStore()
 
         const menu2Item = computed(() => layoutStore.menu2Item)
         const menu3Items = computed(() => layoutStore.menu3Items)
         const menu3Item = computed(() => layoutStore.menu3Item)
+
+        const disabledIconIndex = import.meta.env.VITE_UI_TYPE === 'UI2-A' ? 0 : 1
+        const normalIconIndex = import.meta.env.VITE_UI_TYPE === 'UI2-A' ? 1 : 0
 
         /**
          * @description 排序后的菜单分组
@@ -49,7 +49,7 @@ export default defineComponent({
             navList.value.push(getMenuItem(routes.find((o) => o.name === 'functionPanel') as any as RouteRecordRawExtends))
 
             if (route.meta.navs) {
-                ;(route.meta.navs as string[]).forEach((name: string) => {
+                ;(route.meta.navs as string[]).forEach((name) => {
                     const navRoute = routes.find((o) => o.name === name)
                     if (navRoute) {
                         navList.value.push(getMenuItem(navRoute as any as RouteRecordRawExtends))
@@ -70,9 +70,11 @@ export default defineComponent({
                 if (meta.noMenu) {
                     return
                 }
+
                 if (!groupMenuMap.value[meta.group]) {
                     groupMenuMap.value[meta.group] = [] as RouteRecordRawExtends[]
                 }
+
                 groupMenuMap.value[meta.group].push(value)
             })
         }
@@ -101,6 +103,7 @@ export default defineComponent({
             if (getMenuDisabled(route)) {
                 return
             }
+
             router.push({
                 path: route.meta.fullPath,
             })
@@ -111,7 +114,9 @@ export default defineComponent({
          * @param {ConfigToolBarEvent} toolBarEvent
          */
         const handleToolBarEvent = (toolBarEvent: ConfigToolBarEvent<any>) => {
-            chilComponent.value?.handleToolBarEvent(toolBarEvent)
+            if (chilComponent.value && chilComponent.value.handleToolBarEvent) {
+                chilComponent.value.handleToolBarEvent(toolBarEvent)
+            }
         }
 
         /**
@@ -120,7 +125,7 @@ export default defineComponent({
          * @returns {boolean}
          */
         const getMenuDisabled = (route: RouteRecordRawExtends) => {
-            return typeof route.meta.enabled !== 'undefined' && !userSession.hasAuth(route.meta.enabled)
+            return typeof route.meta.auth !== 'undefined' && !userSession.hasAuth(route.meta.auth)
         }
 
         /**
@@ -167,6 +172,8 @@ export default defineComponent({
             getMenuDisabled,
             getMenuGroupDisabled,
             goToPath,
+            normalIconIndex,
+            disabledIconIndex,
         }
     },
 })

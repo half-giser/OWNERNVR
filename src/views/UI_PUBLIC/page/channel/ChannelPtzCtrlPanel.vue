@@ -2,30 +2,29 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-20 14:01:55
  * @Description: 云台-控制台
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-20 18:26:00
 -->
 <template>
-    <div class="ctrl">
+    <div
+        class="ctrl"
+        :class="{
+            disabled: !chlId || disabled,
+        }"
+    >
         <div class="steer">
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 v-for="item in pageData.steer"
                 :key="item.file"
                 :file="item.file"
-                :index="0"
-                :hover-index="1"
-                :chunk="4"
+                :disabled="!chlId || disabled"
                 @mousedown="addCmd(item)"
                 @mouseup="stopCmd()"
             />
         </div>
         <div class="value">
             <div class="speed">
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     file="SpeedSlow"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
+                    :disabled="!chlId || disabled"
                     @click="decreaseSpeed()"
                 />
                 <el-slider
@@ -33,13 +32,13 @@
                     :min="pageData.minSpeed"
                     :max="pageData.maxSpeed"
                     :step="1"
+                    :disabled="!chlId || disabled"
+                    :show-tooltip="!chlId || disabled ? false : true"
                     placement="bottom"
                 />
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     file="SpeedQuick"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
+                    :disabled="!chlId || disabled"
                     @click="increaseSpeed()"
                 />
             </div>
@@ -48,20 +47,16 @@
                 :key="item.name"
                 class="row"
             >
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     :file="item.control[0].file"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
+                    :disabled="!chlId || disabled"
                     @mousedown="addCmd(item.control[0])"
                     @mouseup="stopCmd()"
                 />
                 <span>{{ item.name }}</span>
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     :file="item.control[1].file"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
+                    :disabled="!chlId || disabled"
                     @mousedown="addCmd(item.control[1])"
                     @mouseup="stopCmd()"
                 />
@@ -80,6 +75,12 @@
     align-items: center;
     box-sizing: border-box;
     padding: 10px;
+
+    &.disabled {
+        .row {
+            color: var(--main-text-light);
+        }
+    }
 }
 
 .steer {
@@ -102,11 +103,13 @@
     flex-shrink: 0;
 
     span:first-child {
-        margin-right: 5px;
+        margin-right: 10px;
+        flex-shrink: 0;
     }
 
     span:last-child {
-        margin-left: 5px;
+        margin-left: 10px;
+        flex-shrink: 0;
     }
 }
 

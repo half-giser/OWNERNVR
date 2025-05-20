@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-26 10:56:10
  * @Description: 日期切换按钮
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 13:57:28
 -->
 <template>
     <div class="date-tab">
@@ -12,61 +10,43 @@
                 v-for="item in filterBtns"
                 :key="item.value"
                 :value="item.value"
+                :label="item.value === 'today' ? `${item.label} ${today}` : item.label"
                 @click="handleClick(item.value)"
-                >{{ item.value === 'today' ? `${item.label} ${today}` : item.label }}</el-radio-button
-            >
+            />
         </el-radio-group>
         <el-dialog
             v-model="pageData.isCustomPop"
             :title="Translate('IDCS_TIME_CUSTOMIZE')"
-            width="500"
+            width="450"
+            align-center
+            draggable
             :show-close="false"
             append-to-body
         >
-            <el-form
-                label-position="left"
-                :style="{
-                    '--form-input-width': '100%',
-                }"
-                class="inline-message"
-            >
+            <el-form class="stripe">
                 <el-form-item :label="Translate('IDCS_START_TIME')">
-                    <el-date-picker
+                    <BaseDatePicker
                         v-model="formData.startTime"
-                        :value-format="dateTime.dateTimeFormat"
-                        :format="dateTime.dateTimeFormat"
-                        :cell-class-name="highlightWeekend"
-                        clear-icon=""
-                        type="datetime"
+                        :type="customType === 'day' ? 'date' : 'datetime'"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_END_TIME')">
-                    <el-date-picker
+                    <BaseDatePicker
                         v-model="formData.endTime"
-                        :value-format="dateTime.dateTimeFormat"
-                        :format="dateTime.dateTimeFormat"
-                        :cell-class-name="highlightWeekend"
-                        clear-icon=""
-                        type="datetime"
+                        :type="customType === 'day' ? 'date' : 'datetime'"
                     />
                 </el-form-item>
             </el-form>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end btnBox"
-                >
-                    <el-button @click="verifyCustomPop">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="cancelCustomPop">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
+            <div class="base-btn-box">
+                <el-button @click="verifyCustomPop">{{ Translate('IDCS_OK') }}</el-button>
+                <el-button @click="cancelCustomPop">{{ Translate('IDCS_CANCEL') }}</el-button>
+            </div>
         </el-dialog>
     </div>
 </template>
 
 <script lang="ts" setup>
 import dayjs from 'dayjs'
-import { highlightWeekend } from '@/utils/date'
 
 const props = withDefaults(
     defineProps<{
@@ -78,9 +58,14 @@ const props = withDefaults(
          * @property 起止日期时间戳
          */
         modelValue: [number, number]
+        /**
+         * @property 自定义时间类型 minute | second | day
+         */
+        customType?: 'minute' | 'second' | 'day'
     }>(),
     {
         layout: () => ['date', 'week', 'month', 'custom', 'today'],
+        customType: 'second',
     },
 )
 
@@ -89,7 +74,6 @@ const emits = defineEmits<{
     (e: 'change', value: [number, number], type: string): void
 }>()
 
-const { openMessageTipBox } = useMessageBox()
 const { Translate } = useLangStore()
 const dateTime = useDateTimeStore()
 
@@ -148,22 +132,27 @@ const formData = ref({
  * @description 验证自定义弹窗 通过后更新数据
  */
 const verifyCustomPop = () => {
-    const startTime = dayjs(formData.value.startTime, dateTime.dateTimeFormat).valueOf()
-    const endTime = dayjs(formData.value.endTime, dateTime.dateTimeFormat).valueOf()
-    if (startTime > endTime) {
-        openMessageTipBox({
-            type: 'info',
-            message: Translate('IDCS_END_TIME_GREATER_THAN_START'),
-        })
+    let startTime = 0
+    let endTime = 0
+
+    if (props.customType === 'day') {
+        startTime = dayjs(formData.value.startTime, { jalali: false, format: DEFAULT_YMD_FORMAT }).hour(0).minute(0).second(0).valueOf()
+        endTime = dayjs(formData.value.endTime, { jalali: false, format: DEFAULT_YMD_FORMAT }).hour(23).minute(59).second(59).valueOf()
+    } else {
+        startTime = dayjs(formData.value.startTime, { jalali: false, format: DEFAULT_DATE_FORMAT }).valueOf()
+        endTime = dayjs(formData.value.endTime, { jalali: false, format: DEFAULT_DATE_FORMAT }).valueOf()
+    }
+
+    if (startTime >= endTime) {
+        openMessageBox(Translate('IDCS_END_TIME_GREATER_THAN_START'))
         return
     }
+
     if (dayjs(endTime).diff(startTime, 'day', true) > 31) {
-        openMessageTipBox({
-            type: 'info',
-            message: Translate('IDCS_TIME_CUSTOMIZE_ERROR'),
-        })
+        openMessageBox(Translate('IDCS_TIME_CUSTOMIZE_ERROR'))
         return
     }
+
     pageData.value.isCustomPop = false
     emits('update:modelValue', [startTime, endTime])
     emits('change', [startTime, endTime], currentType.value)
@@ -200,8 +189,8 @@ const changeType = (type: string | number | boolean | undefined) => {
     currentType.value = type
     if (type === 'custom') {
         if (!formData.value.startTime) {
-            formData.value.startTime = dayjs().hour(0).minute(0).second(0).format(dateTime.dateTimeFormat)
-            formData.value.endTime = dayjs().hour(23).minute(59).second(59).format(dateTime.dateTimeFormat)
+            formData.value.startTime = dayjs().hour(0).minute(0).second(0).calendar('gregory').format(DEFAULT_DATE_FORMAT)
+            formData.value.endTime = dayjs().hour(23).minute(59).second(59).calendar('gregory').format(DEFAULT_DATE_FORMAT)
         }
         pageData.value.isCustomPop = true
     } else {
@@ -215,7 +204,7 @@ const changeType = (type: string | number | boolean | undefined) => {
                 current = [date.date(1).hour(0).minute(0).second(0).valueOf(), date.date(days).hour(23).minute(59).second(59).valueOf()]
                 break
             case 'week':
-                current = [date.day(0).hour(0).minute(0).second(0).valueOf(), date.day(6).hour(23).minute(59).second(59).valueOf()]
+                current = [date.calendar('gregory').day(0).hour(0).minute(0).second(0).valueOf(), date.calendar('gregory').day(6).hour(23).minute(59).second(59).valueOf()]
                 break
             case 'quarter':
                 const quarter = Math.floor(date.month() / 4)

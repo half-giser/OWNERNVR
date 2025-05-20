@@ -6,28 +6,44 @@
 <template>
     <el-input
         v-model="msg"
-        size="small"
-        class="toolBarText"
+        class="base-toolbar-input"
         :placeholder="Translate('IDCS_SEARCH_CHANNEL')"
-        @keydown.enter="search"
+        @keyup.enter="search"
     />
     <BaseImgSprite
         file="toolbar_search"
-        class="toolBarBtn"
+        class="base-toolbar-btn"
+        :title="Translate('IDCS_SEARCH_CHANNEL')"
         @click="search"
     />
     <el-button
-        size="small"
+        v-if="isAddGroupBtn"
         @click="addChl"
-        >{{ Translate('IDCS_ADD_CHANNEL') }}</el-button
     >
+        {{ Translate('IDCS_ADD_CHANNEL') }}
+    </el-button>
+    <BaseImgSprite
+        v-else
+        file="toolbar_add"
+        class="base-toolbar-btn"
+        :title="Translate('IDCS_ADD_CHANNEL')"
+        @click="addChl"
+    />
 </template>
 
 <script lang="ts">
 export default defineComponent({
-    emits: ['toolBarEvent'],
+    emits: {
+        toolBarEvent(data: ConfigToolBarEvent<SearchToolBarEvent | undefined>) {
+            return !!data
+        },
+    },
+
     setup(_props, ctx) {
         const msg = ref('')
+
+        const isAddGroupBtn = import.meta.env.VITE_UI_TYPE !== 'UI2-A'
+
         const search = () => {
             ctx.emit('toolBarEvent', {
                 type: 'search',
@@ -36,29 +52,20 @@ export default defineComponent({
                 },
             })
         }
+
         const addChl = () => {
             ctx.emit('toolBarEvent', {
                 type: 'addChl',
+                data: undefined,
             })
         }
-        return { msg, search, addChl }
+
+        return {
+            msg,
+            search,
+            addChl,
+            isAddGroupBtn,
+        }
     },
 })
 </script>
-
-<style lang="scss" scoped>
-.toolBarText {
-    width: 200px;
-    margin-right: 5px;
-}
-
-.toolBarBtn {
-    background-color: var(--btn-bg);
-    margin-right: 5px;
-    cursor: pointer;
-
-    &:hover {
-        background-color: var(--btn-bg-hover);
-    }
-}
-</style>

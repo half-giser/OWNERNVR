@@ -2,77 +2,67 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-07 15:00:44
  * @Description: 用户更改密码弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-20 18:01:52
 -->
 <template>
     <el-dialog
-        :title="Translate(title)"
-        width="600"
-        align-center
-        draggable
+        :title="Translate('IDCS_CHANGE_PWD')"
+        width="550"
         :before-close="handleBeforeClose"
-        @opened="opened"
+        @open="open"
+        @close="close"
+        @closed="formRef?.resetFields()"
     >
         <el-form
             ref="formRef"
+            v-title
             :model="formData"
             :rules="rules"
-            label-width="150px"
-            label-position="left"
+            class="stripe"
         >
             <el-form-item
                 prop="currentPassword"
                 :label="Translate('IDCS_CURRENT_PASSWORD')"
             >
-                <el-input
+                <BasePasswordInput
                     v-model="formData.currentPassword"
-                    type="password"
-                    :placeholder="Translate('IDCS_CURRENT_PASSWORD')"
-                    @paste.capture.prevent=""
-                    @copy.capture.prevent=""
+                    maxlength="16"
+                    @change="changePassword"
                 />
             </el-form-item>
             <el-form-item
                 prop="newPassword"
                 :label="Translate('IDCS_NEW_PASSWORD')"
             >
-                <el-input
+                <BasePasswordInput
                     v-model="formData.newPassword"
-                    type="password"
-                    :placeholder="Translate('IDCS_NEW_PASSWORD')"
-                    @paste.capture.prevent=""
-                    @copy.capture.prevent=""
+                    maxlength="16"
                 />
             </el-form-item>
-            <BasePasswordStrength :strength />
+            <el-form-item>
+                <BasePasswordStrength :strength />
+            </el-form-item>
             <el-form-item
                 prop="confirmNewPassword"
                 :label="Translate('IDCS_CONFIRM_NEW_PASSWORD')"
             >
-                <el-input
-                    v-model="formData.confirmNewPassword"
-                    type="password"
-                    :placeholder="Translate('IDCS_CONFIRM_NEW_PASSWORD')"
-                    @paste.capture.prevent=""
-                    @copy.capture.prevent=""
-                />
+                <BasePasswordInput v-model="formData.confirmNewPassword" />
             </el-form-item>
-            <div class="passwordNotice">
-                {{ noticeMsg }}
-            </div>
         </el-form>
-        <template #footer>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
-                >
-                    <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
-        </template>
+        <div class="base-btn-box flex-start">
+            <span
+                v-clean-html="noticeMsg"
+                class="base-rich-text"
+            ></span>
+        </div>
+        <div class="base-btn-box space-between">
+            <div>
+                <BaseFloatError v-model:message="errorMessage" />
+            </div>
+            <div>
+                <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
+                <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
+            </div>
+        </div>
     </el-dialog>
 </template>
 

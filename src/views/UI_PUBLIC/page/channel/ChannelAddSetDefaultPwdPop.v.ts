@@ -2,41 +2,52 @@
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-07-09 18:39:25
  * @Description: 添加通道 - 设置通道默认密码弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 17:00:31
  */
-import { DefaultPwdDto } from '@/types/apiType/channel'
-import { type FormInstance } from 'element-plus'
-import { type RuleItem } from 'async-validator'
+import { type FormRules } from 'element-plus'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import type { UserCheckAuthForm } from '@/types/apiType/user'
+import { type BasePasswordReturnsType } from '@/components/form/BasePasswordInput.vue'
 
 export default defineComponent({
     components: {
         BaseCheckAuthPop,
     },
     emits: {
-        change(data: DefaultPwdDto[]) {
+        change(data: ChannelDefaultPwdDto[]) {
             return !!data
         },
         close() {
             return true
         },
     },
-    setup(props, { emit }) {
+    setup(_, { emit }) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
         const userSessionStore = useUserSessionStore()
-        const { openMessageTipBox } = useMessageBox()
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref({
-            params: [] as Array<DefaultPwdDto>,
+            params: [] as Array<ChannelDefaultPwdDto>,
         })
-        const passwordInputRef = ref<Array<Element | globalThis.ComponentPublicInstance | null>>([])
 
-        const baseCheckAuthPopVisiable = ref(false)
+        const rules = ref<FormRules>({
+            userName: [
+                {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
+                            callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
+                            return
+                        }
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
+        })
+
+        const passwordInputRef = ref<Array<Element | globalThis.ComponentPublicInstance | null | BasePasswordReturnsType>>([])
+
+        const isCheckAuthPop = ref(false)
+
         const handleBaseCheckAuthPopClose = () => {
-            baseCheckAuthPopVisiable.value = false
+            isCheckAuthPop.value = false
         }
 
         const getData = () => {
@@ -44,115 +55,88 @@ export default defineComponent({
             queryDevDefaultPwd().then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
-                    const rowData = [] as Array<DefaultPwdDto>
-                    $('//content/item').forEach((ele) => {
-                        const eleXml = queryXml(ele.element)
-                        const defaultPwdData = new DefaultPwdDto()
-                        defaultPwdData.id = ele.attr('id') as string
-                        defaultPwdData.userName = eleXml('userName').text()
-                        defaultPwdData.password = '' // 协议修改之后密码不传输
-                        defaultPwdData.displayName = eleXml('displayName').text()
-                        defaultPwdData.protocolType = eleXml('protocolType').text()
-                        rowData.push(defaultPwdData)
+                if ($('status').text() === 'success') {
+                    formData.value.params = $('content/item').map((ele) => {
+                        const $item = queryXml(ele.element)
+                        return {
+                            id: ele.attr('id'),
+                            userName: $item('userName').text(),
+                            password: '', // 协议修改之后密码不传输
+                            displayName: $item('displayName').text(),
+                            protocolType: $item('protocolType').text(),
+                            showInput: false,
+                        }
                     })
-                    formData.value.params = rowData
                 }
             })
         }
 
-        const handlePwdViewChange = (index: number, rowData: DefaultPwdDto) => {
-            const flag = rowData.showInput
+        const togglePwd = (index: number, rowData: ChannelDefaultPwdDto) => {
             rowData.showInput = !rowData.showInput
-            if (!flag) {
-                const curPwdInput = passwordInputRef.value[index]
-                if (curPwdInput) (curPwdInput as HTMLInputElement).focus()
+            if (rowData.showInput) {
+                nextTick(() => {
+                    const curPwdInput = passwordInputRef.value[index]
+                    if (curPwdInput) (curPwdInput as BasePasswordReturnsType).focus()
+                })
             }
         }
 
-        const validate: Record<string, RuleItem['validator']> = {
-            validateUserName: (_rule, value, callback) => {
-                if (value.trim().length == 0) {
-                    callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
-                    return
-                }
-                callback()
-            },
-        }
-
-        const rules = ref({
-            userName: [{ validator: validate.validateUserName, trigger: 'manual' }],
-        })
-
         const save = () => {
-            if (!formRef) return false
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
-                    baseCheckAuthPopVisiable.value = true
+                    isCheckAuthPop.value = true
                 }
             })
         }
 
         const setData = (e: UserCheckAuthForm) => {
-            let data = `<content type='list'>`
-            formData.value.params.forEach((ele: DefaultPwdDto) => {
-                data += rawXml`<item id='${ele.id}'>
-                            <userName>${cutStringByByte(ele.userName, nameByteMaxLen)}</userName>`
-                if (ele.password != '') {
-                    data += `<password ${getSecurityVer()}><![CDATA[${AES_encrypt(ele.password, userSessionStore.sesionKey)}]]></password>`
-                }
-                data += '</item>'
-            })
-            data += rawXml`</content>
-                    <auth>
-                        <userName>${e.userName}</userName>
-                        <password>${e.hexHash}</password>
-                    </auth>`
-            editDevDefaultPwd(data).then((res) => {
+            const sendXml = rawXml`
+                <content type='list'>
+                    ${formData.value.params
+                        .map((ele) => {
+                            return rawXml`
+                                <item id='${ele.id}'>
+                                    <userName maxByteLen="63">${ele.userName}</userName>
+                                    ${ele.password ? `<password maxLen='64' ${getSecurityVer()}>${wrapCDATA(AES_encrypt(ele.password, userSessionStore.sesionKey))}</password>` : ''}
+                                </item>
+                            `
+                        })
+                        .join('')}
+                </content>
+                <auth>
+                    <userName>${e.userName}</userName>
+                    <password>${e.hexHash}</password>
+                </auth>
+            `
+
+            editDevDefaultPwd(sendXml).then((res) => {
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
-                    const defaultPwdData: Array<DefaultPwdDto> = []
-                    $('//content/item').forEach((ele) => {
-                        const eleXml = queryXml(ele.element)
-                        const newData = new DefaultPwdDto()
-                        newData.id = ele.attr('id')!
-                        newData.userName = eleXml('userName').text()
-                        newData.password = eleXml('password').text()
-                        newData.displayName = eleXml('displayName').text()
-                        newData.protocolType = eleXml('protocolType').text()
-                        defaultPwdData.push(newData)
-                    })
-                    emit('change', defaultPwdData)
-                    baseCheckAuthPopVisiable.value = false
+                if ($('status').text() === 'success') {
+                    emit('change', formData.value.params)
+                    isCheckAuthPop.value = false
                     emit('close')
                 } else {
-                    const errorCode = Number($('errorCode').text())
-                    if (errorCode == ErrorCode.USER_ERROR_PWD_ERR || errorCode == ErrorCode.USER_ERROR_NO_USER) {
+                    const errorCode = $('errorCode').text().num()
+                    switch (errorCode) {
                         // 用户名/密码错误
-                        openMessageTipBox({
-                            type: 'info',
-                            message: Translate('IDCS_DEVICE_PWD_ERROR'),
-                        })
-                    } else if (errorCode == ErrorCode.USER_ERROR_NO_AUTH) {
+                        case ErrorCode.USER_ERROR_PWD_ERR:
+                        case ErrorCode.USER_ERROR_NO_USER:
+                            openMessageBox(Translate('IDCS_DEVICE_PWD_ERROR'))
+                            break
                         // 鉴权账号无相关权限
-                        openMessageTipBox({
-                            type: 'info',
-                            message: Translate('IDCS_NO_AUTH'),
-                        })
-                    } else {
-                        baseCheckAuthPopVisiable.value = false
-                        emit('close')
+                        case ErrorCode.USER_ERROR_NO_AUTH:
+                            openMessageBox(Translate('IDCS_NO_AUTH'))
+                            break
+                        default:
+                            isCheckAuthPop.value = false
+                            emit('close')
+                            break
                     }
                 }
             })
         }
 
-        const handleKeydownEnter = (event: Event) => {
-            ;(event.target as HTMLElement).blur()
-        }
-
         const opened = () => {
-            formRef.value?.clearValidate()
             getData()
         }
 
@@ -162,12 +146,11 @@ export default defineComponent({
             formData,
             rules,
             passwordInputRef,
-            handlePwdViewChange,
+            togglePwd,
             save,
-            baseCheckAuthPopVisiable,
+            isCheckAuthPop,
             handleBaseCheckAuthPopClose,
             setData,
-            handleKeydownEnter,
         }
     },
 })

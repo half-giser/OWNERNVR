@@ -2,11 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-30 18:48:06
  * @Description: 人脸库 - 编辑人脸弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:16:00
  */
-import { IntelFaceDBFaceForm, type IntelFaceDBGroupDto, type IntelFaceDBSnapFaceList, type IntelFaceDBFaceInfo } from '@/types/apiType/intelligentAnalysis'
-import { type FormInstance } from 'element-plus'
 import IntelBaseFaceItem from './IntelBaseFaceItem.vue'
 import IntelFaceDBChooseFacePop from './IntelFaceDBChooseFacePop.vue'
 
@@ -32,8 +28,8 @@ export default defineComponent({
         },
     },
     emits: {
-        confirm() {
-            return true
+        confirm(ids: string[]) {
+            return Array.isArray(ids)
         },
         close() {
             return true
@@ -41,11 +37,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
-        const dateTime = useDateTimeStore()
-
-        const formRef = ref<FormInstance>()
 
         const pageData = ref({
             // 性别选项
@@ -93,10 +84,10 @@ export default defineComponent({
 
             closeLoading()
 
-            pageData.value.groupList = $('//content/item').map((item) => {
+            pageData.value.groupList = $('content/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
-                    id: item.attr('id')!,
+                    id: item.attr('id'),
                     groupId: $item('groupId').text(),
                     name: $item('name').text(),
                 }
@@ -116,8 +107,8 @@ export default defineComponent({
                 formData.value.birthday = item.birthday
                 formData.value.certificateType = item.certificateType
                 formData.value.certificateNum = item.certificateNum
-                formData.value.mobile = Number(item.mobile)
-                formData.value.number = Number(item.number)
+                formData.value.mobile = item.mobile
+                formData.value.number = item.number
                 formData.value.note = item.note
                 formData.value.nativePlace = item.nativePlace
                 formData.value.pic = item.pic[0]
@@ -154,10 +145,7 @@ export default defineComponent({
          */
         const verify = async () => {
             if (!disabled.value && !formData.value.name) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_PROMPT_FULL_NAME_EMPTY'),
-                })
+                openMessageBox(Translate('IDCS_PROMPT_FULL_NAME_EMPTY'))
                 return
             }
 
@@ -172,14 +160,15 @@ export default defineComponent({
                             birthday: item.birthday,
                             certificateType: item.certificateType,
                             certificateNum: item.certificateNum,
-                            mobile: Number(item.mobile),
-                            number: Number(item.number),
+                            mobile: item.mobile,
+                            number: item.number,
                             note: item.note,
                             nativePlace: item.nativePlace,
                             pic: '',
                             groupId: formData.value.groupId,
                             success: false,
                             error: false,
+                            errorTip: '',
                         },
                         item.id,
                     )
@@ -189,7 +178,10 @@ export default defineComponent({
             }
 
             if (errorCode === -1) {
-                ctx.emit('confirm')
+                ctx.emit(
+                    'confirm',
+                    prop.list.map((item) => item.id),
+                )
             } else {
                 let errorInfo = ''
                 switch (errorCode) {
@@ -209,10 +201,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_SAVE_FAIL')
                         break
                 }
-                openMessageTipBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 
@@ -235,17 +224,17 @@ export default defineComponent({
 
             const faceXml = snapData.length
                 ? rawXml`
-                <delFaceImgs type="list">
-                    <item>1</item>
-                </delFaceImgs>
-                <item>
-                    <item>
-                        <frameTime>${snapData[0].frameTime}</frameTime>
-                        <img id="${snapData[0].imgId.toString()}" />
-                        <chl id="${snapData[0].chlId}" />
-                    </item>
-                </item>
-            `
+                    <delFaceImgs type="list">
+                        <item>1</item>
+                    </delFaceImgs>
+                    <faceImgs type="list" maxCount="5">
+                        <item>
+                            <frameTime>${snapData[0].frameTime}</frameTime>
+                            <img id="${snapData[0].imgId}" />
+                            <chl id="${snapData[0].chlId}" />
+                        </item>
+                    </faceImgs>
+                `
                 : ''
 
             const sendXml = rawXml`
@@ -256,14 +245,14 @@ export default defineComponent({
                 </types>
                 <content>
                     <id>${id}</id>
-                    <name>${item.name}</name>
+                    <name maxByteLen="31">${wrapCDATA(item.name)}</name>
                     <sex type="sex">${item.sex}</sex>
-                    <birthday>${formatDate(item.birthday, 'YYYY-MM-DD', dateTime.dateFormat)}</birthday>
+                    <birthday>${item.birthday}</birthday>
                     <nativePlace>${item.nativePlace}</nativePlace>
                     <certificateType type="certificateType">${item.certificateType}</certificateType>
                     <certificateNum>${item.certificateNum}</certificateNum>
-                    <mobile>${item.mobile?.toString() || ''}</mobile>
-                    <number>${item.number?.toString() || ''}</number>
+                    <mobile>${item.mobile}</mobile>
+                    <number>${item.number}</number>
                     <note>${item.note}</note>
                     <groups>
                         <item id="${group.id}">
@@ -279,17 +268,25 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 return -1
             } else {
-                return Number($('//errorCode').text())
+                return $('errorCode').text().num()
             }
         }
 
+        /**
+         * @description 约束名字输入最大字节数为31
+         * @param {string} value
+         * @returns {string}
+         */
+        const formatName = (value: string) => {
+            value = cutStringByByte(value, 31)
+            return value
+        }
+
         return {
-            dateTime,
             disabled,
-            formRef,
             formData,
             pageData,
             open,
@@ -297,9 +294,7 @@ export default defineComponent({
             confirmChooseFace,
             verify,
             close,
-            highlightWeekend,
-            IntelFaceDBChooseFacePop,
-            IntelBaseFaceItem,
+            formatName,
         }
     },
 })

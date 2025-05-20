@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 11:47:13
  * @Description: 功能面板-录像
  */
-export default {
+const recordRoutes: FeatureItem = {
     path: 'record',
     component: 'layout/L2T1Layout.vue',
     meta: {
@@ -11,7 +11,7 @@ export default {
         lk: 'IDCS_RECORD',
         plClass: 'md2',
         icon: 'rec',
-        enabled: 'rec',
+        auth: 'rec',
         groups: {
             //录像
             record: {
@@ -25,12 +25,6 @@ export default {
                 lk: 'IDCS_CODE_PARAM',
                 icon: 'encodeParam_s',
             },
-            // 排程
-            // schedule: {
-            //     sort: 30,
-            //     lk: 'IDCS_RECORD_SCHEDULE',
-            //     icon: 'scheduleRec_s',
-            // },
             //录像状态
             recStatus: {
                 sort: 40,
@@ -40,8 +34,8 @@ export default {
         },
     },
     children: {
+        // 模式配置
         mode: {
-            //模式配置
             path: 'mode',
             component: 'record/RecordMode.vue',
             meta: {
@@ -49,26 +43,13 @@ export default {
                 lk: 'IDCS_MODE_SET',
                 group: 'record',
                 default: true,
+                homeDefault: true,
                 inHome: 'self',
                 homeSort: 10,
             },
         },
-        // 以下页面只有在UI3-A才有
-        // recordSchedule: {
-        //     // 录像的排程配置
-        //     path: 'schedule',
-        //     component: 'record/RecordSchedule.vue',
-        //     meta: {
-        //         sort: 20,
-        //         lk: 'IDCS_SCHEDULE_OF_RECORD_SET',
-        //         group: 'record',
-        //         auth(systemCaps, ui) {
-        //             return ui === 'UI3-A'
-        //         },
-        //     },
-        // },
+        // 参数配置
         parameter: {
-            //参数配置
             path: 'parameter',
             component: 'record/RecordParameter.vue',
             meta: {
@@ -77,8 +58,8 @@ export default {
                 group: 'record',
             },
         },
+        // 事件录像码流
         eventStream: {
-            //事件录像码流
             path: 'stream/event',
             component: 'record/RecordStream.vue',
             meta: {
@@ -90,8 +71,8 @@ export default {
                 homeSort: 20,
             },
         },
+        // 定时录像码流
         timingStream: {
-            //定时录像码流
             path: 'stream/timing',
             component: 'record/RecordStream.vue',
             meta: {
@@ -100,8 +81,8 @@ export default {
                 group: 'stream',
             },
         },
+        // 录像子码流
         subStream: {
-            //录像子码流
             path: 'stream/show',
             component: 'record/RecordSubStream.vue',
             meta: {
@@ -110,10 +91,9 @@ export default {
                 group: 'stream',
             },
         },
+        // 录像状态
         recStatus: {
-            //录像状态
             path: 'status',
-            // component: 'record/RecordStatus.vue',
             components: {
                 toolBar: 'system/SystemToolBar.vue',
                 default: 'system/RecordStatus.vue',
@@ -125,41 +105,9 @@ export default {
                 default: true,
                 inHome: 'self',
                 homeSort: 30,
-                auth(systemCaps, ui) {
-                    return ui !== 'UI3-A'
-                },
             },
         },
-        // 每个需要配置的排程的地方打开公共的排程管理和编辑的弹窗
-        // recSchedule: {
-        //     //
-        //     path: 'schedule',
-        //     components: 'record/RecordSchedule.vue',
-        //     meta: {
-        //         sort: 10,
-        //         lk: 'IDCS_SCHEDULE_OF_RECORD_SET',
-        //         group: 'schedule',
-        //     },
-        // },
-        // recScheduleAdd: {
-        //     //
-        //     path: 'schedule/add',
-        //     components: 'record/RecordScheduleAdd.vue',
-        //     meta: {
-        //         sort: 10,
-        //         lk: 'IDCS_ADD_SCHEDULE',
-        //         group: 'schedule',
-        //     },
-        // },
-        // recScheduleManager: {
-        //     //
-        //     path: 'schedule/manager',
-        //     components: 'record/RecordScheduleManage.vue',
-        //     meta: {
-        //         sort: 10,
-        //         lk: 'IDCS_VIEW_OR_CHANGE_SCHEDULE',
-        //         group: 'schedule',
-        //     },
-        // },
     },
-} as FeatureItem
+}
+
+export default recordRoutes

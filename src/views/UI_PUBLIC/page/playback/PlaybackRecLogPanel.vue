@@ -2,71 +2,51 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-31 15:32:00
  * @Description: 回放-事件列表
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 15:21:52
 -->
 <template>
     <div class="log">
         <el-popover
             v-model:visible="pageData.visible"
-            trigger="click"
-            :width="800"
+            :width="950"
+            popper-class="no-padding"
             placement="top-end"
-            :hide-after="0"
-            :show-after="0"
         >
             <template #reference>
-                <div>
-                    <el-tooltip
-                        :content="Translate('IDCS_EVENT_LIST')"
-                        :show-after="500"
-                    >
-                        <BaseImgSprite
-                            file="list"
-                            :index="0"
-                            :hover-index="1"
-                            :disabled-index="3"
-                            :chunk="4"
-                        />
-                    </el-tooltip>
-                </div>
+                <BaseImgSpriteBtn
+                    file="list"
+                    :title="Translate('IDCS_EVENT_LIST')"
+                />
             </template>
             <el-table
+                v-title
                 :data="filterTableData"
-                border
-                stripe
+                show-overflow-tooltip
                 :height="400"
             >
                 <el-table-column
                     :label="Translate('IDCS_SERIAL_NUMBER')"
                     type="index"
+                    min-width="50"
                 />
                 <el-table-column
                     :label="Translate('IDCS_CHANNEL_NAME')"
                     prop="chlName"
                 />
-                <el-table-column
-                    :label="Translate('IDCS_START_TIME')"
-                    prop="startTime"
-                >
-                    <template #default="scope">{{ displayTime(scope.row.startTime) }}</template>
+                <el-table-column :label="Translate('IDCS_START_TIME')">
+                    <template #default="{ row }: TableColumn<PlaybackRecLogList>">{{ displayTime(row.startTime) }}</template>
                 </el-table-column>
 
-                <el-table-column
-                    :label="Translate('IDCS_END_TIME')"
-                    prop="endTime"
-                >
-                    <template #default="scope">{{ displayTime(scope.row.endTime) }}</template>
+                <el-table-column :label="Translate('IDCS_END_TIME')">
+                    <template #default="{ row }: TableColumn<PlaybackRecLogList>">{{ displayTime(row.endTime) }}</template>
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_EVENT_TYPE')"
-                    prop="event"
+                    width="180"
                 >
                     <template #header>
                         <el-popover
                             v-model:visible="pageData.eventVisible"
-                            trigger="click"
-                            popper-class="popper"
+                            popper-class="no-padding"
                             width="fit-content"
                         >
                             <template #reference>
@@ -74,69 +54,69 @@
                                     {{ Translate('IDCS_EVENT_TYPE') }}
                                 </BaseTableDropdownLink>
                             </template>
-                            <div class="sub-types">
-                                <div class="base-subheading-box">{{ Translate('IDCS_EVENT') }}</div>
-                                <el-checkbox-group v-model="pageData.event">
+                            <el-scrollbar height="300">
+                                <div class="base-head-box">{{ Translate('IDCS_EVENT') }}</div>
+                                <el-checkbox-group
+                                    v-model="pageData.event"
+                                    class="line-break inline"
+                                >
                                     <el-checkbox
                                         v-for="item in pageData.eventOptions"
                                         :key="item.value"
                                         :value="item.value"
-                                    >
-                                        {{ item.label }}
-                                    </el-checkbox>
+                                        :label="item.label"
+                                    />
                                 </el-checkbox-group>
-                                <div class="base-subheading-box">{{ Translate('IDCS_TARGET') }}</div>
-                                <el-checkbox-group v-model="pageData.motion">
+                                <div class="base-head-box">{{ Translate('IDCS_TARGET') }}</div>
+                                <el-checkbox-group
+                                    v-model="pageData.motion"
+                                    class="line-break inline"
+                                >
                                     <el-checkbox
                                         v-for="item in pageData.motionTargetOptions"
                                         :key="item.value"
                                         :value="item.value"
-                                    >
-                                        {{ item.label }}
-                                    </el-checkbox>
+                                        :label="item.label"
+                                    />
                                 </el-checkbox-group>
-                            </div>
+                            </el-scrollbar>
                         </el-popover>
                     </template>
-                    <template #default="scope">
-                        <el-text>{{ displayEvent(scope.row) }}</el-text>
+
+                    <template #default="{ row }: TableColumn<PlaybackRecLogList>">
+                        <el-text>{{ displayEvent(row) }}</el-text>
                         <BaseImgSprite
-                            v-show="displayEventIcon(scope.row)"
-                            :file="[scope.row.event, scope.row.recSubType].includes('SMDHUMAN') ? 'SMDHUMAN' : 'SMDVEHICLE'"
+                            v-show="displayEventIcon(row)"
+                            :file="[row.event, row.recSubType].includes('SMDHUMAN') ? 'SMDHUMAN' : 'SMDVEHICLE'"
                         />
                     </template>
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_RECORD_TIME')"
                     prop="duration"
-                >
-                </el-table-column>
+                />
+
                 <el-table-column
                     :label="Translate('IDCS_PLAY')"
-                    prop="play"
+                    width="90"
                 >
-                    <template #default="scope">
-                        <BaseImgSprite
-                            file="play (3)"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click="play(scope.row)"
+                    <template #default="{ row }: TableColumn<PlaybackRecLogList>">
+                        <BaseImgSpriteBtn
+                            file="preview"
+                            @click="play(row)"
                         />
                     </template>
                 </el-table-column>
+
                 <el-table-column
                     v-show="!isMac"
                     :label="Translate('IDCS_DOWNLOAD')"
-                    prop="download"
+                    width="90"
                 >
-                    <template #default="scope">
-                        <BaseImgSprite
+                    <template #default="{ row }: TableColumn<PlaybackRecLogList>">
+                        <BaseImgSpriteBtn
                             file="download"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click="download(scope.row)"
+                            @click="download(row)"
                         />
                     </template>
                 </el-table-column>
@@ -146,24 +126,3 @@
 </template>
 
 <script lang="ts" src="./PlaybackRecLogPanel.v.ts"></script>
-
-<style lang="scss" scoped>
-.popper {
-    width: fit-content;
-    padding: 0;
-
-    .sub-types {
-        width: fit-content;
-        max-height: 50vh;
-        overflow: auto;
-
-        :deep(.el-checkbox) {
-            padding-right: 10px;
-            margin-right: 0;
-            display: block;
-            display: flex;
-            align-items: center;
-        }
-    }
-}
-</style>

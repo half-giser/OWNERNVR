@@ -2,15 +2,9 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-12 18:19:55
  * @Description: HTTPS
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:21:31
  */
-import WebsocketUpload from '@/utils/websocket/websocketUpload'
-import WebsocketDownload from '@/utils/websocket/websocketDownload'
-import { type NetHTTPSCertPasswordForm } from '@/types/apiType/net'
 import HttpsCertPasswordPop from './HttpsCertPasswordPop.vue'
 import HttpsCreateCertPop from './HttpsCreateCertPop.vue'
-import { type XMLQuery } from '@/utils/xmlParse'
 
 export default defineComponent({
     components: {
@@ -19,14 +13,9 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
-        const Plugin = inject('Plugin') as PluginType
         const userSession = useUserSessionStore()
 
         const pageData = ref({
-            // 信息通知
-            notifications: [] as string[],
             // 启用HTTPS复选框是否禁用
             httpSwitchDisabled: true,
             // 是否启用https
@@ -98,9 +87,69 @@ export default defineComponent({
         })
         let reqFile: File
 
-        const isSupportH5 = computed(() => {
-            return Plugin.IsSupportH5()
+        const plugin = usePlugin({
+            onReady: (mode, plugin) => {
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
+                    plugin.ExecuteCmd(sendXML)
+                }
+            },
+            onMessage: ($, stateType) => {
+                //导入或导出进度
+                if (stateType === 'FileNetTransportProgress') {
+                    const progress = $('statenotify/progress').text()
+                    const action = $('statenotify/action').text()
+                    if (progress === '100%') {
+                        if (action === 'ImportCert') {
+                            importCert().then((result) => {
+                                const $res = queryXml(result)
+                                if ($res('status').text() === 'success') {
+                                    commSaveResponseHandler(result)
+                                    getCertificate()
+                                } else {
+                                    closeLoading()
+                                    openMessageBox(Translate('IDCS_IMPORT_FAIL'))
+                                }
+                            })
+                        } else {
+                            closeLoading()
+                        }
+                    }
+                }
+
+                //连接成功
+                if (stateType === 'connectstate') {
+                    const status = $('statenotify').text().trim()
+                    if (status === 'success') {
+                        pageData.value.isBrowserImportCertDirectDisabled = false
+                    }
+                }
+
+                //网络断开
+                if (stateType === 'FileNetTransport') {
+                    closeLoading()
+                    handleErrorMsg($('statenotify/errorCode').text().num())
+                }
+            },
         })
+
+        const isSupportH5 = computed(() => {
+            return plugin.IsSupportH5()
+        })
+
+        const changeHttpsSwitch = () => {
+            if (!formData.value.httpsSwitch) {
+                // NTA1-4178：网络安全问题单-提示
+                openMessageBox({
+                    type: 'question',
+                    message: Translate('IDCS_SECURITY_RISK_AND_KEEP').formatForLang(Translate('IDCS_COLSE_HTTPS')),
+                })
+                    .then(() => {})
+                    .catch(() => {
+                        formData.value.httpsSwitch = true
+                    })
+            }
+        }
 
         /**
          * @description 获取网络配置，查询是否开启HTTPS
@@ -108,8 +157,8 @@ export default defineComponent({
         const getNetPortConfig = async () => {
             const result = await queryNetPortCfg()
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                formData.value.httpsSwitch = $('//content/httpsSwitch').text().toBoolean()
+            if ($('status').text() === 'success') {
+                formData.value.httpsSwitch = $('content/httpsSwitch').text().bool()
                 pageData.value.cacheHttpsSwitch = formData.value.httpsSwitch
                 pageData.value.isDeleteCertDisabled = formData.value.httpsSwitch ? true : false
             }
@@ -123,16 +172,18 @@ export default defineComponent({
 
             const sendXml = rawXml`
                 <content>
-                    <httpsSwitch>${formData.value.httpsSwitch.toString()}</httpsSwitch>
+                    <httpsSwitch>${formData.value.httpsSwitch}</httpsSwitch>
                 </content>
             `
             const result = await editNetPortCfg(sendXml)
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
+            closeLoading()
+
+            if ($('status').text() === 'success') {
                 pageData.value.isDeleteCertDisabled = formData.value.httpsSwitch ? true : false
                 if (formData.value.httpsSwitch !== pageData.value.cacheHttpsSwitch) {
-                    Logout()
+                    Logout(formData.value.httpsSwitch)
                 }
             }
         }
@@ -143,17 +194,17 @@ export default defineComponent({
         const getCertificate = async () => {
             const result = await queryCert()
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 formData.value.cert = 0
 
                 pageData.value.hasCert = true
                 pageData.value.httpSwitchDisabled = false
 
-                certFormData.value.countryName = 'C=' + $('//content/DN/countryName').text()
+                certFormData.value.countryName = 'C=' + $('content/DN/countryName').text()
                 certFormData.value.content = [
-                    [Translate('IDCS_ISSUED_TO'), $('//content/DN/commonName').text()],
-                    [Translate('IDCS_ISSUER'), $('//content/DN/issuerCommonName').text()],
-                    [Translate('IDCS_VALIDITY_PERIOD') + ': ', $('//content/startDate').text() + '~' + $('//content/endDate').text()],
+                    [Translate('IDCS_ISSUED_TO'), $('content/DN/commonName').text()],
+                    [Translate('IDCS_ISSUER'), $('content/DN/issuerCommonName').text()],
+                    [Translate('IDCS_VALIDITY_PERIOD') + ': ', $('content/startDate').text() + '~' + $('content/endDate').text()],
                 ]
                     .map((item) => {
                         return `${item[0]}${item[1]}`
@@ -173,10 +224,11 @@ export default defineComponent({
 
             const result = await delCert()
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 formData.value.cert = pageData.value.certOptions[0].value
 
                 pageData.value.hasCert = false
+                pageData.value.httpSwitchDisabled = true
 
                 certFormData.value.countryName = ''
                 certFormData.value.content = ''
@@ -211,9 +263,9 @@ export default defineComponent({
         const getCertificateRequest = async () => {
             const result = await queryCertReq()
             const $ = queryXml(result)
-            const countryName = $('//content/DN/countryName').text()
-            if ($('//status').text() === 'success' && countryName) {
-                if ($('//content/DN/commonName').text()) {
+            const countryName = $('content/DN/countryName').text()
+            if ($('status').text() === 'success' && countryName) {
+                if ($('content/DN/commonName').text()) {
                     formData.value.cert = pageData.value.certOptions[2].value
 
                     pageData.value.hasCert = true
@@ -229,7 +281,6 @@ export default defineComponent({
                         })
                         .join('\r\n')
                 } else {
-                    pageData.value.httpSwitchDisabled = true
                     pageData.value.isCreateCertReqDisabled = true
                     pageData.value.isExportCertReqDisabled = false
                     pageData.value.isBrowseExportCertReqDisabled = false
@@ -255,10 +306,11 @@ export default defineComponent({
 
             const result = await delCertReq()
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 pageData.value.isCreateCertReqDisabled = false
                 pageData.value.isExportCertReqDisabled = true
                 pageData.value.isDeleteCertReqDisabled = true
+                pageData.value.httpSwitchDisabled = true
 
                 reqCertFormData.value.reqFileName = ''
             }
@@ -271,7 +323,7 @@ export default defineComponent({
          */
         const handleOCXImport = () => {
             const sendXML = OCX_XML_OpenFileBrowser('OPEN_FILE', 'crt/*')
-            Plugin.AsynQueryInfo(Plugin.GetVideoPlugin(), sendXML, (result) => {
+            plugin.AsynQueryInfo(sendXML, (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
 
                 if (path) {
@@ -301,7 +353,7 @@ export default defineComponent({
         const preventH5Import = () => {
             if (isSupportH5.value && isHttpsLogin()) {
                 // 无插件https访问时，提示不支持证书安装
-                pageData.value.notifications = [formatHttpsTips(Translate('IDCS_CERT_INSTALLATION'))]
+                openNotify(formatHttpsTips(Translate('IDCS_CERT_INSTALLATION')), true)
                 return false
             }
         }
@@ -312,7 +364,7 @@ export default defineComponent({
          */
         const handleH5Import = (e: Event) => {
             const files = (e.target as HTMLInputElement).files
-            if (files && files.length > 0) {
+            if (files && files.length) {
                 // 安装生成的证书 导入文件
                 if (formData.value.cert === 1) {
                     directFile = files[0]
@@ -351,13 +403,9 @@ export default defineComponent({
                 const file = formData.value.cert === 1 ? directFile : reqFile
                 if (file.size === 0) {
                     closeLoading()
-
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_FILE_NO_EXISTS'),
-                    })
+                    openMessageBox(Translate('IDCS_FILE_NO_EXISTS'))
                 }
-                new WebsocketUpload({
+                WebsocketUpload({
                     file: file,
                     config: {
                         file_id: 'cert_file',
@@ -386,7 +434,7 @@ export default defineComponent({
                     checkPassword: param?.password || undefined,
                 }
                 const sendXML = OCX_XML_FileNetTransport('ImportCert', params)
-                Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -395,7 +443,7 @@ export default defineComponent({
          */
         const browseExportCertificateRequest = () => {
             const sendXML = OCX_XML_OpenFileBrowser('SAVE_FILE', undefined, 'downloadCertReq.csr')
-            Plugin.AsynQueryInfo(Plugin.GetVideoPlugin(), sendXML, (result) => {
+            plugin.AsynQueryInfo(sendXML, (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     reqCertFormData.value.exportFileName = path
@@ -413,10 +461,10 @@ export default defineComponent({
             pageData.value.isExportCertReqDisabled = true
             if (isSupportH5.value) {
                 if (isHttpsLogin()) {
-                    pageData.value.notifications = [formatHttpsTips(Translate('IDCS_EXPORT_CERT_FILE'))]
+                    openNotify(formatHttpsTips(Translate('IDCS_EXPORT_CERT_FILE')), true)
                     return
                 }
-                new WebsocketDownload({
+                WebsocketDownload({
                     config: {
                         file_id: 'cert_file',
                     },
@@ -426,10 +474,7 @@ export default defineComponent({
                     },
                     error: () => {
                         pageData.value.isExportCertReqDisabled = false
-                        openMessageTipBox({
-                            type: 'info',
-                            message: Translate('IDCS_EXPORT_FAIL'),
-                        })
+                        openMessageBox(Translate('IDCS_EXPORT_FAIL'))
                     },
                 })
             } else {
@@ -439,7 +484,7 @@ export default defineComponent({
                     version: '500',
                 }
                 const sendXML = OCX_XML_FileNetTransport('ExportCert', param)
-                Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -473,77 +518,10 @@ export default defineComponent({
                     errorInfo = Translate('IDCS_IMPORT_FAIL')
                     break
             }
-            openMessageTipBox({
-                type: 'info',
-                message: errorInfo,
-            })
+            openMessageBox(errorInfo)
         }
-
-        /**
-         * @description OCX通知回调
-         * @param {Function} $
-         */
-        const notify = ($: XMLQuery) => {
-            //导入或导出进度
-            if ($("/statenotify[@type='FileNetTransportProgress']").length > 0) {
-                const progress = $("/statenotify[@type='FileNetTransportProgress']/progress").text()
-                const action = $("/statenotify[@type='FileNetTransportProgress']/action").text()
-                if (progress === '100%') {
-                    if (action == 'ImportCert') {
-                        importCert().then((result) => {
-                            const $res = queryXml(result)
-                            if ($res('//status').text() === 'success') {
-                                commSaveResponseHadler(result)
-                                getCertificate()
-                            } else {
-                                closeLoading()
-                                openMessageTipBox({
-                                    type: 'info',
-                                    message: Translate('IDCS_IMPORT_FAIL'),
-                                })
-                            }
-                        })
-                    } else {
-                        closeLoading()
-                    }
-                }
-            }
-            //连接成功
-            else if ($("/statenotify[@type='connectstate']").length > 0) {
-                const status = $("/statenotify[@type='connectstate']").text().trim()
-                if (status === 'success') {
-                    pageData.value.isBrowserImportCertDirectDisabled = false
-                }
-            }
-            //网络断开
-            else if ($("/statenotify[@type='FileNetTransport']").length > 0) {
-                closeLoading()
-                handleErrorMsg(Number($("/statenotify[@type='FileNetTransport']/errorCode").text()))
-            }
-        }
-
-        watch(
-            isSupportH5,
-            (newVal) => {
-                if (!newVal && !Plugin.IsPluginAvailable()) {
-                    Plugin.SetPluginNoResponse()
-                    Plugin.ShowPluginNoResponse()
-                }
-                if (!newVal) {
-                    // 设置OCX模式
-                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                    Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                }
-            },
-            {
-                immediate: true,
-            },
-        )
 
         onMounted(async () => {
-            Plugin.VideoPluginNotifyEmitter.addListener(notify)
-            Plugin.SetPluginNotice('#layout2Content')
-
             openLoading()
 
             await getNetPortConfig()
@@ -553,11 +531,8 @@ export default defineComponent({
             closeLoading()
         })
 
-        onBeforeUnmount(() => {
-            Plugin.VideoPluginNotifyEmitter.removeListener(notify)
-        })
-
         return {
+            changeHttpsSwitch,
             isSupportH5,
             setNetPortConfig,
             pageData,
@@ -577,8 +552,6 @@ export default defineComponent({
             preventH5Import,
             inputCertPassword,
             importCertFile,
-            HttpsCertPasswordPop,
-            HttpsCreateCertPop,
         }
     },
 })

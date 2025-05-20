@@ -2,11 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-10 16:50:11
  * @Description: Email测试发送弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:21:02
  */
-import { type FormInstance, type FormRules } from 'element-plus'
-import { type NetEmailForm, NetEmailTestForm, type NetEmailReceiverDto } from '@/types/apiType/net'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -25,8 +22,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
 
         const pageData = ref({
@@ -39,30 +34,34 @@ export default defineComponent({
 
         const RECEIVER_MAX_COUNT = 16
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new NetEmailTestForm())
         const formRule = ref<FormRules>({
             address: [
                 {
-                    validator(rule, value: string, callback) {
-                        if (!value.length) {
+                    validator(_rule, value: string, callback) {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_EMAIL_ADDRESS_EMPTY')))
                             return
                         }
+
                         if (!checkEmail(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_INVALID_EMAIL')))
                             return
                         }
+
                         if (pageData.value.isReceiver) {
                             if (pageData.value.cacheAddress.includes(value)) {
                                 callback(new Error(Translate('IDCS_PROMPT_EMAIL_EXIST')))
                                 return
                             }
+
                             if (pageData.value.cacheAddress.length >= RECEIVER_MAX_COUNT) {
                                 callback(new Error(Translate('IDCS_PROMPT_EMAIL_NUM_LIMIT').formatForLang(RECEIVER_MAX_COUNT)))
                                 return
                             }
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -76,12 +75,15 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryEmailCfg()
             const $ = queryXml(result)
-            pageData.value.list = $('//content/receiver/item').map((item) => {
+
+            formData.value.addressMaxByteLen = $('content/receiver/itemType').attr('maxByteLen').num() || nameByteMaxLen
+
+            pageData.value.list = $('content/receiver/item').map((item) => {
                 const $item = queryXml(item.element)
                 pageData.value.cacheAddress.push($item('address').text())
                 return {
                     address: $item('address').text(),
-                    schedule: $item('schedule').attr('id')!,
+                    schedule: $item('schedule').attr('id'),
                 }
             })
         }
@@ -103,9 +105,9 @@ export default defineComponent({
                 const result = await queryScheduleList()
                 commLoadResponseHandler(result, async ($) => {
                     let schedule = ''
-                    const find = $('//content/item').find((item) => item.text() === '24x7')
+                    const find = $('content/item').find((item) => item.text() === '24x7')
                     if (find) {
-                        schedule = find.attr('id')!
+                        schedule = find.attr('id')
                     }
 
                     pageData.value.list.push({
@@ -114,23 +116,24 @@ export default defineComponent({
                     })
                     pageData.value.cacheAddress.push(formData.value.address)
 
-                    const itemXml = pageData.value.list
-                        .map((item) => {
-                            return rawXml`
-                            <item>
-                                <address>${item.address}</address>
-                                <schedule id="${item.schedule}"></schedule>
-                            </item>
-                        `
-                        })
-                        .join('')
                     const sendXml = rawXml`
                         <content>
-                            <receiver type="list">${itemXml}</receiver>
+                            <receiver type="list">
+                                ${pageData.value.list
+                                    .map((item) => {
+                                        return rawXml`
+                                            <item>
+                                                <address>${item.address}</address>
+                                                <schedule id="${item.schedule}"></schedule>
+                                            </item>
+                                        `
+                                    })
+                                    .join('')}
+                            </receiver>
                         </content>
                     `
                     const $$ = await editEmailCfg(sendXml)
-                    commSaveResponseHadler($$)
+                    commSaveResponseHandler($$)
 
                     closeLoading()
                 })
@@ -141,9 +144,6 @@ export default defineComponent({
          * @description 打开弹窗时刷新表单数据
          */
         const open = async () => {
-            formRef.value?.clearValidate()
-            formData.value = new NetEmailTestForm()
-
             if (!pageData.value.list.length) {
                 await getData()
             }
@@ -162,7 +162,7 @@ export default defineComponent({
                     return
                 }
 
-                openLoading()
+                openLoading(LoadingTarget.FullScreen, Translate('IDCS_TEST_HOLD_ON'))
 
                 const password = AES_encrypt(formData.value.password, userSession.sesionKey)
                 const sendXml = rawXml`
@@ -177,12 +177,12 @@ export default defineComponent({
                             <name>${wrapCDATA(prop.form.name)}</name>
                             <userName>${wrapCDATA(prop.form.userName)}</userName>
                             <password ${getSecurityVer()}>${password}</password>
-                            <anonymousSwitch>${prop.form.anonymousSwitch.toString()}</anonymousSwitch>
-                            <attachImg>${prop.form.attachImg.toString()}</attachImg>
-                            <imageNumber>${prop.form.imageNumber.toString()}</imageNumber>
+                            <anonymousSwitch>${prop.form.anonymousSwitch}</anonymousSwitch>
+                            <attachImg>${prop.form.attachImg}</attachImg>
+                            <imageNumber>${prop.form.imageNumber}</imageNumber>
                             <smtp>
                                 <server>${wrapCDATA(prop.form.server)}</server>
-                                <port>${String(prop.form.port)}</port>
+                                <port>${prop.form.port}</port>
                                 <ssl>${prop.form.ssl}</ssl>
                             </smtp>
                         </sender>
@@ -191,18 +191,15 @@ export default defineComponent({
                 const result = await testEmailCfg(sendXml)
                 const $ = queryXml(result)
 
-                if ($('//status').text() == 'success') {
-                    openMessageTipBox({
+                if ($('status').text() === 'success') {
+                    openMessageBox({
                         type: 'success',
                         message: Translate('IDCS_TEST_SUCCESS'),
                     }).finally(() => {
                         close()
                     })
                 } else {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_TEST_FAIL'),
-                    })
+                    openMessageBox(Translate('IDCS_TEST_FAIL'))
                 }
 
                 closeLoading()

@@ -1,4 +1,3 @@
-/* eslint-disable */
 var ws = null
 
 function setWebsocket(url, cmdJSON) {

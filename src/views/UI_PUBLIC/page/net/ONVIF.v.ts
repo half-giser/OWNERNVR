@@ -2,10 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-15 18:18:50
  * @Description: OVNIF
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:00:34
  */
-import { NetOnvifForm, NetOnvifUserList } from '@/types/apiType/net'
 import ONVIFUserAddPop from './ONVIFUserAddPop.vue'
 
 export default defineComponent({
@@ -14,8 +11,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         // 用户类型与文本的映射
         const USER_LEVEL_MAPPING: Record<string, string> = {
@@ -52,8 +47,8 @@ export default defineComponent({
         const getOnvifConfig = async () => {
             const result = await queryOnvifCfg()
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                formData.value.switch = $('//content/switch').text().toBoolean()
+            if ($('status').text() === 'success') {
+                formData.value.switch = $('content/switch').text().bool()
             }
         }
 
@@ -64,8 +59,8 @@ export default defineComponent({
         const getRtspSwitch = async () => {
             const result = await queryRTSPServer()
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                return $('//content/rtspServerSwitch').text().toBoolean()
+            if ($('status').text() === 'success') {
+                return $('content/rtspServerSwitch').text().bool()
             }
             return false
         }
@@ -76,11 +71,11 @@ export default defineComponent({
         const getUserList = async () => {
             const result = await queryOnvifUserList()
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                tableData.value = $('//content/item').map((item) => {
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         userName: $item('userName').text(),
                         userLevel: $item('userLevel').text(),
                         password: $item('password').text(),
@@ -94,10 +89,7 @@ export default defineComponent({
          * @param {NetOnvifUserList} item
          */
         const deleteUser = (item: NetOnvifUserList) => {
-            openMessageTipBox({
-                type: 'info',
-                message: Translate('IDCS_USER_DELETE_USER_S').formatForLang(item.userName),
-            }).then(async () => {
+            openMessageBox(Translate('IDCS_USER_DELETE_USER_S').formatForLang(item.userName)).then(async () => {
                 openLoading()
 
                 const sendXml = rawXml`
@@ -116,14 +108,14 @@ export default defineComponent({
          * @description 删除所有用户
          */
         const deleteAllUser = () => {
-            openMessageTipBox({
-                type: 'info',
-                message: Translate('IDCS_DELETE_ALL_ONVIF_USER_TIP'),
-            }).then(async () => {
+            openMessageBox(Translate('IDCS_DELETE_ALL_ONVIF_USER_TIP')).then(async () => {
                 openLoading()
 
-                const itemXml = tableData.value.map((item) => `<item id="${item.id}"></item>`).join('')
-                const sendXml = `<content>${itemXml}</content>`
+                const sendXml = rawXml`
+                    <content>
+                        ${tableData.value.map((item) => `<item id="${item.id}"></item>`).join('')}
+                    </content>
+                `
 
                 await deleteOnivfUser(sendXml)
                 await getUserList()
@@ -167,8 +159,8 @@ export default defineComponent({
 
             const sendXml = rawXml`
                 <content>
-                    <switch>${formData.value.switch.toString()}</switch>
-                    ${ternary(isAutoOpenRtsp, `<autoOpenRtsp>true</autoOpenRtsp>`, '')}
+                    <switch>${formData.value.switch}</switch>
+                    ${isAutoOpenRtsp ? '<autoOpenRtsp>true</autoOpenRtsp>' : ''}
                 </content>
             `
             await editOnvifCfg(sendXml)
@@ -183,7 +175,7 @@ export default defineComponent({
             if (formData.value.switch) {
                 const rtspSwitch = getRtspSwitch()
                 if (!rtspSwitch) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'question',
                         message: Translate('IDCS_ENABLE_API_AFTER_RTSP_TIP'),
                     })
@@ -221,7 +213,6 @@ export default defineComponent({
             addUser,
             editUser,
             confirmUser,
-            ONVIFUserAddPop,
         }
     },
 })

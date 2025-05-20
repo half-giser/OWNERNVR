@@ -2,24 +2,21 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-08 15:48:54
  * @Description: 磁盘阵列
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 17:33:54
 -->
-
-<!-- TODO 此页面需要测试数据 -->
 <template>
     <div class="base-flex-box">
         <el-table
+            v-title
             :data="tableData"
-            border
-            stripe
             height="100%"
+            show-overflow-tooltip
+            highlight-current-row
         >
             <el-table-column
                 :label="Translate('IDCS_SERIAL_NUMBER')"
                 type="index"
-            >
-            </el-table-column>
+                width="70"
+            />
             <el-table-column
                 :label="Translate('IDCS_NAME')"
                 prop="name"
@@ -36,60 +33,38 @@
                 :label="Translate('IDCS_HOT_DISK_INDEX')"
                 prop="spareHard"
             />
-            <el-table-column
-                :label="Translate('IDCS_STATE')"
-                prop="raidState"
-            >
-                <template #default="scope">
-                    {{ displayRaidState(scope.row.raidState) }}
+            <el-table-column :label="Translate('IDCS_STATE')">
+                <template #default="{ row }: TableColumn<DiskRaidList>">
+                    {{ displayRaidState(row.raidState) }}
                 </template>
             </el-table-column>
 
-            <el-table-column
-                :label="Translate('IDCS_TYPE')"
-                prop="raidType"
-            >
-                <template #default="scope">
-                    {{ displayRaidType(scope.row.raidType) }}
+            <el-table-column :label="Translate('IDCS_TYPE')">
+                <template #default="{ row }: TableColumn<DiskRaidList>">
+                    {{ displayRaidType(row.raidType) }}
                 </template>
             </el-table-column>
-            <el-table-column
-                :label="Translate('IDCS_REPAIR')"
-                prop="repair"
-            >
-                <template #default="scope">
-                    <BaseImgSprite
+            <el-table-column :label="Translate('IDCS_REPAIR')">
+                <template #default="{ row, $index }: TableColumn<DiskRaidList>">
+                    <BaseImgSpriteBtn
                         file="repair"
-                        :index="0"
-                        :hover-index="1"
-                        :disabled-index="3"
-                        :disabled="scope.row.raidState !== 'downgrade'"
-                        :chunk="4"
-                        @click="rebuildRaid(scope.row, scope.$index)"
+                        :disabled="row.raidState !== 'downgrade'"
+                        @click="rebuildRaid($index)"
                     />
                 </template>
             </el-table-column>
-
-            <el-table-column
-                :label="Translate('IDCS_DELETE')"
-                prop="del"
-            >
-                <template #default="scope">
-                    <BaseImgSprite
+            <el-table-column :label="Translate('IDCS_DELETE')">
+                <template #default="{ row, $index }: TableColumn<DiskRaidList>">
+                    <BaseImgSpriteBtn
                         file="del"
-                        :index="0"
-                        :hover-index="1"
-                        :chunk="4"
-                        @click="deleteRaid(scope.row, scope.$index)"
+                        @click="deleteRaid(row, $index)"
                     />
                 </template>
             </el-table-column>
-
             <el-table-column
                 :label="Translate('IDCS_TASK')"
                 prop="task"
-            >
-            </el-table-column>
+            />
         </el-table>
         <BaseCheckAuthPop
             v-model="pageData.isCheckAuth"

@@ -2,16 +2,13 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-12 13:48:22
  * @Description: 按事件搜索
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-09 11:43:32
  */
 import dayjs from 'dayjs'
-import { type PlaybackChlList, type PlaybackBackUpRecList, PlaybackRecLogList } from '@/types/apiType/playback'
 import BackupPop from '../searchAndBackup/BackupPop.vue'
 import BackupLocalPop from '../searchAndBackup/BackupLocalPop.vue'
 import { type TableInstance } from 'element-plus'
-import { type PlaybackPopList } from '@/components/player/BasePlaybackPop.vue'
 import BackupPosInfoPop from './BackupPosInfoPop.vue'
+import { type EventTypeItem } from '@/utils/const/record'
 
 export default defineComponent({
     components: {
@@ -20,10 +17,7 @@ export default defineComponent({
         BackupPosInfoPop,
     },
     setup() {
-        const Plugin = inject('Plugin') as PluginType
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const router = useRouter()
         const systemCaps = useCababilityStore()
 
@@ -39,9 +33,24 @@ export default defineComponent({
             POS: Translate('IDCS_POS'),
         }
 
+        const plugin = usePlugin({
+            onReady: (mode, plugin) => {
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
+                    plugin.ExecuteCmd(sendXML)
+                }
+            },
+            onDestroy: (mode, plugin) => {
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_StopPreview('ALL')
+                    plugin.ExecuteCmd(sendXML)
+                }
+            },
+        })
+
         // 播放模式
         const mode = computed(() => {
-            return Plugin.IsSupportH5() ? 'h5' : 'ocx'
+            return plugin.IsSupportH5() ? 'h5' : 'ocx'
         })
 
         // 通道ID与通道名称的映射
@@ -119,7 +128,7 @@ export default defineComponent({
                 },
                 // 车
                 {
-                    label: Translate('SMDVEHICLE'),
+                    label: Translate('IDCS_DETECTION_VEHICLE'),
                     value: 'SMDVEHICLE',
                 },
                 // 无
@@ -140,12 +149,12 @@ export default defineComponent({
             isPosInfoPop: false,
             // POS信息
             posInfo: new PlaybackRecLogList(),
-            // POS关键字
-            posKeyword: '',
             // 回放列表
             playbackList: [] as PlaybackPopList[],
             // 最大通道数
             maxChl: 36,
+            // 已选择的事件类型列表
+            events: [] as EventTypeItem[],
         })
 
         // 最大通道数
@@ -161,11 +170,6 @@ export default defineComponent({
             return tableData.value.slice((pageData.value.currentPage - 1) * pageData.value.pageSize, pageData.value.currentPage * pageData.value.pageSize)
         })
 
-        // 可显示的事件选项
-        const filterEvents = computed(() => {
-            return pageData.value.eventOptions.filter((item) => !item.hidden)
-        })
-
         const formData = ref({
             // 开始时间
             startTime: '',
@@ -173,22 +177,13 @@ export default defineComponent({
             endTime: '',
             // 选中的通道
             chls: [] as string[],
-            // 选中的事件
-            events: filterEvents.value.map((item) => item.value),
             // POS关键字
             pos: '',
-            // 选中的目标
-            targets: pageData.value.targetOptions.map((item) => item.value),
         })
 
         // 通道全选
         const isChlAll = computed(() => {
-            return formData.value.chls.length >= maxChl.value
-        })
-
-        // 事件全选
-        const isEventAll = computed(() => {
-            return formData.value.events.length >= filterEvents.value.length
+            return !!formData.value.chls.length && formData.value.chls.length >= maxChl.value
         })
 
         /**
@@ -240,9 +235,9 @@ export default defineComponent({
 
             chlMap.value = {}
 
-            if ($('//status').text() === 'success') {
-                pageData.value.chlList = $('//content/item').map((item) => {
-                    const id = item.attr('id')!
+            if ($('status').text() === 'success') {
+                pageData.value.chlList = $('content/item').map((item) => {
+                    const id = item.attr('id')
 
                     // 新获取的通道列表若没有已选中的通道，移除该选中的通道
                     const index = formData.value.chls.indexOf('id')
@@ -266,11 +261,8 @@ export default defineComponent({
         const backUp = () => {
             const selection = tableRef.value!.getSelectionRows() as PlaybackRecLogList[]
 
-            if ((mode.value === 'ocx' && Plugin.BackUpTask.isExeed(selection.length)) || selection.length > 100) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_BACKUP_TASK_NUM_LIMIT').formatForLang(Plugin.BackUpTask.limit),
-                })
+            if ((mode.value === 'ocx' && plugin.BackUpTask.isExeed(selection.length)) || selection.length > 100) {
+                openMessageBox(Translate('IDCS_BACKUP_TASK_NUM_LIMIT').formatForLang(plugin.BackUpTask.limit))
                 return
             }
             pageData.value.backupRecList = selection.map((chl) => {
@@ -296,8 +288,10 @@ export default defineComponent({
             if (type === 'local') {
                 if (mode.value === 'h5') {
                     pageData.value.isLocalBackUpPop = true
-                } else if (mode.value === 'ocx') {
-                    Plugin.BackUpTask.addTask(pageData.value.backupRecList, path, format)
+                }
+
+                if (mode.value === 'ocx') {
+                    plugin.BackUpTask.addTask(pageData.value.backupRecList, path, format)
                     router.push({
                         path: '/search-and-backup/backup-state',
                     })
@@ -305,6 +299,9 @@ export default defineComponent({
                 pageData.value.isBackUpPop = false
             } else {
                 pageData.value.isBackUpPop = false
+                router.push({
+                    path: '/search-and-backup/backup-state',
+                })
             }
         }
 
@@ -321,72 +318,25 @@ export default defineComponent({
         }
 
         /**
-         * @description 事件全选或取消全选
-         * @param {boolean} bool
-         */
-        const toggleAllEvent = (bool: string | number | boolean) => {
-            if (bool === false) {
-                formData.value.events = []
-            } else {
-                formData.value.events = filterEvents.value.map((item) => item.value)
-            }
-        }
-
-        /**
-         * @description 勾选事件或取消勾选
-         * @param {String} value
-         */
-        const changeEvent = (value: string) => {
-            const index = formData.value.events.indexOf(value)
-            if (index === -1) {
-                formData.value.events.push(value)
-            } else {
-                formData.value.events.splice(index, 1)
-            }
-        }
-
-        /**
          * @description 搜索
          */
         const search = async () => {
-            const startTime = dayjs(formData.value.startTime, dateTime.dateTimeFormat).valueOf()
-            const endTime = dayjs(formData.value.endTime, dateTime.dateTimeFormat).valueOf()
+            const startTime = dayjs(formData.value.startTime, { format: DEFAULT_DATE_FORMAT, jalali: false }).valueOf()
+            const endTime = dayjs(formData.value.endTime, { format: DEFAULT_DATE_FORMAT, jalali: false }).valueOf()
             if (endTime <= startTime) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_END_TIME_GREATER_THAN_START'),
-                })
+                openMessageBox(Translate('IDCS_END_TIME_GREATER_THAN_START'))
                 return
             }
-
-            formData.value.pos = pageData.value.posKeyword
 
             openLoading()
 
             const chls = formData.value.chls.map((chl) => `<item id="${chl}"></item>`).join('')
-            const events = formData.value.events
-                .map((event) => {
-                    if (!formData.value.targets.length || formData.value.targets.length >= pageData.value.targetOptions.length) {
-                        if (event === 'MOTION') {
-                            return ['MOTION', 'SMDHUMAN', 'SMDVEHICLE'].map((item) => `<item>${item}</item>`).join('')
-                        } else {
-                            return `<item>${event}</item>`
-                        }
-                    } else if (formData.value.targets.includes('NONE')) {
-                        if (event === 'MOTION') {
-                            return ['MOTION', ...formData.value.targets]
-                                .filter((item) => item !== 'NONE')
-                                .map((item) => `<item>${item}</item>`)
-                                .join('')
-                        } else {
-                            return `<item>${event}</item>`
-                        }
+            const eventsXML = pageData.value.events
+                .map((item1) => {
+                    if (item1.value === 'motion') {
+                        return ['motion', 'smdPerson', 'smdCar'].map((item2) => `<item>${item2}</item>`).join('')
                     } else {
-                        if (event === 'MOTION') {
-                            return formData.value.targets.map((item) => `<item>${item}</item>`).join('')
-                        } else {
-                            return ''
-                        }
+                        return `<item>${item1.value}</item>`
                     }
                 })
                 .join('')
@@ -394,47 +344,29 @@ export default defineComponent({
             tableData.value = []
 
             const sendXml = rawXml`
-                <types>
-                    <recType>
-                        ${wrapEnums(['MOTION', 'SMDHUMAN', 'SMDVEHICLE', 'SCHEDULE', 'SENSOR', 'MANUAL', 'INTELLIGENT', 'POS', 'NORMALALL', 'FACEDETECTION', 'FACEMATCH', 'VEHICLE', 'TRIPWIRE', 'INVADE', 'AOIENTRY', 'AOILEAVE', 'ITEMCARE', 'CROWDDENSITY', 'EXCEPTION'])}
-                    </recType>
-                </types>
-                <requireField>
-                    <chl />
-                    <recList>
-                        <item>
-                            <recType />
-                            <startTime />
-                            <endTime />
-                            <size />
-                        </item>
-                    </recList>
-                </requireField>
                 <condition>
-                    <startTime>${formatDate(startTime, 'YYYY-MM-DD HH:mm:ss')}</startTime>
-                    <endTime>${formatDate(endTime, 'YYYY-MM-DD HH:mm:ss')}</endTime>
-                    <startTimeEx>${localToUtc(startTime)}</startTimeEx>
-                    <endTimeEx>${localToUtc(endTime)}</endTimeEx>
+                    <startTime>${formatGregoryDate(startTime, DEFAULT_DATE_FORMAT)}</startTime>
+                    <endTime>${formatGregoryDate(endTime, DEFAULT_DATE_FORMAT)}</endTime>
                     <recType type='list'>
                         <itemType type='recType'/>
-                        ${events}
+                        ${eventsXML}
                     </recType>
-                    ${formData.value.events.includes('POS') ? `<keyword>${formData.value.pos}</keyword>` : ''}
+                    ${enablePos ? `<keyword>${formData.value.pos}</keyword>` : ''}
                     ${formData.value.chls.length ? `<chl type='list'>${chls}</chl>` : ''}
                 </condition>
             `
-            const result = await queryChlRecLog(sendXml)
+            const result = await queryRecLog(sendXml)
             const $ = queryXml(result)
 
             closeLoading()
 
             showMaxSearchLimitTips($)
 
-            $('//content/chl/item').forEach((item) => {
+            $('content/chl/item').forEach((item) => {
                 const $item = queryXml(item.element)
-                const chlId = item.attr('id')!
+                const chlId = item.attr('id')
                 const chlName = $item('name').text()
-                const timeZone = $item('recList').attr('timeZone')!
+                const timeZone = $item('recList').attr('timeZone')
                 $item('recList/item').forEach((rec) => {
                     const $rec = queryXml(rec.element)
                     const startTime = dayjs.utc($rec('startTime').text()).valueOf()
@@ -457,10 +389,7 @@ export default defineComponent({
             })
 
             if (!tableData.value.length) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_RECORD_DATA'),
-                })
+                openMessageBox(Translate('IDCS_NO_RECORD_DATA'))
             }
         }
 
@@ -509,70 +438,68 @@ export default defineComponent({
             tableRef.value!.clearSelection()
         })
 
-        watch(
-            mode,
-            (newVal) => {
-                if (newVal !== 'h5' && !Plugin.IsPluginAvailable()) {
-                    Plugin.SetPluginNoResponse()
-                    Plugin.ShowPluginNoResponse()
-                }
-                if (newVal === 'ocx') {
-                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
-                    Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                }
-            },
-            {
-                immediate: true,
-            },
-        )
+        /**
+         * @description 打开事件类型筛选框
+         */
+        interface EventSelectorInstance {
+            open(): void
+        }
+        const baseEventSelectorRef = ref<EventSelectorInstance>()
+        const openEventSelector = () => {
+            console.log(pageData.value.events)
+            baseEventSelectorRef.value?.open()
+        }
 
-        onMounted(async () => {
-            Plugin.SetPluginNotice('#layout2Main')
+        // 选择的事件类型列表 - 拼接为字符串
+        const eventsStr = computed(() => {
+            const events = pageData.value.events.map((item) => {
+                return Translate(EVENT_TYPE_NAME_MAPPING[item.value])
+            })
+            return events.length === 0 ? Translate('IDCS_FULL') : events.join(', ')
+        })
+
+        // 是否支持POS
+        const enablePos = computed(() => {
+            const events = pageData.value.events.map((item) => {
+                return item.value
+            })
+            return events.length === 0 || events.includes('POS')
+        })
+
+        onMounted(() => {
             getChlsList()
 
             const date = new Date()
-            formData.value.startTime = dayjs(date).hour(0).minute(0).second(0).format(dateTime.dateTimeFormat)
-            formData.value.endTime = dayjs(date).hour(23).minute(59).second(59).format(dateTime.dateTimeFormat)
-        })
-
-        onBeforeUnmount(() => {
-            if (mode.value === 'ocx') {
-                const sendXML = OCX_XML_StopPreview('ALL')
-                Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-            }
+            formData.value.startTime = dayjs(date).hour(0).minute(0).second(0).calendar('gregory').format(DEFAULT_DATE_FORMAT)
+            formData.value.endTime = dayjs(date).hour(23).minute(59).second(59).calendar('gregory').format(DEFAULT_DATE_FORMAT)
         })
 
         return {
             mode,
             formData,
-            dateTime,
-            highlightWeekend,
             pageData,
             userAuth,
             confirmBackUp,
             backUp,
             toggleAllChl,
             isChlAll,
-            filterEvents,
-            isEventAll,
             displayIndex,
             displayDateTime,
             displayEvent,
-            toggleAllEvent,
-            changeEvent,
             search,
             tableRef,
             tableData,
             playRec,
             displayEventIcon,
-            DefaultPagerLayout,
             handleRecClick,
             filterTableData,
             handleRecChange,
             showPosInfo,
-            BackupPop,
-            BackupLocalPop,
-            BackupPosInfoPop,
+
+            baseEventSelectorRef,
+            openEventSelector,
+            eventsStr,
+            enablePos,
         }
     },
 })

@@ -2,12 +2,9 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-29 16:10:39
  * @Description: 抓拍注册弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:22:35
  */
-import type { FormInstance, FormRules } from 'element-plus'
+import type { FormRules } from 'element-plus'
 import IntelFaceDBEditPop from './IntelFaceDBEditPop.vue'
-import { type IntelFaceDBGroupDto, IntelFaceDBSnapRegisterForm } from '@/types/apiType/intelligentAnalysis'
 
 export default defineComponent({
     components: {
@@ -29,9 +26,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
-        const dateTime = useDateTimeStore()
 
         const pageData = ref({
             // 人脸数据库选项
@@ -64,19 +58,19 @@ export default defineComponent({
             forceCreate: false,
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new IntelFaceDBSnapRegisterForm())
         const formRule = ref<FormRules>({
             name: [
                 {
-                    validator(rule, value, callback) {
-                        if (!value.trim().length) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_FULL_NAME_EMPTY')))
                             return
                         }
                         callback()
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
         })
@@ -92,10 +86,10 @@ export default defineComponent({
 
             closeLoading()
 
-            pageData.value.faceDatabaseList = $('//content/item').map((item) => {
+            pageData.value.faceDatabaseList = $('content/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
-                    id: item.attr('id')!,
+                    id: item.attr('id'),
                     groupId: $item('groupId').text(),
                     name: $item('name').text(),
                 }
@@ -124,7 +118,7 @@ export default defineComponent({
          * @description 表单验证
          */
         const verify = () => {
-            formRef.value!.validate(async (valid) => {
+            formRef.value!.validate((valid) => {
                 if (!valid) {
                     return
                 }
@@ -141,14 +135,14 @@ export default defineComponent({
             const groupItemId = pageData.value.faceDatabaseList.find((item) => item.groupId === formData.value.groupId)!.id
             const sendXml = rawXml`
                 <content>
-                    ${ternary(pageData.value.forceCreate, `<force>true</force>`)}
+                    ${pageData.value.forceCreate ? '<force>true</force>' : ''}
                     <name>${formData.value.name}</name>
                     <sex>${formData.value.sex}</sex>
-                    <birthday>${formatDate(formData.value.birthday, dateTime.dateFormat, 'YYYY-MM-DD')}</birthday>
+                    <birthday>${formData.value.birthday}</birthday>
                     <nativePlace></nativePlace>
                     <certificateType type="certificateType">${formData.value.certificateType}</certificateType>
-                    <mobile>${formData.value.mobile?.toString() || ''}</mobile>
-                    <number>${formData.value.number?.toString() || ''}</number>
+                    <mobile>${formData.value.mobile}</mobile>
+                    <number>${formData.value.number}</number>
                     <note>${formData.value.note}</note>
                     <groups>
                         <item id="${groupItemId}">
@@ -156,9 +150,9 @@ export default defineComponent({
                         </item>
                     </groups>
                     <faceImg>
-                        <imgData>${wrapCDATA(prop.pic)}</imgData>
-                        <imgWidth>${pageData.value.imgWidth.toString()}</imgWidth>
-                        <imgHeight>${pageData.value.imgHeight.toString()}</imgHeight>
+                        <imgData>${wrapCDATA(prop.pic.split(',')[1])}</imgData>
+                        <imgWidth>${pageData.value.imgWidth}</imgWidth>
+                        <imgHeight>${pageData.value.imgHeight}</imgHeight>
                     </faceImg>
                 </content>
             `
@@ -168,15 +162,15 @@ export default defineComponent({
             closeLoading()
             pageData.value.forceCreate = false
 
-            if ($('//status').text() === 'success') {
-                openMessageTipBox({
+            if ($('status').text() === 'success') {
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).finally(() => {
                     close()
                 })
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_WALL_HAVEDECODER:
@@ -201,9 +195,9 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_INVALID_PARAMETER')
                         break
                     case ErrorCode.USER_ERROR_NODE_ID_EXISTS:
-                        const name = $('//content/name').text()
-                        const similarity = $('//content/similarity').text() + '%'
-                        openMessageTipBox({
+                        const name = $('content/name').text()
+                        const similarity = $('content/similarity').text() + '%'
+                        openMessageBox({
                             type: 'question',
                             message: Translate('IDCS_TARGET_LIBRARY_FACE_HAS_EXIST').formatForLang(name, similarity),
                         }).then(() => {
@@ -212,14 +206,12 @@ export default defineComponent({
                         })
                         break
                     default:
-                        errorInfo = 'IDCS_ADD_FACE_FAIL'
+                        errorInfo = Translate('IDCS_ADD_FACE_FAIL')
                         break
                 }
+
                 if (errorInfo) {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: errorInfo,
-                    })
+                    openMessageBox(errorInfo)
                 }
             }
         }
@@ -247,17 +239,14 @@ export default defineComponent({
          * @description 打开弹窗时 初始化数据
          */
         const open = async () => {
-            formRef.value?.resetFields()
-            formRef.value?.clearValidate()
             if (!pageData.value.faceDatabaseList.length) {
                 await getFaceDatabaseList()
             }
-            formData.value.birthday = formatDate(new Date(), dateTime.dateFormat)
+            formData.value.birthday = formatGregoryDate(new Date(), DEFAULT_YMD_FORMAT)
             loadImg()
         }
 
         return {
-            dateTime,
             pageData,
             open,
             close,
@@ -268,8 +257,6 @@ export default defineComponent({
             getFaceDatabaseList,
             confirmAddGroup,
             verify,
-            highlightWeekend,
-            IntelFaceDBEditPop,
         }
     },
 })

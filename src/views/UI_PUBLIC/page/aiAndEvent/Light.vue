@@ -2,41 +2,32 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-13 15:58:40
  * @Description: 闪灯
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-29 16:06:25
 -->
 <template>
     <div class="base-flex-box">
-        <ScheduleManagPop
-            v-model="pageData.scheduleManagePopOpen"
-            @close="pageData.scheduleManagePopOpen = false"
-        >
-        </ScheduleManagPop>
-        <div class="base-subheading-box">{{ Translate('IDCS_LIGHT') }}</div>
+        <div class="base-head-box">{{ Translate('IDCS_LIGHT') }}</div>
         <div class="base-table-box">
             <el-table
+                v-title
                 :data="tableData"
-                stripe
-                border
-                highlight-current-row
-                show-overflow-tooltip
             >
                 <el-table-column
                     label=" "
-                    width="50px"
+                    width="50"
                 >
-                    <template #default="scope">
-                        <BaseTableRowStatus :icon="scope.row.status" />
+                    <template #default="{ row }: TableColumn<AlarmWhiteLightDto>">
+                        <BaseTableRowStatus :icon="row.status" />
                     </template>
                 </el-table-column>
                 <el-table-column
-                    prop="name"
                     :label="Translate('IDCS_CHANNEL')"
-                >
-                </el-table-column>
-                <el-table-column prop="enable">
+                    prop="name"
+                    show-overflow-tooltip
+                />
+                <!-- 启用 -->
+                <el-table-column>
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_ENABLE') }}
                             </BaseTableDropdownLink>
@@ -44,10 +35,8 @@
                                 <el-dropdown-menu>
                                     <el-dropdown-item
                                         v-for="item in pageData.enableList"
-                                        :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
-                                        @click="handleEnabelChangeAll(item.value)"
+                                        :key="item.label"
+                                        @click="changeAllEnable(item.value)"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -55,45 +44,31 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
-                        <el-select
-                            v-model="scope.row.enable"
-                            prop="enable"
-                            value-key="value"
+                    <template #default="{ row }: TableColumn<AlarmWhiteLightDto>">
+                        <el-select-v2
+                            v-model="row.enable"
                             :placeholder="Translate('IDCS_ON')"
+                            :disabled="row.disabled"
                             :options="pageData.enableList"
-                            :disabled="scope.row.enableDisable"
-                            @change="handleEnabelChange(scope.row)"
-                        >
-                            <el-option
-                                v-for="item in pageData.enableList"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            >
-                            </el-option>
-                        </el-select>
-                    </template>
-                </el-table-column>
-                <el-table-column
-                    prop="durationTime"
-                    :label="Translate('IDCS_FLASHING_TIME')"
-                >
-                    <template #default="scope">
-                        <el-input
-                            v-model="scope.row.durationTime"
-                            :disabled="scope.row.durationTimeDisable"
-                            placeholder="undefined"
-                            @change="handleDurationTimeChange(scope.row)"
-                            @focus="handleDurationTimeFocus(scope.row)"
-                            @blur="handleDurationTimeBlur(scope.row)"
-                            @keydown.enter="handleDurationTimeKeydown(scope.row)"
                         />
                     </template>
                 </el-table-column>
-                <el-table-column prop="frequencyType">
+                <!-- 闪烁时间 -->
+                <el-table-column :label="Translate('IDCS_FLASHING_TIME')">
+                    <template #default="{ row }: TableColumn<AlarmWhiteLightDto>">
+                        <BaseNumberInput
+                            v-model="row.durationTime"
+                            :disabled="!row.enable"
+                            :min="1"
+                            :max="60"
+                            @keyup.enter="blurInput"
+                        />
+                    </template>
+                </el-table-column>
+                <!-- 闪烁频率 -->
+                <el-table-column>
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_FLASHING_FREQUENCY') }}
                             </BaseTableDropdownLink>
@@ -102,9 +77,7 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.lightFrequencyList"
                                         :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
-                                        @click="handleFrequencyTypeChangeAll(item.value)"
+                                        @click="changeAllFrequencyType(item.value)"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -112,94 +85,58 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
-                        <el-select
-                            v-model="scope.row.frequencyType"
-                            prop="frequencyType"
-                            value-key="value"
-                            placeholder=""
+                    <template #default="{ row }: TableColumn<AlarmWhiteLightDto>">
+                        <el-select-v2
+                            v-model="row.frequencyType"
+                            :disabled="!row.enable"
                             :options="pageData.lightFrequencyList"
-                            :disabled="scope.row.frequencyTypeDisable"
-                            @change="handleFrequencyTypeChange(scope.row)"
-                        >
-                            <el-option
-                                v-for="item in pageData.lightFrequencyList"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            >
-                            </el-option>
-                        </el-select>
+                        />
                     </template>
                 </el-table-column>
             </el-table>
         </div>
-        <el-row class="row_pagination">
-            <el-pagination
+        <div class="base-pagination-box">
+            <BasePagination
                 v-model:current-page="pageData.pageIndex"
                 v-model:page-size="pageData.pageSize"
-                :page-sizes="pageData.pageDataCountItems"
-                layout="prev, pager, next, sizes, total, jumper"
                 :total="pageData.totalCount"
-                size="small"
                 @size-change="changePaginationSize"
                 @current-change="changePagination"
             />
-        </el-row>
-        <div class="base-subheading-box margin">{{ Translate('IDCS_FLASH_LIGHT_LINK_SCHEDULE') }}</div>
-        <el-form
-            label-position="left"
-            :style="{
-                '--form-input-width': '200px',
-            }"
-        >
-            <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                <el-select
-                    v-model="pageData.schedule"
-                    prop="schedule"
-                    value-key="value"
-                    placeholder="<无>"
-                    size="small"
-                    :options="pageData.scheduleList"
-                    @change="handleScheduleChange()"
-                >
-                    <el-option
-                        v-for="item in pageData.scheduleList"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.label"
-                    >
-                    </el-option>
-                </el-select>
-                <el-button
-                    size="small"
-                    @click="popOpen()"
-                >
-                    {{ Translate('IDCS_MANAGE') }}
-                </el-button>
-            </el-form-item>
-            <div class="tip">*{{ Translate('IDCS_FLASH_LIGHT_LINK_SCHEDULE_TIPS') }}</div>
-        </el-form>
-        <div class="base-btn-box padding">
-            <el-button
-                :disabled="pageData.applyDisable"
-                @click="setData()"
-                >{{ Translate('IDCS_APPLY') }}</el-button
-            >
         </div>
+        <div class="base-head-box margin">{{ Translate('IDCS_FLASH_LIGHT_LINK_SCHEDULE') }}</div>
+        <el-form v-title>
+            <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
+                <BaseScheduleSelect
+                    v-model="pageData.schedule"
+                    :options="pageData.scheduleList"
+                    @change="changeSchedule()"
+                    @edit="pageData.isSchedulePop = true"
+                />
+            </el-form-item>
+            <el-form-item>
+                <span class="text-tips">*{{ Translate('IDCS_FLASH_LIGHT_LINK_SCHEDULE_TIPS') }}</span>
+            </el-form-item>
+        </el-form>
+        <div class="base-btn-box">
+            <el-button
+                :disabled="!editRows.size() && !pageData.scheduleChanged"
+                @click="setData()"
+            >
+                {{ Translate('IDCS_APPLY') }}
+            </el-button>
+        </div>
+        <BaseScheduleManagePop
+            v-model="pageData.isSchedulePop"
+            @close="closeSchedulePop"
+        />
     </div>
 </template>
 
 <script lang="ts" src="./Light.v.ts"></script>
 
 <style lang="scss" scoped>
-.tip {
-    color: var(--main-text-light);
-    font-size: 14px;
-    padding-left: 10px;
-}
-
 .margin {
-    margin-top: 20px;
+    margin-top: 10px;
 }
 </style>

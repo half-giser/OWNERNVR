@@ -25,9 +25,9 @@
 所以其他UI可能会产生自己的vue文件，并且可能引用public的html和js文件。
 */
 
-import featureTree from './featureTree'
+// @ts-expect-error
+import featureTree from '@ui/router'
 import type { RouteMeta, RouteRecordRaw } from 'vue-router'
-// import { camel2Kebab } from '../../utils/tools'
 
 export const camel2Kebab = (name: string) => {
     const arr = name.split('')
@@ -46,24 +46,14 @@ export const camel2Kebab = (name: string) => {
 
 //视图集合
 const viewComponents: Record<string, any> = {}
-const puglicPages = import.meta.glob('@public/page/**/*.vue')
+// 此处对页面组件的名称做了较严格的匹配，组件名称前缀为IntelBase、AlarmBase、RecordBase、或后缀为Pop、Item、Panel等等都被认为不是页面组件
+const puglicPages = import.meta.glob(['@public/page/**/*.vue', '!**/{Intel,Alarm,Record}Base*.vue', '!**/*Pop.vue', '!**/*Item.vue', '!**/!(Function)Panel.vue'])
 const uiPages = import.meta.glob('@ui/page/**/*.vue')
 
-// let uiPages: Record<string, any> = {} // import.meta.glob(import.meta.env.VITE_UI)
-// //新增UI后，需要在这里增加
-// if (__UI_1__) {
-//     uiPages = import.meta.glob('/src/views/UI1/page/**/*.vue')
-// }
-// if (__UI_2__) {
-//     uiPages = import.meta.glob('/src/views/UI2/page/**/*.vue')
-// }
-// if (__UI_3__) {
-//     uiPages = import.meta.glob('/src/views/UI3/page/**/*.vue')
-// }
-
 const getItemName = (file: string) => {
-    const item = file.replace('/src/views/', '')
-    return item.substring(item.indexOf('/', item.indexOf('/') + 1) + 1)
+    // const item = file.replace('/src/views/', '')
+    // return item.substring(item.indexOf('/', item.indexOf('/') + 1) + 1)
+    return file.split('/page/')[1]
 }
 
 Object.keys(uiPages).forEach((prop) => {
@@ -76,9 +66,6 @@ Object.keys(puglicPages).forEach((prop) => {
         viewComponents[itemName] = puglicPages[prop]
     }
 })
-
-// let root: RouteRecordRaw
-// let config: RouteRecordRaw
 
 /**
  * @description: 基于功能树和UI配置生成路由树
@@ -126,7 +113,7 @@ function routeSortFun(a: RouteRecordRaw, b: RouteRecordRaw): number {
  * @return {*}
  */
 // function setRouteAuth(_routes: RouteRecordRaw[]) {
-//     //TODO: 设置权限
+//     // 设置权限
 //     console.log(_routes)
 // }
 
@@ -159,6 +146,10 @@ function routeSortFun(a: RouteRecordRaw, b: RouteRecordRaw): number {
  */
 function resolveRouteTree(tree: FeatureTree, routes: RouteRecordRaw[], parent: RouteRecordRaw | null) {
     for (const key in tree) {
+        if (tree[key].meta?.remove) {
+            continue
+        }
+
         //如果没有设置name，用key作为默认的name
         if (tree[key].name === undefined) {
             tree[key].name = key
@@ -205,26 +196,30 @@ function setRouteRecordField(featureItem: FeatureItem, routeRecord: RouteRecordR
     } else if (featureItem.component) {
         routeRecord.component = viewComponents[featureItem.component]
     }
+
     if (featureItem.name) {
         routeRecord.name = featureItem.name
-        // if (featureItem.name === 'root') {
-        //     root = routeRecord
-        // } else if (featureItem.name === 'config') {
-        //     config = routeRecord
-        // }
     }
+
     if (featureItem.meta) {
         routeRecord.meta = featureItem.meta
     } else {
         routeRecord.meta = {}
     }
+
+    if (featureItem.beforeEnter) {
+        routeRecord.beforeEnter = featureItem.beforeEnter
+    }
+
     routeRecord.name = featureItem.name
     routeRecord.path = featureItem.path === undefined ? camel2Kebab(<string>featureItem.name) : featureItem.path
     routeRecord.meta.parent = parent
+
     let parentPath = ''
     if (parent) {
         parentPath = (<RouteMeta>parent.meta).fullPath as string
     }
+
     if (routeRecord.path === '') {
         routeRecord.meta.fullPath = ''
     } else if (routeRecord.path.startsWith('/')) {
@@ -236,6 +231,7 @@ function setRouteRecordField(featureItem: FeatureItem, routeRecord: RouteRecordR
     if (featureItem.redirect) {
         routeRecord.redirect = featureItem.redirect
     }
+
     if (featureItem.alias) {
         routeRecord.alias = featureItem.alias
     }
@@ -243,7 +239,4 @@ function setRouteRecordField(featureItem: FeatureItem, routeRecord: RouteRecordR
 
 export {
     buildRouter, //基于功能树和UI配置生成路由树
-    // setRouteAuth, //设置路由权限
-    // root, //登录后的根路由节点
-    // config, //配置的根路由节点
 }

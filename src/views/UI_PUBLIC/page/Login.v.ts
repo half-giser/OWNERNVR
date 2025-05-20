@@ -2,209 +2,269 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-04-23 11:52:48
  * @Description: 登录界面
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-12 14:51:09
  */
-import { type FormRules, type FormInstance } from 'element-plus'
-import { LoginForm, LoginReqData } from '@/types/apiType/user'
+import { type FormRules } from 'element-plus'
 import LoginPrivacyPop from './LoginPrivacyPop.vue'
+import progress from '@bassist/progress'
+import LoginDualAuthPop from './LoginDualAuthPop.vue'
 
 export default defineComponent({
     components: {
         LoginPrivacyPop,
+        LoginDualAuthPop,
     },
     setup() {
         const { Translate } = useLangStore()
         const langStore = useLangStore()
-        const Plugin = inject('Plugin') as PluginType
+        const plugin = usePlugin()
         const userSessionStore = useUserSessionStore()
         const router = useRouter()
-        const theme = getUiAndTheme()
 
         const pageData = ref({
-            langTypes: {} as Record<string, string>,
+            langTypes: [] as SelectOption<string, string>[],
             langType: langStore.langType,
             langId: langStore.langId,
             calendarOptions: [] as SelectOption<string, string>[],
-            // 登录错误提示
-            errorMsg: '',
             // 登录按钮禁用标志
             btnDisabled: false,
             isPrivacy: false,
             quality: 'sub',
-            qualityOptions: [
-                {
-                    label: 'IDCS_HIGH_QUALITY',
-                    value: 'main',
-                },
-                {
-                    label: 'IDCS_STANDARD_QUALITY',
-                    value: 'sub',
-                },
-            ],
+            isLogin: false,
+            // 是否打开双重认证弹窗
+            isDualAuthPop: false,
+            // 双重认证错误信息
+            dualAuthErrMsg: '',
         })
 
         langStore.getLangTypes().then((res) => {
-            pageData.value.langTypes = unref(res)
+            pageData.value.langTypes = Object.entries(res.value).map((item) => {
+                return {
+                    label: item[1],
+                    value: item[0],
+                }
+            })
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
 
         // 界面表单数据
-        const formData = ref(new LoginForm())
+        const formData = ref(new UserLoginForm())
+        const reqFormData = ref(new UserLoginReqData())
         formData.value.calendarType = userSessionStore.calendarType
 
         // 校验规则
         const rules = reactive<FormRules>({
             userName: [
                 {
-                    validator(rule, value, callback) {
+                    validator: (_rule, value: string, callback) => {
                         if (!value) {
-                            callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
+                            errorMsgFun.value = () => Translate('IDCS_PROMPT_USERNAME_EMPTY')
                             return
                         }
                         callback()
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
             password: [
                 {
-                    validator(rule, value, callback) {
+                    validator: (_rule, value: string, callback) => {
                         if (value.length > 16) {
-                            callback(new Error(Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')))
+                            errorMsgFun.value = () => Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')
                             return
                         }
                         callback()
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
         })
 
-        /**
-         * @description 错误超过次数锁定后的读秒回调
-         * @param {string} countDownInfo
-         */
-        const countDownCallback = (countDownInfo: string) => {
-            pageData.value.errorMsg = countDownInfo
-        }
-
-        /**
-         * @description 错误超过次数锁定后的读秒结束回调
-         */
-        const countDownEndCallback = () => {
-            pageData.value.errorMsg = ''
-            pageData.value.btnDisabled = false
-        }
+        // 图像质量
+        const qualityOptions = computed(() => {
+            return [
+                {
+                    label: Translate('IDCS_HIGH_QUALITY'),
+                    value: 'main',
+                },
+                {
+                    label: Translate('IDCS_STANDARD_QUALITY'),
+                    value: 'sub',
+                },
+            ]
+        })
 
         // 初始化错误超过次数锁定检测工具
-        const errorLockChecker = new ErrorLockChecker('login', countDownCallback, countDownEndCallback)
-        if (errorLockChecker.isLocked) {
-            pageData.value.btnDisabled = true
-        }
+        const errorLockChecker = useErrorLockChecker('login')
 
-        /**
-         * @description 登录验证
-         */
+        // 登录错误提示函数
+        const errorMsgFun = ref<() => string>(() => '')
+
+        // 登录错误提示
+        const errorMsg = computed(() => {
+            if (errorLockChecker.getLock() && pageData.value.isLogin) {
+                return errorLockChecker.getErrorMessage()
+            }
+            return errorMsgFun.value()
+        })
+
+        // 登录按钮禁用
+        const btnDisabled = computed(() => {
+            return pageData.value.btnDisabled || (errorLockChecker.getLock() && pageData.value.isLogin)
+        })
+
         const handleLogin = () => {
-            formRef.value!.validate((valid) => {
+            formRef.value!.validate(async (valid) => {
                 if (valid) {
                     pageData.value.btnDisabled = true
-                    fnReqLogin()
+                    try {
+                        const reqData = await fnReqLogin()
+                        const result = await fnDoLogin(reqData)
+                        // doLogin后更新用户会话信息
+                        await userSessionStore.updateByLogin(result, formData.value)
+                        handleLoginSuccess()
+                    } catch (e) {
+                        console.error(e)
+                        pageData.value.btnDisabled = false
+                    } finally {
+                        progress.done()
+                    }
                 }
             })
         }
 
         /**
-         * @description 登录
+         * @description 处理双重认证登录
+         * @param {UserDualAuthLoginForm} data
          */
-        const fnReqLogin = async () => {
-            const result = await reqLogin()
-            const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                userSessionStore.updataByReqLogin(result)
-                const reqData = new LoginReqData()
-                const md5Pwd = MD5_encrypt(formData.value.password)
-                reqData.userName = formData.value.userName
-                const nonce = userSessionStore.nonce ? userSessionStore.nonce : ''
-                reqData.password = sha512_encrypt(md5Pwd + '#' + nonce)
-                reqData.passwordMd5 = md5Pwd
-                fnDoLogin(reqData)
-            } else {
-                const errorCode = $('errorCode').text()
-                console.log(errorCode)
-                // ElMessage.error(Translate(ErrorCodeMapping[errorCode]))
+        const handleDualAuthLogin = async (data: UserDualAuthLoginForm) => {
+            progress.start()
+            try {
+                const result = await fnDoLogin(reqFormData.value, data)
+                await userSessionStore.updateByLogin(result, formData.value)
+                handleLoginSuccess()
+            } catch (e) {
+                console.error(e)
+            } finally {
+                progress.done()
                 pageData.value.btnDisabled = false
             }
         }
 
         /**
-         * @description 登录后更新用户会话信息
-         * @param {LoginReqData} reqData
+         * @description 登录成功后处理
          */
-        const fnDoLogin = async (reqData: LoginReqData) => {
+        const handleLoginSuccess = () => {
+            // UI1-D / UI1-G 登录默认画质
+            if (import.meta.env.VITE_UI_TYPE === 'UI1-D' || import.meta.env.VITE_UI_TYPE === 'UI1-G') {
+                userSessionStore.defaultStreamType = pageData.value.quality
+            }
+            plugin.DisposePlugin()
+            plugin.StartV2Process()
+            router.push('/live')
+        }
+
+        const fnReqLogin = async () => {
+            progress.start()
+            try {
+                const result = await reqLogin()
+                const $ = queryXml(result)
+                if ($('status').text() === 'success') {
+                    userSessionStore.updataByReqLogin(result)
+                    reqFormData.value = new UserLoginReqData()
+
+                    reqFormData.value.userName = formData.value.userName
+
+                    const md5Pwd = MD5_encrypt(formData.value.password)
+                    const nonce = userSessionStore.nonce ? userSessionStore.nonce : ''
+
+                    reqFormData.value.password = sha512_encrypt(`${md5Pwd}#${nonce}#${RSA_PUBLIC_KEY.replace(/\r/g, '')}`)
+                    reqFormData.value.rsaPublic = RSA_PUBLIC_KEY
+
+                    return reqFormData.value
+                } else {
+                    const errorCode = $('errorCode').text()
+                    throw new Error(errorCode)
+                }
+            } catch {
+                throw new Error('')
+            }
+        }
+
+        const fnDoLogin = async (reqData: UserLoginReqData, dualInfo?: UserDualAuthLoginForm) => {
             const sendXml = rawXml`
                 <content>
-                    <userName>${reqData.userName}</userName>
-                    <password>${reqData.password}</password>
+                    <userName>${wrapCDATA(reqData.userName)}</userName>
+                    <password>${wrapCDATA(reqData.password)}</password>
+                    ${
+                        dualInfo
+                            ? rawXml`
+                            <dualAuthUserName>${wrapCDATA(dualInfo.userName)}</dualAuthUserName>
+                            <dualAuthPassword>${wrapCDATA(dualInfo.password)}</dualAuthPassword>
+                        `
+                            : ''
+                    }
+                    <rsaPublic>${reqData.rsaPublic}</rsaPublic>
                 </content>
             `
             try {
                 const result = await doLogin(sendXml)
                 const $ = queryXml(result)
-                if ($('//status').text() == 'success') {
-                    // doLogin后更新用户会话信息
-                    await userSessionStore.updateByLogin('STANDARD', result, reqData, formData.value)
-                    pageData.value.btnDisabled = false
-                    // UI1-D / UI1-G 登录默认画质
-                    if (['UI1-D', 'UI1-G'].includes(theme.name)) {
-                        userSessionStore.defaultStreamType = pageData.value.quality
-                    }
-                    Plugin.DisposePlugin()
-                    Plugin.TogglePageByPlugin()
-                    Plugin.StartV2Process()
-                    router.push('/live')
-                } else if ($('//status').text() == 'fail') {
-                    pageData.value.btnDisabled = false
+                if ($('status').text() === 'success') {
+                    return result
+                } else {
                     formData.value.password = ''
-                    const errorCode = Number($('errorCode').text())
+                    const errorCode = $('errorCode').text().num()
                     const ramainingNumber = $('ramainingNumber').text()
-                    errorLockChecker.setLockTime(Number($('ramainingTime').text()) * 1000)
-                    errorLockChecker.isLocked = $('locked').text().toBoolean()
-                    if (errorCode) {
-                        switch (errorCode) {
-                            case ErrorCode.USER_ERROR_NO_USER:
-                            case ErrorCode.USER_ERROR_PWD_ERR:
-                                errorLockChecker.preErrorMsg = Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')
-                                pageData.value.errorMsg = errorLockChecker.preErrorMsg
-                                errorLockChecker.error(() => {
+                    errorLockChecker.setLockTime($('ramainingTime').text().num() * 1000)
+                    errorLockChecker.setLock($('locked').text().bool())
+                    switch (errorCode) {
+                        case ErrorCode.USER_ERROR_NO_USER:
+                        case ErrorCode.USER_ERROR_PWD_ERR:
+                            pageData.value.isLogin = true
+                            // 用户名或密码错误(登录用户和双重认证用户)
+                            if (pageData.value.isDualAuthPop) {
+                                pageData.value.dualAuthErrMsg = Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')
+                            } else {
+                                errorMsgFun.value = () => Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')
+                                errorLockChecker.setPreErrorMessage('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')
+                                if (!errorLockChecker.checkIsLocked()) {
                                     if (ramainingNumber) {
-                                        pageData.value.errorMsg = pageData.value.errorMsg + '\n' + Translate('IDCS_TICK_ERROR_COUNT').formatForLang(ramainingNumber)
+                                        errorMsgFun.value = () => Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR') + '\n' + Translate('IDCS_TICK_ERROR_COUNT').formatForLang(ramainingNumber)
                                     }
-                                })
-                                if (errorLockChecker.isLocked) {
-                                    pageData.value.btnDisabled = true
                                 }
-                                break
-                            case ErrorCode.USER_ERROR_USER_LOCKED:
-                                pageData.value.errorMsg = Translate('IDCS_LOGIN_FAIL_USER_LOCKED')
-                                break
-                            case ErrorCode.USER_ERROR_NO_AUTH:
-                                pageData.value.errorMsg = Translate('IDCS_LOGIN_FAIL_USER_LIMITED_TELNET')
-                                break
-                            case ErrorCode.USER_ERROR_INVALID_PARAM:
-                                pageData.value.errorMsg = Translate('IDCS_USER_ERROR_INVALID_PARAM')
-                                break
-                            default:
-                                pageData.value.errorMsg = Translate('IDCS_UNKNOWN_ERROR_CODE') + errorCode
-                        }
-                    } else {
-                        pageData.value.errorMsg = Translate('loginFailed')
+                            }
+                            break
+                        case ErrorCode.USER_ERROR_USER_LOCKED:
+                            errorMsgFun.value = () => Translate('IDCS_LOGIN_FAIL_USER_LOCKED')
+                            errorLockChecker.setPreErrorMessage('IDCS_LOGIN_FAIL_USER_LOCKED')
+                            break
+                        case ErrorCode.USER_ERROR_NO_AUTH:
+                            errorMsgFun.value = () => Translate('IDCS_LOGIN_FAIL_USER_LIMITED_TELNET')
+                            break
+                        // 不在排程内
+                        case 536871089:
+                            errorMsgFun.value = () => Translate('IDCS_LOGIN_NOT_IN_SCHEDULE')
+                            break
+                        // 需要双重认证
+                        case 536871090:
+                            pageData.value.isDualAuthPop = true
+                            pageData.value.dualAuthErrMsg = ''
+                            break
+                        case ErrorCode.USER_ERROR_SERVER_NO_EXISTS:
+                        case ErrorCode.USER_ERROR_FAIL:
+                            errorMsgFun.value = () => Translate('IDCS_CLEAR_BROWSING_TRY_AGAIN')
+                            break
+                        case ErrorCode.USER_ERROR_INVALID_PARAM:
+                            errorMsgFun.value = () => Translate('IDCS_USER_ERROR_INVALID_PARAM')
+                            break
+                        default:
+                            errorMsgFun.value = () => Translate('IDCS_UNKNOWN_ERROR_CODE') + errorCode
                     }
+                    throw new Error(errorCode + '')
                 }
             } catch (e) {
-                pageData.value.btnDisabled = false
+                throw new Error('')
             }
         }
 
@@ -214,11 +274,11 @@ export default defineComponent({
         const getIsShowPrivacy = async () => {
             const result = await queryShowPrivacyView()
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                if ($('//content/show').text().toBoolean() && !localStorage.getItem('privacy')) {
+            if ($('status').text() === 'success') {
+                if ($('content/show').text().bool() && !localStorage.getItem(LocalCacheKey.KEY_PRIVACY)) {
                     pageData.value.isPrivacy = true
                 } else {
-                    localStorage.setItem('privacy', 'true')
+                    localStorage.setItem(LocalCacheKey.KEY_PRIVACY, 'true')
                 }
             }
         }
@@ -228,14 +288,21 @@ export default defineComponent({
          */
         const closePrivacy = () => {
             pageData.value.isPrivacy = false
-            localStorage.setItem('privacy', 'true')
+            localStorage.setItem(LocalCacheKey.KEY_PRIVACY, 'true')
+        }
+
+        /**
+         * @description 更新标题
+         */
+        const updateTitle = () => {
+            const title = Translate('IDCS_WEB_CLIENT')
+            document.title = title === 'IDCS_WEB_CLIENT' ? '' : title
         }
 
         /**
          * @description 切换语言
          */
         const changeLang = async () => {
-            formRef.value!.clearValidate()
             langStore.updateLangId(pageData.value.langId)
             const langType = LANG_TYPE_MAPPING[pageData.value.langId]
             if (langType) {
@@ -243,8 +310,7 @@ export default defineComponent({
             }
             await langStore.getLangItems(true)
             updateCalendar()
-            const title = Translate('IDCS_WEB_CLIENT')
-            document.title = title === 'IDCS_WEB_CLIENT' ? '' : title
+            updateTitle()
         }
 
         /**
@@ -273,20 +339,20 @@ export default defineComponent({
          * @param e
          */
         const keyUp = (e: KeyboardEvent) => {
-            if (e.key && e.key.toLowerCase() == 'enter') {
+            if (e.key && e.key.toLowerCase() === 'enter') {
                 handleLogin()
             }
         }
 
-        onMounted(() => {
-            const title = Translate('IDCS_WEB_CLIENT')
-            document.title = title === 'IDCS_WEB_CLIENT' ? '' : title
+        const forgetPassword = () => {
+            router.push('/forgetPassword')
+        }
 
+        onMounted(() => {
+            updateTitle()
             getIsShowPrivacy()
             updateCalendar()
         })
-
-        useEventListener(window, 'keyup', keyUp, false)
 
         return {
             formRef,
@@ -297,7 +363,11 @@ export default defineComponent({
             rules,
             changeLang,
             closePrivacy,
-            LoginPrivacyPop,
+            btnDisabled,
+            errorMsg,
+            qualityOptions,
+            handleDualAuthLogin,
+            forgetPassword,
         }
     },
 })

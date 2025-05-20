@@ -2,11 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-22 15:16:17
  * @Description: 云台-任务-编辑弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:02:44
  */
-import { type ChannelPtzTaskDto, ChannelPtzTaskForm } from '@/types/apiType/channel'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -72,25 +69,21 @@ export default defineComponent({
                 },
             ],
             // 名称选项
-            nameOptions: [
-                {
-                    label: Translate('IDCS_NO'),
-                    value: 'No',
-                },
-            ],
+            nameOptions: [] as SelectOption<string, string>[],
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new ChannelPtzTaskForm())
 
         const formRule = ref<FormRules>({
             name: [
                 {
-                    validator(rule, value: string, callback) {
-                        if (!value) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -98,13 +91,13 @@ export default defineComponent({
             ],
             endTime: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator: (_rule, value: string, callback) => {
                         if (getSeconds(value) < getSeconds(formData.value.startTime)) {
                             callback(new Error(Translate('IDCS_END_TIME_GREATER_THAN_START')))
                             return
                         }
+
                         callback()
-                        return
                     },
                     trigger: 'manual',
                 },
@@ -133,9 +126,9 @@ export default defineComponent({
             const result = await queryChlPresetList(sendXml)
             const $ = queryXml(result)
 
-            pageData.value.nameOptions = $('//content/presets/item').map((item) => {
+            pageData.value.nameOptions = $('content/presets/item').map((item) => {
                 return {
-                    value: item.attr('index')!,
+                    value: item.attr('index'),
                     label: item.text(),
                 }
             })
@@ -153,9 +146,9 @@ export default defineComponent({
             `
             const result = await queryChlCruiseList(sendXml)
             const $ = queryXml(result)
-            pageData.value.nameOptions = $('//content/cruises/item').map((item) => {
+            pageData.value.nameOptions = $('content/cruises/item').map((item) => {
                 return {
-                    value: item.attr('index')!,
+                    value: item.attr('index'),
                     label: item.text(),
                 }
             })
@@ -173,9 +166,9 @@ export default defineComponent({
             `
             const result = await queryLocalChlPtzTraceList(sendXml)
             const $ = queryXml(result)
-            pageData.value.nameOptions = $('//content/traces/item').map((item) => {
+            pageData.value.nameOptions = $('content/traces/item').map((item) => {
                 return {
-                    value: item.attr('index')!,
+                    value: item.attr('index'),
                     label: item.text(),
                 }
             })
@@ -190,8 +183,8 @@ export default defineComponent({
             if (formData.value.type === 'NON') {
                 pageData.value.nameOptions = [
                     {
-                        label: NAME_TRANS_MAPPING['NO'],
-                        value: 'NO',
+                        label: NAME_TRANS_MAPPING.No,
+                        value: 'No',
                     },
                 ]
             } else if (formData.value.type === 'PRE') {
@@ -215,6 +208,7 @@ export default defineComponent({
                     },
                 ]
             }
+
             if (pageData.value.nameOptions.length) {
                 formData.value.name = pageData.value.nameOptions[0].value
             }
@@ -232,7 +226,7 @@ export default defineComponent({
          * @description 验证表单
          */
         const verify = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     ctx.emit('confirm', formData.value)
                 }
@@ -243,7 +237,6 @@ export default defineComponent({
          * @description 打开弹窗时重置表单
          */
         const open = async () => {
-            formRef.value?.clearValidate()
             formData.value.startTime = prop.data.startTime
             formData.value.endTime = prop.data.endTime
             formData.value.type = prop.data.type

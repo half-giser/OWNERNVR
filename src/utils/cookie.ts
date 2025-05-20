@@ -1,7 +1,7 @@
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2023-05-24 01:35:38
- * @Description:
+ * @Description: Cookie操作
  */
 
 /**
@@ -37,12 +37,8 @@ export const setCookie = (c_name: string, value: string | number, expiredays?: n
  * @param {string} name
  */
 export const delCookie = (name: string) => {
-    const exp = new Date()
-    exp.setTime(exp.getTime() - 1)
-    const cval = getCookie(name)
-    if (cval != null) {
-        document.cookie = name + '=' + cval + ';path=/' + ';expires=' + exp.toUTCString()
-    }
+    const exp = new Date(0).toUTCString()
+    document.cookie = name + '=;path=/;expires=' + exp
 }
 
 /**
@@ -52,9 +48,7 @@ export const clearCookie = () => {
     const keys = document.cookie.match(/[^ =;]+(?=\=)/g)
     if (keys) {
         for (let i = keys.length; i--; ) {
-            document.cookie = keys[i] + '=0;path=/;expires=' + new Date(0).toUTCString()
-            document.cookie = keys[i] + '=0;path=/;domain=' + document.domain + ';expires=' + new Date(0).toUTCString()
-            document.cookie = keys[i] + '=0;path=/;domain=kevis.com;expires=' + new Date(0).toUTCString()
+            delCookie(keys[i])
         }
     }
 }

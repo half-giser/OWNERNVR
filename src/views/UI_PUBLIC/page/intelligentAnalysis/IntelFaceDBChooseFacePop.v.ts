@@ -2,12 +2,9 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-30 18:47:36
  * @Description: 人脸库 - 选择人脸
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 18:30:43
  */
 import IntelFaceDBChooseFaceSnapPanel from './IntelFaceDBChooseFaceSnapPanel.vue'
 import IntelFaceDBChooseFaceImportPanel from './IntelFaceDBChooseFaceImportPanel.vue'
-import { type IntelFaceDBSnapFaceList, type IntelFaceDBImportFaceDto } from '@/types/apiType/intelligentAnalysis'
 
 export default defineComponent({
     components: {
@@ -36,7 +33,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
 
         const pageData = ref({
             // 当前类型
@@ -102,10 +98,7 @@ export default defineComponent({
             if (pageData.value.currentSnap.length) {
                 ctx.emit('choose', pageData.value.currentSnap)
             } else {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_SELECT_PIC_UNQUALIFIED'),
-                })
+                openMessageBox(Translate('IDCS_SELECT_PIC_UNQUALIFIED'))
             }
         }
 
@@ -132,8 +125,6 @@ export default defineComponent({
             chooseSnap,
             confirmSnap,
             importImg,
-            IntelFaceDBChooseFaceSnapPanel,
-            IntelFaceDBChooseFaceImportPanel,
         }
     },
 })

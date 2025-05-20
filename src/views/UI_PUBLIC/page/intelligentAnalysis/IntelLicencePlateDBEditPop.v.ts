@@ -2,11 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-02 15:04:43
  * @Description: 车牌库- 新增/编辑分组
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-12 20:45:29
  */
-import { IntelPlateDBGroupList } from '@/types/apiType/intelligentAnalysis'
-import { type FormRules, type FormInstance } from 'element-plus'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -35,10 +32,8 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
 
         const formData = ref({
             groupName: '',
@@ -47,7 +42,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             groupName: [
                 {
-                    validator(rule, value, callback) {
+                    validator: (_rule, value: string, callback) => {
                         if (!value.trim()) {
                             callback(new Error(Translate('IDCS_GROUP_NAME_EMPTY')))
                             return
@@ -63,7 +58,6 @@ export default defineComponent({
          * @description 打开弹窗时 重置表单
          */
         const open = () => {
-            formRef.value?.clearValidate()
             if (prop.type === 'edit') {
                 formData.value.groupName = prop.data.name
             } else {
@@ -91,10 +85,10 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 ctx.emit('confirm')
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
 
                 switch (errorCode) {
@@ -109,10 +103,7 @@ export default defineComponent({
                         break
                 }
 
-                openMessageTipBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 
@@ -136,11 +127,11 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 ctx.emit('confirm')
             } else {
-                const errorCode = Number($('//errorCode').text())
-                let errorInfo = ''
+                const errorCode = $('errorCode').text().num()
+                let errorInfo = Translate('IDCS_SAVE_FAIL')
 
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NAME_EXISTED:
@@ -154,15 +145,12 @@ export default defineComponent({
                         break
                 }
 
-                openMessageTipBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 
         const verify = () => {
-            formRef.value?.validate(async (valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     if (prop.type === 'edit') {
                         editGroup()

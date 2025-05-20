@@ -2,15 +2,12 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-20 19:43:51
  * @Description: 云台-轨迹
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:39:31
  */
 import { type TableInstance } from 'element-plus'
 import ChannelPtzCtrlPanel from './ChannelPtzCtrlPanel.vue'
 import ChannelTraceAddPop from './ChannelTraceAddPop.vue'
 import ChannelPtzTableExpandPanel from './ChannelPtzTableExpandPanel.vue'
 import ChannelPtzTableExpandItem from './ChannelPtzTableExpandItem.vue'
-import { type ChannelPtzTraceChlDto, ChannelPtzTraceDto } from '@/types/apiType/channel'
 
 export default defineComponent({
     components: {
@@ -21,8 +18,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
+
         const auth = useUserChlAuth(false)
         const playerRef = ref<PlayerInstance>()
 
@@ -32,8 +28,6 @@ export default defineComponent({
         const DEFAULT_RECORD_TIME = 180
 
         const pageData = ref({
-            // 通知列表
-            notification: [] as string[],
             // 当前表格选中索引
             tableIndex: 0,
             // 表格展开索引列表
@@ -58,10 +52,17 @@ export default defineComponent({
             recordTraceIndex: 0,
         })
 
-        let timer: NodeJS.Timeout | number = 0
-
         const tableRef = ref<TableInstance>()
         const tableData = ref<ChannelPtzTraceChlDto[]>([])
+
+        const chlOptions = computed(() => {
+            return tableData.value.map((item, index) => {
+                return {
+                    label: item.chlName,
+                    value: index,
+                }
+            })
+        })
 
         const formData = ref({
             // 轨迹名称
@@ -70,16 +71,16 @@ export default defineComponent({
             traceIndex: '' as string | number,
         })
 
-        // 播放模式
-        const mode = computed(() => {
-            if (!playerRef.value) {
-                return ''
-            }
-            return playerRef.value.mode
-        })
-
         const ready = computed(() => {
             return playerRef.value?.ready || false
+        })
+
+        // 播放模式
+        const mode = computed(() => {
+            if (!ready.value) {
+                return ''
+            }
+            return playerRef.value!.mode
         })
 
         let player: PlayerInstance['player']
@@ -92,22 +93,9 @@ export default defineComponent({
             player = playerRef.value!.player
             plugin = playerRef.value!.plugin
 
-            if (mode.value === 'h5') {
-                if (isHttpsLogin()) {
-                    pageData.value.notification = [formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`)]
-                }
-            }
             if (mode.value === 'ocx') {
-                if (!plugin.IsInstallPlugin()) {
-                    plugin.SetPluginNotice('#layout2Content')
-                    return
-                }
-                if (!plugin.IsPluginAvailable()) {
-                    plugin.SetPluginNoResponse()
-                    plugin.ShowPluginNoResponse()
-                }
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -116,12 +104,15 @@ export default defineComponent({
          */
         const play = () => {
             const { chlId, chlName } = tableData.value[pageData.value.tableIndex]
+
             if (mode.value === 'h5') {
                 player.play({
                     chlID: chlId,
                     streamType: 2,
                 })
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 plugin.RetryStartChlView(chlId, chlName)
             }
         }
@@ -144,14 +135,14 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                tableData.value[index].trace = $('//content/traces/item').map((item) => {
+            if ($('status').text() === 'success') {
+                tableData.value[index].trace = $('content/traces/item').map((item) => {
                     return {
-                        index: Number(item.attr('index')!),
+                        index: item.attr('index').num(),
                         name: item.text(),
                     }
                 })
-                tableData.value[index].maxCount = Number($('//content/traces').attr('maxCount'))
+                tableData.value[index].maxCount = $('content/traces').attr('maxCount').num()
                 tableData.value[index].traceCount = tableData.value[index].trace.length
             }
         }
@@ -172,18 +163,18 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                tableData.value = $('//content/item')
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/item')
                     .filter((item) => {
                         const $item = queryXml(item.element)
-                        return (auth.value.hasAll || auth.value.ptz[item.attr('id')!]) && $item('chlType').text() !== 'recorder'
+                        return (auth.value.hasAll || auth.value.ptz[item.attr('id')]) && $item('chlType').text() !== 'recorder'
                     })
                     .map((item) => {
                         const $item = queryXml(item.element)
                         return {
-                            chlId: item.attr('id')!,
+                            chlId: item.attr('id'),
                             chlName: $item('name').text(),
-                            traceCount: Number($item('traceCount').text()),
+                            traceCount: $item('traceCount').text().num(),
                             trace: [],
                             maxCount: Infinity,
                         }
@@ -216,13 +207,14 @@ export default defineComponent({
          * @param {ChannelPtzTraceChlDto} row
          * @param {boolean} expanded
          */
-        const handleExpandChange = async (row: ChannelPtzTraceChlDto, expanded: boolean) => {
+        const handleExpandChange = (row: ChannelPtzTraceChlDto, expanded: boolean) => {
             const index = tableData.value.findIndex((item) => item.chlId === row.chlId)
-            tableRef.value?.setCurrentRow(row)
+            tableRef.value!.setCurrentRow(row)
             if (index !== pageData.value.tableIndex) {
                 pageData.value.tableIndex = index
                 getTrace(tableData.value[pageData.value.tableIndex].chlId)
             }
+
             if (expanded) {
                 if (!pageData.value.expandRowKey.includes(row.chlId)) {
                     pageData.value.expandRowKey.push(row.chlId)
@@ -249,7 +241,12 @@ export default defineComponent({
 
         // 当前轨迹选项
         const traceOptions = computed(() => {
-            return tableData.value[pageData.value.tableIndex]?.trace || []
+            return (
+                tableData.value[pageData.value.tableIndex]?.trace.map((item, value) => ({
+                    ...item,
+                    value,
+                })) || []
+            )
         })
 
         const defaultTrace = new ChannelPtzTraceDto()
@@ -290,10 +287,7 @@ export default defineComponent({
         const addTrace = (index: number) => {
             const current = tableData.value[index]
             if (current.trace.length >= current.maxCount) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
-                })
+                openMessageBox(Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
                 return
             }
             pageData.value.addTraceMax = current.maxCount
@@ -323,7 +317,7 @@ export default defineComponent({
             const chlName = tableData.value[chlIndex].chlName
             const trace = tableData.value[chlIndex].trace[traceIndex]
 
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_TRACE_S').formatForLang(Translate('IDCS_CHANNEL'), getShortString(chlName, 10), getShortString(trace.name, 10)),
             }).then(async () => {
@@ -334,25 +328,25 @@ export default defineComponent({
                     <condition>
                         <chlId>${chlId}</chlId>
                         <traceIndexes>
-                            <item index="${trace.index.toString()}">${trace.index.toString()}</item>
+                            <item index="${trace.index}">${trace.index}</item>
                         </traceIndexes>
                     </condition>
                 `
                 const result = await delLocalChlPtzTrace(sendXml)
                 const $ = queryXml(result)
 
-                if ($('//status').text() === 'success') {
+                if ($('status').text() === 'success') {
                     const sendXml = rawXml`
                        <content>
                             <chlId>${chlId}</chlId>
-                            <index>${trace.index.toString()}</index>
+                            <index>${trace.index}</index>
                        </content> 
                     `
                     const result = await deleteChlPtzTrace(sendXml)
                     const $ = queryXml(result)
 
-                    if ($('//status').text() === 'success') {
-                        openMessageTipBox({
+                    if ($('status').text() === 'success') {
+                        openMessageBox({
                             type: 'success',
                             message: Translate('IDCS_DELETE_SUCCESS'),
                         }).then(() => getTrace(chlId))
@@ -369,17 +363,13 @@ export default defineComponent({
          * @description 修改轨迹名称
          */
         const saveName = async () => {
-            if (!formData.value.name || !traceOptions.value.length) {
-                return
-            }
-
             openLoading()
 
             const sendXml = rawXml`
                 <content>
                     <chlId>${tableData.value[pageData.value.tableIndex].chlId}</chlId>
-                    <index>${currentTrace.value.index.toString()}</index>
-                    <name>${wrapCDATA(formData.value.name)}</name>
+                    <index>${currentTrace.value.index}</index>
+                    <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
                 </content>
             `
             const result = await editChlPtzTrace(sendXml)
@@ -387,28 +377,29 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                openMessageTipBox({
+            if ($('status').text() === 'success') {
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).finally(() => {
                     tableData.value[pageData.value.tableIndex].trace[formData.value.traceIndex as number].name = formData.value.name
                 })
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_PROMPT_PRESET_NAME_EXIST'),
-                    })
+                    openMessageBox(Translate('IDCS_PROMPT_PRESET_NAME_EXIST'))
                 } else {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_SAVE_DATA_FAIL'),
-                    })
+                    openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
                 }
             }
         }
+
+        const timer = useClock(() => {
+            pageData.value.recordTime--
+            if (pageData.value.recordTime < 0) {
+                stopRecord()
+            }
+        }, 1000)
 
         /**
          * @description 重置录像状态
@@ -416,8 +407,7 @@ export default defineComponent({
         const resetRecord = () => {
             pageData.value.recordStatus = false
             pageData.value.recordTime = DEFAULT_RECORD_TIME
-            clearInterval(timer)
-            timer = 0
+            timer.stop()
         }
 
         /**
@@ -435,18 +425,13 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <chlId>${pageData.value.recordChlId}</chlId>
-                    <index>${pageData.value.recordTraceIndex.toString()}</index>
+                    <index>${pageData.value.recordTraceIndex}</index>
                 </content>
             `
             await startChlPtzTrace(sendXml)
 
             pageData.value.recordTime = DEFAULT_RECORD_TIME - 1
-            timer = setInterval(() => {
-                pageData.value.recordTime--
-                if (pageData.value.recordTime < 0) {
-                    stopRecord()
-                }
-            }, 1000)
+            timer.repeat()
         }
 
         /**
@@ -458,7 +443,7 @@ export default defineComponent({
                 const sendXml = rawXml`
                     <content>
                         <chlId>${pageData.value.recordChlId}</chlId>
-                        <index>${pageData.value.recordTraceIndex.toString()}</index>
+                        <index>${pageData.value.recordTraceIndex}</index>
                     </content>
                 `
                 await saveChlPtzTrace(sendXml)
@@ -474,7 +459,7 @@ export default defineComponent({
                 const sendXml = rawXml`
                     <content>
                         <chlId>${pageData.value.recordChlId}</chlId>
-                        <index>${pageData.value.recordTraceIndex.toString()}</index>
+                        <index>${pageData.value.recordTraceIndex}</index>
                     </content>
                 `
                 await cancelChlPtzTrace(sendXml)
@@ -485,13 +470,10 @@ export default defineComponent({
          * @description 播放轨迹
          */
         const playTrace = async () => {
-            if (!traceOptions.value.length) {
-                return
-            }
             const sendXml = rawXml`
                 <content>
                     <chlId>${tableData.value[pageData.value.tableIndex].chlId}</chlId>
-                    <index>${currentTrace.value.index.toString()}</index>
+                    <index>${currentTrace.value.index}</index>
                 </content>
             `
             await runChlPtzTrace(sendXml)
@@ -501,9 +483,6 @@ export default defineComponent({
          * @description 停止播放轨迹
          */
         const stopTrace = async () => {
-            if (!tableData.value.length) {
-                return
-            }
             const sendXml = rawXml`
                 <content>
                     <chlId>${tableData.value[pageData.value.tableIndex].chlId}</chlId>
@@ -524,9 +503,9 @@ export default defineComponent({
         onBeforeUnmount(() => {
             resetRecord()
             cancelRecord()
-            if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx') {
                 const sendXML = OCX_XML_StopPreview('ALL')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         })
 
@@ -536,6 +515,7 @@ export default defineComponent({
             pageData,
             formData,
             tableData,
+            chlOptions,
             handlePlayerReady,
             changeChl,
             addTrace,
@@ -550,12 +530,6 @@ export default defineComponent({
             stopRecord,
             playTrace,
             stopTrace,
-            formatInputMaxLength,
-            nameByteMaxLen,
-            ChannelPtzCtrlPanel,
-            ChannelTraceAddPop,
-            ChannelPtzTableExpandPanel,
-            ChannelPtzTableExpandItem,
         }
     },
 })

@@ -2,50 +2,50 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-12 14:21:22
  * @Description: email通知
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-09 11:50:26
  */
-import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
-import { EmailReceiver } from '@/types/apiType/aiAndEvent'
-import { type FormInstance, type FormRules, type TableInstance } from 'element-plus'
+import { type FormRules, type TableInstance } from 'element-plus'
 
 export default defineComponent({
-    components: {
-        ScheduleManagPop,
-    },
     setup() {
         const router = useRouter()
         const userSession = useUserSessionStore()
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const openMessageTipBox = useMessageBox().openMessageTipBox
-        const tableData = ref<EmailReceiver[]>([])
+        const tableData = ref<AlarmEmailReceiverDto[]>([])
         const tableRef = ref<TableInstance>()
         const maxEmailCount = ref(16)
         const rules = reactive<FormRules>({
             recipient: [
-                { required: true, message: Translate('IDCS_PROMPT_EMAIL_ADDRESS_EMPTY'), trigger: 'blur' },
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
+                            callback(new Error(Translate('IDCS_PROMPT_EMAIL_ADDRESS_EMPTY')))
+                            return
+                        }
+
                         if (!checkEmail(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_INVALID_EMAIL')))
                             return
-                        } else if (checkExist(value)) {
+                        }
+
+                        if (tableData.value.some((item) => item.address.toLowerCase() === value.toLowerCase())) {
                             callback(new Error(Translate('IDCS_PROMPT_EMAIL_EXIST')))
                             return
-                        } else if (tableData.value.length >= maxEmailCount.value) {
+                        }
+
+                        if (tableData.value.length >= maxEmailCount.value) {
                             callback(new Error(Translate('IDCS_PROMPT_EMAIL_NUM_LIMIT').formatForLang(maxEmailCount.value)))
                             return
                         }
+
                         callback()
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
         })
 
         // 表单实例
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const pageData = ref({
             // 发件人
             sender: '',
@@ -58,180 +58,208 @@ export default defineComponent({
             // 排程
             schedule: '',
             // 排程列表
-            scheduleList: [] as [] as SelectOption<string, string>[],
+            scheduleList: [] as SelectOption<string, string>[],
             //排程管理弹窗显示状态
-            scheduleManagePopOpen: false,
+            isSchedulePop: false,
+            currentRow: new AlarmEmailReceiverDto(),
         })
-        const checkExist = (address: string) => {
-            const result = tableData.value.filter((item) => item.address == address)
-            return result.length > 0
-        }
+
         const getIconStatus = () => {
             if (pageData.value.senderShow) {
                 return 0
             }
             return 2
         }
-        const maskShow = () => {
+
+        /**
+         * @description 开关发件人隐藏/显示
+         */
+        const toggleMask = () => {
             pageData.value.senderShow = !pageData.value.senderShow
         }
+
+        /**
+         * @description 发件人显示/脱敏显示
+         * @param {string} sender
+         * @returns {string}
+         */
         const formatSender = (sender: string) => {
             if (pageData.value.senderShow) {
                 return sender
             }
             return hideEmailAddress(sender)
         }
-        const formatAddress = (rowData: EmailReceiver) => {
-            if (rowData.rowClicked) {
+
+        /**
+         * @description 邮箱显示/脱敏显示
+         * @param {AlarmEmailReceiverDto} rowData
+         * @returns {string}
+         */
+        const formatAddress = (rowData: AlarmEmailReceiverDto) => {
+            if (rowData === pageData.value.currentRow) {
                 return rowData.address
             }
             return hideEmailAddress(rowData.address)
         }
+
+        /**
+         * @description 获取排程列表
+         */
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
             pageData.value.schedule = pageData.value.scheduleList[0].value
         }
-        const getData = () => {
-            getScheduleList().then(() => {
-                // 将scheduleList中value为''的元素转换为' '
-                pageData.value.scheduleList.forEach((item) => {
-                    if (item.value == '') {
-                        item.value = ' '
-                    }
-                })
-                openLoading()
-                queryEmailCfg().then((resb) => {
-                    closeLoading()
-                    const res = queryXml(resb)
-                    if (res('status').text() == 'success') {
-                        pageData.value.sender = res('//content/sender/address').text()
-                        res('//content/receiver/item').forEach((ele) => {
-                            const eleXml = queryXml(ele.element)
-                            const emailReceiver = new EmailReceiver()
-                            if (typeof eleXml('schedule').attr('id') == undefined) {
-                                emailReceiver.address = eleXml('address').text()
-                                emailReceiver.schedule = ''
-                                emailReceiver.addressShow = hideEmailAddress(emailReceiver.address)
-                                tableData.value.push(emailReceiver)
-                            } else {
-                                emailReceiver.address = eleXml('address').text()
-                                emailReceiver.schedule = eleXml('schedule').attr('id') == '{00000000-0000-0000-0000-000000000000}' ? ' ' : eleXml('schedule').attr('id')
-                                emailReceiver.addressShow = hideEmailAddress(emailReceiver.address)
-                                tableData.value.push(emailReceiver)
-                            }
-                        })
-                    }
-                })
-            })
-        }
-        // 原代码中显示了地址后无法隐藏，这里改为再次点击隐藏
-        const handleRowClick = (row: EmailReceiver) => {
-            row.rowClicked = !row.rowClicked
-            // // 原代码逻辑：若未被点击，则显示
-            // if (!row.rowClicked) {
-            //     row.rowClicked = !row.rowClicked
-            // }
-            tableData.value.forEach((item) => {
-                if (item != row) {
-                    item.rowClicked = false
+
+        /**
+         * @description 获取收件人数据
+         */
+        const getData = async () => {
+            openLoading()
+            queryEmailCfg().then((result) => {
+                closeLoading()
+                const scheduleIds = pageData.value.scheduleList.map((item) => item.value)
+                const $ = queryXml(result)
+                if ($('status').text() === 'success') {
+                    pageData.value.sender = $('content/sender/address').text()
+                    tableData.value = $('content/receiver/item').map((item) => {
+                        const $item = queryXml(item.element)
+                        const scheduleId = $item('schedule').attr('id')
+                        return {
+                            address: $item('address').text(),
+                            schedule: !scheduleId || !scheduleIds.includes(scheduleId) ? DEFAULT_EMPTY_ID : scheduleId,
+                        }
+                    })
                 }
             })
         }
-        const handleScheduleChange = (row: EmailReceiver) => {
-            tableRef.value?.setCurrentRow(row)
-            row.rowClicked = true
-            tableData.value.forEach((item) => {
-                if (item != row) {
-                    item.rowClicked = false
-                }
-            })
+
+        /**
+         * @description 选中行
+         * @param {AlarmEmailReceiverDto} row
+         */
+        const handleRowClick = (row: AlarmEmailReceiverDto) => {
+            pageData.value.currentRow = row
         }
-        const handleScheduleChangeAll = (value: string) => {
+
+        /**
+         * @description 批量更改排程
+         * @param {string} value
+         */
+        const changeAllSchedule = (value: string) => {
             tableData.value.forEach((item) => {
                 item.schedule = value
             })
         }
-        const handleDelReceiver = (row: EmailReceiver) => {
-            openMessageTipBox({
+
+        /**
+         * @description 删除收件人
+         * @param {AlarmEmailReceiverDto} row
+         */
+        const delReceiver = (row: AlarmEmailReceiverDto) => {
+            openMessageBox({
                 type: 'question',
-                message: Translate('IDCS_DELETE_MP_EMAIL_RECEIVER_S').formatForLang(row['address']),
+                message: Translate('IDCS_DELETE_MP_EMAIL_RECEIVER_S').formatForLang(row.address),
             }).then(() => {
                 const index = tableData.value.indexOf(row)
                 tableData.value.splice(index, 1)
             })
         }
-        const handleDelReceiverAll = () => {
-            openMessageTipBox({
+
+        /**
+         * @description 批量删除收件人
+         */
+        const delAllReceiver = () => {
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_ALL_ITEMS'),
             }).then(() => {
                 tableData.value = []
             })
         }
+
+        /**
+         * @description 新增收件人
+         * @returns
+         */
         const addRecipient = () => {
             // 规则验证
             if (!formRef.value) return
             formRef.value.validate((valid) => {
                 if (valid) {
-                    const emailReceiver = new EmailReceiver()
+                    const emailReceiver = new AlarmEmailReceiverDto()
                     emailReceiver.address = pageData.value.form.recipient
                     emailReceiver.schedule = pageData.value.schedule
-                    emailReceiver.addressShow = hideEmailAddress(emailReceiver.address)
                     tableData.value.push(emailReceiver)
                     pageData.value.form.recipient = ''
                 }
             })
         }
-        const handleSenderEdit = () => {
-            if (userSession.hasAuth('net')) {
-                router.push('/config/net/email')
-            } else {
-                openMessageTipBox({
+
+        /**
+         * @description 前往编辑发件人
+         */
+        const editSender = () => {
+            if (!userSession.hasAuth('net')) {
+                openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_NO_AUTH'),
                 })
+                return
             }
+
+            router.push('/config/net/email')
         }
-        const handleScheduleManage = () => {
-            pageData.value.scheduleManagePopOpen = true
-        }
-        const handleApply = () => {
-            let sendXml = rawXml`
-            <content>   
-                <receiver type="list">
-                `
-            tableData.value.forEach((item) => {
-                const schedule = item.schedule == ' ' ? '{00000000-0000-0000-0000-000000000000}' : item.schedule
-                sendXml += rawXml`
-                    <item>
-                        <address><![CDATA[${item.address}]]></address>
-                        <schedule id="${schedule}"></schedule>
-                    </item>
-                `
-            })
-            sendXml += rawXml`
-                </receiver>
-            </content>`
+
+        /**
+         * @description 保存数据
+         */
+        const setData = () => {
+            const sendXml = rawXml`
+                <content>   
+                    <receiver type="list">
+                        ${tableData.value
+                            .map((item) => {
+                                return rawXml`
+                                    <item>
+                                        <address>${wrapCDATA(item.address)}</address>
+                                        <schedule id="${item.schedule}"></schedule>
+                                    </item>
+                                `
+                            })
+                            .join('')}
+                    </receiver>
+                </content>
+            `
             openLoading()
-            editEmailCfg(sendXml).then((resb) => {
+            editEmailCfg(sendXml).then((res) => {
                 closeLoading()
-                const res = queryXml(resb)
-                if (res('status').text() == 'success') {
-                    openMessageTipBox({
-                        type: 'success',
-                        message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                    })
-                } else {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_SAVE_DATA_FAIL'),
-                    })
+                commSaveResponseHandler(res)
+            })
+        }
+
+        /**
+         * @description 打开排程弹窗
+         */
+        const openSchedulePop = () => {
+            pageData.value.isSchedulePop = true
+        }
+
+        /**
+         * @description 关闭排程弹窗，更新数据
+         */
+        const closeSchedulePop = async () => {
+            pageData.value.isSchedulePop = false
+            await getScheduleList()
+            const scheduleIds = pageData.value.scheduleList.map((item) => item.value)
+            tableData.value.forEach((item) => {
+                if (!scheduleIds.includes(item.schedule)) {
+                    item.schedule = DEFAULT_EMPTY_ID
                 }
             })
         }
+
         onMounted(async () => {
-            // pageData.value.scheduleList = await buildScheduleList()
-            // pageData.value.schedule = pageData.value.scheduleList[0].value
+            await getScheduleList()
             getData()
         })
 
@@ -241,20 +269,19 @@ export default defineComponent({
             tableRef,
             formRef,
             rules,
-            handleDelReceiver,
-            handleDelReceiverAll,
+            delReceiver,
+            delAllReceiver,
             addRecipient,
             getIconStatus,
-            maskShow,
-            handleSenderEdit,
-            handleScheduleChange,
-            handleScheduleChangeAll,
-            handleScheduleManage,
-            handleApply,
+            toggleMask,
+            editSender,
+            changeAllSchedule,
+            setData,
             formatSender,
             formatAddress,
             handleRowClick,
-            ScheduleManagPop,
+            openSchedulePop,
+            closeSchedulePop,
         }
     },
 })

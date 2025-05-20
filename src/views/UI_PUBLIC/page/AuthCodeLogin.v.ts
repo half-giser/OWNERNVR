@@ -2,17 +2,14 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-20 09:10:22
  * @Description: P2P授权码登录
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 18:40:21
  */
-import type { FormInstance, FormRules } from 'element-plus'
-import { AuthCodeLoginForm } from '@/types/apiType/user'
+import type { FormRules } from 'element-plus'
+import progress from '@bassist/progress'
 
 export default defineComponent({
     setup() {
-        const Plugin = usePlugin()
+        const plugin = usePlugin()
         const layoutStore = useLayoutStore()
-        const { openLoading, closeLoading } = useLoading()
         const lang = useP2PLang()
         const Translate = lang.Translate
         const userSession = useUserSessionStore()
@@ -27,14 +24,12 @@ export default defineComponent({
             authCodeDisabled: false,
             // 错误信息回显
             errorMsg: '',
-            // 版权信息
-            copyright: import.meta.env.VITE_APP_COPYRIGHT,
             // auth code index
             authCodeIndex: userSession.authCodeIndex,
             // auth code 过期时间
             expireTime: 0,
             // 登录类型
-            loginType: P2PACCESSTYPE.P2P_AUTHCODE_LOGIN,
+            loginType: P2P_ACCESS_TYPE_AUTHCODE_LOGIN,
             // 日历选项
             calendarOptions: [] as SelectOption<string, string>[],
         })
@@ -53,15 +48,15 @@ export default defineComponent({
             536871081: 'IDCS_ACCESS_EXCEPTION_RETRY', // access exception
         }
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
 
-        const formData = ref(new AuthCodeLoginForm())
+        const formData = ref(new UserAuthCodeLoginForm())
 
         const rules = ref<FormRules>({
             sn: [
                 {
-                    validator(rule, value, callback) {
-                        if (!value) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_SN_EMPTY')))
                             return
                         }
@@ -72,8 +67,8 @@ export default defineComponent({
             ],
             code: [
                 {
-                    validator(rule, value, callback) {
-                        if (!value) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_AUTHCODE_EMPTY')))
                             return
                         }
@@ -83,8 +78,6 @@ export default defineComponent({
                 },
             ],
         })
-
-        let timer: NodeJS.Timeout | number = 0
 
         /**
          * @description 更换语言，重新请求语言列表
@@ -100,7 +93,7 @@ export default defineComponent({
          * @description 根据用户选择的语言，获取日历类型
          */
         const updateCalendar = () => {
-            const langType = lang.langType.value
+            const langType = lang.langType
             if (CALENDAR_TYPE_MAPPING[langType]) {
                 pageData.value.calendarOptions = CALENDAR_TYPE_MAPPING[langType].map((item) => {
                     if (item.isDefault) {
@@ -134,7 +127,7 @@ export default defineComponent({
                 case 536871080: // 当前设备已经被绑定,需要授权码登录
                 case 536871081: // 当前设备已解绑，需要用户名/密码登录
                     let backHomeErrorCode = ErrorCode.USER_ERROR_NODE_NET_OFFLINE
-                    if (errorCode == 536871080 || errorCode == 536871081) {
+                    if (errorCode === 536871080 || errorCode === 536871081) {
                         backHomeErrorCode = 536871080 // 返回首页，并提示‘访问异常，请重试’
                     }
                     backToHomePage(backHomeErrorCode)
@@ -142,8 +135,8 @@ export default defineComponent({
                 case ErrorCode.USER_ERROR_NO_USER: // 用户名不存在
                 case ErrorCode.USER_ERROR_PWD_ERR: // 密码错误
                 case ErrorCode.USER_ERROR_USER_LOCKED: // 设备登录被锁定
-                    if (errorCode == ErrorCode.USER_ERROR_USER_LOCKED) {
-                        stopCountDownTime()
+                    if (errorCode === ErrorCode.USER_ERROR_USER_LOCKED) {
+                        timer.stop()
                         pageData.value.authCodeDisabled = true
                     }
                     handleUserLockedError(errorCode, errorDescription)
@@ -159,17 +152,9 @@ export default defineComponent({
                     errorMsg = unkownError
                     break
             }
-            clearAuInfo()
+            progress.done()
             pageData.value.errorMsg = errorMsg
             pageData.value.btnDisabled = false
-        }
-
-        /**
-         * @description 清除用户信息
-         */
-        const clearAuInfo = () => {
-            userSession.auInfo_N9K = ''
-            delCookie('auInfo_N9K')
         }
 
         /**
@@ -178,7 +163,7 @@ export default defineComponent({
          * @param {string} errorDescription
          */
         const handleUserLockedError = (errorCode: number, errorDescription?: string) => {
-            if (errorCode == ErrorCode.USER_ERROR_USER_LOCKED) {
+            if (errorCode === ErrorCode.USER_ERROR_USER_LOCKED) {
                 setCookie('originError', ErrorCodeMapping[errorCode], 365)
                 delCookie('ec')
                 delCookie('em')
@@ -222,6 +207,7 @@ export default defineComponent({
                 }
                 setCookie('loginLockCount', count)
             }
+
             if (count === 0) {
                 if (!isNaN(remainTime)) {
                     lockTime = remainTime
@@ -231,11 +217,11 @@ export default defineComponent({
                 setCookie('loginLock', 'true')
                 pageData.value.btnDisabled = true
                 const originError = pageData.value.errorMsg
-                new CountDowner({
+                useCountDowner({
                     distime: lockTime / 1000,
                     callback(obj) {
                         let info = ''
-                        if (parseInt(obj.disminites) > 0) {
+                        if (Number(obj.disminites) > 0) {
                             info = Translate('IDCS_TICK_MIN').formatForLang(obj.disminites, obj.disseconds)
                         } else {
                             info = Translate('IDCS_TICK_SEC').formatForLang(obj.disseconds)
@@ -258,12 +244,14 @@ export default defineComponent({
          */
         const checkIsLocking = () => {
             let lockTime = 5 * 60 * 1000
-            if (pageData.value.loginType === P2PACCESSTYPE.P2P_AUTHCODE_LOGIN) {
+            if (pageData.value.loginType === P2P_ACCESS_TYPE_AUTHCODE_LOGIN) {
                 return
             }
+
             if (!getCookie('loginLock')) {
                 setCookie('loginLock', 'false')
             }
+
             if (!getCookie('loginLockCount')) {
                 setCookie('loginLockCount', 5)
             }
@@ -277,12 +265,12 @@ export default defineComponent({
                 if (currentTime - loginLockTime < lockTime) {
                     setCookie('loginLock', 'true')
                     const originError = getCookie('originError') || ''
-                    new CountDowner({
+                    useCountDowner({
                         distime: loginLockTime + lockTime - currentTime,
                         callback(obj) {
                             if (getCookie('loginLock') === 'true') {
                                 let info = ''
-                                if (parseInt(obj.disminites) > 0) {
+                                if (Number(obj.disminites) > 0) {
                                     info = Translate('IDCS_TICK_MIN').formatForLang(obj.disminites, obj.disseconds)
                                 } else {
                                     info = Translate('IDCS_TICK_SEC').formatForLang(obj.disseconds)
@@ -312,17 +300,19 @@ export default defineComponent({
             window.location.href = '/index.html'
         }
 
+        const timer = useClock(() => {
+            pageData.value.expireTime--
+            if (pageData.value.expireTime <= 0) {
+                timer.stop()
+            }
+        }, 1000)
+
         /**
          * @description 开始倒计时
          */
         const startCountDownTime = () => {
             pageData.value.expireTime = 180
-            timer = setInterval(() => {
-                pageData.value.expireTime--
-                if (pageData.value.expireTime <= 0) {
-                    stopCountDownTime()
-                }
-            }, 999)
+            timer.repeat()
         }
 
         /**
@@ -332,13 +322,6 @@ export default defineComponent({
             const unit = pageData.value.expireTime > 60 ? Translate('IDCS_SECONDS') : Translate('IDCS_SECOND')
             return `(${pageData.value.expireTime} ${unit})`
         })
-
-        /**
-         * @description 结束倒计时
-         */
-        const stopCountDownTime = () => {
-            clearInterval(timer)
-        }
 
         /**
          * @description 验证登录表单
@@ -356,12 +339,16 @@ export default defineComponent({
          */
         const getAuthCode = () => {
             openLoading()
-            pluginStore.manuaClosePlugin = false
+            pluginStore.manuaClosePlugin = true
             pageData.value.errorMsg = ''
             userSession.p2pSessionId = null
-            Plugin.DisposePlugin()
-            Plugin.StartV2Process()
-            Plugin.SetLoginTypeCallback((loginType, authCodeIndex) => {
+            if (userSession.dualAuth_N9K) {
+                plugin.P2pDualAuthLogin() // 插件使用双重认证登录，获取授权码（插件不断链，不重新建链）
+            } else {
+                plugin.DisposePlugin()
+                plugin.StartV2Process() // 插件使用用户名密码登录，获取授权码（插件断链，重新建链）
+            }
+            plugin.SetLoginTypeCallback((loginType, authCodeIndex) => {
                 closeLoading()
                 pageData.value.loginType = loginType
                 pageData.value.authCodeIndex = authCodeIndex
@@ -379,16 +366,15 @@ export default defineComponent({
                 handlerErrorCode(536870941)
                 return
             }
+            progress.start()
             pageData.value.btnDisabled = true
             pageData.value.errorMsg = ''
             userSession.calendarType = formData.value.calendarType
-            Plugin.P2pAuthCodeLogin(formData.value.code, pageData.value.authCodeIndex)
+            plugin.P2pAuthCodeLogin(formData.value.code, pageData.value.authCodeIndex)
         }
 
-        onMounted(async () => {
-            await lang.getLangTypes()
-            await lang.getLangItems()
-            Plugin.SetLoginErrorCallback(handlerErrorCode)
+        onMounted(() => {
+            plugin.SetLoginErrorCallback(handlerErrorCode)
             layoutStore.isInitial = true
             userSession.refreshLoginPage = true
             startCountDownTime()
@@ -397,8 +383,8 @@ export default defineComponent({
         })
 
         onBeforeUnmount(() => {
-            stopCountDownTime()
-            Plugin.SetLoginTypeCallback()
+            plugin.SetLoginTypeCallback()
+            plugin.SetLoginErrorCallback()
             userSession.refreshLoginPage = false
         })
 
@@ -409,7 +395,6 @@ export default defineComponent({
             changeLang,
             formData,
             rules,
-            handleLogin,
             expireTime,
             formRef,
             verify,

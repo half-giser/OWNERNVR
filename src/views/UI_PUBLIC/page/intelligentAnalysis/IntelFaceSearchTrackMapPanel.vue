@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-13 09:25:11
  * @Description: 智能分析 - 人脸搜索 - 轨迹
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 09:09:38
 -->
 <template>
     <div class="track">
@@ -46,13 +44,11 @@
                         />
                         <span>{{ item.count }}</span>
                     </div>
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         v-show="pageData.isEdit"
                         class="close"
                         file="list_close"
-                        :index="0"
-                        :chunk="4"
-                        @click.stop="deletePoint(key)"
+                        @click="deletePoint(key)"
                     />
                 </div>
             </div>
@@ -60,117 +56,67 @@
         <div class="control">
             <div class="control-btns">
                 <!-- 停止播放 -->
-                <el-tooltip
-                    :content="Translate('IDCS_STOP')"
-                    :show-after="500"
-                >
-                    <BaseImgSprite
-                        file="stop (3)"
-                        :index="0"
-                        :hover-index="1"
-                        :disabled-index="3"
+                <el-tooltip :content="Translate('IDCS_STOP')">
+                    <BaseImgSpriteBtn
+                        file="stop_rec"
                         :disabled="pageData.playStatus === 'stop'"
-                        :chunk="4"
                         @click="stop"
                     />
                 </el-tooltip>
                 <!-- 暂停播放 -->
-                <el-tooltip
-                    :content="Translate('IDCS_PAUSE')"
-                    :show-after="500"
-                >
-                    <BaseImgSprite
+                <el-tooltip :content="Translate('IDCS_PAUSE')">
+                    <BaseImgSpriteBtn
                         v-show="pageData.playStatus === 'play'"
                         file="pause"
-                        :index="0"
-                        :hover-index="1"
-                        :disabled-index="3"
-                        :chunk="4"
                         @click="pause"
                     />
                 </el-tooltip>
                 <!-- 播放 -->
-                <el-tooltip
-                    :content="Translate('IDCS_PLAY_FORWARD')"
-                    :show-after="500"
-                >
-                    <BaseImgSprite
+                <el-tooltip :content="Translate('IDCS_PLAY_FORWARD')">
+                    <BaseImgSpriteBtn
                         v-show="pageData.playStatus !== 'play'"
                         file="fwPlay"
-                        :index="0"
-                        :hover-index="1"
-                        :disabled-index="3"
-                        :chunk="4"
                         @click="play"
                     />
                 </el-tooltip>
                 <!-- 上一个 -->
-                <el-tooltip
-                    :content="Translate('IDCS_PREVIOUS')"
-                    :show-after="500"
-                >
-                    <BaseImgSprite
+                <el-tooltip :content="Translate('IDCS_PREVIOUS')">
+                    <BaseImgSpriteBtn
                         file="preFrame"
-                        :index="0"
-                        :hover-index="1"
-                        :disabled-index="3"
-                        :chunk="4"
                         :disabled="prevFrameDisabled"
                         @click="prevFrame"
                     />
                 </el-tooltip>
                 <!-- 下一个 -->
-                <el-tooltip
-                    :content="Translate('IDCS_NEXT')"
-                    :show-after="500"
-                >
-                    <BaseImgSprite
+                <el-tooltip :content="Translate('IDCS_NEXT')">
+                    <BaseImgSpriteBtn
                         file="nextFrame"
-                        :index="0"
-                        :hover-index="1"
-                        :disabled-index="3"
-                        :chunk="4"
                         :disabled="nextFrameDisabled"
                         @click="nextFrame"
                     />
                 </el-tooltip>
                 <!-- 轨迹播放 -->
-                <el-tooltip
-                    :content="Translate('IDCS_TRACK_PLAY')"
-                    :show-after="500"
-                >
-                    <BaseImgSprite
+                <el-tooltip :content="Translate('IDCS_TRACK_PLAY')">
+                    <BaseImgSpriteBtn
                         v-show="pageData.trackStatus === 'stop'"
                         file="start_track"
-                        :index="0"
-                        :hover-index="2"
-                        :chunk="4"
+                        :index="[0, 2, 2, 3]"
                         @click="playTrack"
                     />
                 </el-tooltip>
                 <!-- 停止轨迹播放 -->
-                <el-tooltip
-                    :content="Translate('IDCS_TRACK_STOP')"
-                    :show-after="500"
-                >
-                    <BaseImgSprite
+                <el-tooltip :content="Translate('IDCS_TRACK_STOP')">
+                    <BaseImgSpriteBtn
                         v-show="pageData.trackStatus === 'play'"
                         file="stop_track"
-                        :index="0"
-                        :hover-index="2"
-                        :chunk="4"
+                        :index="[0, 2, 2, 3]"
                         @click="stopTrack"
                     />
                 </el-tooltip>
-                <el-tooltip
-                    :content="Translate('IDCS_EDIT_COLOR')"
-                    :show-after="500"
-                >
-                    <BaseImgSprite
+                <el-tooltip :content="Translate('IDCS_EDIT_COLOR')">
+                    <BaseImgSpriteBtn
                         file="track_color_edit"
-                        :index="0"
-                        :hover-index="2"
-                        :chunk="4"
+                        :index="[0, 2, 2, 3]"
                         @click="pageData.isColorPop = true"
                     />
                 </el-tooltip>
@@ -179,14 +125,15 @@
                 <el-checkbox
                     v-model="pageData.isEdit"
                     :disabled="pageData.playStatus !== 'stop' || pageData.trackStatus !== 'stop'"
+                    :label="Translate('IDCS_EDIT_MAP')"
                     @change="changeEditMap"
-                    >{{ Translate('IDCS_EDIT_MAP') }}</el-checkbox
-                >
+                />
                 <el-button
                     :disabled="pageData.playStatus !== 'stop' || pageData.trackStatus !== 'stop'"
                     @click="pageData.isChlPop = true"
-                    >{{ Translate('IDCS_ADD_CHANNEL') }}</el-button
                 >
+                    {{ Translate('IDCS_ADD_CHANNEL') }}
+                </el-button>
             </div>
         </div>
         <IntelFaceSearchTrackMapColorPop

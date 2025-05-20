@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-19 17:28:37
  * @Description: Layout的一些状态
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-12 14:01:18
  */
 export const useLayoutStore = defineStore('layout', () => {
     // 当前打开的弹窗数量
@@ -12,6 +10,11 @@ export const useLayoutStore = defineStore('layout', () => {
     const loadingCount = ref(0)
     // 是否已经初始化
     const isInitial = ref(false)
+    // 是否弹窗二次授权弹窗
+    const isAuth = ref(false)
+    // RollMsg消息
+    const notifications = ref<string[]>([])
+    const isPwdChecked = ref(false)
 
     const liveLastSegNum = ref(1)
     const liveLastChlList = ref<string[]>([])
@@ -31,12 +34,25 @@ export const useLayoutStore = defineStore('layout', () => {
     // 配置页菜单
     const configMenu = ref<RouteRecordRawExtends | null>(null)
 
+    if (import.meta.env.DEV) {
+        watch(messageBoxCount, (val) => {
+            console.log('messageBoxCount:', val)
+        })
+
+        watch(loadingCount, (val) => {
+            console.log('loadingCount:', val)
+        })
+    }
+
     return {
         messageBoxCount,
         loadingCount,
         isInitial,
+        isAuth,
+        isPwdChecked,
         liveLastSegNum,
         liveLastChlList,
+        notifications,
 
         menu1Items,
         menu1Item,

@@ -2,16 +2,12 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-12 10:39:32
  * @Description: 智能分析 - 人脸搜索 - 选择人脸弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 14:27:33
 -->
 <template>
     <el-dialog
         :title="Translate('IDCS_ADD')"
         :model-value="modelValue"
         width="1130"
-        align-center
-        draggable
         append-to-body
         @open="open"
         @close="$emit('update:modelValue', false)"
@@ -54,8 +50,7 @@
                 <IntelFaceDBChooseFaceImportPanel
                     v-show="pageData.type === 'import'"
                     :limit="5"
-                    type="h5-only"
-                    accept="img-only"
+                    type="search"
                     @change="importImg"
                 />
                 <div v-show="pageData.type === 'current'">
@@ -63,36 +58,43 @@
                         v-if="type !== 'group'"
                         class="current"
                     >
-                        <div class="current-list">
-                            <IntelBaseFaceItem
-                                v-for="item in snap"
-                                :key="item.frameTime"
-                                type="status"
-                                :src="item.pic"
-                            >
-                                {{ displayDateTime(item.timestamp) }}
-                            </IntelBaseFaceItem>
-                            <IntelBaseFaceItem
-                                v-for="item in face"
-                                :key="item.id"
-                                type="status"
-                                :src="item.pic[0] || ''"
-                            >
-                                {{ item.name }}
-                            </IntelBaseFaceItem>
-                            <IntelBaseFaceItem
-                                v-for="(item, key) in external"
-                                :key
-                                :src="item.pic"
-                            />
-                        </div>
-                        <div
-                            class="base-btn-box padding"
-                            :span="2"
-                        >
-                            <div>
-                                <span>{{ currentSelected }}</span>
+                        <el-scrollbar class="current-scroll">
+                            <div class="current-list">
+                                <IntelBaseFaceItem
+                                    v-for="item in snap"
+                                    :key="item.frameTime"
+                                    type="status"
+                                    :src="item.pic"
+                                >
+                                    <div
+                                        v-title
+                                        class="text-ellipsis"
+                                    >
+                                        {{ displayDateTime(item.timestamp) }}
+                                    </div>
+                                </IntelBaseFaceItem>
+                                <IntelBaseFaceItem
+                                    v-for="item in face"
+                                    :key="item.id"
+                                    type="status"
+                                    :src="item.pic[0] || ''"
+                                >
+                                    <div
+                                        v-title
+                                        class="text-ellipsis"
+                                    >
+                                        {{ item.name }}
+                                    </div>
+                                </IntelBaseFaceItem>
+                                <IntelBaseFaceItem
+                                    v-for="(item, key) in external"
+                                    :key
+                                    :src="item.pic"
+                                />
                             </div>
+                        </el-scrollbar>
+                        <div class="base-btn-box flex-start padding">
+                            {{ currentSelected }}
                         </div>
                     </div>
                     <div
@@ -100,8 +102,7 @@
                         class="current-group"
                     >
                         <el-table
-                            stripe
-                            border
+                            v-title
                             :data="group"
                             height="460"
                             show-overflow-tooltip
@@ -120,28 +121,23 @@
                 </div>
             </div>
         </div>
-        <template #footer>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
-                >
-                    <el-button
-                        v-show="pageData.type !== 'import'"
-                        :disabled="pageData.type !== 'face'"
-                        @click="confirmGroup"
-                        >{{ Translate('IDCS_SELECT_GROUP') }}</el-button
-                    >
-                    <el-button
-                        v-show="pageData.type !== 'import'"
-                        :disabled="pageData.type !== 'face' && pageData.type !== 'snap'"
-                        @click="confirm"
-                        >{{ Translate('IDCS_SELECT_FACE') }}</el-button
-                    >
-                    <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
-        </template>
+        <div class="base-btn-box">
+            <el-button
+                v-show="pageData.type !== 'import'"
+                :disabled="pageData.type !== 'face'"
+                @click="confirmGroup"
+            >
+                {{ Translate('IDCS_SELECT_GROUP') }}
+            </el-button>
+            <el-button
+                v-show="pageData.type !== 'import'"
+                :disabled="pageData.type !== 'face' && pageData.type !== 'snap'"
+                @click="confirm"
+            >
+                {{ Translate('IDCS_SELECT_FACE') }}
+            </el-button>
+            <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 
@@ -176,6 +172,7 @@
             }
         }
     }
+
     &-right {
         height: 460px;
     }
@@ -187,12 +184,15 @@
     border: 1px solid var(--content-border);
     margin-top: 10px;
 
-    &-list {
+    &-scroll {
+        border-bottom: 1px solid var(--content-border);
         height: calc(100% - 40px);
+        width: 100%;
+    }
+
+    &-list {
         display: flex;
         flex-wrap: wrap;
-        border-bottom: 1px solid var(--content-border);
-        overflow-y: auto;
         box-sizing: border-box;
         padding: 10px 0;
     }

@@ -1,98 +1,89 @@
 /*
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-13 15:58:57
- * @Description:闪灯
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-09 16:35:31
+ * @Description: 闪灯
  */
-import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
-import { whiteLightInfo } from '@/types/apiType/aiAndEvent'
 export default defineComponent({
-    components: {
-        ScheduleManagPop,
-    },
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const scheduleList = buildScheduleList()
-        const tableData = ref<whiteLightInfo[]>([])
+
+        const LIGHT_FREQUENCY_MAPPING: Record<string, string> = {
+            high: Translate('IDCS_HWDR_HIGH'),
+            medium: Translate('IDCS_HWDR_MEDIUM'),
+            low: Translate('IDCS_HWDR_LOW'),
+        }
+
         const pageData = ref({
             pageIndex: 1,
             pageSize: 10,
             totalCount: 0,
-            pageDataCountItems: [10, 20, 30],
-            scheduleManagePopOpen: false,
+            isSchedulePop: false,
             schedule: '',
-            scheduleName: '',
             scheduleChanged: false,
             scheduleList: [] as SelectOption<string, string>[],
-            enableList: [
-                { value: 'true', label: Translate('IDCS_ON') },
-                { value: 'false', label: Translate('IDCS_OFF') },
-            ],
+            enableList: getTranslateOptions(DEFAULT_BOOL_SWITCH_OPTIONS),
             lightFrequencyList: [] as SelectOption<string, string>[],
-            applyDisable: true,
-            initComplated: false,
-            editRows: [] as whiteLightInfo[],
         })
-        const buildTableData = () => {
-            pageData.value.initComplated = false
-            tableData.value.length = 0
+
+        const tableData = ref<AlarmWhiteLightDto[]>([])
+        const editRows = useWatchEditRows<AlarmWhiteLightDto>()
+
+        const getData = () => {
+            editRows.clear()
+            tableData.value = []
+
             getChlList({
                 pageIndex: pageData.value.pageIndex,
                 pageSize: pageData.value.pageSize,
                 nodeType: 'chls',
                 isSupportWhiteLightAlarmOut: true,
-            }).then(async (res) => {
+            }).then((res) => {
                 const $chl = queryXml(res)
-                pageData.value.totalCount = Number($chl('/response/content').attr('total'))
-                $chl('/response/content/item').forEach(async (item) => {
-                    const row = new whiteLightInfo()
-                    row.id = item.attr('id')!
-                    row.name = xmlParse('./name', item.element).text()
+                pageData.value.totalCount = $chl('content').attr('total').num()
+                tableData.value = $chl('content/item').map((item) => {
+                    const row = new AlarmWhiteLightDto()
+                    row.id = item.attr('id')
+                    row.name = queryXml(item.element)('name').text()
                     row.status = 'loading'
-                    tableData.value.push(row)
+                    return row
                 })
-                let completeCount = 0
-                for (let i = 0; i < tableData.value.length; i++) {
-                    const row = tableData.value[i]
-                    const sendXml = rawXml`<condition>
-                                        <chlId>${row.id}</chlId>
-                                    </condition>
-                                    <requireField>
-                                        <param></param>
-                                    </requireField>`
-                    const whiteLightInfo = await queryWhiteLightAlarmOutCfg(sendXml)
-                    const res = queryXml(whiteLightInfo)
-                    row.status = ''
-                    if (res('status').text() == 'success') {
-                        if (pageData.value.lightFrequencyList.length === 0) {
-                            res('//types/lightFrequency/enum').forEach((item) => {
-                                pageData.value.lightFrequencyList.push({
-                                    value: item.text(),
-                                    label: getLightFrequencyLang(item.text()),
-                                })
-                            })
-                        }
-                        row.enable = res('//content/chl/param/lightSwitch').text()
-                        row.durationTime = Number(res('//content/chl/param/durationTime').text())
-                        row.frequencyType = res('//content/chl/param/frequencyType').text()
-                        setRowDisable(row)
-                    } else {
-                        row.enableDisable = true
-                        row.rowDisable = true
+                tableData.value.forEach(async (row) => {
+                    const sendXml = rawXml`
+                        <condition>
+                            <chlId>${row.id}</chlId>
+                        </condition>
+                        <requireField>
+                            <param></param>
+                        </requireField>
+                    `
+                    const result = await queryWhiteLightAlarmOutCfg(sendXml)
+                    const $ = queryXml(result)
+
+                    if (!tableData.value.some((item) => item === row)) {
+                        return
                     }
 
-                    completeCount++
-                    if (completeCount >= tableData.value.length) {
-                        nextTick(() => {
-                            pageData.value.initComplated = true
-                        })
+                    row.status = ''
+                    if ($('status').text() === 'success') {
+                        if (!pageData.value.lightFrequencyList.length) {
+                            pageData.value.lightFrequencyList = $('types/lightFrequency/enum').map((item) => {
+                                return {
+                                    value: item.text(),
+                                    label: LIGHT_FREQUENCY_MAPPING[item.text()],
+                                }
+                            })
+                        }
+                        row.enable = $('content/chl/param/lightSwitch').text().bool()
+                        row.durationTime = $('content/chl/param/durationTime').text().num()
+                        row.frequencyType = $('content/chl/param/frequencyType').text()
+                        row.disabled = false
+                        editRows.listen(row)
                     }
-                }
+                })
             })
         }
-        const getSaveData = (rowData: whiteLightInfo) => {
+
+        const getSaveData = (rowData: AlarmWhiteLightDto) => {
             if (rowData.durationTime) {
                 const sendXml = rawXml`
                     <content>
@@ -100,205 +91,138 @@ export default defineComponent({
                             <param>
                                 <name>${rowData.name}</name>
                                 <lightSwitch>${rowData.enable}</lightSwitch>
-                                <durationTime>${rowData.durationTime.toString()}</durationTime>
+                                <durationTime>${rowData.durationTime}</durationTime>
                                 <frequency>${rowData.frequencyType}</frequency>
                             </param>
                         </chl>
                     </content>`
                 return sendXml
-            } else {
-                console.log('durationTime is null')
             }
         }
+
+        const getScheduleList = async () => {
+            pageData.value.scheduleList = await buildScheduleList()
+        }
+
         const getSchedule = async () => {
-            queryEventNotifyParam().then((resb) => {
-                const res = queryXml(resb)
-                if (res('status').text() === 'success') {
-                    pageData.value.schedule = res('//content/triggerChannelLightSchedule').attr('id')
-                    if (pageData.value.schedule == '{00000000-0000-0000-0000-000000000000}') {
-                        pageData.value.schedule = ''
+            await getScheduleList()
+            queryEventNotifyParam().then((result) => {
+                const $ = queryXml(result)
+                if ($('status').text() === 'success') {
+                    pageData.value.schedule = $('content/triggerChannelLightSchedule').attr('id')
+                    const scheduleName = $('content/triggerChannelLightSchedule').text()
+                    // 判断返回的排程是否存在，若不存在设为DEFAULT_EMPTY_ID
+                    if (pageData.value.schedule) {
+                        if (!pageData.value.scheduleList.some((item) => item.value === pageData.value.schedule)) {
+                            pageData.value.schedule = DEFAULT_EMPTY_ID
+                        }
+                    } else {
+                        const find = pageData.value.scheduleList.find((item) => item.label === scheduleName)
+                        if (find) {
+                            pageData.value.schedule = find.value
+                        } else {
+                            pageData.value.schedule = DEFAULT_EMPTY_ID
+                        }
                     }
-                    pageData.value.scheduleName = res('//content/triggerChannelLightSchedule').text()
                 }
             })
             pageData.value.scheduleChanged = false
         }
-        const setData = () => {
+
+        const setData = async () => {
             openLoading()
-            pageData.value.editRows.forEach((row) => {
+
+            tableData.value.forEach((item) => (item.status = ''))
+
+            for (const row of editRows.toArray()) {
                 const sendXml = getSaveData(row)
                 if (sendXml) {
-                    editWhiteLightAlarmOutCfg(sendXml).then((resb) => {
-                        const res = queryXml(resb)
-                        const isSuccess = res('status').text() === 'success'
-                        row.status = isSuccess ? 'success' : 'error'
-                        if (isSuccess) {
-                            pageData.value.editRows.splice(pageData.value.editRows.indexOf(row), 1)
-                            if (pageData.value.editRows.length === 0) {
-                                pageData.value.applyDisable = true
-                            }
+                    try {
+                        const result = await editWhiteLightAlarmOutCfg(sendXml)
+                        const $ = queryXml(result)
+                        if ($('status').text() === 'success') {
+                            row.status = 'success'
+                            editRows.remove(row)
+                        } else {
+                            row.status = 'error'
                         }
-                    })
-                }
-            })
-            if (pageData.value.scheduleChanged == true) {
-                let scheduleSendXml = ''
-                // 后续可能要改
-                if (pageData.value.schedule == '') {
-                    scheduleSendXml = rawXml`<content>
-                                                <triggerChannelLightSchedule id="{00000000-0000-0000-0000-000000000000}">
-                                                </triggerChannelLightSchedule>
-                                            </content>`
-                } else {
-                    scheduleSendXml = rawXml`<content>
-                                                <triggerChannelLightSchedule id="${pageData.value.schedule}">
-                                                    ${pageData.value.scheduleName}
-                                                </triggerChannelLightSchedule>
-                                            </content>`
-                }
-                editEventNotifyParam(scheduleSendXml).then((resb) => {
-                    const res = queryXml(resb)
-                    if (res('status').text() === 'success') {
-                        pageData.value.applyDisable = true
+                    } catch {
+                        row.status = 'error'
                     }
-                    pageData.value.scheduleChanged = false
-                })
+                }
             }
+
+            if (pageData.value.scheduleChanged) {
+                const scheduleName = pageData.value.schedule === DEFAULT_EMPTY_ID ? '' : pageData.value.scheduleList.find((item) => item.value === pageData.value.schedule)!.label
+                const scheduleSendXml = rawXml`
+                    <content>
+                        <triggerChannelLightSchedule id="${pageData.value.schedule}">${scheduleName}</triggerChannelLightSchedule>
+                    </content>
+                `
+                try {
+                    await editEventNotifyParam(scheduleSendXml)
+                } catch {}
+                pageData.value.scheduleChanged = false
+            }
+
             closeLoading()
         }
+
         const changePagination = () => {
-            buildTableData()
+            getData()
         }
+
         const changePaginationSize = () => {
             const totalPage = Math.ceil(pageData.value.totalCount / pageData.value.pageSize)
             if (pageData.value.pageIndex > totalPage) {
                 pageData.value.pageIndex = totalPage
             }
-            buildTableData()
+            getData()
         }
-        const getLightFrequencyLang = (value: string) => {
-            switch (value) {
-                case 'high':
-                    return Translate('IDCS_HWDR_HIGH')
-                case 'medium':
-                    return Translate('IDCS_HWDR_MEDIUM')
-                case 'low':
-                    return Translate('IDCS_HWDR_LOW')
-                default:
-                    return value
-            }
-        }
-        const handleEnabelChange = (row: whiteLightInfo) => {
-            setRowDisable(row)
-            addEditRows(row)
-            pageData.value.applyDisable = false
-        }
-        const handleEnabelChangeAll = (value: string) => {
+
+        const changeAllEnable = (value: boolean) => {
             tableData.value.forEach((row) => {
-                if (row['enable']) {
+                if (row.enable) {
                     row.enable = value
-                    setRowDisable(row)
-                    addEditRows(row)
-                    if (!row.rowDisable) pageData.value.applyDisable = false
                 }
             })
         }
-        const handleDurationTimeChange = (row: whiteLightInfo) => {
-            addEditRows(row)
-            if (!row.rowDisable) pageData.value.applyDisable = false
-        }
-        const handleFrequencyTypeChange = (row: whiteLightInfo) => {
-            addEditRows(row)
-            if (!row.rowDisable) pageData.value.applyDisable = false
-        }
-        const handleFrequencyTypeChangeAll = (value: string) => {
+
+        const changeAllFrequencyType = (value: string) => {
             tableData.value.forEach((row) => {
-                if (!row['rowDisable'] && !(row['enable'] && row['enable'] == 'false')) {
+                if (!row.disabled && row.enable) {
                     row.frequencyType = value
-                    addEditRows(row)
-                    if (!row.rowDisable) pageData.value.applyDisable = false
                 }
             })
         }
-        const handleDurationTimeFocus = (row: whiteLightInfo) => {
-            if (row.durationTime) {
-                if (row.durationTime <= 1) {
-                    row.durationTime = 1
-                } else if (row.durationTime >= 60) {
-                    row.durationTime = 60
-                }
-            }
-        }
-        const handleDurationTimeBlur = (row: whiteLightInfo) => {
-            if (!row.durationTime) {
-                row.durationTime = 1
-            }
-            if (row.durationTime <= 1) {
-                row.durationTime = 1
-            } else if (row.durationTime >= 60) {
-                row.durationTime = 60
-            }
-        }
-        const handleDurationTimeKeydown = (row: whiteLightInfo) => {
-            handleDurationTimeBlur(row)
-        }
-        const handleScheduleChange = () => {
-            pageData.value.applyDisable = false
+
+        const changeSchedule = () => {
             pageData.value.scheduleChanged = true
         }
-        const addEditRows = (row: whiteLightInfo) => {
-            if (!row.rowDisable) {
-                if (!pageData.value.editRows.some((item) => item.id == row.id)) {
-                    pageData.value.editRows.push(row)
-                }
-            }
+
+        const closeSchedulePop = async () => {
+            pageData.value.isSchedulePop = false
+            await getScheduleList()
+            pageData.value.schedule = getScheduleId(pageData.value.scheduleList, pageData.value.schedule)
+            changeSchedule()
         }
-        const setRowDisable = (rowData: whiteLightInfo) => {
-            const disabled = rowData['enable'] && rowData['enable'] == 'false' ? true : false
-            if (rowData['enable'] == null) {
-                rowData['rowDisable'] = true
-                rowData['durationTimeDisable'] = true
-                rowData['frequencyTypeDisable'] = true
-            }
-            if (rowData['enable']) {
-                rowData['enableDisable'] = false
-            }
-            if (disabled) {
-                rowData['rowDisable'] = false
-                rowData['durationTimeDisable'] = true
-                rowData['frequencyTypeDisable'] = true
-            } else {
-                rowData['rowDisable'] = false
-                rowData['durationTimeDisable'] = false
-                rowData['frequencyTypeDisable'] = false
-            }
-        }
-        const popOpen = () => {
-            pageData.value.scheduleManagePopOpen = true
-        }
+
         onMounted(async () => {
-            pageData.value.scheduleList = await buildScheduleList()
             await getSchedule()
-            buildTableData()
+            getData()
         })
+
         return {
-            scheduleList,
             pageData,
             tableData,
+            editRows,
             changePagination,
             changePaginationSize,
-            handleEnabelChange,
-            handleEnabelChangeAll,
-            handleDurationTimeChange,
-            handleFrequencyTypeChange,
-            handleFrequencyTypeChangeAll,
-            handleDurationTimeFocus,
-            handleDurationTimeBlur,
-            handleDurationTimeKeydown,
-            handleScheduleChange,
-            popOpen,
+            changeAllEnable,
+            changeAllFrequencyType,
+            changeSchedule,
+            closeSchedulePop,
             setData,
-            ScheduleManagPop,
         }
     },
 })

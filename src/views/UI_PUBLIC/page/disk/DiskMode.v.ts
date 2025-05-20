@@ -2,12 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-04 16:41:45
  * @Description: 磁盘模式
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 10:58:42
  */
-import { DiskModeForm } from '@/types/apiType/disk'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     components: {
@@ -15,8 +11,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
             // 鉴权弹窗
@@ -28,7 +22,7 @@ export default defineComponent({
          * @description 改变磁盘模式时，弹窗确认弹窗
          */
         const changeDiskMode = () => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_CHANGE_RAID_USE_TIP'),
             })
@@ -49,7 +43,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <diskMode>
-                        <isUseRaid>${String(formData.value.enable)}</isUseRaid>
+                        <isUseRaid>${formData.value.enable}</isUseRaid>
                     </diskMode>
                 </content>
                 <auth>
@@ -62,10 +56,10 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 pageData.value.isAuthDialog = false
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:
@@ -78,11 +72,9 @@ export default defineComponent({
                     default:
                         break
                 }
+
                 if (errorInfo) {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: errorInfo,
-                    })
+                    openMessageBox(errorInfo)
                 }
             }
         }
@@ -101,7 +93,7 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryDiskMode()
             const $ = queryXml(result)
-            formData.value.enable = $('//content/diskMode/isUseRaid').text().toBoolean()
+            formData.value.enable = $('content/diskMode/isUseRaid').text().bool()
         }
 
         onMounted(() => {
@@ -115,7 +107,6 @@ export default defineComponent({
             setData,
             changeDiskMode,
             confirm,
-            BaseCheckAuthPop,
         }
     },
 })

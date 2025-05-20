@@ -1,37 +1,127 @@
-# vue3-ts-vite-starter
+## 准备工作
 
-This template should help you quickly create a Vue 3 project based on Vite, using TypeScript as the development language by default.
+#### 开发环境
+建议 Node 20.13.0+, npm 10.5.0+
 
-这个模板应该能帮你快速创建一个基于 Vite 的 Vue 3 项目，默认使用 TypeScript 作为开发语言。
+#### VSCode
+建议使用**VSCode**，并安装以下Extensions：
 
-## Usage
+- Vue - Official
+- EsLint
+- koroFileHeader
+- Prettier - Code formatter
+- Prettier ESLint
+- Stylelint
 
-You can use a tool like [create-preset](https://github.com/awesome-starter/create-preset) to scaffold your project with this template.
-
-你可以使用 [create-preset](https://github.com/awesome-starter/create-preset) 之类的工具通过此模板来搭建你的项目。
-
-```bash
-npm create preset
+在根目录中创建 **.vscode/settings.json**，添加以下配置：
+```json
+{
+  "editor.formatOnSave": false,
+  "eslint.useFlatConfig": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.stylelint": "explicit",
+    "source.fixAll.prettier": "explicit",
+    "source.organizeImports": "never",
+    "eslint.autoFixOnSave": "explicit"
+  },
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "vue",
+    "html",
+    "markdown",
+    "json",
+    "jsonc",
+    "yaml"
+  ],
+  "fileheader.customMade": {
+    "Description":"",
+    "Author":"Your Name （Your Email）", /* 更改为您的名字 */
+    "Date":"Do not edit",
+  },
+  "fileheader.configObj": {
+    "autoAdd": true,
+  },
+  "css.validate": false,
+  "less.validate": false,
+  "scss.validate": false,
+  "stylelint.validate": [
+    "css",
+    "less",
+    "postcss",
+    "scss",
+    "sass",
+    "vue",
+    "html"
+  ],
+  "files.associations": {
+    "*.json": "jsonc"
+  },
+}
 ```
 
-## Why Use This Template
+## 安装
 
-Why not use [create-vite](https://github.com/vitejs/vite/tree/main/packages/create-vite) to generate the basic template of the project?
+首先，设置NPM私有镜像
+```bash
+npm run mirror:set
+```
 
-Because the basic template only has the simplest basic configuration, and the actual production project requires a lot of additional tool dependencies to improve development efficiency.
+然后，在Terminal中运行
+```bash
+npm install
+```
 
-为什么不使用 [create-vite](https://github.com/vitejs/vite/tree/main/packages/create-vite) 来生成项目的基础模板？
+并初始化husky
+```bash
+npm run prepare
+```
 
-因为基础模板只有最简单的配置，而实际生产的项目里，需要很多额外的提高开发效率的工具依赖。
+## 开发调试
 
-## How to learn
+可在 **config/.env.dev** 中更改测试设备IP和更改HTTP/HTTPS调试模式
+```
+VITE_APP_IP=0.0.0.0
+VITE_APP_HTTPS=false
+```
 
-If you are not very familiar with Vue 3 and TypeScript, or even have no contact at all, don’t worry, I have compiled an introductory guide, suitable for developers who do not have Vue 3 development experience to read, a book written based on the development process of a project , It is recommended to read and coding at the same time.
+可在 **config/.env** 中更改测试UI
+```
+VITE_UI_TYPE=UI1-A
+```
 
-> Btw: Currently only Chinese version, it is recommended to read through Google Translate with Chrome.
+在Terminal中运行
+```bash
+npm run dev
+```
 
-See: [Learning Vue3](https://vue3.chengpeiquan.com/)
+## 生产打包
 
-如果你对 Vue 3 和 TypeScript 不是很熟悉，甚至完全没有接触过，不用担心，我整理了一个入门指南，适合没有 Vue 3 开发经验的开发者阅读，以一个项目的开发过程来写的一本书，建议一边 Reading ，一边 Coding 。
+在Terminal中运行
+```bash
+npm run generate bundle=UI1-A,UI2-A_IL03,UI1-E_USE44
+```
 
-点击阅读：[Vue3入门指南与实战案例](https://vue3.chengpeiquan.com/)
+bundle=后面跟随需要打包的**UI类型_客户**，多个包则使用英文逗号隔开. 如果没带客户后缀，则会打包中性客户版本. 打包结果（包括标准版本和P2P版本的包）保存在**dist**目录下. 
+
+<!-- ##### 方法2. 在Termial中运行（不推荐）
+```bash
+npm run generate manual
+```
+
+然后，根据提示，在Terminal中通过按键选择需要打包的UI，回车确认，即可开始打包. 打包结果在**dist**目录下：
+```bash
+? Choose UIs you need to package (Multi-select support) (Press <space> to select, <a> to toggle all, <i> to invert selection, and <enter> to proceed)
+❯◯ UI1-A
+ ◯ UI1-B
+ ◯ UI1-C
+ ◯ UI1-D
+ ◯ UI1-E
+ ◯ UI1-F
+ ◯ UI1-G
+``` -->

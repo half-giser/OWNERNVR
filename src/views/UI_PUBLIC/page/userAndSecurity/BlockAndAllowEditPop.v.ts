@@ -2,11 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-20 10:38:53
  * @Description: 编辑黑白名单弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 14:16:10
  */
-import { UserEditBlackAllowListForm } from '@/types/apiType/userAndSecurity'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -43,25 +40,28 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new UserEditBlackAllowListForm())
         const rules = ref<FormRules>({
             ip: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (formData.value.addressType !== 'ip') {
                             callback()
                             return
                         }
-                        if (!value || value === '0.0.0.0') {
+
+                        if (!value || value === DEFAULT_EMPTY_IP) {
                             callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_EMPTY')))
                             return
                         }
+
                         const findIndex = prop.tableData.findIndex((item) => item.ip === value)
                         if (findIndex > -1 && findIndex !== prop.index) {
                             callback(new Error(Translate('IDCS_IP_ADDRESS_REPEAT_LIMIT')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -69,24 +69,28 @@ export default defineComponent({
             ],
             startIp: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (formData.value.addressType !== 'iprange') {
                             callback()
                             return
                         }
+
                         if (startIpNum.value === 0) {
                             callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_EMPTY')))
                             return
                         }
+
                         if (startIpNum.value > endIpNum.value) {
                             callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_COMPARE')))
                             return
                         }
+
                         const findIndex = prop.tableData.findIndex((item) => item.startIp === value && item.endIp === formData.value.endIp)
                         if (findIndex > -1 && findIndex !== prop.index) {
                             callback(new Error(Translate('IDCS_IP_ADDRESS_REPEAT_LIMIT')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -94,15 +98,17 @@ export default defineComponent({
             ],
             endIp: [
                 {
-                    validator: (rule, value, callback) => {
+                    validator: (_rule, _value: string, callback) => {
                         if (formData.value.addressType !== 'iprange') {
                             callback()
                             return
                         }
+
                         if (endIpNum.value === 0) {
                             callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_EMPTY')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -110,38 +116,29 @@ export default defineComponent({
             ],
             mac: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (formData.value.addressType !== 'mac') {
                             callback()
                             return
                         }
-                        if (value === '00:00:00:00:00:00') {
+
+                        if (value === DEFAULT_EMPTY_MAC) {
                             callback(new Error(Translate('IDCS_PROMPT_MACADDRESS_INVALID')))
                             return
                         }
+
                         const findIndex = prop.tableData.findIndex((item) => item.mac === value)
                         if (findIndex > -1 && findIndex !== prop.index) {
                             callback(new Error(Translate('IDCS_MAC_ADDRESS_REPEAT_LIMIT')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
                 },
             ],
         })
-
-        /**
-         * @description 返回IP十进制数值
-         * @param {string} ip
-         * @returns {number}
-         */
-        const getIpNumber = (ip: string) => {
-            const split = ip.split('.')
-            return split.reduce((sum, current, index) => {
-                return Number(sum) + Number(current) * Math.pow(Math.pow(2, 8), split.length - 1 - index)
-            }, 0)
-        }
 
         // 开始IP段的十进制数值
         const startIpNum = computed(() => {
@@ -185,8 +182,7 @@ export default defineComponent({
         /**
          * @description 开启弹窗时更新表单数据
          */
-        const handleOpen = () => {
-            formRef.value?.clearValidate()
+        const open = () => {
             formData.value.switch = prop.data.switch
             formData.value.addressType = prop.data.addressType
             formData.value.ip = prop.data.ip
@@ -201,7 +197,7 @@ export default defineComponent({
             rules,
             verify,
             goBack,
-            handleOpen,
+            open,
             title,
         }
     },

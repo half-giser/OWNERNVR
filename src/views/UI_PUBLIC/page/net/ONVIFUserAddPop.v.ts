@@ -2,11 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-15 20:09:41
  * @Description: OVNIF 新增/编辑用户弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:00:51
  */
-import type { FormInstance, FormRules } from 'element-plus'
-import { NetOnvifUserForm, NetOnvifUserList } from '@/types/apiType/net'
+import type { FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -35,24 +32,24 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new NetOnvifUserForm())
         const formRule = ref<FormRules>({
             userName: [
                 {
-                    validator: (rule, value: string, callback) => {
-                        if (!value) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
                         }
+
                         if (!checkIllegalChar(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -60,19 +57,22 @@ export default defineComponent({
             ],
             password: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (prop.type === 'edit' && !pageData.value.passwordSwitch) {
                             callback()
                             return
                         }
+
                         if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
+
                         if (strength.value < 2) {
                             callback(new Error(Translate('IDCS_PWD_STRONG_ERROR')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -80,11 +80,12 @@ export default defineComponent({
             ],
             confirmPassword: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (value !== formData.value.password) {
                             callback(new Error(Translate('IDCS_PWD_MISMATCH_TIPS')))
                             return
                         }
+                        callback()
                     },
                     trigger: 'manual',
                 },
@@ -107,6 +108,7 @@ export default defineComponent({
                 },
             ],
             passwordSwitch: false,
+            passwordTip: getTranslateForPasswordStrength('medium'),
         })
 
         const strength = computed(() => getPwdSaftyStrength(formData.value.password))
@@ -115,7 +117,6 @@ export default defineComponent({
          * @description 打开弹窗时 重置表单
          */
         const open = () => {
-            formRef.value?.clearValidate()
             formData.value = new NetOnvifUserForm()
             if (prop.type === 'edit') {
                 formData.value.userName = prop.userData.userName
@@ -140,10 +141,7 @@ export default defineComponent({
                     errorInfo = Translate('IDCS_SAVE_FAIL')
                     break
             }
-            openMessageTipBox({
-                type: 'info',
-                message: errorInfo,
-            })
+            openMessageBox(errorInfo)
         }
 
         /**
@@ -166,15 +164,15 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                openMessageTipBox({
+            if ($('status').text() === 'success') {
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).finally(() => {
                     ctx.emit('confirm')
                 })
             } else {
-                handleError(Number($('//errorCode').text()))
+                handleError($('errorCode').text().num())
             }
         }
 
@@ -188,7 +186,7 @@ export default defineComponent({
                     <item id="${prop.userData.id}">
                         <userLevel>${formData.value.userLevel}</userLevel>
                         <userName>${formData.value.userName}</userName>
-                        ${ternary(pageData.value.passwordSwitch, `<password${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.password, userSession.sesionKey))}</password>`, '')}
+                        ${pageData.value.passwordSwitch ? `<password${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.password, userSession.sesionKey))}</password>` : ''}
                     </item>
                 </content>
             `
@@ -197,15 +195,15 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                openMessageTipBox({
+            if ($('status').text() === 'success') {
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).finally(() => {
                     ctx.emit('confirm')
                 })
             } else {
-                handleError(Number($('//errorCode').text()))
+                handleError($('errorCode').text().num())
             }
         }
 
@@ -213,7 +211,7 @@ export default defineComponent({
          * @description 验证表单通过后 创建或者编辑用户
          */
         const verify = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     if (prop.type === 'add') {
                         addUser()
@@ -231,10 +229,15 @@ export default defineComponent({
             ctx.emit('close')
         }
 
+        const formatUserName = (str: string) => {
+            return str.replace(/([`\^\[\]]|[^A-z\d!@#%(){}~_\\'./\-\s])/g, '')
+        }
+
         return {
             strength,
             formRef,
             formData,
+            formatUserName,
             formRule,
             pageData,
             open,

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-26 15:32:02
  * @Description: UI2-A 客制化功能面板
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-08 15:48:29
  */
 import { getMenuItems } from '@/router'
 
@@ -14,6 +12,7 @@ export default defineComponent({
         //去掉在控制面板不需要显示的菜单项，并排序
         const configModules = ref<RouteRecordRawExtends[]>([])
         const layoutStore = useLayoutStore()
+        const systemCaps = useCababilityStore()
 
         const pageData = ref({
             // 选中的一级菜单
@@ -27,6 +26,11 @@ export default defineComponent({
          */
         const getConfigModule = () => {
             configModules.value = getMenuItems(layoutStore.configMenu?.children || []).filter((item) => !!item.meta?.groups)
+            configModules.value.forEach((item) => {
+                item.children = item.children.filter((child) => {
+                    return child.meta.inHome !== 'hidden' && (!child.meta.hasCap || child.meta.hasCap(systemCaps))
+                })
+            })
 
             const menuIndex = configModules.value.findIndex((item) => !getMenuDisabled(item))
             if (menuIndex > -1) {
@@ -41,9 +45,13 @@ export default defineComponent({
             if (!configModules.value[pageData.value.mainMenuIndex]?.meta.groups) {
                 return []
             }
-            return Object.entries(configModules.value[pageData.value.mainMenuIndex].meta.groups!).toSorted((a, b) => {
-                return a[1].sort! - b[1].sort!
-            })
+            return Object.entries(configModules.value[pageData.value.mainMenuIndex].meta.groups!)
+                .filter((item) => {
+                    return configModules.value[pageData.value.mainMenuIndex].children.filter((child) => item[0] === child.meta.group).length > 0
+                })
+                .toSorted((a, b) => {
+                    return a[1].sort! - b[1].sort!
+                })
         })
 
         // 三级菜单
@@ -99,7 +107,7 @@ export default defineComponent({
          * @returns {boolean}
          */
         const getMenuDisabled = (route: RouteRecordRawExtends) => {
-            return typeof route.meta.enabled !== 'undefined' && !userSession.hasAuth(route.meta.enabled)
+            return typeof route.meta.auth !== 'undefined' && !userSession.hasAuth(route.meta.auth)
         }
 
         watch(

@@ -2,11 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-06 20:37:40
  * @Description: 回放-鱼眼视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:34:40
  */
-import { type LiveSharedWinData } from '@/types/apiType/live'
-
 export interface FishEyePanelExpose {
     exitAdjust: (chlId: string) => void
 }
@@ -35,7 +31,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
         const systemCaps = useCababilityStore()
 
         const pageData = ref({
@@ -232,11 +227,9 @@ export default defineComponent({
             if (!supportFishEye.value || pageData.value.fishEyeMode === fishEyeMode) {
                 return
             }
+
             if (pageData.value.fishEyeingId && prop.winData.chlID !== pageData.value.fishEyeingId) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_SUPPORT_ONE_FISHEYE'),
-                })
+                openMessageBox(Translate('IDCS_SUPPORT_ONE_FISHEYE'))
                 return
             }
             pageData.value.fishEyeMode = fishEyeMode

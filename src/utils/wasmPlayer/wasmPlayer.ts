@@ -2,30 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-31 10:35:00
  * @Description: 基于webAssembly + canvas的视频播放器
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-06 16:38:35
  */
-import WebGLPlayer from './webglPlayer'
-import PCMPlayer, { type PCMPlayerOptionEncoding } from './pcmPlayer'
-import {
-    getWebsocketOpenUrl,
-    CMD_PREVIEW,
-    type CmdPreviewOption,
-    REC_EVENT_TYPES,
-    CMD_PLAYBACK_OPEN,
-    type CmdPlaybackOpenOption,
-    CMD_PLAYBACK_KEY_FRAME,
-    CMD_PLAYBACK_ALL_FRAME,
-    CMD_PREVIEW_AUDIO_OPEN,
-    CMD_PLAYBACK_AUDIO_OPEN,
-    CMD_PREVIEW_AUDIO_CLOSE,
-    CMD_PLAYBACK_AUDIO_CLOSE,
-    CMD_PLAYBACK_REFRESH_FRAME_INDEX,
-    CMD_STOP_PREVIEW,
-    CMD_PLAYBACK_CLOSE,
-} from '../websocket/websocketCmd'
-import { appendBuffer, Uint8ArrayToStr } from '../tools'
-import { ErrorCode } from '../constants'
 
 export interface WasmPlayerVideoFrame {
     buffer: Iterable<number>
@@ -44,6 +21,8 @@ interface WasmPlayerAudioFrame {
     sampleFmt: keyof typeof AudioEncodingMap
     channels: number
     sampleRate: number
+    audioFormat: string
+    isSupportAudio: boolean
 }
 
 const AudioEncodingMap: Record<number, PCMPlayerOptionEncoding> = {
@@ -74,6 +53,9 @@ const PLAY_STATE_NEXT_FRAME = 'NEXT_FRAME' // 手动下一帧
  * @param {Function} onwatermark: 水印通知
  * @param {Function} onrecordFile: 录像文件通知
  * @param {Function} onpos: pos信息通知
+ * @param {Function} onparam: 共通参数信息
+ * @param {Function} onmotion: motion信息通知
+ * @param {Function} onaudioerror: 音频格式不支持的信息回调
  */
 interface WasmPlayerOption {
     type: 'live' | 'record'
@@ -87,138 +69,292 @@ interface WasmPlayerOption {
     onwatermark: (watermark: string) => void
     onrecordFile: (buf: ArrayBuffer) => void
     onpos: (pos: Uint8Array, len: number) => void
+    onparam: (type: string, data: any) => void
+    onmotion: (data: { motion_infos: { grids: string }[] }) => void
+    onaudioerror: (format: string) => void
     volume: number
 }
 
-export default class WasmPlayer {
-    private type: WasmPlayerOption['type']
-    private taskID = '' // 与设备交互的guid
-    private canvas: HTMLCanvasElement
-    private volume = 0
-    private wasmReady = false // wasm文件是否加载成功
-    private videoQueue: WasmPlayerVideoFrame[] = [] // 缓存视频帧队列
-    private maxVideoQueueLength = 8 // 缓存视频帧队列最大长度
-    private audioQueue: Uint8Array[] = [] // 缓存音频帧队列
-    // private maxAudioQueueLength = 8 // 缓存音频帧队列最大长度
-    private videoWidth = 0
-    private videoHeight = 0
-    private webglPlayer?: WebGLPlayer
-    private pcmPlayer?: PCMPlayer
-    // private audioTimeOffset = 0
-    private isDecoding = false // 是否正在解码
-    private isFirstDecod = false // 是否首次解码
-    private basicRealTime = 0 // 播放基准真实时间
-    private basicFrameTime = 0 // 播放基准帧时间
-    private displayLoopID = 0 // 帧动画播放ID句柄
-    private playState = '' // 播放状态
-    private playSpeed = 1 // 播放速度倍数
-    private isKeyFramePlay = false // 是否关键帧播放
-    private frameTimestamp = 0 // 当前帧时间
-    private seeking = false
-    cmdParams: any
-    private frameIndex = 0
-    // private pageVisibleChangeHandle = null // 网页可见性变化处理函数
-    private webPageVisible = true // 当前网页是否可见
-    private isEndPlay = false // 设备已传输完数据，准备停止播放（先播放完缓存的帧数据）
-    private notDecodeNumber = 0 // 未解码（缓存）的帧数据数量
-    private frameData: WasmPlayerVideoFrame | null = null // 当前帧数据
-    private decodeWorker?: Worker
-    private downloadWorker?: Worker
-    private recordBuf: ArrayBuffer | null = null
-    private readonly onopen: WasmPlayerOption['onopen']
-    private readonly onsuccess: WasmPlayerOption['onsuccess']
-    private readonly onstop: WasmPlayerOption['onstop']
-    private readonly onerror: WasmPlayerOption['onerror']
-    private readonly onfinished: WasmPlayerOption['onfinished']
-    private readonly ontime: WasmPlayerOption['ontime']
-    private readonly onwatermark: WasmPlayerOption['onwatermark']
-    private readonly onrecordFile: WasmPlayerOption['onrecordFile']
-    private readonly onpos: WasmPlayerOption['onpos']
-    private pageVisibleChangeHandle = () => {}
+export const WasmPlayer = (options: WasmPlayerOption) => {
+    const userSession = useUserSessionStore()
 
-    constructor(options: WasmPlayerOption) {
-        this.type = options.type || 'live'
-        this.taskID = '' // 与设备交互的guid
-        this.canvas = options.canvas
-        this.onopen = options.onopen
-        this.onsuccess = options.onsuccess
-        this.onstop = options.onstop
-        this.onerror = options.onerror
-        this.onfinished = options.onfinished
-        this.ontime = options.ontime
-        this.onwatermark = options.onwatermark
-        this.onrecordFile = options.onrecordFile
-        this.onpos = options.onpos
-        this.volume = options.volume // 当前音量
-        this.init()
+    let wasmReady = false // wasm文件是否加载成功
+    let videoQueue: WasmPlayerVideoFrame[] = [] // 缓存视频帧队列
+    const maxVideoQueueLength = 8 // 缓存视频帧队列最大长度
+    let audioQueue: Uint8Array[] = [] // 缓存音频帧队列
+    // const maxAudioQueueLength = 8 // 缓存音频帧队列最大长度
+    let videoWidth = 0
+    let videoHeight = 0
+    let isDecoding = false // 是否正在解码
+    let isFirstDecod = false // 是否首次解码
+    let basicRealTime = 0 // 播放基准真实时间
+    let basicFrameTime = 0 // 播放基准帧时间
+    let displayLoopID = 0 // 帧动画播放ID句柄
+    let playState = '' // 播放状态
+    let playSpeed = 1 // 播放速度倍数
+    let isKeyFramePlay = false // 是否关键帧播放
+    let frameTimestamp = 0 // 当前帧时间
+    const seeking = false
+    let cmdParams: any
+    let frameIndex = 0
+    let lastRenderTime = 0
+    let webPageVisible = true // 当前网页是否可见
+    let isEndPlay = false // 设备已传输完数据，准备停止播放（先播放完缓存的帧数据）
+    let notDecodeNumber = 0 // 未解码（缓存）的帧数据数量
+    let frameData: WasmPlayerVideoFrame | null = null // 当前帧数据
+    let recordBuf: ArrayBuffer | null = null
+    let pcmPlayer: ReturnType<typeof PCMPlayer>
+    let motionArr: any[] = []
+
+    const type = options.type || 'live'
+    let taskID = '' // 与设备交互的guid
+
+    const canvas = options.canvas
+    const onopen = options.onopen
+    const onsuccess = options.onsuccess
+    const onstop = options.onstop
+    const onerror = options.onerror
+    const onfinished = options.onfinished
+    const ontime = options.ontime
+    const onwatermark = options.onwatermark
+    const onrecordFile = options.onrecordFile
+    const onpos = options.onpos
+    const volume = options.volume // 当前音量
+    const onparam = options.onparam
+    const onmotion = options.onmotion
+    const onaudioerror = options.onaudioerror
+
+    /**
+     * @description 初始化
+     */
+    /**
+     * @description 初始化解码线程
+     */
+    const decodeWorker = new Worker('/workers/decoder.js', {
+        type: 'classic',
+    })
+    decodeWorker.onmessage = (e: any) => {
+        const data = e.data
+        if (!data?.cmd) {
+            return
+        }
+
+        switch (data.cmd) {
+            case 'ready':
+                wasmReady = true
+                decodeWorker.postMessage({
+                    cmd: 'init',
+                    type: DECODE_TYPES[type],
+                })
+                break
+            case 'getVideoFrame':
+                const videoFrame = data.data
+                frameData = videoFrame
+                notDecodeNumber = videoFrame.notDecodeNumber
+                onVideoFrame(videoFrame)
+                break
+            case 'getAudioFrame':
+                const audioFrame = data.data
+                onAudioFrame(audioFrame)
+                break
+            case 'getRecData': // 获取到录像数据
+                onRecordData(data.data, data.finished)
+                break
+            case 'fileOverSize': // 检测到读取avi文件达到单个文件阈值时
+                onFileOverSize()
+                break
+            case 'getPosInfo': // 获取到pos数据
+                onPosInfo(data.frame, data.posLength)
+                break
+            case 'getParamInfo':
+                onParamInfo(data.type, data.data)
+                break
+            case 'bufferError':
+                stopDecode()
+                break
+            case 'errorCode':
+                onerror && onerror(data.code, data.url)
+                break
+            default:
+                break
+        }
     }
+
+    /**
+     * @description 初始化下载线程
+     */
+    let downloadWorker: Worker
+    let downloadWebsocket: ReturnType<typeof WebsocketBase>
+
+    if (userSession.appType === 'STANDARD') {
+        downloadWorker = new Worker('/workers/downloader.js', {
+            type: 'classic',
+        })
+        downloadWorker.onmessage = (e: any) => {
+            const data = e.data
+            if (!data?.cmd) {
+                return
+            }
+
+            switch (data.cmd) {
+                case 'feedData':
+                    feedData(data.buffer)
+                    break
+                case 'close':
+                case 'error':
+                    handleErrorCode(data)
+                    break
+                default:
+                    break
+            }
+
+            // switch (data.cmd) {
+            //     case 'feedData':
+            //         if (!isFirstDecod) {
+            //             startDecode()
+            //             isFirstDecod = true
+            //             clearDisplayLoop()
+            //             displayLoop()
+            //             onsuccess && onsuccess()
+            //             if (type === 'live') {
+            //                 onfinished && onfinished()
+            //             }
+            //         }
+            //         decodeWorker.postMessage({
+            //             cmd: 'sendData',
+            //             buffer: data.buffer,
+            //         })
+            //         if (!isDecoding && type === 'live') {
+            //             startDecode()
+            //         }
+            //         break
+            //     case 'close':
+            //     case 'error':
+            //         if (type === 'record' && data.code === ErrorCode.USER_ERROR_FILE_STREAM_COMPLETED && data.url === '/device/playback/data') {
+            //             // 回放结束
+            //             if (isEndPlay) return // 设备会发送两次停止播放，避免重复进入停止逻辑
+            //             isEndPlay = true
+            //             endPlay(data)
+            //             return
+            //         }
+            //         // 其他错误类型，如音频无权限
+            //         onerror && onerror(data.code, data.url)
+            //         onfinished && onfinished()
+            //         break
+            //     default:
+            //         break
+            // }
+        }
+    } else {
+        downloadWebsocket = WebsocketBase({
+            onopen: () => {
+                // self.downloadWorker.isP2Pcreate = true
+            },
+            onmessage: (data) => {
+                if (typeof data === 'string') {
+                    const res = JSON.parse(data)
+                    const url = res.url
+                    const resBasic = res.basic || {}
+                    const resData = res.data || {}
+                    const dataCode = resData.code
+                    const code = dataCode || resBasic.code
+                    if (code && code !== 0) {
+                        handleErrorCode({
+                            code: code,
+                            url: url,
+                        })
+                    }
+                } else {
+                    feedData(data)
+                }
+            },
+            onerror: () => {},
+            onclose: () => {},
+        })
+    }
+
+    /**
+     * @description 初始化webgl渲染器
+     */
+    const webglPlayer = WebGLPlayer(canvas, {
+        preserveDrawingBuffer: false,
+    })
+
+    const pageVisibleChangeHandle = () => {
+        webPageVisible = !document.hidden
+    }
+
+    /**
+     * 参考文档：@see https://developer.mozilla.org/zh-CN/docs/Web/API/Document/visibilitychange_event
+     */
+    document.addEventListener('visibilitychange', pageVisibleChangeHandle, false)
 
     /**
      * @description 播放
      * @param {Object} cmdParams
      * @param {Function} callback
      */
-    play(cmdParams: Partial<CmdPlaybackOpenOption> | Partial<CmdPreviewOption>, callback?: () => void) {
+    const play = (cmdParam: Partial<CmdPlaybackOpenOption> | Partial<CmdPreviewOption>, callback?: () => void) => {
+        cmdParams = cmdParam
+        playState = PLAY_STATE_PLAYING
         let cmd
-        this.cmdParams = cmdParams
-        if (this.type === 'live') {
-            cmd = CMD_PREVIEW(cmdParams as CmdPreviewOption)
-            this.taskID = cmd.data.task_id
-        } else if (this.type === 'record') {
-            this.isEndPlay = false
-            this.notDecodeNumber = 0
-            if (!(cmdParams as CmdPlaybackOpenOption).typeMask) {
-                ;(cmdParams as CmdPlaybackOpenOption).typeMask = REC_EVENT_TYPES
+        if (type === 'live') {
+            cmd = CMD_PREVIEW(cmdParams)
+            taskID = cmd.data.task_id
+        } else if (type === 'record') {
+            isEndPlay = false
+            notDecodeNumber = 0
+            if (!cmdParams.typeMask) {
+                cmdParams.typeMask = REC_EVENT_TYPES
             }
-            cmd = CMD_PLAYBACK_OPEN(cmdParams as CmdPlaybackOpenOption)
-            this.taskID = cmd.data.task_id
+            cmd = CMD_PLAYBACK_OPEN(cmdParams)
+            taskID = cmd.data.task_id
         }
-        this.playState = PLAY_STATE_PLAYING
-        this.startDownload(getWebsocketOpenUrl(), cmd, callback)
+        startDownload(getWebsocketOpenUrl(), cmd, callback)
     }
 
     /**
      * @description 停止
      */
-    stop() {
-        this.stopDownload()
-        this.stopDecode()
-        this.clearFrameList()
-        this.clearDisplayLoop()
-        this.playState = PLAY_STATE_STOP
-        this.webglPlayer?.clear()
-        this.onstop && this.onstop()
+    const stop = () => {
+        stopDownload()
+        stopDecode()
+        clearFrameList()
+        clearDisplayLoop()
+        playState = PLAY_STATE_STOP
+        webglPlayer.clear()
+        onstop && onstop()
     }
 
     /**
      * @description 暂停回放
      */
-    pause() {
-        this.playState = PLAY_STATE_PAUSE
-        this.stopDecode()
-        // this.stopDownload()
+    const pause = () => {
+        playState = PLAY_STATE_PAUSE
+        stopDecode()
+        // stopDownload()
     }
 
     /**
      * @description 继续回放
      */
-    resume() {
-        this.playState = PLAY_STATE_PLAYING
-        this.resetBasicTime()
-        this.resumeDownload()
-        this.startDecode()
-        this.clearDisplayLoop()
-        this.displayLoop()
+    const resume = () => {
+        playState = PLAY_STATE_PLAYING
+        resetBasicTime()
+        resumeDownload()
+        startDecode()
+        clearDisplayLoop()
+        displayLoop()
     }
 
     /**
      * @description 手动播放下一帧
      */
-    nextFrame() {
-        this.playState = PLAY_STATE_NEXT_FRAME
-        this.startDecode()
-        this.clearDisplayLoop()
-        this.displayLoop()
+    const nextFrame = () => {
+        playState = PLAY_STATE_NEXT_FRAME
+        startDecode()
+        clearDisplayLoop()
+        displayLoop()
     }
 
     /**
@@ -226,15 +362,15 @@ export default class WasmPlayer {
      * 传参为跳转的绝对时间戳（单位秒）
      * @param {number} frameTimestamp
      */
-    seek(frameTimestamp: number) {
-        this.stop()
-        ;(this.cmdParams as CmdPlaybackOpenOption).startTime = Math.floor(frameTimestamp)
-        this.clearFrameList()
+    const seek = (frameTimestamp: number) => {
+        stop()
+        ;(cmdParams as CmdPlaybackOpenOption).startTime = Math.floor(frameTimestamp)
+        clearFrameList()
         setTimeout(() => {
-            this.clearFrameList()
-            this.isFirstDecod = false
-            this.play(this.cmdParams, () => {
-                this.setSpeed(this.playSpeed, true, frameTimestamp * 1e3)
+            clearFrameList()
+            isFirstDecod = false
+            play(cmdParams, () => {
+                setSpeed(playSpeed, true, frameTimestamp * 1e3)
             })
         }, 200)
     }
@@ -245,77 +381,84 @@ export default class WasmPlayer {
      * @param {Boolean} isSeek 是否是seek之后设置倍速（由于seek是先stop再play，此时需要手动执行全帧或关键帧回放命令）
      * 大于4倍数需要启用关键帧回放，否则全帧回放
      */
-    setSpeed(speed: number, isSeek: boolean = false, timestamp: number = 0) {
-        if (speed > 4) {
-            if (this.playSpeed <= 4 || isSeek) {
-                // 4倍速切到8倍速 采用关键帧播放
-                this.keyFramePlay(timestamp)
+    const setSpeed = (speed: number, isSeek: boolean = false, timestamp: number = 0) => {
+        /**
+         * NTA1-3986 主码流播放，倍速大于1倍速时，切换成关键帧播放（跳画面），等于或小于1倍速时切换成全帧播放（流畅）
+         * NTA1-4041 其他码流播放，倍速大于4倍速时，切换成关键帧播放（跳画面），等于或小于4倍速时切换成全帧播放（流畅）
+         * streamType 当前播放的码流类型：0主码流，其他子码流
+         */
+        const maxSpeed = cmdParams.streamType === 0 ? 1 : 4
+        if (speed > maxSpeed) {
+            if (playSpeed <= maxSpeed || isSeek) {
+                keyFramePlay(timestamp)
             }
         } else {
-            if (this.playSpeed > 4 || isSeek) {
-                // 8倍速切到4倍速 采用全帧播放
-                this.allFramePlay(timestamp)
+            if (playSpeed > maxSpeed || isSeek) {
+                allFramePlay(timestamp)
             }
         }
-        this.playSpeed = speed
-        this.resetBasicTime()
+        playSpeed = speed
+        resetBasicTime()
     }
 
     /**
      * @description 帧时间戳转换为UTC时间格式: 年-月-日 时:分:秒:毫秒
      * @param {Number} timestamp 毫秒时间戳
      */
-    frameTime2UTC(timestamp: number) {
+    const frameTime2UTC = (timestamp: number) => {
         if (!timestamp) {
             return ''
         }
-        return localToUtc(timestamp, 'yyyy-MM-DD HH:mm:ss:S')
-        // const utcDate = LocalTime2UTCTime(new Date(timestamp))
-        // return utcDate.format('yyyy-MM-dd HH:mm:ss:S')
+        return localToUtc(timestamp, 'YYYY-MM-DD HH:mm:ss:SSS')
+    }
+
+    const sendData = (data: string) => {
+        if (userSession.appType === 'STANDARD') {
+            downloadWorker.postMessage({
+                cmd: 'sendCMD',
+                data: data,
+            })
+        } else {
+            downloadWebsocket.send(data)
+        }
     }
 
     /**
      * @description 启用关键帧回放
      * @param {Number} timestamp 毫秒时间戳
      */
-    keyFramePlay(timestamp: number) {
-        this.stopDecode()
-        this.clearFrameList() // 清空缓存帧队列
-        this.webglPlayer?.clear()
-        const time = timestamp || this.frameTimestamp
-        this.isKeyFramePlay = true
-        const cmdParams = CMD_PLAYBACK_KEY_FRAME(this.taskID, this.frameTime2UTC(time))
-        this.downloadWorker!.postMessage({
-            cmd: 'sendCMD',
-            data: JSON.stringify(cmdParams),
-        })
-        this.startDecode()
+    const keyFramePlay = (timestamp: number) => {
+        stopDecode()
+        clearFrameList() // 清空缓存帧队列
+        webglPlayer.clear()
+        const time = timestamp || frameTimestamp
+        isKeyFramePlay = true
+        const cmdParams = CMD_PLAYBACK_KEY_FRAME(taskID, frameTime2UTC(time))
+        sendData(JSON.stringify(cmdParams))
+        startDecode()
     }
 
     /**
-     * @description 恢复全帧回放
+     * @description 启用全帧回放
      * @param {Number} timestamp 秒时间戳
      */
-    allFramePlay(timestamp: number) {
-        this.stopDecode()
-        this.clearFrameList() // 清空缓存帧队列
-        if (this.webglPlayer) this.webglPlayer.clear()
-        const time = timestamp || this.frameTimestamp
-        this.isKeyFramePlay = false
-        const cmdParams = CMD_PLAYBACK_ALL_FRAME(this.taskID, this.frameTime2UTC(time))
-        this.downloadWorker!.postMessage({
-            cmd: 'sendCMD',
-            data: JSON.stringify(cmdParams),
-        })
-        this.startDecode()
+    const allFramePlay = (timestamp: number) => {
+        stopDecode()
+        clearFrameList() // 清空缓存帧队列
+        webglPlayer.clear()
+        const time = timestamp || frameTimestamp
+        isKeyFramePlay = false
+        const cmdParams = CMD_PLAYBACK_ALL_FRAME(taskID, frameTime2UTC(time))
+        sendData(JSON.stringify(cmdParams))
+        startDecode()
     }
 
     /**
      * @description 打开音频流
      * @param {Object} cmdParams
      */
-    openAudioStream(cmdParams: any) {
-        this.downloadWorker!.postMessage({
+    const openAudioStream = (cmdParams: any) => {
+        downloadWorker.postMessage({
             cmd: 'sendCMD',
             data: JSON.stringify(cmdParams),
         })
@@ -324,15 +467,15 @@ export default class WasmPlayer {
     /**
      * @description 原始比例画面(1:1)
      */
-    displayOriginal() {
-        const curWHRatio = this.canvas.width / this.canvas.height
-        const realWHRatio = this.videoWidth / this.videoHeight
+    const displayOriginal = () => {
+        const curWHRatio = canvas.width / canvas.height
+        const realWHRatio = videoWidth / videoHeight
         if (curWHRatio > realWHRatio) {
             // 当前宽过大，则两侧留空
-            this.canvas.width = this.canvas.height * realWHRatio
+            canvas.width = canvas.height * realWHRatio
         } else if (curWHRatio < realWHRatio) {
             // 当前高过大，则上下留空
-            this.canvas.height = this.canvas.width / realWHRatio
+            canvas.height = canvas.width / realWHRatio
         }
     }
 
@@ -341,18 +484,18 @@ export default class WasmPlayer {
      * @param {number} width
      * @param {number} height
      */
-    setSize(width: number, height: number) {
-        this.canvas.width = width
-        this.canvas.height = height
+    const setSize = (width: number, height: number) => {
+        canvas.width = width
+        canvas.height = height
     }
 
     /**
      * @description 获取canvas宽高属性值
      */
-    getSize() {
+    const getSize = () => {
         return {
-            width: this.canvas.width,
-            height: this.canvas.height,
+            width: canvas.width,
+            height: canvas.height,
         }
     }
 
@@ -360,219 +503,142 @@ export default class WasmPlayer {
      * @description 设置音量 取值0-100（设置给pcmPlayer时转化为0-1）
      * @param {number} volume
      */
-    setVolume(volume: number) {
-        this.pcmPlayer && this.pcmPlayer.volume(volume / 100)
+    const setVolume = (volume: number) => {
+        pcmPlayer && pcmPlayer.volume(volume / 100)
     }
 
     /**
      * @description 打开声音
      */
-    openAudio() {
+    const openAudio = () => {
         let cmdJSON
-        if (this.type === 'live') {
-            cmdJSON = CMD_PREVIEW_AUDIO_OPEN(this.taskID)
-        } else if (this.type === 'record') {
-            cmdJSON = CMD_PLAYBACK_AUDIO_OPEN(this.taskID)
+        if (type === 'live') {
+            cmdJSON = CMD_PREVIEW_AUDIO_OPEN(taskID)
+        } else if (type === 'record') {
+            cmdJSON = CMD_PLAYBACK_AUDIO_OPEN(taskID)
         }
-        this.downloadWorker!.postMessage({
-            cmd: 'sendCMD',
-            data: JSON.stringify(cmdJSON),
-        })
+        sendData(JSON.stringify(cmdJSON))
     }
 
     /**
      * @description 关闭声音
      */
-    closeAudio() {
+    const closeAudio = () => {
         let cmdJSON
-        if (this.type === 'live') {
-            cmdJSON = CMD_PREVIEW_AUDIO_CLOSE(this.taskID)
-        } else if (this.type === 'record') {
-            cmdJSON = CMD_PLAYBACK_AUDIO_CLOSE(this.taskID)
+        if (type === 'live') {
+            cmdJSON = CMD_PREVIEW_AUDIO_CLOSE(taskID)
+        } else if (type === 'record') {
+            cmdJSON = CMD_PLAYBACK_AUDIO_CLOSE(taskID)
         }
-        this.downloadWorker!.postMessage({
-            cmd: 'sendCMD',
-            data: JSON.stringify(cmdJSON),
-        })
+        sendData(JSON.stringify(cmdJSON))
     }
 
     /**
      * @description 销毁播放器
      */
-    destroy() {
-        this.destroyDecoder()
-        this.destroyDownloader()
-        this.clearDisplayLoop()
-        document.removeEventListener('visibilitychange', this.pageVisibleChangeHandle, false)
-        if (this.webglPlayer) {
-            this.webglPlayer.clear()
-            delete this.webglPlayer
-        }
-        if (this.pcmPlayer) {
-            this.pcmPlayer.destroy()
-            delete this.pcmPlayer
+    const destroy = () => {
+        try {
+            decodeWorker.postMessage({
+                cmd: 'destroy',
+            })
+            decodeWorker.terminate()
+        } catch {}
+
+        try {
+            downloadWorker.postMessage({
+                cmd: 'destroy',
+            })
+            downloadWorker.terminate()
+        } catch {}
+
+        try {
+            downloadWebsocket.close()
+        } catch {}
+
+        clearDisplayLoop()
+
+        document.removeEventListener('visibilitychange', pageVisibleChangeHandle, false)
+
+        webglPlayer.clear()
+
+        if (pcmPlayer) {
+            pcmPlayer.destroy()
         }
     }
 
-    /**
-     * @description 更新webPageVisible状态
-     */
-    // private pageVisibleChangeHandle() {
-    //     this.webPageVisible = !document.hidden
-    // }
+    let websocketTimer: NodeJS.Timeout | number = 0
 
-    /**
-     * @description 初始化
-     */
-    private init() {
-        this.initDecoder()
-        this.initDownloader()
-        this.initWebGL()
-        this.pageVisibleChangeHandle = () => {
-            this.webPageVisible = !document.hidden
+    const p2pStart = (data: string) => {
+        if (downloadWebsocket.getP2PCreate()) {
+            sendData(data)
+            clearTimeout(websocketTimer)
+        } else {
+            websocketTimer = setTimeout(function () {
+                p2pStart(data)
+            }, 200)
         }
-        // this.pageVisibleChangeHandle = () => {
-        //     this.webPageVisible = !document.hidden
-        // }
-        /**
-         * 参考文档：@see https://developer.mozilla.org/zh-CN/docs/Web/API/Document/visibilitychange_event
-         */
-        document.addEventListener('visibilitychange', this.pageVisibleChangeHandle, false)
     }
 
-    /**
-     * @description 初始化解码线程
-     */
-    private initDecoder() {
-        this.wasmReady = false
-        this.decodeWorker = new Worker('/workers/decoder.js', {
-            type: 'classic',
+    const feedData = (buffer: ArrayBuffer, isPure = false) => {
+        if (!isFirstDecod) {
+            startDecode()
+            isFirstDecod = true
+            clearDisplayLoop()
+            displayLoop()
+            onsuccess && onsuccess()
+            if (type === 'live') {
+                onfinished && onfinished()
+            }
+        }
+
+        decodeWorker.postMessage({
+            cmd: 'sendData',
+            buffer: buffer,
+            isPure: isPure,
         })
-        this.decodeWorker.onmessage = (e: any) => {
-            const data = e.data
-            if (!data?.cmd) {
-                return
-            }
-            switch (data.cmd) {
-                case 'ready':
-                    this.wasmReady = true
-                    this.decodeWorker!.postMessage({
-                        cmd: 'init',
-                        type: DECODE_TYPES[this.type],
-                    })
-                    break
-                case 'getVideoFrame':
-                    const videoFrame = data.data
-                    this.frameData = videoFrame
-                    this.notDecodeNumber = videoFrame.notDecodeNumber
-                    this.onVideoFrame(videoFrame)
-                    break
-                case 'getAudioFrame':
-                    const audioFrame = data.data
-                    this.onAudioFrame(audioFrame)
-                    break
-                case 'getRecData': // 获取到录像数据
-                    this.onRecordData(data.data, data.finished)
-                    break
-                case 'fileOverSize': // 检测到读取avi文件达到单个文件阈值时
-                    this.onFileOverSize()
-                    break
-                case 'getPosInfo': // 获取到pos数据
-                    this.onPosInfo(data.frame, data.posLength)
-                    break
-                case 'bufferError':
-                    this.stopDecode()
-                    break
-                case 'errorCode':
-                    this.onerror && this.onerror(data.code, data.url)
-                    break
-                default:
-                    break
-            }
+
+        if (!isDecoding && type === 'live') {
+            startDecode()
         }
     }
 
     /**
-     * @description 初始化下载线程
+     * 错误处理
      */
-    private initDownloader() {
-        this.downloadWorker = new Worker('/workers/downloader.js', {
-            type: 'classic',
-        })
-        this.downloadWorker.onmessage = (e: any) => {
-            const data = e.data
-            if (!data?.cmd) {
-                return
-            }
-            switch (data.cmd) {
-                case 'feedData':
-                    if (!this.isFirstDecod) {
-                        this.startDecode()
-                        this.isFirstDecod = true
-                        this.clearDisplayLoop()
-                        this.displayLoop()
-                        this.onsuccess && this.onsuccess()
-                        if (this.type == 'live') {
-                            this.onfinished && this.onfinished()
-                        }
-                    }
-                    this.decodeWorker!.postMessage({
-                        cmd: 'sendData',
-                        buffer: data.buffer,
-                    })
-                    if (!this.isDecoding && this.type === 'live') {
-                        this.startDecode()
-                    }
-                    break
-                case 'close':
-                case 'error':
-                    if (this.type === 'record' && data.code === ErrorCode.USER_ERROR_FILE_STREAM_COMPLETED && data.url === '/device/playback/data') {
-                        // 回放结束
-                        if (this.isEndPlay) return // 设备会发送两次停止播放，避免重复进入停止逻辑
-                        this.isEndPlay = true
-                        this.endPlay(data)
-                        return
-                    }
-                    // 其他错误类型，如音频无权限
-                    this.onerror && this.onerror(data.code, data.url)
-                    this.onfinished && this.onfinished()
-                    break
-                default:
-                    break
-            }
+    const handleErrorCode = (data: { code: number; url: string }) => {
+        if (type === 'record' && data.code === 536870961 && data.url === '/device/playback/data') {
+            // 回放结束
+            if (isEndPlay) return // 设备会发送两次停止播放，避免重复进入停止逻辑
+            isEndPlay = true
+            endPlay(data)
+            return
         }
+        // 其他错误类型，如音频无权限
+        onerror && onerror(data.code, data.url)
+        onfinished && onfinished()
     }
 
     /**
      * @description 回放结束
      * @param {Object} data
      */
-    private endPlay(data: any) {
-        if (this.notDecodeNumber === 0) {
-            this.stopDecode()
-            this.pause()
-            this.onfinished && this.onfinished()
-            this.onerror && this.onerror(data.code, data.url)
-            this.isEndPlay = false
+    const endPlay = (data: { code: number; url: string }) => {
+        if (notDecodeNumber === 0) {
+            stopDecode()
+            pause()
+            onfinished && onfinished()
+            onerror && onerror(data.code, data.url)
+            isEndPlay = false
         } else {
-            setTimeout(() => this.endPlay(data), 50)
+            setTimeout(() => endPlay(data), 50)
         }
-    }
-
-    /**
-     * @description 初始化webgl渲染器
-     */
-    private initWebGL() {
-        this.webglPlayer = new WebGLPlayer(this.canvas, {
-            preserveDrawingBuffer: false,
-        })
     }
 
     /**
      * @description 获取webgl窗口位置
      */
-    getWebGL() {
-        return this.webglPlayer!.getViewport()
+    const getWebGL = () => {
+        return webglPlayer.getViewport()
     }
 
     /**
@@ -582,51 +648,31 @@ export default class WasmPlayer {
      * @param {number} width
      * @param {number} height
      */
-    setWebGL(left: number, bottom: number, width: number, height: number) {
-        this.webglPlayer!.setViewport(left, bottom, width, height)
+    const setWebGL = (left: number, bottom: number, width: number, height: number) => {
+        webglPlayer.setViewport(left, bottom, width, height)
     }
 
     /**
      * @description 初始化音频播放器
      * @param {WasmPlayerAudioFrame} frame
      */
-    private initPcmPlayer(frame: WasmPlayerAudioFrame) {
-        this.pcmPlayer = new PCMPlayer({
+    const initPcmPlayer = (frame: WasmPlayerAudioFrame) => {
+        pcmPlayer = PCMPlayer({
             encoding: AudioEncodingMap[frame.sampleFmt] || '16bitInt',
             channels: frame.channels,
             sampleRate: frame.sampleRate,
             flushingTime: 1000,
-            volume: this.volume / 100,
+            volume: volume / 100,
         })
-        // this.audioTimeOffset = this.pcmPlayer.getTimestamp()
-    }
-
-    /**
-     * @description 销毁解码线程
-     */
-    private destroyDecoder() {
-        this.decodeWorker?.postMessage({
-            cmd: 'destroy',
-        })
-        this.decodeWorker?.terminate()
-    }
-
-    /**
-     * @description 销毁下载线程
-     */
-    private destroyDownloader() {
-        this.downloadWorker?.postMessage({
-            cmd: 'destroy',
-        })
-        this.downloadWorker?.terminate()
+        // audioTimeOffset = pcmPlayer.getTimestamp()
     }
 
     /**
      * @description 开启解码
      */
-    private startDecode() {
-        this.isDecoding = true
-        this.decodeWorker!.postMessage({
+    const startDecode = () => {
+        isDecoding = true
+        decodeWorker.postMessage({
             cmd: 'decodeFrame',
         })
     }
@@ -634,9 +680,9 @@ export default class WasmPlayer {
     /**
      * @description 停止解码
      */
-    private stopDecode() {
-        this.isDecoding = false
-        this.decodeWorker!.postMessage({
+    const stopDecode = () => {
+        isDecoding = false
+        decodeWorker.postMessage({
             cmd: 'stopDecode',
         })
     }
@@ -644,10 +690,10 @@ export default class WasmPlayer {
     /**
      * @description 清空缓存帧队列
      */
-    private clearFrameList() {
-        this.videoQueue = []
-        this.audioQueue = []
-        this.decodeWorker!.postMessage({
+    const clearFrameList = () => {
+        videoQueue = []
+        audioQueue = []
+        decodeWorker.postMessage({
             cmd: 'clear',
         })
     }
@@ -658,19 +704,23 @@ export default class WasmPlayer {
      * @param {Object} cmdParams
      * @param {Function} callback
      */
-    private startDownload(url: string, cmdParams: any, callback?: () => void) {
-        if (this.wasmReady) {
-            this.downloadWorker!.postMessage({
-                cmd: 'start',
-                data: {
-                    url: url,
-                    params: JSON.stringify(cmdParams),
-                },
-            })
-            this.onopen && this.onopen()
+    const startDownload = (url: string, cmdParams: any, callback?: () => void) => {
+        if (wasmReady) {
+            if (userSession.appType === 'STANDARD') {
+                downloadWorker.postMessage({
+                    cmd: 'start',
+                    data: {
+                        url: url,
+                        params: JSON.stringify(cmdParams),
+                    },
+                })
+            } else {
+                p2pStart(JSON.stringify(cmdParams))
+            }
+            onopen && onopen()
             callback && callback()
         } else {
-            setTimeout(() => this.startDownload(url, cmdParams, callback), 100)
+            setTimeout(() => startDownload(url, cmdParams, callback), 100)
         }
     }
 
@@ -678,154 +728,172 @@ export default class WasmPlayer {
      * @description 刷新回放帧索引
      * @param {number} frameIndex
      */
-    private refreshPlaybackFrameIndex(frameIndex: number) {
-        this.frameIndex = frameIndex
-        if (this.playState !== PLAY_STATE_PLAYING && this.playState !== PLAY_STATE_NEXT_FRAME) return
-        const cmdParams = CMD_PLAYBACK_REFRESH_FRAME_INDEX(this.taskID, frameIndex)
-        this.downloadWorker!.postMessage({
-            cmd: 'sendCMD',
-            data: JSON.stringify(cmdParams),
-        })
+    const refreshPlaybackFrameIndex = (index: number) => {
+        frameIndex = index
+        if (playState !== PLAY_STATE_PLAYING && playState !== PLAY_STATE_NEXT_FRAME) return
+        const cmdParams = CMD_PLAYBACK_REFRESH_FRAME_INDEX(taskID, frameIndex)
+        sendData(JSON.stringify(cmdParams))
     }
 
     /**
      * @description 继续收流
      */
-    private resumeDownload() {
-        this.playState = PLAY_STATE_PLAYING
-        this.refreshPlaybackFrameIndex(this.frameIndex)
+    const resumeDownload = () => {
+        playState = PLAY_STATE_PLAYING
+        refreshPlaybackFrameIndex(frameIndex)
     }
 
     /**
      * @description 停止收流
      */
-    private stopDownload() {
-        let cmdParams = null
-        if (this.type === 'live') {
-            cmdParams = CMD_STOP_PREVIEW(this.taskID)
-        } else if (this.type === 'record') {
-            cmdParams = CMD_PLAYBACK_CLOSE(this.taskID)
+    const stopDownload = () => {
+        let cmdParams
+        if (type === 'live') {
+            cmdParams = CMD_STOP_PREVIEW(taskID)
+        } else if (type === 'record') {
+            cmdParams = CMD_PLAYBACK_CLOSE(taskID)
         }
-        this.downloadWorker!.postMessage({
-            cmd: 'stop',
-            data: JSON.stringify(cmdParams),
-        })
+
+        if (userSession.appType === 'STANDARD') {
+            downloadWorker.postMessage({
+                cmd: 'stop',
+                data: JSON.stringify(cmdParams),
+            })
+        } else {
+            sendData(JSON.stringify(cmdParams))
+        }
     }
 
     /**
      * @description 处理解码得到的视频帧数据
      * @param {WasmPlayerVideoFrame} frame
      */
-    private onVideoFrame(frame: WasmPlayerVideoFrame) {
-        if (this.type === 'record') {
+    const onVideoFrame = (frame: WasmPlayerVideoFrame) => {
+        if (type === 'record') {
             // 回放模式下每8帧需要通知设备端刷新帧索引
             const frameIndex = frame.frameIndex
-            if (frameIndex > 0 && (frameIndex % 8 === 0 || this.isKeyFramePlay)) {
-                this.refreshPlaybackFrameIndex(frameIndex)
+            if (frameIndex > 0 && (frameIndex % 8 === 0 || isKeyFramePlay)) {
+                refreshPlaybackFrameIndex(frameIndex)
             }
         }
-        if (!this.webPageVisible || frame.frameType === 4) {
+
+        if (!webPageVisible) {
             // 帧类型 -- 4: 预解码, 只解码不播放
+            if (videoQueue.length > 0) videoQueue = []
             return
         }
-        this.videoQueue.push(frame)
-        if (this.videoQueue.length > this.maxVideoQueueLength) {
-            this.stopDecode()
+
+        videoQueue.push(frame)
+        if (videoQueue.length > maxVideoQueueLength) {
+            stopDecode()
         }
     }
 
     /**
      * @description 通过requestAnimationFrame开启播放帧队列
      */
-    private displayLoop() {
-        if (this.playState === PLAY_STATE_PLAYING || this.playState === PLAY_STATE_NEXT_FRAME) {
-            this.displayLoopID = requestAnimationFrame(this.displayLoop.bind(this))
+    const displayLoop = () => {
+        if (playState === PLAY_STATE_PLAYING || playState === PLAY_STATE_NEXT_FRAME) {
+            displayLoopID = requestAnimationFrame(() => displayLoop())
         }
-        if ((this.playState !== PLAY_STATE_PLAYING && this.playState !== PLAY_STATE_NEXT_FRAME) || this.videoQueue.length === 0 || this.seeking) {
+
+        if ((playState !== PLAY_STATE_PLAYING && playState !== PLAY_STATE_NEXT_FRAME) || videoQueue.length === 0 || seeking) {
             return
         }
+
         for (let i = 0; i < 2; i++) {
-            if (this.displayNextVideoFrame()) {
-                this.videoQueue.shift()
-                if (this.playState === PLAY_STATE_NEXT_FRAME) {
-                    if (this.videoQueue.length === 0) {
-                        this.refreshPlaybackFrameIndex(this.frameIndex)
+            if (displayNextVideoFrame()) {
+                videoQueue.shift()
+                if (playState === PLAY_STATE_NEXT_FRAME) {
+                    if (!videoQueue.length) {
+                        refreshPlaybackFrameIndex(frameIndex)
                     }
-                    this.clearDisplayLoop()
-                    this.playState = PLAY_STATE_PAUSE
+                    clearDisplayLoop()
+                    playState = PLAY_STATE_PAUSE
                     break
                 }
             }
-            if (this.videoQueue.length === 0) {
+
+            if (!videoQueue.length) {
                 break
             }
         }
+
         // 缓存帧队列小于最大缓存的半数时，重新开启解码
-        if (this.videoQueue.length < this.maxVideoQueueLength / 2 && !this.isDecoding) {
-            this.startDecode()
+        if (videoQueue.length < maxVideoQueueLength / 2 && !isDecoding) {
+            startDecode()
         }
     }
 
     /**
      * @description 关闭requestAnimationFrame
      */
-    private clearDisplayLoop() {
-        cancelAnimationFrame(this.displayLoopID)
-        this.displayLoopID = 0
+    const clearDisplayLoop = () => {
+        cancelAnimationFrame(displayLoopID)
+        displayLoopID = 0
     }
 
     /**
      * @description 获取基准真实时间
      */
-    getBasicRealTime() {
-        return this.basicRealTime
+    const getBasicRealTime = () => {
+        return basicRealTime
     }
 
     /**
      * @description 设置基准真实时间
      */
-    setBasicRealTime(realTime: number) {
-        this.basicRealTime = realTime
+    const setBasicRealTime = (realTime: number) => {
+        basicRealTime = realTime
     }
 
     /**
      * @description 重置基准时间
      */
-    resetBasicTime() {
-        this.basicRealTime = 0
-        this.basicFrameTime = 0
+    const resetBasicTime = () => {
+        basicRealTime = 0
+        basicFrameTime = 0
     }
 
     /**
      * @description 渲染下一帧视频帧
      * 仅回放进行播放节奏控制
      */
-    private displayNextVideoFrame() {
-        const frame = this.videoQueue[0]
-        const currentRealTime = new Date().getTime()
+    const displayNextVideoFrame = () => {
+        const frame = videoQueue[0]
+        const currentRealTime = Date.now()
         const currentFrameTime = frame.realTimestamp // 当前帧时间
-        if (!this.basicFrameTime) {
-            this.basicRealTime = currentRealTime // 真实基准时间
-            this.basicFrameTime = currentFrameTime // 帧基准时间
+        if (!basicFrameTime) {
+            basicRealTime = currentRealTime // 真实基准时间
+            basicFrameTime = currentFrameTime // 帧基准时间
         }
-        const intervalReal = currentRealTime - this.basicRealTime // 真实时间差
-        const intervalFrame = currentFrameTime - this.basicFrameTime // 帧时间差
+        const intervalReal = currentRealTime - basicRealTime // 真实时间差
+        const intervalFrame = currentFrameTime - basicFrameTime // 帧时间差
         if (intervalFrame < 0) {
             // 保证帧基准时间小于当前帧时间
-            this.basicFrameTime = currentFrameTime
+            basicFrameTime = currentFrameTime
         }
-        if (intervalReal * this.playSpeed < intervalFrame) {
-            if (!this.seeking) {
-                this.ontime && this.ontime(frame.realTimestamp)
+
+        if (intervalReal * playSpeed < intervalFrame) {
+            if (!seeking) {
+                ontime && ontime(frame.realTimestamp)
             }
             return false
         } else {
-            if (!this.cmdParams.hasOwnProperty('isPlayback') || (this.cmdParams.hasOwnProperty('isPlayback') && this.cmdParams.isPlayback)) {
-                this.renderVideoFrame(frame)
+            if (currentRealTime - lastRenderTime < 1000 / 30) {
+                return true
+            } else {
+                lastRenderTime = currentRealTime
             }
-            if (intervalReal > 10 * 1000 * this.playSpeed) this.resetBasicTime() // 真实时间偏差过大时, 重新校准
-            if (!this.seeking) {
-                this.ontime && this.ontime(frame.realTimestamp)
+
+            // 渲染画面
+            if (!cmdParams.hasOwnProperty('isPlayback') || (cmdParams.hasOwnProperty('isPlayback') && cmdParams.isPlayback)) {
+                renderVideoFrame(frame)
+            }
+
+            if (intervalReal > 10 * 1000 * playSpeed) resetBasicTime() // 真实时间偏差过大时, 重新校准
+            if (!seeking) {
+                ontime && ontime(frame.realTimestamp)
             }
             return true
         }
@@ -835,37 +903,66 @@ export default class WasmPlayer {
      * @description 渲染视频帧
      * @param {WasmPlayerVideoFrame} frame
      */
-    private renderVideoFrame(frame: WasmPlayerVideoFrame) {
-        if (!this.webglPlayer) {
-            return
-        }
+    const renderVideoFrame = (frame: WasmPlayerVideoFrame) => {
         const buffer = new Uint8Array(frame.buffer)
         const videoBuffer = buffer.slice(0, frame.yuvLen)
         const yLength = frame.width * frame.height
         const uvLength = (frame.width / 2) * (frame.height / 2)
-        this.videoWidth = frame.width
-        this.videoHeight = frame.height
-        this.webglPlayer.renderFrame(videoBuffer, frame.width, frame.height, yLength, uvLength)
+        videoWidth = frame.width
+        videoHeight = frame.height
+        webglPlayer.renderFrame(videoBuffer, frame.width, frame.height, yLength, uvLength)
+        drawMotion(frame.realTimestamp)
         // 派发水印信息
-        if (typeof this.onwatermark === 'function') {
+        if (typeof onwatermark === 'function') {
             const watermarkLen = frame.watermarkLen || 0
             if (watermarkLen > 0) {
                 const watermarkBuf = buffer.slice(buffer.byteLength - watermarkLen)
                 const watermark = Uint8ArrayToStr(watermarkBuf)
-                this.onwatermark(watermark)
+                onwatermark(watermark)
             }
         }
         // 更新帧时间
-        this.frameTimestamp = frame.realTimestamp
+        frameTimestamp = frame.realTimestamp
+    }
+
+    /**
+     * data: motion帧数据
+     */
+    const setMotion = (data: any) => {
+        if (data.motion_infos.length > 0) {
+            motionArr.push(data)
+        }
+    }
+
+    /**
+     * 绘制motion数据
+     */
+    const drawMotion = (frameTime: number) => {
+        if (motionArr.length > 0) {
+            let drawIndex = -1
+
+            motionArr.forEach((item, index) => {
+                const motionTime = Number(item.frameTime)
+                if (frameTime - motionTime < 400) {
+                    drawIndex = index
+                    return false
+                }
+            })
+
+            if (drawIndex > 0) {
+                onmotion(motionArr[drawIndex])
+                motionArr = motionArr.slice(drawIndex, motionArr.length)
+            }
+        }
     }
 
     /**
      * @description 获取视频原始宽高
      */
-    getVideoRealSize() {
+    const getVideoRealSize = () => {
         return {
-            width: this.videoWidth,
-            height: this.videoHeight,
+            width: videoWidth,
+            height: videoHeight,
         }
     }
 
@@ -873,21 +970,27 @@ export default class WasmPlayer {
      * @description 处理解码得到的音频帧数据
      * @param {WasmPlayerAudioFrame} frame
      */
-    private onAudioFrame(frame: WasmPlayerAudioFrame) {
-        if (!this.pcmPlayer) {
-            this.initPcmPlayer(frame)
+    const onAudioFrame = (frame: WasmPlayerAudioFrame) => {
+        const audioFormat = frame.audioFormat // 当前音频格式
+        const isSupportAudio = frame.isSupportAudio // 是否支持解析当前音频格式
+        if (isSupportAudio) {
+            if (!pcmPlayer) {
+                initPcmPlayer(frame)
+            }
+            audioQueue.push(new Uint8Array(frame.buffer))
+            const data = audioQueue.shift()!
+            pcmPlayer.feed(data)
+        } else {
+            onaudioerror && onaudioerror(audioFormat)
         }
-        this.audioQueue.push(new Uint8Array(frame.buffer))
-        const data = this.audioQueue.shift()!
-        this.pcmPlayer!.feed(data)
     }
 
     /**
      * @description 设置时间间隔
      * @param {number} timeGap
      */
-    setTimeGap(timeGap: number) {
-        this.basicRealTime -= timeGap
+    const setTimeGap = (timeGap: number) => {
+        basicRealTime -= timeGap
     }
 
     /**
@@ -895,26 +998,26 @@ export default class WasmPlayer {
      * @param {ArrayBuffer} data 录像数据
      * @param {boolean} finished 是否已结束
      */
-    private onRecordData(data: ArrayBuffer, finished: boolean) {
-        this.recordBuf = appendBuffer(this.recordBuf, data)
+    const onRecordData = (data: ArrayBuffer, finished: boolean) => {
+        recordBuf = appendBuffer(recordBuf, data) as ArrayBuffer
         if (finished) {
-            this.onrecordFile && this.onrecordFile(this.recordBuf)
-            this.recordBuf = null
+            onrecordFile && onrecordFile(recordBuf)
+            recordBuf = null
         }
     }
 
     /**
      * @description onFileOverSize
      */
-    private onFileOverSize() {
-        this.stopRecord()
+    const onFileOverSize = () => {
+        stopRecord()
     }
 
     /**
      * @description 开始本地录像
      */
-    startRecord() {
-        this.decodeWorker!.postMessage({
+    const startRecord = () => {
+        decodeWorker.postMessage({
             cmd: 'startRecord',
         })
     }
@@ -923,8 +1026,8 @@ export default class WasmPlayer {
      * @description 结束本地录像
      * @param {Boolean} manul 是否手动停止
      */
-    stopRecord(manul: boolean = false) {
-        this.decodeWorker!.postMessage({
+    const stopRecord = (manul: boolean = false) => {
+        decodeWorker.postMessage({
             cmd: 'stopRecord',
             manul: manul,
         })
@@ -936,17 +1039,26 @@ export default class WasmPlayer {
      * @param {number} posLength pos长度
      * @param {number} frameTime pos帧时间
      */
-    private onPosInfo(frame: any, posLength: number) {
-        this.onpos(frame, posLength)
+    const onPosInfo = (frame: any, posLength: number) => {
+        onpos(frame, posLength)
+    }
+
+    /**
+     * 共通参数解码后的数据
+     */
+    const onParamInfo = (type: string, data: any) => {
+        if (type === 'target_flow_info') {
+            onparam && onparam(type, data)
+        }
     }
 
     /**
      * @description 获取当前帧数据（和webgl播放器）
      * @returns
      */
-    getCurrFrame() {
+    const getCurrFrame = () => {
         return {
-            frame: this.frameData as WasmPlayerVideoFrame,
+            frame: frameData as WasmPlayerVideoFrame,
             WebGLPlayer: WebGLPlayer,
         }
     }
@@ -956,16 +1068,24 @@ export default class WasmPlayer {
      * @param {HTMLCanvasElement} canvas
      * @returns {boolean}
      */
-    isSameCanvas(canvas: HTMLCanvasElement) {
-        return this.canvas === canvas
+    const isSameCanvas = (cav: HTMLCanvasElement) => {
+        return canvas === cav
     }
 
     /**
      * @description 获取播放状态
      * @returns {string}
      */
-    getPlayState() {
-        return this.playState
+    const getPlayState = () => {
+        return playState
+    }
+
+    const getFrameData = () => {
+        return frameData
+    }
+
+    const getBasicFrameTime = () => {
+        return basicFrameTime
     }
 
     /**
@@ -976,7 +1096,44 @@ export default class WasmPlayer {
      * @param {number} uOffset
      * @param {number} vOffset
      */
-    renderFrame(videoFrame: Uint8Array, width: number, height: number, uOffset: number, vOffset: number) {
-        this.webglPlayer!.renderFrame(videoFrame, width, height, uOffset, vOffset)
+    const renderFrame = (videoFrame: Uint8Array, width: number, height: number, uOffset: number, vOffset: number) => {
+        webglPlayer.renderFrame(videoFrame, width, height, uOffset, vOffset)
+    }
+
+    return {
+        play,
+        stop,
+        pause,
+        resume,
+        nextFrame,
+        keyFramePlay,
+        allFramePlay,
+        seek,
+        openAudio,
+        openAudioStream,
+        closeAudio,
+        displayOriginal,
+        setSize,
+        getSize,
+        setVolume,
+        getWebGL,
+        setWebGL,
+        getVideoRealSize,
+        startRecord,
+        stopRecord,
+        setTimeGap,
+        getCurrFrame,
+        isSameCanvas,
+        getPlayState,
+        renderFrame,
+        resetBasicTime,
+        getBasicRealTime,
+        setBasicRealTime,
+        destroy,
+        setSpeed,
+        setMotion,
+        renderVideoFrame,
+        getFrameData,
+        getBasicFrameTime,
     }
 }

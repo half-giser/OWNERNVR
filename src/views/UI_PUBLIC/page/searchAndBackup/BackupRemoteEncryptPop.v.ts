@@ -2,10 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-06 20:36:48
  * @Description: 回放-远程备份任务 加密弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 11:04:10
  */
-import type { FormInstance, FormRules } from 'element-plus'
+import type { FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -29,69 +27,61 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
+
         const formData = ref({
             encrypt: 'encrypted',
             password: '',
             confirmPassword: '',
         })
+
         const formRule = ref<FormRules>({
             password: [
                 {
-                    validator: (rule, value: string, callback) => {
-                        if (formData.value.encrypt === 'unencrypted') {
-                            callback()
-                            return
-                        }
-                        if (!value.length) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
+
                         callback()
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
             confirmPassword: [
                 {
-                    validator: (rule, value: string, callback) => {
-                        if (formData.value.encrypt === 'unencrypted') {
-                            callback()
-                            return
-                        }
-                        if (!value.length) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
+
                         if (value !== formData.value.password) {
                             callback(new Error(Translate('IDCS_PWD_MISMATCH_TIPS')))
                             return
                         }
+
                         callback()
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
-        })
-
-        const pageData = ref({
-            // 是否显示密码
-            showPassword: false,
         })
 
         /**
          * @description 验证表单后，关闭弹窗
          */
         const verify = () => {
-            formRef.value!.validate((valid) => {
-                if (valid) {
-                    if (formData.value.encrypt === 'encrypted') {
+            if (formData.value.encrypt === 'encrypted') {
+                formRef.value!.validate((valid) => {
+                    if (valid) {
                         ctx.emit('confirm', MD5_encrypt(formData.value.password))
-                    } else {
-                        ctx.emit('confirm', '')
                     }
-                }
-            })
+                })
+            } else {
+                ctx.emit('confirm', '')
+            }
         }
 
         /**
@@ -105,12 +95,10 @@ export default defineComponent({
          * @description 打开弹窗时，重置表单
          */
         const open = () => {
-            formRef.value?.clearValidate()
-            formRef.value?.resetFields()
             if (prop.encrypt === false) {
                 formData.value.encrypt = 'unencrypted'
             } else {
-                formData.value.encrypt = 'encrypt'
+                formData.value.encrypt = 'encrypted'
             }
         }
 
@@ -118,7 +106,6 @@ export default defineComponent({
             formData,
             formRule,
             formRef,
-            pageData,
             open,
             verify,
             close,

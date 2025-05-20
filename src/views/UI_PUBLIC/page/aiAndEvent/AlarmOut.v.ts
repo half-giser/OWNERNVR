@@ -2,17 +2,10 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 11:05:51
  * @Description: 报警输出
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-15 15:22:51
  */
-import { AlarmOut } from '@/types/apiType/aiAndEvent'
-import { cloneDeep } from 'lodash-es'
-
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
             delayList: [] as SelectOption<number, string>[],
@@ -26,78 +19,73 @@ export default defineComponent({
                 NO: Translate('IDCS_ALWAYS_OPEN'),
             } as Record<string, string>,
             localAlarmOutCount: 0,
-            applyDisabled: true,
-            initComplated: false,
+            //排程管理弹窗
+            isSchedulePop: false,
         })
 
         // 表格数据
-        const tableData = ref<AlarmOut[]>([])
-        // 缓存表格初始数据，保存时对比变化了的行
-        let tableDataInit = [] as AlarmOut[]
+        const tableData = ref<AlarmOutDto[]>([])
+        // 编辑行
+        const editRows = useWatchEditRows<AlarmOutDto>()
+
         // 名称被修改时保存原始名称
         const originalName = ref('')
         // 当前告警输出的常开/常闭类型
         const curAlarmoutType = ref('')
 
-        onMounted(async () => {
-            pageData.value.scheduleList = await buildScheduleList()
-            await getAlarmOutType()
-            buildTableData()
-        })
-
-        watch(
-            tableData,
-            () => {
-                if (pageData.value.initComplated) {
-                    pageData.value.applyDisabled = false
-                }
-            },
-            {
-                deep: true,
-            },
-        )
+        /**
+         * @description 获取排程列表
+         */
+        const getScheduleList = async () => {
+            pageData.value.scheduleList = await buildScheduleList({
+                defaultValue: '',
+            })
+        }
 
         /**
          * @description: 获取表格数据
          * @return {*}
          */
-        const buildTableData = () => {
-            pageData.value.initComplated = false
-            tableData.value.length = 0
+        const getData = () => {
+            editRows.clear()
+            tableData.value = []
+
             getChlList({
                 pageIndex: pageData.value.pageIndex,
                 pageSize: pageData.value.pageSize,
                 nodeType: 'alarmOuts',
-            }).then(async (result) => {
+            }).then((result) => {
                 const $chl = queryXml(result)
-                pageData.value.totalCount = Number($chl('/response/content').attr('total'))
-                $chl('/response/content/item').forEach(async (item) => {
-                    const row = new AlarmOut()
-                    row.id = item.attr('id')!
-                    row.name = xmlParse('./name', item.element).text()
+                pageData.value.totalCount = $chl('content').attr('total').num()
+                tableData.value = $chl('content/item').map((item) => {
+                    const $item = queryXml(item.element)
+                    const row = new AlarmOutDto()
+                    row.id = item.attr('id')
+                    row.name = $item('name').text()
                     row.status = 'loading'
-                    tableData.value.push(row)
+                    return row
                 })
 
-                let completeCount = 0
-
-                for (let i = 0; i < tableData.value.length; i++) {
-                    const row = tableData.value[i]
-
+                tableData.value.forEach(async (row) => {
                     const sendXml = rawXml`
-                    <condition>
-                        <alarmOutId>${row.id}</alarmOutId>
-                    </condition>
+                        <condition>
+                            <alarmOutId>${row.id}</alarmOutId>
+                        </condition>
                     `
                     const alarmParam = await queryAlarmOutParam(sendXml)
                     const $ = queryXml(alarmParam)
+
+                    if (!tableData.value.some((item) => item === row)) {
+                        return
+                    }
+
                     row.status = ''
 
                     // 从第一个数据中获取延迟时间下拉选项和类型下拉选项
-                    if (pageData.value.delayList.length === 0) {
-                        pageData.value.delayList = $('/response/content/delayTimeNote')
+                    if (!pageData.value.delayList.length) {
+                        pageData.value.delayList = $('content/delayTimeNote')
                             .text()
-                            .split(',')
+                            .array()
                             .map((delayItem) => {
                                 const value = Number(delayItem)
                                 return {
@@ -107,15 +95,14 @@ export default defineComponent({
                             })
                     }
 
-                    if ($('/response/status').text() === 'success') {
-                        // 查询成功的行取消禁用
+                    if ($('status').text() === 'success') {
                         row.disabled = false
-                        row.delayTime = Number($('/response/content/delayTime').text())
-                        const $schedule = $('/response/content/schedule')
+                        row.delayTime = $('content/delayTime').text().num()
+                        const $schedule = $('content/schedule')
                         row.scheduleId = $schedule.attr('id')
                         row.scheduleName = $schedule.text()
-                        row.index = $('/response/content/index').text()
-                        row.devDesc = $('/response/content/devDesc').text()
+                        row.index = $('content/index').text().num() + 1
+                        row.devDesc = $('content/devDesc').text()
                         // devDescTemp不存在表示设备本地报警输出，本地报警输出才能设置报警类型
                         if (!row.devDesc) {
                             row.type = pageData.value.alarmoutTypeText[curAlarmoutType.value]
@@ -124,16 +111,9 @@ export default defineComponent({
                             row.type = '--'
                         }
 
-                        tableDataInit.push(cloneDeep(row))
+                        editRows.listen(row)
                     }
-
-                    completeCount++
-                    if (completeCount >= tableData.value.length) {
-                        nextTick(() => {
-                            pageData.value.initComplated = true
-                        })
-                    }
-                }
+                })
             })
         }
 
@@ -141,7 +121,7 @@ export default defineComponent({
          * @description 改变页码，刷新数据
          */
         const changePagination = () => {
-            buildTableData()
+            getData()
         }
 
         /**
@@ -152,18 +132,45 @@ export default defineComponent({
             if (pageData.value.pageIndex > totalPage) {
                 pageData.value.pageIndex = totalPage
             }
-            buildTableData()
+            getData()
         }
 
         /**
-         * @description: 获取告警输出常开/常闭类型
-         * @return {*}
+         * @description 修改所有项的排程/打开排程管理弹窗
+         * @param {string} value
+         */
+        const changeAllSchedule = (value: string) => {
+            tableData.value.forEach((item) => {
+                item.scheduleId = value
+            })
+        }
+
+        /**
+         * @description 打开排程管理弹窗
+         */
+        const openSchedulePop = () => {
+            pageData.value.isSchedulePop = true
+        }
+
+        /**
+         * @description 关闭排程管理弹窗
+         */
+        const closeSchedulePop = async () => {
+            pageData.value.isSchedulePop = false
+            await getScheduleList()
+            tableData.value.forEach((item) => {
+                item.scheduleId = getScheduleId(pageData.value.scheduleList, item.scheduleId, '')
+            })
+        }
+
+        /**
+         * @description 获取告警输出常开/常闭类型
          */
         const getAlarmOutType = async () => {
             const result = await queryBasicCfg()
             const $ = queryXml(result)
-            curAlarmoutType.value = $('/response/content/alarmoutType').text()
-            pageData.value.typeList = $('/response/types/alarmoutType/enum').map((typeItem) => {
+            curAlarmoutType.value = $('content/alarmoutType').text()
+            pageData.value.typeList = $('types/alarmoutType/enum').map((typeItem) => {
                 const value = typeItem.text()
                 return {
                     value: value,
@@ -175,42 +182,35 @@ export default defineComponent({
         /**
          * @description 名称被修改时校验是否合法
          */
-        const nameFocus = (name: string) => {
+        const focusName = (name: string) => {
             originalName.value = name
         }
-        // 失去焦点时检查名称是否合法
-        const nameBlur = (row: AlarmOut) => {
+
+        /**
+         * @description 失去焦点时检查名称是否合法
+         * @param {AlarmOutDto} row
+         */
+        const blurName = (row: AlarmOutDto) => {
             const name = row.name
             if (!checkChlName(name)) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'),
-                })
+                openMessageBox(Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'))
                 row.name = originalName.value
             } else {
                 if (!name) {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_PROMPT_NAME_EMPTY'),
-                    })
+                    openMessageBox(Translate('IDCS_PROMPT_NAME_EMPTY'))
                     row.name = originalName.value
                 }
+
                 for (const item of tableData.value) {
-                    if (item.id != row.id && name == item.name) {
-                        openMessageTipBox({
-                            type: 'info',
-                            message: Translate('IDCS_NAME_SAME'),
-                        })
+                    if (item.id !== row.id && name === item.name) {
+                        openMessageBox(Translate('IDCS_NAME_SAME'))
                         row.name = originalName.value
                         break
                     }
                 }
             }
         }
-        // 回车键失去焦点
-        const enterBlur = (event: { target: { blur: () => void } }) => {
-            event.target.blur()
-        }
+
         /**
          * @description: 改变所有项的值
          * @param {string} value 值
@@ -224,77 +224,107 @@ export default defineComponent({
         }
 
         /**
-         * @description: 报警输出类型变化
-         * @return {*}
+         * @description 报警输出类型变化
          */
         const changeType = async (value: string) => {
             if (value === curAlarmoutType.value) return
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_ALARMOUT_TYPE_EDIT_AFTER_REBOOT'),
             }).then(async () => {
                 openLoading()
+                setData()
                 const sendXml = rawXml`
-                <content>
-                    <alarmoutType>${value}</alarmoutType>
-                </content>
+                    <content>
+                        <alarmoutType>${value}</alarmoutType>
+                    </content>
                 `
                 const result = await editBasicCfg(sendXml)
                 closeLoading()
-                commSaveResponseHadler(result, () => {
+                commSaveResponseHandler(result, () => {
                     curAlarmoutType.value = value
                 })
             })
         }
 
         /**
-         * @description: 保存数据
-         * @return {*}
+         * @description 保存数据
          */
-        const setData = () => {
+        const setData = async () => {
             openLoading()
-            const diffRows = getArrayDiffRows(tableData.value, tableDataInit, ['name', 'delayTime', 'scheduleId'])
 
-            if (diffRows.length > 0) {
-                let completeCount = 0
-                diffRows.forEach(async (row) => {
-                    const rowItem = row as AlarmOut
-                    const sendXml = rawXml`
+            tableData.value.forEach((item) => (item.status = ''))
+
+            for (const rowItem of editRows.toArray()) {
+                const sendXml = rawXml`
                     <content>
                         <id>${rowItem.id}</id>
-                        <name><![CDATA[${rowItem.name}]]></name>
-                        <delayTime unit='s'>${rowItem.delayTime.toString()}</delayTime>
+                        <name>${wrapCDATA(rowItem.name)}</name>
+                        <delayTime unit='s'>${rowItem.delayTime}</delayTime>
                         <schedule id='${rowItem.scheduleId}'></schedule>
                     </content>
-                    `
+                `
+                try {
                     const result = await editAlarmOutParam(sendXml)
                     const $ = queryXml(result)
-                    const isSuccess = $('/response/status').text() === 'success'
-                    rowItem.status = isSuccess ? 'success' : 'error'
-                    completeCount++
-
-                    if (completeCount >= diffRows.length) {
-                        pageData.value.applyDisabled = false
-                        // 更新表格初始对比值
-                        tableDataInit = cloneDeep(tableData.value)
-                        closeLoading()
+                    if ($('status').text() === 'success') {
+                        rowItem.status = 'success'
+                        editRows.remove(rowItem)
+                    } else {
+                        rowItem.status = 'error'
                     }
-                })
+                } catch {
+                    rowItem.status = 'error'
+                }
             }
+
+            closeLoading()
         }
+
+        /**
+         * @description 序号字段格式化
+         * @param {AlarmOutDto} row
+         * @returns {string}
+         */
+        const displaySerialNum = (row: AlarmOutDto) => {
+            if (row.disabled) {
+                return ''
+            }
+            return `${row.devDesc ? row.devDesc : Translate('IDCS_LOCAL')}-${row.index}`
+        }
+
+        /**
+         * @description 类型字段格式化
+         * @param {AlarmOutDto} row
+         * @returns {string}
+         */
+        const displayAlarmOutType = (row: AlarmOutDto) => {
+            return row.disabled ? '' : row.devDesc ? '--' : pageData.value.alarmoutTypeText[curAlarmoutType.value]
+        }
+
+        onMounted(async () => {
+            await getScheduleList()
+            await getAlarmOutType()
+            getData()
+        })
 
         return {
             pageData,
             tableData,
+            editRows,
             curAlarmoutType,
             changePagination,
             changePaginationSize,
             changeAllValue,
-            nameFocus,
-            nameBlur,
-            enterBlur,
+            changeAllSchedule,
+            focusName,
+            blurName,
+            openSchedulePop,
+            closeSchedulePop,
             changeType,
             setData,
+            displaySerialNum,
+            displayAlarmOutType,
         }
     },
 })

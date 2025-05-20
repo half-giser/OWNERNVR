@@ -2,28 +2,29 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-03 14:44:11
  * @Description: 智能分析-人员统计
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-12 09:15:25
 -->
 <template>
     <div class="base-intel-box">
         <div class="base-intel-left">
-            <IntelBaseChannelSelector
-                v-model="formData.chl"
-                @update:model-value="changeChl"
-                @ready="getChlMap"
-            />
-            <IntelBaseEventSelector
-                v-model="formData.event"
-                @update:model-value="changeEvent"
-                @ready="getEventMap"
-            />
+            <div class="base-intel-left-form">
+                <IntelBaseChannelSelector
+                    v-model="formData.chl"
+                    @update:model-value="changeChl"
+                    @ready="getChlMap"
+                />
+                <IntelBaseEventSelector
+                    v-model="formData.event"
+                    @update:model-value="changeEvent"
+                    @ready="getEventMap"
+                />
+            </div>
         </div>
         <div class="base-intel-right">
             <div class="base-intel-row">
                 <BaseDateTab
                     :model-value="formData.dateRange"
                     :layout="['date', 'week', 'month', 'quarter', 'custom', 'today']"
+                    custom-type="day"
                     @change="changeDateRange"
                 />
             </div>
@@ -31,15 +32,13 @@
                 <BaseDateRange
                     :model-value="formData.dateRange"
                     :type="pageData.dateRangeType"
+                    custom-type="day"
                     @change="changeDateRange"
                 />
             </div>
             <div class="base-intel-row">
-                <el-dropdown
-                    v-show="formData.event[0] === 'faceMatchWhiteList'"
-                    trigger="click"
-                >
-                    <BaseTableDropdownLink>
+                <el-dropdown v-show="formData.event[0] === 'faceMatchWhiteList'">
+                    <BaseTableDropdownLink effect="plain">
                         {{ pageData.chartType === 'chart' ? Translate('IDCS_COLIMNAR_CHART') : Translate('IDCS_DETAIL_CHART') }}
                     </BaseTableDropdownLink>
                     <template #dropdown>
@@ -74,23 +73,21 @@
                 v-show="pageData.chartType === 'table'"
                 class="base-table-box"
             >
-                <el-table
-                    border
-                    stripe
-                    :data="pageData.tableData.data"
-                >
+                <el-table :data="pageData.tableData.data">
                     <el-table-column
-                        prop="chlName"
-                        width="150px"
-                        :label="Translate('IDCS_CHANNEL_NAME')"
+                        prop="groupName"
+                        width="150"
+                        show-overflow-tooltip
+                        :label="Translate('IDCS_GROUP_NAME')"
                     />
                     <el-table-column
                         v-for="(label, index) in pageData.tableData.label"
                         :key="label"
                         :label="label"
+                        min-width="80"
                     >
-                        <template #default="scope">
-                            <span :class="{ 'text-error': scope.row.data[index] }">{{ scope.row.data[index] }}</span>
+                        <template #default="{ row }: TableColumn<IntelStatsBarChartDataDto>">
+                            <span :class="{ 'text-error': row.data[index] }">{{ row.data[index] }}</span>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -103,7 +100,3 @@
 </template>
 
 <script lang="ts" src="./IntelPersonStats.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/intelligentAnalysis.scss';
-</style>

@@ -1,28 +1,18 @@
-import { ChangePasswordForm } from '@/types/apiType/user'
-import { type FormInstance, type FormRules } from 'element-plus'
+/*
+ * @Date: 2024-07-09 18:39:25
+ * @Description: 修改密码弹窗
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ */
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
-        /**
-         * @property 弹窗标题
-         */
-        title: {
-            type: String,
-            required: true,
-        },
         /**
          * @property 是否强制修改密码，若是，则修改密码才能关闭弹窗
          */
         forced: {
             type: Boolean,
             default: false,
-        },
-        /**
-         * @property 密码强度要求
-         */
-        passwordStrength: {
-            type: String,
-            required: true,
         },
     },
     emits: {
@@ -32,21 +22,28 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const formRef = ref<FormInstance>()
-        const formData = ref(new ChangePasswordForm())
-        const noticeMsg = ref('')
+        const formRef = useFormRef()
+        const formData = ref(new UserChangePasswordForm())
+        const errorMessage = ref('')
+        const passwordErrorMessage = ref('')
         const strength = computed(() => getPwdSaftyStrength(formData.value.newPassword))
         const userSession = useUserSessionStore()
-        const { openMessageTipBox } = useMessageBox()
+        const systemCaps = useCababilityStore()
 
         const rules = ref<FormRules>({
             currentPassword: [
                 {
-                    validator: (rule, value: string, callback) => {
-                        if (value.length === 0) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.length) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
+
+                        if (passwordErrorMessage.value) {
+                            callback(new Error(passwordErrorMessage.value))
+                            return
+                        }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -54,19 +51,22 @@ export default defineComponent({
             ],
             newPassword: [
                 {
-                    validator: (rule, value: string, callback) => {
-                        if (value.length === 0) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.length) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
-                        if (strength.value < DEFAULT_PASSWORD_STREMGTH_MAPPING[prop.passwordStrength as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING]) {
+
+                        if (strength.value < DEFAULT_PASSWORD_STREMGTH_MAPPING[passwordStrength.value]) {
                             callback(new Error(Translate('IDCS_PWD_STRONG_ERROR')))
                             return
                         }
+
                         if (value === formData.value.currentPassword) {
                             callback(new Error(Translate('IDCS_PWD_SAME_ERROR')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -74,15 +74,12 @@ export default defineComponent({
             ],
             confirmNewPassword: [
                 {
-                    validator: (rule, value: string, callback) => {
-                        if (value.length === 0) {
-                            callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
-                            return
-                        }
+                    validator: (_rule, value: string, callback) => {
                         if (value !== formData.value.newPassword) {
                             callback(new Error(Translate('IDCS_PWD_MISMATCH_TIPS')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -90,34 +87,31 @@ export default defineComponent({
             ],
         })
 
+        // 要求的密码强度
+        const passwordStrength = ref<keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING>('weak')
+
         /**
          * @description 获取密码强度提示文本
          */
-        const getNoticeMsg = () => {
-            switch (prop.passwordStrength) {
-                case 'medium':
-                    noticeMsg.value = Translate('IDCS_PASSWORD_STRONG_MIDDLE').formatForLang(8, 16)
-                    break
-                case 'strong':
-                    noticeMsg.value = Translate('IDCS_PASSWORD_STRONG_HEIGHT').formatForLang(8, 16)
-                    break
-                case 'stronger':
-                    noticeMsg.value = Translate('IDCS_PASSWORD_STRONG_HEIGHEST').formatForLang(8, 16)
-                    break
-                default:
-                    break
-            }
-        }
+        const noticeMsg = computed(() => {
+            return getTranslateForPasswordStrength(passwordStrength.value)
+        })
 
         /**
          * @description 验证表单
          */
         const verify = () => {
-            formRef.value!.validate(async (valid: boolean) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     doUpdateUserPassword()
                 }
             })
+        }
+
+        const changePassword = () => {
+            if (passwordErrorMessage.value) {
+                passwordErrorMessage.value = ''
+            }
         }
 
         /**
@@ -134,47 +128,46 @@ export default defineComponent({
             `
             const result = await editUserPassword(xml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 userSession.defaultPwd = false
                 userSession.isChangedPwd = true
                 userSession.pwdExpired = false
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).then(() => {
                     ctx.emit('close')
+                    Logout()
                 })
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:
-                        ElMessage({
-                            type: 'info',
-                            message: Translate('IDCS_PASSWORD_NOT_CORRENT'),
-                        })
+                        passwordErrorMessage.value = Translate('IDCS_PASSWORD_NOT_CORRENT')
+                        formRef.value!.validate()
                         break
                     case ErrorCode.USER_ERROR_NO_AUTH:
-                        ElMessage({
-                            type: 'info',
-                            message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_NO_PERMISSION'),
-                        })
+                        errorMessage.value = Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_NO_PERMISSION')
                         break
                     case ErrorCode.USER_ERROR_NO_USER:
-                        openMessageTipBox({
-                            type: 'info',
-                            message: Translate('IDCS_DEVICE_USER_NOTEXIST'),
-                        }).then(() => {
+                        openMessageBox(Translate('IDCS_DEVICE_USER_NOTEXIST')).then(() => {
                             Logout()
                         })
                         break
                     default:
-                        ElMessage({
-                            type: 'info',
-                            message: Translate('IDCS_SAVE_DATA_FAIL'),
-                        })
+                        errorMessage.value = Translate('IDCS_SAVE_DATA_FAIL')
                         break
                 }
             }
+        }
+
+        const handleForceOpen = () => {
+            openMessageBox({
+                type: 'question',
+                message: Translate('IDCS_PWD_STRONG_ERROR_TIPS'),
+            }).then(() => {
+                Logout()
+            })
         }
 
         /**
@@ -182,15 +175,10 @@ export default defineComponent({
          * @param {Function} done
          */
         const handleBeforeClose = (done: (cancel?: boolean) => void) => {
+            if (prop.forced) {
+                handleForceOpen()
+            }
             done(prop.forced)
-        }
-
-        /**
-         * @description 打开弹窗时重置表单
-         */
-        const opened = () => {
-            formData.value = new ChangePasswordForm()
-            formRef.value?.clearValidate()
         }
 
         /**
@@ -198,20 +186,32 @@ export default defineComponent({
          */
         const close = () => {
             if (prop.forced) {
-                openMessageTipBox({
-                    type: 'question',
-                    message: Translate('IDCS_PWD_STRONG_ERROR_TIPS'),
-                }).then(() => {
-                    Logout()
-                })
+                handleForceOpen()
             } else {
                 ctx.emit('close')
             }
         }
 
-        onMounted(() => {
-            getNoticeMsg()
-        })
+        /**
+         * @description 获取要求的密码强度
+         */
+        const getPasswordSecurityStrength = async () => {
+            let strength: keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING = 'weak'
+            const result = await queryPasswordSecurity()
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                strength = ($('content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
+                if (!systemCaps.supportPwdSecurityConfig) {
+                    strength = 'strong'
+                }
+            }
+            passwordStrength.value = strength
+            return strength
+        }
+
+        const open = () => {
+            getPasswordSecurityStrength()
+        }
 
         return {
             formRef,
@@ -220,9 +220,11 @@ export default defineComponent({
             strength,
             close,
             rules,
-            opened,
             verify,
+            errorMessage,
+            changePassword,
             handleBeforeClose,
+            open,
         }
     },
 })

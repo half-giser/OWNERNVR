@@ -2,240 +2,676 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 16:25:58
  * @Description: AI/事件
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-25 09:35:39
  */
 
-import { type AxiosRequestConfig } from 'axios'
-import http from './api'
-
-// 查询报警输出参数
-export const queryAlarmOutParam = (data: string, config?: AxiosRequestConfig) => http.fetch('queryAlarmOutParam', getXmlWrapData(data), config)
-
-// 编辑报警输出参数
-export const editAlarmOutParam = (data: string, config?: AxiosRequestConfig) => http.fetch('editAlarmOutParam', getXmlWrapData(data), config)
-
-// 获取事件通知相关参数
-export const queryEventNotifyParam = () => http.fetch('queryEventNotifyParam', getXmlWrapData(''))
-
-// 修改事件通知显示
-export const editEventNotifyParam = (data: string) => http.fetch('editEventNotifyParam', getXmlWrapData(data))
-
-// 修改事件通知显示
-export const testMobilePush = () => http.fetch('testMobilePush', getXmlWrapData(''))
-
-// 查询灯光报警输出配置
-export const queryWhiteLightAlarmOutCfg = (data: string) => http.fetch('queryWhiteLightAlarmOutCfg', getXmlWrapData(data))
-
-// 编辑灯光报警输出配置
-export const editWhiteLightAlarmOutCfg = (data: string) => http.fetch('editWhiteLightAlarmOutCfg', getXmlWrapData(data))
-
-// 查询报警服务器配置
-export const queryAlarmServerParam = () => http.fetch('queryAlarmServerParam', getXmlWrapData(''))
-
-// 测试报警服务器配置
-export const testAlarmServerParam = (data: string) => http.fetch('testAlarmServerParam', getXmlWrapData(data))
-
-// 编辑报警服务器配置
-export const editAlarmServerParam = (data: string) => http.fetch('editAlarmServerParam', getXmlWrapData(data))
-
-// 查询移动侦测数据
-export const queryMotion = (data: string) => http.fetch('queryMotion', getXmlWrapData(data))
-
-// 编辑移动侦测数据
-export const editMotion = (data: string) => http.fetch('editMotion', getXmlWrapData(data))
-
-// 获取语音播报相关参数
-export const queryAudioAlarmOutCfg = (data: string) => http.fetch('queryAudioAlarmOutCfg', getXmlWrapData(data))
-
-// 添加语音播报语音信息
-export const addCustomizeAudioAlarm = (data: string) => http.fetch('addCustomizeAudioAlarm', getXmlWrapData(data))
-
-// 删除语音播报语音信息
-export const deleteCustomizeAudioAlarm = (data: string) => http.fetch('deleteCustomizeAudioAlarm', getXmlWrapData(data))
-
-// 语音播报语音试听
-export const auditionCustomizeAudioAlarm = (data: string) => http.fetch('auditionCustomizeAudioAlarm', getXmlWrapData(data))
-
-// 修改语音播报信息
-export const editAudioAlarmOutCfg = (data: string) => http.fetch('editAudioAlarmOutCfg', getXmlWrapData(data))
-
-// 获取声音设备相关参数
-export const queryAudioStreamConfig = (data: string) => http.fetch('queryAudioStreamConfig', getXmlWrapData(data))
-
-// 修改声音设备信息
-export const editAudioStreamConfig = (data: string) => http.fetch('editAudioStreamConfig', getXmlWrapData(data))
-
-// 获取本地声音报警的文件列表数据
-export const queryAlarmAudioCfg = () => http.fetch('queryAlarmAudioCfg', getXmlWrapData(''))
-
-// 添加本地声音报警文件
-export const addAlarmAudioCfg = (data: string) => http.fetch('addAlarmAudioCfg', getXmlWrapData(data))
-
-// 删除本地声音报警文件
-export const deleteAlarmAudio = (data: string) => http.fetch('deleteAlarmAudio', getXmlWrapData(data))
-
-// 获取传感器数据
-export const queryAlarmIn = (data: string) => http.fetch('queryAlarmIn', getXmlWrapData(data))
-
-// 修改传感器数据
-export const editAlarmIn = (data: string) => http.fetch('editAlarmIn', getXmlWrapData(data))
-
-// 获取前端掉线数据
-export const queryFrontEndOfflineTrigger = (data: string) => http.fetch('queryFrontEndOfflineTrigger', getXmlWrapData(data))
-
-// 修改前端掉线数据
-export const editFrontEndOfflineTrigger = (data: string) => http.fetch('editFrontEndOfflineTrigger', getXmlWrapData(data))
-
-// 获取异常报警数据
-export const queryAbnormalTrigger = () => http.fetch('queryAbnormalTrigger', getXmlWrapData(''))
-
-// 修改异常报警数据
-export const editAbnormalTrigger = (data: string) => http.fetch('editAbnormalTrigger', getXmlWrapData(data))
-
-// 获取系统撤防数据
-export const querySystemDisArmParam = () => http.fetch('querySystemDisArmParam', getXmlWrapData(''))
-
-// 修改系统撤防数据
-export const editSystemDisArmParam = (data: string) => http.fetch('editSystemDisArmParam', getXmlWrapData(data))
-
-// 获取视频丢失数据
-export const queryVideoLossTrigger = (data: string) => http.fetch('queryVideoLossTrigger', getXmlWrapData(data))
-
-// 修改视频丢失数据
-export const editVideoLossTrigger = (data: string) => http.fetch('editVideoLossTrigger', getXmlWrapData(data))
-
-// 获取AI资源数据
-export const queryAIResourceDetail = (data: string) => http.fetch('queryAIResourceDetail', getXmlWrapData(data))
-
-// 释放AI资源
-export const freeAIOccupyResource = (data: string) => http.fetch('freeAIOccupyResource', getXmlWrapData(data))
-
-// 获取云台锁定状态
-export const queryBallIPCPTZLockCfg = (data: string) => http.fetch('queryBallIPCPTZLockCfg', getXmlWrapData(data))
-
-// 锁定云台
-export const editBallIPCPTZLockCfg = (data: string) => http.fetch('editBallIPCPTZLockCfg', getXmlWrapData(data))
-
-// 获取越界侦测数据
-export const queryTripwire = (data: string) => http.fetch('queryTripwire', getXmlWrapData(data))
-
-// 修改越界侦测数据
-export const editTripwire = (data: string) => http.fetch('editTripwire', getXmlWrapData(data))
-
-// 获取区域入侵侦测数据
-export const queryIntelAreaConfig = (data: string) => http.fetch('queryIntelAreaConfig', getXmlWrapData(data))
-
-// 修改区域入侵侦测数据
-export const editIntelAreaConfig = (data: string) => http.fetch('editIntelAreaConfig', getXmlWrapData(data))
-
-// 获取组合报警数据
-export const queryCombinedAlarm = () => http.fetch('queryCombinedAlarm', getXmlWrapData(''))
-
-// 获取已配置的人脸库分组
-export const queryCombinedAlarmFaceMatch = () => http.fetch('queryCombinedAlarmFaceMatch', getXmlWrapData(''))
-
-// 人脸比对中请求后侦测开关
-export const queryBackFaceMatch = (data?: string) => http.fetch('queryBackFaceMatch', getXmlWrapData(data || ''))
-
-// 修改组合报警数据
-export const editCombinedAlarm = (data: string) => http.fetch('editCombinedAlarm', getXmlWrapData(data))
-
-// 修改组合报警人脸匹配数据
-export const editCombinedAlarmFaceMatch = (data: string) => http.fetch('editCombinedAlarmFaceMatch', getXmlWrapData(data))
-
-// 获取火点检测数据
-export const querySmartFireConfig = (data: string) => http.fetch('querySmartFireConfig', getXmlWrapData(data))
-
-// 修改火点检测数据
-export const editSmartFireConfig = (data: string) => http.fetch('editSmartFireConfig', getXmlWrapData(data))
-
-// 获取人脸侦测数据
-export const queryVfd = (data: string) => http.fetch('queryVfd', getXmlWrapData(data))
-
-// 修改人脸侦测数据
-export const editVfd = (data: string) => http.fetch('editVfd', getXmlWrapData(data))
-
-// 修改人脸匹配数据
-export const editRealFaceMatch = (data: string) => http.fetch('editRealFaceMatch', getXmlWrapData(data))
-
-// 获取人脸匹配配置数据
-export const queryFaceMatchConfig = (data: string) => http.fetch('queryFaceMatchConfig', getXmlWrapData(data))
-
-// 修改人脸匹配配置数据
-export const editFaceMatchConfig = (data: string) => http.fetch('editFaceMatchConfig', getXmlWrapData(data))
-
-// 获取人脸匹配报警参数
-export const queryFaceMatchAlarmParam = (data: string) => http.fetch('queryFaceMatchAlarmParam', getXmlWrapData(data))
-
-// 修改人脸匹配报警参数
-export const editFaceMatchAlarmParam = (data: string) => http.fetch('editFaceMatchAlarmParam', getXmlWrapData(data))
-
-// 删除人脸匹配报警参数
-export const deleteFaceMatchAlarmParam = (data: string) => http.fetch('deleteFaceMatchAlarmParam', getXmlWrapData(data))
-
-// 获取车辆识别参数
-export const queryVehicleConfig = (data: string) => http.fetch('queryVehicleConfig', getXmlWrapData(data))
-
-// 获取过线检测数据
-export const queryPls = (data: string) => http.fetch('queryPls', getXmlWrapData(data))
-
-// 修改过线检测数据
-export const editPls = (data: string) => http.fetch('editPls', getXmlWrapData(data))
-
-// 获取定时发送邮件数据
-export const queryTimingSendEmail = () => http.fetch('queryTimingSendEmail', getXmlWrapData(''))
-
-// 修改定时发送邮件数据
-export const editTimingSendEmail = (data: string) => http.fetch('editTimingSendEmail', getXmlWrapData(data))
-
-// 重置cpc信息
-export const forceResetCpc = (data: string) => http.fetch('forceResetCpc', getXmlWrapData(data))
-
-// 获取cpc信息
-export const queryCpc = (data: string) => http.fetch('queryCpc', getXmlWrapData(data))
-
-// 编辑cpc信息
-export const editCpc = (data: string) => http.fetch('editCpc', getXmlWrapData(data))
-
-// 获取车牌匹配报警参数
-export const queryVehicleMatchAlarm = (data: string) => http.fetch('queryVehicleMatchAlarm', getXmlWrapData(data))
-
-// 修改车牌匹配报警参数
-export const editVehicleMatchAlarm = (data: string) => http.fetch('editVehicleMatchAlarm', getXmlWrapData(data))
-
-// 删除车牌匹配报警参数
-export const deleteVehicleMatchAlarm = (data: string) => http.fetch('deleteVehicleMatchAlarm', getXmlWrapData(data))
-
-// 修改车辆侦测数据
-export const editVehicleConfig = (data: string) => http.fetch('editVehicleConfig', getXmlWrapData(data))
-
-// 获取温度检测数据
-export const queryTemperatureAlarmConfig = (data: string) => http.fetch('queryTemperatureAlarmConfig', getXmlWrapData(data))
-
-// 修改温度检测数据
-export const editTemperatureAlarmConfig = (data: string) => http.fetch('editTemperatureAlarmConfig', getXmlWrapData(data))
-
-// 获取物品遗留与看护数据
-export const queryOsc = (data: string) => http.fetch('queryOsc', getXmlWrapData(data))
-
-// 修改物品遗留与看护数据
-export const editOsc = (data: string) => http.fetch('editOsc', getXmlWrapData(data))
-
-// 获取人群密度检测数据
-export const queryCdd = (data: string) => http.fetch('queryCdd', getXmlWrapData(data))
-
-// 修改人群密度检测数据
-export const editCdd = (data: string) => http.fetch('editCdd', getXmlWrapData(data))
-
-// 获取异常侦测数据
-export const queryAvd = (data: string) => http.fetch('queryAvd', getXmlWrapData(data))
-
-// 修改异常侦测数据
-export const editAvd = (data: string) => http.fetch('editAvd', getXmlWrapData(data))
-
-// 获取视频结构化数据
-export const queryVideoMetadata = (data: string) => http.fetch('queryVideoMetadata', getXmlWrapData(data))
-
-// 手动重置数据
-export const editVideoMetadata = (data: string) => http.fetch('editVideoMetadata', getXmlWrapData(data))
+import fetch from './api'
+
+/**
+ * @description 查询报警输出参数
+ * @param {string} data
+ * @returns
+ */
+export const queryAlarmOutParam = (data: string) => fetch('queryAlarmOutParam', data)
+
+/**
+ * @description 编辑报警输出参数
+ * @param {string} data
+ * @returns
+ */
+export const editAlarmOutParam = (data: string) => fetch('editAlarmOutParam', data)
+
+/**
+ * @description 获取事件通知相关参数
+ * @returns
+ */
+export const queryEventNotifyParam = () => fetch('queryEventNotifyParam', '')
+
+/**
+ * @description 修改事件通知显示
+ * @param {string} data
+ * @returns
+ */
+export const editEventNotifyParam = (data: string) => fetch('editEventNotifyParam', data)
+
+/**
+ * @description 修改事件通知显示
+ * @returns
+ */
+export const testMobilePush = () => fetch('testMobilePush', '')
+
+/**
+ * @description 查询灯光报警输出配置
+ * @param {string} data
+ * @returns
+ */
+export const queryWhiteLightAlarmOutCfg = (data: string) => fetch('queryWhiteLightAlarmOutCfg', data)
+
+/**
+ * @description 编辑灯光报警输出配置
+ * @param {string} data
+ * @returns
+ */
+export const editWhiteLightAlarmOutCfg = (data: string) => fetch('editWhiteLightAlarmOutCfg', data)
+
+/**
+ * @description 查询报警服务器配置
+ * @returns
+ */
+export const queryAlarmServerParam = () => fetch('queryAlarmServerParam', '')
+
+/**
+ * @description 测试报警服务器配置
+ * @param {string} data
+ * @returns
+ */
+export const testAlarmServerParam = (data: string) => fetch('testAlarmServerParam', data)
+
+/**
+ * @description 编辑报警服务器配置
+ * @param {string} data
+ * @returns
+ */
+export const editAlarmServerParam = (data: string) => fetch('editAlarmServerParam', data)
+
+/**
+ * @description 查询移动侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const queryMotion = (data: string) => fetch('queryMotion', data)
+
+/**
+ * @description 编辑移动侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const editMotion = (data: string) => fetch('editMotion', data)
+
+/**
+ * @description 获取语音播报相关参数
+ * @param {string} data
+ * @returns
+ */
+export const queryAudioAlarmOutCfg = (data: string) => fetch('queryAudioAlarmOutCfg', data)
+
+/**
+ * @description 添加语音播报语音信息
+ * @param {string} data
+ * @returns
+ */
+export const addCustomizeAudioAlarm = (data: string) => fetch('addCustomizeAudioAlarm', data)
+
+/**
+ * @description 删除语音播报语音信息
+ * @param {string} data
+ * @returns
+ */
+export const deleteCustomizeAudioAlarm = (data: string) => fetch('deleteCustomizeAudioAlarm', data)
+
+/**
+ * @description 语音播报语音试听
+ * @param {string} data
+ * @returns
+ */
+export const auditionCustomizeAudioAlarm = (data: string) => fetch('auditionCustomizeAudioAlarm', data)
+
+/**
+ * @description 修改语音播报信息
+ * @param {string} data
+ * @returns
+ */
+export const editAudioAlarmOutCfg = (data: string) => fetch('editAudioAlarmOutCfg', data)
+
+/**
+ * @description 获取声音设备相关参数
+ * @param {string} data
+ * @returns
+ */
+export const queryAudioStreamConfig = (data: string) => fetch('queryAudioStreamConfig', data)
+
+/**
+ * @description 修改声音设备信息
+ * @param {string} data
+ * @returns
+ */
+export const editAudioStreamConfig = (data: string) => fetch('editAudioStreamConfig', data)
+
+/**
+ * @description 获取本地声音报警的文件列表数据
+ * @returns
+ */
+export const queryAlarmAudioCfg = () => fetch('queryAlarmAudioCfg', '')
+
+/**
+ * @description 添加本地声音报警文件
+ * @param {string} data
+ * @returns
+ */
+export const addAlarmAudioCfg = (data: string) => fetch('addAlarmAudioCfg', data)
+
+/**
+ * @description 删除本地声音报警文件
+ * @param {string} data
+ * @returns
+ */
+export const deleteAlarmAudio = (data: string) => fetch('deleteAlarmAudio', data)
+
+/**
+ * @description 获取传感器数据
+ * @param {string} data
+ * @returns
+ */
+export const queryAlarmIn = (data: string) => fetch('queryAlarmIn', data)
+
+/**
+ * @description 修改传感器数据
+ * @param {string} data
+ * @returns
+ */
+export const editAlarmIn = (data: string) => fetch('editAlarmIn', data)
+
+/**
+ * @description 获取前端掉线数据
+ * @param {string} data
+ * @returns
+ */
+export const queryFrontEndOfflineTrigger = (data: string) => fetch('queryFrontEndOfflineTrigger', data)
+
+/**
+ * @description 修改前端掉线数据
+ * @param {string} data
+ * @returns
+ */
+export const editFrontEndOfflineTrigger = (data: string) => fetch('editFrontEndOfflineTrigger', data)
+
+/**
+ * @description 获取异常报警数据
+ * @returns
+ */
+export const queryAbnormalTrigger = () => fetch('queryAbnormalTrigger', '')
+
+/**
+ * @description 修改异常报警数据
+ * @param {string} data
+ * @returns
+ */
+export const editAbnormalTrigger = (data: string) => fetch('editAbnormalTrigger', data)
+
+/**
+ * @description 获取系统撤防数据
+ * @returns
+ */
+export const querySystemDisArmParam = () => fetch('querySystemDisArmParam', '')
+
+/**
+ * @description 修改系统撤防数据
+ * @param {string} data
+ * @returns
+ */
+export const editSystemDisArmParam = (data: string) => fetch('editSystemDisArmParam', data)
+
+/**
+ * @description 获取视频丢失数据
+ * @param {string} data
+ * @returns
+ */
+export const queryVideoLossTrigger = (data: string) => fetch('queryVideoLossTrigger', data)
+
+/**
+ * @description 修改视频丢失数据
+ * @param {string} data
+ * @returns
+ */
+export const editVideoLossTrigger = (data: string) => fetch('editVideoLossTrigger', data)
+
+/**
+ * @description 获取AI资源数据
+ * @param {string} data
+ * @returns
+ */
+export const queryAIResourceDetail = (data: string) => fetch('queryAIResourceDetail', data)
+
+/**
+ * @description 释放AI资源
+ * @param {string} data
+ * @returns
+ */
+export const freeAIOccupyResource = (data: string) => fetch('freeAIOccupyResource', data)
+
+/**
+ * @description 获取云台锁定状态
+ * @param {string} data
+ * @returns
+ */
+export const queryBallIPCPTZLockCfg = (data: string) => fetch('queryBallIPCPTZLockCfg', data)
+
+/**
+ * @description 锁定云台
+ * @param {string} data
+ * @returns
+ */
+export const editBallIPCPTZLockCfg = (data: string) => fetch('editBallIPCPTZLockCfg', data)
+
+/**
+ * @description 获取越界侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const queryTripwire = (data: string) => fetch('queryTripwire', data)
+
+/**
+ * @description 修改越界侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const editTripwire = (data: string) => fetch('editTripwire', data)
+
+/**
+ * @description 获取组合报警配置中侦测状况
+ * @param {string} data
+ * @returns
+ */
+export const queryIntelAreaConfig = (data: string) => fetch('queryIntelAreaConfig', data, {}, false)
+
+/**
+ * @description 获取区域入侵侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const queryPerimeter = (data: string) => fetch('queryPerimeter', data)
+
+/**
+ * @description 修改区域入侵侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const editPerimeter = (data: string) => fetch('editPerimeter', data)
+
+/**
+ * @description 获取进入区域侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const querySmartAOIEntryConfig = (data: string) => fetch('querySmartAOIEntryConfig', data)
+
+/**
+ * @description 修改进入区域侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const editSmartAOIEntryConfig = (data: string) => fetch('editSmartAOIEntryConfig', data)
+
+/**
+ * @description 获取离开区域侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const querySmartAOILeaveConfig = (data: string) => fetch('querySmartAOILeaveConfig', data)
+
+/**
+ * @description 修改离开区域侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const editSmartAOILeaveConfig = (data: string) => fetch('editSmartAOILeaveConfig', data)
+
+/**
+ * @description 获取组合报警数据
+ * @returns
+ */
+export const queryCombinedAlarm = () => fetch('queryCombinedAlarm', '')
+
+/**
+ * @description 获取已配置的人脸库分组
+ * @returns
+ */
+export const queryCombinedAlarmFaceMatch = () => fetch('queryCombinedAlarmFaceMatch', '')
+
+/**
+ * @description 人脸比对中请求后侦测开关
+ * @param {string} data
+ * @returns
+ */
+export const queryBackFaceMatch = (data?: string) => fetch('queryBackFaceMatch', data || '')
+
+/**
+ * @description 修改组合报警数据
+ * @param {string} data
+ * @returns
+ */
+export const editCombinedAlarm = (data: string) => fetch('editCombinedAlarm', data)
+
+/**
+ * @description 修改组合报警人脸匹配数据
+ * @param {string} data
+ * @returns
+ */
+export const editCombinedAlarmFaceMatch = (data: string) => fetch('editCombinedAlarmFaceMatch', data)
+
+/**
+ * @description 获取徘徊检测数据
+ * @param {string} data
+ * @returns
+ */
+export const querySmartLoiteringConfig = (data: string) => fetch('querySmartLoiteringConfig', data)
+
+/**
+ * @description 修改徘徊检测数据
+ * @param {string} data
+ * @returns
+ */
+export const editSmartLoiteringConfig = (data: string) => fetch('editSmartLoiteringConfig', data)
+
+/**
+ * @description 获取违停检测数据
+ * @param {string} data
+ * @returns
+ */
+export const querySmartPvdConfig = (data: string) => fetch('querySmartPvdConfig', data)
+
+/**
+ * @description 修改违停检测数据
+ * @param {string} data
+ * @returns
+ */
+export const editSmartPvdConfig = (data: string) => fetch('editSmartPvdConfig', data)
+
+/**
+ * @description 获取区域统计侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const queryRegionStatisticsConfig = (data: string) => fetch('queryRegionStatisticsConfig', data)
+
+/**
+ * @description 修改区域统计侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const editRegionStatisticsConfig = (data: string) => fetch('editRegionStatisticsConfig', data)
+
+/**
+ * @description 获取声音异常侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const queryAsd = (data: string) => fetch('queryAsd', data)
+
+/**
+ * @description 修改声音异常侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const editAsd = (data: string) => fetch('editAsd', data)
+
+/**
+ * @description 获取人员聚集侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const queryCgd = (data: string) => fetch('queryCgd', data)
+
+/**
+ * @description 修改人员聚集侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const editCgd = (data: string) => fetch('editCgd', data)
+
+/**
+ * @description 获取热力图侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const queryHeatMapConfig = (data: string) => fetch('queryHeatMapConfig', data)
+
+/**
+ * @description 修改热力图侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const editHeatMapConfig = (data: string) => fetch('editHeatMapConfig', data)
+
+/**
+ * @description 获取热力图统计数据
+ * @param {string} data
+ * @returns
+ */
+export const queryHeatMapStatistics = (data: string) => fetch('queryHeatMapStatistics', data)
+
+/**
+ * @description 获取客流统计侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const querySmartBinocularCountConfig = (data: string) => fetch('querySmartBinocularCountConfig', data)
+
+/**
+ * @description 修改客流统计侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const editSmartBinocularCountConfig = (data: string) => fetch('editSmartBinocularCountConfig', data)
+
+/**
+ * @description 获取火点检测数据
+ * @param {string} data
+ * @returns
+ */
+export const querySmartFireConfig = (data: string) => fetch('querySmartFireConfig', data)
+
+/**
+ * @description 修改火点检测数据
+ * @param {string} data
+ * @returns
+ */
+export const editSmartFireConfig = (data: string) => fetch('editSmartFireConfig', data)
+
+/**
+ * @description 获取人脸侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const queryVfd = (data: string) => fetch('queryVfd', data)
+
+/**
+ * @description 修改人脸侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const editVfd = (data: string) => fetch('editVfd', data)
+
+/**
+ * @description 修改人脸匹配数据
+ * @param {string} data
+ * @returns
+ */
+export const editRealFaceMatch = (data: string) => fetch('editRealFaceMatch', data)
+
+/**
+ * @description 获取人脸匹配配置数据
+ * @param {string} data
+ * @returns
+ */
+export const queryFaceMatchConfig = (data: string) => fetch('queryFaceMatchConfig', data)
+
+/**
+ * @description 修改人脸匹配配置数据
+ * @param {string} data
+ * @returns
+ */
+export const editFaceMatchConfig = (data: string) => fetch('editFaceMatchConfig', data)
+
+/**
+ * @description 获取人脸匹配报警参数
+ * @param {string} data
+ * @returns
+ */
+export const queryFaceMatchAlarmParam = (data: string) => fetch('queryFaceMatchAlarmParam', data)
+
+/**
+ * @description 修改人脸匹配报警参数
+ * @param {string} data
+ * @returns
+ */
+export const editFaceMatchAlarmParam = (data: string) => fetch('editFaceMatchAlarmParam', data)
+
+/**
+ * @description 删除人脸匹配报警参数
+ * @param {string} data
+ * @returns
+ */
+export const deleteFaceMatchAlarmParam = (data: string) => fetch('deleteFaceMatchAlarmParam', data)
+
+/**
+ * @description 获取车辆识别参数
+ * @param {string} data
+ * @returns
+ */
+export const queryVehicleConfig = (data: string) => fetch('queryVehicleConfig', data)
+
+/**
+ * @description 获取过线检测数据
+ * @param {string} data
+ * @returns
+ */
+export const queryPls = (data: string) => fetch('queryPls', data)
+
+/**
+ * @description 修改过线检测数据
+ * @param {string} data
+ * @returns
+ */
+export const editPls = (data: string) => fetch('editPls', data)
+
+/**
+ * @description 获取定时发送邮件数据
+ * @returns
+ */
+export const queryTimingSendEmail = () => fetch('queryTimingSendEmail', '')
+
+/**
+ * @description 修改定时发送邮件数据
+ * @param {string} data
+ * @returns
+ */
+export const editTimingSendEmail = (data: string) => fetch('editTimingSendEmail', data)
+
+/**
+ * @description 重置cpc信息
+ * @param {string} data
+ * @returns
+ */
+export const forceResetCpc = (data: string) => fetch('forceResetCpc', data)
+
+/**
+ * @description 获取cpc信息
+ * @param {string} data
+ * @returns
+ */
+export const queryCpc = (data: string) => fetch('queryCpc', data)
+
+/**
+ * @description 编辑cpc信息
+ * @param {string} data
+ * @returns
+ */
+export const editCpc = (data: string) => fetch('editCpc', data)
+
+/**
+ * @description 获取车牌匹配报警参数
+ * @param {string} data
+ * @returns
+ */
+export const queryVehicleMatchAlarm = (data: string) => fetch('queryVehicleMatchAlarm', data)
+
+/**
+ * @description 修改车牌匹配报警参数
+ * @param {string} data
+ * @returns
+ */
+export const editVehicleMatchAlarm = (data: string) => fetch('editVehicleMatchAlarm', data)
+
+/**
+ * @description 删除车牌匹配报警参数
+ * @param {string} data
+ * @returns
+ */
+export const deleteVehicleMatchAlarm = (data: string) => fetch('deleteVehicleMatchAlarm', data)
+
+/**
+ * @description 修改车辆侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const editVehicleConfig = (data: string) => fetch('editVehicleConfig', data)
+
+/**
+ * @description 获取温度检测数据
+ * @param {string} data
+ * @returns
+ */
+export const queryTemperatureAlarmConfig = (data: string) => fetch('queryTemperatureAlarmConfig', data)
+
+/**
+ * @description 修改温度检测数据
+ * @param {string} data
+ * @returns
+ */
+export const editTemperatureAlarmConfig = (data: string) => fetch('editTemperatureAlarmConfig', data)
+
+/**
+ * @description 获取物品遗留与看护数据
+ * @param {string} data
+ * @returns
+ */
+export const queryOsc = (data: string) => fetch('queryOsc', data)
+
+/**
+ * @description 修改物品遗留与看护数据
+ * @param {string} data
+ * @returns
+ */
+export const editOsc = (data: string) => fetch('editOsc', data)
+
+/**
+ * @description 获取人群密度检测数据
+ * @param {string} data
+ * @returns
+ */
+export const queryCdd = (data: string) => fetch('queryCdd', data)
+
+/**
+ * @description 修改人群密度检测数据
+ * @param {string} data
+ * @returns
+ */
+export const editCdd = (data: string) => fetch('editCdd', data)
+
+/**
+ * @description 获取异常侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const queryAvd = (data: string) => fetch('queryAvd', data)
+
+/**
+ * @description 修改异常侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const editAvd = (data: string) => fetch('editAvd', data)
+
+/**
+ * @description 获取视频结构化数据
+ * @param {string} data
+ * @returns
+ */
+export const queryVideoMetadata = (data: string) => fetch('queryVideoMetadata', data)
+
+/**
+ * @description 手动重置数据
+ * @param {string} data
+ * @returns
+ */
+export const editVideoMetadata = (data: string) => fetch('editVideoMetadata', data)

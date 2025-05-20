@@ -2,12 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-27 14:27:13
  * @Description: 业务应用-人脸签到
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 12:00:52
  */
-import { cloneDeep } from 'lodash-es'
 import dayjs from 'dayjs'
-import { type BusinessFaceGroupList, BusinessFaceCheckList, BusinessFaceCheckForm } from '@/types/apiType/business'
 import FaceDetailPop from './FaceDetailPop.vue'
 
 export default defineComponent({
@@ -16,33 +12,19 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
 
         // 周与文本的映射
-        const WEEK_DAY_MAPPING: Record<number, string> = {
-            0: Translate('IDCS_WEEK_DAY_SEVEN'),
-            1: Translate('IDCS_WEEK_DAY_ONE'),
-            2: Translate('IDCS_WEEK_DAY_TWO'),
-            3: Translate('IDCS_WEEK_DAY_THREE'),
-            4: Translate('IDCS_WEEK_DAY_FOUR'),
-            5: Translate('IDCS_WEEK_DAY_FIVE'),
-            6: Translate('IDCS_WEEK_DAY_SIX'),
+        const WEEK_DAY_MAPPING = getTranslateMapping(DEFAULT_WEEK_MAPPING)
+
+        const TYPE_MAPPING: Record<string, string> = {
+            checked: Translate('IDCS_ATTENDANCE_CHECKED'),
+            unchecked: Translate('IDCS_ATTENDANCE_UNCHECK'),
         }
 
         const pageData = ref({
             // 类型选项
-            typeOptions: [
-                {
-                    label: Translate('IDCS_ATTENDANCE_CHECKED'),
-                    value: 'checked',
-                },
-                {
-                    label: Translate('IDCS_ATTENDANCE_UNCHECK'),
-                    value: 'unchecked',
-                },
-            ],
+            typeOptions: objectToOptions(TYPE_MAPPING, 'string'),
             // 日期范围类型
             dateRangeType: 'date',
             // 通道列表
@@ -67,14 +49,10 @@ export default defineComponent({
 
         const tableData = ref<BusinessFaceCheckList[]>([])
 
-        const startTime = computed(() => formData.value.startTime)
-        const endTime = computed(() => formData.value.endTime)
-        const pickerRange = useTimePickerRange(startTime, endTime)
-
         const chlMap: Record<string, string> = {}
 
         const sliceTableData = computed(() => {
-            return tableData.value.slice(formData.value.currentPage - 1, formData.value.currentPage * formData.value.pageSize)
+            return tableData.value.slice((formData.value.currentPage - 1) * formData.value.pageSize, formData.value.currentPage * formData.value.pageSize)
         })
 
         /**
@@ -93,6 +71,10 @@ export default defineComponent({
 
         // 时间范围日期数
         const daysInRange = computed(() => {
+            const today = dayjs()
+            if (today.isBefore(dayjs(formData.value.dateRange[1]))) {
+                return Math.ceil(today.diff(formData.value.dateRange[0], 'day', true))
+            }
             return Math.ceil(dayjs(formData.value.dateRange[1]).diff(formData.value.dateRange[0], 'day', true))
         })
 
@@ -124,11 +106,11 @@ export default defineComponent({
                 authList: '@spr,@bk',
             })
             const $ = queryXml(result)
-            pageData.value.chlList = $('//content/item').map((item) => {
+            pageData.value.chlList = $('content/item').map((item) => {
                 const $item = queryXml(item.element)
-                chlMap[item.attr('id')!] = $item('name').text()
+                chlMap[item.attr('id')] = $item('name').text()
                 return {
-                    value: item.attr('id')!,
+                    value: item.attr('id'),
                     label: $item('name').text(),
                 }
             })
@@ -141,8 +123,8 @@ export default defineComponent({
         const getFaceGroupList = async () => {
             const result = await queryFacePersonnalInfoGroupList()
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                pageData.value.faceGroupList = $('//content/item').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.faceGroupList = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     let name = $item('name').text()
                     const groupId = $item('groupId').text()
@@ -159,7 +141,7 @@ export default defineComponent({
                     }
 
                     return {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         name,
                         property: $item('property').text(),
                         groupId,
@@ -184,10 +166,10 @@ export default defineComponent({
             `
             const result = await queryFacePersonnalInfoList(sendXml)
             const $ = queryXml(result)
-            pageData.value.faceGroupList[index].members = $('//content/item').map((item) => {
+            pageData.value.faceGroupList[index].members = $('content/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
-                    id: item.attr('id')!,
+                    id: item.attr('id'),
                     name: $item('name').text(),
                 }
             })
@@ -205,7 +187,7 @@ export default defineComponent({
                 const day = current.day()
                 date.push({
                     day: WEEK_DAY_MAPPING[day],
-                    date: formatDate(current, 'YYYY-MM-DD'),
+                    date: formatDate(current, DEFAULT_YMD_FORMAT),
                     format: formatDate(current, dateTime.dateFormat),
                 })
             }
@@ -272,8 +254,8 @@ export default defineComponent({
          * @param {Number} index
          */
         const showDetail = (index: number) => {
-            pageData.value.isDetailPop = true
             pageData.value.detail = sliceTableData.value[index]
+            pageData.value.isDetailPop = true
         }
 
         /**
@@ -289,25 +271,20 @@ export default defineComponent({
          */
         const getData = async () => {
             if (!formData.value.chls.length) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'),
-                })
+                openMessageBox(Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'))
                 return
             }
+
             if (!formData.value.faceGroup.length) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_SELECT_GROUP_NOT_EMPTY'),
-                })
+                openMessageBox(Translate('IDCS_SELECT_GROUP_NOT_EMPTY'))
             }
-            const startTime = dayjs(formData.value.dateRange[0]).calendar('gregory').format('YYYY-MM-DD HH:mm:ss')
-            const endTime = dayjs(formData.value.dateRange[1]).calendar('gregory').format('YYYY-MM-DD HH:mm:ss')
+
+            openLoading()
 
             const sendXml = rawXml`
                 <condition>
-                    <startTime>${startTime}</startTime>
-                    <endTime>${endTime}</endTime>
+                    <startTime>${localToUtc(formData.value.dateRange[0])}</startTime>
+                    <endTime>${localToUtc(formData.value.dateRange[1])}</endTime>
                     <chls type="list">${formData.value.chls.map((item) => `<item id="${item.value}" />`).join('')}</chls>
                     <event>
                         <eventType>byWhiteList</eventType>
@@ -316,6 +293,8 @@ export default defineComponent({
             `
             const result = await searchImageByImageV2(sendXml)
             const $ = queryXml(result)
+
+            closeLoading()
 
             const tableRecord: Record<string, BusinessFaceCheckList> = {}
             formData.value.faceGroup.forEach((item) => {
@@ -333,16 +312,16 @@ export default defineComponent({
                 })
             })
 
-            $('//content/i')
+            $('content/i')
                 .map((item) => {
-                    const textArr = item.text().split(',')
+                    const textArr = item.text().array()
                     const chlId = getChlGuid16(textArr[4]).toUpperCase()
-                    const timestamp = parseInt(textArr[1], 16) * 1000
+                    const timestamp = hexToDec(textArr[1]) * 1000
                     return {
-                        faceFeatureId: parseInt(textArr[0], 16) + '',
+                        faceFeatureId: hexToDec(textArr[0]) + '',
                         timestamp,
-                        frameTime: localToUtc(timestamp) + ':' + ('0000000' + parseInt(textArr[2], 16)).slice(-7),
-                        imgId: parseInt(textArr[3], 16),
+                        frameTime: localToUtc(timestamp) + ':' + padStart(hexToDec(textArr[2]), 7),
+                        imgId: hexToDec(textArr[3]),
                         chlId,
                         chlName: chlMap[chlId],
                     }
@@ -350,7 +329,7 @@ export default defineComponent({
                 .toSorted((a, b) => a.timestamp - b.timestamp)
                 .forEach((item) => {
                     if (tableRecord[item.faceFeatureId]) {
-                        const date = formatDate(item.timestamp, 'YYYY-MM-DD')
+                        const date = formatDate(item.timestamp, DEFAULT_YMD_FORMAT)
                         if (!tableRecord[item.faceFeatureId].searchData[date]) {
                             tableRecord[item.faceFeatureId].searchData[date] = []
                         }
@@ -368,27 +347,27 @@ export default defineComponent({
                         tableList[index].detail.push({
                             date: date.date,
                             day: date.day,
-                            alarm: true,
-                            type: Translate('IDCS_ATTENDANCE_UNCHECK'),
+                            alarm: 'unchecked',
+                            type: TYPE_MAPPING.unchecked,
                             detail: [],
                         })
                         return
                     }
 
-                    const onTime = dayjs(date.date + ' ' + formData.value.startTime, 'YYYY-MM-DD HH:mm:ss').valueOf()
-                    const offTime = dayjs(date.date + ' ' + formData.value.endTime, 'YYYY-MM-DD HH:mm:ss').valueOf()
-                    const find = item.searchData[date.date].find((data) => {
+                    const onTime = dayjs(date.date + ' ' + formData.value.startTime, DEFAULT_DATE_FORMAT).valueOf()
+                    const offTime = dayjs(date.date + ' ' + formData.value.endTime, DEFAULT_DATE_FORMAT).valueOf()
+                    const find = item.searchData[date.date].filter((data) => {
                         return data.timestamp > onTime && data.timestamp < offTime
                     })
-                    if (find) {
+                    if (find.length) {
                         tableList[index].checked++
                     }
                     tableList[index].detail.push({
                         date: date.date,
                         day: date.day,
-                        type: find ? Translate('IDCS_ATTENDANCE_CHECKED') : Translate('IDCS_ATTENDANCE_UNCHECK'),
-                        alarm: !!find,
-                        detail: find ? [find] : [],
+                        type: find.length ? TYPE_MAPPING.checked : TYPE_MAPPING.unchecked,
+                        alarm: find.length ? 'checked' : 'unchecked',
+                        detail: find,
                     })
                 })
             })
@@ -428,9 +407,6 @@ export default defineComponent({
          * @description 导出数据
          */
         const exportData = () => {
-            if (!tableData.value.length) {
-                return
-            }
             const head = [Translate('IDCS_NAME_PERSON'), Translate('IDCS_DATE_TITLE'), Translate('IDCS_WEEK'), Translate('IDCS_TYPE'), Translate('IDCS_ATTENDANCE_DETAIL')]
             const body: string[][] = tableData.value
                 .map((item) => {
@@ -443,7 +419,7 @@ export default defineComponent({
             downloadExcel(head, body, fileName)
         }
 
-        onMounted(async () => {
+        onActivated(async () => {
             openLoading()
             await getChannelList()
             await getFaceGroupList()
@@ -460,9 +436,7 @@ export default defineComponent({
             formData,
             changeDateRange,
             daysInRange,
-            pickerRange,
             displayIndex,
-            DefaultPagerLayout,
             displayStatus,
             tableData,
             searchData,
@@ -475,7 +449,6 @@ export default defineComponent({
             confirmChangeFaceGroup,
             showDetail,
             sliceTableData,
-            FaceDetailPop,
         }
     },
 })

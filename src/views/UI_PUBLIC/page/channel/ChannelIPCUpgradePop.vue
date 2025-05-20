@@ -7,64 +7,57 @@
     <el-dialog
         v-model="ipcUpgradePopVisiable"
         :title="Translate('IDCS_UPGRADE')"
-        width="470"
-        align-center
-        draggable
+        width="450"
         @opened="opened"
     >
         <el-form
-            label-position="left"
-            inline-message
-            class="inline-message"
+            v-title
+            :class="type === 'multiple' ? 'stripe' : 'no-padding'"
         >
             <el-form-item
                 v-show="type === 'multiple'"
                 :label="Translate('IDCS_PRODUCT_MODEL')"
             >
-                <el-select v-model="selectedProductModel">
-                    <el-option
-                        v-for="item in productModelOptionList"
-                        :key="item"
-                        :value="item"
-                        :label="item"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="selectedProductModel"
+                    :options="productModelOptionList"
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_WEB_UPGRADE_S_1')">
                 <el-input
                     v-model="fileName"
                     readonly
                 />
-                <el-upload
-                    v-if="isSupportH5"
-                    ref="upload"
-                    :limit="1"
-                    :on-exceed="handleExceed"
-                    :auto-upload="false"
-                    :show-file-list="false"
-                    :on-change="handleChange"
-                >
-                    <template #trigger>
-                        <el-button>{{ Translate('IDCS_BROWSE') }}</el-button>
-                    </template>
-                </el-upload>
                 <el-button
-                    v-else
-                    @click="handleOcxBtnClick"
-                    >{{ Translate('IDCS_BROWSE') }}</el-button
+                    v-if="!isSupportH5"
+                    @click="handleOCXUpload"
                 >
+                    {{ Translate('IDCS_BROWSE') }}
+                </el-button>
+                <label
+                    v-if="isSupportH5"
+                    class="el-button"
+                    for="h5Import"
+                >
+                    {{ Translate('IDCS_BROWSE') }}
+                </label>
+                <input
+                    id="h5Import"
+                    type="file"
+                    hidden
+                    @change="handleH5Upload"
+                />
             </el-form-item>
         </el-form>
-        <template #footer>
-            <div class="dialog-footer">
-                <el-button
-                    :disabled="btnOKDisabled"
-                    @click="save"
-                    >{{ Translate('IDCS_OK') }}</el-button
-                >
-                <el-button @click="ipcUpgradePopVisiable = false">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button
+                :disabled="btnOKDisabled"
+                @click="save"
+            >
+                {{ Translate('IDCS_OK') }}
+            </el-button>
+            <el-button @click="ipcUpgradePopVisiable = false">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

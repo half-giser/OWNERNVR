@@ -2,13 +2,9 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-09 13:43:11
  * @Description: 磁盘阵列重建弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:00:44
  */
-import { DiskRaidList, DiskRaidRebuildForm } from '@/types/apiType/disk'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import { type FormInstance, type FormRules } from 'element-plus'
-import type { UserCheckAuthForm } from '@/types/apiType/user'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -31,8 +27,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
             // 物理磁盘列表
@@ -41,14 +35,14 @@ export default defineComponent({
             isCheckAuth: false,
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new DiskRaidRebuildForm())
         const rules = ref<FormRules>({
             diskId: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (!value) {
-                            callback(new Error('IDCS_NO_DISK_TO_REBUILD'))
+                            callback(new Error(Translate('IDCS_NO_DISK_TO_REBUILD')))
                             return
                         }
                         callback()
@@ -69,13 +63,13 @@ export default defineComponent({
 
             closeLoading()
 
-            pageData.value.physicalDiskList = $('//content/physicalDisk/item')
+            pageData.value.physicalDiskList = $('content/physicalDisk/item')
                 .filter((item) => {
                     return queryXml(item.element)('type').text() === 'normal'
                 })
                 .map((item) => {
                     return {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         slotIndex: queryXml(item.element)('slotIndex').text(),
                     }
                 })
@@ -107,19 +101,22 @@ export default defineComponent({
                             <item>${formData.value.diskId}</item>
                         </disks>
                     </raidRepairInfo>
-                    <auth>
-                        <userName>${e.userName}</userName>
-                        <password>${e.hexHash}</password>
-                    </auth>
                 </content>
+                <auth>
+                    <userName>${e.userName}</userName>
+                    <password>${e.hexHash}</password>
+                </auth>
             `
             const result = await repairRaid(sendXml)
             const $ = queryXml(result)
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                const errorCode = Number($('//errorCode').text())
+            if ($('status').text() === 'success') {
+                pageData.value.isCheckAuth = false
+                ctx.emit('confirm')
+            } else {
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
 
                 switch (errorCode) {
@@ -134,10 +131,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_REPAIR_RAID_ERROR')
                 }
 
-                openMessageTipBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 
@@ -145,7 +139,6 @@ export default defineComponent({
          * @description 关闭弹窗
          */
         const close = () => {
-            pageData.value.isCheckAuth = false
             ctx.emit('close')
         }
 
@@ -156,7 +149,12 @@ export default defineComponent({
             if (!pageData.value.physicalDiskList.length) {
                 await getPhysicalDiskData()
             }
-            formData.value.diskId = pageData.value.physicalDiskList[0].id
+
+            if (pageData.value.physicalDiskList.length) {
+                formData.value.diskId = pageData.value.physicalDiskList[0].id
+            } else {
+                formData.value.diskId = ''
+            }
         }
 
         return {

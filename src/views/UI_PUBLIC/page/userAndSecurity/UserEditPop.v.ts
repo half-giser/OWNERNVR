@@ -2,11 +2,9 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-17 17:21:49
  * @Description: 编辑用户信息弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:35:12
  */
-import { UserEditForm, type UserAuthGroupOption } from '@/types/apiType/userAndSecurity'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type UserCheckAuthForm } from '@/types/apiType/user'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -19,6 +17,9 @@ export default defineComponent({
         },
     },
     emits: {
+        confirm() {
+            return true
+        },
         close() {
             return true
         },
@@ -29,30 +30,25 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const userSession = useUserSessionStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { closeLoading, openLoading } = useLoading()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new UserEditForm())
 
         const pageData = ref({
-            // 是否显示AuthGroup选项框
-            isAuthGroup: false,
-            // Enable选项框的disable
-            isEnableDisabled: false,
-            // AuthEffective选项框的disable
-            isAuthEffectiveDisabled: false,
-            // AuthGroup选项框的disable
-            isAuthGroupDisabled: false,
-            // 是否显示修改密码按钮
-            isChangePasswordBtn: false,
+            isEditAdmin: false,
+            isEditSelf: false,
+            isEditDebug: false,
+            isSchedulePop: false,
+            scheduleList: [] as SelectOption<string, string>[],
+            isAdmin: userSession.userType === USER_TYPE_DEFAULT_ADMIN,
+            isCheckAuthPop: false,
         })
 
         const rules = ref<FormRules>({
             email: [
                 {
-                    validator: (rule, value: string, callback) => {
-                        if (value.length && !checkEmail(value)) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!!value && !checkEmail(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_INVALID_EMAIL')))
                             return
                         }
@@ -63,7 +59,7 @@ export default defineComponent({
             ],
         })
 
-        const authGroupOptions = ref<UserAuthGroupOption[]>([])
+        const authGroupOptions = ref<SelectOption<string, string>[]>([])
 
         /**
          * @description 回显用户信息
@@ -76,43 +72,34 @@ export default defineComponent({
             `
             const result = await queryUser(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                formData.value.enabled = $('//content/enabled').text().toBoolean()
-                formData.value.userName = $('//content/userName').text()
-                formData.value.email = $('//content/email').text()
-                formData.value.authGroup = $('//content/authGroup').attr('id') as string
-                formData.value.allowModifyPassword = $('//content/modifyPassword').text().toBoolean()
-                formData.value.authEffective = $('//content/authEffective').text().toBoolean()
+            if ($('status').text() === 'success') {
+                formData.value.enabled = $('content/enabled').text().bool()
+                formData.value.userName = $('content/userName').text()
+                formData.value.userNameMaxByteLen = $('content/userName').attr('maxByteLen').num() || nameByteMaxLen
+                formData.value.email = $('content/email').text()
+                formData.value.emailMaxByteLen = $('content/email').attr('maxByteLen').num() || nameByteMaxLen
+                formData.value.authGroup = $('content/authGroup').attr('id')
+                formData.value.allowModifyPassword = $('content/modifyPassword').text().bool()
+                formData.value.authEffective = !$('content/authEffective').text().bool()
 
-                const authInfo = userSession.getAuthInfo()
-                const currentUserName = authInfo ? authInfo[0] : ''
+                const currentUserName = userSession.userName
                 const editUserName = formData.value.userName
-                const editUserType = $('//content/userType').text()
-                pageData.value.isAuthGroup = USER_TYPE_DEFAULT_ADMIN !== editUserType
-                pageData.value.isEnableDisabled = false
+                const editUserType = $('content/userType').text()
 
-                if (currentUserName === editUserName) {
-                    pageData.value.isEnableDisabled = true
-                }
+                pageData.value.isEditAdmin = USER_TYPE_DEFAULT_ADMIN === editUserType
+                pageData.value.isEditSelf = currentUserName === editUserName
+                pageData.value.isEditDebug = 'debug' === editUserType
 
-                if (editUserType === USER_TYPE_DEFAULT_ADMIN) {
-                    pageData.value.isEnableDisabled = true
-                    pageData.value.isAuthEffectiveDisabled = true
-                    pageData.value.isAuthGroupDisabled = true
-                    pageData.value.isChangePasswordBtn = false
+                if (pageData.value.isEditAdmin) {
                     authGroupOptions.value = [
                         {
-                            id: '',
-                            name: 'Administrator',
+                            value: '',
+                            label: displayAuthGroup('Administrator'),
                         },
                     ]
-                } else {
-                    pageData.value.isAuthEffectiveDisabled = false
-                    pageData.value.isAuthGroupDisabled = false
-                    pageData.value.isChangePasswordBtn = true
                 }
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 let errorText = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR:
@@ -121,10 +108,7 @@ export default defineComponent({
                     default:
                         errorText = Translate('IDCS_QUERY_DATA_FAIL')
                 }
-                openMessageTipBox({
-                    type: 'info',
-                    message: errorText,
-                })
+                openMessageBox(errorText)
             }
         }
 
@@ -139,7 +123,7 @@ export default defineComponent({
          * @description 表单验证
          */
         const verify = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     doEditUser()
                 }
@@ -151,18 +135,16 @@ export default defineComponent({
          */
         const getAuthGroup = async () => {
             const sendXml = rawXml`
-                <requireField>
-                    <name/>
-                </requireField>
+                <name/>
             `
             const result = await queryAuthGroupList(sendXml)
 
             commLoadResponseHandler(result, ($) => {
-                authGroupOptions.value = $('//content/item').map((item) => {
+                authGroupOptions.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        id: item.attr('id')!,
-                        name: $item('name').text(),
+                        value: item.attr('id'),
+                        label: displayAuthGroup($item('name').text()),
                     }
                 })
             })
@@ -172,6 +154,10 @@ export default defineComponent({
          * @description 确认修改用户信息
          */
         const doEditUser = async () => {
+            pageData.value.isCheckAuthPop = true
+        }
+
+        const confirmEditUser = async (e: UserCheckAuthForm) => {
             openLoading()
 
             const sendXml = rawXml`
@@ -180,22 +166,28 @@ export default defineComponent({
                     <userName>${wrapCDATA(formData.value.userName)}</userName>
                     <authGroup id="${formData.value.authGroup}"></authGroup>
                     <bindMacSwitch>false</bindMacSwitch>
-                    <modifyPassword>${formData.value.allowModifyPassword.toString()}</modifyPassword>
-                    <mac>${wrapCDATA('00:00:00:00:00:00')}</mac>
+                    <modifyPassword>${formData.value.allowModifyPassword}</modifyPassword>
+                    <mac>${wrapCDATA(DEFAULT_EMPTY_MAC)}</mac>
                     <email>${wrapCDATA(formData.value.email)}</email>
-                    <enabled>${formData.value.enabled.toString()}</enabled>
-                    <authEffective>${formData.value.authEffective.toString()}</authEffective>
+                    <enabled>${formData.value.enabled}</enabled>
+                    ${pageData.value.isAdmin ? `<accessCode>${formData.value.accessCode}</accessCode>` : ''}
+                    ${!pageData.value.isEditAdmin && !pageData.value.isEditDebug ? `<loginScheduleInfo enable="${formData.value.loginScheduleInfoEnabled}">${formData.value.loginScheduleInfo}</loginScheduleInfo>` : ''}
+                    <authEffective>${!formData.value.authEffective}</authEffective>
                 </content>
+                <auth>
+                    <userName>${e.userName}</userName>
+                    <password>${e.hexHash}</password>
+                </auth>
             `
             const result = await editUser(sendXml)
             const $ = queryXml(result)
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                ctx.emit('close')
+            if ($('status').text() === 'success') {
+                ctx.emit('confirm')
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 let errorText = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR:
@@ -204,21 +196,17 @@ export default defineComponent({
                     default:
                         errorText = Translate('IDCS_SAVE_DATA_FAIL')
                 }
-                openMessageTipBox({
-                    type: 'info',
-                    message: errorText,
-                })
+                openMessageBox(errorText)
             }
         }
 
         /**
          * @description 打开弹窗时的数据请求
          */
-        const handleOpen = async () => {
-            formRef.value?.clearValidate()
-            formData.value = new UserEditForm()
+        const open = async () => {
             await getAuthGroup()
-            await getUser()
+            await getScheduleList()
+            getUser()
         }
 
         /**
@@ -226,6 +214,16 @@ export default defineComponent({
          */
         const goBack = () => {
             ctx.emit('close')
+        }
+
+        const getScheduleList = async () => {
+            pageData.value.scheduleList = await buildScheduleList()
+        }
+
+        const closeSchedulePop = async () => {
+            pageData.value.isSchedulePop = false
+            await getScheduleList()
+            formData.value.loginScheduleInfo = getScheduleId(pageData.value.scheduleList, formData.value.loginScheduleInfo)
         }
 
         /**
@@ -243,12 +241,13 @@ export default defineComponent({
             formData,
             pageData,
             authGroupOptions,
-            handleOpen,
+            open,
             changePassword,
             verify,
             rules,
             goBack,
-            displayAuthGroup,
+            closeSchedulePop,
+            confirmEditUser,
         }
     },
 })

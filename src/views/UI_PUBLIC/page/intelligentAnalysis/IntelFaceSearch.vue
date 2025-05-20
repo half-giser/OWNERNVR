@@ -2,26 +2,27 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-29 09:54:18
  * @Description: 智能分析-人脸搜索
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 16:50:39
 -->
 <template>
     <div class="base-intel-box">
         <div class="base-intel-left base-intel-left-column">
-            <el-radio-group
-                v-model="pageData.searchType"
-                size="large"
-                class="inline hide-border-top hide-border-inline"
-            >
-                <el-radio-button
-                    v-for="item in pageData.searchOptions"
-                    :key="item.value"
-                    :value="item.value"
-                    >{{ item.label }}</el-radio-button
+            <div class="tabs">
+                <el-menu
+                    :default-active="pageData.searchType"
+                    mode="horizontal"
+                    @select="pageData.searchType = $event"
                 >
-            </el-radio-group>
+                    <el-menu-item
+                        v-for="item in pageData.searchOptions"
+                        :key="item.value"
+                        :index="item.value"
+                    >
+                        {{ item.label }}
+                    </el-menu-item>
+                </el-menu>
+            </div>
             <div class="base-intel-left-column">
-                <div>
+                <div class="base-intel-left-form">
                     <div class="base-intel-row">
                         <BaseDateTab
                             :model-value="formData.dateRange"
@@ -48,10 +49,9 @@
                                 v-show="formData.face === ''"
                                 class="face-pic-add"
                             >
-                                <BaseImgSprite
+                                <BaseImgSpriteBtn
                                     file="addFF"
-                                    :hover-index="2"
-                                    :chunk="4"
+                                    :index="[0, 2, 2, 3]"
                                 />
                             </div>
                             <div v-show="formData.face !== ''">
@@ -59,13 +59,15 @@
                                     <el-button
                                         link
                                         @click.stop="pageData.isChoosePop = true"
-                                        >{{ Translate('IDCS_CHANGE') }}</el-button
                                     >
+                                        {{ Translate('IDCS_CHANGE') }}
+                                    </el-button>
                                     <el-button
                                         link
                                         @click.stop="resetFaceData"
-                                        >{{ Translate('IDCS_CLEAR_AWAY') }}</el-button
                                     >
+                                        {{ Translate('IDCS_CLEAR_AWAY') }}
+                                    </el-button>
                                 </div>
                                 <div
                                     v-show="isMultiFacePic"
@@ -92,7 +94,7 @@
                                 </div>
                                 <div>
                                     <span>{{ Translate('IDCS_BIRTHDAY') }}</span>
-                                    <span>{{ formFaceData.birthday }}</span>
+                                    <span>{{ displayDate(formFaceData.birthday) }}</span>
                                 </div>
                                 <div>
                                     <span>{{ Translate('IDCS_ID_NUMBER') }}</span>
@@ -116,11 +118,10 @@
                         </div>
                     </div>
                     <el-form
-                        label-position="left"
-                        class="inline-message narrow"
-                        inline-message
+                        v-title
+                        class="no-padding"
                         :style="{
-                            '--form-label-width': 'auto',
+                            '--form-label-width': '100px',
                         }"
                     >
                         <el-form-item v-show="pageData.searchType === 'event'">
@@ -132,17 +133,16 @@
                                     v-for="item in pageData.eventOptions"
                                     :key="item.value"
                                     :value="item.value"
-                                    >{{ item.label }}</el-radio
-                                >
+                                    :label="item.label"
+                                />
                             </el-radio-group>
                         </el-form-item>
                         <el-form-item
                             v-show="pageData.searchType === 'face'"
                             :label="Translate('IDCS_SIMILARITY')"
                         >
-                            <el-input-number
+                            <BaseNumberInput
                                 v-model="formData.similarity"
-                                :controls="false"
                                 :min="0"
                                 :max="100"
                             />
@@ -154,14 +154,13 @@
                     </div>
                 </div>
                 <div class="base-intel-playback-box">
-                    <h3>{{ Translate('IDCS_REPLAY') }}</h3>
+                    <h3>{{ playerData.chlName + Translate('IDCS_REPLAY') }}</h3>
                     <div class="player">
                         <BaseVideoPlayer
                             ref="playerRef"
-                            :split="1"
                             type="record"
                             only-wasm
-                            @ontime="handlePlayerTimeUpdate"
+                            @time="handlePlayerTimeUpdate"
                         />
                     </div>
                     <div class="control-bar">
@@ -178,6 +177,7 @@
                         />
                         <span class="end-time">{{ displayTime(playerData.endTime) }}</span>
                     </div>
+                    <div class="current-time">{{ displayDateTime(playerData.currentTime) }}</div>
                 </div>
             </div>
         </div>
@@ -194,8 +194,8 @@
                         v-show="isChartOptionVisible(item.hide)"
                         :key="item.value"
                         :value="item.value"
-                        >{{ item.label }}</el-radio-button
-                    >
+                        :label="item.label"
+                    />
                 </el-radio-group>
             </div>
             <div
@@ -215,8 +215,8 @@
                             v-show="isListOptionVisible(item.hide)"
                             :key="item.value"
                             :value="item.value"
-                            >{{ item.label }}</el-radio-button
-                        >
+                            :label="item.label"
+                        />
                     </el-radio-group>
                 </div>
                 <div v-show="isSortVisible">
@@ -228,77 +228,100 @@
                             v-for="item in pageData.sortOptions"
                             :key="item.value"
                             :value="item.value"
-                            >{{ item.label }}</el-radio-button
-                        >
+                            :label="item.label"
+                        />
                     </el-radio-group>
                 </div>
                 <div>
                     <el-button
                         class="chl-btn"
                         @click="pageData.isChlPop = true"
-                        >{{ Translate('IDCS_MORE') }}</el-button
                     >
+                        {{ Translate('IDCS_MORE') }}
+                    </el-button>
                     <el-checkbox
-                        :model-value="sliceTableData.length && sliceTableData.length === selectionIds.length"
+                        :model-value="isSelectAll"
                         :disabled="!sliceTableData.length"
+                        :label="Translate('IDCS_SELECT_ALL')"
                         @update:model-value="handleSelectAll"
-                        >{{ Translate('IDCS_SELECT_ALL') }}</el-checkbox
-                    >
+                    />
                 </div>
             </div>
-            <div
+            <el-scrollbar
                 v-show="pageData.chartType === 'list'"
                 class="base-intel-pics-box"
             >
-                <IntelBaseSnapItem
-                    v-for="(item, index) in sliceTableData"
-                    :key="`${item.imgId}:${item.frameTime}`"
-                    :model-value="selectionIds.includes(getUniqueKey(item))"
-                    :src="pageData.listType === 'panorama' ? item.panorama : item.pic"
-                    :match-src="pageData.listType === 'match' ? item.match : ''"
-                    :play="playerData.playId === getUniqueKey(item)"
-                    :type="pageData.listType"
-                    :disabled="item.isDelSnap || item.isNoData || !item.pic || !item.panorama"
-                    :error-text="item.isDelSnap ? Translate('IDCS_DELETED') : item.isNoData ? Translate('IDCS_NO_RECORD_DATA') : ''"
-                    :identity="isIdentityVisible && pageData.listType === 'snap' && item.identity"
-                    @update:model-value="handleSelect(index, $event)"
-                    @click="play(item)"
-                    @detail="showDetail(item)"
-                >
-                    <template v-if="pageData.listType === 'match'">
-                        <div class="match-info">
-                            <div>
-                                <div>{{ displayCardTime(item.timestamp) }}</div>
-                                <div>{{ item.chlName }}</div>
+                <div class="base-intel-pics-content">
+                    <IntelBaseSnapItem
+                        v-for="(item, index) in sliceTableData"
+                        v-show="item.faceFeatureId !== -1000"
+                        :key="`${item.imgId}:${item.frameTime}`"
+                        :model-value="selectionIds.includes(getUniqueKey(item))"
+                        :src="pageData.listType === 'panorama' ? item.panorama : item.pic"
+                        :match-src="pageData.listType === 'match' ? item.match : ''"
+                        :play="playerData.playId === getUniqueKey(item)"
+                        :type="pageData.listType"
+                        :disabled="item.isDelSnap || item.isNoData || !item.pic || !item.panorama"
+                        :error-text="item.isDelSnap ? Translate('IDCS_DELETED') : item.isNoData ? Translate('IDCS_NO_RECORD_DATA') : ''"
+                        :identity="isIdentityVisible && pageData.listType === 'snap' && item.identity"
+                        @update:model-value="handleSelect(index, $event)"
+                        @click="play(item)"
+                        @detail="showDetail(item)"
+                    >
+                        <template v-if="pageData.listType === 'match'">
+                            <div class="match-info">
+                                <div>
+                                    <div>{{ displayCardTime(item.timestamp) }}</div>
+                                    <div
+                                        v-title
+                                        class="text-ellipsis"
+                                    >
+                                        {{ item.chlName }}
+                                    </div>
+                                </div>
+                                <div v-if="formData.faceType === 'face' || formData.faceType === 'group' || formData.eventType === 'byWhiteList'">
+                                    <div
+                                        v-title
+                                        class="text-ellipsis"
+                                    >
+                                        {{ item.info.name }}
+                                    </div>
+                                    <div
+                                        v-title
+                                        class="text-ellipsis"
+                                    >
+                                        {{ displayFaceGroup(item.info.groupId) }}
+                                    </div>
+                                </div>
+                                <div v-else>
+                                    <div>{{ Translate('IDCS_SAMPLE') }}</div>
+                                </div>
                             </div>
-                            <div v-if="formData.faceType === 'face' || formData.faceType === 'group' || formData.eventType === 'byWhiteList'">
-                                <div>{{ item.info.name }}</div>
-                                <div>{{ displayFaceGroup(item.info.groupId) }}</div>
+                            <div>({{ item.similarity }}%)</div>
+                        </template>
+                        <template v-else>
+                            <div v-title>{{ displayCardTime(item.timestamp) }}</div>
+                            <div
+                                v-title
+                                class="text-ellipsis"
+                            >
+                                {{ item.chlName }}
                             </div>
-                            <div v-else>
-                                <div>{{ Translate('IDCS_SAMPLE') }}</div>
-                            </div>
-                        </div>
-                        <div>({{ item.similarity }}%)</div>
-                    </template>
-                    <template v-else>
-                        <div>{{ displayCardTime(item.timestamp) }}</div>
-                        <div>{{ item.chlName }}</div>
-                        <div v-show="!isSortVisible">({{ item.similarity }}%)</div>
-                    </template>
-                </IntelBaseSnapItem>
-            </div>
+                            <div v-show="!isSortVisible">({{ item.similarity }}%)</div>
+                        </template>
+                    </IntelBaseSnapItem>
+                </div>
+            </el-scrollbar>
             <div
                 v-show="pageData.chartType === 'table'"
                 class="base-table-box"
             >
                 <el-table
                     ref="tableRef"
-                    border
-                    stripe
                     :show-header="formData.searchType === 'event'"
                     :span-method="handleTableSpanMethods"
-                    :data="formData.searchType === 'event' ? sliceTableData : sliceTableDataWithDateColsSpan"
+                    :data="sliceTableData"
+                    show-overflow-tooltip
                     @row-click="handleTableRowClick"
                     @selection-change="handleTableSelectionChange"
                 >
@@ -307,56 +330,51 @@
                         :label="Translate('IDCS_SERIAL_NUMBER')"
                         type="index"
                         width="60"
-                    >
-                    </el-table-column>
+                    />
                     <el-table-column
                         type="selection"
                         :selectable="getTableSelectable"
                     />
                     <el-table-column
                         v-if="formData.searchType === 'face'"
-                        width="260px"
+                        width="260"
                     >
-                        <template #default="scope">
+                        <template #default="{ row }: TableColumn<IntelSearchFaceList>">
                             <div
-                                v-if="scope.row.faceFeatureId === -1000"
+                                v-if="row.faceFeatureId === -1000"
                                 class="table-date"
                             >
-                                {{ displayDate(scope.row.timestamp) }}
+                                {{ displayDate(row.timestamp) }}
                             </div>
                             <div
                                 v-else
                                 class="table-pic"
                             >
-                                <img :src="scope.row.pic" />
-                                <img :src="scope.row.match" />
+                                <img :src="row.pic" />
+                                <img :src="row.match" />
                             </div>
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_SNAP_TIME')">
-                        <template #default="scope">
-                            {{ formData.searchType === 'event' ? displayDateTime(scope.row.timestamp) : displayTime(scope.row.timestamp) }}
+                        <template #default="{ row }: TableColumn<IntelSearchFaceList>">
+                            {{ formData.searchType === 'event' ? displayDateTime(row.timestamp) : displayTime(row.timestamp) }}
                         </template>
                     </el-table-column>
                     <el-table-column v-if="formData.searchType === 'face'">
-                        <template #default="scope"> {{ scope.row.info.name }} ({{ scope.row.similarity }}%) </template>
+                        <template #default="{ row }: TableColumn<IntelSearchFaceList>"> {{ row.info.name }} ({{ row.similarity }}%) </template>
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_CHANNEL')"
                         prop="chlName"
-                    >
-                    </el-table-column>
+                    />
                     <el-table-column
                         width="100"
                         :label="Translate('IDCS_DETAIL_INFO')"
                     >
-                        <template #default="scope">
-                            <BaseImgSprite
+                        <template #default="{ row }: TableColumn<IntelSearchFaceList>">
+                            <BaseImgSpriteBtn
                                 file="browser"
-                                :index="0"
-                                :hover-index="1"
-                                :chunk="4"
-                                @click="showDetail(scope.row)"
+                                @click="showDetail(row)"
                             />
                         </template>
                     </el-table-column>
@@ -364,22 +382,23 @@
             </div>
             <div
                 v-show="pageData.isSupportBackUp && !isTrackVisible"
-                class="base-btn-box"
-                :span="2"
+                class="base-btn-box space-between"
             >
                 <div>
-                    <el-checkbox v-model="pageData.isBackUpPic">
-                        {{ Translate('IDCS_BACKUP_PICTURE') }}
-                    </el-checkbox>
-                    <el-checkbox v-model="pageData.isBackUpVideo">{{ Translate('IDCS_BACKUP_RECORD') }}</el-checkbox>
+                    <el-checkbox
+                        v-model="pageData.isBackUpPic"
+                        :label="Translate('IDCS_BACKUP_PICTURE')"
+                    />
+                    <el-checkbox
+                        v-model="pageData.isBackUpVideo"
+                        :label="Translate('IDCS_BACKUP_RECORD')"
+                    />
                 </div>
-                <el-pagination
+                <BasePagination
                     v-model:current-page="formData.pageIndex"
                     v-model:page-size="formData.pageSize"
                     :page-sizes="[formData.pageSize]"
-                    layout="total, sizes, prev, pager, next"
                     :total="tableData.length"
-                    size="small"
                     @current-change="changePage"
                 />
             </div>
@@ -390,8 +409,9 @@
                 <el-button
                     :disabled="!selectionIds.length || (!pageData.isBackUpPic && !pageData.isBackUpVideo)"
                     @click="backUp"
-                    >{{ Translate('IDCS_BACKUP') }}</el-button
                 >
+                    {{ Translate('IDCS_BACKUP') }}
+                </el-button>
             </div>
             <div v-show="isTrackVisible">
                 <div
@@ -413,14 +433,17 @@
         </div>
         <IntelBaseSnapPop
             v-model="pageData.isDetailPop"
-            :list="sliceTableData"
+            :list="snapList"
             :index="pageData.detailIndex"
+            show-search
             @close="pageData.isDetailPop = false"
             @play-rec="playRec"
+            @add="register"
+            @search="searchSnap"
         />
         <IntelBaseFaceMatchPop
             v-model="pageData.isMatchPop"
-            :list="pageData.matchList"
+            :list="matchList"
             :index="pageData.matchIndex"
             @close="pageData.isMatchPop = false"
             @play-rec="playRec"
@@ -470,8 +493,8 @@
             <el-checkbox
                 v-show="isIdentityVisible"
                 v-model="formData.identityFlag"
-                >{{ Translate('IDCS_IDENTITY_SNAPSHOT') }}</el-checkbox
-            >
+                :label="Translate('IDCS_IDENTITY_SNAPSHOT')"
+            />
         </BaseTableSelectPop>
         <IntelFaceDBSnapRegisterPop
             v-model="pageData.isRegisterPop"
@@ -483,11 +506,28 @@
 
 <script lang="ts" src="./IntelFaceSearch.v.ts"></script>
 
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/intelligentAnalysis.scss';
-</style>
-
 <style lang="scss" scoped>
+.el-menu {
+    border-bottom: 1px solid var(--main-border);
+    background-color: transparent;
+}
+
+.el-menu--horizontal {
+    height: 55px;
+}
+
+.el-menu--horizontal > .el-menu-item {
+    color: var(--main-text);
+
+    &.is-active {
+        background-color: transparent;
+    }
+
+    &:hover {
+        background-color: transparent;
+    }
+}
+
 .base-intel-left {
     padding: 0;
 
@@ -517,6 +557,10 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
+
+        div {
+            width: 100%;
+        }
     }
 }
 
@@ -538,18 +582,10 @@
         height: 22px;
         display: flex;
         justify-content: flex-end;
+        align-items: center;
         background-color: var(--btn-bg);
 
-        :deep(.el-button) {
-            &.is-link {
-                color: var(--main-text);
-
-                &:hover {
-                    text-decoration: underline;
-                    color: var(--primary);
-                }
-            }
-
+        .el-button {
             & + .el-button {
                 margin-left: 0;
             }
@@ -579,7 +615,7 @@
     margin-left: 10px;
     line-height: 1.8;
 
-    span:first-child:after {
+    span:first-child::after {
         content: ': ';
     }
 }
@@ -593,7 +629,7 @@
 }
 
 .table-pic {
-    width: 117 * 2px;
+    width: calc(117 * 2px);
     height: 130px;
 
     img {

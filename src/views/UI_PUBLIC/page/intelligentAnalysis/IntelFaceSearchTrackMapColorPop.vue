@@ -2,15 +2,11 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-13 11:45:40
  * @Description: 智能分析 - 人脸搜索 - 轨迹 - 修改颜色
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-13 17:55:39
 -->
 <template>
     <el-dialog
         :title="Translate('IDCS_COLOR')"
         width="480"
-        align-center
-        draggable
         @open="open"
     >
         <div class="colors">
@@ -28,7 +24,7 @@
                         }"
                         @click="pageData.fontColor = item"
                     >
-                        <div :style="{ background: item }" />
+                        <div :style="{ background: item }"></div>
                     </div>
                 </div>
             </div>
@@ -46,22 +42,15 @@
                         }"
                         @click="pageData.lineColor = item"
                     >
-                        <div :style="{ background: item }" />
+                        <div :style="{ background: item }"></div>
                     </div>
                 </div>
             </div>
         </div>
-        <template #footer>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
-                >
-                    <el-button @click="confirm">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="confirm">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

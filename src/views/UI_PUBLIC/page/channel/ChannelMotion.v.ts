@@ -3,64 +3,67 @@
  * @Date: 2024-10-10 16:03:56
  * @Description: 通道 - 移动侦测配置
  */
-import { ChannelMotion } from '@/types/apiType/channel'
-import CanvasMotion from '@/utils/canvas/canvasMotion'
-import { trim } from 'lodash-es'
-import { type XmlResult } from '@/utils/xmlParse'
+import { type XMLQuery } from '@/utils/xmlParse'
 import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
         const userSessionStore = useUserSessionStore()
         const router = useRouter()
-        const osType = getSystemInfo().platform
-        const { name: uiName } = getUiAndTheme()
 
         const playerRef = ref<PlayerInstance>()
-        const formData = ref(new ChannelMotion())
+        const formData = ref(new ChannelMotionDto())
         const tableRef = ref<TableInstance>()
-        const tableData = ref([] as ChannelMotion[])
-        const btnOKDisabled = ref(true)
+        const tableData = ref<ChannelMotionDto[]>([])
         const pageIndex = ref(1)
         const pageSize = ref(10)
         const pageTotal = ref(0)
         const selectedChlId = ref('')
-        const showNote = ref(false)
-        const editRows = new Set<ChannelMotion>()
-        let motionDrawer: CanvasMotion | undefined = undefined
-        let motionDectionStatusTimer: NodeJS.Timeout | number = 0
-        const refreshInterval = 3000
-        let firstLoadNoOnvifData = false
-        let returnDataCount = 0
+        const editRows = useWatchEditRows<ChannelMotionDto>()
+        const switchOptions = getTranslateOptions(DEFAULT_BOOL_SWITCH_OPTIONS)
+
         let motionAlarmList: string[] = []
 
-        const tSeconds = ' ' + Translate('IDCS_SECONDS')
-        const tMinite = ' ' + Translate('IDCS_MINUTE')
-        const tMinites = ' ' + Translate('IDCS_MINUTES')
-        const holdTimeList = ref<Record<string, string>[]>([])
+        const ready = computed(() => {
+            return playerRef.value?.ready || false
+        })
 
-        const handleSizeChange = (val: number) => {
-            pageSize.value = val
-            getDataList()
-            btnOKDisabled.value = true
-        }
+        // 播放模式
+        const mode = computed(() => {
+            if (!ready.value) {
+                return ''
+            }
+            return playerRef.value!.mode
+        })
 
-        const handleCurrentChange = (val: number) => {
-            pageIndex.value = val
-            getDataList()
-            btnOKDisabled.value = true
-        }
+        let player: PlayerInstance['player']
+        let plugin: PlayerInstance['plugin']
+        let drawer = CanvasMotion()
+
+        const REFRESH_INTERVAL = 3000
+        const alarmStatusTimer = useRefreshTimer(() => {
+            getAlarmStatus()
+        }, REFRESH_INTERVAL)
+
+        const chlOptions = computed(() => {
+            return tableData.value.map((item) => {
+                return {
+                    value: item.id,
+                    label: item.name,
+                }
+            })
+        })
+
+        const holdTimeList = ref<SelectOption<number, string>[]>([])
 
         const handleChlSel = (chlId: string) => {
-            const rowData = getRowById(chlId)
+            const rowData = getRowById(chlId)!
             formData.value = rowData
             tableRef.value!.setCurrentRow(rowData)
         }
 
-        const handleRowClick = (rowData: ChannelMotion) => {
+        const handleRowClick = (rowData: ChannelMotionDto) => {
             if (!rowData.disabled) {
                 selectedChlId.value = rowData.id
                 formData.value = rowData
@@ -70,326 +73,336 @@ export default defineComponent({
 
         const handleDisposeWayClick = () => {
             if (!userSessionStore.hasAuth('alarmMgr')) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_AUTH'),
-                })
+                openMessageBox(Translate('IDCS_NO_AUTH'))
                 return
             }
+
             router.push({
                 path: '/config/alarm/motion',
             })
         }
 
-        const handleChangeVal = () => {
-            const rowData = getRowById(selectedChlId.value)
-            editRows.add(rowData)
-            btnOKDisabled.value = false
-        }
-
-        const handleChangeAll = (type: 'switch' | 'holdTime', val: boolean | string) => {
+        const handleChangeAll = (type: 'switch' | 'holdTime', val: boolean | number) => {
             tableData.value.forEach((ele) => {
                 if (!ele.disabled) {
-                    if (type == 'switch') {
+                    if (type === 'switch') {
                         ele.switch = val as boolean
                     } else {
-                        ele.holdTime = val as string
+                        ele.holdTime = val as number
                     }
-                    btnOKDisabled.value = false
-                    editRows.add(ele)
                 }
             })
         }
 
         const getRowById = (chlId: string) => {
-            return tableData.value.find((element) => element.id == chlId) as ChannelMotion
+            return tableData.value.find((element) => element.id === chlId)
         }
 
-        const getData = (rowData: ChannelMotion) => {
+        /**
+         * @description 获取通道移动侦测配置
+         * @param {string} chlId
+         */
+        const getData = async (chlId: string) => {
             const sendXml = rawXml`
                 <condition>
-                    <chlId>${rowData.id}</chlId>
+                    <chlId>${chlId}</chlId>
                 </condition>
                 <requireField>
                     <param/>
-                </requireField>`
-            queryMotion(sendXml).then((res) => {
+                </requireField>
+            `
+            try {
+                const res = await queryMotion(sendXml)
                 const $ = queryXml(res)
-                returnDataCount++
-                rowData.isOnvifChl = !($('content/chl/param/holdTimeNote').length > 0)
-                if (!firstLoadNoOnvifData && !rowData.isOnvifChl) {
-                    holdTimeList.value = [
-                        { value: '5', text: 5 + tSeconds },
-                        { value: '10', text: 10 + tSeconds },
-                        { value: '20', text: 20 + tSeconds },
-                        { value: '30', text: 30 + tSeconds },
-                        { value: '60', text: 1 + tMinite },
-                        { value: '120', text: 2 + tMinites },
-                    ]
-                    firstLoadNoOnvifData = true
+                const rowData = getRowById(chlId)
+                if (!rowData) {
+                    return
                 }
-                if ($('status').text() == 'success') {
-                    const areaInfo: string[] = []
-                    $('content/chl/param/area/item').forEach((ele) => {
-                        areaInfo.push(trim(ele.text()))
+
+                const $param = queryXml($('content/chl/param')[0].element)
+
+                rowData.isOnvifChl = !$param('holdTimeNote').length
+                if (!holdTimeList.value.length && !rowData.isOnvifChl) {
+                    holdTimeList.value = [5, 10, 20, 30, 60, 120].map((item) => {
+                        return {
+                            label: getTranslateForSecond(Number(item)),
+                            value: item,
+                        }
                     })
-                    let holdTimeArr: string[] = $('content/chl/param/holdTimeNote').text().split(',')
-                    const holdTime = $('content/chl/param/holdTime').text()
-                    // 如果当前的持续时间holdTime不在持续时间列表holdTimeArr中，则添加到持续时间列表中
-                    if (!holdTimeArr.includes(holdTime)) {
-                        holdTimeArr.push(holdTime)
-                        holdTimeArr = holdTimeArr.sort((a, b) => {
-                            return Number(a) - Number(b)
-                        })
-                    }
-                    holdTimeArr.forEach((ele) => {
-                        rowData.holdTimeList.push({
-                            value: ele,
-                            text: ele == '60' ? '1 ' + tMinite : Number(ele) > 60 ? Number(ele) / 60 + ' ' + tMinites : ele + ' ' + tSeconds,
-                        })
-                    })
-                    rowData.switch = $('content/chl/param/switch').text().toBoolean()
-                    rowData.sensitivity = Number($('content/chl/param/sensitivity').text())
-                    rowData.holdTime = $('content/chl/param/holdTime').text()
+                }
+
+                if ($('status').text() === 'success') {
+                    const areaInfo = $param('area/item').map((ele) => ele.text().trim())
 
                     if (rowData.isOnvifChl) {
-                        rowData.holdTime = ''
+                        rowData.holdTime = 0
                     } else {
-                        rowData.holdTime = $('content/chl/param/holdTime').text()
+                        rowData.holdTime = $param('holdTime').text().num()
                     }
+
+                    rowData.holdTimeList = getAlarmHoldTimeList($param('holdTimeNote').text(), $param('holdTime').text().num())
+                    rowData.switch = $param('switch').text().bool()
+                    rowData.sensitivity = $param('sensitivity').text().num()
                     rowData.status = ''
                     rowData.disabled = false
-
-                    if ($('content/chl/param/sensitivity').length) rowData.sensitivityMinValue = Number($('content/chl/param/sensitivity').attr('min'))
-                    if ($('content/chl/param/objectFilter/car').length) rowData.objectFilterCar = $('content/chl/param/objectFilter/car/switch').text().toBoolean()
-                    if ($('content/chl/param/objectFilter/person').length) rowData.objectFilterPerson = $('content/chl/param/objectFilter/person/switch').text().toBoolean()
-                    let max = $('content/chl/param/sensitivity').length ? Number($('content/chl/param/sensitivity').attr('max')) : NaN
-                    if (uiName == 'UI1-F' && max == 100) max = 120
+                    rowData.sensitivityMinValue = $param('sensitivity').length ? $param('sensitivity').attr('min').num() : 0
+                    let max = $param('sensitivity').length ? $param('sensitivity').attr('max').num() : 100
+                    if (import.meta.env.VITE_UI_TYPE === 'UI1-F' && max === 100) max = 120
                     rowData.sensitivityMaxValue = max
-                    rowData.column = Number($('content/chl/param/area/itemType').attr('maxLen'))
-                    rowData.row = Number($('content/chl/param/area').attr('count'))
+
+                    rowData.SMDVehicle = $param('objectFilter/car/switch').text().bool()
+                    rowData.SMDVehicleDisabled = !$param('objectFilter/car/switch').length
+                    rowData.SMDHuman = $param('objectFilter/person/switch').text().bool()
+                    rowData.SMDHumanDisabled = !$param('objectFilter/person').length
+                    rowData.column = $param('area/itemType').attr('maxLen').num()
+                    rowData.row = $param('area').attr('count').num()
                     rowData.areaInfo = areaInfo
                 } else {
                     rowData.status = ''
                 }
-                if (returnDataCount >= $('content/item').length) tableData.value.forEach((ele) => (ele.status = ''))
-            })
+            } catch {
+                const rowData = getRowById(chlId)
+                if (!rowData) {
+                    return
+                }
+                rowData.status = ''
+            }
         }
 
-        const getDataList = () => {
+        /**
+         * @description 获取数据列表
+         */
+        const getDataList = async () => {
+            editRows.clear()
             openLoading()
-            getChlList({
+
+            const result = await getChlList({
                 pageIndex: pageIndex.value,
                 pageSize: pageSize.value,
                 isSupportMotion: true,
                 requireField: ['supportSMD'],
-            }).then((res) => {
-                closeLoading()
-                const $ = queryXml(res)
-                if ($('status').text() == 'success') {
-                    tableData.value = []
-                    selectedChlId.value = ''
-                    firstLoadNoOnvifData = false
-                    $('content/item').forEach((ele) => {
-                        const eleXml = queryXml(ele.element)
-                        const newData = new ChannelMotion()
-                        newData.id = ele.attr('id')!
-                        newData.name = eleXml('name').text()
-                        newData.chlIndex = eleXml('chlIndex').text()
-                        newData.chlType = eleXml('chlType').text()
-                        newData.status = 'loading'
-                        newData.supportSMD = eleXml('supportSMD').text().toBoolean()
-                        tableData.value.push(newData)
-                    })
-                    pageTotal.value = Number($('content').attr('total'))
-                    returnDataCount = 0
-                    if (tableData.value.length) {
-                        selectedChlId.value = tableData.value[0].id
-                        tableRef.value!.setCurrentRow(tableData.value[0])
-                        formData.value = tableData.value[0]
-                        tableData.value.forEach((ele) => {
-                            if (ele.chlType != 'recorder') {
-                                getData(ele)
-                            } else {
-                                ele.status = ''
-                            }
-                        })
-                    }
-                    if (uiName != 'UI2-A') {
-                        getAlarmStatus()
-                    }
+            })
+            const $ = queryXml(result)
+
+            closeLoading()
+
+            if ($('status').text() === 'success') {
+                holdTimeList.value = []
+                tableData.value = $('content/item').map((ele) => {
+                    const $item = queryXml(ele.element)
+                    const newData = new ChannelMotionDto()
+                    newData.id = ele.attr('id')
+                    newData.name = $item('name').text()
+                    newData.chlIndex = $item('chlIndex').text()
+                    newData.chlType = $item('chlType').text()
+                    newData.status = 'loading'
+                    newData.supportSMD = $item('supportSMD').text().bool()
+                    return newData
+                })
+                pageTotal.value = $('content').attr('total').num()
+            } else {
+                tableData.value = []
+            }
+
+            tableData.value.forEach(async (item, i) => {
+                if (item.chlType !== 'recorder') {
+                    await getData(item.id)
+                } else {
+                    item.status = ''
+                }
+
+                if (!tableData.value.some((row) => row === item)) {
+                    return
+                }
+
+                editRows.listen(item)
+
+                if (i === 0) {
+                    selectedChlId.value = item.id
+                    tableRef.value!.setCurrentRow(item)
+                    formData.value = item
                 }
             })
         }
 
+        /**
+         * @description 获取移动侦测报警状态
+         */
         const getAlarmStatus = () => {
             if (selectedChlId.value) {
                 queryAlarmStatus().then((res) => {
                     const $ = queryXml(res)
-                    if ($('status').text() == 'success') {
-                        motionAlarmList = []
-                        $('content/motions/item').forEach((ele) => {
-                            motionAlarmList.push(queryXml(ele.element)('sourceChl').attr('id'))
+                    if ($('status').text() === 'success') {
+                        motionAlarmList = $('content/motions/item').map((ele) => {
+                            return queryXml(ele.element)('sourceChl').attr('id')
                         })
-                        showNote.value = motionAlarmList.includes(selectedChlId.value)
-                        motionDectionStatusTimer = setTimeout(getAlarmStatus, refreshInterval)
+                        alarmStatusTimer.repeat()
                     }
                 })
+            } else {
+                alarmStatusTimer.repeat()
             }
         }
 
-        const getSaveData = (rowData: ChannelMotion): string => {
-            let data = rawXml`
+        const showNote = computed(() => {
+            return motionAlarmList.includes(selectedChlId.value)
+        })
+
+        const getSaveData = (rowData: ChannelMotionDto) => {
+            return rawXml`
                 <content>
                     <chl id='${rowData.id}'>
                         <param>
-                            <switch>${rowData.switch.toString()}</switch>`
-            if (rowData.supportSMD) {
-                data += '<objectFilter>'
-                if (rowData.objectFilterCar !== undefined) data += `<car><switch>${rowData.objectFilterCar}</switch></car>`
-                if (rowData.objectFilterPerson !== undefined) data += `<person><switch>${rowData.objectFilterPerson}</switch></person>`
-                data += '</objectFilter>'
-            }
-            data += rawXml`
-                <sensitivity min='${rowData.sensitivityMinValue.toString()}' max='${rowData.sensitivityMaxValue.toString()}'>${rowData.sensitivity.toString()}</sensitivity>
-                <holdTime unit='s'>${rowData.holdTime}</holdTime>
-                <area type='list' count='${rowData.row.toString()}'>
-                    <itemType minLen='${rowData.column.toString()}' maxLen='${rowData.column.toString()}'/>`
-            rowData.areaInfo.forEach((ele) => {
-                data += `<item>${ele}</item>`
-            })
-            data += rawXml`
+                            <switch>${rowData.switch}</switch>
+                            <sensitivity min='${rowData.sensitivityMinValue}' max='${rowData.sensitivityMaxValue}'>${rowData.sensitivity}</sensitivity>
+                            <holdTime unit='s'>${rowData.holdTime}</holdTime>
+                            ${
+                                rowData.supportSMD
+                                    ? rawXml`
+                                        <objectFilter>
+                                            ${!rowData.SMDVehicleDisabled ? `<car><switch>${rowData.SMDVehicle}</switch></car>` : ''}
+                                            ${!rowData.SMDHumanDisabled ? `<person><switch>${rowData.SMDHuman}</switch></person>` : ''}
+                                        </objectFilter>
+                                    `
+                                    : ''
+                            }
+                            <area type='list' count='${rowData.row}'>
+                                <itemType minLen='${rowData.column}' maxLen='${rowData.column}'/>
+                                ${rowData.areaInfo.map((ele) => `<item>${ele}</item>`).join('')}
                             </area>
                         </param>
                     </chl>
-                </content>`
-            return data
+                </content>
+            `
         }
 
-        const save = () => {
-            const total = editRows.size
-            if (total == 0) return
-            let count = 0
-            const successRows: ChannelMotion[] = []
+        /**
+         * @description 提交数据
+         */
+        const save = async () => {
             openLoading()
+
             tableData.value.forEach((ele) => (ele.status = ''))
-            editRows.forEach((ele) => {
-                editMotion(getSaveData(ele)).then((res) => {
+
+            for (const ele of editRows.toArray()) {
+                try {
+                    const res = await editMotion(getSaveData(ele))
                     const $ = queryXml(res)
-                    const success = $('status').text() == 'success'
-                    if (success) {
+                    if ($('status').text() === 'success') {
                         ele.status = 'success'
-                        successRows.push(ele)
+                        editRows.remove(ele)
                     } else {
-                        const errorCode = Number($('errorCode').text())
+                        const errorCode = $('errorCode').text().num()
                         ele.status = 'error'
                         ele.statusTip = errorCode === ErrorCode.USER_ERROR_NO_AUTH ? Translate('IDCS_NO_PERMISSION') : ''
                     }
-                    count++
-                    if (count >= total) {
-                        successRows.forEach((element) => {
-                            editRows.delete(element)
-                        })
-                        if (!editRows.size) btnOKDisabled.value = true
-                        closeLoading()
-                    }
-                })
-            })
+                } catch {
+                    ele.status = 'error'
+                }
+            }
+
+            closeLoading()
         }
 
-        const LiveNotify2Js = ($: (path: string) => XmlResult) => {
-            if ($("statenotify[@type='MotionArea']").length > 0) {
-                const rowData = getRowById(selectedChlId.value)
-                const areaInfo: string[] = (rowData.areaInfo = [])
-                $('statenotify/areaInfo/item').forEach((ele) => {
-                    areaInfo.push(ele.text())
-                })
-                editRows.add(rowData)
-                btnOKDisabled.value = false
+        const notify = ($: XMLQuery, stateType: string) => {
+            if (stateType === 'MotionArea') {
+                const rowData = getRowById(selectedChlId.value)!
+                rowData.areaInfo = $('statenotify/areaInfo/item').map((ele) => ele.text())
             }
         }
 
+        /**
+         * @description 全选区域
+         */
         const handleSelAll = () => {
-            const rowData = getRowById(selectedChlId.value)
+            const rowData = getRowById(selectedChlId.value)!
+
             if (rowData.disabled) return
+
             if (mode.value === 'h5') {
-                motionDrawer?.selectAll()
-            } else {
-                const sendXML = OCX_XML_SetMotionAreaAction('ALL')
-                playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                drawer.selectAll()
             }
+
+            if (mode.value === 'ocx') {
+                const sendXML = OCX_XML_SetMotionAreaAction('ALL')
+                plugin.ExecuteCmd(sendXML)
+            }
+
             motionAreaChange()
         }
 
+        /**
+         * @description 反选区域
+         */
         const handleSelReverse = () => {
             if (mode.value === 'h5') {
-                motionDrawer?.reverse()
-            } else {
-                const sendXML = OCX_XML_SetMotionAreaAction('INVERSE')
-                playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                drawer.reverse()
             }
+
+            if (mode.value === 'ocx') {
+                const sendXML = OCX_XML_SetMotionAreaAction('INVERSE')
+                plugin.ExecuteCmd(sendXML)
+            }
+
             motionAreaChange()
         }
 
+        /**
+         * @description 清除区域
+         */
         const handleClear = () => {
             if (mode.value === 'h5') {
-                motionDrawer?.clear()
-            } else {
-                const sendXML = OCX_XML_SetMotionAreaAction('NONE')
-                playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                drawer.clear()
             }
+
+            if (mode.value === 'ocx') {
+                const sendXML = OCX_XML_SetMotionAreaAction('NONE')
+                plugin.ExecuteCmd(sendXML)
+            }
+
             motionAreaChange()
         }
 
+        /**
+         * @description 更新移动侦测区域数据
+         * @param {string[][]} netArr
+         */
         const motionAreaChange = (netArr?: string[][]) => {
-            const rowData = getRowById(selectedChlId.value)
+            const rowData = getRowById(selectedChlId.value)!
             const areaInfo: string[] = (rowData.areaInfo = [])
             if (mode.value === 'h5') {
-                const arr = netArr || motionDrawer!.getArea()
+                const arr = netArr || drawer.getArea()
                 arr.forEach((ele) => {
                     areaInfo.push(ele.join(''))
                 })
-            } else {
+            }
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_GetMotionArea()
-                plugin.AsynQueryInfo(plugin.GetVideoPlugin(), sendXML, (result: string) => {
+                plugin.AsynQueryInfo(sendXML, (result) => {
                     const $ = queryXml(XMLStr2XMLDoc(result))
-                    $('//areaInfo/item').forEach((ele) => {
+                    $('response/areaInfo/item').forEach((ele) => {
                         areaInfo.push(ele.text())
                     })
                 })
             }
-            editRows.add(rowData)
-            btnOKDisabled.value = false
         }
-
-        // 播放模式
-        const mode = computed(() => {
-            if (!playerRef.value) {
-                return ''
-            }
-            return playerRef.value.mode
-        })
-
-        const ready = computed(() => {
-            return playerRef.value?.ready || false
-        })
-
-        let player: PlayerInstance['player']
-        let plugin: PlayerInstance['plugin']
 
         const onReady = () => {
             player = playerRef.value!.player
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
-                motionDrawer = new CanvasMotion({
-                    el: player.getDrawbordCanvas(0) as HTMLCanvasElement,
+                drawer.destroy()
+                drawer = CanvasMotion({
+                    el: player.getDrawbordCanvas(),
                     onchange: motionAreaChange,
                 })
-            } else {
-                plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
-                const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'MotionConfig' : 'ReadOnly', 'Live')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+            }
+
+            if (mode.value === 'ocx') {
+                const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -398,30 +411,34 @@ export default defineComponent({
          */
         const play = () => {
             if (!selectedChlId.value) return
-            if (!ready.value) return
-            const rowData = getRowById(selectedChlId.value)
+
+            const rowData = getRowById(selectedChlId.value)!
+
             if (mode.value === 'h5') {
                 player.play({
                     chlID: rowData.id,
                     streamType: 2,
                 })
-            } else {
-                if (osType == 'mac') {
-                } else {
-                    plugin.RetryStartChlView(rowData.id, rowData.name)
-                }
             }
+
+            if (mode.value === 'ocx') {
+                plugin.RetryStartChlView(rowData.id, rowData.name)
+            }
+
             if (rowData.column) {
                 const motion = {
                     column: rowData.column,
                     row: rowData.row,
                     areaInfo: rowData.areaInfo,
                 }
+
                 if (mode.value === 'h5') {
-                    motionDrawer?.setOption(motion)
-                } else {
+                    drawer.setOption(motion)
+                }
+
+                if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_SetMotionArea(motion)
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 }
             }
         }
@@ -436,53 +453,49 @@ export default defineComponent({
 
         watch(selectedChlId, () => {
             play()
-            showNote.value = motionAlarmList.includes(selectedChlId.value)
         })
 
         onMounted(() => {
+            if (import.meta.env.VITE_UI_TYPE !== 'UI2-A') {
+                alarmStatusTimer.repeat(true)
+            }
             getDataList()
         })
 
         onBeforeUnmount(() => {
-            if (ready.value) {
-                if (mode.value === 'ocx') {
-                    plugin.VideoPluginNotifyEmitter.removeListener(LiveNotify2Js)
-                    const sendXML = OCX_XML_StopPreview('ALL')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                } else {
-                    motionDrawer?.destroy()
-                    motionDrawer = undefined
-                }
+            if (mode.value === 'ocx') {
+                const sendXML = OCX_XML_StopPreview('ALL')
+                plugin.ExecuteCmd(sendXML)
             }
-            if (motionDectionStatusTimer) clearTimeout(motionDectionStatusTimer)
+
+            drawer.destroy()
         })
 
         return {
             playerRef,
+            notify,
             formData,
             tableRef,
             tableData,
-            btnOKDisabled,
+            chlOptions,
+            editRows,
             pageIndex,
             pageSize,
             pageTotal,
-            DefaultPagerSizeOptions,
-            DefaultPagerLayout,
             selectedChlId,
             holdTimeList,
             showNote,
-            handleSizeChange,
-            handleCurrentChange,
             handleRowClick,
             handleChlSel,
             handleDisposeWayClick,
-            handleChangeVal,
             handleChangeAll,
             save,
             onReady,
             handleSelAll,
             handleSelReverse,
             handleClear,
+            switchOptions,
+            getDataList,
         }
     },
 })

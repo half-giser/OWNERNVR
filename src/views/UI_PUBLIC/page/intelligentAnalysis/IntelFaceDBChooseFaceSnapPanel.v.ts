@@ -2,11 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-30 18:47:52
  * @Description: 智能分析 - 选择人脸 - 从抓拍库选择
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-12 10:32:06
  */
-import { cloneDeep } from 'lodash-es'
-import { type IntelFaceDBSnapFaceList } from '@/types/apiType/intelligentAnalysis'
 import IntelBaseFaceItem from './IntelBaseFaceItem.vue'
 
 export default defineComponent({
@@ -35,13 +31,11 @@ export default defineComponent({
         },
     },
     setup(prop, ctx) {
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const { Translate } = useLangStore()
         const dateTime = useDateTimeStore()
 
         const chlMap: Record<string, string> = {}
-        let cachePic: Record<string, { pic: string; featureStatus: boolean }> = {}
+        const cachePic = new Map<string, { pic: string; featureStatus: boolean }>()
 
         const pageData = ref({
             // 日期范围类型
@@ -112,6 +106,7 @@ export default defineComponent({
          * @description 检索抓怕数据列表
          */
         const searchData = async () => {
+            cachePic.clear()
             openLoading()
 
             const sendXml = rawXml`
@@ -131,23 +126,23 @@ export default defineComponent({
             closeLoading()
 
             formData.value.faceIndex = []
-            listData.value = $('//content/i')
+            listData.value = $('content/i')
                 .map((item) => {
-                    const textArr = item.text().split(',')
+                    const textArr = item.text().array()
                     const chlId = getChlGuid16(textArr[4]).toUpperCase()
-                    const timestamp = parseInt(textArr[1], 16) * 1000
+                    const timestamp = hexToDec(textArr[1]) * 1000
                     return {
-                        faceFeatureId: parseInt(textArr[0], 16) + '',
+                        faceFeatureId: hexToDec(textArr[0]) + '',
                         timestamp,
-                        frameTime: localToUtc(timestamp) + ':' + ('0000000' + parseInt(textArr[2], 16)).slice(-7),
-                        imgId: parseInt(textArr[3], 16),
+                        frameTime: localToUtc(timestamp) + ':' + padStart(hexToDec(textArr[2]), 7),
+                        imgId: hexToDec(textArr[3]),
                         chlId,
                         chlName: chlMap[chlId],
                         pic: '',
                         featureStatus: false,
                     }
                 })
-                .toSorted((a, b) => a.timestamp - b.timestamp)
+                .toSorted((a, b) => b.timestamp - a.timestamp)
 
             closeLoading()
 
@@ -162,11 +157,13 @@ export default defineComponent({
         const changeFacePage = async (pageIndex: number) => {
             formData.value.pageIndex = pageIndex
             filterListData.value = listData.value.slice((formData.value.pageIndex - 1) * formData.value.pageSize, formData.value.pageIndex * formData.value.pageSize)
-            for (let i = 0; i < filterListData.value.length; i++) {
-                const result = await getFacePic(filterListData.value[i])
-                filterListData.value[i].pic = result.pic
-                filterListData.value[i].featureStatus = result.featureStatus
-            }
+            filterListData.value.forEach(async (item) => {
+                const data = await getFacePic(item)
+                if (data) {
+                    item.pic = data.pic
+                    item.featureStatus = data.featureStatus
+                }
+            })
         }
 
         /**
@@ -182,10 +179,7 @@ export default defineComponent({
                     formData.value.faceIndex[0] = index
                 } else {
                     if (formData.value.faceIndex.length >= 5) {
-                        openMessageTipBox({
-                            type: 'info',
-                            message: Translate('IDCS_SELECT_FACE_UPTO_MAX').formatForLang(5),
-                        })
+                        openMessageBox(Translate('IDCS_SELECT_FACE_UPTO_MAX').formatForLang(5))
                         return
                     }
                     formData.value.faceIndex.push(index)
@@ -198,19 +192,26 @@ export default defineComponent({
             )
         }
 
+        const getUniqueKey = (row: { imgId: number; frameTime: string }) => {
+            if (!row || !row.imgId || !row.frameTime) {
+                return getNonce() + ''
+            }
+            return `${row.imgId}:${row.frameTime}`
+        }
+
         /**
          * @description 请求图片Base64数据
          * @param {IntelFaceDBSnapFaceList} item
          * @returns {string}
          */
         const getFacePic = async (item: IntelFaceDBSnapFaceList) => {
-            const key = item.frameTime
-            if (cachePic[key]) {
-                return cachePic[key]
+            const key = getUniqueKey(item)
+            if (cachePic.has(key)) {
+                return cachePic.get(key)!
             }
             const sendXml = rawXml`
                 <condition>
-                    <imgId>${item.imgId.toString()}</imgId>
+                    <imgId>${item.imgId}</imgId>
                     <chlId>${item.chlId}</chlId>
                     <frameTime>${item.frameTime}</frameTime>
                     <featureStatus>true</featureStatus>
@@ -218,20 +219,19 @@ export default defineComponent({
             `
             const result = await requestChSnapFaceImage(sendXml)
             const $ = queryXml(result)
-            const pic = $('//content').text()
-            const featureStatus = $('//featureStatus').text().toBoolean()
+            const pic = $('content').text()
+            const featureStatus = $('featureStatus').text().bool()
             if (pic) {
-                cachePic[key] = {
-                    pic: 'data:image/png;base64,' + pic,
+                cachePic.set(key, {
+                    pic: wrapBase64Img(pic),
+                    featureStatus,
+                })
+                return {
+                    pic: wrapBase64Img(pic),
                     featureStatus,
                 }
-                return cachePic[key]
-            } else {
-                return {
-                    pic: '',
-                    featureStatus: false,
-                }
             }
+            return null
         }
 
         /**
@@ -243,11 +243,11 @@ export default defineComponent({
                 authList: '@spr,@bk',
             })
             const $ = queryXml(result)
-            pageData.value.chlList = $('//content/item').map((item) => {
+            pageData.value.chlList = $('content/item').map((item) => {
                 const $item = queryXml(item.element)
-                chlMap[item.attr('id')!] = $item('name').text()
+                chlMap[item.attr('id')] = $item('name').text()
                 return {
-                    value: item.attr('id')!,
+                    value: item.attr('id'),
                     label: $item('name').text(),
                 }
             })
@@ -288,7 +288,11 @@ export default defineComponent({
         })
 
         onBeforeUnmount(() => {
-            cachePic = {}
+            cachePic.clear()
+        })
+
+        onBeforeRouteLeave(() => {
+            cachePic.clear()
         })
 
         return {
@@ -305,7 +309,6 @@ export default defineComponent({
             displayDateTime,
             listData,
             filterListData,
-            IntelBaseFaceItem,
         }
     },
 })

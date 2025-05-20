@@ -2,10 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-26 16:38:37
  * @Description: 现场预览-右侧视图 Layout
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-20 15:53:41
  */
-import { type LiveChannelList, type LiveSharedWinData } from '@/types/apiType/live'
+import { type SlotsType } from 'vue'
 
 export default defineComponent({
     props: {
@@ -52,8 +50,12 @@ export default defineComponent({
             required: true,
         },
     },
+    slots: Object as SlotsType<{
+        default: (scope: { index: number }) => any
+    }>,
     setup(prop) {
         const { Translate } = useLangStore()
+        const userSession = useUserSessionStore()
 
         const pageData = ref({
             // 是否显示右侧视图
@@ -98,7 +100,7 @@ export default defineComponent({
             if (prop.mode === 'h5') {
                 return [targetDetection, control, lens, ptz]
             } else if (prop.mode === 'ocx') {
-                if (import.meta.env.VITE_APP_TYPE === 'P2P') {
+                if (userSession.appType === 'P2P') {
                     return [control, lens, ptz, fishEye]
                 } else {
                     return [targetDetection, control, lens, ptz, fishEye]
@@ -112,9 +114,11 @@ export default defineComponent({
             if (!prop.winData.chlID || prop.winData.PLAY_STATUS !== 'play') {
                 return false
             }
+
             if (!prop.supportAz) {
                 return false
             }
+
             return true
         })
 
@@ -124,9 +128,11 @@ export default defineComponent({
             if (!chlID || prop.winData.PLAY_STATUS !== 'play') {
                 return false
             }
+
             if (prop.chl[chlID]?.supportPtz && !prop.winData.isPolling && (prop.auth.hasAll || prop.auth.ptz[chlID])) {
                 return true
             }
+
             return false
         })
 

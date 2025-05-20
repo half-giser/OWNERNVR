@@ -1,16 +1,15 @@
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-06-19 09:52:27
- * @Description:
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 17:45:02
+ * @Description: 新增通道组
  */
-import { ChannelInfoDto, ChlGroup } from '@/types/apiType/channel'
-import { type RuleItem } from 'async-validator'
-import type { FormInstance, TableInstance } from 'element-plus'
+import type { TableInstance, FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
+        /**
+         * @property 是否内嵌在弹窗内
+         */
         dialog: {
             type: Boolean,
             default: false,
@@ -26,27 +25,20 @@ export default defineComponent({
     },
     setup(prop, { emit }) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
         const router = useRouter()
 
-        const formRef = ref<FormInstance>()
-        const formData = ref(new ChlGroup())
+        const formRef = useFormRef()
+        const formData = ref(new ChannelGroupDto())
         const tableRef = ref<TableInstance>()
         const baseLivePopRef = ref<LivePopInstance>()
         const tableData = ref<ChannelInfoDto[]>([])
         const selNum = ref(0)
-        const total = ref(0)
-        const timeList = [
-            { text: '5 ' + Translate('IDCS_SECONDS'), value: 5 },
-            { text: '10 ' + Translate('IDCS_SECONDS'), value: 10 },
-            { text: '20 ' + Translate('IDCS_SECONDS'), value: 20 },
-            { text: '30 ' + Translate('IDCS_SECONDS'), value: 30 },
-            { text: '1 ' + Translate('IDCS_MINUTE'), value: 60 },
-            { text: '2 ' + Translate('IDCS_MINUTES'), value: 120 },
-            { text: '5 ' + Translate('IDCS_MINUTES'), value: 300 },
-            { text: '10 ' + Translate('IDCS_MINUTES'), value: 600 },
-        ]
+        const timeList = [5, 10, 20, 30, 60, 120, 300, 600].map((value) => {
+            return {
+                label: getTranslateForSecond(value),
+                value,
+            }
+        })
         const chlGroupCountLimit = 16 // 通道组个数上限
 
         const handleRowClick = (rowData: ChannelInfoDto) => {
@@ -62,26 +54,25 @@ export default defineComponent({
             baseLivePopRef.value?.openLiveWin(rowData.id, rowData.name)
         }
 
-        const validate: Record<string, RuleItem['validator']> = {
-            validateName: (_rule, value, callback) => {
-                value = value.trim()
-                if (value.length === 0) {
-                    callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
-                    return
-                } else {
-                    formData.value.name = value = cutStringByByte(value, nameByteMaxLen)
-                    // 应该不可能发生此情况
-                    if (value == 0) {
-                        callback(new Error(Translate('IDCS_INVALID_CHAR')))
-                        return
-                    }
-                }
-                callback()
-            },
-        }
+        const rules = ref<FormRules>({
+            name: [
+                {
+                    validator: (_rule, value, callback) => {
+                        if (!value.trim()) {
+                            callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
+                            return
+                        }
 
-        const rules = ref({
-            name: [{ validator: validate.validateName, trigger: 'manual' }],
+                        if (!cutStringByByte(value, nameByteMaxLen)) {
+                            callback(new Error(Translate('IDCS_INVALID_CHAR')))
+                            return
+                        }
+
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
         })
 
         const verification = async () => {
@@ -89,17 +80,12 @@ export default defineComponent({
             const valid = await formRef.value!.validate()
             if (valid) {
                 if (!selNum.value) {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'),
-                    })
+                    openMessageBox(Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'))
                     return false
                 }
+
                 if (selNum.value > chlGroupCountLimit) {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_CHL_GROUP_CHL_OVER_TIPS').formatForLang(chlGroupCountLimit),
-                    })
+                    openMessageBox(Translate('IDCS_CHL_GROUP_CHL_OVER_TIPS').formatForLang(chlGroupCountLimit))
                     return false
                 }
             }
@@ -108,23 +94,22 @@ export default defineComponent({
 
         const save = async () => {
             if (!(await verification())) return
-            let data = rawXml`
+            const selection = tableRef.value!.getSelectionRows() as ChannelInfoDto[]
+            const sendXml = rawXml`
                 <content>
-                    <name><![CDATA[${formData.value.name}]]></name>
-                    <dwellTime unit='s'>${formData.value.dwellTime.toString()}</dwellTime>
-                    <chlIdList type='list'>`
-            tableRef.value!.getSelectionRows().forEach((ele: ChannelInfoDto) => {
-                data += `<item>${ele.id}</item>`
-            })
-            data += rawXml`
+                    <name>${wrapCDATA(formData.value.name)}</name>
+                    <dwellTime unit='s'>${formData.value.dwellTime}</dwellTime>
+                    <chlIdList type='list'>
+                        ${selection.map((ele) => `<item>${ele.id}</item>`).join('')}
                     </chlIdList>
-                </content>`
+                </content>
+            `
             openLoading()
-            createChlGroup(data).then((res) => {
+            createChlGroup(sendXml).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
-                    openMessageTipBox({
+                if ($('status').text() === 'success') {
+                    openMessageBox({
                         type: 'success',
                         message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                     }).then(() => {
@@ -132,17 +117,17 @@ export default defineComponent({
                         handleCancel()
                     })
                 } else {
-                    const errorCdoe = Number($('errorCode').text())
+                    const errorCode = $('errorCode').text().num()
                     let msg = Translate('IDCS_SAVE_DATA_FAIL')
-                    if (errorCdoe == ErrorCode.USER_ERROR_NAME_EXISTED) {
-                        msg = Translate('IDCS_PROMPT_CHANNEL_GROUP_NAME_EXIST')
-                    } else if (errorCdoe == ErrorCode.USER_ERROR_OVER_LIMIT) {
-                        msg = Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT')
+                    switch (errorCode) {
+                        case ErrorCode.USER_ERROR_NAME_EXISTED:
+                            msg = Translate('IDCS_PROMPT_CHANNEL_GROUP_NAME_EXIST')
+                            break
+                        case ErrorCode.USER_ERROR_OVER_LIMIT:
+                            msg = Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT')
+                            break
                     }
-                    openMessageTipBox({
-                        type: 'info',
-                        message: msg,
-                    })
+                    openMessageBox(msg)
                 }
             })
         }
@@ -150,6 +135,8 @@ export default defineComponent({
         const handleCancel = () => {
             if (prop.dialog) {
                 emit('close')
+                formRef.value!.resetFields()
+                tableRef.value!.clearSelection()
             } else {
                 router.push('list')
             }
@@ -167,27 +154,24 @@ export default defineComponent({
             queryDevList(data).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
-                    const chlList: ChannelInfoDto[] = []
-                    $('//content/item').forEach((ele) => {
-                        const eleXml = queryXml(ele.element)
+                if ($('status').text() === 'success') {
+                    tableData.value = $('content/item').map((ele) => {
+                        const $item = queryXml(ele.element)
                         const newData = new ChannelInfoDto()
-                        newData.id = ele.attr('id')!
-                        newData.chlIndex = eleXml('chlIndex').text()
-                        newData.chlType = eleXml('chlType').text()
-                        newData.name = eleXml('name').text()
-                        newData.ip = eleXml('ip').text()
-                        newData.addType = eleXml('addType').text()
-                        chlList.push(newData)
+                        newData.id = ele.attr('id')
+                        newData.chlIndex = $item('chlIndex').text()
+                        newData.chlType = $item('chlType').text()
+                        newData.name = $item('name').text()
+                        newData.ip = $item('ip').text()
+                        newData.addType = $item('addType').text()
+                        return newData
                     })
-                    tableData.value = chlList
-                    total.value = chlList.length
                 }
             })
         }
 
         onMounted(() => {
-            formData.value = new ChlGroup()
+            formData.value = new ChannelGroupDto()
             formData.value.dwellTime = 60
             getData()
         })
@@ -200,13 +184,13 @@ export default defineComponent({
             tableRef,
             tableData,
             selNum,
-            total,
             baseLivePopRef,
             handleRowClick,
             handleSelectionChange,
             handlePreview,
             save,
             handleCancel,
+            chlGroupCountLimit,
         }
     },
 })

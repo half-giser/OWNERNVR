@@ -2,19 +2,16 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-26 17:03:07
  * @Description: 现场预览-通道视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 17:42:49
  */
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
 import ChannelGroupAddPop from '../channel/ChannelGroupAddPop.vue'
-import { type LiveChannelList, type LiveChannelGroupList, type LiveChlOfChannelGroupList, type LiveCustomViewList, type LiveCustomViewChlList } from '@/types/apiType/live'
-import { ChlGroup } from '@/types/apiType/channel'
 
 export interface ChannelPanelExpose {
     getOnlineChlList: () => string[]
     getOfflineChlList: () => string[]
     setOnlineChlList: (chls: string[]) => void
     getChlMap: () => Record<string, LiveChannelList>
+    switchChl: (split: number) => void
 }
 
 export default defineComponent({
@@ -64,9 +61,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
-        const theme = getUiAndTheme()
+        const systemCaps = useCababilityStore()
 
         const pageData = ref({
             // 通道列表是否初始化完毕
@@ -95,7 +90,6 @@ export default defineComponent({
             cacheChlList: [] as LiveChannelList[],
             // 在线通道列表
             onlineChlList: [] as string[],
-            // chlList: [] as LiveChannelList[],
             // 输入的关键词
             chlKeyword: '',
             // 已确认，可用于过滤的关键词
@@ -113,13 +107,13 @@ export default defineComponent({
             // 自定义视图列表
             customViewList: [] as LiveCustomViewList[],
             // 当前hover的自定义视图
-            activeCustomView: 0,
+            activeCustomView: -1,
             // 打开新增通道组弹窗
             isAddChlGroup: false,
             // 打开编辑通道组弹窗
             isEditChlGroup: false,
             // 编辑数据
-            editChlGroup: new ChlGroup(),
+            editChlGroup: new ChannelGroupDto(),
             // 通道视图是否显示
             isOpen: true,
         })
@@ -145,6 +139,7 @@ export default defineComponent({
          */
         const changeChlMenu = (index: number) => {
             pageData.value.activeChlMenu = index
+            pageData.value.activeCustomView = -1
             if (index === 1 && !pageData.value.chlGroupList.length) {
                 getChlGroupList()
             } else if (index === 2 && !pageData.value.customViewList.length) {
@@ -160,23 +155,23 @@ export default defineComponent({
                 requireField: ['protocolType', 'supportPtz', 'supportPTZGroupTraceTask', 'supportAccessControl'],
             })
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                pageData.value.cacheChlList = $('//content/item').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.cacheChlList = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     const result = {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         value: $item('name').text(),
                         chlType: $item('chlType').text(),
                         protocolType: $item('chlType').text(),
-                        supportPtz: $item('supportPtz').text().toBoolean(),
-                        supportPTZGroupTraceTask: $item('supportPTZGroupTraceTask').text().toBoolean(),
-                        supportAccessControl: $item('supportAccessControl').text().toBoolean(),
-                        supportTalkback: false, // $item('supportTalkback').text().toBoolean(),
+                        supportPtz: $item('supportPtz').text().bool(),
+                        supportPTZGroupTraceTask: $item('supportPTZGroupTraceTask').text().bool(),
+                        supportAccessControl: $item('supportAccessControl').text().bool(),
+                        supportTalkback: false, // $item('supportTalkback').text().bool(),
                         chlIp: '',
                         poeSwitch: false,
                     }
                     if (item.attr('id')) {
-                        chlMap[item.attr('id')!] = result
+                        chlMap[item.attr('id')] = result
                     }
                     return result
                 })
@@ -192,11 +187,11 @@ export default defineComponent({
                 isSupportTalkback: true,
             })
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                $('//content/item').forEach((item) => {
+            if ($('status').text() === 'success') {
+                $('content/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    const id = item.attr('id')!
-                    const chlType = $item('productModel').attr('factoryName')!
+                    const id = item.attr('id')
+                    const chlType = $item('productModel').attr('factoryName')
                     const index = indexes.indexOf(id)
                     if (index > -1 && chlType !== 'Recorder') {
                         pageData.value.cacheChlList[index].supportTalkback = true
@@ -220,10 +215,10 @@ export default defineComponent({
             const result = await queryOnlineChlList()
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 // 查询出所有在线的通道
-                pageData.value.onlineChlList = $('//content/item').map((item) => {
-                    return item.attr('id')!
+                pageData.value.onlineChlList = $('content/item').map((item) => {
+                    return item.attr('id')
                 })
             }
         }
@@ -232,9 +227,11 @@ export default defineComponent({
             if (prop.playingList.includes(id)) {
                 return 2
             }
+
             if (!pageData.value.onlineChlList.includes(id)) {
                 return 3
             }
+
             if (pageData.value.activeChl === id) {
                 return 1
             }
@@ -300,21 +297,18 @@ export default defineComponent({
             `
             const result = await queryChlGroupList(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                pageData.value.chlGroupList = $('//content/item').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.chlGroupList = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         value: $item('name').text(),
-                        dwellTime: Number($item('dwellTime').text()),
+                        dwellTime: $item('dwellTime').text().num(),
                     }
                 })
             } else {
-                if (Number($('//errorCode').text()) === ErrorCode.USER_ERROR_NO_AUTH) {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_NO_PERMISSION'),
-                    })
+                if ($('errorCode').text().num() === ErrorCode.USER_ERROR_NO_AUTH) {
+                    openMessageBox(Translate('IDCS_NO_PERMISSION'))
                 }
             }
         }
@@ -334,10 +328,10 @@ export default defineComponent({
             const result = await queryChlGroup(sendXml)
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
-                pageData.value.chlListOfGroup = $('//content/chlList/item').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.chlListOfGroup = $('content/chlList/item').map((item) => {
                     return {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         value: item.text(),
                     }
                 })
@@ -419,7 +413,7 @@ export default defineComponent({
             const id = pageData.value.activeChlGroup
             const findItem = pageData.value.chlGroupList.find((item) => item.id === id)
             if (findItem) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_DELETE_MP_GROUP_S').formatForLang(getShortString(findItem.value, 10)),
                 }).then(async () => {
@@ -432,17 +426,11 @@ export default defineComponent({
                         </condition>
                     `
                     const result = await delChlGroup(sendXml)
-                    const $ = queryXml(result)
                     closeLoading()
-                    if ($('//status').text() === 'success') {
-                        openMessageTipBox({
-                            type: 'success',
-                            message: Translate('IDCS_DELETE_SUCCESS'),
-                        }).then(() => {
-                            getChlGroupList()
-                            pageData.value.chlListOfGroup = []
-                        })
-                    }
+                    commDelResponseHandler(result, () => {
+                        getChlGroupList()
+                        pageData.value.chlListOfGroup = []
+                    })
                 })
             }
         }
@@ -460,7 +448,7 @@ export default defineComponent({
         const mousemoveChlGroupPosition = (event: MouseEvent) => {
             if (mousedown) {
                 const rect = chlGroupElement.value!.getBoundingClientRect()
-                const position = Math.max(20, Math.min(80, ((event.clientY - rect.top) / rect.height) * 100))
+                const position = clamp(((event.clientY - rect.top) / rect.height) * 100, 20, 80)
                 pageData.value.chlGroupHeight = `${position}%`
             }
         }
@@ -482,16 +470,16 @@ export default defineComponent({
             const result = await queryCustomerView()
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
-                pageData.value.customViewList = $('//content/item').map((item, index) => {
+            if ($('status').text() === 'success') {
+                pageData.value.customViewList = $('content/item').map((item, index) => {
                     const $item = queryXml(item.element)
                     return {
                         chlArr: $item('chls/item').map((chl) => ({
-                            chlId: chl.attr('id')!,
-                            chlIndex: Number(chl.text()),
+                            chlId: chl.attr('id'),
+                            chlIndex: chl.text().num(),
                         })),
                         historyPlay: $item('historyPlay').text(),
-                        segNum: Number($item('segNum').text()),
+                        segNum: $item('segNum').text().num(),
                         value: $item('name').text(),
                         id: index,
                     }
@@ -506,12 +494,11 @@ export default defineComponent({
         const setWinFormCustomView = (item: LiveCustomViewList) => {
             pageData.value.activeCustomView = item.id
 
-            if (item.segNum > 4) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_SUPPORT_SEGMENTATION').formatForLang(item.segNum),
-                })
+            if ((prop.mode === 'h5' && item.segNum > 4) || (prop.mode === 'ocx' && item.segNum > systemCaps.previewMaxWin)) {
+                openMessageBox(Translate('IDCS_NO_SUPPORT_SEGMENTATION').formatForLang(item.segNum))
+                return
             }
+
             ctx.emit('custom', item.chlArr, item.segNum)
         }
 
@@ -527,14 +514,34 @@ export default defineComponent({
             `
             const result = await queryDevList(sendXml)
             const $ = queryXml(result)
-            $('//content/item').forEach((item) => {
+            $('content/item').forEach((item) => {
                 const $item = queryXml(item.element)
-                const id = item.attr('id')!
+                const id = item.attr('id')
                 if (chlMap[id]) {
                     chlMap[id].poeSwitch = $item('addType').text() === 'poe'
                     chlMap[id].chlIp = $item('ip').text()
                 }
             })
+        }
+
+        /**
+         * @description 切换通道
+         * @param split
+         */
+        const switchChl = (split: number) => {
+            const onlineChl = chlList.value.filter((chl) => pageData.value.onlineChlList.includes(chl.id))
+            let lastIndex = Math.max(...prop.playingList.map((chlId) => onlineChl.findIndex((chl) => chl.id === chlId)))
+            if (lastIndex === onlineChl.length - 1) {
+                lastIndex = -1
+            }
+            ctx.emit(
+                'custom',
+                onlineChl.splice(lastIndex + 1, split).map((item, index) => ({
+                    chlId: item.id,
+                    chlIndex: index,
+                })),
+                split,
+            )
         }
 
         // const stopRefreshChlStatus = () => {
@@ -563,7 +570,7 @@ export default defineComponent({
         onMounted(async () => {
             await getChlsList()
             await getSupportTalkbackChlList()
-            if (theme.name === 'UI1-E') {
+            if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
                 await getDeviceList()
             }
             await getChlTreeStatus()
@@ -582,6 +589,7 @@ export default defineComponent({
             setOnlineChlList,
             getOfflineChlList,
             getChlMap,
+            switchChl,
         })
 
         return {
@@ -604,8 +612,6 @@ export default defineComponent({
             getChlIconStatus,
             chlGroupElement,
             mousedownChlGroupPosition,
-            ChannelGroupEditPop,
-            ChannelGroupAddPop,
         }
     },
 })

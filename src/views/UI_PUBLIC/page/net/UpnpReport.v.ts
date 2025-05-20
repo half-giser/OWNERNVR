@@ -2,35 +2,33 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-12 10:52:55
  * @Description: UPnP上报
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:25:24
  */
-import { type FormInstance, type FormRules } from 'element-plus'
-import { NetUPnPReportForm } from '@/types/apiType/net'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new NetUPnPReportForm())
         const formRule = ref<FormRules>({
             serverAddr: {
-                validator(rule, value: string, callback) {
+                validator(_rule, value: string, callback) {
                     if (!formData.value.switch) {
                         callback()
                         return
                     }
-                    if (!value.length) {
+
+                    if (!value.trim()) {
                         callback(new Error(Translate('IDCS_DDNS_SERVER_ADDR_EMPTY')))
                         return
                     }
-                    if (!cutStringByByte(value, nameByteMaxLen)) {
-                        callback(new Error('IDCS_INVALID_CHAR'))
+
+                    if (!checkDomain(value)) {
+                        callback(new Error(Translate('IDCS_INVALID_CHAR')))
                         return
                     }
+
                     callback()
                 },
             },
@@ -46,12 +44,14 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryUPnPCfg()
             const $ = queryXml(result)
-            if ($('//content/reportPorts').length) {
-                pageData.value.upnpSwitch = $('//content/switch').text().toBoolean()
-                formData.value.switch = $('//content/reportPorts/switch').text().toBoolean()
-                formData.value.serverAddr = $('//content/reportPorts/serverAddr').text()
-                formData.value.port = Number($('//content/reportPorts/port').text())
-                formData.value.manId = $('//content/reportPorts/manId').text()
+            if ($('content/reportPorts').length) {
+                pageData.value.upnpSwitch = $('content/switch').text().bool()
+                formData.value.switch = $('content/reportPorts/switch').text().bool()
+                formData.value.serverAddrMaxByteLen = $('content/reportPorts/serverAddr').attr('maxByteLen').num() || nameByteMaxLen
+                formData.value.serverAddr = $('content/reportPorts/serverAddr').text()
+                formData.value.port = $('content/reportPorts/port').text().num()
+                formData.value.manIdMaxByteLen = $('content/reportPorts/manId').attr('maxByteLen').num() || nameByteMaxLen
+                formData.value.manId = $('content/reportPorts/manId').text()
             }
         }
 
@@ -60,7 +60,7 @@ export default defineComponent({
          */
         const setData = () => {
             // TODO 在未启用、serverAddr和manId为空的情况下点击确认，会返回fail无效参数（原项目也存在这个问题）
-            formRef.value!.validate(async (valid: boolean) => {
+            formRef.value!.validate(async (valid) => {
                 if (!valid) {
                     return
                 }
@@ -69,15 +69,15 @@ export default defineComponent({
                 const sendXml = rawXml`
                     <content>
                         <reportPorts>
-                            <serverAddr>${formData.value.serverAddr}</serverAddr>
+                            <serverAddr maxByteLen="63">${wrapCDATA(formData.value.serverAddr)}</serverAddr>
                             <manId>${formData.value.manId}</manId>
-                            <port>${formData.value.port.toString()}</port>
-                            <switch>${formData.value.switch.toString()}</switch>
+                            <port>${formData.value.port}</port>
+                            <switch>${formData.value.switch}</switch>
                         </reportPorts>
                     </content>
                 `
                 const result = await editUPnPCfg(sendXml)
-                commSaveResponseHadler(result)
+                commSaveResponseHandler(result)
 
                 closeLoading()
             })
@@ -88,10 +88,7 @@ export default defineComponent({
          */
         const changeSwitch = () => {
             if (formData.value.switch && !pageData.value.upnpSwitch) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_ENABLE_UPNP_REPORT_TIPS'),
-                })
+                openMessageBox(Translate('IDCS_ENABLE_UPNP_REPORT_TIPS'))
             }
         }
 
@@ -104,8 +101,6 @@ export default defineComponent({
             formData,
             formRule,
             setData,
-            nameByteMaxLen,
-            formatInputMaxLength,
             changeSwitch,
         }
     },

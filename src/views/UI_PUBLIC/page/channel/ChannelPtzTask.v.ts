@@ -2,12 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-22 15:15:52
  * @Description: 云台-任务
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:39:02
  */
-import { cloneDeep } from 'lodash-es'
-import { ChannelPtzTaskDto, type ChannelPtzTaskChlDto, ChannelPtzTaskForm } from '@/types/apiType/channel'
-import { type FormInstance, type TableInstance, type FormRules } from 'element-plus'
+import { type TableInstance, type FormRules } from 'element-plus'
 import ChannelPtzTaskEditPop from './ChannelPtzTaskEditPop.vue'
 
 export default defineComponent({
@@ -16,17 +12,17 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
+        const dateTime = useDateTimeStore()
 
         const playerRef = ref<PlayerInstance>()
         const auth = useUserChlAuth(false)
-        const dateTime = useDateTimeStore()
 
         // 任务数最大值
         const TASK_LIMIT = 8
 
-        let timer: NodeJS.Timeout | number = 0
+        const renderTaskListTimer = useRefreshTimer(() => {
+            renderTaskList()
+        }, 2000)
 
         // 功能与显示文本的映射
         const TYPE_TRANS_MAPPING: Record<string, string> = {
@@ -46,39 +42,12 @@ export default defineComponent({
         }
 
         const pageData = ref({
-            // 通知列表
-            notification: [] as string[],
             // 当前表格选中索引
             tableIndex: 0,
             // 表格展开索引列表
             expandRowKey: [] as string[],
             // 功能选项
-            typeOptions: [
-                {
-                    label: Translate('IDCS_NO'),
-                    value: 'NON',
-                },
-                {
-                    label: Translate('IDCS_PRESET'),
-                    value: 'PRE',
-                },
-                {
-                    label: Translate('IDCS_CRUISE'),
-                    value: 'CRU',
-                },
-                {
-                    label: Translate('IDCS_PTZ_TRACE'),
-                    value: 'TRA',
-                },
-                {
-                    label: Translate('IDCS_RANDOM_SCANNING'),
-                    value: 'RSC',
-                },
-                {
-                    label: Translate('IDCS_BOUNDARY_SCANNING'),
-                    value: 'ASC',
-                },
-            ],
+            typeOptions: objectToOptions(TYPE_TRANS_MAPPING, 'string'),
             // 名称选项
             nameOptions: [
                 {
@@ -96,26 +65,24 @@ export default defineComponent({
             editChlId: '',
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
 
         const formData = ref(new ChannelPtzTaskForm())
 
         const formRule = ref<FormRules>({
             name: [
                 {
-                    validator(rule, value: string, callback) {
-                        if (!value) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return
                         }
+
                         if (tableData.value[pageData.value.tableIndex].taskItemCount >= TASK_LIMIT) {
-                            openMessageTipBox({
-                                type: 'info',
-                                message: Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
-                            })
-                            callback(new Error(''))
+                            openMessageBox(Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -123,13 +90,13 @@ export default defineComponent({
             ],
             endTime: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator: (_rule, value: string, callback) => {
                         if (getSeconds(value) < getSeconds(formData.value.startTime)) {
                             callback(new Error(Translate('IDCS_END_TIME_GREATER_THAN_START')))
                             return
                         }
+
                         callback()
-                        return
                     },
                     trigger: 'manual',
                 },
@@ -141,16 +108,25 @@ export default defineComponent({
 
         const taskTableData = ref<ChannelPtzTaskDto[]>([])
 
-        // 播放模式
-        const mode = computed(() => {
-            if (!playerRef.value) {
-                return ''
-            }
-            return playerRef.value.mode
+        const chlOptions = computed(() => {
+            return tableData.value.map((item, index) => {
+                return {
+                    label: item.chlName,
+                    value: index,
+                }
+            })
         })
 
         const ready = computed(() => {
             return playerRef.value?.ready || false
+        })
+
+        // 播放模式
+        const mode = computed(() => {
+            if (!ready.value) {
+                return ''
+            }
+            return playerRef.value!.mode
         })
 
         let player: PlayerInstance['player']
@@ -163,22 +139,9 @@ export default defineComponent({
             player = playerRef.value!.player
             plugin = playerRef.value!.plugin
 
-            if (mode.value === 'h5') {
-                if (isHttpsLogin()) {
-                    pageData.value.notification = [formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`)]
-                }
-            }
             if (mode.value === 'ocx') {
-                if (!plugin.IsInstallPlugin()) {
-                    plugin.SetPluginNotice('#layout2Content')
-                    return
-                }
-                if (!plugin.IsPluginAvailable()) {
-                    plugin.SetPluginNoResponse()
-                    plugin.ShowPluginNoResponse()
-                }
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -187,15 +150,26 @@ export default defineComponent({
          */
         const play = () => {
             const { chlId, chlName } = tableData.value[pageData.value.tableIndex]
+
             if (mode.value === 'h5') {
                 player.play({
                     chlID: chlId,
                     streamType: 2,
                 })
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 plugin.RetryStartChlView(chlId, chlName)
             }
         }
+
+        // 首次加载成功 播放视频
+        const stopWatchFirstPlay = watchEffect(() => {
+            if (ready.value && tableData.value.length) {
+                nextTick(() => play())
+                stopWatchFirstPlay()
+            }
+        })
 
         /**
          * @description 获取预置点列表
@@ -210,9 +184,9 @@ export default defineComponent({
             const result = await queryChlPresetList(sendXml)
             const $ = queryXml(result)
 
-            pageData.value.nameOptions = $('//content/presets/item').map((item) => {
+            pageData.value.nameOptions = $('content/presets/item').map((item) => {
                 return {
-                    value: item.attr('index')!,
+                    value: item.attr('index'),
                     label: item.text(),
                 }
             })
@@ -230,9 +204,9 @@ export default defineComponent({
             `
             const result = await queryChlCruiseList(sendXml)
             const $ = queryXml(result)
-            pageData.value.nameOptions = $('//content/cruises/item').map((item) => {
+            pageData.value.nameOptions = $('content/cruises/item').map((item) => {
                 return {
-                    value: item.attr('index')!,
+                    value: item.attr('index'),
                     label: item.text(),
                 }
             })
@@ -250,9 +224,9 @@ export default defineComponent({
             `
             const result = await queryLocalChlPtzTraceList(sendXml)
             const $ = queryXml(result)
-            pageData.value.nameOptions = $('//content/traces/item').map((item) => {
+            pageData.value.nameOptions = $('content/traces/item').map((item) => {
                 return {
-                    value: item.attr('index')!,
+                    value: item.attr('index'),
                     label: item.text(),
                 }
             })
@@ -260,6 +234,7 @@ export default defineComponent({
 
         /**
          * @description 只有数据更新才重新渲染
+         * @param {ChannelPtzTaskDto[]} data
          */
         const compareTask = (data: ChannelPtzTaskDto[]) => {
             if (data.length !== taskTableData.value.length) {
@@ -292,9 +267,9 @@ export default defineComponent({
             const result = await queryLocalChlPtzTask(sendData)
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
-                const status = $('//content/tasks').attr('status')!.toBoolean()
-                const data = $('//content/tasks/item').map((item, index) => {
+            if ($('status').text() === 'success') {
+                const status = $('content/tasks').attr('status').bool()
+                const data = $('content/tasks/item').map((item, index) => {
                     const $item = queryXml(item.element)
                     return {
                         index: index + 1,
@@ -303,7 +278,7 @@ export default defineComponent({
                         endTime: $item('endTime').text(), // formatDate($item('endTime').text(), dateTime.hourMinuteFormat.value, 'HH:mm'),
                         type: $item('type').text(),
                         name: $item('name').text(),
-                        editIndex: item.attr('index')!,
+                        editIndex: item.attr('index'),
                     }
                 })
                 if (update && chlId === pageData.value.expandRowKey[0]) {
@@ -332,23 +307,13 @@ export default defineComponent({
          * @description 定时获取任务列表
          */
         const renderTaskList = async () => {
-            stopRenderTaskList()
+            renderTaskListTimer.stop()
             if (pageData.value.expandRowKey.length) {
                 await getTaskList(pageData.value.expandRowKey[0])
             } else if (taskTableData.value.length) {
                 taskTableData.value = []
             }
-            timer = setTimeout(() => {
-                renderTaskList()
-            }, 2000)
-        }
-
-        /**
-         * @description 停止定时获取任务列表
-         */
-        const stopRenderTaskList = () => {
-            clearTimeout(timer)
-            timer = 0
+            renderTaskListTimer.repeat()
         }
 
         /**
@@ -372,8 +337,8 @@ export default defineComponent({
                     return rawXml`
                         <item index="${item.editIndex}">
                             <type>${item.type}</type>
-                            <startTime>${getSeconds(item.startTime).toString()}</startTime>
-                            <endTime>${getSeconds(item.endTime).toString()}</endTime>
+                            <startTime>${getSeconds(item.startTime)}</startTime>
+                            <endTime>${getSeconds(item.endTime)}</endTime>
                         </item>
                     `
                 })
@@ -383,12 +348,12 @@ export default defineComponent({
                     <chlId id="${chlId}"></chlId>
                     <index>1</index>
                     <name>task1</name>
-                    <status>${status.toString()}</status>
+                    <status>${status}</status>
                     <childs type="list">${taskXml}</childs>
                 </content>
             `
             await editChlPtzTask(sendXML)
-            openMessageTipBox({
+            openMessageBox({
                 type: 'success',
                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
             })
@@ -404,7 +369,7 @@ export default defineComponent({
                 <content>
                     <chlId>${chlId}</chlId>
                     <index>1</index>
-                    <status>${status.toString()}</status>
+                    <status>${status}</status>
                 </content>
             `
             await setChlPtzTaskStatus(sendXml)
@@ -415,7 +380,7 @@ export default defineComponent({
          */
         const changeTaskStatus = async () => {
             if (pageData.value.expandRowKey.length) {
-                stopRenderTaskList()
+                renderTaskListTimer.stop()
                 const chlId = pageData.value.expandRowKey[0]
                 const status = !pageData.value.taskStatus
                 await setTask(chlId, status, taskTableData.value)
@@ -429,7 +394,7 @@ export default defineComponent({
          * @param {ChannelPtzTaskDto} row
          */
         const editTask = (row: ChannelPtzTaskDto) => {
-            stopRenderTaskList()
+            renderTaskListTimer.stop()
             pageData.value.isEditPop = true
             pageData.value.editData = { ...row }
             pageData.value.editChlId = pageData.value.expandRowKey[0]
@@ -464,12 +429,12 @@ export default defineComponent({
          * @description 删除所有任务
          */
         const deleteAllTask = () => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_ALL_ITEMS'),
             }).then(async () => {
                 if (pageData.value.expandRowKey.length) {
-                    stopRenderTaskList()
+                    renderTaskListTimer.stop()
                     const chlId = pageData.value.expandRowKey[0]
                     await setTask(chlId, false, [])
                     renderTaskList()
@@ -488,19 +453,19 @@ export default defineComponent({
                 isSupportPtzGroupTraceTask: true,
             })
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                tableData.value = $('//content/item')
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/item')
                     .filter((item) => {
                         const $item = queryXml(item.element)
-                        return (auth.value.hasAll || auth.value.ptz[item.attr('id')!]) && $item('chlType').text() !== 'recorder'
+                        return (auth.value.hasAll || auth.value.ptz[item.attr('id')]) && $item('chlType').text() !== 'recorder'
                     })
                     .map((item) => {
                         const $item = queryXml(item.element)
 
                         return {
-                            chlId: item.attr('id')!,
+                            chlId: item.attr('id'),
                             chlName: $item('name').text(),
-                            taskItemCount: Number($item('taskItemCount').text()),
+                            taskItemCount: $item('taskItemCount').text().num(),
                         }
                     })
             }
@@ -510,9 +475,9 @@ export default defineComponent({
          * @description 添加任务
          */
         const setData = () => {
-            formRef.value?.validate(async (valid) => {
+            formRef.value!.validate(async (valid) => {
                 if (valid) {
-                    stopRenderTaskList()
+                    renderTaskListTimer.stop()
                     const chlId = tableData.value[pageData.value.tableIndex].chlId
                     const result = await getTaskList(chlId, false)
                     result.data.push({
@@ -590,6 +555,7 @@ export default defineComponent({
                     },
                 ]
             }
+
             if (pageData.value.nameOptions.length) {
                 formData.value.name = pageData.value.nameOptions[0].value
             }
@@ -599,8 +565,7 @@ export default defineComponent({
          * @description 修改通道选项
          */
         const changeChl = () => {
-            tableRef.value?.setCurrentRow(tableData.value[pageData.value.tableIndex])
-            formRef.value?.clearValidate()
+            tableRef.value!.setCurrentRow(tableData.value[pageData.value.tableIndex])
             formData.value.name = ''
             getName()
         }
@@ -629,21 +594,23 @@ export default defineComponent({
          * @param {ChannelPtzTaskChlDto} row
          * @param {boolean} expanded
          */
-        const handleExpandChange = async (row: ChannelPtzTaskChlDto, expanded: ChannelPtzTaskChlDto[]) => {
+        const handleExpandChange = (row: ChannelPtzTaskChlDto, expanded: ChannelPtzTaskChlDto[]) => {
             if (expanded.length > 1) {
                 const find = tableData.value.find((item) => item.chlId === expanded[0].chlId)!
-                tableRef.value?.toggleRowExpansion(find, false)
+                tableRef.value!.toggleRowExpansion(find, false)
             }
+
             if (!expanded.length) {
                 taskTableData.value = []
                 pageData.value.expandRowKey = []
-                stopRenderTaskList()
+                renderTaskListTimer.stop()
             }
+
             if (expanded.some((item) => item.chlId === row.chlId)) {
-                tableRef.value?.setCurrentRow(row)
+                tableRef.value!.setCurrentRow(row)
                 taskTableData.value = []
                 pageData.value.expandRowKey = [row.chlId]
-                renderTaskList()
+                renderTaskListTimer.repeat(true)
             }
         }
 
@@ -670,10 +637,9 @@ export default defineComponent({
         })
 
         onBeforeUnmount(() => {
-            stopRenderTaskList()
-            if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx') {
                 const sendXML = OCX_XML_StopPreview('ALL')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         })
 
@@ -681,6 +647,7 @@ export default defineComponent({
             playerRef,
             tableRef,
             tableData,
+            chlOptions,
             formRef,
             formData,
             formRule,
@@ -702,7 +669,6 @@ export default defineComponent({
             displayType,
             displayName,
             setData,
-            ChannelPtzTaskEditPop,
         }
     },
 })

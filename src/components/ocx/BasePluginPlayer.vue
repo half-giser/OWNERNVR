@@ -2,24 +2,25 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-12 15:40:03
  * @Description: 插件占位DIV
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-10 17:37:35
 -->
 <template>
     <div
         ref="$player"
         class="PluginPlayer"
-    >
-        <BasePluginNotice />
-    </div>
+    ></div>
 </template>
 
 <script lang="ts" setup>
+import { type XMLQuery } from '@/utils/xmlParse'
+
 const pluginStore = usePluginStore()
 
 const prop = withDefaults(
     defineProps<{
-        isUpdatePos: boolean // 是否向插件发送位置数据
+        /**
+         * @property 是否向插件发送位置数据
+         */
+        isUpdatePos: boolean
     }>(),
     {
         isUpdatePos: true,
@@ -27,61 +28,49 @@ const prop = withDefaults(
 )
 
 const emits = defineEmits<{
-    (e: 'onready'): void
+    (e: 'ready'): void
+    (e: 'message', $: XMLQuery, stateType: string): void
 }>()
 
-const Plugin = inject('Plugin') as PluginType
+const plugin = usePlugin()
 const $player = ref<HTMLDivElement>()
 const ready = ref(false)
+
+usePlugin({
+    player: $player,
+    onMessage: ($, stateType) => emits('message', $, stateType),
+})
 
 /**
  * @description 组件与OCX通信均就绪时回调
  */
-const handleReady = () => {
+const stopWatchReady = watchEffect(() => {
     if (ready.value && pluginStore.ready && pluginStore.currPluginMode === 'ocx') {
-        if (prop.isUpdatePos) {
-            Plugin.AddPluginMoveEvent($player.value!)
-        }
-        Plugin.SetPluginSize($player.value!)
-        // setTimeout(() => {
-        emits('onready')
-        // }, 200)
-        // bug：插件的宽高可能无法正确Resize，此处强制刷新宽高
-        // nextTick(() => {
-        //     console.log('ocx execute')
-        //     Plugin.SetPluginSize($player.value!, undefined, true)
-        //     Plugin.DisplayOCX(true)
-        // })
+        plugin.SetPluginSize($player.value!)
+        emits('ready')
+        stopWatchReady()
     }
-}
+})
 
 onMounted(() => {
+    if (prop.isUpdatePos) {
+        plugin.AddPluginMoveEvent($player.value!)
+    }
     ready.value = true
-    handleReady()
 })
 
 onBeforeUnmount(() => {
-    Plugin.CloseCurPlugin($player.value!)
-    Plugin.DisplayOCX(false)
+    plugin.CloseCurPlugin($player.value!)
+    plugin.DisplayOCX(false)
 })
-
-watch(
-    () => pluginStore.ready,
-    () => {
-        handleReady()
-    },
-    {
-        immediate: true,
-    },
-)
 
 watch(
     () => prop.isUpdatePos,
     (newValue) => {
         if (newValue) {
-            Plugin.AddPluginMoveEvent($player.value!)
+            plugin.AddPluginMoveEvent($player.value!)
         } else {
-            Plugin.DisableUpdatePluginPos($player.value!)
+            plugin.DisableUpdatePluginPos($player.value!)
         }
     },
     {
@@ -90,7 +79,7 @@ watch(
 )
 
 defineExpose({
-    plugin: Plugin,
+    plugin,
 })
 </script>
 

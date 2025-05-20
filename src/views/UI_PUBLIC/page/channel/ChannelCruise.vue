@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-21 13:35:06
  * @Description: 云台-巡航线
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 14:37:27
 -->
 <template>
     <div class="base-chl-box">
@@ -11,138 +9,102 @@
             <div class="base-chl-box-player">
                 <BaseVideoPlayer
                     ref="playerRef"
-                    type="live"
-                    @onready="handlePlayerReady"
+                    @ready="handlePlayerReady"
                 />
             </div>
             <el-form
-                label-position="left"
-                :style="{
-                    '--form-label-width': '100px',
-                }"
-                class="narrow inline-message"
+                v-title
+                class="stripe"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select
+                    <el-select-v2
+                        v-if="tableData.length"
                         v-model="pageData.tableIndex"
+                        :options="chlOptions"
                         @change="changeChl"
-                    >
-                        <el-option
-                            v-for="(item, index) in tableData"
-                            :key="item.chlId"
-                            :value="index"
-                            :label="item.chlName"
-                        />
-                    </el-select>
+                    />
+                    <el-select-v2
+                        v-else
+                        model-value=""
+                        :options="[]"
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_CRUISE')">
-                    <el-select
+                    <el-select-v2
                         v-model="formData.cruiseIndex"
-                        value-on-clear=""
-                    >
-                        <el-option
-                            v-for="(item, index) in cruiseOptions"
-                            :key="`${pageData.tableIndex}_${item.index}`"
-                            :label="item.index"
-                            :value="index"
-                        />
-                    </el-select>
-                    <el-tooltip
-                        :show-after="500"
-                        :content="Translate('IDCS_START_CRUISE')"
-                    >
-                        <BaseImgSprite
-                            class="base-chl-icon-btn"
-                            file="play"
-                            :index="0"
-                            :hover-index="2"
-                            :disabled-index="3"
-                            :chunk="4"
-                            :disabled="!cruiseOptions.length"
-                            @click="playCruise"
-                        />
+                        :options="cruiseOptions"
+                        :props="{ label: 'index' }"
+                    />
+                    <el-tooltip :content="Translate('IDCS_START_CRUISE')">
+                        <div class="base-chl-icon-btn">
+                            <BaseImgSpriteBtn
+                                file="play"
+                                :disabled="!cruiseOptions.length"
+                                @click="playCruise"
+                            />
+                        </div>
                     </el-tooltip>
-                    <el-tooltip
-                        :show-after="500"
-                        :content="Translate('IDCS_STOP_CRUISE')"
-                    >
-                        <BaseImgSprite
-                            class="base-chl-icon-btn"
-                            file="stop"
-                            :index="0"
-                            :hover-index="2"
-                            :disabled-index="3"
-                            :chunk="4"
-                            :disabled="!tableData.length"
-                            @click="stopCruise"
-                        />
+                    <el-tooltip :content="Translate('IDCS_STOP_CRUISE')">
+                        <div class="base-chl-icon-btn">
+                            <BaseImgSpriteBtn
+                                file="stop"
+                                :disabled="!tableData.length"
+                                @click="stopCruise"
+                            />
+                        </div>
                     </el-tooltip>
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_CRUISE_NAME')">
                     <el-input
                         v-model="formData.name"
                         :disabled="!cruiseOptions.length"
-                        spellcheck="false"
-                        :maxlength="nameByteMaxLen"
                         :formatter="formatInputMaxLength"
                         :parser="formatInputMaxLength"
                     />
-                    <el-tooltip
-                        :content="Translate('IDCS_SAVE_CHANGE')"
-                        :show-after="500"
-                    >
-                        <BaseImgSprite
-                            class="base-chl-icon-btn"
-                            file="save"
-                            :index="0"
-                            :hover-index="2"
-                            :disabled-index="3"
-                            :chunk="4"
-                            :disabled="!formData.name || !cruiseOptions.length"
-                            @click="saveName"
-                        />
+                    <el-tooltip :content="Translate('IDCS_SAVE_CHANGE')">
+                        <div class="base-chl-icon-btn">
+                            <BaseImgSpriteBtn
+                                file="save"
+                                :disabled="!formData.name.trim() || !cruiseOptions.length"
+                                @click="saveName"
+                            />
+                        </div>
                     </el-tooltip>
                 </el-form-item>
             </el-form>
             <div class="base-table-box">
                 <el-table
                     ref="presetTableRef"
+                    v-title
                     :data="presetTableData"
-                    border
-                    stripe
                     highlight-current-row
+                    show-overflow-tooltip
                     @row-click="handlePresetRowClick"
                 >
                     <el-table-column
+                        :label="Translate('IDCS_PRESET')"
+                        prop="index"
+                    />
+                    <el-table-column
                         :label="Translate('IDCS_PRESET_NAME')"
                         prop="name"
-                    >
-                    </el-table-column>
+                        width="92"
+                    />
                     <el-table-column
                         :label="Translate('IDCS_SPEED')"
                         prop="speed"
+                        width="60"
                     />
                     <el-table-column
                         :label="Translate('IDCS_TIME')"
                         prop="holdTime"
+                        width="60"
                     />
-                    <el-table-column :label="Translate('IDCS_EDIT')">
-                        <template #default="scope">
-                            <BaseImgSprite
-                                file="edit (2)"
-                                :index="2"
-                                :hover-index="0"
-                                :disabled-index="3"
-                                :chunk="4"
-                                @click="editPreset(scope.$index)"
-                            />
-                        </template>
-                    </el-table-column>
                     <el-table-column>
                         <template #header>
-                            <el-dropdown trigger="click">
+                            <el-dropdown>
                                 <BaseTableDropdownLink>
-                                    {{ Translate('IDCS_DELETE') }}
+                                    {{ Translate('IDCS_EDIT') }}
                                 </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
@@ -151,41 +113,41 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope">
-                            <BaseImgSprite
-                                file="del"
-                                :index="2"
-                                :hover-index="0"
-                                :disabled-index="3"
-                                :chunk="4"
-                                @click="deletePreset(scope.$index)"
-                            />
+                        <template #default="{ $index }: TableColumn<ChannelPtzCruisePresetDto>">
+                            <div class="base-cell-box">
+                                <BaseImgSpriteBtn
+                                    file="edit2"
+                                    @click="editPreset($index)"
+                                />
+                                <BaseImgSpriteBtn
+                                    file="del"
+                                    @click="deletePreset($index)"
+                                />
+                            </div>
                         </template>
                     </el-table-column>
                 </el-table>
             </div>
-            <div
-                class="base-btn-box"
-                :span="2"
-            >
-                <div>
-                    <el-button
-                        :disabled="!cruiseOptions.length"
-                        @click="addPreset"
-                        >{{ Translate('IDCS_ADD_PRESET') }}</el-button
-                    >
-                </div>
+            <div class="base-btn-box space-between">
+                <el-button
+                    :disabled="!cruiseOptions.length"
+                    @click="addPreset"
+                >
+                    {{ Translate('IDCS_ADD_PRESET') }}
+                </el-button>
                 <div>
                     <el-button
                         :disabled="!presetTableData.length || pageData.presetIndex === 0"
                         @click="moveUpPreset"
-                        >{{ Translate('IDCS_UP') }}</el-button
                     >
+                        {{ Translate('IDCS_UP') }}
+                    </el-button>
                     <el-button
                         :disabled="!presetTableData.length || pageData.presetIndex === presetTableData.length - 1"
                         @click="moveDownPreset"
-                        >{{ Translate('IDCS_DOWN') }}</el-button
                     >
+                        {{ Translate('IDCS_DOWN') }}
+                    </el-button>
                 </div>
             </div>
         </div>
@@ -198,26 +160,26 @@
                     :row-key="getRowKey"
                     :expand-row-key="pageData.expandRowKey"
                     highlight-current-row
-                    border
-                    stripe
+                    show-overflow-tooltip
+                    :border="false"
                     @row-click="handleRowClick"
                     @expand-change="handleExpandChange"
                 >
                     <el-table-column prop="chlName" />
                     <el-table-column>
-                        <template #default="scope">
-                            {{ Translate('IDCS_CRUISE_NUM_D').formatForLang(scope.row.cruiseCount) }}
+                        <template #default="{ row }: TableColumn<ChannelPtzCruiseChlDto>">
+                            {{ Translate('IDCS_CRUISE_NUM_D').formatForLang(row.cruiseCount) }}
                         </template>
                     </el-table-column>
                     <el-table-column type="expand">
-                        <template #default="scope">
-                            <ChannelPtzTableExpandPanel @add="addCruise(scope.$index)">
+                        <template #default="{ row, $index }: TableColumn<ChannelPtzCruiseChlDto>">
+                            <ChannelPtzTableExpandPanel @add="addCruise($index)">
                                 <ChannelPtzTableExpandItem
-                                    v-for="(item, index) in scope.row.cruise"
+                                    v-for="(item, index) in row.cruise"
                                     :key="item.index"
                                     :text="`${item.index}. ${item.name}`"
                                     file="cruise"
-                                    @delete="deleteCruise(scope.$index, index)"
+                                    @delete="deleteCruise($index, index)"
                                 />
                             </ChannelPtzTableExpandPanel>
                         </template>
@@ -241,12 +203,7 @@
             @confirm="confirmAddCruise"
             @close="pageData.isAddPop = false"
         />
-        <BaseNotification v-model:notifications="pageData.notification" />
     </div>
 </template>
 
 <script lang="ts" src="./ChannelCruise.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/channel.scss';
-</style>

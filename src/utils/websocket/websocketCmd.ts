@@ -2,42 +2,18 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-30 10:25:04
  * @Description: websocket命令生成工具
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-03 11:20:36
  */
-import { ENV_MODE, APP_SERVER_IP } from '../constants'
 
 /**
  * @description 获取websocket握手url
  */
 export const getWebsocketOpenUrl = () => {
-    const host = window.location.host
-    const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
     const userSession = useUserSessionStore()
-    if (ENV_MODE === 'production') {
-        // 正式环境
-        return `${wsProtocol}://${host}/requestWebsocketConnection?sessionID=${userSession.sessionId}`
-    } else {
-        // 调试模式
-        return `ws://${APP_SERVER_IP}/requestWebsocketConnection?sessionID=${userSession.sessionId}`
-    }
-}
-
-/**
- * @description 生成16进制字符随机guid, 格式: {00000000-0000-0000-0000-000000000000}
- */
-export const getRandomGUID = () => {
-    const str = '0123456789abcdef'
-    const temp = '00000000-0000-0000-0000-000000000000'
-    let ret = ''
-    for (let i = 0; i < temp.length; i++) {
-        if (temp[i] === '-') {
-            ret += '-'
-            continue
-        }
-        ret += str[Math.floor(Math.random() * str.length)]
-    }
-    return `{${ret}}`
+    const localHost = window.location.host + import.meta.env.VITE_BASE_URL // import.meta.env.PROD ? window.location.host : import.meta.env.VITE_APP_IP
+    const host = userSession.appType === 'STANDARD' ? localHost : 'virtualWebsocket'
+    const protocol = window.location.protocol
+    const wsProtocol = protocol === 'http:' ? 'ws' : 'wss'
+    return wsProtocol + '://' + host + 'requestWebsocketConnection'
 }
 
 // 回放事件类型全集
@@ -63,24 +39,32 @@ export const REC_EVENT_TYPES = [
     'ipd',
     'smart_aoi_entry',
     'smart_aoi_leave',
-    'smart_pass_line',
+    'threshold',
     'smart_plate_verity',
     'smart_fire_point',
     'smart_temperature',
+    'asd',
+    'pvd',
     'SMDHuman',
     'SMDVehicle',
+    'crowd_gather',
+    'loitering',
+    'reid',
+    'target_human',
+    'target_vehicle',
+    'target_non_motor_vehicle',
 ]
 
 /**
  * @description 生成basic数据
  */
 export const getBasic = () => {
-    // TODO 原项目中 id = $.webSession('requestBasicId') * 1
-    const id = 0
+    const requestBasicId = sessionStorage.getItem(LocalCacheKey.KEY_REQUEST_BASIC_ID)
+    const id = requestBasicId ? Number(requestBasicId) : 0
     const newId = id && id < Number.MAX_SAFE_INTEGER ? id + 1 : 1
     return {
         ver: '1.0',
-        time: new Date().getTime(),
+        time: Date.now(),
         id: newId,
         nonce: getNonce(),
     }
@@ -484,11 +468,12 @@ export const CMD_PLATELIB_EXPORT_CONFIRM_STEP = (task_id: string) => ({
 /**
  * @description 启动样本库-车牌库导入
  */
-export const CMD_PLATELIB_IMPORT_START = () => ({
+export const CMD_PLATELIB_IMPORT_START = (totalNum: number) => ({
     url: '/device/platelib/import/start',
     basic: getBasic(),
     data: {
         task_id: getRandomGUID(),
+        task_total: totalNum,
     },
 })
 

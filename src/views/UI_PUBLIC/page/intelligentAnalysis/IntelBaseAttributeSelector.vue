@@ -2,25 +2,19 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-04 14:36:21
  * @Description: 智能分析 属性选择器
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 17:03:12
 -->
 <template>
     <div>
         <el-popover
             v-model:visible="pageData.isPop"
-            placement="bottom"
-            :width="range.length === 1 ? 300 : 400"
-            trigger="click"
-            :show-after="0"
-            :hide-after="0"
+            width="388"
+            popper-class="selector"
         >
             <template #reference>
                 <div class="base-intel-placeholder">
                     <div class="text-ellipsis">{{ content }}</div>
                     <BaseImgSprite
                         file="arrow"
-                        :index="0"
                         :chunk="4"
                     />
                 </div>
@@ -35,15 +29,12 @@
                         v-for="item in pageData.vehicleOptions"
                         :key="item.value"
                         :value="item.value"
-                        >{{ item.label }}</el-checkbox
-                    >
+                        :label="item.label"
+                    />
                 </el-checkbox-group>
                 <el-form
                     v-else-if="range.length > 1"
-                    label-position="left"
-                    :style="{
-                        '--form-label-width': '100px',
-                    }"
+                    v-title
                 >
                     <el-form-item :label="Translate('IDCS_FIGURE')">
                         <el-checkbox-group
@@ -54,8 +45,8 @@
                                 v-for="item in pageData.personOptions"
                                 :key="item.value"
                                 :value="item.value"
-                                >{{ item.label }}</el-checkbox
-                            >
+                                :label="item.label"
+                            />
                         </el-checkbox-group>
                     </el-form-item>
                     <el-form-item :label="Translate('IDCS_VEHICLE')">
@@ -67,8 +58,8 @@
                                 v-for="item in pageData.vehicleOptions"
                                 :key="item.value"
                                 :value="item.value"
-                                >{{ item.label }}</el-checkbox
-                            >
+                                :label="item.label"
+                            />
                         </el-checkbox-group>
                     </el-form-item>
                 </el-form>
@@ -82,7 +73,3 @@
 </template>
 
 <script lang="ts" src="./IntelBaseAttributeSelector.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/intelligentAnalysis.scss';
-</style>

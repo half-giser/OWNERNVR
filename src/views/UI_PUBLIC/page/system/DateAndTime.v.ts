@@ -2,40 +2,47 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-24 15:09:06
  * @Description: 日期与时间
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 15:25:43
  */
-import { SystemDateTimeForm } from '@/types/apiType/system'
 import dayjs from 'dayjs'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
 
         let interval: NodeJS.Timeout | number = 0
 
         const formData = ref(new SystemDateTimeForm())
 
+        const formRef = useFormRef()
+
+        const formRules = ref<FormRules>({
+            ntpInterval: [
+                {
+                    validator(_, _value, callback) {
+                        if (pageData.value.isNtpIntervalOutOfRange) {
+                            callback(new Error(Translate('IDCS_NTP_INTERVAL') + Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(formData.value.ntpIntervalMin, formData.value.ntpIntervalMax)))
+                            pageData.value.isNtpIntervalOutOfRange = false
+                            return
+                        }
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
+        })
+
         // 同步方式与显示文本映射
         const SYNC_TYPE_MAPPING: Record<string, string> = {
             manually: Translate('IDCS_MANUAL'),
             NTP: Translate('IDCS_TIME_SERVER_SYNC'),
+            Gmouse: Translate('IDCS_TIME_GPS_SYNC'),
         }
 
         // 日期格式与显示文本映射
-        const DATE_FORMAT_MAPPING: Record<string, string> = {
-            'year-month-day': Translate('IDCS_DATE_FORMAT_YMD'),
-            'month-day-year': Translate('IDCS_DATE_FORMAT_MDY'),
-            'day-month-year': Translate('IDCS_DATE_FORMAT_DMY'),
-        }
-
-        // 时间格式与显示文本映射
-        const TIME_FORMAT_MAPPING: Record<string, string> = {
-            '24': Translate('IDCS_TIME_FORMAT_24'),
-            '12': Translate('IDCS_TIME_FORMAT_12'),
-        }
+        const DATE_FORMAT_MAPPING = getTranslateMapping(DEFAULT_DATE_FORMAT_MAPPING)
+        const TIME_FORMAT_MAPPING = getTranslateMapping(DEFAULT_TIME_FORMAT_MAPPING)
 
         const pageData = ref({
             // 同步类型选项
@@ -46,23 +53,32 @@ export default defineComponent({
             timeFormatOptions: [] as SelectOption<string, string>[],
             // 时间服务器选项
             timeServerOptions: [] as SelectOption<string, string>[],
+            gpsBaudRateOptions: arrayToOptions([1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200]),
             // 时区选项
-            timeZoneOption: DEFAULT_TIME_ZONE,
-            // 系统时间最小值
-            serverTimeStart: new Date(2010, 0, 1),
-            // 系统时间最大值
-            serverTimeEnd: new Date(2037, 11, 31),
-            // 是否可提交
-            submitDisabled: true,
-            // 系统时间改变标识
-            isSystemTimeChanged: false,
+            timeZoneOption: DEFAULT_TIME_ZONE.map((item) => {
+                return {
+                    ...item,
+                    label: Translate('IDCS_TIME_ZONE_' + item.langKey),
+                }
+            }).sort((a, b) => a.sortKey - b.sortKey),
             // 从请求获取的系统时间，用于时钟的计算
             systemTime: '',
-            // 请求结束的事件，用于时钟的计算
+            // 请求结束的时间，用于时钟的计算
             startTime: 0,
+            isNtpIntervalOutOfRange: false,
         })
 
-        let isTimePickerChange = false
+        // 系统时间改变标识 (同步本地时间或手动更改)
+        let isSystemTimeChanged = false
+        // 系统时间手动改变标识（仅手动更改）
+        let isTimePickerChanged = false
+        const currentTimezone = ''
+        const currentDST = false
+
+        // 系统时间最小值
+        const SERVER_START_TIME = dayjs('2010-01-01', { jalali: false, format: DEFAULT_YMD_FORMAT })
+        // 系统时间最大值
+        const SERVER_END_TIME = dayjs('2037-12-31', { jalali: false, format: DEFAULT_YMD_FORMAT })
 
         // 显示时间格式
         const formatSystemTime = computed(() => {
@@ -73,12 +89,13 @@ export default defineComponent({
          * @description 是否同步选项改变回调
          */
         const handleIsSyncChange = () => {
-            if (formData.value.isSync) {
-                pageData.value.isSystemTimeChanged = true
-                formData.value.systemTime = dayjs(new Date()).format(formatSystemTime.value)
-            } else {
-                isTimePickerChange = false
-            }
+            // if (formData.value.isSync) {
+            isSystemTimeChanged = true
+            formData.value.systemTime = dayjs().calendar('gregory').format(DEFAULT_DATE_FORMAT)
+            pageData.value.systemTime = dayjs().calendar('gregory').format(DEFAULT_DATE_FORMAT)
+            pageData.value.startTime = performance.now()
+            // }
+            isTimePickerChanged = false
             clock()
         }
 
@@ -86,24 +103,18 @@ export default defineComponent({
          * @description 同步方式改变时回调
          */
         const handleSyncTypeChange = () => {
-            isTimePickerChange = false
+            isTimePickerChanged = false
         }
 
         /**
          * @description 定时更新时间
          */
         const renderTime = () => {
-            // 与Internet时间同步时，使用返回的系统时间计时
-            if (formData.value.syncType === 'NTP') {
-                const now = performance.now()
-                formData.value.systemTime = dayjs(pageData.value.systemTime, formatSystemTime.value)
-                    .add(now - pageData.value.startTime, 'millisecond')
-                    .format(formatSystemTime.value)
-            }
-            // 计算机时间同步时，使用计算时间计时
-            else {
-                formData.value.systemTime = dayjs(new Date()).format(formatSystemTime.value)
-            }
+            const now = performance.now()
+            formData.value.systemTime = dayjs(pageData.value.systemTime, { jalali: false, format: DEFAULT_DATE_FORMAT })
+                .add(now - pageData.value.startTime, 'millisecond')
+                .calendar('gregory')
+                .format(DEFAULT_DATE_FORMAT)
         }
 
         /**
@@ -121,54 +132,61 @@ export default defineComponent({
         const getData = async () => {
             openLoading()
 
-            const result = await queryTimeCfg()
-            const $ = queryXml(result)
+            const $ = await dateTime.getTimeConfig()
 
-            pageData.value.syncTypeOptions = $('//types/synchronizeType/enum').map((item) => {
+            pageData.value.syncTypeOptions = $('types/synchronizeType/enum').map((item) => {
                 return {
                     value: item.text(),
                     label: SYNC_TYPE_MAPPING[item.text()],
                 }
             })
 
-            formData.value.dateFormat = $('//content/formatInfo/date').text()
-            pageData.value.dateFormatOptions = $('//types/dateFormat/enum').map((item) => {
+            formData.value.dateFormat = $('content/formatInfo/date').text()
+            pageData.value.dateFormatOptions = $('types/dateFormat/enum').map((item) => {
                 return {
                     value: item.text(),
                     label: DATE_FORMAT_MAPPING[item.text()],
                 }
             })
 
-            formData.value.timeFormat = $('//content/formatInfo/time').text()
-            pageData.value.timeFormatOptions = $('//types/timeFormat/enum').map((item) => {
+            formData.value.timeFormat = $('content/formatInfo/time').text()
+            pageData.value.timeFormatOptions = $('types/timeFormat/enum').map((item) => {
                 return {
                     value: item.text(),
                     label: TIME_FORMAT_MAPPING[item.text()],
                 }
             })
 
-            formData.value.syncType = $('//content/synchronizeInfo/type').text()
+            formData.value.syncType = $('content/synchronizeInfo/type').text()
 
-            formData.value.timeServer = $('//content/synchronizeInfo/ntpServer').text().trim()
-            pageData.value.timeServerOptions = $('//types/ntpServerType/enum').map((item) => {
+            formData.value.timeServer = $('content/synchronizeInfo/ntpServer').text().trim()
+            pageData.value.timeServerOptions = $('types/ntpServerType/enum').map((item) => {
                 return {
                     value: item.text(),
                     label: item.text(),
                 }
             })
 
-            formData.value.timeZone = $('//content/timezoneInfo/timeZone').text()
-            formData.value.enableDST = $('//content/timezoneInfo/daylightSwitch').text().toBoolean()
+            formData.value.timeZone = $('content/timezoneInfo/timeZone').text()
+            formData.value.enableDST = $('content/timezoneInfo/daylightSwitch').text().bool()
 
-            let currentDate = dayjs($('//content/synchronizeInfo/currentTime').text().trim(), formatSystemTime.value).toDate()
-            if (currentDate < pageData.value.serverTimeStart) {
-                currentDate = pageData.value.serverTimeStart
-            } else if (currentDate > pageData.value.serverTimeEnd) {
-                currentDate = pageData.value.serverTimeEnd
+            formData.value.gpsBaudRate = $('content/synchronizeInfo/gpsBaudRate').text().num()
+            formData.value.gpsBaudRateMin = $('content/synchronizeInfo/gpsBaudRate').attr('min').num()
+            formData.value.gpsBaudRateMax = $('content/synchronizeInfo/gpsBaudRate').attr('max').num()
+
+            formData.value.ntpInterval = $('content/synchronizeInfo/ntpInterval').text().num()
+            formData.value.ntpIntervalMin = $('content/synchronizeInfo/ntpInterval').attr('min').num()
+            formData.value.ntpIntervalMax = $('content/synchronizeInfo/ntpInterval').attr('max').num()
+
+            let currentDate = dateTime.getSystemTime()
+            if (currentDate.isBefore(SERVER_START_TIME)) {
+                currentDate = SERVER_START_TIME
+            } else if (currentDate.isAfter(SERVER_END_TIME)) {
+                currentDate = SERVER_END_TIME
             }
 
             nextTick(() => {
-                formData.value.systemTime = dayjs(currentDate).format(formatSystemTime.value)
+                formData.value.systemTime = currentDate.calendar('gregory').format(DEFAULT_DATE_FORMAT)
                 pageData.value.startTime = performance.now()
                 pageData.value.systemTime = formData.value.systemTime
                 clock()
@@ -186,24 +204,26 @@ export default defineComponent({
             const sendXml = rawXml`
                 <types>
                     <synchronizeType>
-                        ${pageData.value.syncTypeOptions.map((item) => `<enum>${item}</enum>`).join('')}
+                        ${wrapEnums(pageData.value.syncTypeOptions)}
                     </synchronizeType>
                     <dateFormat>
-                        ${pageData.value.dateFormatOptions.map((item) => `<enum>${item}</enum>`).join('')}
+                        ${wrapEnums(pageData.value.dateFormatOptions)}
                     </dateFormat>
                     <timeFormat>
-                        ${pageData.value.timeFormatOptions.map((item) => `<enum>${item}</enum>`).join('')}
+                        ${wrapEnums(pageData.value.timeFormatOptions)}
                     </timeFormat>
                 </types>
                 <content>
                     <timezoneInfo>
                         <timeZone>${wrapCDATA(formData.value.timeZone)}</timeZone>
-                        <daylightSwitch>${String(formData.value.enableDST)}</daylightSwitch>
+                        <daylightSwitch>${formData.value.enableDST}</daylightSwitch>
                     </timezoneInfo>
                     <synchronizeInfo>
                         <type type="synchronizeType">${formData.value.syncType}</type>
                         <ntpServer>${wrapCDATA(formData.value.timeServer)}</ntpServer>
-                        ${pageData.value.isSystemTimeChanged ? `<currentTime>${wrapCDATA(formData.value.systemTime)}</currentTime>` : ''}
+                        <gpsBaudRate>${wrapCDATA(formData.value.gpsBaudRate + '')}</gpsBaudRate>
+                        <ntpInterval>${wrapCDATA(formData.value.ntpInterval + '')}</ntpInterval>
+                        ${isSystemTimeChanged ? `<currentTime>${wrapCDATA(formatGregoryDate(formData.value.systemTime, formatSystemTime.value, DEFAULT_DATE_FORMAT))}</currentTime>` : ''}
                     </synchronizeInfo>
                     <formatInfo>
                         <date type="dateFormat">${formData.value.dateFormat}</date>
@@ -215,11 +235,10 @@ export default defineComponent({
 
             closeLoading()
 
-            pageData.value.submitDisabled = false
-            pageData.value.isSystemTimeChanged = false
-            dateTime.getTimeConfig(true)
+            isSystemTimeChanged = false
+            isTimePickerChanged = false
             getData()
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
         }
 
         // 禁用夏令时勾选
@@ -229,21 +248,17 @@ export default defineComponent({
             return true
         })
 
-        /**
-         * @description 时区文本显示
-         * @param {number} index
-         * @returns {string}
-         */
-        const displayTimeZone = (index: number) => {
-            return Translate('IDCS_TIME_ZONE_' + (index + 1))
+        const handleNtpIntervalOutOfRange = () => {
+            pageData.value.isNtpIntervalOutOfRange = true
+            formRef.value?.validateField('ntpInterval')
         }
 
         /**
          * @description 日历组件选择时间
          */
         const handleSystemTimeChange = () => {
-            pageData.value.isSystemTimeChanged = true
-            isTimePickerChange = true
+            isSystemTimeChanged = true
+            isTimePickerChanged = true
         }
 
         /**
@@ -256,16 +271,30 @@ export default defineComponent({
             } else {
                 // 如果系统时间没有手动改变，重新开启定时器
                 nextTick(() => {
-                    if (!isTimePickerChange) {
+                    if (!isTimePickerChanged) {
                         clock()
                     }
                 })
             }
         }
 
-        watch(formatSystemTime, (newFormat, oldFormat) => {
-            formData.value.systemTime = dayjs(formData.value.systemTime, oldFormat).format(newFormat)
-            pageData.value.systemTime = dayjs(pageData.value.systemTime, oldFormat).format(newFormat)
+        const handleBeforeSystemTimeChange = () => {
+            return openMessageBox({
+                type: 'question',
+                message: Translate('IDCS_CHANGE_TIME_WARNING'),
+            })
+        }
+
+        watch(isDSTDisabled, (val) => {
+            if (val) {
+                formData.value.enableDST = false
+            } else {
+                if (formData.value.timeZone === currentTimezone) {
+                    formData.value.enableDST = currentDST
+                } else {
+                    formData.value.enableDST = true
+                }
+            }
         })
 
         onMounted(() => {
@@ -278,16 +307,18 @@ export default defineComponent({
 
         return {
             formData,
+            formRef,
+            formRules,
             pageData,
             formatSystemTime,
             isDSTDisabled,
             setData,
             handleIsSyncChange,
-            highlightWeekend,
             pendingSystemTimeChange,
-            displayTimeZone,
             handleSystemTimeChange,
             handleSyncTypeChange,
+            handleNtpIntervalOutOfRange,
+            handleBeforeSystemTimeChange,
         }
     },
 })

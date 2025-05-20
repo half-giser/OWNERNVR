@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-12 16:25:16
  * @Description: 按时间切片搜索
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 18:21:30
  */
 import dayjs from 'dayjs'
 import TimeSliceTopPanel from './TimeSliceTopPanel.vue'
@@ -80,7 +78,6 @@ export default defineComponent({
         }
 
         return {
-            dateTime,
             pageData,
             navIndex,
             displayYearMonth,
@@ -88,8 +85,6 @@ export default defineComponent({
             handleChlChange,
             handleSliceChange,
             changeMode,
-            TimeSliceTopPanel,
-            TimeSliceTimelinePanel,
         }
     },
 })

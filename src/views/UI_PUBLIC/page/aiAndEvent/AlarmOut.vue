@@ -2,55 +2,50 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 11:05:51
  * @Description: 报警输出
- * @LastEditors: luoyiming a11593@tvt.net.cn
- * @LastEditTime: 2024-10-09 16:14:28
 -->
 <template>
     <div class="base-flex-box">
         <div class="base-table-box">
             <el-table
-                stripe
-                border
+                v-title
                 :data="tableData"
             >
                 <!-- 状态列 -->
                 <el-table-column
                     label=" "
-                    width="50px"
-                    class-name="custom_cell"
+                    width="50"
                 >
-                    <template #default="scope">
-                        <BaseTableRowStatus :icon="scope.row.status"></BaseTableRowStatus>
+                    <template #default="{ row }: TableColumn<AlarmOutDto>">
+                        <BaseTableRowStatus :icon="row.status" />
                     </template>
                 </el-table-column>
-
                 <!-- 序号 -->
                 <el-table-column
                     :label="Translate('IDCS_SERIAL_NUMBER')"
-                    prop="serialNum"
-                    width="146px"
-                />
-
-                <!-- 名称 -->
-                <el-table-column
-                    width="210px"
-                    :label="Translate('IDCS_NAME')"
+                    width="268"
+                    show-overflow-tooltip
                 >
-                    <template #default="scope">
+                    <template #default="{ row }: TableColumn<AlarmOutDto>">
+                        {{ displaySerialNum(row) }}
+                    </template>
+                </el-table-column>
+                <!-- 名称 -->
+                <el-table-column :label="Translate('IDCS_NAME')">
+                    <template #default="{ row }: TableColumn<AlarmOutDto>">
                         <el-input
-                            v-model="scope.row.name"
-                            size="small"
-                            @focus="nameFocus(scope.row.name)"
-                            @blur="nameBlur(scope.row)"
-                            @keyup.enter="enterBlur($event)"
+                            v-model="row.name"
+                            :disabled="row.disabled"
+                            maxlength="32"
+                            @focus="focusName(row.name)"
+                            @blur="blurName(row)"
+                            @keyup.enter="blurInput"
                         />
                     </template>
                 </el-table-column>
-
                 <!-- 延时 -->
-                <el-table-column width="210px">
+                <el-table-column>
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_DELAY') }}
                             </BaseTableDropdownLink>
@@ -61,74 +56,42 @@
                                         :key="opt.value"
                                         @click="changeAllValue(opt.value, 'delayTime')"
                                     >
-                                        {{ Translate(opt.label) }}
+                                        {{ opt.label }}
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
-                        <el-select
-                            v-model="scope.row.delayTime"
-                            size="small"
-                        >
-                            <el-option
-                                v-for="opt in pageData.delayList"
-                                :key="opt.value"
-                                :label="Translate(opt.label)"
-                                :value="opt.value"
-                            />
-                        </el-select>
+                    <template #default="{ row }: TableColumn<AlarmOutDto>">
+                        <el-select-v2
+                            v-model="row.delayTime"
+                            :disabled="row.disabled"
+                            :options="pageData.delayList"
+                        />
                     </template>
                 </el-table-column>
-
                 <!-- 排程 -->
-                <el-table-column width="210px">
+                <el-table-column>
                     <template #header>
-                        <el-dropdown trigger="click">
-                            <BaseTableDropdownLink>
-                                {{ Translate('IDCS_SCHEDULE') }}
-                            </BaseTableDropdownLink>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <el-dropdown-item
-                                        v-for="opt in pageData.scheduleList"
-                                        :key="opt.value"
-                                        @click="changeAllValue(opt.value, 'scheduleId')"
-                                    >
-                                        {{ Translate(opt.label) }}
-                                    </el-dropdown-item>
-                                </el-dropdown-menu>
-                            </template>
-                        </el-dropdown>
+                        <BaseScheduleTableDropdown
+                            :options="pageData.scheduleList"
+                            @change="changeAllSchedule"
+                            @edit="openSchedulePop"
+                        />
                     </template>
-                    <template #default="scope">
-                        <el-select
-                            v-model="scope.row.scheduleId"
-                            size="small"
-                            :empty-values="[undefined, null]"
-                        >
-                            <el-option
-                                v-for="opt in pageData.scheduleList"
-                                :key="opt.value"
-                                :label="Translate(opt.label)"
-                                :value="opt.value"
-                            />
-                        </el-select>
+                    <template #default="{ row }: TableColumn<AlarmOutDto>">
+                        <BaseScheduleSelect
+                            v-model="row.scheduleId"
+                            :options="pageData.scheduleList"
+                            :disabled="row.disabled"
+                            @edit="openSchedulePop"
+                        />
                     </template>
                 </el-table-column>
-
                 <!-- 类型 -->
-                <el-table-column
-                    width="210px"
-                    :formatter="
-                        (row) => {
-                            return row.devDesc ? '--' : pageData.alarmoutTypeText[curAlarmoutType]
-                        }
-                    "
-                >
+                <el-table-column :formatter="displayAlarmOutType">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_TYPE') }}
                             </BaseTableDropdownLink>
@@ -139,7 +102,7 @@
                                         :key="opt.value"
                                         @click="changeType(opt.value)"
                                     >
-                                        {{ Translate(opt.label) }}
+                                        {{ opt.label }}
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
@@ -148,26 +111,29 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div class="base-btn-box">
-            <el-pagination
+        <div class="base-pagination-box">
+            <BasePagination
                 v-model:current-page="pageData.pageIndex"
                 v-model:page-size="pageData.pageSize"
-                :page-sizes="[10, 20, 30]"
-                layout="prev, pager, next, sizes, total, jumper"
                 :total="pageData.totalCount"
-                size="small"
                 @size-change="changePaginationSize"
                 @current-change="changePagination"
             />
         </div>
         <div class="base-btn-box">
             <el-button
-                :disabled="pageData.applyDisabled"
+                :disabled="!editRows.size()"
                 @click="setData()"
-                >{{ Translate('IDCS_APPLY') }}</el-button
             >
+                {{ Translate('IDCS_APPLY') }}
+            </el-button>
         </div>
     </div>
+    <!-- 排程管理弹窗 -->
+    <BaseScheduleManagePop
+        v-model="pageData.isSchedulePop"
+        @close="closeSchedulePop"
+    />
 </template>
 
 <script lang="ts" src="./AlarmOut.v.ts"></script>

@@ -2,53 +2,103 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-25 09:59:16
  * @Description: 输出配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 16:14:15
 -->
 <template>
     <div class="OutputSetting">
         <!-- 主Tab，切换主机、解码卡 -->
-        <div class="eth_list">
+        <div
+            v-if="pageData.hasDecoder"
+            class="eth_list"
+        >
             <div
-                :class="{ active: pageData.tabId === 0 }"
-                @click="changeTab(0)"
+                :class="{ active: pageData.tabId === -1 }"
+                @click="changeTab(-1)"
             >
                 {{ Translate('IDCS_LOCAL') }}
             </div>
             <div
-                v-for="key in Object.keys(decoderCardMap)"
+                v-for="(item, key) in formData.decoder"
                 :key
-                :class="{ active: pageData.tabId === Number(key) + 1 }"
-                @click="changeTab(Number(key) + 1)"
+                :class="{
+                    active: pageData.tabId === Number(key),
+                    disabled: !item.onlineStatus,
+                }"
+                @click="changeTab(Number(key))"
             >
                 {{ Translate('IDCS_DECODE_CARD') + (Number(key) + 1) }}
             </div>
         </div>
+        <!-- 主副输出Tab -->
+        <div
+            v-if="!pageData.hasDecoder"
+            class="top no-decoder"
+        >
+            <div class="top-tabs">
+                <div
+                    :class="{ active: pageData.outputIdx === -1 }"
+                    @click="changeOutput(-1)"
+                >
+                    {{ displayTabName(1) }}
+                </div>
+                <div
+                    v-for="(item, index) in formData.sub"
+                    :key="item.id"
+                    :class="{ active: pageData.outputIdx === index }"
+                    @click="changeOutput(index)"
+                >
+                    {{ displayTabName(index + 2) }}
+                </div>
+            </div>
+            <!-- 3535A是否显示辅输出控制开关，只在主输出可能显示 -->
+            <div class="top-config">
+                <el-switch
+                    v-show="pageData.tabId === -1 && pageData.isConfigSwitch"
+                    v-model="pageData.configSwitch"
+                />
+            </div>
+            <!-- <div
+                v-if="pageData.tabId !== -1"
+                class="top-hdmi"
+            >
+                <span>{{ Translate('IDCS_HDMI_IN_EXPORT_TO') }}</span>
+                <el-select-v2
+                    v-model="formData.decoder[pageData.tabId].ShowHdmiIn"
+                    :options="hdmiInOptions"
+                />
+            </div> -->
+        </div>
         <main class="main">
             <div class="left">
-                <div class="top">
-                    <!-- 主副输出Tab -->
-                    <div
-                        v-if="!pageData.hasDecoder"
-                        class="top-tabs"
-                    >
-                        <div
-                            v-for="i in pageData.outputScreenCount"
-                            :key="i"
-                            :class="{ active: pageData.outputIdx === i - 1 }"
-                            @click="changeOutput(i - 1)"
-                        >
-                            {{ displayTabName(i) }}
-                        </div>
-                    </div>
+                <div
+                    v-if="pageData.hasDecoder"
+                    class="top"
+                >
                     <!-- 解码卡Tab -->
                     <div
                         v-if="pageData.hasDecoder"
                         class="top-tabs"
                     >
-                        <template v-if="decoderCardMap[pageData.tabId]">
+                        <template v-if="pageData.tabId === -1">
                             <div
-                                v-for="key in Object.keys(decoderCardMap[pageData.tabId].decoderDwellData)"
+                                :class="{ active: pageData.outputIdx === -1 }"
+                                class="typeBtn"
+                                @click="changeOutput(-1)"
+                            >
+                                {{ displayTabName(1) }}
+                            </div>
+                            <div
+                                v-for="(item, index) in formData.sub"
+                                :key="item.id"
+                                class="typeBtn"
+                                :class="{ active: pageData.outputIdx === index }"
+                                @click="changeOutput(index)"
+                            >
+                                {{ displayTabName(index + 2) }}
+                            </div>
+                        </template>
+                        <template v-else-if="formData.decoder[pageData.tabId]">
+                            <div
+                                v-for="(_item, key) in formData.decoder[pageData.tabId].output"
                                 :key
                                 class="typeBtn"
                                 :class="{ active: pageData.decoderIdx === Number(key) }"
@@ -61,44 +111,38 @@
                     <!-- 3535A是否显示辅输出控制开关，只在主输出可能显示 -->
                     <div class="top-config">
                         <el-switch
-                            v-show="pageData.tabId === 0 && pageData.isConfigSwitch"
+                            v-show="pageData.tabId === -1 && pageData.isConfigSwitch"
                             v-model="pageData.configSwitch"
                         />
                     </div>
-                    <div
-                        v-if="pageData.tabId !== 0"
+                    <!-- <div
+                        v-if="pageData.tabId !== -1"
                         class="top-hdmi"
                     >
                         <span>{{ Translate('IDCS_HDMI_IN_EXPORT_TO') }}</span>
-                        <el-select v-model="decoderCardMap[pageData.tabId].ShowHdmiIn">
-                            <el-option :value="0">{{ Translate('IDCS_NULL') }}</el-option>
-                            <el-option
-                                v-for="key in Object.keys(decoderCardMap[pageData.tabId].decoderDwellData)"
-                                :key
-                                :value="Number(key) + 1"
-                            >
-                                {{ Translate('IDCS_OUTPUT') + (Number(key) + 1) }}
-                            </el-option>
-                        </el-select>
-                    </div>
+                        <el-select-v2
+                            v-model="formData.decoder[pageData.tabId].ShowHdmiIn"
+                            :options="hdmiInOptions"
+                        />
+                    </div> -->
                 </div>
                 <div class="panel">
                     <div class="panel-top">
                         <div
-                            v-show="(pageData.tabId === 0 && pageData.outputIdx === 0) || pageData.dwellCheckbox"
+                            v-show="(pageData.tabId === -1 && pageData.outputIdx === -1) || isDwell"
                             class="panel-left"
                         >
                             <!-- 轮询 -->
                             <div class="panel-title">{{ Translate('IDCS_DWELL') }}</div>
                             <!-- 缩略图列表 -->
-                            <div class="panel-thumbnail">
+                            <el-scrollbar class="panel-thumbnail">
                                 <div
-                                    v-for="(item, key) in currentViewList.chlGroups"
+                                    v-for="(item, key) in getCurrentOutput().chlGroups"
                                     :key="`${pageData.tabId}-${pageData.outputIdx}-${key}`"
                                     class="panel-thumbnail-item"
                                     @click="changeView(key)"
                                 >
-                                    <OutputSplitTemplate
+                                    <OutputTemplateItem
                                         type="thumbail"
                                         :segment="item.segNum"
                                         :active-win="0"
@@ -115,7 +159,7 @@
                                         ×
                                     </div>
                                 </div>
-                            </div>
+                            </el-scrollbar>
                             <!-- 新增视图按钮 -->
                             <div
                                 class="panel-thumbnail-add"
@@ -123,14 +167,13 @@
                             >
                                 <BaseImgSprite
                                     file="SpeedQuick"
-                                    :index="0"
                                     :chunk="4"
                                 />
                             </div>
                         </div>
                         <!-- 视窗区域 -->
                         <div class="panel-center">
-                            <OutputSplitTemplate
+                            <OutputTemplateItem
                                 type="screen"
                                 :segment="currentSegment"
                                 :active-win="pageData.activeWinIndex"
@@ -149,56 +192,42 @@
                         <!-- 轮询开关 -->
                         <div class="panel-dwell">
                             <el-checkbox
-                                v-show="pageData.tabId !== 0 || pageData.outputIdx !== 0"
-                                v-model="pageData.dwellCheckbox"
-                                @change="changeOutputType"
-                                >{{ Translate('IDCS_DWELL') }}</el-checkbox
-                            >
+                                v-show="pageData.tabId !== -1 || pageData.outputIdx !== -1"
+                                :model-value="isDwell"
+                                :label="Translate('IDCS_DWELL')"
+                                @update:model-value="changeOutputType"
+                            />
                         </div>
                         <!-- 分屏切换按钮 -->
                         <div class="panel-btns">
                             <el-tooltip :content="Translate('IDCS_FAVOURITE')">
-                                <BaseImgSprite
-                                    v-show="pageData.tabId === 0 && pageData.outputIdx === 0"
+                                <BaseImgSpriteBtn
+                                    v-show="pageData.tabId === -1 && pageData.outputIdx === -1"
                                     class="panel-collect"
-                                    :index="0"
-                                    :hover-index="1"
-                                    :chunk="4"
-                                    file="collect (2)"
+                                    file="collect_view"
                                     @click="collectView"
                                 />
                             </el-tooltip>
                             <div class="panel-seg">
-                                <BaseImgSprite
-                                    v-for="seg in pageData.segList"
+                                <BaseImgSpriteBtn
+                                    v-for="seg in segList"
                                     :key="seg"
                                     :file="`seg_${seg}`"
-                                    :index="currentSegment === seg ? 2 : 0"
-                                    :hover-index="currentSegment === seg ? 2 : 1"
-                                    :chunk="4"
+                                    :active="currentSegment === seg"
                                     @click="changeSplit(seg)"
                                 />
                             </div>
-                            <el-select
-                                v-show="outputType === 'dwell'"
+                            <el-select-v2
+                                v-show="isDwell && (pageData.tabId !== -1 || pageData.outputIdx !== -1)"
                                 :model-value="currentTimeInterval"
+                                :options="pageData.dwellTimeOptions"
                                 class="panel-dwell-time"
                                 @change="changeTimeInterval"
-                            >
-                                <el-option
-                                    v-for="value in pageData.dwellTimeOptions"
-                                    :key="value"
-                                    :value
-                                    :label="displayDwellTimeLabel(value)"
-                                />
-                            </el-select>
+                            />
                             <el-tooltip :content="Translate('IDCS_CLEAR_AWAY')">
-                                <BaseImgSprite
+                                <BaseImgSpriteBtn
                                     class="panel-clear"
                                     file="clear"
-                                    :index="0"
-                                    :hover-index="1"
-                                    :chunk="4"
                                     @click="clearAllSplitData"
                                 />
                             </el-tooltip>
@@ -242,7 +271,7 @@
                                 :index="pageData.activeChl === listItem.id ? 1 : 0"
                                 :chunk="4"
                             />
-                            <span>{{ listItem.value }}</span>
+                            <div class="text-ellipsis">{{ listItem.value }}</div>
                         </BaseListBoxItem>
                     </BaseListBox>
                 </div>
@@ -255,7 +284,7 @@
                         <BaseListBoxItem
                             v-for="groupItem in pageData.chlGroupList"
                             :key="groupItem.id"
-                            :class="{ active: pageData.activeChlGroup === groupItem.id }"
+                            :active="pageData.activeChlGroup === groupItem.id"
                             draggable="true"
                             icon="chlGroup"
                             @click="getChlListOfGroup(groupItem.id)"
@@ -267,7 +296,7 @@
                                 :index="pageData.activeChlGroup === groupItem.id ? 1 : 0"
                                 :chunk="2"
                             />
-                            <span>{{ groupItem.value }}</span>
+                            <div class="text-ellipsis">{{ groupItem.name }}</div>
                         </BaseListBoxItem>
                     </BaseListBox>
                     <div class="chl-btns">
@@ -275,19 +304,17 @@
                         <el-button @click="editChlGroup">{{ Translate('IDCS_EDIT') }}</el-button>
                         <el-button @click="deleteChlGroup">{{ Translate('IDCS_DELETE') }}</el-button>
                     </div>
-                    <div class="chl-list">
-                        <ul>
-                            <li
-                                v-for="listItem in pageData.chlListOfGroup"
-                                :key="listItem.id"
-                                draggable
-                                @dragstart="handleDragChl(listItem.id)"
-                                @dblclick="setWinFromChl(listItem.id)"
-                            >
-                                <span>{{ listItem.value }}</span>
-                            </li>
-                        </ul>
-                    </div>
+                    <BaseListBox>
+                        <BaseListBoxItem
+                            v-for="listItem in pageData.chlListOfGroup"
+                            :key="listItem.id"
+                            draggable="true"
+                            @dragstart="handleDragChl(listItem.id)"
+                            @dblclick="setWinFromChl(listItem.id)"
+                        >
+                            <div class="text-ellipsis">{{ listItem.value }}</div>
+                        </BaseListBoxItem>
+                    </BaseListBox>
                 </div>
             </div>
         </main>
@@ -297,6 +324,7 @@
         <BaseCheckAuthPop
             v-model="pageData.isCheckAuth"
             @confirm="handleCheckAuthByConfigSwitchChange"
+            @close="pageData.isCheckAuth = false"
         />
         <OutputAddViewPop
             v-model="pageData.isAddView"
@@ -322,13 +350,16 @@
 <style lang="scss" scoped>
 .OutputSetting {
     font-size: 15px;
-    min-width: 1200px;
     user-select: none;
+    height: var(--content-height);
+    display: flex;
+    flex-direction: column;
 }
 
 .eth_list {
     width: 100%;
     height: 50px;
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     background-color: var(--output-eth-bg);
@@ -342,12 +373,16 @@
         &.active {
             border-color: var(--primary);
         }
+
+        &.disabled {
+            color: var(--table-text-disabled);
+            cursor: not-allowed;
+        }
     }
 }
 
 .main {
-    height: calc(100vh - 340px);
-    max-height: calc(100vh - 340px);
+    height: 100%;
     overflow-y: hidden;
     width: 100%;
     display: flex;
@@ -370,11 +405,19 @@
     height: 60px;
     flex-shrink: 0;
     background-color: var(--output-tab-bg);
+    justify-content: space-between;
+    align-items: center;
+
+    &.no-decoder {
+        border: 1px solid var(--content-border);
+        border-bottom: none;
+        background-color: var(--output-eth-bg);
+    }
 
     &-tabs {
         display: flex;
         align-items: center;
-        height: 100%;
+        height: 60px;
 
         & > div {
             display: inline-block;
@@ -387,13 +430,8 @@
             background-color: var(--output-tab-btn-bg);
             border: 1px solid var(--content-border);
 
-            &:hover {
-                background-color: var(--primary-light);
-                color: var(--color-white);
-            }
-
             &.active,
-            &.active:hover {
+            &:hover {
                 background-color: var(--primary);
                 color: var(--color-white);
             }
@@ -401,12 +439,22 @@
     }
 
     &-config {
-        margin-left: 10px;
+        align-items: center;
+        // margin-left: 10px;
     }
 
     &-hdmi {
-        margin-left: 10px;
-        width: 100px;
+        align-items: center;
+        display: flex;
+        justify-content: flex-end;
+        width: 250px;
+        margin-right: 10px;
+
+        & > span {
+            flex-shrink: 0;
+            margin-right: 10px;
+        }
+        // width: 100px;
     }
 }
 
@@ -426,7 +474,6 @@
 
     &-left {
         width: 260px;
-        // flex-grow: 1;
         height: 100%;
         border-right: 1px solid var(--content-border);
         display: flex;
@@ -447,7 +494,6 @@
     &-thumbnail {
         width: 100%;
         height: calc(100% - 120px);
-        overflow-y: scroll;
 
         &-item {
             width: 220px;
@@ -483,7 +529,6 @@
     &-thumbnail-add {
         flex-shrink: 0;
         height: 30px;
-        align-items: 30px;
         text-align: center;
         display: flex;
         justify-content: center;
@@ -530,10 +575,6 @@
         display: flex;
         align-items: center;
         border-left: 1px solid var(--content-border);
-
-        span {
-            cursor: pointer;
-        }
     }
 
     &-collect {
@@ -545,6 +586,7 @@
         display: flex;
         margin: 0 10px;
         width: 100%;
+
         & > span {
             margin: 0 5px;
         }
@@ -571,7 +613,7 @@
 
     &-menu {
         width: 100%;
-        height: 80px;
+        height: 82px;
         flex-shrink: 0;
         cursor: pointer;
 
@@ -596,46 +638,12 @@
     }
 
     &-btns {
-        // height: 0px;
         flex-shrink: 0;
         padding: 10px 0;
         border-top: 1px solid var(--content-border);
         border-bottom: 1px solid var(--content-border);
         display: flex;
         justify-content: center;
-    }
-
-    &-list {
-        width: 100%;
-        height: calc(100% - 80px);
-        overflow-y: scroll;
-
-        ul {
-            margin: 0;
-            padding: 0;
-        }
-
-        li {
-            list-style: none;
-            padding: 5px;
-            border: 1px solid transparent;
-            cursor: pointer;
-            font-size: 13px;
-
-            span:last-child {
-                margin-left: 10px;
-            }
-
-            &:hover,
-            &.active {
-                border-color: var(--primary);
-            }
-
-            &.active {
-                background-color: var(--primary);
-                color: var(--color-white);
-            }
-        }
     }
 }
 </style>

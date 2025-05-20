@@ -2,11 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-30 18:46:39
  * @Description: 导出人脸库弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:43:05
  */
-import WebsocketFaceLib, { type WebsocketFaceLibFaceDataDatum } from '@/utils/websocket/websocketFacelib'
-
 export default defineComponent({
     props: {
         /**
@@ -24,12 +20,10 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        // const { openLoading, closeLoading } = useLoading()
 
         const MAX_ZIP_FILE_LENGTH = 5000 // 一个压缩包最大图片文件数量
 
-        let websocket: WebsocketFaceLib | null = null
+        let websocket: ReturnType<typeof WebsocketFaceLib> | null = null
 
         const csvHeader = [
             '(01)' + Translate('IDCS_NAME_PERSON'),
@@ -49,7 +43,7 @@ export default defineComponent({
             // 当前任务
             currentTask: 0,
             // 任务总数
-            totalTask: 0,
+            totalTask: 1,
         })
 
         const progress = computed(() => {
@@ -68,6 +62,14 @@ export default defineComponent({
         let imgFileNum = 0
 
         /**
+         * @description 取消下载
+         */
+        const cancel = () => {
+            openMessageBox(Translate('IDCS_EXPORT_FAIL'))
+            close()
+        }
+
+        /**
          * @description 关闭弹窗，停止下载
          */
         const close = () => {
@@ -81,7 +83,7 @@ export default defineComponent({
         const open = () => {
             pageData.value.currentTask = 0
 
-            websocket = new WebsocketFaceLib({
+            websocket = WebsocketFaceLib({
                 onsuccess(data) {
                     // 数据接收完毕, 执行导出
                     if (typeof data === 'number') {
@@ -90,7 +92,7 @@ export default defineComponent({
                                 zipName: getZipName(),
                                 files: exportData,
                             }).then(() => {
-                                openMessageTipBox({
+                                openMessageBox({
                                     type: 'success',
                                     title: Translate('IDCS_INFORMATION_MSG'),
                                     message: Translate('IDCS_EXPORT_SUCCESS'),
@@ -149,10 +151,7 @@ export default defineComponent({
                             errorInfo = Translate('IDCS_EXPORT_FACE_DATABASE_TASK_TIP')
                             break
                     }
-                    openMessageTipBox({
-                        type: 'info',
-                        message: errorInfo,
-                    }).then(() => {
+                    openMessageBox(errorInfo).then(() => {
                         close()
                     })
                 },
@@ -167,7 +166,7 @@ export default defineComponent({
          */
         const isHandleExport = () => {
             // 超出压缩包文件数量最大上限，先导出（有后续）
-            if (imgFileNum == MAX_ZIP_FILE_LENGTH && pageData.value.currentTask < pageData.value.totalTask) {
+            if (imgFileNum === MAX_ZIP_FILE_LENGTH && pageData.value.currentTask < pageData.value.totalTask) {
                 downloadZip({
                     zipName: getZipName(),
                     files: exportData,
@@ -253,6 +252,7 @@ export default defineComponent({
 
         return {
             open,
+            cancel,
             pageData,
             progress,
         }

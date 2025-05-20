@@ -2,11 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-21 17:51:18
  * @Description: 云台-巡航线-新增弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:35:39
  */
-import { type ChannelPtzCruiseDto, type ChannelPtzCruisePresetDto } from '@/types/apiType/channel'
-import type { FormInstance, FormRules, TableInstance } from 'element-plus'
+import type { FormRules, TableInstance } from 'element-plus'
 import ChannelCruiseEditPresetPop from './ChannelCruiseEditPresetPop.vue'
 
 export default defineComponent({
@@ -46,8 +43,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         const PRESET_MAX_COUNT = 16
 
@@ -62,22 +57,24 @@ export default defineComponent({
             presetType: 'add',
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref({
             name: '',
         })
         const formRule = ref<FormRules>({
             name: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator: (_, value: string, callback) => {
                         if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return
                         }
+
                         if (prop.cruise.map((item) => item.name).includes(value.trim())) {
                             callback(new Error(Translate('IDCS_PROMPT_CRUISE_NAME_EXIST')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -92,15 +89,10 @@ export default defineComponent({
          * @description 打开弹窗时，重置表单和选项数据
          */
         const open = () => {
-            formRef.value?.clearValidate()
-            formRef.value?.resetFields()
-
-            tableData.value = []
-
             const cruiseIndex = prop.cruise.map((item) => item.index)
             const cruiseOptions = Array(prop.max)
                 .fill(0)
-                .map((item, index) => {
+                .map((_, index) => {
                     return index + 1
                 })
                 .filter((item) => {
@@ -113,41 +105,47 @@ export default defineComponent({
             }
         }
 
+        const reset = () => {
+            tableData.value = []
+            formRef.value!.resetFields()
+        }
+
         /**
          * @description 保存数据
          */
         const setData = async () => {
             openLoading()
 
-            const presets = tableData.value
-                .map((item) => {
-                    return rawXml`
-                    <item index="${item.index.toString()}">
-                        <speed>${item.speed.toString()}</speed>
-                        <holdTime>${item.holdTime.toString()}</holdTime>
-                    </item>
-                `
-                })
-                .join('')
             const sendXml = rawXml`
                 <content>
-                    <name>${wrapCDATA(formData.value.name)}</name>
+                    <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
                     <chlId>${prop.chlId}</chlId>
-                    <presets type="list">${presets}</presets>
+                    <presets type="list">
+                        ${tableData.value
+                            .map((item) => {
+                                return rawXml`
+                                    <item index="${item.index}">
+                                        <speed>${item.speed}</speed>
+                                        <holdTime>${item.holdTime}</holdTime>
+                                    </item>
+                                `
+                            })
+                            .join('')}
+                    </presets>
                 </content>
             `
             const result = await createChlCruise(sendXml)
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
-                openMessageTipBox({
+            if ($('status').text() === 'success') {
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).finally(() => {
                     ctx.emit('confirm')
                 })
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NAME_EXISTED:
@@ -157,10 +155,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                         break
                 }
-                openMessageTipBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
 
             closeLoading()
@@ -170,7 +165,7 @@ export default defineComponent({
          * @description 验证表单
          */
         const verify = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     setData()
                 }
@@ -189,10 +184,7 @@ export default defineComponent({
          */
         const addPreset = () => {
             if (tableData.value.length >= PRESET_MAX_COUNT) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_PRESET_MAX_NUM').formatForLang(PRESET_MAX_COUNT),
-                })
+                openMessageBox(Translate('IDCS_PRESET_MAX_NUM').formatForLang(PRESET_MAX_COUNT))
                 return
             }
             pageData.value.isPresetPop = true
@@ -284,6 +276,7 @@ export default defineComponent({
             open,
             verify,
             close,
+            reset,
             addPreset,
             editPreset,
             handleRowClick,
@@ -292,9 +285,6 @@ export default defineComponent({
             deleteAllPreset,
             moveUpPreset,
             moveDownPreset,
-            nameByteMaxLen,
-            formatInputMaxLength,
-            ChannelCruiseEditPresetPop,
         }
     },
 })

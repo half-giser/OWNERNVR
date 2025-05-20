@@ -2,17 +2,10 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-11 08:56:08
  * @Description: UPnP配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:07:10
  */
-import { NetUPnPForm, type NetUPnPPortDto } from '@/types/apiType/net'
-
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
-        const theme = getUiAndTheme()
 
         // 显示文本映射
         const TRANS_MAPPING: Record<string, string> = {
@@ -28,6 +21,7 @@ export default defineComponent({
         const formData = ref(new NetUPnPForm())
         const tableData = ref<NetUPnPPortDto[]>([])
         const pageData = ref({
+            btnName: import.meta.env.VITE_UI_TYPE === 'UI1-E' ? Translate('IDCS_TEST') : Translate('IDCS_REFRESH'),
             // 映射类型选项
             mapTypeOptions: [
                 {
@@ -51,14 +45,14 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryUPnPCfg()
             const $ = queryXml(result)
-            formData.value.switch = $('//content/switch').text().toBoolean()
-            formData.value.mappingType = $('//content/mappingType').text()
+            formData.value.switch = $('content/switch').text().bool()
+            formData.value.mappingType = $('content/mappingType').text()
 
-            tableData.value = $('//content/ports/item').map((item) => {
+            tableData.value = $('content/ports/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
                     portType: $item('portType').text(),
-                    externalPort: Number($item('externalPort').text()),
+                    externalPort: $item('externalPort').text().num(),
                     externalIP: $item('externalIP').text(),
                     localPort: $item('localPort').text(),
                     status: TRANS_MAPPING[$item('status').text()],
@@ -72,7 +66,7 @@ export default defineComponent({
         const getWirelessNetworkData = async () => {
             const result = await queryWirelessNetworkCfg()
             const $ = queryXml(result)
-            pageData.value.wirelessSwitch = $('//content/switch').text().toBoolean()
+            pageData.value.wirelessSwitch = $('content/switch').text().bool()
         }
 
         /**
@@ -81,7 +75,7 @@ export default defineComponent({
         const getPPPoEData = async () => {
             const result = await queryPPPoECfg()
             const $ = queryXml(result)
-            pageData.value.pppoeSwitch = $('//content/switch').text().toBoolean()
+            pageData.value.pppoeSwitch = $('content/switch').text().bool()
         }
 
         /**
@@ -94,16 +88,16 @@ export default defineComponent({
         }
 
         const PORT_ERROR_MAPPING: [string, string, string][] = [
-            ['httpPort', 'dataPort', 'IDCS_PROMPT_HTTP_DATA_THE_SAME_PORT'],
-            ['httpPort', 'rtspPort', 'IDCS_PROMPT_HTTP_RTSP_THE_SAME_PORT'],
-            ['dataPort', 'rtspPort', 'IDCS_PROMPT_DATA_RTSP_THE_SAME_PORT'],
-            ['httpPort', 'posPort', 'IDCS_POS_DATA_HTTP_THE_SAME_PORT'],
-            ['httpsPort', 'posPort', 'IDCS_POS_DATA_HTTPS_THE_SAME_PORT'],
-            ['dataPort', 'posPort', 'IDCS_POS_DATA_PROMPT_THE_SAME_PORT'],
-            ['rtspPort', 'posPort', 'IDCS_POS_DATA_RTSP_THE_SAME_PORT'],
-            ['httpPort', 'httpsPort', 'IDCS_PROMPT_HTTPS_HTTP_THE_SAME_PORT'],
-            ['httpsPort', 'dataPort', 'IDCS_PROMPT_HTTPS_DATA_THE_SAME_PORT'],
-            ['httpsPort', 'rtspPort', 'IDCS_PROMPT_HTTPS_RTSP_THE_SAME_PORT'],
+            ['HTTP', 'SERVICE', 'IDCS_PROMPT_HTTP_DATA_THE_SAME_PORT'],
+            ['HTTP', 'RTSP', 'IDCS_PROMPT_HTTP_RTSP_THE_SAME_PORT'],
+            ['SERVICE', 'RTSP', 'IDCS_PROMPT_DATA_RTSP_THE_SAME_PORT'],
+            ['HTTP', 'posPort', 'IDCS_POS_DATA_HTTP_THE_SAME_PORT'],
+            ['HTTPS', 'posPort', 'IDCS_POS_DATA_HTTPS_THE_SAME_PORT'],
+            ['SERVICE', 'posPort', 'IDCS_POS_DATA_PROMPT_THE_SAME_PORT'],
+            ['RTSP', 'posPort', 'IDCS_POS_DATA_RTSP_THE_SAME_PORT'],
+            ['HTTP', 'HTTPS', 'IDCS_PROMPT_HTTPS_HTTP_THE_SAME_PORT'],
+            ['HTTPS', 'SERVICE', 'IDCS_PROMPT_HTTPS_DATA_THE_SAME_PORT'],
+            ['HTTPS', 'RTSP', 'IDCS_PROMPT_HTTPS_RTSP_THE_SAME_PORT'],
         ]
 
         /**
@@ -138,25 +132,12 @@ export default defineComponent({
         const setData = async () => {
             const isHasSamePort = hasSamePort()
             if (isHasSamePort) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: isHasSamePort,
-                })
+                openMessageBox(isHasSamePort)
                 return
             }
 
             openLoading()
 
-            const portsXml = tableData.value
-                .map((item) => {
-                    return rawXml`
-                    <item>
-                        <portType>${item.portType}</portType>
-                        <externalPort>${item.externalPort.toString()}</externalPort>
-                    </item>
-                `
-                })
-                .join('')
             const sendXml = rawXml`
                 <types>
                     <mappingType>${wrapEnums(pageData.value.mapTypeOptions)}</mappingType>
@@ -164,15 +145,48 @@ export default defineComponent({
                     <statusType>${wrapEnums(['effective', 'ineffective'])}</statusType>
                 </types>
                 <content>
-                    <switch>${formData.value.switch.toString()}</switch>
+                    <switch>${formData.value.switch}</switch>
                     <mappingType>${formData.value.mappingType}</mappingType>
-                    <ports type="list">${portsXml}</ports>
+                    <ports type="list">
+                        ${tableData.value
+                            .map((item) => {
+                                return rawXml`
+                                    <item>
+                                        <portType>${item.portType}</portType>
+                                        <externalPort>${item.externalPort}</externalPort>
+                                    </item>
+                                `
+                            })
+                            .join('')}
+                    </ports>
                 </content>
             `
             const result = await editUPnPCfg(sendXml)
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
 
             closeLoading()
+        }
+
+        /**
+         * @description 表格行禁用状态
+         * @returns {stirng}
+         */
+        const handleRowClassName = () => {
+            if (!formData.value.switch || formData.value.mappingType === 'auto') {
+                return 'disabled'
+            }
+            return ''
+        }
+
+        /**
+         * @description Map Type为自动时，外部端口重置为本地端口
+         */
+        const changeMappingType = () => {
+            if (formData.value.mappingType === 'auto') {
+                tableData.value.forEach((item) => {
+                    item.externalPort = Number(item.localPort)
+                })
+            }
         }
 
         onMounted(async () => {
@@ -190,9 +204,11 @@ export default defineComponent({
             pageData,
             tableData,
             displayPortType,
+            changeMappingType,
             setData,
             getData,
-            theme,
+            // theme,
+            handleRowClassName,
         }
     },
 })

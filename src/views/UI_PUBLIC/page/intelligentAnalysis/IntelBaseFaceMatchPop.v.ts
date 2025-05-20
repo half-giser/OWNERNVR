@@ -2,10 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-12 09:22:23
  * @Description: 智能分析 - 人脸比对结果弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 11:47:07
  */
-import { IntelFaceMatchPopList } from '@/types/apiType/intelligentAnalysis'
 import IntelBasePanoramaPop from './IntelBasePanoramaPop.vue'
 
 export default defineComponent({
@@ -110,6 +107,13 @@ export default defineComponent({
         }
 
         /**
+         * @description 开启弹窗
+         */
+        const open = () => {
+            pageData.value.currentIndex = prop.index
+        }
+
+        /**
          * @description 关闭弹窗
          */
         const close = () => {
@@ -120,7 +124,6 @@ export default defineComponent({
          * @description 当前抓拍数据
          */
         const current = computed(() => {
-            console.log(prop.list[pageData.value.currentIndex])
             return prop.list[pageData.value.currentIndex] || new IntelFaceMatchPopList()
         })
 
@@ -131,12 +134,12 @@ export default defineComponent({
 
         // 回显事件类型文本
         const displayEventType = computed(() => {
-            return EVENT_TYPE_MAPPING[current.value.eventType] || ''
+            return EVENT_TYPE_MAPPING[current.value.eventType] || '--'
         })
 
         // 回显目标类型文本
         const displayTargetType = computed(() => {
-            return TARGET_TYPE_MAPPING[current.value.targetType] || ''
+            return TARGET_TYPE_MAPPING[current.value.targetType] || '--'
         })
 
         /**
@@ -163,6 +166,7 @@ export default defineComponent({
         return {
             pageData,
             previous,
+            open,
             next,
             close,
             current,
@@ -173,7 +177,6 @@ export default defineComponent({
             displayGender,
             displayEventType,
             displayTargetType,
-            IntelBasePanoramaPop,
         }
     },
 })

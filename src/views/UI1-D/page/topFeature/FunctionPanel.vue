@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-24 16:46:13
  * @Description: UI1-D客制化 功能面板
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-08 14:29:52
 -->
 <template>
     <div class="config-home">
@@ -23,7 +21,7 @@
                 >
                     <BaseImgSprite
                         :file="moduleItem.meta.icon"
-                        :index="getMenuDisabled(moduleItem) ? 1 : 0"
+                        :index="getMenuDisabled(moduleItem) ? 1 : pageData.hoverMenuIndex === key || pageData.mainMenuIndex === key ? pageData.activeIconIndex : 0"
                         :chunk="2"
                     />
                     <div class="config-menu-text">{{ Translate(moduleItem.meta.lk || '') }}</div>

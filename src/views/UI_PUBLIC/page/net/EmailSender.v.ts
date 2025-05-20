@@ -2,11 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-10 15:00:10
  * @Description: E-mail发送
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:20:45
  */
-import { type FormInstance, type FormRules } from 'element-plus'
-import { NetEmailForm } from '@/types/apiType/net'
+import { type FormRules } from 'element-plus'
 import EmailSenderTestPop from './EmailSenderTestPop.vue'
 
 export default defineComponent({
@@ -15,28 +12,28 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
         const router = useRouter()
 
         const DEFAULT_SECURE_PORT = 465
         const DEFAULT_INSECURE_PORT = 25
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new NetEmailForm())
         const formRule = ref<FormRules>({
             address: [
                 {
-                    validator(rule, value: string, callback) {
-                        if (!value.length) {
+                    validator(_rule, value: string, callback) {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_EMAIL_ADDRESS_EMPTY')))
                             return
                         }
+
                         if (!checkEmail(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_INVALID_EMAIL')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -44,19 +41,22 @@ export default defineComponent({
             ],
             userName: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (!formData.value.anonymousSwitch) {
                             callback()
                             return
                         }
-                        if (!value.length) {
-                            callback(new Error('IDCS_PROMPT_USERNAME_EMPTY'))
+
+                        if (!value.trim()) {
+                            callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
                         }
+
                         if (!cutStringByByte(value, nameByteMaxLen)) {
-                            callback(new Error('IDCS_INVALID_CHAR'))
+                            callback(new Error(Translate('IDCS_INVALID_CHAR')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -64,14 +64,17 @@ export default defineComponent({
             ],
             password: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (!formData.value.anonymousSwitch || !pageData.value.passwordSwitch) {
                             callback()
-                        }
-                        if (!value.length) {
-                            callback(new Error('IDCS_PROMPT_PASSWORD_EMPTY'))
                             return
                         }
+
+                        if (!value.length) {
+                            callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
+                            return
+                        }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -79,12 +82,13 @@ export default defineComponent({
             ],
             server: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         // smtp服务器格式为 a.b.c.d ,多个点分割，可为数字字母或-，但-不能开头
                         if (!checkStmpServer(value)) {
-                            callback(new Error('IDCS_PROMPT_INVALID_SMTPSERVER'))
+                            callback(new Error(Translate('IDCS_PROMPT_INVALID_SMTPSERVER')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -110,8 +114,18 @@ export default defineComponent({
                     value: 2,
                 },
             ] as SelectOption<number, string>[],
+            imgTypeOptions: [
+                {
+                    label: Translate('IDCS_FACE_SNAP_IMAGE'),
+                    value: 'snapImgSwitch',
+                },
+                {
+                    label: Translate('IDCS_ORIGINAL'),
+                    value: 'orgImgSwitch',
+                },
+            ],
             // 图片数量选项
-            imageNumberOptions: [4, 5, 6, 7, 8, 9, 10],
+            imageNumberOptions: arrayToOptions([4, 5, 6, 7, 8, 9, 10]),
             // 加密选项
             secureConnectOptions: [
                 {
@@ -141,15 +155,37 @@ export default defineComponent({
 
             const result = await queryEmailCfg()
             commLoadResponseHandler(result, ($) => {
-                formData.value.anonymousSwitch = $('//content/sender/anonymousSwitch').text().toBoolean()
-                formData.value.name = $('//content/sender/name').text()
-                formData.value.address = $('//content/sender/address').text()
-                formData.value.userName = $('//content/sender/userName').text()
-                formData.value.server = $('//content/sender/smtp/server').text()
-                formData.value.port = Number($('//content/sender/smtp/port').text())
-                formData.value.attachImg = Number($('//content/sender/attachImg').text())
-                formData.value.imageNumber = Number($('//content/sender/imageNumber').text())
-                formData.value.ssl = $('//content/sender/smtp/ssl').text().toBoolean() ? 'SSL' : 'NO'
+                const $sender = queryXml($('content/sender')[0].element)
+                formData.value.anonymousSwitch = $sender('anonymousSwitch').text().bool()
+                formData.value.nameMaxByteLen = $sender('name').attr('maxByteLen').num() || nameByteMaxLen
+                formData.value.name = $sender('name').text()
+                formData.value.addressMaxByteLen = $sender('address').attr('maxByteLen').num() || nameByteMaxLen
+                formData.value.address = $sender('address').text()
+                formData.value.userNameMaxByteLen = $sender('userName').attr('maxByteLen').num() || nameByteMaxLen
+                formData.value.userName = $sender('userName').text()
+                formData.value.serverMaxByteLen = $sender('smtp/server').attr('maxByteLen').num() || nameByteMaxLen
+                formData.value.server = $sender('smtp/server').text()
+                formData.value.portMin = $sender('smtp/port').attr('min').num() || 10
+                formData.value.portMax = $sender('smtp/port').attr('min').num() || 65535
+                formData.value.port = $sender('smtp/port').text().num()
+                formData.value.attachImg = $sender('attachImg').text().num()
+                formData.value.imageNumber = $sender('imageNumber').text().num()
+
+                if ($sender('snapImgSwitch').text().bool()) {
+                    formData.value.imgType.push('snapImgSwitch')
+                }
+
+                if ($sender('orgImgSwitch').text().bool()) {
+                    formData.value.imgType.push('orgImgSwitch')
+                }
+
+                let ssl = $sender('smtp/ssl').text()
+                if (ssl === 'true') {
+                    ssl = 'SSL'
+                } else if (ssl === 'false') {
+                    ssl = 'NO'
+                }
+                formData.value.ssl = ssl
             })
 
             closeLoading()
@@ -171,10 +207,7 @@ export default defineComponent({
          */
         const handleEdit = () => {
             if (!userSession.hasAuth('alarmMgr')) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_AUTH'),
-                })
+                openMessageBox(Translate('IDCS_NO_AUTH'))
                 return
             }
             router.push({
@@ -199,10 +232,17 @@ export default defineComponent({
         const changeSecurityConnection = () => {
             setDefaultPort()
             if (formData.value.ssl === 'NO') {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_MAIL_ARENOT_ENCRYPTED_WITHOUT_SSL'),
-                })
+                openMessageBox(Translate('IDCS_MAIL_ARENOT_ENCRYPTED_WITHOUT_SSL'))
+            }
+        }
+
+        /**
+         * @description 邮箱地址输入
+         */
+        const handleAddressInput = () => {
+            const diff = Math.abs(formData.value.address.length - formData.value.userName.length)
+            if ((formData.value.address.startsWith(formData.value.userName) || formData.value.userName.startsWith(formData.value.address)) && diff === 1) {
+                formData.value.userName = formData.value.address
             }
         }
 
@@ -228,30 +268,45 @@ export default defineComponent({
          * @description 更新数据
          */
         const setData = async () => {
-            openLoading()
+            formRef.value!.validate(async (valid) => {
+                if (valid) {
+                    openLoading()
 
-            const password = AES_encrypt(formData.value.password, userSession.sesionKey)
-            const sendXml = rawXml`
-                <content>
-                    <sender>
-                        <address>${wrapCDATA(formData.value.address)}</address>
-                        <name>${wrapCDATA(formData.value.name)}</name>
-                        <userName>${wrapCDATA(formData.value.userName)}</userName>
-                        ${formData.value.anonymousSwitch ? `<password ${getSecurityVer()}>${password}</password>` : ''}
-                        <anonymousSwitch>${formData.value.anonymousSwitch.toString()}</anonymousSwitch>
-                        <attachImg>${formData.value.attachImg.toString()}</attachImg>
-                        <imageNumber>${formData.value.imageNumber.toString()}</imageNumber>
-                        <smtp>
-                            <server>${wrapCDATA(formData.value.server)}</server>
-                            <port>${String(formData.value.port)}</port>
-                            <ssl>${formData.value.ssl}</ssl>
-                        </smtp>
-                    </sender>
-                </content>
-            `
-            const result = await editEmailCfg(sendXml)
-            closeLoading()
-            commSaveResponseHadler(result)
+                    const password = AES_encrypt(formData.value.password, userSession.sesionKey)
+                    const sendXml = rawXml`
+                        <content>
+                            <sender>
+                                <address>${wrapCDATA(formData.value.address)}</address>
+                                <name>${wrapCDATA(formData.value.name)}</name>
+                                <userName>${wrapCDATA(formData.value.userName)}</userName>
+                                ${formData.value.anonymousSwitch ? `<password ${getSecurityVer()}>${password}</password>` : ''}
+                                <anonymousSwitch>${formData.value.anonymousSwitch}</anonymousSwitch>
+                                <attachImg>${formData.value.attachImg}</attachImg>
+                                <imageNumber>${formData.value.imageNumber}</imageNumber>
+                                <snapImgSwitch>${formData.value.imgType.includes('snapImgSwitch')}</snapImgSwitch>
+                                <orgImgSwitch>${formData.value.imgType.includes('orgImgSwitch')}</orgImgSwitch>
+                                <smtp>
+                                    <server>${wrapCDATA(formData.value.server)}</server>
+                                    <port>${formData.value.port}</port>
+                                    <ssl>${formData.value.ssl}</ssl>
+                                </smtp>
+                            </sender>
+                        </content>
+                    `
+                    const result = await editEmailCfg(sendXml)
+                    closeLoading()
+                    commSaveResponseHandler(result)
+                }
+            })
+        }
+
+        /**
+         * @description 约束STMP服务器的输入
+         * @param {string} value
+         * @returns {string}
+         */
+        const formatSTMPServer = (value: string) => {
+            return value.replace(/([\u4e00-\u9fa5]|[^a-zA-Z\d\.\-])/g, '')
         }
 
         onMounted(() => {
@@ -270,7 +325,8 @@ export default defineComponent({
             changeSecurityConnection,
             handleUserNameFocus,
             handleUserNameBlur,
-            EmailSenderTestPop,
+            handleAddressInput,
+            formatSTMPServer,
         }
     },
 })

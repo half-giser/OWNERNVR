@@ -2,23 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-29 09:54:23
  * @Description: 智能分析-人脸搜索
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-12 13:50:08
  */
-import {
-    IntelFaceImgDto,
-    IntelSearchFaceList,
-    type IntelSnapPopList,
-    type IntelFaceDBGroupDto,
-    IntelFaceDBFaceInfo,
-    IntelFaceDBSnapFaceList,
-    type IntelFaceMatchPopList,
-    type IntelFaceDBGroupList,
-    type IntelFaceDBImportFaceDto,
-    type IntelFaceTrackMapList,
-} from '@/types/apiType/intelligentAnalysis'
 import type { TableInstance, CheckboxValueType } from 'element-plus'
-import { type PlaybackPopList } from '@/components/player/BasePlaybackPop.vue'
 import BackupPop from '../searchAndBackup/BackupPop.vue'
 import BackupLocalPop from '../searchAndBackup/BackupLocalPop.vue'
 import IntelBaseSnapPop from './IntelBaseSnapPop.vue'
@@ -27,8 +12,7 @@ import IntelBaseSnapItem from './IntelBaseSnapItem.vue'
 import IntelBaseFaceMatchPop from './IntelBaseFaceMatchPop.vue'
 import IntelFaceSearchChooseFacePop from './IntelFaceSearchChooseFacePop.vue'
 import IntelFaceSearchTrackMapPanel from './IntelFaceSearchTrackMapPanel.vue'
-import { type PlaybackBackUpRecList } from '@/types/apiType/playback'
-import { type DownloadZipOptions } from '@/utils/tools'
+import { type DownloadZipOptions } from '@/utils/downloaders'
 import dayjs from 'dayjs'
 
 export default defineComponent({
@@ -44,17 +28,15 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
         const auth = useUserChlAuth()
 
         // 图像失败重新请求最大次数
-        const REPEAR_REQUEST_IMG_TIMES = 2
+        const REPEAT_REQUEST_IMG_TIMES = 2
         // 图像缓存，避免重复请求相同的图片 key为imgId+timestamp
-        const cachePic: Record<string, IntelFaceImgDto> = {}
+        const cachePic = new Map<string, IntelFaceImgDto>()
         // 个人信息缓存，避免重复请求相同的个人信息 key 为 faceFeatureId
-        const cacheInfo: Record<string, IntelFaceDBFaceInfo> = {}
+        const cacheInfo = new Map<string, IntelFaceDBFaceInfo>()
         // 缓存导入图像
         let cacheImportFace: string[] = []
         // 缓存抓拍图像
@@ -183,8 +165,6 @@ export default defineComponent({
             isChlPop: false,
             // 是否打开人脸比对弹窗
             isMatchPop: false,
-            // 人脸比对列表
-            matchList: [] as IntelFaceMatchPopList[],
             // 当前选中的匹配列表的索引
             matchIndex: 0,
             // 选择人脸弹窗
@@ -224,6 +204,8 @@ export default defineComponent({
             // 当前播放的项
             playId: '',
             dateRangeType: 'date',
+            // 通道名称
+            chlName: '',
         })
 
         const playerRef = ref<PlayerInstance>()
@@ -235,8 +217,11 @@ export default defineComponent({
         const sliceTableData = ref<IntelSearchFaceList[]>([])
 
         const cloneIntelSearchFaceList = new IntelSearchFaceList()
-        // 将列表数据整理为拥有日期cols span的列表数据，用于渲染显示
-        const sliceTableDataWithDateColsSpan = computed(() => {
+
+        /**
+         * @description 将列表数据整理为拥有日期cols span的列表数据，用于渲染显示
+         */
+        const sliceTableDataWithDateColsSpan = () => {
             const data: IntelSearchFaceList[][] = []
             let currentDate = ''
             let index = -1
@@ -255,7 +240,7 @@ export default defineComponent({
                 data[index].push(item)
             })
             return data.flat()
-        })
+        }
 
         const chlMap: Record<string, string> = {}
         const faceGroupMap: Record<string, string> = {}
@@ -320,9 +305,11 @@ export default defineComponent({
             if (faceType === 'face') {
                 return formData.value.featureFace[0]?.pic[0] || ''
             }
+
             if (faceType === 'snap') {
                 return formData.value.snapFace[0]?.pic || ''
             }
+
             if (faceType === 'import') {
                 return formData.value.importFace[0]?.pic
             }
@@ -358,11 +345,11 @@ export default defineComponent({
                 authList: '@spr,@bk',
             })
             const $ = queryXml(result)
-            pageData.value.chlOptions = $('//content/item').map((item) => {
+            pageData.value.chlOptions = $('content/item').map((item) => {
                 const $item = queryXml(item.element)
                 let text = $item('name').text()
-                const id = item.attr('id')!
-                if (id === '{00000000-0000-0000-0000-000000000000}') {
+                const id = item.attr('id')
+                if (id === DEFAULT_EMPTY_ID) {
                     text = Translate('IDCS_HISTORY_CHANNEL')
                 }
                 chlMap[id] = text
@@ -412,9 +399,12 @@ export default defineComponent({
          */
         const changeSnap = (e: IntelFaceDBSnapFaceList[]) => {
             resetFaceData()
+            pageData.value.searchType = 'face'
             formData.value.face = 'snap'
             formData.value.snapFace = e
-            getData()
+            setTimeout(() => {
+                getData()
+            }, 300)
         }
 
         /**
@@ -425,12 +415,14 @@ export default defineComponent({
             resetFaceData()
             if (shouldAddToCache) {
                 e.forEach((item) => {
-                    cacheInfo[item.id] = { ...item }
+                    cacheInfo.set(item.id, { ...item })
                 })
             }
             formData.value.face = 'face'
             formData.value.featureFace = e
-            getData()
+            setTimeout(() => {
+                getData()
+            }, 300)
         }
 
         /**
@@ -441,7 +433,9 @@ export default defineComponent({
             resetFaceData()
             formData.value.face = 'group'
             formData.value.featureFaceGroup = e
-            getData()
+            setTimeout(() => {
+                getData()
+            }, 300)
         }
 
         /**
@@ -452,7 +446,9 @@ export default defineComponent({
             resetFaceData()
             formData.value.face = 'import'
             formData.value.importFace = e
-            getData()
+            setTimeout(() => {
+                getData()
+            }, 300)
         }
 
         /**
@@ -480,7 +476,7 @@ export default defineComponent({
          * @param {number} timestamp
          * @returns {String}
          */
-        const displayDate = (timestamp: number) => {
+        const displayDate = (timestamp: number | string) => {
             if (timestamp === 0) return ''
             return formatDate(timestamp, dateTime.dateFormat)
         }
@@ -507,8 +503,8 @@ export default defineComponent({
         }
 
         const getUniqueKey = (row: { imgId: string; frameTime: string }) => {
-            if (!row.imgId || !row.frameTime) {
-                return Math.floor(Math.random() * 1e8) + ''
+            if (!row || !row.imgId || !row.frameTime) {
+                return getNonce() + ''
             }
             return `${row.imgId}:${row.frameTime}`
         }
@@ -523,6 +519,7 @@ export default defineComponent({
             playerData.value.playId = getUniqueKey(row)
             playerData.value.startTime = row.recStartTime
             playerData.value.endTime = row.recEndTime
+            playerData.value.chlName = row.chlName
 
             playerRef.value?.player.play({
                 chlID: row.chlId,
@@ -543,6 +540,7 @@ export default defineComponent({
             playerData.value.startTime = 0
             playerData.value.endTime = 0
             playerData.value.currentTime = 0
+            playerData.value.chlName = ''
             playerRef.value?.player.stop(0)
         }
 
@@ -598,7 +596,7 @@ export default defineComponent({
          * @param {TVTPlayerWinDataListItem} data
          * @param {Number} timestamp
          */
-        const handlePlayerTimeUpdate = (index: number, data: any, timestamp: number) => {
+        const handlePlayerTimeUpdate = (_index: number, _data: any, timestamp: number) => {
             if (playerData.value.lockSlider) {
                 return
             }
@@ -610,53 +608,72 @@ export default defineComponent({
          * @param {number} pageIndex
          */
         const changePage = async (pageIndex: number) => {
-            stop()
             tableRef.value!.clearSelection()
             formData.value.pageIndex = pageIndex
             sliceTableData.value = tableData.value.slice((pageIndex - 1) * formData.value.pageSize, pageIndex * formData.value.pageSize)
-            for (let i = 0; i < sliceTableData.value.length; i++) {
-                const item = sliceTableData.value[i]
+
+            // 按人脸搜索因为表格显示不同，因此数据结构有所不同
+            if (formData.value.searchType === 'face') {
+                sliceTableData.value = sliceTableDataWithDateColsSpan()
+            }
+
+            sliceTableData.value.forEach(async (item, i) => {
+                if (item.faceFeatureId === -1000) {
+                    return
+                }
+
                 const key = getUniqueKey(item)
+
+                if (formData.value.faceType === 'import') {
+                    item.match = cacheImportFace[item.faceFeatureId]
+                }
+
+                if (formData.value.faceType === 'snap') {
+                    item.match = cacheSnapFace[item.faceFeatureId]
+                }
+
                 const snapFlag = await getPic(item, false, i)
                 if (!snapFlag) {
-                    break
+                    return
                 }
+
                 const panoramaFlag = await getPic(item, true, i)
                 if (!panoramaFlag) {
-                    break
+                    return
                 }
-                let match = ''
+
+                if (cachePic.has(key)) {
+                    const pic = cachePic.get(key)!
+                    item.pic = pic.pic
+                    item.panorama = pic.panorama
+                    item.width = pic.width
+                    item.height = pic.height
+                    item.X1 = pic.X1
+                    item.Y1 = pic.Y1
+                    item.X2 = pic.X2
+                    item.Y2 = pic.Y2
+                    item.isDelSnap = pic.isDelSnap
+                    item.isNoData = pic.isNoData
+                    item.identity = pic.identity
+                    item.attribute = pic.attribute
+                }
+
                 if (formData.value.eventType === 'byWhiteList' || formData.value.faceType === 'face' || formData.value.faceType === 'group') {
                     const matchFlag = await getFacePic(item, i)
                     if (!matchFlag) {
-                        break
+                        return
                     }
 
                     const infoFlag = await getFaceInfo(item, i)
                     if (!infoFlag) {
-                        break
+                        return
                     }
-                    if (cacheInfo[item.faceFeatureId]) {
-                        sliceTableData.value[i].info = {
-                            ...cacheInfo[item.faceFeatureId],
-                        }
-                    }
-                    match = cacheInfo[item.faceFeatureId]?.pic[0] || ''
+
+                    const info = cacheInfo.get(item.faceFeatureId + '')
+                    item.match = info?.pic[0] || ''
+                    item.info = info!
                 }
-                if (formData.value.faceType === 'import') {
-                    match = cacheImportFace[item.faceFeatureId]
-                }
-                if (formData.value.faceType === 'snap') {
-                    match = cacheSnapFace[item.faceFeatureId]
-                }
-                if (cachePic[key]) {
-                    sliceTableData.value[i] = {
-                        ...sliceTableData.value[i],
-                        ...cachePic[key],
-                        match,
-                    }
-                }
-            }
+            })
         }
 
         /**
@@ -689,33 +706,34 @@ export default defineComponent({
         const getPic = async (row: IntelSearchFaceList, isPanorama: boolean, index: number, times = 0) => {
             const key = getUniqueKey(row)
             try {
-                if (!row.isDelSnap && (!cachePic[key] || !cachePic[key].pic || !cachePic[key].panorama)) {
+                const pic = cachePic.get(key)
+                if (!row.isDelSnap && (!pic || !pic.pic || !pic.panorama)) {
                     const sendXml = rawXml`
                         <condition>
                             <imgId>${row.imgId}</imgId>
                             <chlId>${row.chlId}</chlId>
                             <frameTime>${row.frameTime}</frameTime>
                             <featureStatus>true</featureStatus>
-                            ${ternary(isPanorama, '<isPanorama />')}
+                            ${isPanorama ? '<isPanorama />' : ''}
                         </condition>
                     `
                     const result = await requestChSnapFaceImage(sendXml)
                     const $ = queryXml(result)
 
-                    if ($('//status').text() === 'success') {
-                        const content = $('//content').text()
-                        if (!content && times < REPEAR_REQUEST_IMG_TIMES) {
+                    if ($('status').text() === 'success') {
+                        const content = $('content').text()
+                        if (!content && times < REPEAT_REQUEST_IMG_TIMES) {
                             return getPic(row, isPanorama, index, times + 1)
                         }
-                        const width = Number($('//rect/ptWidth').text()) || 1
-                        const height = Number($('//rect/ptHeight').text()) || 1
-                        const leftTopX = Number($('//rect/leftTopX').text())
-                        const leftTopY = Number($('//rect/leftTopY').text())
-                        const rightBottomX = Number($('//rect/rightBottomX').text())
-                        const rightBottomY = Number($('//rect/rightBottomY').text())
+                        const width = $('rect/ptWidth').text().num() || 1
+                        const height = $('rect/ptHeight').text().num() || 1
+                        const leftTopX = $('rect/leftTopX').text().num()
+                        const leftTopY = $('rect/leftTopY').text().num()
+                        const rightBottomX = $('rect/rightBottomX').text().num()
+                        const rightBottomY = $('rect/rightBottomY').text().num()
                         const item = {
-                            pic: cachePic[key] ? cachePic[key].pic : '',
-                            panorama: cachePic[key] ? cachePic[key].panorama : '',
+                            pic: pic ? pic.pic : '',
+                            panorama: pic ? pic.panorama : '',
                             match: '',
                             width,
                             height,
@@ -726,44 +744,48 @@ export default defineComponent({
                             isDelSnap: false,
                             isNoData: !content,
                             identity: false,
+                            attribute: {},
                         }
                         if (isPanorama) {
-                            item.panorama = 'data:image/png;base64,' + content
+                            item.panorama = wrapBase64Img(content)
                         } else {
-                            item.pic = 'data:image/png;base64,' + content
-                            item.identity = $('//featureStatus').text().toBoolean()
+                            item.pic = wrapBase64Img(content)
+                            item.identity = $('featureStatus').text().bool()
                         }
-                        cachePic[key] = item
+                        cachePic.set(key, item)
                     } else {
-                        cachePic[key] = cachePic[key] || new IntelFaceImgDto()
-                        const errorCode = Number($('//errorCode').text())
+                        const item = pic || new IntelFaceImgDto()
+                        const errorCode = $('errorCode').text().num()
                         switch (errorCode) {
                             case ErrorCode.HTTPS_CERT_EXIST:
-                                cachePic[key].isDelSnap = true
-                                cachePic[key].isNoData = false
+                                item.isDelSnap = true
+                                item.isNoData = false
+                                cachePic.set(key, item)
                                 break
                             case ErrorCode.USER_ERROR_NO_RECORDDATA:
-                                cachePic[key].isDelSnap = false
-                                cachePic[key].isNoData = true
+                                item.isDelSnap = false
+                                item.isNoData = true
+                                cachePic.set(key, item)
                                 break
                             default:
                                 // 重复获取数据
-                                if (times < REPEAR_REQUEST_IMG_TIMES) {
+                                if (times < REPEAT_REQUEST_IMG_TIMES) {
                                     return getPic(row, isPanorama, index, times + 1)
                                 }
                         }
                     }
                 }
+
                 if (key === getUniqueKey(sliceTableData.value[index])) {
                     return true
                 } else {
                     return false
                 }
             } catch (e) {
-                if (times < REPEAR_REQUEST_IMG_TIMES) {
+                if (times < REPEAT_REQUEST_IMG_TIMES) {
                     return getPic(row, isPanorama, index, times + 1)
                 } else {
-                    cachePic[key] = cachePic[key] || new IntelFaceImgDto()
+                    cachePic.set(key, cachePic.get(key) || new IntelFaceImgDto())
                     if (key === getUniqueKey(sliceTableData.value[index])) {
                         return true
                     } else {
@@ -781,44 +803,47 @@ export default defineComponent({
         const getFaceInfo = async (row: IntelSearchFaceList, index: number) => {
             const key = row.faceFeatureId
             try {
-                if (!cacheInfo[key]) {
+                const info = cacheInfo.get(key + '')
+                if (!info) {
                     const sendXml = rawXml`
                         <pageIndex>1</pageIndex>
                         <pageSize>1</pageSize>
                         <condition>
-                            <id>${row.faceFeatureId.toString()}</id>
+                            <id>${row.faceFeatureId}</id>
                         </condition>
                     `
                     const result = await queryFacePersonnalInfoList(sendXml)
                     const $ = queryXml(result)
-                    const item = $('//content/item')[0]
+                    const item = $('content/item')[0]
                     const $item = queryXml(item.element)
-                    cacheInfo[key] = {
-                        id: item.attr('id')!,
+                    const infoItem = {
+                        id: item.attr('id'),
                         number: $item('number').text(),
                         name: $item('name').text(),
                         sex: $item('sex').text(),
-                        birthday: formatDate($item('birthday').text(), dateTime.dateFormat, 'YYYY-MM-DD'),
+                        birthday: formatGregoryDate($item('birthday').text(), dateTime.dateFormat, DEFAULT_YMD_FORMAT),
                         nativePlace: $item('nativePlace').text(),
                         certificateType: $item('certificateType').text(),
                         certificateNum: $item('certificateNum').text(),
                         mobile: $item('mobile').text(),
-                        faceImgCount: Number($item('faceImgCount').text()),
-                        note: $item('remark').text(),
-                        pic: [],
+                        faceImgCount: $item('faceImgCount').text().num(),
+                        note: $item('note').text(),
+                        pic: [] as string[],
                         groupId: $item('groups/item/groupId').text(),
                     }
 
                     const pic = await getFacePic(row)
-                    cacheInfo[key].pic.push(pic)
+                    infoItem.pic.push(pic)
+                    cacheInfo.set(key + '', infoItem)
                 }
+
                 if (getUniqueKey(row) === getUniqueKey(sliceTableData.value[index])) {
                     return true
                 } else {
                     return false
                 }
             } catch (e) {
-                cacheInfo[key] = cacheInfo[key] || { ...cloneFaceInfo }
+                cacheInfo.set(key + '', cacheInfo.get(key + '') || { ...cloneFaceInfo })
                 if (getUniqueKey(row) === getUniqueKey(sliceTableData.value[index])) {
                     return true
                 } else {
@@ -836,29 +861,29 @@ export default defineComponent({
             try {
                 const sendXml = rawXml`
                     <condition>
-                        <id>${row.faceFeatureId.toString()}</id>
+                        <id>${row.faceFeatureId}</id>
                         <index>1</index>
                     </condition>
                 `
                 const result = await requestFacePersonnalInfoImage(sendXml)
                 const $ = queryXml(result)
-                if ($('//status').text() === 'success') {
-                    const content = $('//content').text()
+                if ($('status').text() === 'success') {
+                    const content = $('content').text()
                     if (!content) {
                         return ''
                     } else {
-                        return 'data:image/png;base64,' + content
+                        return wrapBase64Img(content)
                     }
                 } else {
                     // 重复获取数据
-                    if (times < REPEAR_REQUEST_IMG_TIMES) {
+                    if (times < REPEAT_REQUEST_IMG_TIMES) {
                         return getFacePic(row, times + 1)
                     } else {
                         return ''
                     }
                 }
             } catch (e) {
-                if (times < REPEAR_REQUEST_IMG_TIMES) {
+                if (times < REPEAT_REQUEST_IMG_TIMES) {
                     return getFacePic(row, times + 1)
                 } else {
                     return ''
@@ -873,11 +898,11 @@ export default defineComponent({
             const result = await queryFacePersonnalInfoGroupList()
             const $ = queryXml(result)
 
-            pageData.value.faceDatabaseList = $('//content/item').map((item) => {
+            pageData.value.faceDatabaseList = $('content/item').map((item) => {
                 const $item = queryXml(item.element)
                 faceGroupMap[$item('groupId').text()] = $item('name').text()
                 return {
-                    id: item.attr('id')!,
+                    id: item.attr('id'),
                     groupId: $item('groupId').text(),
                     name: $item('name').text(),
                 }
@@ -904,6 +929,8 @@ export default defineComponent({
          * @description 获取列表数据
          */
         const getData = async () => {
+            stop()
+
             const chlXml = (formData.value.chls.length ? formData.value.chls : pageData.value.chlOptions)
                 .map((item) => {
                     return `<item id="${item.value}"></item>`
@@ -921,10 +948,7 @@ export default defineComponent({
             } else {
                 const faceType = formData.value.face
                 if (faceType === '') {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_SELECT_FACE_EMPTY'),
-                    })
+                    openMessageBox(Translate('IDCS_SELECT_FACE_EMPTY'))
                     return
                 } else {
                     const imgData = formData.value.importFace
@@ -932,8 +956,8 @@ export default defineComponent({
                             (item) => rawXml`
                                 <item>
                                     <imgData>${item.pic.split(',')[1]}</imgData>
-                                    <imgWidth>${item.width.toString()}</imgWidth>
-                                    <imgHeight>${item.height.toString()}</imgHeight>
+                                    <imgWidth>${item.width}</imgWidth>
+                                    <imgHeight>${item.height}</imgHeight>
                                 </item>
                             `,
                         )
@@ -943,7 +967,7 @@ export default defineComponent({
                             (item) => rawXml`
                                 <item>
                                     <frameTime>${item.frameTime}</frameTime>
-                                    <img id="${item.imgId.toString()}"></img>
+                                    <img id="${item.imgId}"></img>
                                     <chl id="${item.chlId}"></chl>
                                     <index>0</index>
                                 </item>
@@ -951,10 +975,10 @@ export default defineComponent({
                         )
                         .join('')
                     faceXml = rawXml`
-                        ${ternary(faceType === 'face', `<faceFeatures type="list">${formData.value.featureFace.map((item) => `<item>${item.id}</item>`).join('')}</faceFeatures>`)}
-                        ${ternary(faceType === 'group', `<faceFeatureGroups type="list">${formData.value.featureFaceGroup.map((item) => `<item id="${item.groupId}"></item>`).join('')}</faceFeatureGroups>`)}
-                        ${ternary(faceType === 'snap', `<faceImgs type="list">${snapData}</faceImgs>`)}
-                        <faceImgData>${ternary(faceType === 'import', imgData)}</faceImgData>
+                        ${faceType === 'face' ? `<faceFeatures type="list">${formData.value.featureFace.map((item) => `<item>${item.id}</item>`).join('')}</faceFeatures>` : ''}
+                        ${faceType === 'group' ? `<faceFeatureGroups type="list">${formData.value.featureFaceGroup.map((item) => `<item id="${item.groupId}"></item>`).join('')}</faceFeatureGroups>` : ''}
+                        ${faceType === 'snap' ? `<faceImgs type="list">${snapData}</faceImgs>` : ''}
+                        <faceImgData>${faceType === 'import' ? imgData : ''}</faceImgData>
                     `
                     pageData.value.isMultiFaceSearch =
                         formData.value.featureFaceGroup.length > 0 || formData.value.featureFace.length > 1 || formData.value.snapFace.length > 1 || formData.value.importFace.length > 1
@@ -964,12 +988,12 @@ export default defineComponent({
             const sendXml = rawXml`
                 <resultLimit>10000</resultLimit>
                 <condition>
-                    <startTime>${formatDate(formData.value.dateRange[0], 'YYYY-MM-DD HH:mm:ss')}</startTime>
-                    <endTime>${formatDate(formData.value.dateRange[1], 'YYYY-MM-DD HH:mm:ss')}</endTime>
+                    <startTime>${formatGregoryDate(formData.value.dateRange[0], DEFAULT_DATE_FORMAT)}</startTime>
+                    <endTime>${formatGregoryDate(formData.value.dateRange[1], DEFAULT_DATE_FORMAT)}</endTime>
                     <chls type="list">${chlXml}</chls>
                     ${eventXml}
                     ${faceXml}
-                    <similarity>${formData.value.similarity.toString()}</similarity>
+                    <similarity>${formData.value.similarity}</similarity>
                 </condition>
             `
 
@@ -978,6 +1002,14 @@ export default defineComponent({
             formData.value.eventType = pageData.value.searchType === 'face' ? '' : formData.value.event
             formData.value.faceType = pageData.value.searchType === 'face' ? formData.value.face : ''
             tableData.value = []
+            cachePic.clear()
+            cacheInfo.clear()
+
+            const listTypeItem = pageData.value.listTypeOptions.find((item) => item.value === pageData.value.listType)!
+            if (!isListOptionVisible(listTypeItem.hide)) {
+                pageData.value.listType = pageData.value.listTypeOptions.find((item) => isListOptionVisible(item.hide))!.value
+            }
+
             cacheImportFace = formData.value.importFace.map((item) => item.pic)
             cacheSnapFace = formData.value.snapFace.map((item) => item.pic)
 
@@ -988,25 +1020,25 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                tableData.value = $('//content/i').map((item) => {
-                    const isDelSnap = item.attr('s')! === 'd'
-                    const split = item.text().split(',')
-                    const guid = parseInt(split[4], 16)
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/i').map((item) => {
+                    const isDelSnap = item.attr('s') === 'd'
+                    const split = item.text().array()
+                    const guid = hexToDec(split[4])
                     const chlId = getChlGuid16(split[4]).toUpperCase()
-                    const timestamp = parseInt(split[1], 16) * 1000
+                    const timestamp = hexToDec(split[1]) * 1000
                     return {
-                        faceFeatureId: parseInt(split[0], 16),
+                        faceFeatureId: hexToDec(split[0]),
                         isDelSnap: isDelSnap,
                         isNoData: false,
-                        imgId: parseInt(split[3], 16) + '',
+                        imgId: hexToDec(split[3]) + '',
                         timestamp,
-                        frameTime: localToUtc(timestamp) + ':' + ('0000000' + parseInt(split[2], 16)).slice(-7),
+                        frameTime: localToUtc(timestamp) + ':' + padStart(hexToDec(split[2]), 7),
                         guid,
                         chlId,
-                        chlName: chlMap[chlId],
-                        recStartTime: parseInt(split[6], 16) * 1000,
-                        recEndTime: parseInt(split[7], 16) * 1000,
+                        chlName: chlMap[chlId] || Translate('IDCS_HISTORY_CHANNEL'),
+                        recStartTime: hexToDec(split[6]) * 1000,
+                        recEndTime: hexToDec(split[7]) * 1000,
                         pic: '',
                         panorama: '',
                         match: '',
@@ -1018,9 +1050,10 @@ export default defineComponent({
                         Y1: 0,
                         X2: 0,
                         Y2: 0,
-                        similarity: parseInt(split[5], 16),
+                        similarity: hexToDec(split[5]),
                         plateNumber: '',
                         identity: false,
+                        attribute: {},
                         info: {
                             ...cloneFaceInfo,
                         },
@@ -1029,10 +1062,7 @@ export default defineComponent({
                 showMaxSearchLimitTips($)
 
                 if (!tableData.value.length) {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_NO_RECORD_DATA'),
-                    })
+                    openMessageBox(Translate('IDCS_NO_RECORD_DATA'))
                 }
 
                 if (!isSortVisible.value) {
@@ -1040,7 +1070,7 @@ export default defineComponent({
                 }
                 getTrackMapList()
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_WALL_HAVEDECODER:
@@ -1058,36 +1088,56 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_NO_RECORD_DATA')
                         break
                 }
-                openMessageTipBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
             changeSortType()
         }
+
+        // 人脸比对列表
+        const matchList = computed(() => {
+            if (pageData.value.isMatchPop) {
+                return sliceTableData.value
+                    .filter((item) => item.faceFeatureId !== -1000)
+                    .map((item) => {
+                        return {
+                            ...item.info,
+                            ...item,
+                            info: '',
+                            groupName: faceGroupMap[item.info.groupId],
+                        }
+                    })
+            }
+            return []
+        })
+
+        // 抓拍数据列表
+        const snapList = computed(() => {
+            return sliceTableData.value.filter((item) => item.faceFeatureId !== -1000)
+        })
 
         /**
          * @description 查看抓拍详情
          * @param {IntelSearchFaceList} index
          */
         const showDetail = (row: IntelSearchFaceList) => {
-            const index = sliceTableData.value.findIndex((item) => getUniqueKey(item) === getUniqueKey(row))
+            const index = snapList.value.findIndex((item) => getUniqueKey(item) === getUniqueKey(row))
             stop()
             if (formData.value.eventType === 'byWhiteList' || formData.value.faceType === 'face' || formData.value.faceType === 'group') {
-                pageData.value.matchList = sliceTableData.value.map((item) => {
-                    return {
-                        ...item.info,
-                        ...item,
-                        info: '',
-                        groupName: faceGroupMap[item.info.groupId],
-                    }
-                })
                 pageData.value.matchIndex = index
                 pageData.value.isMatchPop = true
             } else {
                 pageData.value.detailIndex = index
                 pageData.value.isDetailPop = true
             }
+        }
+
+        /**
+         * @description 打开注册人脸弹窗
+         * @param {IntelSnapPopList} row
+         */
+        const register = (row: IntelSnapPopList) => {
+            pageData.value.registerPic = row.pic
+            pageData.value.isRegisterPop = true
         }
 
         // 已选选项
@@ -1100,9 +1150,9 @@ export default defineComponent({
          * @param {IntelSearchFaceList} row
          */
         const handleTableRowClick = (row: IntelSearchFaceList) => {
-            play(row)
             tableRef.value!.clearSelection()
             tableRef.value!.toggleRowSelection(row, true)
+            setTimeout(() => play(row), 300)
         }
 
         /**
@@ -1110,7 +1160,7 @@ export default defineComponent({
          * @param {IntelSearchFaceList[]} row
          */
         const handleTableSelectionChange = (row: IntelSearchFaceList[]) => {
-            pageData.value.selection = row
+            pageData.value.selection = row.filter((item) => item.faceFeatureId !== -1000)
         }
 
         /**
@@ -1128,6 +1178,11 @@ export default defineComponent({
         const handleSelect = (index: number, bool: boolean) => {
             tableRef.value!.toggleRowSelection(sliceTableData.value[index], bool)
         }
+
+        // 是否全选
+        const isSelectAll = computed(() => {
+            return !!sliceTableData.value.length && sliceTableData.value.filter((item) => item.faceFeatureId !== -1000).length === pageData.value.selection.length
+        })
 
         /**
          * @description 全选/取消全选
@@ -1167,6 +1222,8 @@ export default defineComponent({
          * @param {IntelSnapPopList | IntelFaceMatchPopList} row
          */
         const searchSnap = (row: IntelSnapPopList | IntelFaceMatchPopList) => {
+            pageData.value.isDetailPop = false
+            pageData.value.isMatchPop = false
             changeSnap([
                 {
                     timestamp: row.timestamp,
@@ -1195,10 +1252,7 @@ export default defineComponent({
                 return !auth.value.bk[item.chlId]
             })
             if (find) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_CHANNEL_BACUP_NO_PERMISSION').formatForLang(find.chlName),
-                })
+                openMessageBox(Translate('IDCS_CHANNEL_BACUP_NO_PERMISSION').formatForLang(find.chlName))
                 return false
             }
             return true
@@ -1290,10 +1344,7 @@ export default defineComponent({
             if (downloadData.length) {
                 createZip()
             } else {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_RECORD_DATA'),
-                })
+                openMessageBox(Translate('IDCS_NO_RECORD_DATA'))
             }
         }
 
@@ -1308,7 +1359,7 @@ export default defineComponent({
             })
                 .then(() => {
                     closeLoading()
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'success',
                         message: Translate('IDCS_BACKUP_SUCCESS'),
                     })
@@ -1334,6 +1385,7 @@ export default defineComponent({
                     return [1, 1]
                 }
             }
+
             if (data.columnIndex !== 1) {
                 if (data.row.faceFeatureId === -1000) {
                     return [0, 0]
@@ -1352,9 +1404,10 @@ export default defineComponent({
                 changeDateRange([dayjs(history.state.date).hour(0).minute(0).second(0).valueOf(), dayjs(history.state.date).hour(23).minute(59).second(59).valueOf()], 'date')
                 delete history.state.date
             }
-            if (history.state.faceType) {
+
+            if (history.state.picType) {
                 pageData.value.searchType = 'face'
-                if (history.state.faceType === 'face') {
+                if (history.state.picType === 'face') {
                     const item = new IntelFaceDBFaceInfo()
                     item.id = history.state.id
                     item.name = history.state.name
@@ -1363,14 +1416,14 @@ export default defineComponent({
                     item.mobile = history.state.mobile
                     item.pic = [history.state.pic]
                     changeFace([item])
-                    delete history.state.faceType
+                    delete history.state.picType
                     delete history.state.id
                     delete history.state.name
                     delete history.state.birthday
                     delete history.state.certificateNum
                     delete history.state.mobile
                     delete history.state.pic
-                } else if (history.state.faceType === 'snap') {
+                } else if (history.state.picType === 'snap') {
                     const item = new IntelFaceDBSnapFaceList()
                     item.chlId = history.state.chlId
                     item.chlName = chlMap[item.chlId]
@@ -1379,7 +1432,7 @@ export default defineComponent({
                     item.frameTime = history.state.frameTime
                     item.pic = history.state.pic
                     changeSnap([item])
-                    delete history.state.faceType
+                    delete history.state.picType
                     delete history.state.chlId
                     delete history.state.imgId
                     delete history.state.frameTime
@@ -1388,7 +1441,7 @@ export default defineComponent({
             }
         })
 
-        onBeforeUnmount(() => {
+        onBeforeRouteLeave(() => {
             stop()
         })
 
@@ -1422,6 +1475,7 @@ export default defineComponent({
             getTableSelectable,
             selectionIds,
             handleSelect,
+            isSelectAll,
             handleSelectAll,
             playRec,
             confirmBackUp,
@@ -1449,7 +1503,9 @@ export default defineComponent({
             pause,
             resume,
             getUniqueKey,
-            sliceTableDataWithDateColsSpan,
+            register,
+            matchList,
+            snapList,
         }
     },
 })

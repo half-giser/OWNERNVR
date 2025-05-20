@@ -2,11 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-18 18:42:59
  * @Description: 黑白名单
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 11:49:08
  */
 import BlockAndAllowEditPop from './BlockAndAllowEditPop.vue'
-import { UserBlackAllowListForm, UserEditBlackAllowListForm } from '@/types/apiType/userAndSecurity'
 
 export default defineComponent({
     components: {
@@ -14,8 +11,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
 
         const pageData = ref({
             // 是否显示编辑弹窗
@@ -36,7 +31,7 @@ export default defineComponent({
          * @param {UserBlackAllowList} row
          * @param {number} index
          */
-        const handleEdit = (row: UserEditBlackAllowListForm, index: number) => {
+        const openEditPop = (row: UserEditBlackAllowListForm, index: number) => {
             pageData.value.isEditPop = true
             pageData.value.editIndex = index
             pageData.value.editData = { ...row }
@@ -46,8 +41,8 @@ export default defineComponent({
          * @description 删除表单行
          * @param {number} index
          */
-        const handleDelete = (index: number) => {
-            openMessageTipBox({
+        const delItem = (index: number) => {
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(() => {
@@ -58,7 +53,7 @@ export default defineComponent({
         /**
          * @description 添加IP，打开编辑弹窗
          */
-        const handleAddIp = () => {
+        const addIp = () => {
             pageData.value.isEditPop = true
             pageData.value.editIndex = -1
             const editData = new UserEditBlackAllowListForm()
@@ -69,7 +64,7 @@ export default defineComponent({
         /**
          * @description 添加MAC，打开编辑弹窗
          */
-        const handleAddMac = () => {
+        const addMac = () => {
             pageData.value.isEditPop = true
             pageData.value.editIndex = -1
             const editData = new UserEditBlackAllowListForm()
@@ -81,7 +76,7 @@ export default defineComponent({
          * @description 关闭编辑弹窗，更新表格数据
          * @param {UserEditBlackAllowListForm} e
          */
-        const handleConfirmEdit = (e: UserEditBlackAllowListForm | null) => {
+        const confirmEditItem = (e: UserEditBlackAllowListForm | null) => {
             if (e) {
                 if (pageData.value.editIndex === -1) {
                     tableData.value.push({ ...e })
@@ -98,19 +93,18 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryBlackAndWhiteList()
             commLoadResponseHandler(result, ($) => {
-                formData.value.switch = $('//content/switch').text().toBoolean()
-                formData.value.filterType = $('//content/filterType').text() as UserBlackAllowListForm['filterType']
-                tableData.value = []
-                $('//content/filterList/itemType/item').forEach((item) => {
+                formData.value.switch = $('content/switch').text().bool()
+                formData.value.filterType = $('content/filterType').text()
+                tableData.value = $('content/filterList/item').map((item) => {
                     const $item = queryXml(item.element)
-                    tableData.value.push({
-                        switch: $item('switch').text().toBoolean(),
-                        addressType: $item('addressType').text() as UserEditBlackAllowListForm['addressType'],
-                        ip: $item('ip').text() || '',
-                        startIp: $item('startIp').text() || '',
-                        endIp: $item('endIp').text() || '',
-                        mac: $item('mac').text() || '',
-                    })
+                    return {
+                        switch: $item('switch').text().bool(),
+                        addressType: $item('addressType').text(),
+                        ip: $item('ip').text(),
+                        startIp: $item('startIp').text(),
+                        endIp: $item('endIp').text(),
+                        mac: $item('mac').text(),
+                    }
                 })
             })
         }
@@ -121,19 +115,6 @@ export default defineComponent({
         const setData = async () => {
             openLoading()
 
-            const tableXml = tableData.value
-                .map((item) => {
-                    return rawXml`
-                        <item>
-                            <switch>${String(item.switch)}</switch>
-                            <addressType>${item.addressType}</addressType>
-                            ${item.addressType === 'ip' ? `<ip>${item.ip}</ip>` : ''}
-                            ${item.addressType === 'mac' ? `<mac>${item.mac}</mac>` : ''}
-                            ${item.addressType === 'iprange' ? `<startIp>${item.startIp}</startIp><endIp>${item.endIp}</endIp>` : ''}
-                        </item>
-                    `
-                })
-                .join('')
             const sendXml = rawXml`
                 <types>
                     <filterTypeMode>
@@ -147,20 +128,32 @@ export default defineComponent({
                     </addressType>
                 </types>
                 <content>
-                    <switch>${String(formData.value.switch)}</switch>
+                    <switch>${formData.value.switch}</switch>
                     <filterType type="filterTypeMode">${formData.value.filterType}</filterType>
                     <filterList type="list">
                         <itemType>
                             <addressType type="addressType" />
-                            ${tableXml}
                         </itemType>
+                        ${tableData.value
+                            .map((item) => {
+                                return rawXml`
+                                    <item>
+                                        <switch>${item.switch}</switch>
+                                        <addressType>${item.addressType}</addressType>
+                                        ${item.addressType === 'ip' ? `<ip>${item.ip}</ip>` : ''}
+                                        ${item.addressType === 'mac' ? `<mac>${item.mac}</mac>` : ''}
+                                        ${item.addressType === 'iprange' ? `<startIp>${item.startIp}</startIp><endIp>${item.endIp}</endIp>` : ''}
+                                    </item>
+                                `
+                            })
+                            .join('')}
                     </filterList>
                 </content>
             `
             const result = await editBlackAndWhiteList(sendXml)
 
             closeLoading()
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
         }
 
         /**
@@ -189,14 +182,13 @@ export default defineComponent({
             formData,
             tableData,
             pageData,
-            handleEdit,
-            handleDelete,
-            handleAddIp,
-            handleAddMac,
+            openEditPop,
+            delItem,
+            addIp,
+            addMac,
             formatIpMacAddress,
             setData,
-            handleConfirmEdit,
-            BlockAndAllowEditPop,
+            confirmEditItem,
         }
     },
 })

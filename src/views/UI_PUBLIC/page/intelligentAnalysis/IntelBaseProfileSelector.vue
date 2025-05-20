@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-05 19:35:04
  * @Description: 智能分析 属性选择器
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 16:43:13
 -->
 <template>
     <div>
@@ -14,7 +12,6 @@
             <div class="text-ellipsis">{{ content }}</div>
             <BaseImgSprite
                 file="arrow"
-                :index="0"
                 :chunk="4"
             />
         </div>
@@ -43,14 +40,10 @@
                             <div class="label">{{ item3.label }}</div>
                             <div class="btn-box">
                                 <template v-if="item3.value === 'brand'">
-                                    <el-select v-model="selected[item1.value][item3.value][0]">
-                                        <el-option
-                                            v-for="item4 in item3.children"
-                                            :key="item4.value"
-                                            :value="item4.value"
-                                            :label="item4.label"
-                                        />
-                                    </el-select>
+                                    <el-select-v2
+                                        v-model="selected[item1.value][item3.value][0]"
+                                        :options="item3.children"
+                                    />
                                 </template>
                                 <template v-else>
                                     <div
@@ -71,27 +64,16 @@
                     </div>
                 </div>
             </el-scrollbar>
-            <template #footer>
-                <el-row>
-                    <el-col
-                        :span="24"
-                        class="el-col-flex-end"
-                    >
-                        <el-button @click="reset">{{ Translate('IDCS_RESET') }}</el-button>
-                        <el-button @click="confirm">{{ Translate('IDCS_OK') }}</el-button>
-                        <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-                    </el-col>
-                </el-row>
-            </template>
+            <div class="base-btn-box">
+                <el-button @click="reset">{{ Translate('IDCS_RESET') }}</el-button>
+                <el-button @click="confirm">{{ Translate('IDCS_OK') }}</el-button>
+                <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+            </div>
         </el-dialog>
     </div>
 </template>
 
 <script lang="ts" src="./IntelBaseProfileSelector.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/intelligentAnalysis.scss';
-</style>
 
 <style lang="scss" scoped>
 .title {
@@ -123,7 +105,8 @@
     width: 200px;
     flex-shrink: 0;
     line-height: 40px;
-    &:after {
+
+    &::after {
         content: ' : ';
     }
 }
@@ -135,13 +118,14 @@
 
 .btn {
     width: 100px;
-    height: 30px;
-    line-height: 30px;
+    height: 24px;
+    line-height: 24px;
     cursor: pointer;
     margin: 5px 10px;
     text-align: center;
     font-size: 12px;
     border: 1px solid var(--input-border);
+    user-select: none;
 
     &.active {
         border-color: var(--primary);
@@ -151,8 +135,6 @@
 
 .el-select {
     width: 102px;
-    height: 30px;
-    line-height: 30px;
     margin: 5px 10px;
 }
 
@@ -160,5 +142,6 @@
     border-radius: 0;
     font-size: 12px;
     text-align: center;
+    height: 26px;
 }
 </style>

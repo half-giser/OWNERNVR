@@ -2,22 +2,16 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-14 16:50:21
  * @Description: 时间切片-时间线界面
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 17:19:05
  */
 import dayjs from 'dayjs'
-import TimeSliceChlCard from './TimeSliceChlCard.vue'
-import WebsocketKeyframe from '@/utils/websocket/websocketKeyframe'
-import { type WebsocketKeyframeOnMessageParam } from '@/utils/websocket/websocketKeyframe'
-import { type PlaybackChlTimeSliceList, type PlaybackRecList, type PlaybackBackUpRecList } from '@/types/apiType/playback'
+import TimeSliceItem from './TimeSliceItem.vue'
 import BackupPop from '../searchAndBackup/BackupPop.vue'
 import BackupLocalPop from '../searchAndBackup/BackupLocalPop.vue'
-import { type TVTPlayerWinDataListItem } from '@/utils/wasmPlayer/tvtPlayer'
 import TimeSliceTimeRangePop from './TimeSliceTimeRangePop.vue'
 
 export default defineComponent({
     components: {
-        TimeSliceChlCard,
+        TimeSliceItem,
         TimeSliceTimeRangePop,
         BackupPop,
         BackupLocalPop,
@@ -65,9 +59,7 @@ export default defineComponent({
         },
     },
     setup(prop, ctx) {
-        const Plugin = inject('Plugin') as PluginType
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
         const router = useRouter()
         const systemCaps = useCababilityStore()
         const userAuth = useUserChlAuth()
@@ -178,6 +170,7 @@ export default defineComponent({
             backupRecList: [] as PlaybackBackUpRecList[],
             // 是否打开选择时间范围弹窗
             isTimeRangePop: false,
+            playerMode: 'h5',
         })
 
         const formData = ref({
@@ -205,6 +198,7 @@ export default defineComponent({
         if (systemCaps.ipChlMaxCount) {
             EVENTS.push('INTELLIGENT')
         }
+
         if (systemCaps.supportPOS) {
             EVENTS.push('POS')
         }
@@ -212,9 +206,20 @@ export default defineComponent({
         const timelineRef = ref<TimelineInstance>()
         const playerRef = ref<PlayerInstance>()
 
-        // 播放器模式
-        const mode = computed(() => {
-            return Plugin.IsSupportH5() ? 'h5' : 'ocx'
+        const plugin = usePlugin({
+            onReady: (mode, plugin) => {
+                pageData.value.playerMode = mode.value
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
+                    plugin.ExecuteCmd(sendXML)
+                }
+            },
+            onDestroy: (mode, plugin) => {
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_StopPreview('ALL')
+                    plugin.ExecuteCmd(sendXML)
+                }
+            },
         })
 
         /**
@@ -245,7 +250,7 @@ export default defineComponent({
             }
         })
 
-        let keyframe: WebsocketKeyframe
+        let keyframe: ReturnType<typeof WebsocketKeyframe>
 
         // 当前模式项
         const modeItem = computed(() => {
@@ -260,31 +265,26 @@ export default defineComponent({
             pageData.value.sliceType = modeItem.value.options[0].value
         })
 
-        let recSizeTimer: NodeJS.Timeout | number = 0
-
         watch(
             () => formData.value.startTime,
             () => {
-                updateRecSize()
+                recSizeTimer.repeat()
             },
         )
 
         watch(
             () => formData.value.endTime,
             () => {
-                updateRecSize()
+                recSizeTimer.repeat()
             },
         )
 
         /**
          * @description 获取时间范围内录像文件大小
          */
-        const updateRecSize = () => {
-            clearTimeout(recSizeTimer)
-            recSizeTimer = setTimeout(() => {
-                getRecDataSize()
-            }, 200)
-        }
+        const recSizeTimer = useRefreshTimer(() => {
+            getRecDataSize()
+        }, 200)
 
         /**
          * @description 获取时间范围内录像文件大小
@@ -299,16 +299,16 @@ export default defineComponent({
             const sendXml = rawXml`
                 <condition>
                     <chlId>${prop.chlId}</chlId>
-                    <startTime>${Math.floor(formData.value.startTime / 1000).toString()}</startTime>
-                    <endTime>${Math.floor(formData.value.endTime / 1000).toString()}</endTime>
+                    <startTime>${Math.floor(formData.value.startTime / 1000)}</startTime>
+                    <endTime>${Math.floor(formData.value.endTime / 1000)}</endTime>
                     <eventType>all</eventType>
                 </condition>
             `
             const result = await queryRecDataSize(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 if (formData.value.startTime === startTime && formData.value.endTime === endTime) {
-                    const size = Number($('//content/dataSize').text())
+                    const size = $('content/dataSize').text().num()
                     formData.value.size = size
                 }
             } else {
@@ -337,6 +337,7 @@ export default defineComponent({
             if (pageData.value.mode === 'year') {
                 return formatDate(time, dateTime.yearMonthFormat)
             }
+
             if (pageData.value.mode === 'month') {
                 return formatDate(time, dateTime.dateFormat)
             }
@@ -415,7 +416,7 @@ export default defineComponent({
          * @param {TVTPlayerWinDataListItem} data
          * @param {Number} timestamp
          */
-        const handlePlayerTimeUpdate = (index: number, data: TVTPlayerWinDataListItem, timestamp: number) => {
+        const handlePlayerTimeUpdate = (_index: number, _data: TVTPlayerWinDataListItem, timestamp: number) => {
             if (playerData.value.lockSlider) {
                 return
             }
@@ -475,10 +476,7 @@ export default defineComponent({
          * @description 没有数据时弹窗
          */
         const handleNoData = () => {
-            openMessageTipBox({
-                type: 'info',
-                message: Translate('IDCS_NO_RECORD_DATA'),
-            })
+            openMessageBox(Translate('IDCS_NO_RECORD_DATA'))
         }
 
         /**
@@ -541,7 +539,7 @@ export default defineComponent({
             updateMode(mode, currentTime)
         }
 
-        let timeSliceTimer: NodeJS.Timeout | number = 0
+        const timeSliceTimer = useRefreshTimer(() => {}, 300)
 
         /**
          * @description 播放当前切片
@@ -550,16 +548,18 @@ export default defineComponent({
          * @param {string} taskId
          */
         const playTimeSlice = (startTime: number, endTime: number, taskId: string) => {
-            clearTimeout(timeSliceTimer)
-            timeSliceTimer = setTimeout(() => {
+            timeSliceTimer.update(() => {
                 play(startTime)
                 pageData.value.activeTimeSlice = taskId
                 if (pageData.value.mode === 'day') {
                     formData.value.startTime = startTime
                     formData.value.endTime = endTime
+                    timelineRef.value!.clearTimeRangeMask()
                     timelineRef.value!.drawTimeRangeMask(startTime / 1000, endTime / 1000)
+                    timelineRef.value!.setTime(startTime / 1000)
                 }
-            }, 300)
+            })
+            timeSliceTimer.repeat()
         }
 
         /**
@@ -567,7 +567,8 @@ export default defineComponent({
          * @param {number} pointerTime
          */
         const changeTimeSlice = (pointerTime: number) => {
-            clearTimeout(timeSliceTimer)
+            seek(pointerTime)
+            timeSliceTimer.stop()
             if (pageData.value.mode === 'day') {
                 if (pageData.value.sliceType === 'hour') {
                     pageData.value.sliceType = 'minute'
@@ -612,18 +613,18 @@ export default defineComponent({
                     if (mode === 'year') {
                         timelineRef.value!.setMode({
                             mode,
-                            startDate: dayjs(prop.recStartTime).subtract(3, 'month').format('YYYY/MM/DD'),
+                            startDate: dayjs(prop.recStartTime).calendar('gregory').subtract(3, 'month').format('YYYY/MM/DD'),
                             monthNum: 5,
                         })
                     } else if (mode === 'month') {
                         timelineRef.value!.setMode({
                             mode,
-                            startDate: dayjs(prop.chlStartTime).format('YYYY/MM/DD'),
+                            startDate: dayjs(prop.chlStartTime).calendar('gregory').format('YYYY/MM/DD'),
                         })
                     } else if (mode === 'day') {
                         timelineRef.value!.setMode({
                             mode,
-                            startDate: dayjs(prop.chlStartTime).format('YYYY/MM/DD'),
+                            startDate: dayjs(prop.chlStartTime).calendar('gregory').format('YYYY/MM/DD'),
                         })
                     }
 
@@ -671,8 +672,8 @@ export default defineComponent({
                 </requireField>
                 <condition>
                     <modeType>modeOne</modeType>
-                    <startTime>${formatDate(startTime, 'YYYY-MM-DD HH:mm:ss')}</startTime>
-                    <endTime>${formatDate(endTime, 'YYYY-MM-DD HH:mm:ss')}</endTime>
+                    <startTime>${formatGregoryDate(startTime, DEFAULT_DATE_FORMAT)}</startTime>
+                    <endTime>${formatGregoryDate(endTime, DEFAULT_DATE_FORMAT)}</endTime>
                     <startTimeEx>${localToUtc(startTime)}</startTimeEx>
                     <endTimeEx>${localToUtc(endTime)}</endTimeEx>
                     <recType type='list'>
@@ -686,16 +687,17 @@ export default defineComponent({
             `
             const result = await queryChlRecLog(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() !== 'success') {
+            if ($('status').text() !== 'success') {
                 return
             }
+
             if (startTime !== timelineRef.value!.getMinTime() * 1000) {
                 return
             }
-            pageData.value.recList = $('//content/chl/item').map((item) => {
+            pageData.value.recList = $('content/chl/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
-                    chlId: item.attr('id')!,
+                    chlId: item.attr('id'),
                     chlName: $item('name').text(),
                     records: $item('recList/item').map((rec) => {
                         const $rec = queryXml(rec.element)
@@ -714,7 +716,7 @@ export default defineComponent({
                             duration: dayjs.utc(endTime - startTime).format('HH:mm:ss'),
                         }
                     }),
-                    timeZone: $item('recList').attr('timeZone')!,
+                    timeZone: $item('recList').attr('timeZone'),
                 }
             })
         }
@@ -723,12 +725,12 @@ export default defineComponent({
          * @description 创建Websocket连接
          */
         const createWebsocket = () => {
-            keyframe = new WebsocketKeyframe({
+            keyframe = WebsocketKeyframe({
                 onmessage: (data: WebsocketKeyframeOnMessageParam) => {
                     pageData.value.timeSliceList.forEach((item) => {
                         if (data.taskId.toUpperCase() === item.taskId) {
                             item.imgUrl = data.imgUrl
-                            item.frameTime = data.frameTime * 1000
+                            item.frameTime = data.frameTime
                             pageData.value.timeSliceCount++
                         }
                     })
@@ -764,7 +766,7 @@ export default defineComponent({
                         startTime: item.startTime * 1000,
                         endTime: item.endTime * 1000,
                         taskId,
-                        frameTime: 0,
+                        frameTime: item.startTime * 1000,
                         imgUrl: '',
                     })
                 })
@@ -789,11 +791,8 @@ export default defineComponent({
          * @description 备份
          */
         const backUp = () => {
-            if (mode.value === 'ocx' && Plugin.BackUpTask.isExeed(1)) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_BACKUP_TASK_NUM_LIMIT').formatForLang(Plugin.BackUpTask.limit),
-                })
+            if (pageData.value.playerMode === 'ocx' && plugin.BackUpTask.isExeed(1)) {
+                openMessageBox(Translate('IDCS_BACKUP_TASK_NUM_LIMIT').formatForLang(plugin.BackUpTask.limit))
                 return
             }
             pageData.value.backupRecList = [
@@ -818,10 +817,12 @@ export default defineComponent({
          */
         const confirmBackUp = (type: string, path: string, format: string) => {
             if (type === 'local') {
-                if (mode.value === 'h5') {
+                if (pageData.value.playerMode === 'h5') {
                     pageData.value.isLocalBackUpPop = true
-                } else if (mode.value === 'ocx') {
-                    Plugin.BackUpTask.addTask(pageData.value.backupRecList, path, format)
+                }
+
+                if (pageData.value.playerMode === 'ocx') {
+                    plugin.BackUpTask.addTask(pageData.value.backupRecList, path, format)
                     router.push({
                         path: '/search-and-backup/backup-state',
                     })
@@ -829,6 +830,9 @@ export default defineComponent({
                 pageData.value.isBackUpPop = false
             } else {
                 pageData.value.isBackUpPop = false
+                router.push({
+                    path: '/search-and-backup/backup-state',
+                })
             }
         }
 
@@ -850,38 +854,16 @@ export default defineComponent({
             pageData.value.isTimeRangePop = false
         }
 
-        watch(
-            mode,
-            (newVal) => {
-                if (newVal !== 'h5' && !Plugin.IsPluginAvailable()) {
-                    Plugin.SetPluginNoResponse()
-                    Plugin.ShowPluginNoResponse()
-                }
-                if (newVal === 'ocx') {
-                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
-                    Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                }
-            },
-            {
-                immediate: true,
-            },
-        )
-
         onMounted(() => {
-            Plugin.SetPluginNotice('#layout2Main')
             createWebsocket()
         })
 
+        onBeforeRouteLeave(() => {
+            stop()
+        })
+
         onBeforeUnmount(() => {
-            clearTimeout(recSizeTimer)
-            clearTimeout(timeSliceTimer)
-
             keyframe?.destroy()
-
-            if (mode.value === 'ocx') {
-                const sendXML = OCX_XML_StopPreview('ALL')
-                Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-            }
         })
 
         return {
@@ -915,10 +897,6 @@ export default defineComponent({
             confirmBackUp,
             showTimeRange,
             confirmTimeRange,
-            TimeSliceChlCard,
-            TimeSliceTimeRangePop,
-            BackupPop,
-            BackupLocalPop,
         }
     },
 })

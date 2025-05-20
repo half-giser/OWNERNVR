@@ -7,16 +7,15 @@
     <el-dialog
         :title="Translate('IDCS_EDIT_GROUP')"
         width="460"
-        align-center
-        draggable
         @opened="opened"
+        @closed="formRef?.resetFields()"
     >
         <el-form
             ref="formRef"
+            v-title
             :model="formData"
             :rules="rules"
-            label-width="200px"
-            label-position="left"
+            class="stripe"
         >
             <el-form-item
                 prop="name"
@@ -24,29 +23,21 @@
             >
                 <el-input
                     v-model="formData.name"
-                    maxlength="63"
+                    :formatter="formatInputMaxLength"
+                    :parser="formatInputMaxLength"
                 />
             </el-form-item>
-            <el-form-item
-                prop="dwellTime"
-                :label="Translate('IDCS_STAY_TIME')"
-            >
-                <el-select v-model="formData.dwellTime">
-                    <el-option
-                        v-for="item in timeList"
-                        :key="item"
-                        :value="item"
-                        :label="getTranslateForSecond(item)"
-                    />
-                </el-select>
+            <el-form-item :label="Translate('IDCS_STAY_TIME')">
+                <el-select-v2
+                    v-model="formData.dwellTime"
+                    :options="timeList"
+                />
             </el-form-item>
         </el-form>
-        <template #footer>
-            <div class="dialog-footer">
-                <el-button @click="save()">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="save()">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

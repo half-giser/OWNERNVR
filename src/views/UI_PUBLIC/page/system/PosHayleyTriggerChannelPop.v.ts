@@ -2,11 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-02 17:13:17
  * @Description: POS联动通道设置（Hayley）
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 16:51:32
  */
-import { type SystemPosListChls } from '@/types/apiType/system'
-
 export default defineComponent({
     props: {
         /**
@@ -41,7 +37,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
 
         const chlList = ref<SystemPosListChls[]>([])
         const tableData = ref<SystemPosListChls[]>([])
@@ -55,10 +50,10 @@ export default defineComponent({
             })
 
             commLoadResponseHandler(result, ($) => {
-                chlList.value = $('//content/item').map((item) => {
+                chlList.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        value: item.attr('id')!,
+                        value: item.attr('id'),
                         label: $item('name').text(),
                         till: '',
                     }
@@ -73,7 +68,7 @@ export default defineComponent({
             if (!chlList.value.length) {
                 await getData()
             }
-            const selectedList = (prop.chls as SystemPosListChls[]).map((item) => item.value)
+            const selectedList = prop.chls.map((item) => item.value)
 
             // 需把源数据的通道从选中通道移除掉
             tableData.value = chlList.value
@@ -88,7 +83,7 @@ export default defineComponent({
                     if (index > -1) {
                         return {
                             ...item,
-                            till: (prop.chls as SystemPosListChls[])[index].till,
+                            till: prop.chls[index].till,
                         }
                     }
                     return item
@@ -106,10 +101,7 @@ export default defineComponent({
                 return !isNaN(till) && till > 0 && till <= prop.max
             })
             if (!isValid) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_POS_TILL_RANGE').formatForLang(1, prop.max),
-                })
+                openMessageBox(Translate('IDCS_POS_TILL_RANGE').formatForLang(1, prop.max))
                 return
             }
 
@@ -117,10 +109,7 @@ export default defineComponent({
             const filterTillNum = tableData.value.filter((item) => Number(item.till))
             const isNoSameTillNumber = filterTillNum.length === Array.from(new Set(filterTillNum.map((item) => item.till))).length
             if (!isNoSameTillNumber) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_POS_TILL_SAME_ERROR'),
-                })
+                openMessageBox(Translate('IDCS_POS_TILL_SAME_ERROR'))
                 return
             }
 

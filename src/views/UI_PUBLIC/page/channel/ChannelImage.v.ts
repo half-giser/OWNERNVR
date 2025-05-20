@@ -3,28 +3,22 @@
  * @Date: 2024-06-27 11:55:36
  * @Description: 通道 - 图像参数配置
  */
-import { ChannelImage, ChannelLensCtrl, type ChannelScheduleInfo } from '@/types/apiType/channel'
 import { type TableInstance } from 'element-plus'
-import { cloneDeep } from 'lodash-es'
 
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
-        const pluginStore = usePluginStore()
-        const Plugin = inject('Plugin') as PluginType
-        const osType = getSystemInfo().platform
+        const layoutStore = useLayoutStore()
 
         const playerRef = ref<PlayerInstance>()
-        const formData = ref(new ChannelImage())
+        const formData = ref(new ChannelImageDto())
         const tableRef = ref<TableInstance>()
-        const tableData = ref<ChannelImage[]>([])
+        const tableData = ref<ChannelImageDto[]>([])
         const pageIndex = ref(1)
         const pageSize = ref(10)
         const pageTotal = ref(0)
         const selectedChlId = ref('')
-        const scheduleLine = ref()
+        const scheduleLine = ref<ScheduleLineInstance>()
         const tipMsg = ref('')
         const tipImgIndex = ref(0)
         const tipVisiable = ref(false)
@@ -33,23 +27,40 @@ export default defineComponent({
         const defaultRadioVal = false
         const defaultFocusMode = 'auto'
         const chlNameMaxLen = 40 // 通道名最大长度
+        const floatErrorMessage = ref('')
+        const floatLensMessage = ref('')
+        const floatErrorType = ref('ok')
 
-        const timeMode = ref(24)
-        let beforeEditData: ChannelImage
+        // const timeMode = ref(24)
+        let beforeEditData: ChannelImageDto
 
         let tmpShutterUpLimit: string | undefined
         let tmpShutterLowLimit: string | undefined
-        let tmpDayTime = ''
-        let tmpNightTime = ''
+        // let tmpDayTime = ''
+        // let tmpNightTime = ''
         let curAzChlId = ''
 
-        const baseFloatErrorRef = ref()
+        const ready = computed(() => {
+            return playerRef.value?.ready || false
+        })
+
+        // 播放模式
+        const mode = computed(() => {
+            if (!ready.value) {
+                return ''
+            }
+            return playerRef.value!.mode
+        })
+
+        let player: PlayerInstance['player']
+        let plugin: PlayerInstance['plugin']
 
         const tabKeys = {
             imageAdjust: 'imageAdjust',
             scheduleCtrl: 'scheduleCtrl',
             sceneCtrl: 'sceneCtrl',
         }
+
         const tabs = [
             {
                 key: tabKeys.imageAdjust,
@@ -121,6 +132,13 @@ export default defineComponent({
         const exposureModeMap: Record<string, string> = {
             auto: Translate('IDCS_AUTO'),
             manual: Translate('IDCS_MANUAL'),
+            0: Translate('IDCS_AUTO'),
+            1: Translate('IDCS_MANUAL'),
+        }
+
+        const exposureModeKeyMap: Record<string, string> = {
+            auto: '0',
+            manual: '1',
         }
 
         const infraredModeMap: Record<string, string> = {
@@ -165,16 +183,72 @@ export default defineComponent({
             whiteLight: Translate('IDCS_WHITE_LIGHT'),
         }
 
-        const isSupportH5 = computed(() => {
-            return Plugin.IsSupportH5()
+        const focusModeMap: Record<string, string> = {
+            manual: Translate('IDCS_MANUAL_FOCUS'),
+            auto: Translate('IDCS_AUTO_FOCUS'),
+        }
+
+        const pageData = ref({
+            whitelightModeOptions: [
+                {
+                    value: 'off',
+                    label: Translate('IDCS_OFF'),
+                },
+                {
+                    value: 'manual',
+                    label: Translate('IDCS_MANUAL'),
+                },
+                {
+                    value: 'auto',
+                    label: Translate('IDCS_AUTO'),
+                },
+            ],
+            focusModeOptions: objectToOptions(focusModeMap, 'string'),
+            smartIrLevelOptions: [
+                {
+                    value: '2',
+                    label: SensortyMap.high,
+                },
+                {
+                    value: '1',
+                    label: SensortyMap.mid,
+                },
+                {
+                    value: '0',
+                    label: SensortyMap.low,
+                },
+            ],
+            switchOptions: getTranslateOptions(DEFAULT_BOOL_SWITCH_OPTIONS),
+            icCutModeOptions: objectToOptions(DayNightModeMap, 'string'),
+            irCutConvSenOptions: objectToOptions(SensortyMap, 'string'),
+            imgRotateOptions: arrayToOptions([0, 90, 180, 270]),
         })
 
-        const handleSizeChange = (val: number) => {
+        const chlOptions = computed(() => {
+            return tableData.value.map((item) => {
+                return {
+                    label: item.name,
+                    value: item.id,
+                }
+            })
+        })
+
+        const showFloatError = (to: 'setting' | 'lens', message: string, type = 'error') => {
+            if (to === 'setting') {
+                floatErrorMessage.value = message
+            } else {
+                floatLensMessage.value = message
+            }
+
+            floatErrorType.value = type
+        }
+
+        const changePageSize = (val: number) => {
             pageSize.value = val
             getDataList()
         }
 
-        const handleCurrentChange = (val: number) => {
+        const changePage = (val: number) => {
             pageIndex.value = val
             getDataList()
         }
@@ -187,26 +261,26 @@ export default defineComponent({
             tableRef.value!.setCurrentRow(rowData)
             if (!rowData.disabled && !rowData.isSupportThermal) {
                 getSupportAz(chlId)
-                if (expandedRowKeys.value.length != 0) expandedRowKeys.value = [chlId]
+                if (expandedRowKeys.value.length) expandedRowKeys.value = [chlId]
             }
         }
 
-        const handlePaletteCode = () => {
+        const changePaletteCode = () => {
             const rowData = getRowById(selectedChlId.value)
             rowData.paletteCode = formData.value.paletteCode
             setData(rowData)
         }
 
-        const handleAdvanced = () => {
+        const showMore = () => {
             if (!expandedRowKeys.value.includes(selectedChlId.value)) {
                 expandedRowKeys.value = [selectedChlId.value]
                 getSupportAz(selectedChlId.value)
             }
         }
 
-        const handleRestoreVal = () => {
+        const resetData = () => {
             const rowData = getRowById(selectedChlId.value)
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_MP_RESTORE_VALUE').formatForLang(rowData.name.length > chlNameMaxLen ? rowData.name.substring(0, chlNameMaxLen) + '...' : rowData.name),
             })
@@ -214,72 +288,116 @@ export default defineComponent({
                     if (rowData.isSupportThermal) {
                         rowData.paletteCode = rowData.defaultPaletteCode
                     } else {
-                        rowData.bright = rowData.brightDefaultValue
-                        rowData.contrast = rowData.contrastDefaultValue
-                        rowData.saturation = rowData.saturationDefaultValue
-                        rowData.hue = rowData.hueDefaultValue
+                        rowData.bright = rowData.brightDefault
+                        rowData.contrast = rowData.contrastDefault
+                        rowData.saturation = rowData.saturationDefault
+                        rowData.hue = rowData.hueDefault
 
                         if (rowData.sharpenSwitch !== undefined) {
-                            rowData.sharpenValue = rowData.sharpenDefaultValue
+                            rowData.sharpen = rowData.sharpenDefault
                             rowData.sharpenSwitch = false
                         }
+
                         if (rowData.denoiseSwitch !== undefined) {
-                            rowData.denoiseValue = rowData.denoiseDefaultValue
+                            rowData.denoise = rowData.denoiseDefault
                             rowData.denoiseSwitch = false
                         }
+
                         if (rowData.HFR !== undefined) {
                             rowData.HFR = false
                         }
-                        if (rowData.whiteBalanceMode !== undefined) rowData.whiteBalanceMode = 'auto'
-                        if (rowData.BLCModeDefault !== undefined) rowData.BLCMode = rowData.BLCModeDefault
-                        if (rowData.HWDRLevelDefault !== undefined) rowData.HWDRLevel = rowData.HWDRLevelDefault
-                        if (rowData.blueDefaultValue !== undefined) rowData.blueValue = rowData.blueDefaultValue
-                        if (rowData.imageDefaultValue !== undefined) rowData.imageValue = rowData.imageDefaultValue
-                        if (rowData.redDefaultValue !== undefined) rowData.redValue = rowData.redDefaultValue
-                        if (rowData.WDRSwitch !== undefined) {
-                            rowData.WDRValue = rowData.WDRDefaultValue
+
+                        if (rowData.whiteBalanceMode !== undefined) {
+                            rowData.whiteBalanceMode = 'auto'
+                        }
+
+                        if (rowData.BLCMode !== undefined) {
+                            rowData.BLCMode = rowData.BLCModeDefault
+                        }
+
+                        if (rowData.HWDRLevel !== undefined) {
+                            rowData.HWDRLevel = rowData.HWDRLevelDefault
+                        }
+
+                        if (rowData.blue !== undefined) {
+                            rowData.blue = rowData.blueDefault
+                        }
+
+                        if (rowData.imageShift !== undefined) {
+                            rowData.imageShift = rowData.imageShiftDefault
+                        }
+
+                        if (rowData.red !== undefined) {
+                            rowData.red = rowData.redDefault
+                        }
+
+                        if (rowData.WDR !== undefined) {
+                            rowData.WDR = rowData.WDRDefault
                             rowData.WDRSwitch = false
                         }
-                        if (rowData.mirrorSwitch !== undefined) rowData.mirrorSwitch = false
-                        if (rowData.flipSwitch !== undefined) rowData.flipSwitch = false
-                        if (rowData.imageRotate !== undefined) rowData.imageRotate = rowData.imageRotateDef
+
+                        if (rowData.mirrorSwitch !== undefined) {
+                            rowData.mirrorSwitch = false
+                        }
+
+                        if (rowData.flipSwitch !== undefined) {
+                            rowData.flipSwitch = false
+                        }
+
+                        if (rowData.imageRotate !== undefined) {
+                            rowData.imageRotate = rowData.imageRotateDefault
+                        }
+
                         if (rowData.IRCutMode !== undefined) {
-                            rowData.IRCutMode = rowData.IRCutModeDef
-                            rowData.IRCutConvSen = rowData.IRCutConvSenDef
+                            rowData.IRCutMode = rowData.IRCutModeDefault
+                            rowData.IRCutConvSen = rowData.IRCutConvSenDefault
                         }
-                        // todo
-                        if (rowData.smartIrModeDefault !== undefined) {
+
+                        if (rowData.smartIrMode !== undefined) {
                             rowData.smartIrMode = rowData.smartIrModeDefault
-                            rowData.lightLevelValue = rowData.lightLevelDefaultValue
+                            rowData.lightLevel = rowData.lightLevelDefault
                         }
-                        if (rowData.smartIrSwitchDefault !== undefined) {
+
+                        if (rowData.smartIrSwitch !== undefined) {
                             rowData.smartIrSwitch = rowData.smartIrSwitchDefault
                             rowData.smartIrLevel = rowData.smartIrLevelDefault
                         }
+
                         if (rowData.defogSwitch !== undefined) {
-                            rowData.defogValue = rowData.defogDefaultValue
+                            rowData.defog = rowData.defogDefault
                             rowData.defogSwitch = false
                         }
+
                         if (rowData.antiflicker !== undefined) {
                             rowData.antiflicker = rowData.antiflickerDefault
                         }
+
                         if (rowData.exposureMode !== undefined) {
                             rowData.exposureMode = rowData.exposureModeDefault
-                            rowData.exposureModeValue = rowData.exposureModeDefaultValue
+                            rowData.exposure = rowData.exposureDefault
                         }
-                        if (rowData.delayTimeValue !== undefined) rowData.delayTimeValue = rowData.delayTimeDefaultValue
-                        if (rowData.InfraredMode !== undefined) rowData.InfraredMode = rowData.InfraredModeDefault
-                        if (rowData.gainValue !== undefined) {
+
+                        if (rowData.delayTime !== undefined) {
+                            rowData.delayTime = rowData.delayTimeDefault
+                        }
+
+                        if (rowData.InfraredMode !== undefined) {
+                            rowData.InfraredMode = rowData.InfraredModeDefault
+                        }
+
+                        if (rowData.gain !== undefined) {
                             rowData.gainMode = rowData.gainModeDefault
-                            rowData.gainValue = rowData.gainDefaultValue
-                            rowData.gainAGC = rowData.gainAGCDefaultValue
+                            rowData.gain = rowData.gainDefault
+                            rowData.gainAGC = rowData.gainAGCDefault
                         }
+
                         if (rowData.shutterMode !== undefined) {
                             rowData.shutterMode = rowData.shutterModeDefault
-                            rowData.shutterValue = rowData.shutterValueDefault
+                            rowData.shutter = rowData.shutterDefault
                             rowData.shutterUpLimit = rowData.shutterUpLimitDefault
                             rowData.shutterLowLimit = rowData.shutterLowLimitDefault
                         }
+
                         setAZData()
                     }
                     formData.value = cloneDeep(rowData)
@@ -289,23 +407,20 @@ export default defineComponent({
                 .catch(() => {})
         }
 
-        const handleKeydownEnter = (event: any) => {
-            event.target.blur()
-        }
-
-        const handleExpandChange = (row: ChannelImage, expandedRows: ChannelImage[]) => {
+        const handleExpandChange = (row: ChannelImageDto, expandedRows: ChannelImageDto[]) => {
             if (!row.disabled) {
                 selectedChlId.value = row.id
                 tmpShutterUpLimit = row.shutterUpLimit
                 tmpShutterLowLimit = row.shutterLowLimit
-                tmpDayTime = row.scheduleInfo.dayTime
-                tmpNightTime = row.scheduleInfo.nightTime
+                // tmpDayTime = row.scheduleInfo.dayTime
+                // tmpNightTime = row.scheduleInfo.nightTime
                 // if (azList[tableData.value.indexOf(row)]) curLensCtrl.value = azList[tableData.value.indexOf(row)]
                 tableRef.value!.setCurrentRow(row)
                 formData.value = cloneDeep(row)
                 beforeEditData = cloneDeep(row)
                 getSupportAz(row.id)
             }
+
             if (!row.disabled && !row.isSupportThermal) {
                 if (expandedRowKeys.value.includes(row.id)) {
                     expandedRowKeys.value = []
@@ -313,20 +428,20 @@ export default defineComponent({
                     expandedRowKeys.value = [row.id]
                 }
             } else {
-                expandedRowKeys.value = expandedRows.map((item) => item.id).filter((item) => item != row.id)
+                expandedRowKeys.value = expandedRows.map((item) => item.id).filter((item) => item !== row.id)
             }
         }
 
-        const handleInputChange = (val: number | undefined, chlId: string, type: 'bright' | 'contrast' | 'saturation' | 'hue') => {
+        const changeHSL = (val: number | undefined, chlId: string, type: 'bright' | 'contrast' | 'saturation' | 'hue') => {
             const rowData = getRowById(chlId)
             rowData[type] = val
             setData(rowData)
-            if (chlId == selectedChlId.value) {
+            if (chlId === selectedChlId.value) {
                 formData.value = cloneDeep(rowData)
             }
         }
 
-        const handleRowClick = (rowData: ChannelImage) => {
+        const handleRowClick = (rowData: ChannelImageDto) => {
             if (!rowData.disabled) {
                 selectedChlId.value = rowData.id
                 formData.value = cloneDeep(rowData)
@@ -335,56 +450,44 @@ export default defineComponent({
             tableRef.value!.setCurrentRow(getRowById(selectedChlId.value))
         }
 
-        const handleCfgFileChange = () => {
+        const changeCfgFile = async () => {
             const rowData = getRowById(selectedChlId.value)
-            getData(selectedChlId.value, false, rowData.cfgFile, () => {
-                // todo
-                rowData.scheduleInfo.program = tmpScheduleInfoList[tableData.value.indexOf(rowData)].program
-            })
+            await getData(selectedChlId.value, false, rowData.cfgFile)
+            const index = tableData.value.indexOf(rowData)
+            if (index !== -1) {
+                rowData.scheduleInfo.program = tmpScheduleInfoList[index].program
+            }
         }
 
-        const handleImageValueChange = (val: number) => {
+        const changeExposureMode = () => {
             const rowData = getRowById(selectedChlId.value)
-            if (rowData.chlType !== 'analog' || rowData.imageMaxValue == undefined) return
-            rowData.imageValue! += val
+            if (rowData.gainMode !== undefined) rowData.gainMode = rowData.exposureMode === 'manual' ? '1' : '0'
             setAZData()
         }
 
-        const handleExposureModeChange = () => {
+        const changeShutterUpLimit = () => {
             const rowData = getRowById(selectedChlId.value)
-            if (rowData.gainMode !== undefined) rowData.gainMode = rowData.exposureMode == 'manual' ? '1' : '0'
-            setAZData()
-        }
-
-        const handleShutterUpLimitChange = () => {
-            const rowData = getRowById(selectedChlId.value)
-            if (rowData.shutterLowLimit != undefined && Number(rowData.shutterUpLimit) > Number(rowData.shutterLowLimit)) {
+            if (rowData.shutterLowLimit !== undefined && Number(rowData.shutterUpLimit) > Number(rowData.shutterLowLimit)) {
                 rowData.shutterUpLimit = tmpShutterUpLimit
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_LOWER_LIMIT_OVER_UPPER_LIMIT_TIP'),
-                })
+                openMessageBox(Translate('IDCS_LOWER_LIMIT_OVER_UPPER_LIMIT_TIP'))
                 return
             }
             tmpShutterUpLimit = rowData.shutterUpLimit
             setAZData()
         }
 
-        const handleShutterLowLimitChange = () => {
+        const changeShutterLowLimit = () => {
             const rowData = getRowById(selectedChlId.value)
-            if (rowData.shutterUpLimit != undefined && Number(rowData.shutterUpLimit) > Number(rowData.shutterLowLimit)) {
+            if (rowData.shutterUpLimit !== undefined && Number(rowData.shutterUpLimit) > Number(rowData.shutterLowLimit)) {
                 rowData.shutterLowLimit = tmpShutterLowLimit
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_LOWER_LIMIT_OVER_UPPER_LIMIT_TIP'),
-                })
+                openMessageBox(Translate('IDCS_LOWER_LIMIT_OVER_UPPER_LIMIT_TIP'))
                 return
             }
             tmpShutterLowLimit = rowData.shutterLowLimit
             setAZData()
         }
 
-        const handleIRCutModeChange = () => {
+        const changeIRCutMode = () => {
             const rowData = getRowById(selectedChlId.value)
             rowData.IRCutMode = defaultIRCutMode.value
             defaultIRCutMode.value = 'auto'
@@ -399,133 +502,195 @@ export default defineComponent({
         const setAZData = (setSchedule?: boolean, noRebootPrompt?: boolean) => {
             if (!curAzChlId) return
             const rowData = getRowById(curAzChlId)
-            let data = rawXml`
-                <content>
-                    <chl id='${rowData.id}'>
-                    <rebootPrompt>${noRebootPrompt ? 'false' : 'true'}</rebootPrompt>`
-            if (rowData.sharpenValue !== undefined)
+            let data = ''
+
+            if (rowData.sharpen !== undefined) {
                 data += rawXml`
                     <sharpen>
-                        <switch>${Boolean(rowData.sharpenSwitch).toString()}</switch>
-                        <value>${rowData.sharpenValue.toString()}</value>
+                        <switch>${rowData.sharpenSwitch}</switch>
+                        <value>${rowData.sharpen}</value>
                     </sharpen>`
-            if (rowData.denoiseValue !== undefined)
+            }
+
+            if (rowData.denoise !== undefined) {
                 data += rawXml`
                     <denoise>
-                        <switch>${Boolean(rowData.denoiseSwitch).toString()}</switch>
-                        <value>${rowData.denoiseValue.toString()}</value>
+                        <switch>${rowData.denoiseSwitch}</switch>
+                        <value>${rowData.denoise}</value>
                     </denoise>`
-            if (rowData.WDRSwitch !== undefined)
+            }
+
+            if (rowData.WDR !== undefined) {
                 data += rawXml`
                     <WDR>
-                        <switch>${rowData.WDRSwitch.toString()}</switch>
-                        <value>${Number(rowData.WDRValue).toString()}</value>
+                        <switch>${rowData.WDRSwitch}</switch>
+                        <value>${rowData.WDR}</value>
                     </WDR>`
-            if (rowData.imageValue !== undefined) data += `<imageShift>${rowData.imageValue}</imageShift>`
-            if (rowData.whiteBalanceMode !== undefined)
+            }
+
+            if (rowData.imageShift !== undefined) {
+                data += `<imageShift>${rowData.imageShift}</imageShift>`
+            }
+
+            if (rowData.whiteBalanceMode !== undefined) {
                 data += rawXml`
                     <whiteBalance>
                         <mode>${rowData.whiteBalanceMode}</mode>
-                        <red>${Number(rowData.redValue).toString()}</red>
-                        <blue>${Number(rowData.blueValue).toString()}</blue>
+                        <red>${rowData.red || 0}</red>
+                        <blue>${rowData.blue || 0}</blue>
                     </whiteBalance>`
-            if (rowData.mirrorSwitch !== undefined) data += `<mirrorSwitch>${rowData.mirrorSwitch}</mirrorSwitch>`
-            if (rowData.flipSwitch !== undefined) data += `<flipSwitch>${rowData.flipSwitch}</flipSwitch>`
-            if (rowData.BLCMode !== undefined)
+            }
+
+            if (rowData.mirrorSwitch !== undefined) {
+                data += `<mirrorSwitch>${rowData.mirrorSwitch}</mirrorSwitch>`
+            }
+
+            if (rowData.flipSwitch !== undefined) {
+                data += `<flipSwitch>${rowData.flipSwitch}</flipSwitch>`
+            }
+
+            if (rowData.BLCMode !== undefined) {
                 data += rawXml`
                     <backlightCompensation>
                         <mode>${rowData.BLCMode}</mode>
                         <HWDRLevel>${rowData.HWDRLevel || ''}</HWDRLevel>
                     </backlightCompensation>`
-            if (rowData.cfgFile !== undefined) data += `<cfgFile>${rowData.cfgFile}</cfgFile>`
-            if (rowData.HFR !== undefined) data += `<HFR>${rowData.HFR}</HFR>`
-            if (rowData.imageRotate !== undefined) data += `<imageRotate>${rowData.imageRotate}</imageRotate>`
-            if (rowData.IRCutMode !== undefined && rowData.IRCutMode) {
-                data += `<IRCutMode>${rowData.IRCutMode}</IRCutMode>`
-                if (rowData.IRCutDayTime !== undefined) data += `<IRCutDayTime>${rowData.IRCutDayTime}</IRCutDayTime>`
-                if (rowData.IRCutNightTime !== undefined) data += `<IRCutNightTime>${rowData.IRCutNightTime}</IRCutNightTime>`
-                if (rowData.IRCutConvSen !== undefined) data += `<IRCutConvSen>${rowData.IRCutConvSen}</IRCutConvSen>`
             }
-            if (rowData.smartIrMode !== undefined)
+
+            if (rowData.cfgFile !== undefined) {
+                data += `<cfgFile>${rowData.cfgFile}</cfgFile>`
+            }
+
+            if (rowData.HFR !== undefined) {
+                data += `<HFR>${rowData.HFR}</HFR>`
+            }
+
+            if (rowData.imageRotate !== undefined) {
+                data += `<imageRotate>${rowData.imageRotate}</imageRotate>`
+            }
+
+            if (rowData.IRCutMode) {
+                data += `<IRCutMode>${rowData.IRCutMode}</IRCutMode>`
+
+                if (rowData.IRCutDayTime !== undefined) {
+                    data += `<IRCutDayTime>${rowData.IRCutDayTime}</IRCutDayTime>`
+                }
+
+                if (rowData.IRCutNightTime !== undefined) {
+                    data += `<IRCutNightTime>${rowData.IRCutNightTime}</IRCutNightTime>`
+                }
+
+                if (rowData.IRCutConvSen !== undefined) {
+                    data += `<IRCutConvSen>${rowData.IRCutConvSen}</IRCutConvSen>`
+                }
+            }
+
+            if (rowData.smartIrMode !== undefined) {
                 data += rawXml`
                     <smartIr>
                         <mode>${rowData.smartIrMode}</mode>
-                        <lightLevel_1>${Number(rowData.lightLevelValue).toString()}</lightLevel_1>
+                        <lightLevel_1>${rowData.lightLevel || 0}</lightLevel_1>
                     </smartIr>`
-            if (rowData.smartIrSwitch !== undefined)
+            }
+
+            if (rowData.smartIrSwitch !== undefined) {
                 data += rawXml`
                     <smartIR>
-                        <switch type='boolean' default='false'>${rowData.smartIrSwitch.toString()}</switch>
+                        <switch type='boolean' default='false'>${rowData.smartIrSwitch}</switch>
                         <level>${rowData.smartIrLevel || ''}</level>
                     </smartIR>`
-            if (rowData.defogSwitch !== undefined)
+            }
+
+            if (rowData.defog !== undefined) {
                 data += rawXml`
                     <fogReduction>
-                        <switch>${rowData.defogSwitch.toString()}</switch>
-                        <value>${Number(rowData.defogValue).toString()}</value>
+                        <switch>${rowData.defogSwitch}</switch>
+                        <value>${rowData.defog}</value>
                     </fogReduction>`
-            if (rowData.antiflicker !== undefined) data += `<antiflicker>${rowData.antiflicker}</antiflicker>`
-            if (rowData.exposureMode !== undefined)
+            }
+
+            if (rowData.antiflicker !== undefined) {
+                data += `<antiflicker>${rowData.antiflicker}</antiflicker>`
+            }
+
+            if (rowData.exposureMode !== undefined) {
                 data += rawXml`
                     <autoExposureMode>
                         <mode>${rowData.exposureMode}</mode>
-                        <value>${Number(rowData.exposureModeValue).toString()}</value>
+                        <value>${rowData.exposure || 0}</value>
                     </autoExposureMode>
                     <gain>
                         <mode>${rowData.gainMode || ''}</mode>
-                        <value>${Number(rowData.gainValue).toString()}</value>
-                        <AGC>${Number(rowData.gainAGC).toString()}</AGC>
+                        <value>${rowData.gain || 0}</value>
+                        <AGC>${rowData.gainAGC || 0}</AGC>
                     </gain>`
-            if (rowData.delayTimeValue !== undefined) data += `<IRCutDelayTime>${rowData.delayTimeValue}</IRCutDelayTime>`
-            if (rowData.InfraredMode !== undefined) data += `<InfraredMode>${rowData.InfraredMode}</InfraredMode>`
-            if (rowData.shutterMode !== undefined)
+            }
+
+            if (rowData.delayTime !== undefined) {
+                data += `<IRCutDelayTime>${rowData.delayTime}</IRCutDelayTime>`
+            }
+
+            if (rowData.InfraredMode !== undefined) {
+                data += `<InfraredMode>${rowData.InfraredMode}</InfraredMode>`
+            }
+
+            if (rowData.shutterMode !== undefined) {
                 data += rawXml`
                     <shutter>
                         <mode>${rowData.shutterMode}</mode>
-                        <value>${rowData.shutterValue || ''}</value>
+                        <value>${rowData.shutter || ''}</value>
                         ${rowData.shutterLowLimit === undefined ? '' : '<lowLimit>' + rowData.shutterLowLimit + '</lowLimit>'}
                         ${rowData.shutterUpLimit === undefined ? '' : '<upLimit>' + rowData.shutterUpLimit + '</upLimit>'}
                     </shutter>`
-            if (rowData.whitelightMode !== undefined)
+            }
+
+            if (rowData.whitelightMode !== undefined) {
                 data += rawXml`
                     <Whitelight>
                         <WhitelightMode type='WhitelightMode' default='off'>${rowData.whitelightMode}</WhitelightMode>
-                        <WhitelightStrength type="uint32" min="1" max="100" default="50">${Number(rowData.whitelightStrength).toString()}</WhitelightStrength>
+                        <WhitelightStrength type="uint32" min="1" max="100" default="50">${rowData.whitelightStrength || 0}</WhitelightStrength>
                         <WhitelightOnTime type="string" default="00:00">${rowData.whitelightOnTime || ''}</WhitelightOnTime>
                         <WhitelightOffTime type="string" default="23:59">${rowData.whitelightOffTime || ''}</WhitelightOffTime>
                     </Whitelight>`
-            if (setSchedule)
+            }
+
+            if (setSchedule) {
                 data += rawXml`
                     <scheduleInfo>
-                        <program>${rowData.scheduleInfo.scheduleType == 'time' ? 'time' : rowData.scheduleInfo.program}</program>
-                        <dayTime>${rowData.scheduleInfo.dayTime}</dayTime>
-                        <nightTime>${rowData.scheduleInfo.nightTime}</nightTime>
+                        <program>${rowData.scheduleInfo.scheduleType === 'time' ? 'time' : rowData.scheduleInfo.program}</program>
+                        <dayTime>${rowData.scheduleInfo.time[0]}</dayTime>
+                        <nightTime>${rowData.scheduleInfo.time[1]}</nightTime>
                     </scheduleInfo>`
-            data += '</chl></content>'
+            }
+
+            data = rawXml`
+                <content>
+                    <chl id='${rowData.id}'>
+                        <rebootPrompt>${!noRebootPrompt}</rebootPrompt>
+                        ${data}
+                    </chl>
+                </content>
+            `
+
             editChlVideoParam(data).then((res) => {
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
-                    baseFloatErrorRef.value.show('#divTip', Translate('IDCS_SAVE_DATA_SUCCESS'), 'ok')
+                    showFloatError('setting', Translate('IDCS_SAVE_DATA_SUCCESS'), 'ok')
                 } else {
                     const rebootParam = $('rebootParam').text()
                     if (rebootParam) {
-                        judgeReboot(rebootParam, () => {
+                        checkReboot(rebootParam, () => {
                             setAZData(setSchedule, true)
                         })
                     } else {
-                        const errorCode = Number($('errorCode').text())
+                        const errorCode = $('errorCode').text().num()
                         let msg = Translate('IDCS_SAVE_DATA_FAIL')
-                        if (errorCode == ErrorCode.USER_ERROR_NODE_NET_OFFLINE || errorCode == ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL)
+                        if (errorCode === ErrorCode.USER_ERROR_NODE_NET_OFFLINE || errorCode === ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL) {
                             msg = Translate('IDCS_IP_CHANNEL_OFFLINE').formatForLang(rowData.name)
-                        baseFloatErrorRef.value.show('#divTip', msg)
+                        }
+                        showFloatError('setting', msg)
                     }
                 }
-            })
-        }
-
-        const getTimeCfg = () => {
-            queryTimeCfg().then((res) => {
-                timeMode.value = Number(queryXml(res)('content/formatInfo/time').text())
             })
         }
 
@@ -539,30 +704,29 @@ export default defineComponent({
             }).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     getHallwayChlIds((chlIds: string[]) => {
-                        const rowData: ChannelImage[] = []
-                        $('content/item').forEach((ele) => {
-                            const eleXml = queryXml(ele.element)
-                            const chlId = ele.attr('id')!,
+                        const rowData = $('content/item').map((ele) => {
+                            const $item = queryXml(ele.element)
+                            const chlId = ele.attr('id'),
                                 isSupportHallway = chlIds.includes(chlId)
-                            const newData = new ChannelImage()
+                            const newData = new ChannelImageDto()
                             newData.id = chlId
-                            newData.name = eleXml('name').text()
-                            newData.chlType = eleXml('chlType').text()
+                            newData.name = $item('name').text()
+                            newData.chlType = $item('chlType').text()
                             newData.status = 'loading'
                             newData.isSupportHallway = isSupportHallway
-                            newData.isSupportIRCutMode = eleXml('supportIRCutMode').text().toBoolean()
-                            newData.isSupportThermal = eleXml('AccessType').text() === '1'
-                            rowData.push(newData)
+                            newData.isSupportIRCutMode = $item('supportIRCutMode').text().bool()
+                            newData.isSupportThermal = $item('AccessType').text() === '1'
+                            return newData
                         })
                         tableData.value = rowData
-                        pageTotal.value = Number($('content').attr('total'))
+                        pageTotal.value = $('content').attr('total').num()
                         expandedRowKeys.value = []
                         azList = []
                         tmpScheduleInfoList = []
 
-                        if (rowData.length == 0) return
+                        if (!rowData.length) return
                         selectedChlId.value = rowData[0].id
                         tableRef.value!.setCurrentRow(rowData[0])
                         formData.value = cloneDeep(rowData[0])
@@ -570,11 +734,11 @@ export default defineComponent({
 
                         //请求显示设置数据
                         rowData.forEach((ele) => {
-                            if (ele.chlType != 'recorder') {
-                                getData(ele.id, true, false)
+                            if (ele.chlType !== 'recorder') {
+                                getData(ele.id, true)
                             } else {
                                 ele.status = ''
-                                if (ele.id == selectedChlId.value) {
+                                if (ele.id === selectedChlId.value) {
                                     formData.value = cloneDeep(ele)
                                 }
                             }
@@ -588,321 +752,336 @@ export default defineComponent({
 
         const getHallwayChlIds = (callback: Function) => {
             getChlList({
-                pageIndex: pageIndex.value || 1, // todo 老代码没传
+                pageIndex: pageIndex.value || 1,
                 pageSize: pageSize.value,
                 isSupportImageRotate: true,
             }).then((res) => {
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
-                    const chlIds: string[] = []
-                    $('content/item').forEach((ele) => {
-                        chlIds.push(ele.attr('id')!)
+                if ($('status').text() === 'success') {
+                    const chlIds = $('content/item').map((ele) => {
+                        return ele.attr('id')
                     })
                     callback(chlIds)
                 }
             })
         }
 
-        let tmpScheduleInfoList: ChannelScheduleInfo[] = []
-        const getData = (chlId: string, needSchedule: boolean, cfgFile: string | boolean | undefined, callback?: Function) => {
+        let tmpScheduleInfoList: ChannelScheduleInfoDto[] = []
+        const getData = async (chlId: string, needSchedule: boolean, cfgFile?: string) => {
             const data = rawXml`
                 <condition>
                     <chlId>${chlId}</chlId>
                     ${needSchedule ? '<scheduleInfo></scheduleInfo>' : ''}
-                    ${cfgFile ? '<cfgFile>' + cfgFile + '</cfgFile>' : ''}
+                    ${cfgFile ? `<cfgFile>${cfgFile}</cfgFile>` : ''}
                 </condition>`
-            queryChlVideoParam(data).then((res) => {
-                const $ = queryXml(res)
-                const rowData = getRowById(chlId)
-                if ($('status').text() == 'success') {
-                    let isSpeco = false
-                    rowData.bright = $('content/chl/bright').length > 0 ? Number($('content/chl/bright').text()) : undefined
-                    rowData.contrast = $('content/chl/contrast').length > 0 ? Number($('content/chl/contrast').text()) : undefined
-                    rowData.hue = $('content/chl/hue').length > 0 ? Number($('content/chl/hue').text()) : -1 // todo NT2-3481 设备接入海康IPC，协议不返回hue节点，“色调”配置项置灰
-                    rowData.saturation = $('content/chl/saturation').length > 0 ? Number($('content/chl/saturation').text()) : undefined
-                    rowData.status = ''
-                    rowData.disabled = false
+            const res = await queryChlVideoParam(data)
+            const $ = queryXml(res)
+            const rowData = getRowById(chlId)
+            if (!rowData) {
+                return
+            }
 
-                    if ($('content/chl').length == 0 || chlId != $('content/chl').attr('id')) {
-                        isSpeco = true
-                    }
-                    rowData.isSpeco = rowData.disabled = isSpeco
-                    if ($('content/chl/palette').length > 0) {
-                        rowData.paletteCode = $('content/chl/palette/color').text()
-                        rowData.defaultPaletteCode = $('content/chl/palette/color').attr('default')
-                        $('types/paletteType/enum').forEach((ele) => {
-                            rowData.paletteList.push({
-                                value: ele.text(),
-                                text: paletteTypeMap[ele.text()],
-                            })
-                        })
-                    }
+            if ($('status').text() === 'success') {
+                const $chl = queryXml($('content/chl')[0].element)
 
-                    if ($('content/chl/bright').text()) {
-                        rowData.brightMinValue = Number($('content/chl/bright').attr('min'))
-                        rowData.brightMaxValue = Number($('content/chl/bright').attr('max'))
-                        rowData.brightDefaultValue = Number($('content/chl/bright').attr('default'))
-                    }
-                    if ($('content/chl/contrast').text()) {
-                        rowData.contrastMinValue = Number($('content/chl/contrast').attr('min'))
-                        rowData.contrastMaxValue = Number($('content/chl/contrast').attr('max'))
-                        rowData.contrastDefaultValue = Number($('content/chl/contrast').attr('default'))
-                    }
-                    if ($('content/chl/hue').text()) {
-                        rowData.hueMinValue = Number($('content/chl/hue').attr('min'))
-                        rowData.hueMaxValue = Number($('content/chl/hue').attr('max'))
-                        rowData.hueDefaultValue = Number($('content/chl/hue').attr('default'))
-                    }
-                    if ($('content/chl/saturation').text()) {
-                        rowData.saturationMinValue = Number($('content/chl/saturation').attr('min'))
-                        rowData.saturationMaxValue = Number($('content/chl/saturation').attr('max'))
-                        rowData.saturationDefaultValue = Number($('content/chl/saturation').attr('default'))
-                    }
+                rowData.status = ''
+                rowData.disabled = false
 
-                    $('content/chl').forEach(() => {
-                        rowData.cfgFile = $('content/chl/cfgFile').text()
-                        rowData.cfgFileDefault = $('content/chl/cfgFile').attr('default')
-                        if ($('content/chl/denoise/value').text()) {
-                            rowData.denoiseValue = Number($('content/chl/denoise/value').text())
-                            rowData.denoiseDefaultValue = Number($('content/chl/denoise/value').attr('default'))
-                            rowData.denoiseMinValue = Number($('content/chl/denoise/value').attr('min'))
-                            rowData.denoiseMaxValue = Number($('content/chl/denoise/value').attr('max'))
-                        }
-                        rowData.denoiseSwitch = $('content/chl/denoise/switch').text().toBoolean()
-                        rowData.ShowGainMode = $('content/chl/ShowGainMode').text().toBoolean() // todo NT2-3947 此节点为false, 则为4.2.1版本ipc，隐藏增益模式
+                rowData.bright = $chl('bright').text().undef()?.num()
+                rowData.brightMin = $chl('bright').attr('min').num()
+                rowData.brightMax = $chl('bright').attr('max').num() || 100
+                rowData.brightDefault = $chl('bright').attr('default').undef()?.num()
 
-                        if ($('content/chl/WDR/value').text()) {
-                            rowData.WDRDefaultValue = Number($('content/chl/WDR/value').attr('default'))
-                            rowData.WDRMinValue = Number($('content/chl/WDR/value').attr('min'))
-                            rowData.WDRMaxValue = Number($('content/chl/WDR/value').attr('max'))
-                            rowData.WDRValue = Number($('content/chl/WDR/value').text())
-                        }
-                        if ($('content/chl/WDR/switch').text()) rowData.WDRSwitch = $('content/chl/WDR/switch').text().toBoolean()
+                rowData.contrast = $chl('contrast').text().undef()?.num()
+                rowData.contrastMin = $chl('contrast').attr('min').num()
+                rowData.contrastMax = $chl('contrast').attr('max').num() || 100
+                rowData.contrastDefault = $chl('contrast').attr('default').undef()?.num()
 
-                        if ($('content/chl/whiteBalance/red').text()) {
-                            rowData.redDefaultValue = Number($('content/chl/whiteBalance/red').attr('default'))
-                            rowData.redMinValue = Number($('content/chl/whiteBalance/red').attr('min'))
-                            rowData.redMaxValue = Number($('content/chl/whiteBalance/red').attr('max'))
-                            rowData.redValue = Number($('content/chl/whiteBalance/red').text())
-                        }
-                        rowData.HFR = $('content/chl/HFR').text().length > 0 ? $('content/chl/HFR').text().toBoolean() : undefined
-                        rowData.whiteBalanceMode = $('content/chl/whiteBalance/mode').length > 0 ? $('content/chl/whiteBalance/mode').text() : undefined
+                // NT2-3481 设备接入海康IPC，协议不返回hue节点，“色调”配置项置灰
+                rowData.hue = $chl('hue').text().undef()?.num()
+                rowData.hueMin = $chl('hue').attr('min').num()
+                rowData.hueMax = $chl('hue').attr('max').num() || 100
+                rowData.hueDefault = $chl('hue').attr('default').undef()?.num()
 
-                        if ($('content/chl/whiteBalance/blue').text()) {
-                            rowData.blueDefaultValue = Number($('content/chl/whiteBalance/blue').attr('default'))
-                            rowData.blueMinValue = Number($('content/chl/whiteBalance/blue').attr('min'))
-                            rowData.blueMaxValue = Number($('content/chl/whiteBalance/blue').attr('max'))
-                            rowData.blueValue = Number($('content/chl/whiteBalance/blue').text())
-                        }
+                rowData.saturation = $chl('saturation').text().undef()?.num()
+                rowData.saturationMin = $chl('saturation').attr('min').num()
+                rowData.saturationMax = $chl('saturation').attr('max').num() || 100
+                rowData.saturationDefault = $chl('saturation').attr('default').undef()?.num()
 
-                        rowData.IRCutMode = $('content/chl/IRCutMode').length > 0 ? $('content/chl/IRCutMode').text() : undefined
-                        rowData.IRCutModeDef = $('content/chl/IRCutMode').length > 0 ? $('content/chl/IRCutMode').attr('default') : undefined
-                        rowData.IRCutConvSen = $('content/chl/IRCutConvSen').length > 0 ? $('content/chl/IRCutConvSen').text() : 'mid'
-                        rowData.IRCutConvSen2 = $('content/chl/IRCutConvSen').length > 0 ? $('content/chl/IRCutConvSen').text() : undefined
-                        rowData.IRCutConvSenDef = $('content/chl/IRCutConvSen').attr('default')
-                        rowData.IRCutDayTime = $('content/chl/IRCutDayTime').length ? $('content/chl/IRCutDayTime').text() : undefined
-                        rowData.IRCutNightTime = $('content/chl/IRCutNightTime').length ? $('content/chl/IRCutNightTime').text() : undefined
-                        // todo
-
-                        if ($('content/chl/sharpen/value').text()) {
-                            rowData.sharpenDefaultValue = Number($('content/chl/sharpen/value').attr('default'))
-                            rowData.sharpenMinValue = Number($('content/chl/sharpen/value').attr('min'))
-                            rowData.sharpenMaxValue = Number($('content/chl/sharpen/value').attr('max'))
-                            rowData.sharpenValue = Number($('content/chl/sharpen/value').text())
-                        }
-                        rowData.sharpenSwitch = $('content/chl/sharpen/switch').text().toBoolean()
-                        rowData.sharpenSwitchEnable = $('content/chl/sharpen/switch').attr('switchEnabled') && !$('content/chl/sharpen/switch').attr('switchEnabled').toBoolean() ? false : true
-
-                        rowData.mirrorSwitch = $('content/chl/mirrorSwitch').length > 0 ? $('content/chl/mirrorSwitch').text().toBoolean() : undefined
-                        rowData.flipSwitch = $('content/chl/flipSwitch').length > 0 ? $('content/chl/flipSwitch').text().toBoolean() : undefined
-                        rowData.imageRotate = $('content/chl/imageRotate').text()
-                        rowData.imageRotateDef = $('content/chl/imageRotate').attr('default')
-
-                        if ($('content/chl/imageShift').text()) {
-                            rowData.imageDefaultValue = Number($('content/chl/imageShift').attr('default'))
-                            rowData.imageMinValue = Number($('content/chl/imageShift').attr('min'))
-                            rowData.imageMaxValue = Number($('content/chl/imageShift').attr('max'))
-                            rowData.imageValue = Number($('content/chl/imageShift').text())
-                        }
-
-                        rowData.BLCMode = $('content/chl/backlightCompensation/mode').length > 0 ? $('content/chl/backlightCompensation/mode').text() : undefined
-                        rowData.BLCModeDefault = $('content/chl/backlightCompensation/mode').attr('default')
-                        rowData.HWDRLevel = $('content/chl/backlightCompensation/HWDRLevel').length > 0 ? $('content/chl/backlightCompensation/HWDRLevel').text() : undefined
-                        rowData.HWDRLevelDefault = $('content/chl/backlightCompensation/HWDRLevel').attr('default')
-
-                        if ($('content/chl/smartIr/mode').text()) {
-                            rowData.smartIrMode = $('content/chl/smartIr/mode').text()
-                            rowData.smartIrModeDefault = $('content/chl/smartIr/mode').attr('default')
-                            rowData.lightLevelDefaultValue = Number($('content/chl/smartIr/lightLevel_1').attr('default'))
-                            rowData.lightLevelMinValue = Number($('content/chl/smartIr/lightLevel_1').attr('min'))
-                            rowData.lightLevelMaxValue = Number($('content/chl/smartIr/lightLevel_1').attr('max'))
-                            rowData.lightLevelValue = Number($('content/chl/smartIr/lightLevel_1').text())
-                        }
-                        if ($('content/chl/smartIR').text()) {
-                            rowData.smartIrSwitch = $('content/chl/smartIR/switch').text().length > 0 ? $('content/chl/smartIR/switch').text().toBoolean() : undefined
-                            rowData.smartIrSwitchDefault = $('content/chl/smartIR/switch').attr('default')?.toBoolean()
-                            rowData.smartIrLevel = $('content/chl/smartIR/level').text()
-                            rowData.smartIrLevelDefault = $('content/chl/smartIR/level').attr('default')
-                        }
-                        // 透雾
-                        if ($('content/chl/fogReduction/value').text()) {
-                            rowData.defogValue = Number($('content/chl/fogReduction/value').text())
-                            rowData.defogDefaultValue = Number($('content/chl/fogReduction/value').attr('default'))
-                            rowData.defogMinValue = Number($('content/chl/fogReduction/value').attr('min'))
-                            rowData.defogMaxValue = Number($('content/chl/fogReduction/value').attr('max'))
-                            rowData.defogSwitch = $('content/chl/fogReduction/switch').length > 0 ? $('content/chl/fogReduction/switch').text().toBoolean() : undefined
-                        }
-                        // 抗闪
-                        if ($('content/chl/antiflicker').text()) {
-                            rowData.antiflicker = $('content/chl/antiflicker').text()
-                            rowData.antiflickerDefault = $('content/chl/antiflicker').attr('default')
-                        }
-                        // 曝光模式
-                        if ($('content/chl/autoExposureMode/mode').text()) {
-                            rowData.exposureMode = $('content/chl/autoExposureMode/mode').text()
-                            rowData.exposureModeDefault = $('content/chl/autoExposureMode/mode').attr('default')
-                            rowData.exposureModeValue = Number($('content/chl/autoExposureMode/value').text())
-                            rowData.exposureModeDefaultValue = Number($('content/chl/autoExposureMode/value').attr('default'))
-                            rowData.exposureModeMinValue = Number($('content/chl/autoExposureMode/value').attr('min'))
-                            rowData.exposureModeMaxValue = Number($('content/chl/autoExposureMode/value').attr('max'))
-                        }
-                        // 延迟时间
-                        if ($('content/chl/IRCutDelayTime').text()) {
-                            rowData.delayTimeValue = Number($('content/chl/IRCutDelayTime').text())
-                            rowData.delayTimeDefaultValue = Number($('content/chl/IRCutDelayTime').attr('default'))
-                            rowData.delayTimeMinValue = Number($('content/chl/IRCutDelayTime').attr('min'))
-                            rowData.delayTimeMaxValue = Number($('content/chl/IRCutDelayTime').attr('max'))
-                        }
-                        // 红外模式
-                        if ($('content/chl/InfraredMode').text()) {
-                            rowData.InfraredMode = $('content/chl/InfraredMode').text()
-                            rowData.InfraredModeDefault = $('content/chl/InfraredMode').attr('default')
-                        }
-                        // 增益限制
-                        if ($('content/chl/gain/mode').text()) {
-                            rowData.gainMode = $('content/chl/gain/mode').text()
-                            rowData.gainModeDefault = $('content/chl/gain/mode').attr('default')
-                            rowData.gainValue = Number($('content/chl/gain/value').text())
-                            rowData.gainAGC = Number($('content/chl/gain/AGC').text())
-                            rowData.gainAGCDefaultValue = Number($('content/chl/gain/AGC').attr('default'))
-                            rowData.gainDefaultValue = Number($('content/chl/gain/value').attr('default'))
-                            rowData.gainMinValue = Number($('content/chl/gain/value').attr('min'))
-                            rowData.gainMaxValue = Number($('content/chl/gain/value').attr('max'))
-                        }
-                        // 获取IPC设备版本号判断是否支持增益模式配置
-                        rowData.IPCVersion = $('content/chl/DetailedSoftwareVersion').text() || ''
-                        // 快门
-                        if ($('content/chl/shutter').text()) {
-                            rowData.shutterMode = $('content/chl/shutter/mode').text()
-                            rowData.shutterModeDefault = $('content/chl/shutter/mode').attr('default')
-                            rowData.shutterValue = $('content/chl/shutter/value').text()
-                            rowData.shutterValueDefault = $('content/chl/shutter/value').attr('default')
-                            rowData.shutterLowLimit = $('content/chl/shutter/lowLimit').length > 0 ? $('content/chl/shutter/lowLimit').text() : undefined
-                            rowData.shutterLowLimitDefault = $('content/chl/shutter/lowLimit').attr('default')
-                            rowData.shutterUpLimit = $('content/chl/shutter/upLimit').text()
-                            rowData.shutterUpLimitDefault = $('content/chl/shutter/upLimit').attr('default')
-                        }
-                        if (needSchedule) {
-                            // todo 逻辑已修改
-                            if ($('content/chl/scheduleInfo').text()) {
-                                rowData.supportSchedule = true
-                                rowData.scheduleInfo.program = $('content/chl/scheduleInfo/program').text()
-                                rowData.scheduleInfo.dayTime = $('content/chl/scheduleInfo/dayTime').text()
-                                rowData.scheduleInfo.nightTime = $('content/chl/scheduleInfo/nightTime').text()
-                                $('content/chl/scheduleInfo/types/progType/enum').forEach((ele) => {
-                                    rowData.scheduleInfo.scheduleInfoEnum.push(ele.text())
-                                })
-
-                                if (rowData.scheduleInfo.program == 'time') rowData.scheduleInfo.scheduleType = 'time'
-
-                                tmpScheduleInfoList[tableData.value.indexOf(rowData)] = cloneDeep(rowData.scheduleInfo)
-                            } else {
-                                rowData.supportSchedule = false
-                            }
-                        } else {
-                            rowData.supportSchedule = rowData.supportSchedule || false
-                        }
-                        // 白光灯
-                        if ($('content/chl/Whitelight').text()) {
-                            rowData.whitelightMode = $('content/chl/Whitelight/WhitelightMode').text()
-                            rowData.whitelightModeDefault = $('content/chl/Whitelight/WhitelightMode').attr('default')
-                            rowData.whitelightStrength = Number($('content/chl/Whitelight/WhitelightStrength').text())
-                            rowData.whitelightStrengthMin = Number($('content/chl/Whitelight/WhitelightStrength').attr('min'))
-                            rowData.whitelightStrengthMax = Number($('content/chl/Whitelight/WhitelightStrength').attr('max'))
-                            rowData.whitelightStrengthDefault = Number($('content/chl/Whitelight/WhitelightStrength').attr('default'))
-                            rowData.whitelightOnTime = $('content/chl/Whitelight/WhitelightOnTime').text()
-                            rowData.whitelightOnTimeDefault = $('content/chl/Whitelight/WhitelightOnTime').attr('default')
-                            rowData.whitelightOffTime = $('content/chl/Whitelight/WhitelightOffTime').text()
-                            rowData.whitelightOffTimeDefault = $('content/chl/Whitelight/WhitelightOffTime').attr('default')
-                        }
-                    })
-                    rowData.configFileTypeEnum = []
-                    $('types/configFileType/enum').forEach((ele) => {
-                        rowData.configFileTypeEnum.push(ele.text())
-                    })
-                    rowData.shutterModeEnum = []
-                    $('types/shutterMode/enum').forEach((ele) => {
-                        rowData.shutterModeEnum.push(ele.text())
-                    })
-                    rowData.shutterValueEnum = []
-                    $('types/shutterValue/enum').forEach((ele) => {
-                        rowData.shutterValueEnum.push(ele.text())
-                    })
-                    rowData.whiteBalanceModeEnum = []
-                    $('types/whiteBalance/enum').forEach((ele) => {
-                        rowData.whiteBalanceModeEnum.push(ele.text())
-                    })
-                    rowData.BLCModeArray = []
-                    $('types/BLCMode/enum').forEach((ele) => {
-                        rowData.BLCModeArray.push(ele.text())
-                    })
-                    rowData.HWDRLevelArray = []
-                    $('types/HWDRLevel/enum').forEach((ele) => {
-                        rowData.HWDRLevelArray.push(ele.text())
-                    })
-                    rowData.IRCutModeArray = []
-                    $('types/IRCutMode/enum').forEach((ele) => {
-                        rowData.IRCutModeArray.push(ele.text())
-                    })
-                    rowData.IRCutConvSenArray = []
-                    $('types/IRCutConvSen/enum').forEach((ele) => {
-                        rowData.IRCutConvSenArray.push(ele.text())
-                    })
-                    rowData.SmartIrArray = []
-                    $('types/SmartIRMode/enum').forEach((ele) => {
-                        rowData.SmartIrArray.push(ele.text())
-                    })
-                    rowData.antiflickerModeArray = []
-                    $('types/antiflickerMode/enum').forEach((ele) => {
-                        rowData.antiflickerModeArray.push(ele.text())
-                    })
-                    rowData.InfraredModeArray = []
-                    $('types/InfraredMode/enum').forEach((ele) => {
-                        rowData.InfraredModeArray.push(ele.text())
-                    })
-                    rowData.exposureModeArray = []
-                    $('types/autoExposureMode/enum').forEach((ele) => {
-                        rowData.exposureModeArray.push(ele.text())
-                    })
-                    rowData.exposureValueArray = []
-                    $('types/autoExposureValue/enum').forEach((ele) => {
-                        rowData.exposureValueArray.push(ele.text())
-                    })
-                    rowData.gainModeEnum = []
-                    $('types/gainMode/enum').forEach((ele) => {
-                        rowData.gainModeEnum.push(ele.text())
-                    })
-                    if (chlId == selectedChlId.value) {
-                        formData.value = cloneDeep(rowData)
-                    }
-                    if (callback) callback()
-                } else {
-                    rowData.status = ''
-                    if (chlId == selectedChlId.value) {
-                        formData.value = cloneDeep(rowData)
-                    }
+                if (!$('content/chl').length || chlId !== $('content/chl').attr('id')) {
+                    rowData.isSpeco = true
                 }
-            })
+                rowData.disabled = rowData.isSpeco
+
+                rowData.paletteCode = $chl('palette/color').text().undef()
+                rowData.defaultPaletteCode = $chl('palette/color').attr('default').undef()
+
+                rowData.cfgFile = $chl('cfgFile').text().undef()
+                rowData.cfgFileDefault = $chl('cfgFile').attr('default').undef()
+
+                rowData.denoise = $chl('denoise/value').text().undef()?.num()
+                rowData.denoiseDefault = $chl('denoise/value').attr('default').undef()?.num()
+                rowData.denoiseMin = $chl('denoise/value').attr('min').num()
+                rowData.denoiseMax = $chl('denoise/value').attr('max').num() || 100
+                rowData.denoiseSwitch = $chl('denoise/switch').text().bool()
+
+                // NT2-3947 此节点为false, 则为4.2.1版本ipc，隐藏增益模式
+                rowData.ShowGainMode = $chl('ShowGainMode').text().bool()
+
+                rowData.WDR = $chl('WDR/value').text().undef()?.num()
+                rowData.WDRDefault = $chl('WDR/value').attr('default').undef()?.num()
+                rowData.WDRMin = $chl('WDR/value').attr('min').num()
+                rowData.WDRMax = $chl('WDR/value').attr('max').num() || 100
+                rowData.WDRSwitch = $chl('WDR/switch').text().bool()
+
+                rowData.HFR = $chl('HFR').text().undef()?.bool()
+
+                rowData.whiteBalanceMode = $chl('whiteBalance/mode').text().undef()
+
+                rowData.red = $chl('whiteBalance/red').text().undef()?.num()
+                rowData.redDefault = $chl('whiteBalance/red').attr('default').undef()?.num()
+                rowData.redMin = $chl('whiteBalance/red').attr('min').num()
+                rowData.redMax = $chl('whiteBalance/red').attr('max').num() || 100
+
+                rowData.blue = $chl('whiteBalance/blue').text().undef()?.num()
+                rowData.blueDefault = $chl('whiteBalance/blue').attr('default').undef()?.num()
+                rowData.blueMin = $chl('whiteBalance/blue').attr('min').num()
+                rowData.blueMax = $chl('whiteBalance/blue').attr('max').num() || 100
+
+                rowData.IRCutMode = $chl('IRCutMode').text().undef()
+                rowData.IRCutModeDefault = $chl('IRCutMode').attr('default').undef()
+                rowData.IRCutConvSen = $chl('IRCutConvSen').text().undef() ?? 'mid'
+                rowData.IRCutConvSen2 = $chl('IRCutConvSen').text().undef()
+                rowData.IRCutConvSenDefault = $chl('IRCutConvSen').attr('default').undef()
+                rowData.IRCutDayTime = $chl('IRCutDayTime').text().undef()
+                rowData.IRCutNightTime = $chl('IRCutNightTime').text().undef()
+
+                rowData.sharpen = $chl('sharpen/value').text().undef()?.num()
+                rowData.sharpenDefault = $chl('sharpen/value').attr('default').undef()?.num()
+                rowData.sharpenMin = $chl('sharpen/value').attr('min').num()
+                rowData.sharpenMax = $chl('sharpen/value').attr('max').num() || 100
+                rowData.sharpenSwitch = $chl('sharpen/switch').text().bool()
+                rowData.sharpenSwitchEnable = $chl('sharpen/switch').attr('switchEnabled').undef()?.bool()
+
+                rowData.mirrorSwitch = $chl('mirrorSwitch').text().undef()?.bool()
+                rowData.flipSwitch = $chl('flipSwitch').text().undef()?.bool()
+
+                rowData.imageRotate = $chl('imageRotate').text().undef()
+                rowData.imageRotateDefault = $chl('imageRotate').attr('default').undef()
+
+                rowData.imageShift = $chl('imageShift').text().num()
+                rowData.imageShiftDefault = $chl('imageShift').attr('default').undef()?.num()
+                rowData.imageShiftMin = $chl('imageShift').attr('min').num()
+                rowData.imageShiftMax = $chl('imageShift').attr('max').num() || 100
+
+                rowData.BLCMode = $chl('backlightCompensation/mode').text().undef()
+                rowData.BLCModeDefault = $chl('backlightCompensation/mode').attr('default').undef()
+
+                rowData.HWDRLevel = $chl('backlightCompensation/HWDRLevel').text().undef()
+                rowData.HWDRLevelDefault = $chl('backlightCompensation/HWDRLevel').attr('default').undef()
+
+                rowData.smartIrMode = $chl('smartIr/mode').text().undef()
+                rowData.smartIrModeDefault = $chl('smartIr/mode').attr('default').undef()
+
+                rowData.lightLevel = $chl('smartIr/lightLevel_1').text().undef()?.num()
+                rowData.lightLevelDefault = $chl('smartIr/lightLevel_1').attr('default').undef()?.num()
+                rowData.lightLevelMin = $chl('smartIr/lightLevel_1').attr('min').num()
+                rowData.lightLevelMax = $chl('smartIr/lightLevel_1').attr('max').num() || 100
+
+                rowData.smartIrSwitch = $chl('smartIR/switch').text().undef()?.bool()
+                rowData.smartIrSwitchDefault = $chl('smartIR/switch').attr('default').undef()?.bool()
+                rowData.smartIrLevel = $chl('smartIR/level').text().undef()
+                rowData.smartIrLevelDefault = $chl('smartIR/level').attr('default').undef()
+
+                // 透雾
+                rowData.defog = $chl('fogReduction/value').text().undef()?.num()
+                rowData.defogDefault = $chl('fogReduction/value').attr('default').undef()?.num()
+                rowData.defogMin = $chl('fogReduction/value').attr('min').num()
+                rowData.defogMax = $chl('fogReduction/value').attr('max').num() || 100
+                rowData.defogSwitch = $chl('fogReduction/switch').text().bool()
+
+                // 抗闪
+                rowData.antiflicker = $chl('antiflicker').text().undef()
+                rowData.antiflickerDefault = $chl('antiflicker').attr('default').undef()
+
+                // 曝光模式
+                rowData.exposureMode = $chl('autoExposureMode/mode').text().undef()
+                rowData.exposureModeDefault = $chl('autoExposureMode/mode').attr('default').undef()
+                rowData.exposure = $chl('autoExposureMode/value').text().undef()?.num()
+                rowData.exposureDefault = $chl('autoExposureMode/value').attr('default').undef()?.num()
+                rowData.exposureMin = $chl('autoExposureMode/value').attr('min').num()
+                rowData.exposureMax = $chl('autoExposureMode/value').attr('max').num() || 100
+
+                // 延迟时间
+                rowData.delayTime = $chl('IRCutDelayTime').text().undef()?.num()
+                rowData.delayTimeDefault = $chl('IRCutDelayTime').attr('default').undef()?.num()
+                rowData.delayTimeMin = $chl('IRCutDelayTime').attr('min').num()
+                rowData.delayTimeMax = $chl('IRCutDelayTime').attr('max').num() || 100
+
+                // 红外模式
+                rowData.InfraredMode = $chl('InfraredMode').text().undef()
+                rowData.InfraredModeDefault = $chl('InfraredMode').attr('default').undef()
+
+                // 增益限制
+                rowData.gainMode = $chl('gain/mode').text().undef()
+                rowData.gainModeDefault = $chl('gain/mode').attr('default').undef()
+                rowData.gainAGC = $chl('gain/AGC').text().undef()?.num()
+                rowData.gainAGCDefault = $chl('gain/AGC').attr('default').undef()?.num()
+                rowData.gain = $chl('gain/value').text().undef()?.num()
+                rowData.gainDefault = $chl('gain/value').attr('default').undef()?.num()
+                rowData.gainMin = $chl('gain/value').attr('min').num()
+                rowData.gainMax = $chl('gain/value').attr('max').num() || 100
+
+                // 获取IPC设备版本号判断是否支持增益模式配置
+                rowData.IPCVersion = $chl('DetailedSoftwareVersion').text()
+
+                // 快门
+                rowData.shutterMode = $chl('shutter/mode').text().undef()
+                rowData.shutterModeDefault = $chl('shutter/mode').attr('default').undef()
+                rowData.shutter = $chl('shutter/value').text().undef()
+                rowData.shutterDefault = $chl('shutter/value').attr('default').undef()
+                rowData.shutterLowLimit = $chl('shutter/lowLimit').text().undef()
+                rowData.shutterLowLimitDefault = $chl('shutter/lowLimit').attr('default').undef()
+                rowData.shutterUpLimit = $chl('shutter/upLimit').text().undef()
+                rowData.shutterUpLimitDefault = $chl('shutter/upLimit').attr('default').undef()
+
+                // 白光灯
+                rowData.whitelightMode = $chl('Whitelight/WhitelightMode').text().undef()
+                rowData.whitelightModeDefault = $chl('Whitelight/WhitelightMode').attr('default').undef()
+                rowData.whitelightStrength = $chl('Whitelight/WhitelightStrength').text().undef()?.num()
+                rowData.whitelightStrengthMin = $chl('Whitelight/WhitelightStrength').attr('min').num()
+                rowData.whitelightStrengthMax = $chl('Whitelight/WhitelightStrength').attr('max').num() || 100
+                rowData.whitelightStrengthDefault = $chl('Whitelight/WhitelightStrength').attr('default').undef()?.num()
+                rowData.whitelightOnTime = $chl('Whitelight/WhitelightOnTime').text().undef()
+                rowData.whitelightOnTimeDefault = $chl('Whitelight/WhitelightOnTime').attr('default').undef()
+                rowData.whitelightOffTime = $chl('Whitelight/WhitelightOffTime').text().undef()
+                rowData.whitelightOffTimeDefault = $chl('Whitelight/WhitelightOffTime').attr('default').undef()
+
+                if (needSchedule) {
+                    if ($chl('scheduleInfo').text()) {
+                        rowData.supportSchedule = true
+                        rowData.scheduleInfo.program = $chl('scheduleInfo/program').text()
+                        rowData.scheduleInfo.time = [$chl('scheduleInfo/dayTime').text(), $chl('scheduleInfo/nightTime').text()]
+                        rowData.scheduleInfo.scheduleInfoEnum = $chl('scheduleInfo/types/progType/enum').map((ele) => {
+                            return ele.text()
+                        })
+
+                        if (rowData.scheduleInfo.program === 'time') rowData.scheduleInfo.scheduleType = 'time'
+
+                        tmpScheduleInfoList[tableData.value.indexOf(rowData)] = cloneDeep(rowData.scheduleInfo)
+                    } else {
+                        rowData.supportSchedule = false
+                    }
+                } else {
+                    rowData.supportSchedule = rowData.supportSchedule || false
+                }
+
+                rowData.paletteList = $('types/paletteType/enum').map((ele) => {
+                    return {
+                        value: ele.text(),
+                        label: paletteTypeMap[ele.text()],
+                    }
+                })
+
+                rowData.cfgFileList = $('types/configFileType/enum').map((ele) => {
+                    return {
+                        value: ele.text(),
+                        label: configFileTypeMap[ele.text()],
+                    }
+                })
+                rowData.shutterModeList = $('types/shutterMode/enum').map((ele) => {
+                    return {
+                        value: exposureModeKeyMap[ele.text()],
+                        label: exposureModeMap[ele.text()],
+                    }
+                })
+                rowData.shutterList = $('types/shutterValue/enum').map((ele, index) => {
+                    return {
+                        value: index + '',
+                        label: ele.text(),
+                    }
+                })
+                rowData.whiteBalanceModeList = $('types/whiteBalance/enum').map((ele) => {
+                    return {
+                        value: ele.text(),
+                        label: whiteBalanceMode[ele.text()],
+                    }
+                })
+                rowData.BLCModeList = $('types/BLCMode/enum').map((ele) => {
+                    return {
+                        value: ele.text(),
+                        label: BLCMode[ele.text()],
+                    }
+                })
+                rowData.HWDRLevelList = $('types/HWDRLevel/enum').map((ele) => {
+                    return {
+                        value: ele.text(),
+                        label: HWDRLevel[ele.text()],
+                    }
+                })
+                rowData.IRCutModeList = $('types/IRCutMode/enum')
+                    .map((ele) => {
+                        return {
+                            value: ele.text(),
+                            label: DayNightModeMap[ele.text()] || '',
+                        }
+                    })
+                    .filter((ele) => ele.label)
+                rowData.IRCutConvSenList = $('types/IRCutConvSen/enum')
+                    .map((ele) => {
+                        return {
+                            value: ele.text(),
+                            label: SensortyMap[ele.text()] || '',
+                        }
+                    })
+                    .filter((ele) => ele.label)
+                rowData.SmartIrList = $('types/SmartIRMode/enum').map((ele) => {
+                    return {
+                        value: ele.text(),
+                        label: SmartIRMap[ele.text()],
+                    }
+                })
+                rowData.antiflickerModeList = $('types/antiflickerMode/enum').map((ele) => {
+                    return {
+                        value: ele.text(),
+                        label: antiFlickerMap[ele.text()],
+                    }
+                })
+                rowData.InfraredModeList = $('types/InfraredMode/enum').map((ele) => {
+                    return {
+                        value: ele.text(),
+                        label: infraredModeMap[ele.text()],
+                    }
+                })
+                rowData.exposureModeList = $('types/autoExposureMode/enum').map((ele) => {
+                    return {
+                        value: ele.text(),
+                        label: exposureModeMap[ele.text()],
+                    }
+                })
+                rowData.exposureList = $('types/autoExposureValue/enum').map((ele) => {
+                    const text = ele.text()
+                    return {
+                        value: Math.floor(Number(rowData.exposureMax) / (text === '1' ? 1 : parseInt(text.split('/')[1]))),
+                        label: text,
+                    }
+                })
+                rowData.gainModeList = $('types/gainMode/enum').map((ele) => {
+                    return {
+                        value: exposureModeKeyMap[ele.text()],
+                        label: exposureModeMap[ele.text()],
+                    }
+                })
+
+                if (chlId === selectedChlId.value) {
+                    formData.value = cloneDeep(rowData)
+                }
+            } else {
+                rowData.status = ''
+                if (chlId === selectedChlId.value) {
+                    formData.value = cloneDeep(rowData)
+                }
+            }
         }
 
         /**
@@ -910,57 +1089,63 @@ export default defineComponent({
          * @param rowData
          * @param noRebootPrompt 是否需要重启提示判断（默认需要）
          */
-        const setData = (rowData: ChannelImage, noRebootPrompt = false) => {
-            let data = '<content>'
-            if (rowData.paletteCode) {
-                data += rawXml`
-                    <chl id='${rowData.id}'>
-                        <rebootPrompt>${Boolean(!noRebootPrompt).toString()}</rebootPrompt>
-                        <palette>
-                            <color type='paletteType'>${rowData.paletteCode}</color>
-                        </palette>
-                    </chl>`
-            } else {
-                data += rawXml`
-                    <chl id='${rowData.id}'>
-                        <rebootPrompt>${Boolean(!noRebootPrompt).toString()}</rebootPrompt>
-                        <cfgFile>${rowData.cfgFile || ''}</cfgFile>
-                        <bright>${rowData.bright ? rowData.bright.toString() : ''}</bright>
-                        <contrast>${rowData.contrast ? rowData.contrast.toString() : ''}</contrast>
-                        <hue>${rowData.hue ? rowData.hue.toString() : ''}</hue>
-                        <saturation>${rowData.saturation ? rowData.saturation.toString() : ''}</saturation>
-                    </chl>`
-            }
-            data += '</content>'
+        const setData = (rowData: ChannelImageDto, noRebootPrompt = false) => {
+            const data = rawXml`
+                <content>
+                    ${
+                        rowData.paletteCode
+                            ? rawXml`
+                                <chl id='${rowData.id}'>
+                                    <rebootPrompt>${!noRebootPrompt}</rebootPrompt>
+                                    <palette>
+                                        <color type='paletteType'>${rowData.paletteCode}</color>
+                                    </palette>
+                                </chl>
+                            `
+                            : rawXml`
+                                <chl id='${rowData.id}'>
+                                    <rebootPrompt>${!noRebootPrompt}</rebootPrompt>
+                                    <cfgFile>${rowData.cfgFile ?? ''}</cfgFile>
+                                    <bright>${rowData.bright ?? ''}</bright>
+                                    <contrast>${rowData.contrast ?? ''}</contrast>
+                                    <hue>${rowData.hue ?? ''}</hue>
+                                    <saturation>${rowData.saturation ?? ''}</saturation>
+                                </chl>
+                            `
+                    }
+                </content>
+            `
             openLoading()
             editChlVideoParam(data).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
-                    baseFloatErrorRef.value.show('#divTip', Translate('IDCS_SAVE_DATA_SUCCESS'), 'ok')
+                if ($('status').text() === 'success') {
+                    showFloatError('setting', Translate('IDCS_SAVE_DATA_SUCCESS'), 'ok')
                 } else {
                     const rebootParam = $('rebootParam').text()
                     if (rebootParam) {
-                        judgeReboot(rebootParam, () => {
+                        checkReboot(rebootParam, () => {
                             setData(rowData, true)
                         })
                     } else {
-                        const errorCode = Number($('errorCode').text())
+                        const errorCode = $('errorCode').text().num()
                         let msg = Translate('IDCS_SAVE_DATA_FAIL')
                         if (errorCode === ErrorCode.USER_ERROR_NODE_NET_OFFLINE || errorCode === ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL) {
                             // 通道离线（节点不存在）
                             msg += Translate('IDCS_IP_CHANNEL_OFFLINE').formatForLang(rowData.name)
                         }
-                        baseFloatErrorRef.value.show('#divTip', msg)
+                        showFloatError('setting', msg)
                     }
                 }
             })
         }
 
         // 重启提示
-        const judgeReboot = (rebootParam: string, callback: Function) => {
-            if (document.getElementsByClassName('el-message-box').length > 0) return
-            openMessageTipBox({
+        const checkReboot = (rebootParam: string, callback: () => void) => {
+            if (layoutStore.messageBoxCount) {
+                return
+            }
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_IPC_MODIFY_REBOOT_TIPS').formatForLang(rebootTipMap[rebootParam] || ''),
             })
@@ -980,22 +1165,15 @@ export default defineComponent({
             tableData.value[tableData.value.indexOf(rowData)] = cloneDeep(beforeEditData)
         }
 
-        // const showFloatTip = (msg: string, imgIndex = 2) => {
-        //     tipMsg.value = msg
-        //     tipImgIndex.value = imgIndex
-        //     tipVisiable.value = true
-        //     setTimeout(() => {
-        //         tipVisiable.value = false
-        //     }, 5000)
-        // }
-
         const getRowById = (chlId: string) => {
-            return tableData.value.find((ele) => ele.id == chlId) as ChannelImage
+            return tableData.value.find((ele) => ele.id === chlId) as ChannelImageDto
         }
 
         //镜头操作
-        let azList: ChannelLensCtrl[] = []
-        const curLensCtrl = ref(new ChannelLensCtrl())
+        let azList: ChannelLensCtrlDto[] = []
+
+        const curLensCtrl = ref(new ChannelLensCtrlDto())
+
         const getSupportAz = (chlId: string) => {
             const index = tableData.value.indexOf(getRowById(chlId))
             if (azList[index]) {
@@ -1005,50 +1183,56 @@ export default defineComponent({
             const data = rawXml`
                 <condition>
                     <chlId>${chlId}</chlId>
-                </condition>`
+                </condition>
+            `
             queryCameraLensCtrlParam(data).then((res) => {
                 const $ = queryXml(res)
-                const newData = new ChannelLensCtrl()
+                const newData = new ChannelLensCtrlDto()
                 newData.id = chlId
-                if ($('status').text() == 'fail' || $('content').text() == '') {
+                if ($('status').text() === 'fail' || $('content').text() === '') {
                     newData.supportAz = false
                 } else {
                     newData.supportAz = true
                 }
+
                 if (newData.supportAz) {
                     const focusType = $('types/focusType').text()
                     const reg1 = /(manual){1}/g
                     const reg2 = /(auto){1}/g
-                    if (reg1.test(focusType))
+                    if (reg1.test(focusType)) {
                         newData.focusTypeList.push({
                             value: 'manual',
-                            text: Translate('IDCS_MANUAL_FOCUS'),
+                            label: focusModeMap.manual,
                         })
-                    if (reg2.test(focusType))
+                    }
+
+                    if (reg2.test(focusType)) {
                         newData.focusTypeList.push({
                             value: 'auto',
-                            text: Translate('IDCS_AUTO_FOCUS'),
+                            label: focusModeMap.auto,
                         })
-                    $('content/chl/timeIntervalNote')
+                    }
+
+                    newData.timeIntervalList = $('content/chl/timeIntervalNote')
                         .text()
-                        .split(',')
-                        .forEach((ele: string) => {
-                            newData.timeIntervalList.push({
+                        .array()
+                        .map((ele) => {
+                            return {
                                 value: ele,
-                                text: ele == '0' ? Translate('IDCS_ALWAYS_KEEP') : ele == '60' ? '1 ' + Translate('MINUTE') : Number(ele) / 60 + ' ' + Translate('MINUTES'),
-                            })
+                                label: ele === '0' ? Translate('IDCS_ALWAYS_KEEP') : getTranslateForSecond(Number(ele)),
+                            }
                         })
                     newData.timeInterval = $('content/chl/timeInterval').text()
-                    if (focusType != 'auto') {
+                    if (focusType !== 'auto') {
                         newData.focusType = 'manual'
                     } else {
                         newData.focusType = 'auto'
-                        if (!newData.timeInterval || newData.timeInterval == '0') {
+                        if (!newData.timeInterval || newData.timeInterval === '0') {
                             newData.IrchangeFocus = false
                             newData.IrchangeFocusDisabled = true
                         }
                     }
-                    newData.IrchangeFocus = $('content/chl/IrchangeFocus').text().toBoolean()
+                    newData.IrchangeFocus = $('content/chl/IrchangeFocus').text().bool()
                 } else {
                     newData.IrchangeFocusDisabled = true
                 }
@@ -1069,45 +1253,20 @@ export default defineComponent({
             })
         }
 
-        const azCmdQueue: string[] = []
-        let azCmdQueueLock = false
+        const cmdQueue = useCmdQueue()
+
         const addCmd = (cmd: string, chlId: string) => {
             if (!curLensCtrl.value.supportAz) return
-            if (azCmdQueue.length > 1000) return
-            azCmdQueue.push(cmd)
-            if (azCmdQueue.length == 1 && !azCmdQueueLock) executeCmd(chlId)
-        }
-
-        const executeCmd = (chlId: string) => {
-            if (azCmdQueue.length == 0 || azCmdQueueLock) return
-            azCmdQueueLock = true
-            const cmd = azCmdQueue[0]
-            if (chlId) {
+            if (!chlId) return
+            cmdQueue.add(async () => {
                 const data = rawXml`
                     <content>
                         <chlId>${chlId}</chlId>
                         <actionType>${cmd}</actionType>
-                    </content>`
-                try {
-                    cameraLensCtrlCall(data)
-                        .then(() => {
-                            handleLensCtrlCmdCb(chlId)
-                        })
-                        .catch(() => {
-                            handleLensCtrlCmdCb(chlId)
-                        })
-                } catch (ex) {
-                    handleLensCtrlCmdCb(chlId)
-                }
-            } else {
-                handleLensCtrlCmdCb(chlId)
-            }
-        }
-
-        const handleLensCtrlCmdCb = (chlId: string) => {
-            azCmdQueueLock = false
-            azCmdQueue.shift()
-            executeCmd(chlId)
+                    </content>
+                `
+                await cameraLensCtrlCall(data)
+            })
         }
 
         const saveLensCtrlData = () => {
@@ -1115,126 +1274,110 @@ export default defineComponent({
                 <content>
                     <chl id='${curLensCtrl.value.id}'>
                         <focusType type="focusType">${curLensCtrl.value.focusType}</focusType>
-                        <IrchangeFocus>${curLensCtrl.value.IrchangeFocus.toString()}</IrchangeFocus>
-                        <timeInterval>${curLensCtrl.value.focusType == 'manual' ? '0' : curLensCtrl.value.timeInterval}</timeInterval>
+                        <IrchangeFocus>${curLensCtrl.value.IrchangeFocus}</IrchangeFocus>
+                        <timeInterval>${curLensCtrl.value.focusType === 'manual' ? '0' : curLensCtrl.value.timeInterval}</timeInterval>
                     </chl>
                 </content>`
             editCameraLensCtrlParam(data)
                 .then((res) => {
                     const $ = queryXml(res)
                     if ($('status').text() === 'success' || $('errorCode').text() === '0') {
-                        baseFloatErrorRef.value.show('#divLensTip', Translate('IDCS_SAVE_DATA_SUCCESS'), 'ok')
+                        showFloatError('lens', Translate('IDCS_SAVE_DATA_SUCCESS'), 'ok')
                     } else {
-                        baseFloatErrorRef.value.show('#divLensTip', Translate('IDCS_SAVE_DATA_FAIL'))
+                        showFloatError('lens', Translate('IDCS_SAVE_DATA_FAIL'))
                     }
                 })
                 .catch(() => {
-                    baseFloatErrorRef.value.show('#divLensTip', Translate('IDCS_SAVE_DATA_FAIL'))
+                    showFloatError('lens', Translate('IDCS_SAVE_DATA_FAIL'))
                 })
         }
 
         // 排程
         const filteredScheduleInfoEnum = (scheduleInfoEnum: string[], excludeTimeEnum: boolean) => {
             if (excludeTimeEnum) {
-                return scheduleInfoEnum.filter((ele) => ele != 'time')
+                return scheduleInfoEnum
+                    .filter((ele) => ele !== 'time')
+                    .map((value) => {
+                        return {
+                            value,
+                            label: scheduleMap[value],
+                        }
+                    })
             } else {
-                return scheduleInfoEnum.filter((ele) => ele == 'time')
+                return [
+                    {
+                        label: Translate('IDCS_FULL_TIME'),
+                        value: 'full',
+                    },
+                ].concat(
+                    scheduleInfoEnum
+                        .filter((ele) => ele === 'time')
+                        .map((value) => {
+                            return {
+                                value,
+                                label: scheduleMap[value],
+                            }
+                        }),
+                )
             }
         }
-        const handleProgramChange = (rowData: ChannelImage) => {
-            if (rowData.scheduleInfo.program == 'auto') return
+
+        const changeProgram = (rowData: ChannelImageDto) => {
+            if (rowData.scheduleInfo.program === 'auto') return
             rowData.cfgFile = rowData.scheduleInfo.program
-            getData(rowData.id, false, rowData.cfgFile, () => {})
+            getData(rowData.id, false, rowData.cfgFile)
         }
 
-        const handleChangeTime = (timeType: 'day' | 'night') => {
+        const changeTimeType = () => {
             const rowData = getRowById(selectedChlId.value)
-            if (timeMode.value != 12) {
-                if (!compareTime(rowData.scheduleInfo.dayTime, rowData.scheduleInfo.nightTime)) {
-                    if (timeType == 'day') {
-                        rowData.scheduleInfo.dayTime = tmpDayTime
-                    } else {
-                        rowData.scheduleInfo.nightTime = tmpNightTime
-                    }
-                    return
-                }
-                tmpDayTime = rowData.scheduleInfo.dayTime
-                tmpNightTime = rowData.scheduleInfo.nightTime
-                // todo
-            }
-            scheduleLine.value.resetValue([[rowData.scheduleInfo.dayTime, rowData.scheduleInfo.nightTime]])
-        }
-
-        const compareTime = (time1: string, time2: string, isWhitelight = false) => {
-            const now = new Date().format('yyyy/MM/dd')
-            const date1 = new Date(now + ' ' + time1).getTime()
-            const date2 = new Date(now + ' ' + time2).getTime()
-            const isValid = isWhitelight ? date1 != date2 : date1 < date2
-            const msg = isWhitelight ? Translate('IDCS_STARTTIME_NOTEQUAL_ENDTIME') : Translate('IDCS_END_TIME_GREATER_THAN_START')
-            if (!isValid) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: msg,
-                })
-            }
-            return isValid
-        }
-
-        const setSecheduleLineData = () => {
-            const rowData = getRowById(selectedChlId.value)
-            if (rowData.scheduleInfo.dayTime && rowData.scheduleInfo.nightTime) {
-                scheduleLine.value.resetValue([[rowData.scheduleInfo.dayTime, rowData.scheduleInfo.nightTime]])
+            if (rowData.scheduleInfo.time[0] && rowData.scheduleInfo.time[1]) {
+                scheduleLine.value!.resetValue([[rowData.scheduleInfo.time[0], rowData.scheduleInfo.time[1]]])
             }
         }
 
         const onReady = () => {
-            if (!Plugin.IsSupportH5() && !Plugin.IsPluginAvailable()) {
-                pluginStore.showPluginNoResponse = true
-                Plugin.ShowPluginNoResponse()
-            }
-            if (playerRef.value?.mode === 'ocx') {
+            player = playerRef.value!.player
+            plugin = playerRef.value!.plugin
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
-            play()
         }
+
+        const stopWatchFirstPlay = watchEffect(() => {
+            if (ready.value && tableData.value.length) {
+                nextTick(() => {
+                    play()
+                })
+                stopWatchFirstPlay()
+            }
+        })
 
         const play = () => {
             if (!selectedChlId.value) return
-            if (!playerRef.value || !playerRef.value.ready) return
             const rowData = getRowById(selectedChlId.value)
-            if (playerRef.value.mode === 'h5') {
-                playerRef.value.player.play({
+
+            if (mode.value === 'h5') {
+                player.play({
                     chlID: rowData.id,
                     streamType: 2,
                 })
-            } else {
-                if (osType == 'mac') {
-                } else {
-                    playerRef.value.plugin.RetryStartChlView(rowData.id, rowData.name)
-                }
+            }
+
+            if (mode.value === 'ocx') {
+                plugin.RetryStartChlView(rowData.id, rowData.name)
             }
         }
 
-        watch(selectedChlId, play)
-
-        watch(
-            isSupportH5,
-            (newVal) => {
-                if (!newVal && !Plugin.IsPluginAvailable) {
-                    pluginStore.showPluginNoResponse = true
-                    Plugin.ShowPluginNoResponse()
-                }
-            },
-            {
-                immediate: true,
-            },
-        )
+        watch(selectedChlId, () => {
+            play()
+        })
 
         watch(
             expandedRowKeys,
             (newVal) => {
-                curAzChlId = newVal.length > 0 ? newVal[0] : ''
+                curAzChlId = newVal.length ? newVal[0] : ''
             },
             {
                 immediate: true,
@@ -1245,7 +1388,7 @@ export default defineComponent({
             scheduleLine,
             (newVal) => {
                 if (newVal) {
-                    setSecheduleLineData()
+                    changeTimeType()
                 }
             },
             {
@@ -1254,28 +1397,26 @@ export default defineComponent({
         )
 
         onMounted(() => {
-            Plugin.SetPluginNotice('#layout2Content')
-            getTimeCfg()
             getDataList()
         })
 
         onBeforeUnmount(() => {
-            if (playerRef.value?.mode === 'ocx' && playerRef.value?.ready) {
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx') {
                 const sendXML = OCX_XML_StopPreview('ALL')
-                playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         })
 
         return {
             playerRef,
             formData,
+            pageData,
             tableRef,
             tableData,
+            chlOptions,
             pageIndex,
             pageSize,
             pageTotal,
-            DefaultPagerSizeOptions,
-            DefaultPagerLayout,
             selectedChlId,
             tipMsg,
             tipImgIndex,
@@ -1287,43 +1428,31 @@ export default defineComponent({
             defaultIRCutMode,
             defaultRadioVal,
             defaultFocusMode,
-            configFileTypeMap,
-            scheduleMap,
-            exposureModeMap,
-            whiteBalanceMode,
-            BLCMode,
-            HWDRLevel,
-            SmartIRMap,
-            DayNightModeMap,
-            SensortyMap,
-            antiFlickerMap,
-            infraredModeMap,
-            baseFloatErrorRef,
-            timeMode,
             scheduleLine,
-            handleSizeChange,
-            handleCurrentChange,
-            handleInputChange,
+            changePageSize,
+            changePage,
+            changeHSL,
             handleRowClick,
             handleChlSel,
-            handlePaletteCode,
-            handleAdvanced,
-            handleRestoreVal,
+            changePaletteCode,
+            showMore,
+            resetData,
             handleExpandChange,
-            handleKeydownEnter,
             addCmd,
             saveLensCtrlData,
             filteredScheduleInfoEnum,
-            handleProgramChange,
-            handleChangeTime,
-            handleCfgFileChange,
-            handleImageValueChange,
-            handleExposureModeChange,
-            handleShutterUpLimitChange,
-            handleShutterLowLimitChange,
-            handleIRCutModeChange,
+            changeProgram,
+            changeTimeType,
+            changeCfgFile,
+            changeExposureMode,
+            changeShutterUpLimit,
+            changeShutterLowLimit,
+            changeIRCutMode,
             setAZData,
             onReady,
+            floatErrorType,
+            floatErrorMessage,
+            floatLensMessage,
         }
     },
 })

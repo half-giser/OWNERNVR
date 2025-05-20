@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-22 16:45:57
  * @Description: 现场预览-目标检测面板-渲染单个结构化抓拍元素
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-27 13:35:06
 -->
 <template>
     <div
@@ -15,57 +13,32 @@
                 class="item-left"
                 @click="$emit('detail')"
             >
-                <img :src="displayBase64Img(data.snap_pic)" />
+                <img
+                    :src="displayBase64Img(data.snap_pic)"
+                    @load="loadImg"
+                />
                 <div class="item-menu">
-                    <el-tooltip
-                        :content="Translate('IDCS_REGISTER')"
-                        :show-after="500"
-                    >
-                        <BaseImgSprite
-                            v-show="isAddBtn"
-                            file="live_add"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click.stop="$emit('add')"
-                        />
-                    </el-tooltip>
-                    <el-tooltip
-                        :content="Translate('IDCS_SEARCH')"
-                        :show-after="500"
-                    >
-                        <BaseImgSprite
-                            file="live_search"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click.stop="$emit('search')"
-                        />
-                    </el-tooltip>
-                    <el-tooltip
-                        :content="Translate('IDCS_REPLAY')"
-                        :show-after="500"
-                    >
-                        <BaseImgSprite
-                            file="live_play"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click="$emit('playRec')"
-                        />
-                    </el-tooltip>
-                    <el-tooltip
-                        :content="Translate('IDCS_MORE')"
-                        :show-after="500"
-                    >
-                        <BaseImgSprite
-                            file="live_more"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click="$emit('detail')"
-                        />
-                    </el-tooltip>
+                    <BaseImgSpriteBtn
+                        v-show="isAddBtn"
+                        file="live_add"
+                        :title="Translate('IDCS_REGISTER')"
+                        @click="$emit('add')"
+                    />
+                    <BaseImgSpriteBtn
+                        file="live_search"
+                        :title="Translate('IDCS_SEARCH')"
+                        @click="$emit('search')"
+                    />
+                    <BaseImgSpriteBtn
+                        file="live_play"
+                        :title="Translate('IDCS_REPLAY')"
+                        @click="$emit('playRec')"
+                    />
+                    <BaseImgSpriteBtn
+                        file="live_more"
+                        :title="Translate('IDCS_MORE')"
+                        @click="$emit('detail')"
+                    />
                 </div>
             </div>
             <ul class="item-right">
@@ -96,7 +69,7 @@
     padding: 5px;
     border: 1px solid var(--panel-snap-border);
     box-sizing: border-box;
-    font-size: 12px;
+    // font-size: 12px;
 
     &.border {
         border-color: var(--panel-snap-history-border);
@@ -118,7 +91,7 @@
         img {
             width: 100%;
             height: 100%;
-            object-fit: fill;
+            background-color: var(--panel-menu-bg);
         }
 
         &:hover .item-menu {
@@ -140,7 +113,6 @@
 
         span {
             margin: 0 1px;
-            cursor: pointer;
         }
     }
 
@@ -153,18 +125,28 @@
         line-height: 22px;
         margin: 0;
         margin-left: 10px;
+        padding: 0;
 
         li {
             list-style: none;
+
+            span:last-child {
+                margin-left: 10px;
+            }
         }
     }
 
     &-bottom {
         width: 100%;
-        margin-top: 20px;
+        margin-top: 10px;
         display: flex;
         justify-content: center;
         line-height: 16px;
+
+        span {
+            width: 50%;
+            text-align: center;
+        }
     }
 }
 </style>

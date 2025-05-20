@@ -2,10 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-29 16:10:28
  * @Description: 现场预览-目标检测视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 15:18:13
  */
-import WebsocketSnap, { type WebsocketSnapOnSuccessSnap } from '@/utils/websocket/websocketSnap'
 import LiveSnapFaceMatchItem from './LiveSnapFaceMatchItem.vue'
 import LiveSnapItem from './LiveSnapItem.vue'
 import LiveSnapStructItem from './LiveSnapStructItem.vue'
@@ -13,7 +10,6 @@ import IntelFaceDBSnapRegisterPop from '../intelligentAnalysis/IntelFaceDBSnapRe
 import IntelLicencePlateDBAddPlatePop from '../intelligentAnalysis/IntelLicencePlateDBAddPlatePop.vue'
 import IntelBaseFaceMatchPop from '../intelligentAnalysis/IntelBaseFaceMatchPop.vue'
 import IntelBaseSnapPop from '../intelligentAnalysis/IntelBaseSnapPop.vue'
-import type { IntelFaceMatchPopList, IntelSnapPopList } from '@/types/apiType/intelligentAnalysis'
 
 export default defineComponent({
     components: {
@@ -36,9 +32,7 @@ export default defineComponent({
     },
     setup(prop) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
         const router = useRouter()
-        const dateTime = useDateTimeStore()
 
         // 由于Webscoket回传和HTTP请求的事件类型和目标类型的key值命名不同，所以需根据映射关系对列表数据重新组装
 
@@ -50,6 +44,7 @@ export default defineComponent({
             face_verify: 'face',
             vehicle_plate: 'vehicle_plate',
             boundary: 'person',
+            non_vehicle: 'non_vehicle',
         }
 
         const EVENT_TYPE: Record<string, string> = {
@@ -115,7 +110,7 @@ export default defineComponent({
             isFacePop: false,
         })
 
-        let ws: WebsocketSnap | null = null
+        let ws: ReturnType<typeof WebsocketSnap> | null = null
 
         /**
          * @description 获取权限
@@ -124,10 +119,7 @@ export default defineComponent({
          */
         const getAuth = (chlId: string) => {
             if (!prop.auth.hasAll && prop.auth.spr && !prop.auth.spr[chlId]) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_AUTH'),
-                })
+                openMessageBox(Translate('IDCS_NO_AUTH'))
                 return false
             }
             return true
@@ -148,8 +140,8 @@ export default defineComponent({
                 authList: '@lp',
             })
             const $ = queryXml(result)
-            const chlIdList = $('//content/item').map((item) => ({
-                channel_id: item.attr('id')!,
+            const chlIdList = $('content/item').map((item) => ({
+                channel_id: item.attr('id'),
                 face_detect: {
                     info: true,
                     detect_pic: true,
@@ -173,7 +165,7 @@ export default defineComponent({
                 },
             }))
 
-            ws = new WebsocketSnap({
+            ws = WebsocketSnap({
                 config: chlIdList,
                 onsuccess(arr) {
                     pageData.value.snapListQueue = [...(arr as WebsocketSnapOnSuccessSnap[]), ...pageData.value.snapListQueue]
@@ -198,7 +190,7 @@ export default defineComponent({
          * @param {number} index
          * @returns
          */
-        const handleSnapRec = (item: any, index: number) => {
+        const handleSnapRec = (_item: any, index: number) => {
             return playRec(infoListMapping[index])
         }
 
@@ -208,7 +200,7 @@ export default defineComponent({
          * @param {number} index
          * @returns
          */
-        const handleSnapRegister = (item: any, index: number) => {
+        const handleSnapRegister = (_item: any, index: number) => {
             return register(infoListMapping[index])
         }
 
@@ -218,7 +210,7 @@ export default defineComponent({
          * @param {number} index
          * @returns
          */
-        const handleSnapSearch = (item: any, index: number) => {
+        const handleSnapSearch = (_item: any, index: number) => {
             return search(infoListMapping[index])
         }
 
@@ -228,7 +220,7 @@ export default defineComponent({
          * @param {number} index
          * @returns
          */
-        const handleMatchSnapRec = (item: any, index: number) => {
+        const handleMatchSnapRec = (_item: any, index: number) => {
             return search(faceListMapping[index])
         }
 
@@ -238,7 +230,7 @@ export default defineComponent({
          * @param {number} index
          * @returns
          */
-        const handleMatchSnapSearch = (item: any, index: number) => {
+        const handleMatchSnapSearch = (_item: any, index: number) => {
             return search(faceListMapping[index])
         }
 
@@ -270,6 +262,7 @@ export default defineComponent({
             if (!getAuth(data.chlId)) {
                 return
             }
+
             if (data.type === 'face_detect' || data.type === 'face_verify') {
                 if (type === 'face') {
                     // 按右侧的比对成功的人脸库图片搜索
@@ -280,7 +273,7 @@ export default defineComponent({
                         birthday: data.info.birth_date,
                         certificateNum: data.info.certificate_number,
                         mobile: data.info.mobile_phone_number,
-                        pic: 'data:image/png;base64,' + data.repo_pic,
+                        pic: data.repo_pic ? wrapBase64Img(data.repo_pic) : '',
                     }
                     router.push({
                         path: '/intelligent-analysis/search/search-face',
@@ -293,7 +286,7 @@ export default defineComponent({
                         chlId: data.chlId,
                         imgId: data.info.face_id,
                         frameTime: data.frame_time,
-                        pic: 'data:image/png;base64,' + data.snap_pic,
+                        pic: data.snap_pic ? wrapBase64Img(data.snap_pic) : '',
                     }
                     router.push({
                         path: '/intelligent-analysis/search/search-face',
@@ -312,7 +305,7 @@ export default defineComponent({
             } else if (data.type === 'vehicle_plate') {
                 let eventType = 'plateDetection'
                 if (data.info.compare_status) {
-                    eventType = data.info.compare_status == 1 ? 'plateMatchWhiteList' : 'plateMatchStranger'
+                    eventType = data.info.compare_status === 1 ? 'plateMatchWhiteList' : 'plateMatchStranger'
                 }
                 const searchInfo = {
                     type: data.type,
@@ -327,7 +320,7 @@ export default defineComponent({
         }
 
         /**
-         * @description 打开详情弹窗
+         * @description 打开详情弹窗，将wensocket返回的数据格式转换为弹窗接受的数据格式
          * @param {Number} index
          */
         const showDetail = (index: number) => {
@@ -343,8 +336,8 @@ export default defineComponent({
                 const pointLeftTop = item.info.point_left_top
                 const pointRightBottm = item.info.point_right_bottom
                 if (pointLeftTop && pointRightBottm) {
-                    const leftTop = pointLeftTop.slice(1, pointLeftTop.length - 1).split(',')
-                    const rightBottom = pointRightBottm.slice(1, pointRightBottm.length - 1).split(',')
+                    const leftTop = pointLeftTop.slice(1, -1).split(',')
+                    const rightBottom = pointRightBottm.slice(1, -1).split(',')
                     X1 = Number(leftTop[0]) / width
                     X2 = Number(rightBottom[0]) / width
                     Y1 = Number(leftTop[1]) / height
@@ -357,10 +350,27 @@ export default defineComponent({
                     eventType = 'plateMatch'
                 }
 
+                let attribute: Record<string, string | number> = {}
+                if (item.info.person_info) {
+                    attribute = item.info.person_info
+                } else if (item.info.car_info) {
+                    attribute = item.info.car_info
+                } else if (item.info.bike_info) {
+                    attribute = item.info.bike_info
+                } else if (item.info.plate) {
+                    if (item.info.owner) {
+                        attribute.owner = item.info.owner
+                    }
+
+                    if (item.info.mobile_phone_number) {
+                        attribute.mobile_phone_number = item.info.mobile_phone_number
+                    }
+                }
+
                 return {
                     imgId: item.info.face_id,
-                    pic: item.snap_pic ? 'data:image/png;base64,' + item.snap_pic : '',
-                    panorama: item.scene_pic ? 'data:image/png;base64,' + item.scene_pic : '',
+                    pic: item.snap_pic ? wrapBase64Img(item.snap_pic) : '',
+                    panorama: item.scene_pic ? wrapBase64Img(item.scene_pic) : '',
                     width,
                     height,
                     X1,
@@ -376,6 +386,7 @@ export default defineComponent({
                     eventType: eventType + compareType,
                     targetType: TARGET_MAPPING[item.type] || '',
                     plateNumber: item.info.plate || '',
+                    attribute,
                 }
             })
             pageData.value.isInfoPop = true
@@ -386,8 +397,8 @@ export default defineComponent({
          * @param {Object} value
          */
         const register = (value: WebsocketSnapOnSuccessSnap) => {
-            if (value.type === 'face_detect') {
-                pageData.value.registerPic = 'data:image/png;base64,' + value.snap_pic!
+            if (value.type === 'face_detect' || value.type === 'face_verify') {
+                pageData.value.registerPic = wrapBase64Img(value.snap_pic!)
                 pageData.value.isRegisterPop = true
             } else if (value.type === 'vehicle_plate') {
                 pageData.value.addPlateNum = value.info.plate!
@@ -412,8 +423,8 @@ export default defineComponent({
                 const pointLeftTop = item.info.point_left_top
                 const pointRightBottm = item.info.point_right_bottom
                 if (pointLeftTop && pointRightBottm) {
-                    const leftTop = pointLeftTop.slice(1, pointLeftTop.length - 1).split(',')
-                    const rightBottom = pointRightBottm.slice(1, pointRightBottm.length - 1).split(',')
+                    const leftTop = pointLeftTop.slice(1, -1).split(',')
+                    const rightBottom = pointRightBottm.slice(1, -1).split(',')
                     X1 = Number(leftTop[0]) / width
                     X2 = Number(rightBottom[0]) / width
                     Y1 = Number(leftTop[1]) / height
@@ -428,8 +439,8 @@ export default defineComponent({
 
                 return {
                     imgId: item.info.face_id,
-                    pic: item.snap_pic ? 'data:image/png;base64,' + item.snap_pic : '',
-                    match: item.repo_pic ? 'data:image/png;base64,' + item.repo_pic : '',
+                    pic: item.snap_pic ? wrapBase64Img(item.snap_pic) : '',
+                    match: item.repo_pic ? wrapBase64Img(item.repo_pic) : '',
                     timestamp: item.detect_time,
                     frameTime: item.frame_time,
                     chlId: item.chlId,
@@ -451,7 +462,7 @@ export default defineComponent({
                     note: item.info.remarks || '',
                     groupName: item.info.group_name,
 
-                    panorama: item.scene_pic ? 'data:image/png;base64,' + item.scene_pic : '',
+                    panorama: item.scene_pic ? wrapBase64Img(item.scene_pic) : '',
                     width,
                     height,
                     X1,
@@ -477,7 +488,6 @@ export default defineComponent({
 
         return {
             pageData,
-            dateTime,
             changeMenu,
             playRec,
             search,
@@ -490,13 +500,6 @@ export default defineComponent({
             handleSnapSearch,
             handleMatchSnapRec,
             handleMatchSnapSearch,
-            LiveSnapFaceMatchItem,
-            LiveSnapItem,
-            LiveSnapStructItem,
-            IntelFaceDBSnapRegisterPop,
-            IntelLicencePlateDBAddPlatePop,
-            IntelBaseFaceMatchPop,
-            IntelBaseSnapPop,
         }
     },
 })

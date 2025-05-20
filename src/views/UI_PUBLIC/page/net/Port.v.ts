@@ -2,18 +2,14 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-09 18:47:07
  * @Description: 网络端口
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:04:24
  */
-import { NetPortForm, NetPortUPnPDto, NetPortApiServerForm, NetPortRtspServerForm } from '@/types/apiType/net'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
+        const userSession = useUserSessionStore()
 
         // 认证方式与显示文本的映射
         const VERIFICATION_MAPPING: Record<string, string> = {
@@ -21,12 +17,12 @@ export default defineComponent({
             Digest: Translate('IDCS_MD5'),
         }
 
-        const portFormRef = ref<FormInstance>()
+        const portFormRef = useFormRef()
         const portFormData = ref(new NetPortForm())
         const portFormRule = ref<FormRules>({
             httpPort: [
                 {
-                    validator(rules, value, callback) {
+                    validator(_rules, value: number, callback) {
                         const error = validatePort('httpPort', Number(value))
                         if (error) {
                             callback(new Error(error))
@@ -39,7 +35,7 @@ export default defineComponent({
             ],
             httpsPort: [
                 {
-                    validator(rules, value, callback) {
+                    validator(_rules, value: number, callback) {
                         const error = validatePort('httpsPort', Number(value))
                         if (error) {
                             callback(new Error(error))
@@ -52,7 +48,7 @@ export default defineComponent({
             ],
             netPort: [
                 {
-                    validator(rules, value, callback) {
+                    validator(_rules, value: number, callback) {
                         const error = validatePort('netPort', Number(value))
                         if (error) {
                             callback(new Error(error))
@@ -65,9 +61,21 @@ export default defineComponent({
             ],
             posPort: [
                 {
-                    validator(rules, value, callback) {
+                    validator(_rules, value: number, callback) {
                         const error = validatePort('posPort', Number(value))
-                        console.log(error)
+                        if (error) {
+                            callback(new Error(error))
+                            return
+                        }
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
+            autoReportPort: [
+                {
+                    validator(_rules, value: number, callback) {
+                        const error = validatePort('autoReportPort', Number(value))
                         if (error) {
                             callback(new Error(error))
                             return
@@ -78,15 +86,17 @@ export default defineComponent({
                 },
             ],
         })
+        const watchEditPortForm = useWatchEditData(portFormData)
 
         const apiServerFormData = ref(new NetPortApiServerForm())
+        const watchEditApiServerForm = useWatchEditData(apiServerFormData)
 
-        const rtspServerFormRef = ref<FormInstance>()
+        const rtspServerFormRef = useFormRef()
         const rtspServerFormData = ref(new NetPortRtspServerForm())
         const rtspServerFormRule = ref<FormRules>({
             rtspPort: [
                 {
-                    validator(rules, value, callback) {
+                    validator(_rules, value: number, callback) {
                         const error = validatePort('rtspPort', Number(value))
                         if (error) {
                             callback(new Error(error))
@@ -98,10 +108,11 @@ export default defineComponent({
                 },
             ],
         })
+        const watchEditRtspServerForm = useWatchEditData(rtspServerFormData)
 
         const pageData = ref({
             // UI1-E客户定制，页面不显示apiserver
-            isUse44: getUiAndTheme().name === 'UI1-E',
+            isAppServer: import.meta.env.VITE_UI_TYPE === 'UI1-E',
             // 系统保留端口
             reservedPort: [] as number[],
             //poe switch功能保留端口范围
@@ -114,14 +125,6 @@ export default defineComponent({
             isPosPort: systemCaps.supportPOS,
             // 是否显示启用虚拟主机选项
             isVirtualPortEnabled: systemCaps.poeChlMaxCount > 0,
-            // 端口表单发生改变
-            isPortFormChanged: false,
-            // API服务表单发生改变
-            isApiServerFormChanged: false,
-            // RTSP服务表单发生改变
-            isRtspServerFormChanged: false,
-            // 是否请求数据借宿
-            mounted: false,
             // API服务认证方式选项
             apiVerificationOptions: [] as SelectOption<string, string>[],
             // RTSP服务认证方式选项
@@ -132,7 +135,9 @@ export default defineComponent({
          * @description 获取数据
          */
         const getData = async () => {
-            openLoading()
+            watchEditPortForm.reset()
+            watchEditRtspServerForm.reset()
+            watchEditApiServerForm.reset()
 
             await getPortData()
             await getWirelessNetworkData()
@@ -140,11 +145,9 @@ export default defineComponent({
             await getApiServerData()
             await getRtspServerData()
 
-            closeLoading()
-
-            nextTick(() => {
-                pageData.value.mounted = true
-            })
+            watchEditPortForm.listen()
+            watchEditApiServerForm.listen()
+            watchEditRtspServerForm.listen()
         }
 
         /**
@@ -181,31 +184,28 @@ export default defineComponent({
 
             openLoading()
 
-            const res1 = await setPortData()
-            const res2 = await setApiServerData()
-            const res3 = await setRtspServerData()
-            const res4 = await setUPnPData()
+            Promise.all([setPortData(), setApiServerData(), setRtspServerData(), setUPnPData()])
+                .then(([res1, res2, res3, res4]) => {
+                    closeLoading()
 
-            closeLoading()
+                    if (res1 && res2 && res3 && res4) {
+                        openMessageBox({
+                            type: 'success',
+                            message: Translate('IDCS_SAVE_DATA_SUCCESS'),
+                        })
+                    } else {
+                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
+                    }
 
-            if (res1 && res2 && res3 && res4) {
-                openMessageTipBox({
-                    type: 'success',
-                    message: Translate('IDCS_SAVE_DATA_SUCCESS'),
+                    watchEditPortForm.update()
+                    watchEditRtspServerForm.update()
+                    watchEditApiServerForm.update()
+
+                    getData()
                 })
-            } else {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_SAVE_DATA_FAIL'),
+                .catch(() => {
+                    closeLoading()
                 })
-            }
-
-            pageData.value.mounted = false
-            pageData.value.isPortFormChanged = false
-            pageData.value.isApiServerFormChanged = false
-            pageData.value.isRtspServerFormChanged = false
-
-            getData()
         }
 
         /**
@@ -214,14 +214,13 @@ export default defineComponent({
         const getPortData = async () => {
             const result = await queryNetPortCfg()
             commLoadResponseHandler(result, ($) => {
-                portFormData.value.httpPort = Number($('//content/httpPort').text())
-                portFormData.value.httpsPort = Number($('//content/httpsPort').text())
-                portFormData.value.netPort = Number($('//content/netPort').text())
-                portFormData.value.posPort = Number($('//content/posPort').text())
-                // portFormData.value.rtspPort = Number($("//content/rtspPort").text())
-                portFormData.value.virtualHostEnabled = $('//content/virtualHostEnabled').text().toBoolean()
+                portFormData.value.httpPort = $('content/httpPort').text().num()
+                portFormData.value.httpsPort = $('content/httpsPort').text().num()
+                portFormData.value.netPort = $('content/netPort').text().num()
+                portFormData.value.posPort = $('content/posPort').text().num()
+                portFormData.value.autoReportPort = $('content/autoReportPort').text().num()
 
-                const reservedPort = $('//content/reservedPort').text().split(',')
+                const reservedPort = $('content/reservedPort').text().array()
                 pageData.value.reservedPort = []
                 pageData.value.reservedPortRange = []
                 reservedPort.forEach((item) => {
@@ -230,6 +229,7 @@ export default defineComponent({
                     if (regNum.test(item)) {
                         pageData.value.reservedPort.push(Number(item))
                     }
+
                     if (regRange.test(item)) {
                         const temp = item.split('-')
                         pageData.value.reservedPortRange.push([Number(temp[0]), Number(temp[1])])
@@ -239,16 +239,21 @@ export default defineComponent({
         }
 
         const PORT_ERROR_MAPPING: [string, string, string][] = [
-            ['httpPort', 'netPort', 'IDCS_PROMPT_HTTP_DATA_THE_SAME_PORT'],
-            ['httpPort', 'rtspPort', 'IDCS_PROMPT_HTTP_RTSP_THE_SAME_PORT'],
-            ['netPort', 'rtspPort', 'IDCS_PROMPT_DATA_RTSP_THE_SAME_PORT'],
-            ['httpPort', 'posPort', 'IDCS_POS_DATA_HTTP_THE_SAME_PORT'],
-            ['httpsPort', 'posPort', 'IDCS_POS_DATA_HTTPS_THE_SAME_PORT'],
-            ['netPort', 'posPort', 'IDCS_POS_DATA_PROMPT_THE_SAME_PORT'],
-            ['rtspPort', 'posPort', 'IDCS_POS_DATA_RTSP_THE_SAME_PORT'],
-            ['httpPort', 'httpsPort', 'IDCS_PROMPT_HTTPS_HTTP_THE_SAME_PORT'],
-            ['httpsPort', 'netPort', 'IDCS_PROMPT_HTTPS_DATA_THE_SAME_PORT'],
-            ['httpsPort', 'rtspPort', 'IDCS_PROMPT_HTTPS_RTSP_THE_SAME_PORT'],
+            ['httpPort', 'httpsPort', Translate('IDCS_PROMPT_HTTPS_HTTP_THE_SAME_PORT')],
+            ['httpPort', 'netPort', Translate('IDCS_PROMPT_HTTP_DATA_THE_SAME_PORT')],
+            ['httpPort', 'posPort', Translate('IDCS_POS_DATA_HTTP_THE_SAME_PORT')],
+            ['httpPort', 'autoReportPort', Translate('IDCS_PORT_SAME_TIPS').formatForLang(Translate('IDCS_HTTP_PORT'), Translate('IDCS_AUTO_REPORT_PORT'))],
+            ['httpPort', 'rtspPort', Translate('IDCS_PROMPT_HTTP_RTSP_THE_SAME_PORT')],
+            ['httpsPort', 'netPort', Translate('IDCS_PROMPT_HTTPS_DATA_THE_SAME_PORT')],
+            ['httpsPort', 'posPort', Translate('IDCS_POS_DATA_HTTPS_THE_SAME_PORT')],
+            ['httpsPort', 'autoReportPort', Translate('IDCS_PORT_SAME_TIPS').formatForLang(Translate('IDCS_HTTPS_PORT'), Translate('IDCS_AUTO_REPORT_PORT'))],
+            ['httpsPort', 'rtspPort', Translate('IDCS_PROMPT_HTTPS_RTSP_THE_SAME_PORT')],
+            ['netPort', 'posPort', Translate('IDCS_POS_DATA_PROMPT_THE_SAME_PORT')],
+            ['netPort', 'autoReportPort', Translate('IDCS_PORT_SAME_TIPS').formatForLang(Translate('IDCS_SERVE_PORT'), Translate('IDCS_AUTO_REPORT_PORT'))],
+            ['netPort', 'rtspPort', Translate('IDCS_PROMPT_DATA_RTSP_THE_SAME_PORT')],
+            ['posPort', 'autoReportPort', Translate('IDCS_PORT_SAME_TIPS').formatForLang(Translate('IDCS_POS_PORT'), Translate('IDCS_AUTO_REPORT_PORT'))],
+            ['posPort', 'rtspPort', Translate('IDCS_POS_DATA_RTSP_THE_SAME_PORT')],
+            ['autoReportPort', 'rtspPort', Translate('IDCS_PORT_SAME_TIPS').formatForLang(Translate('IDCS_AUTO_REPORT_PORT'), Translate('IDCS_RTSP_PORT'))],
         ]
 
         /**
@@ -263,6 +268,7 @@ export default defineComponent({
                 ['netPort', portFormData.value.netPort],
                 ['rtspPort', rtspServerFormData.value.rtspPort],
                 ['posPort', portFormData.value.posPort],
+                ['autoReportPort', portFormData.value.autoReportPort],
             ]
             const findSamePort = portValue.find((port) => port[1] === value && port[0] !== param)
             if (findSamePort) {
@@ -273,10 +279,12 @@ export default defineComponent({
                     return Translate(errorText[2])
                 }
             }
+
             const isReservedPort = pageData.value.reservedPort.includes(value)
             if (isReservedPort) {
                 return Translate('IDCS_SYSTEM_RESERVED_PORT').formatForLang(value)
             }
+
             const isReservedPortRange = pageData.value.reservedPortRange.some((item) => value >= item[0] && value <= item[1])
             if (isReservedPortRange) {
                 return Translate('IDCS_SYSTEM_RESERVED_PORT').formatForLang(value)
@@ -288,32 +296,32 @@ export default defineComponent({
          * @description 提交端口表单数据
          */
         const setPortData = async () => {
-            if (!pageData.value.isPortFormChanged) {
+            if (watchEditPortForm.disabled.value) {
                 return true
             }
             const sendXml = rawXml`
                 <content>
-                    <httpPort>${String(portFormData.value.httpPort)}</httpPort>
-                    <httpsPort>${String(portFormData.value.httpsPort)}</httpsPort>
-                    <netPort>${String(portFormData.value.netPort)}</netPort>
-                    <posPort>${String(portFormData.value.posPort)}</posPort>
-                    <virtualHostEnabled>${String(portFormData.value.virtualHostEnabled)}</virtualHostEnabled>
+                    <httpPort>${portFormData.value.httpPort}</httpPort>
+                    <httpsPort>${portFormData.value.httpsPort}</httpsPort>
+                    <netPort>${portFormData.value.netPort}</netPort>
+                    <posPort>${portFormData.value.posPort}</posPort>
+                    <autoReportPort>${portFormData.value.autoReportPort}</autoReportPort>
                 </content>
             `
             const result = await editNetPortCfg(sendXml)
             const $ = queryXml(result)
 
-            return $('//status').text() === 'success'
+            return $('status').text() === 'success'
         }
 
         /**
          * @description P2P获取无线网络数据
          */
         const getWirelessNetworkData = async () => {
-            if (import.meta.env.VITE_APP_TYPE === 'P2P') {
+            if (userSession.appType === 'P2P') {
                 const result = await queryWirelessNetworkCfg()
                 const $ = queryXml(result)
-                pageData.value.wirelessSwitch = $('//content/switch').text().toBoolean()
+                pageData.value.wirelessSwitch = $('content/switch').text().bool()
             }
         }
 
@@ -324,10 +332,10 @@ export default defineComponent({
             const result = await queryUPnPCfg()
             const $ = queryXml(result)
             pageData.value.upnp = {
-                switch: $('//content/switch').text(),
-                mappingType: $('//content/mappingType').text(),
-                portsType: $('//content/ports').attr('type')!,
-                ports: $('//content/ports/item').map((item) => {
+                switch: $('content/switch').text(),
+                mappingType: $('content/mappingType').text(),
+                portsType: $('content/ports').attr('type'),
+                ports: $('content/ports/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         portType: $item('portType').text(),
@@ -344,7 +352,7 @@ export default defineComponent({
          * @description 更新UPnP数据
          */
         const setUPnPData = async () => {
-            if (!pageData.value.isPortFormChanged && !pageData.value.isApiServerFormChanged && !pageData.value.isRtspServerFormChanged) {
+            if (watchEditPortForm.disabled.value && watchEditApiServerForm.disabled.value && watchEditRtspServerForm.disabled.value) {
                 return true
             }
             const portTypeMapping: Record<string, number> = {
@@ -354,37 +362,12 @@ export default defineComponent({
                 SERVICE: portFormData.value.netPort,
                 POS: portFormData.value.posPort,
             }
-            const portsItem = pageData.value.upnp.ports
-                .map((item) => {
-                    const externalPort = pageData.value.upnp.mappingType === 'auto' ? String(portTypeMapping[item.portType]) : item.externalPort
-                    return rawXml`
-                    <item>
-                        <portType>${item.portType}</portType>
-                        <externalPort>${externalPort}</externalPort>
-                        ${item.externalIP ? `<externalIP>${item.externalIP}</externalIP>` : ''}
-                        <localPort>${item.localPort}</localPort>
-                        <status>${item.status}</status>
-                    </item>
-                `
-                })
-                .join('')
+
             const sendXml = rawXml`
                 <types>
-                    <mappingType>
-                        <enum>auto</enum>
-                        <enum>manually</enum>
-                    </mappingType>
-                    <portType>
-                        <enum>HTTP</enum>
-                        <enum>HTTPS</enum>
-                        <enum>RTSP</enum>
-                        <enum>SERVICE</enum>
-                        <enum>POS</enum>
-                    </portType>
-                    <statusType>
-                        <enum>effective</enum>
-                        <enum>ineffective</enum>
-                    </statusType>
+                    <mappingType>${wrapEnums(['auto', 'manually'])}</mappingType>
+                    <portType>${wrapEnums(['HTTP', 'HTTPS', 'RTSP', 'SERVICE', 'POS'])}</portType>
+                    <statusType>${wrapEnums(['effective', 'ineffective'])}</statusType>
                 </types>
                 <content>
                     <switch>${pageData.value.upnp.switch}</switch>
@@ -394,14 +377,27 @@ export default defineComponent({
                             <portType type='portType'/>
                             <status type='statusType'/>
                         </itemType>
-                        ${portsItem}
+                        ${pageData.value.upnp.ports
+                            .map((item) => {
+                                const externalPort = pageData.value.upnp.mappingType === 'auto' ? portTypeMapping[item.portType] : item.externalPort
+                                return rawXml`
+                                    <item>
+                                        <portType>${item.portType}</portType>
+                                        <externalPort>${externalPort}</externalPort>
+                                        ${item.externalIP ? `<externalIP>${item.externalIP}</externalIP>` : ''}
+                                        <localPort>${item.localPort}</localPort>
+                                        <status>${item.status}</status>
+                                    </item>
+                                `
+                            })
+                            .join('')}
                     </ports>
                 </content>
             `
             const result = await editUPnPCfg(sendXml)
             const $ = queryXml(result)
 
-            return $('//status').text() === 'success'
+            return $('status').text() === 'success'
         }
 
         /**
@@ -411,15 +407,15 @@ export default defineComponent({
             const result = await queryApiServer()
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
-                pageData.value.apiVerificationOptions = $('//types/authenticationType/enum').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.apiVerificationOptions = $('types/authenticationType/enum').map((item) => {
                     return {
                         value: item.text(),
                         label: VERIFICATION_MAPPING[item.text()],
                     }
                 })
-                apiServerFormData.value.apiserverSwitch = $('//content/apiserverSwitch').text().toBoolean()
-                apiServerFormData.value.authenticationType = $('//content/authenticationType').text()
+                apiServerFormData.value.apiserverSwitch = $('content/apiserverSwitch').text().bool()
+                apiServerFormData.value.authenticationType = $('content/authenticationType').text()
             }
         }
 
@@ -427,20 +423,20 @@ export default defineComponent({
          * @description 更新API服务表单数据
          */
         const setApiServerData = async () => {
-            if (!pageData.value.isApiServerFormChanged) {
+            if (watchEditApiServerForm.disabled.value) {
                 return true
             }
 
             const sendXml = rawXml`
                 <content>
-                    <apiserverSwitch>${String(apiServerFormData.value.apiserverSwitch)}</apiserverSwitch>
+                    <apiserverSwitch>${apiServerFormData.value.apiserverSwitch}</apiserverSwitch>
                     <authenticationType>${apiServerFormData.value.authenticationType}</authenticationType>
                 </content>
             `
             const result = await editApiServer(sendXml)
             const $ = queryXml(result)
 
-            return $('//status').text() === 'success'
+            return $('status').text() === 'success'
         }
 
         /**
@@ -448,7 +444,7 @@ export default defineComponent({
          */
         const changeApiServerSwitch = () => {
             if (apiServerFormData.value.apiserverSwitch && !rtspServerFormData.value.rtspServerSwitch) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_ENABLE_API_AFTER_RTSP_TIP'),
                 }).then(() => {
@@ -464,17 +460,17 @@ export default defineComponent({
             const result = await queryRTSPServer()
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
-                pageData.value.rtspAuthenticationOptions = $('//types/authenticationType/enum').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.rtspAuthenticationOptions = $('types/authenticationType/enum').map((item) => {
                     return {
                         value: item.text(),
                         label: VERIFICATION_MAPPING[item.text()],
                     }
                 })
-                rtspServerFormData.value.rtspServerSwitch = $('//content/rtspServerSwitch').text().toBoolean()
-                rtspServerFormData.value.rtspAuthType = $('//content/rtspAuthType').text()
-                rtspServerFormData.value.rtspPort = Number($('//content/rtspPort').text())
-                rtspServerFormData.value.anonymousAccess = $('//content/anonymousAccess').text().toBoolean()
+                rtspServerFormData.value.rtspServerSwitch = $('content/rtspServerSwitch').text().bool()
+                rtspServerFormData.value.rtspAuthType = $('content/rtspAuthType').text()
+                rtspServerFormData.value.rtspPort = $('content/rtspPort').text().num()
+                rtspServerFormData.value.anonymousAccess = $('content/anonymousAccess').text().bool()
             }
         }
 
@@ -482,22 +478,22 @@ export default defineComponent({
          * @description 更新RTSP表单数据
          */
         const setRtspServerData = async () => {
-            if (!pageData.value.isRtspServerFormChanged) {
+            if (watchEditRtspServerForm.disabled.value) {
                 return true
             }
 
             const sendXml = rawXml`
                 <content>
-                    <rtspServerSwitch>${String(rtspServerFormData.value.rtspServerSwitch)}</rtspServerSwitch>
+                    <rtspServerSwitch>${rtspServerFormData.value.rtspServerSwitch}</rtspServerSwitch>
                     <rtspAuthType>${rtspServerFormData.value.rtspAuthType}</rtspAuthType>
-                    <rtspPort>${String(rtspServerFormData.value.rtspPort)}</rtspPort>
-                    <anonymousAccess>${String(rtspServerFormData.value.anonymousAccess)}</anonymousAccess>
+                    <rtspPort>${rtspServerFormData.value.rtspPort}</rtspPort>
+                    <anonymousAccess>${rtspServerFormData.value.anonymousAccess}</anonymousAccess>
                 </content>
             `
             const result = await editRTSPServer(sendXml)
             const $ = queryXml(result)
 
-            return $('//status').text() === 'success'
+            return $('status').text() === 'success'
         }
 
         /**
@@ -505,10 +501,7 @@ export default defineComponent({
          */
         const changeRtspServerSwitch = () => {
             if (rtspServerFormData.value.rtspServerSwitch) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_RTSP_OR_FTP_ENABLE_REMIND'),
-                })
+                openMessageBox(Translate('IDCS_RTSP_OR_FTP_ENABLE_REMIND'))
             }
         }
 
@@ -517,50 +510,11 @@ export default defineComponent({
          */
         const changeAnonymous = () => {
             if (rtspServerFormData.value.anonymousAccess) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_ANONYMOUS_LOGIN_REMIND'),
-                })
+                openMessageBox(Translate('IDCS_ANONYMOUS_LOGIN_REMIND'))
             }
         }
 
-        watch(
-            portFormData,
-            () => {
-                if (pageData.value.mounted) {
-                    pageData.value.isPortFormChanged = true
-                }
-            },
-            {
-                deep: true,
-            },
-        )
-
-        watch(
-            apiServerFormData,
-            () => {
-                if (pageData.value.mounted) {
-                    pageData.value.isApiServerFormChanged = true
-                }
-            },
-            {
-                deep: true,
-            },
-        )
-
-        watch(
-            rtspServerFormData,
-            () => {
-                if (pageData.value.mounted) {
-                    pageData.value.isRtspServerFormChanged = true
-                }
-            },
-            {
-                deep: true,
-            },
-        )
-
-        onMounted(async () => {
+        onMounted(() => {
             getData()
         })
 

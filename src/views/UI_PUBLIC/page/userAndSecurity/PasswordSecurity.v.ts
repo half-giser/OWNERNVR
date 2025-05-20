@@ -2,16 +2,10 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-18 18:40:47
  * @Description: 密码安全
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:33:27
  */
-import { UserPasswordSecurityForm } from '@/types/apiType/userAndSecurity'
-
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { closeLoading, openLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
 
         const formData = ref(new UserPasswordSecurityForm())
 
@@ -49,11 +43,11 @@ export default defineComponent({
             const $ = queryXml(result)
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                formData.value.passwordStrength = $('//content/pwdSecureSetting/pwdSecLevel').text()
-                formData.value.expirationTime = $('//content/pwdSecureSetting/expiration').text()
+            if ($('status').text() === 'success') {
+                formData.value.passwordStrength = $('content/pwdSecureSetting/pwdSecLevel').text()
+                formData.value.expirationTime = $('content/pwdSecureSetting/expiration').text()
 
-                pageData.value.passwordStrengthOptions = $('//types/userPasswordAllowLevel/enum').map((item) => {
+                pageData.value.passwordStrengthOptions = $('types/userPasswordAllowLevel/enum').map((item) => {
                     const text = item.text()
                     return {
                         value: text,
@@ -61,7 +55,7 @@ export default defineComponent({
                     }
                 })
 
-                pageData.value.expirationTimeOptions = $('//types/userPasswordExpirationTime/enum').map((item) => {
+                pageData.value.expirationTimeOptions = $('types/userPasswordExpirationTime/enum').map((item) => {
                     const text = item.text()
                     return {
                         value: text,
@@ -86,16 +80,9 @@ export default defineComponent({
                 </content>
             `
             const result = await editPasswordSecurity(sendXml)
-            const $ = queryXml(result)
 
             closeLoading()
-
-            if ($('//status').text() === 'success') {
-                openMessageTipBox({
-                    type: 'success',
-                    message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                })
-            }
+            commSaveResponseHandler(result)
         }
 
         onMounted(() => {

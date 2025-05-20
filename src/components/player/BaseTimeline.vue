@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-29 10:41:06
  * @Description: 录像与回放时间轴组件
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-27 16:38:02
 -->
 <template>
     <div
@@ -27,12 +25,14 @@
             class="scale"
         ></canvas>
         <!-- 录像条画布 -->
-        <div class="container">
-            <canvas
-                ref="$recordCanvas"
-                class="canvas"
-            ></canvas>
-        </div>
+        <el-scrollbar class="container">
+            <div>
+                <canvas
+                    ref="$recordCanvas"
+                    class="canvas"
+                ></canvas>
+            </div>
+        </el-scrollbar>
     </div>
 </template>
 
@@ -148,7 +148,8 @@ const offsetWidth = 40
 // // 时间轴实际绘制总长度
 let timelineWidth = 0 // this.canvasWidth - this.offsetWidth * 2
 // 定时器对象
-let timer: NodeJS.Timeout | number = 0
+const clock = useClock(() => {})
+// const timer: NodeJS.Timeout | number = 0
 // 随鼠标移动的指针x方向位置
 let movePointerX = -1
 // 随鼠标移动的指针y方向位置
@@ -225,29 +226,28 @@ const initColor = () => {
  * @returns {string} YYYY/MM/DD
  */
 const getFirstDayByGreDate = (dateStr: string) => {
-    const currentDate = dayjs(dateStr, 'YYYY/MM/DD')
-    return dayjs().year(currentDate.year()).month(currentDate.month()).date(1).hour(0).minute(0).second(0).format('YYYY-MM-DD HH:mm:ss')
+    const currentDate = dayjs(dateStr, { format: 'YYYY/MM/DD', jalali: false })
+    return dayjs().calendar('gregory').year(currentDate.calendar('gregory').year()).month(currentDate.calendar('gregory').month()).date(1).hour(0).minute(0).second(0).format(DEFAULT_DATE_FORMAT)
 }
 
 /**
  * @description 根据日期字符串获取对应时间戳
- * @param {String} 'YYYY/MM/DD hh:mm:ss'
+ * @param {String} 'YYYY/MM/DD HH:mm:ss'
  * @return {Number} 时间戳秒
  */
 const getTimestamp = (dateStr: string) => {
-    return dayjs(dateStr, 'YYYY/MM/DD hh:mm:ss').unix()
+    return dayjs(dateStr, { format: 'YYYY/MM/DD HH:mm:ss', jalali: false }).unix()
 }
 
 /**
  * @description 获取n个月后的第一天, n <= 12
  * 比如: getLastDateAfterNMonths('2021/03/01 00:00:00', 1) => '2021/04/01 00:00:00'
- * @param {String} 'YYYY/MM/DD hh:mm:ss'
+ * @param {String} 'YYYY/MM/DD HH:mm:ss'
  * @param {Number} n
- * @returns {String} 'YYYY/MM/DD hh:mm:ss'
+ * @returns {String} 'YYYY/MM/DD HH:mm:ss'
  */
-
 const getLastDateAfterNMonths = (dateStr: string, n: number) => {
-    return dayjs(dateStr, 'YYYY/MM/DD hh:mm:ss').add(n, 'month').format('YYYY/MM/DD hh:mm:ss')
+    return dayjs(dateStr, { format: 'YYYY/MM/DD HH:mm:ss', jalali: false }).calendar('gregory').add(n, 'month').format('YYYY/MM/DD HH:mm:ss')
 }
 
 /**
@@ -351,8 +351,9 @@ const init = () => {
     if (movePointerX >= 0 && movePointerX !== pointerX) {
         drawMovingWithMousePointer(movePointerX, movePointerY)
     }
+
     // 如果有选择时间范围遮罩层，则进行遮罩层绘制
-    if (timeRangeMask && timeRangeMask.length > 0) {
+    if (timeRangeMask && timeRangeMask.length) {
         drawTimeRangeMask(timeRangeMask[0], timeRangeMask[1])
     }
 }
@@ -445,6 +446,7 @@ const handleMouseMove = (e: MouseEvent) => {
                         startTime = minTime
                         endTime = timeRangeMask[1]
                     }
+
                     if (endTime > maxTime) {
                         endTime = maxTime
                         startTime = timeRangeMask[0]
@@ -456,9 +458,11 @@ const handleMouseMove = (e: MouseEvent) => {
                         startTime = mouseEndTime
                         endTime = mouseDownTime
                     }
+
                     if (startTime < minTime) {
                         startTime = minTime
                     }
+
                     if (endTime > maxTime) {
                         endTime = maxTime
                     }
@@ -588,6 +592,7 @@ const drawClipRange = (index: number) => {
     if (!clipRange.value.length) {
         return
     }
+
     if (clipRange.value.length === 1) {
         const startX = getXByTime(clipRange.value[0])
         const startY = 25 * index
@@ -640,10 +645,12 @@ const setClipEnd = (time = getPointerTime()) => {
         // 如果没有设置开始时间，则直接返回
         return
     }
+
     if (clipRange.value.length === 1 && time < clipRange.value[0]) {
         // 如果当前只有开始时间，且结束时间小于当前剪切的开始时间，则直接返回
         return
     }
+
     if (time < clipRange.value[0]) {
         // 如果结束时间小于当前剪切的开始时间，则移除结束时间
         clipRange.value.pop()
@@ -722,8 +729,11 @@ const setCanvasSize = () => {
     const width = $container.value!.offsetWidth
     const height = $container.value!.offsetHeight
     $canvas.value!.width = width
+
+    const scrollHeight = Math.max(chlList.length * 28, height - 40)
+    $recordCanvas.value!.style.height = scrollHeight + 'px'
     $recordCanvas.value!.width = width
-    $recordCanvas.value!.height = chlList.length * 28 < height - 40 ? height - 40 : chlList.length * 28
+    $recordCanvas.value!.height = scrollHeight
 }
 
 /**
@@ -788,10 +798,10 @@ const clear = () => {
  */
 const formatTime = (second: number, format = 'HH:mm') => {
     if (minTime > 0) {
-        return dayjs.utc('1970-01-01 00:00:00', 'YYYY-MM-DD HH:mm:ss').add(second, 'second').local().format(format)
+        return dayjs.utc('1970-01-01', DEFAULT_YMD_FORMAT).add(second, 'second').local().format(format)
         // return dayjs.utc(second * 1000).format(format)
     } else {
-        return dayjs.utc('1970-01-01 00:00:00', 'YYYY-MM-DD HH:mm:ss').add(second, 'second').format(format)
+        return dayjs.utc('1970-01-01', DEFAULT_YMD_FORMAT).add(second, 'second').format(format)
         // return dayjs.utc(0).add(second, 'second').format(format)
     }
 }
@@ -871,7 +881,7 @@ const updateTimeSplitList = (startTime: number) => {
  */
 const drawScaleByDay = (startScaleX: number, startScaleTime: number, i: number) => {
     let timeStr = ''
-    if (oneDayHours == 24) {
+    if (oneDayHours === 24) {
         if (i % 2 === 0) {
             // 长刻度
             drawLine(ctx, startScaleX + offsetWidth, 40, startScaleX + offsetWidth, 32)
@@ -882,10 +892,10 @@ const drawScaleByDay = (startScaleX: number, startScaleTime: number, i: number) 
             drawLine(ctx, startScaleX + offsetWidth, 40, startScaleX + offsetWidth, 35)
         }
     } else {
-        if (oneDayHours == 23 && startScaleTime >= 3600 * dstStartHour) {
+        if (oneDayHours === 23 && startScaleTime >= 3600 * dstStartHour) {
             // 夏令时开始当天
             timeStr = formatTime(startScaleTime + 3600)
-        } else if (oneDayHours == 25 && startScaleTime >= 3600 * dstEndHour) {
+        } else if (oneDayHours === 25 && startScaleTime >= 3600 * dstEndHour) {
             // 夏令时结束当天
             timeStr = formatTime(startScaleTime - 3600)
         } else {
@@ -893,7 +903,7 @@ const drawScaleByDay = (startScaleX: number, startScaleTime: number, i: number) 
         }
         const dstStartOrEndHour = dstStartHour ? dstStartHour : dstEndHour
         if (i <= dstStartOrEndHour) {
-            if (i == dstStartOrEndHour) {
+            if (i === dstStartOrEndHour) {
                 if (dstStartOrEndHour % 2 === 0) {
                     // 短刻度
                     drawLine(ctx, startScaleX + offsetWidth, 40, startScaleX + offsetWidth, 35)
@@ -996,7 +1006,7 @@ const drawRecord = () => {
         const serialNum = index + 1 > 9 ? index + 1 : '0' + (index + 1)
         drawText(recordCtx, serialNum + '', 15, 18 + 25 * index, scaleLineColor)
         // 绘制剪切层
-        if (chl) drawClipRange(index)
+        if (chl.records.length) drawClipRange(index)
         // 绘制通道之间的分割线
         if (chlList.length === 1 && minTime > 0) {
             return
@@ -1021,13 +1031,13 @@ const drawPointer = () => {
         let timeStr = ''
         const startY = 12
         if (mode === 'day') {
-            if (oneDayHours == 24) {
+            if (oneDayHours === 24) {
                 timeStr = formatTime(pointerTime, prop.dayFormat)
             } else {
-                if (oneDayHours == 23 && pointerTime >= 3600 * dstStartHour) {
+                if (oneDayHours === 23 && pointerTime >= 3600 * dstStartHour) {
                     // 夏令时开始当天
                     timeStr = formatTime(pointerTime + 3600, prop.dayFormat)
-                } else if (oneDayHours == 25 && pointerTime >= 3600 * dstEndHour) {
+                } else if (oneDayHours === 25 && pointerTime >= 3600 * dstEndHour) {
                     // 夏令时结束当天
                     timeStr = formatTime(pointerTime - 3600, prop.dayFormat)
                 } else {
@@ -1061,13 +1071,13 @@ const drawMovingWithMousePointer = (x: number, y: number) => {
     let rectY = y - 17
     const rectH = 24
     if (mode === 'day') {
-        if (oneDayHours == 24) {
+        if (oneDayHours === 24) {
             timeStr = formatTime(time, prop.dayFormat)
         } else {
-            if (oneDayHours == 23 && time >= 3600 * dstStartHour) {
+            if (oneDayHours === 23 && time >= 3600 * dstStartHour) {
                 // 夏令时开始当天
                 timeStr = formatTime(time + 3600, prop.dayFormat)
-            } else if (oneDayHours == 25 && time >= 3600 * dstEndHour) {
+            } else if (oneDayHours === 25 && time >= 3600 * dstEndHour) {
                 // 夏令时结束当天
                 timeStr = formatTime(time - 3600, prop.dayFormat)
             } else {
@@ -1095,27 +1105,29 @@ const drawMovingWithMousePointer = (x: number, y: number) => {
  * @param {Number} speed 速度, 0.5, 1, 2, 3...
  */
 const play = (step = 1, speed = 1) => {
-    clearInterval(timer)
-    // TODO 定时器的时间不可靠
-    timer = setInterval(() => {
+    clock.stop()
+    clock.setDelay(1000 / speed)
+    clock.setCallback(() => {
         pointerTime = pointerTime + step
         // 如果当前指针时间超出当前可视区范围，则将起始点时间设为当前指针时间
         if (pointerTime > startTime + totalTimeOfView) {
             startTime = pointerTime
         }
+
         // 如果指针到达最大时间长度，清除定时器
         if (Math.floor(pointerTime) === maxTime - 1) {
-            clearInterval(timer)
+            clock.stop()
         }
         init()
-    }, 1000 / speed)
+    })
+    clock.repeat()
 }
 
 /**
  * @description 指针停止运动
  */
 const stop = () => {
-    clearInterval(timer)
+    clock.stop()
 }
 
 /**
@@ -1170,6 +1182,7 @@ const translateOnX = (offsetX: number) => {
         }
         init()
     }
+
     // 向右平移（刻度越来越小）
     if (offsetX < 0) {
         if (startTime === 0) return
@@ -1219,54 +1232,31 @@ const playBack = (second: number) => {
 
 /**
  * @description 设置夏令时的时间配置
- * this.oneDayHours 夏令时开始那一天为23小时, 夏令时结束那一天为25小时
- * this.dstStartHour 表示夏令时在几时开始（一般为凌晨两点）
- * this.dstEndHour 表示夏令时在几时结束（一般为凌晨两点）
- * @param {String} currentDayStartTime 当天时间字符串 2023/10/29 00:00:00
+ * oneDayHours 夏令时开始那一天为23小时, 夏令时结束那一天为25小时
+ * dstStartHour 表示夏令时在几时开始（一般为凌晨两点）
+ * dstEndHour 表示夏令时在几时结束（一般为凌晨两点）
+ * @param {String} currentDayStartTime 当天时间字符串 2023-10-29 00:00:00
  */
 const setDstDayTime = (currentDayStartTime: string) => {
     const timeDay = currentDayStartTime.split(' ')[0]
-    const timeHourList = [
-        '00:00:00',
-        '01:00:00',
-        '02:00:00',
-        '03:00:00',
-        '04:00:00',
-        '05:00:00',
-        '06:00:00',
-        '07:00:00',
-        '08:00:00',
-        '09:00:00',
-        '10:00:00',
-        '11:00:00',
-        '12:00:00',
-        '13:00:00',
-        '14:00:00',
-        '15:00:00',
-        '16:00:00',
-        '17:00:00',
-        '18:00:00',
-        '19:00:00',
-        '20:00:00',
-        '21:00:00',
-        '22:00:00',
-        '23:00:00',
-    ]
     oneDayHours = 24
     dstStartHour = 0
     dstEndHour = 0
-    for (let i = 1; i < timeHourList.length; i++) {
-        const timeStrPre = timeDay + ' ' + timeHourList[i - 1]
-        const timeStrNext = timeDay + ' ' + timeHourList[i + 1]
-        const timeStrCur = timeDay + ' ' + timeHourList[i]
+
+    for (let i = 1; i < 24; i++) {
+        const timeStrPre = `${timeDay} ${padStart(i - 1, 2)}:00:00`
+        const timeStrNext = `${timeDay} ${padStart(i + 1, 2)}:00:00`
+        const timeStrCur = `${timeDay} ${padStart(i, 2)}:00:00`
+
+        // 夏令时开始时间（当天为23小时）
         if (isDST(timeStrCur) && !isDST(timeStrPre) && isDST(timeStrNext)) {
-            // timeStrCur为夏令时开始时间（当天为23小时）
             oneDayHours = 23
             dstStartHour = i
             break
         }
+
+        // 夏令时结束时间（当天为25小时）
         if (!isDST(timeStrCur) && isDST(timeStrPre) && !isDST(timeStrNext)) {
-            // timeStrCur为夏令时结束时间（当天为25小时）
             oneDayHours = 25
             dstEndHour = i
             break
@@ -1281,10 +1271,11 @@ const setDstDayTime = (currentDayStartTime: string) => {
 const updateChlList = (newChlList: ChlList[], newAutoPointer: boolean, pageType: 'live' | 'record') => {
     chlList = newChlList
     autoPointer = newAutoPointer
-    if (pageType == 'record') {
+    setCanvasSize()
+    if (pageType === 'record') {
         const records = chlList.map((item) => item.records).flat()
         if (newChlList.length && records.length) {
-            const startDate = formatDate(records[0].startTime, 'YYYY/MM/DD')
+            const startDate = formatGregoryDate(records[0].startTime, 'YYYY/MM/DD')
             setMode({ mode: 'day', startDate: startDate }, pointerTime)
         } else {
             setMode({ mode: 'day' }, pointerTime)
@@ -1305,7 +1296,7 @@ const updateChlList = (newChlList: ChlList[], newAutoPointer: boolean, pageType:
  * @description 重置画布，清空日志，指针归零
  */
 const clearData = () => {
-    // TODO chlList.splice(0, chlList.length)
+    // chlList.splice(0, chlList.length)
     pointerTime = minTime
     timeRangeMask = [0, 0]
     clipRange.value = []
@@ -1345,22 +1336,16 @@ onMounted(() => {
     if (prop.chlsList) {
         chlList = prop.chlsList
     }
+
     if (prop.colorsMap) {
         colorMap = prop.colorsMap
     }
-    const width = $container.value!.offsetWidth
-    const height = $container.value!.offsetHeight
-    $canvas.value!.width = width
-    $canvas.value!.height = 40 // 时间轴画布高固定为40
-    ctx = $canvas.value!.getContext('2d')!
-    canvasWidth = width
-    canvasHeight = 40
 
-    $recordCanvas.value!.style.width = '100%'
-    $recordCanvas.value!.style.height = height - 40 + 'px'
-    $recordCanvas.value!.width = width
-    $recordCanvas.value!.height = chlList.length * 28 < height - 40 ? height - 40 : chlList.length * 28
+    ctx = $canvas.value!.getContext('2d')!
     recordCtx = $recordCanvas.value!.getContext('2d')!
+
+    $canvas.value!.height = 40 // 时间轴画布高固定为40
+    setCanvasSize()
 
     setMode({ mode: 'day' })
     resize.observe($container.value!)
@@ -1380,7 +1365,7 @@ watch(
     },
 )
 
-defineExpose<TimelineInstance>({
+const expose = {
     updateChlList,
     play,
     stop,
@@ -1406,7 +1391,11 @@ defineExpose<TimelineInstance>({
     getTimeRangeMask,
     getDST,
     setMode,
-})
+}
+
+export type TimelineReturnsType = typeof expose
+
+defineExpose(expose)
 </script>
 
 <style lang="scss" scoped>
@@ -1425,9 +1414,7 @@ defineExpose<TimelineInstance>({
 .container {
     position: relative;
     width: 100%;
-    min-height: calc(100% - 40px);
-    overflow-x: hidden;
-    overflow-y: auto;
+    height: calc(100% - 40px);
     vertical-align: top;
 }
 
@@ -1436,5 +1423,6 @@ defineExpose<TimelineInstance>({
     height: 100%;
     margin: 0;
     padding: 0;
+    display: block;
 }
 </style>

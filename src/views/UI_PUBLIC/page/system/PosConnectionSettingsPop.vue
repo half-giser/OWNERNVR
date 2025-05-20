@@ -2,30 +2,23 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-02 13:36:09
  * @Description: POS连接设置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 19:46:14
 -->
 <template>
     <el-dialog
         :title="Translate('IDCS_CONNECTION_SETTINGS')"
-        width="600"
-        draggable
-        center
-        open="open"
+        width="500"
+        @open="open"
+        @closed="formRef?.resetFields()"
     >
         <el-form
             ref="formRef"
+            v-title
             class="stripe"
             :model="formData"
             :rules="rules"
             :style="{
-                '--form-input-width': '200px',
-                '--form-label-width': '100px',
+                '--form-label-width': '200px',
             }"
-            label-position="left"
-            inline-message
-            hide-required-asterisk
-            flexible
         >
             <el-form-item
                 :label="Translate('IDCS_POS_IP')"
@@ -34,32 +27,34 @@
                 <BaseIpInput v-model="formData.ip" />
             </el-form-item>
             <el-form-item v-if="data.connectionType === 'TCP-Listen'">
-                <el-checkbox v-model="formData.switch">{{ Translate('IDCS_POS_PORT') }}</el-checkbox>
+                <el-checkbox
+                    v-model="formData.switch"
+                    :label="Translate('IDCS_POS_PORT')"
+                    @change="changeSwitch"
+                />
             </el-form-item>
-            <el-form-item
-                :label="Translate('IDCS_POS_PORT')"
-                prop="port"
-            >
-                <el-input-number
+            <el-form-item prop="port">
+                <template #label>
+                    <span v-if="data.connectionType !== 'UDP'">{{ Translate('IDCS_POS_PORT') }}</span>
+                    <el-select-v2
+                        v-else
+                        v-model="formData.posPortType"
+                        :options="pageData.posPortOptions"
+                    />
+                </template>
+                <BaseNumberInput
                     v-model="formData.port"
                     :disabled="data.connectionType === 'TCP-Listen' && !formData.switch"
-                    :min="0"
+                    :min="10"
                     :max="65535"
-                    :controls="false"
+                    :value-on-clear="data.connectionType === 'TCP-Listen' && !formData.switch ? null : 'min'"
                 />
             </el-form-item>
         </el-form>
-        <template #footer>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
-                >
-                    <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

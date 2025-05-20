@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-04 09:40:06
  * @Description: 日期模块
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 16:49:37
  */
 import dayjs from 'dayjs'
 
@@ -19,14 +17,36 @@ import dayjs from 'dayjs'
  * @param {string} fromFormat 如果传入date的值是字符创，指定当前date的格式化类型
  * @return {string} 返回的格式化日期
  */
-export const formatDate = (date: string | number | Date | dayjs.Dayjs, format: string = 'YYYY-MM-DD HH:mm:ss', fromFormat: string = ''): string => {
+export const formatDate = (date: string | number | Date | dayjs.Dayjs, format: string = DEFAULT_DATE_FORMAT, fromFormat: string = '') => {
     if (date === '') {
         return date
     }
+
     if (typeof date === 'string' && fromFormat) {
         return dayjs(date, fromFormat).format(format)
     }
+
     return dayjs(date).format(format)
+}
+
+/**
+ * @description: 格式化日期. 无视当前设置历法，返回公历时间
+ * 如果useUserSessionStore().calenderType === 'Persian'，执行本方法会自动将公历日期转换为波斯历日期
+ * @param {string | number | Date | dayjs.Dayjs} date 日期值
+ * @param {string} format 格式类型, 24小时制 YYYY-MM-DD HH:mm:ss, 12小时制 YYYY-MM-DD hh:mm:ss A(a)
+ * @param {string} fromFormat 如果传入date的值是字符创，指定当前date的格式化类型
+ * @return {string} 返回的格式化日期
+ */
+export const formatGregoryDate = (date: string | number | Date | dayjs.Dayjs, format: string = DEFAULT_DATE_FORMAT, fromFormat: string = '') => {
+    if (date === '') {
+        return date
+    }
+
+    if (typeof date === 'string' && fromFormat) {
+        return dayjs(date, { jalali: false, format: fromFormat }).calendar('gregory').format(format)
+    }
+
+    return dayjs(date, { jalali: false }).calendar('gregory').format(format)
 }
 
 /**
@@ -44,7 +64,7 @@ export const formatSeconds = (seconds: number) => {
  * @returns {string}
  */
 export const getUTCDateByMilliseconds = (timestamp: number) => {
-    return dayjs.unix(timestamp).format('YYYY-MM-DD HH:mm:ss')
+    return dayjs.unix(timestamp).utc().format(DEFAULT_DATE_FORMAT)
 }
 
 /**
@@ -53,9 +73,9 @@ export const getUTCDateByMilliseconds = (timestamp: number) => {
  * @param { string } format 本地时间的日期格式
  * @returns {string} 格式化后的本地时间
  */
-export const utcToLocal = (date: string | number | Date | dayjs.Dayjs, format: string = 'YYYY-MM-DD HH:mm:ss') => {
+export const utcToLocal = (date: string | number | Date | dayjs.Dayjs, format: string = DEFAULT_DATE_FORMAT) => {
     if (date === 'string') {
-        return dayjs.utc(date, 'YYYY-MM-DD HH:mm:ss').local().format(format)
+        return dayjs.utc(date, DEFAULT_DATE_FORMAT).local().format(format)
     }
     return dayjs.utc(date).local().format(format)
 }
@@ -66,11 +86,11 @@ export const utcToLocal = (date: string | number | Date | dayjs.Dayjs, format: s
  * @param format 本地时间的日期格式
  * @returns {string} 格式化后的UTC时间（YYYY-MM-DD HH:mm:ss）
  */
-export const localToUtc = (date: string | number | Date | dayjs.Dayjs, format: string = 'YYYY-MM-DD HH:mm:ss') => {
+export const localToUtc = (date: string | number | Date | dayjs.Dayjs, format: string = DEFAULT_DATE_FORMAT) => {
     if (typeof date === 'string') {
-        return dayjs(date, format).utc().calendar('gregory').format('YYYY-MM-DD HH:mm:ss')
+        return dayjs(date, format).utc().calendar('gregory').format(DEFAULT_DATE_FORMAT)
     }
-    return dayjs(date).utc().calendar('gregory').format('YYYY-MM-DD HH:mm:ss')
+    return dayjs(date).utc().calendar('gregory').format(DEFAULT_DATE_FORMAT)
 }
 
 /**
@@ -117,12 +137,13 @@ export const gregoryToPersian = (date: string, format: string) => {
  * @description 判断是否夏令时
  * 夏令时: 夏令时开始时, 时间往前拨快一小时, 夏令时结束时, 则往回拨一小时（大约是每年3月份至10月份, 具体日期各个地区国家不一致）
  * 此处用夏至日和冬至日的UTC偏移量做判断. 若夏至日和冬至日UTC偏移量相等，则此地区没有冬夏令时
+ * @param {string} str 公历时间
  */
-export const isDST = (str: string, format = 'YYYY-MM-DD hh:mm:ss') => {
-    const winterSolstice = dayjs('12-22', 'MM-DD').utcOffset()
-    const summerSolstice = dayjs('06-22', 'MM-DD').utcOffset()
+export const isDST = (str: string, format = DEFAULT_DATE_FORMAT) => {
+    const winterSolstice = dayjs('12-22', { jalali: false, format: 'MM-DD' }).utcOffset()
+    const summerSolstice = dayjs('06-22', { jalali: false, format: 'MM-DD' }).utcOffset()
     if (winterSolstice === summerSolstice) return false
-    if (dayjs(str, format).utcOffset() === summerSolstice) return true
+    if (dayjs(str, { jalali: false, format: format }).utcOffset() === summerSolstice) return true
     return false
 }
 
@@ -141,4 +162,13 @@ export const highlightWeekend = (date: Date) => {
         return 'highlight'
     }
     return ''
+}
+
+/**
+ * @description 判断时区是否包含夏令时信息
+ * @param {string} posix
+ * @returns {boolean}
+ */
+export const getIsEnableDST = (posix: string) => {
+    return posix.includes(',M') || posix.includes(',J')
 }

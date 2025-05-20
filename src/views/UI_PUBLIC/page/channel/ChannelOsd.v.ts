@@ -3,100 +3,70 @@
  * @Date: 2024-06-24 10:38:27
  * @Description: 通道 - OSD配置
  */
-
-import { type XmlResult } from '@/utils/xmlParse'
-import { ChannelInfoDto, ChannelOsd } from '@/types/apiType/channel'
-import { cloneDeep } from 'lodash-es'
-import CanvasOSD, { type CanvasOSDOptionNameConfig, type CanvasOSDOptionTimeConfig } from '@/utils/canvas/canvasOsd'
-import { type TVTPlayerWinDataListItem } from '@/utils/wasmPlayer/tvtPlayer'
+import { type XMLQuery } from '@/utils/xmlParse'
 import { type OcxXmlSetOSDInfo } from '@/utils/ocx/ocxCmd'
 import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
-        const osType = getSystemInfo().platform
         const dateTime = useDateTimeStore()
 
         const playerRef = ref<PlayerInstance>()
-        const formData = ref(new ChannelOsd())
+        const formData = ref(new ChannelOsdDto())
         const tableRef = ref<TableInstance>()
-        const tableData = ref([] as ChannelOsd[])
-        const nameDisabled = ref(true)
-        const btnOKDisabled = ref(true)
+        const tableData = ref<ChannelOsdDto[]>([])
         const pageIndex = ref(1)
         const pageSize = ref(10)
         const pageTotal = ref(0)
         const selectedChlId = ref('')
-        const chlList = ref<ChannelOsd[]>([]) // 作为下拉列表选项来源，只需保证name为最新值即可
+        const chlList = ref<ChannelOsdDto[]>([]) // 作为下拉列表选项来源，只需保证name为最新值即可
         const { supportSHDB } = useCababilityStore() // 是否支持上海地标
         const tempName = ref('')
+        const switchOptions = getTranslateOptions(DEFAULT_BOOL_SWITCH_OPTIONS)
+        const manufacturer: Record<string, string> = {}
 
-        const dateFormatTip: Record<string, string> = {
-            'yyyy-MM-dd': Translate('IDCS_DATE_FORMAT_YMD'),
-            'MM-dd-yyyy': Translate('IDCS_DATE_FORMAT_MDY'),
-            'dd-MM-yyyy': Translate('IDCS_DATE_FORMAT_DMY'),
-            'yyyy/MM/dd': Translate('IDCS_DATE_FORMAT_YMD'),
-            'MM/dd/yyyy': Translate('IDCS_DATE_FORMAT_MDY'),
-            'dd/MM/yyyy': Translate('IDCS_DATE_FORMAT_DMY'),
-            'year-month-day': Translate('IDCS_DATE_FORMAT_YMD'),
-            'month-day-year': Translate('IDCS_DATE_FORMAT_MDY'),
-            'day-month-year': Translate('IDCS_DATE_FORMAT_DMY'),
-        }
+        const dateFormatTip = getTranslateMapping(DEFAULT_DATE_FORMAT_MAPPING)
 
-        const dateFormatOptions: Record<string, string>[] = [
-            { value: 'year-month-day', text: Translate('IDCS_DATE_FORMAT_YMD') },
-            { value: 'month-day-year', text: Translate('IDCS_DATE_FORMAT_MDY') },
-            { value: 'day-month-year', text: Translate('IDCS_DATE_FORMAT_DMY') },
-        ]
+        const timeFormatTip = getTranslateMapping(DEFAULT_TIME_FORMAT_MAPPING)
 
-        const timeFormatTip: Record<string, string> = {
-            '24': Translate('IDCS_TIME_FORMAT_24'),
-            '12': Translate('IDCS_TIME_FORMAT_12'),
-        }
+        const chlOptions = computed(() => {
+            return chlList.value.map((item) => {
+                return {
+                    label: item.name,
+                    value: item.id,
+                }
+            })
+        })
 
         let nameMapping: Record<string, string> = {}
-        let osdDrawer: CanvasOSD | undefined = undefined
-        const editRows = new Set<ChannelOsd>()
-        let returnRqCount = 0
+        let drawer = CanvasOSD()
 
-        const handleSizeChange = (val: number) => {
-            pageSize.value = val
-            getDataList()
-            btnOKDisabled.value = true
-        }
-
-        const handleCurrentChange = (val: number) => {
-            pageIndex.value = val
-            getDataList()
-            btnOKDisabled.value = true
-        }
+        const editRows = useWatchEditRows<ChannelOsdDto>()
 
         const handleChlSel = (chlId: string) => {
-            const rowData = getRowById(chlId)
+            const rowData = getRowById(chlId)!
             formData.value = cloneDeep(rowData)
             tableRef.value!.setCurrentRow(rowData)
-            nameDisabled.value = rowData.disabled
-            if (!rowData.supportDateFormat) nameDisabled.value = true
         }
 
-        const handleNameBlur = (chlId: string, chlName: string) => {
-            const rowData = getRowById(chlId)
+        /**
+         * @description 修改名称失去焦点时 判断名称是否规范
+         * @param {stirng} chlId
+         * @param {string} chlName
+         */
+        const blurName = (chlId: string, chlName: string) => {
+            const rowData = getRowById(chlId)!
             const name = chlName.trim()
             if (!checkChlName(name)) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'),
-                })
-                rowData!.name = tempName.value
+                openMessageBox(Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'))
+                rowData.name = tempName.value
                 formData.value = cloneDeep(rowData)
                 chlList.value = cloneDeep(tableData.value)
             } else {
                 // 当有重名IPC弹框时，新增保持和编辑按钮，让用户选择保持编辑或者返回重新编辑
                 if (checkIsNameExit(name, rowData.id)) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'question',
                         message: Translate('IDCS_NAME_EXISTED'),
                         confirmButtonText: Translate('IDCS_KEEP'),
@@ -107,6 +77,7 @@ export default defineComponent({
                             rowData.name = name
                             formData.value = cloneDeep(rowData)
                             chlList.value = cloneDeep(tableData.value)
+                            setOcxData(rowData)
                         })
                         .catch(() => {
                             rowData.name = nameMapping[rowData.id]
@@ -118,108 +89,89 @@ export default defineComponent({
                     rowData.name = name
                     formData.value = cloneDeep(rowData)
                     chlList.value = cloneDeep(tableData.value)
+                    setOcxData(rowData)
                 }
             }
-            // setOcxData(rowData)
-            // btnOKDisabled.value = false
-            // editRows.add(rowData)
         }
 
-        const handleRowClick = (rowData: ChannelOsd) => {
+        /**
+         * @description 行未被禁用时，点击行，切换该行
+         * @param {ChannelOsdDto} rowData
+         */
+        const handleRowClick = (rowData: ChannelOsdDto) => {
             if (!rowData.disabled) {
                 selectedChlId.value = rowData.id
                 formData.value = cloneDeep(rowData)
-                nameDisabled.value = rowData.disabled
-                if (!rowData.supportDateFormat) nameDisabled.value = true
             }
             tableRef.value!.setCurrentRow(getRowById(selectedChlId.value))
         }
 
-        const handleKeydownEnter = (event: Event) => {
-            ;(event.target as HTMLElement).blur()
-        }
-
-        const handleChangeSwitch = (flag: boolean, chlId: string, type: 'displayName' | 'displayTime' | 'remarkSwitch') => {
-            const rowData = getRowById(chlId)
+        const changeSwitch = (flag: boolean, chlId: string, type: 'displayName' | 'displayTime' | 'remarkSwitch') => {
+            const rowData = getRowById(chlId)!
             rowData[type] = flag
             formData.value = cloneDeep(rowData)
-            btnOKDisabled.value = false
             setOcxData(rowData)
-            editRows.add(rowData)
         }
 
         const changeSwitchAll = (flag: boolean, type: 'displayName' | 'displayTime' | 'remarkSwitch') => {
             tableData.value.forEach((ele) => {
                 if (!ele.disabled) {
                     ele[type] = flag
-                    editRows.add(ele)
                 }
-                if (ele.id == selectedChlId.value) {
+
+                if (ele.id === selectedChlId.value) {
                     formData.value = cloneDeep(ele)
                     setOcxData(ele)
                 }
             })
-            btnOKDisabled.value = false
         }
 
         const changeDateFormatAll = (val: string) => {
             if (!tableData.value.length) return
             tableData.value.forEach((ele) => {
-                if (ele.disabled || ele.status == 'loading') return // todo 老代码禁用行也会最下面逻辑，设备端没有看到info提示，暂时加上禁用行判断
-                if (ele.dateEnum.includes(val)) {
+                if (ele.status === 'loading') return
+                if (ele.dateEnum.includes(val) && !ele.disabled) {
                     ele.dateFormat = val
-                    editRows.add(ele)
                 } else {
-                    ElMessage({
-                        type: 'info',
-                        message: Translate('IDCS_NOT_SUPPORT_MODIFY_DATEFORMAT'),
-                        grouping: true,
-                    }) // todo 待替换组件
+                    openMessageBox(Translate('IDCS_NOT_SUPPORT_MODIFY_DATEFORMAT'))
                 }
             })
-            const rowData = getRowById(selectedChlId.value)
+            const rowData = getRowById(selectedChlId.value)!
             formData.value = cloneDeep(rowData)
-            btnOKDisabled.value = false
             setOcxData(rowData)
         }
 
         const changeTimeFormatAll = (val: string) => {
             if (!tableData.value.length) return
             tableData.value.forEach((ele) => {
-                if (ele.disabled || ele.status == 'loading') return // todo 老代码没此判断
+                if (ele.disabled || ele.status === 'loading') return
                 ele.timeFormat = val
-                editRows.add(ele)
             })
-            const rowData = getRowById(selectedChlId.value)
+            const rowData = getRowById(selectedChlId.value)!
             formData.value = cloneDeep(rowData)
-            btnOKDisabled.value = false
             setOcxData(rowData)
         }
 
-        const handleRemarkNoteInput = (rowData: ChannelOsd) => {
-            const reg = /[^A-Za-z0-9]/g
-            if (reg.test(rowData.remarkNote)) rowData.remarkNote = rowData.remarkNote.replace(reg, '')
+        const handleRemarkNoteInput = (value: string) => {
+            return value.replace(/[^A-Za-z0-9]/g, '')
         }
 
-        const handleRemarkNoteBlur = (val: string, chlId: string) => {
-            const rowData = getRowById(chlId)
+        const blurRemarkNote = (val: string, chlId: string) => {
+            const rowData = getRowById(chlId)!
+            const isChanged = rowData.remarkNote !== val || formData.value.remarkNote !== val
             rowData.remarkNote = val
             formData.value.remarkNote = val
-        }
-
-        const handleInputChange = (chlId: string) => {
-            const rowData = getRowById(chlId)
-            btnOKDisabled.value = false
-            setOcxData(rowData)
-            editRows.add(rowData)
+            if (isChanged) {
+                setOcxData(rowData)
+            }
         }
 
         // 检测名字是否已经存在
         const checkIsNameExit = (name: string, currId: string): boolean => {
             let isSameName = false
             for (const key in nameMapping) {
-                if (key != currId) {
-                    if (name == nameMapping[key]) {
+                if (key !== currId) {
+                    if (name === nameMapping[key]) {
                         isSameName = true
                         break
                     }
@@ -229,335 +181,321 @@ export default defineComponent({
         }
 
         const getRowById = (chlId: string) => {
-            return tableData.value.find((element) => element.id == chlId) as ChannelOsd
+            return tableData.value.find((element) => element.id === chlId)
         }
 
-        const LiveNotify2Js = ($: (path: string) => XmlResult) => {
+        const notify = ($: XMLQuery, stateType: string) => {
             //OSD位置改变
-            if ($("statenotify[@type='OSDInfo']").length > 0) {
-                const preRowData = getRowById(selectedChlId.value)
-                if (osType == 'mac') {
-                    // todo
-                } else {
-                    preRowData.timeX = Number($('statenotify/timeStamp/X').text())
-                    preRowData.timeY = Number($('statenotify/timeStamp/Y').text())
-                    preRowData.nameX = Number($('statenotify/deviceName/X').text())
-                    preRowData.nameY = Number($('statenotify/deviceName/Y').text())
-                }
-                btnOKDisabled.value = false
+            if (stateType === 'OSDInfo') {
+                const preRowData = getRowById(selectedChlId.value)!
+                preRowData.timeX = $('statenotify/timeStamp/X').text().num()
+                preRowData.timeY = $('statenotify/timeStamp/Y').text().num()
+                preRowData.nameX = $('statenotify/deviceName/X').text().num()
+                preRowData.nameY = $('statenotify/deviceName/Y').text().num()
             }
         }
 
-        const getTimeEnabledData = (callback?: Function) => {
-            openLoading()
-            queryDevList('').then((res) => {
-                closeLoading()
-                const $ = queryXml(res)
-                if ($('status').text() == 'success') {
-                    const rowData: ChannelInfoDto[] = []
-                    $('content/item').forEach((ele) => {
-                        const eleXml = queryXml(ele.element)
-                        const newData = new ChannelInfoDto()
-                        newData.id = ele.attr('id')!
-                        newData.manufacturer = eleXml('manufacturer').text()
-                        rowData.push(newData)
-                    })
-                    rowData.forEach((ele: ChannelInfoDto) => {
-                        const channelOsd = getRowById(ele.id)
-                        if (channelOsd) channelOsd.manufacturer = ele.manufacturer
-                    })
-                }
-                if (callback) callback()
-            })
+        const getTimeEnabledData = async () => {
+            const res = await queryDevList('')
+            const $ = queryXml(res)
+            if ($('status').text() === 'success') {
+                $('content/item').forEach((ele) => {
+                    const $item = queryXml(ele.element)
+                    manufacturer[ele.attr('id')] = $item('manufacturer').text()
+                })
+            }
         }
 
-        const getChlWaterMark = (chlId: string, callback?: Function) => {
+        /**
+         * @description 获取通道水印信息
+         * @param {string} chlId
+         */
+        const getChlWaterMark = async (chlId: string) => {
             const data = rawXml`
                 <condition>
                     <chlId>${chlId}</chlId>
-                </condition>`
-            queryChlWaterMark(data).then((res) => {
-                const $ = queryXml(res)
-                let flag = false
-                if ($('status').text() == 'success') {
-                    flag = true
-                    const channelOsd = getRowById(chlId)
-                    channelOsd.remarkSwitch = $('content/chl/watermark/switch').text().toBoolean()
-                    channelOsd.remarkNote = $('content/chl/watermark/value').text()
-                }
-                if (callback) callback(flag)
-            })
+                </condition>
+            `
+            const res = await queryChlWaterMark(data)
+            const $ = queryXml(res)
+            const channelOsd = getRowById(chlId)
+            if (!channelOsd) {
+                return
+            }
+
+            if ($('status').text() === 'success') {
+                channelOsd.remarkSwitch = $('content/chl/watermark/switch').text().bool()
+                channelOsd.remarkNote = $('content/chl/watermark/value').text()
+                channelOsd.remarkDisabled = false
+            } else {
+                channelOsd.remarkDisabled = true
+            }
         }
 
-        const getData = (chlId: string) => {
+        /**
+         * @description 获取行OSD数据
+         * @param {string} chlId
+         * @returns {Promise<boolean>}
+         */
+        const getData = async (chlId: string) => {
             const data = rawXml`
                 <condition>
                     <chlId>${chlId}</chlId>
-                </condition>`
-            queryIPChlORChlOSD(data).then((res) => {
+                </condition>
+            `
+            try {
+                const res = await queryIPChlORChlOSD(data)
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                const channelOsd = getRowById(chlId)
+                if (!channelOsd) {
+                    return
+                }
+
+                if ($('status').text() === 'success') {
                     let isSpeco = false
                     // 时间枚举值
-                    const timeEnum: string[] = []
-                    $('types/timeFormat/enum').forEach((ele) => {
-                        timeEnum.push(ele.text())
+                    const timeEnum = $('types/timeFormat/enum').map((ele) => {
+                        return ele.text()
                     })
                     // 日期枚举值
-                    const dateEnum: string[] = []
-                    $('types/dateFormat/enum').forEach((ele) => {
-                        dateEnum.push(ele.text())
+                    const dateEnum = $('types/dateFormat/enum').map((ele) => {
+                        return ele.text()
                     })
-                    const channelOsd = getRowById(chlId)
                     channelOsd.dateEnum = dateEnum
                     channelOsd.timeEnum = timeEnum
                     channelOsd.supportDateFormat = dateEnum.length > 0
                     channelOsd.supportTimeFormat = dateEnum.length > 0
 
-                    channelOsd.displayName = $('content/chl/chlName/switch').text().toBoolean()
-                    channelOsd.displayTime = $('content/chl/time/switch').text().toBoolean()
+                    channelOsd.displayName = $('content/chl/chlName/switch').text().bool()
+                    channelOsd.displayTime = $('content/chl/time/switch').text().bool()
                     channelOsd.dateFormat = $('content/chl/time/dateFormat').text()
                     channelOsd.timeFormat = $('content/chl/time/timeFormat').text()
 
                     channelOsd.status = ''
-                    if ($('content/chl').length == 0 || chlId !== $('content/chl').attr('id')) isSpeco = true
+                    if (!$('content/chl').length || chlId !== $('content/chl').attr('id')) isSpeco = true
                     channelOsd.isSpeco = isSpeco
 
-                    channelOsd.timeX = Number($('content/chl/time/X').text())
-                    channelOsd.timeXMinValue = Number($('content/chl/time/X').attr('min')!)
-                    channelOsd.timeXMaxValue = Number($('content/chl/time/X').attr('max')!)
-                    channelOsd.timeY = Number($('content/chl/time/Y').text())
-                    channelOsd.timeYMinValue = Number($('content/chl/time/Y').attr('min')!)
-                    channelOsd.timeYMaxValue = Number($('content/chl/time/Y').attr('max')!)
-                    channelOsd.nameX = Number($('content/chl/chlName/X').text())
-                    channelOsd.nameXMinValue = Number($('content/chl/chlName/X').attr('min')!)
-                    channelOsd.nameXMaxValue = Number($('content/chl/chlName/X').attr('max')!)
-                    channelOsd.nameY = Number($('content/chl/chlName/Y').text())
-                    channelOsd.nameYMinValue = Number($('content/chl/chlName/Y').attr('min')!)
-                    channelOsd.nameYMaxValue = Number($('content/chl/chlName/Y').attr('max')!)
+                    channelOsd.timeX = $('content/chl/time/X').text().num()
+                    channelOsd.timeXMinValue = $('content/chl/time/X').attr('min').num()
+                    channelOsd.timeXMaxValue = $('content/chl/time/X').attr('max').num()
+                    channelOsd.timeY = $('content/chl/time/Y').text().num()
+                    channelOsd.timeYMinValue = $('content/chl/time/Y').attr('min').num()
+                    channelOsd.timeYMaxValue = $('content/chl/time/Y').attr('max').num()
+                    channelOsd.nameX = $('content/chl/chlName/X').text().num()
+                    channelOsd.nameXMinValue = $('content/chl/chlName/X').attr('min').num()
+                    channelOsd.nameXMaxValue = $('content/chl/chlName/X').attr('max').num()
+                    channelOsd.nameY = $('content/chl/chlName/Y').text().num()
+                    channelOsd.nameYMinValue = $('content/chl/chlName/Y').attr('min').num()
+                    channelOsd.nameYMaxValue = $('content/chl/chlName/Y').attr('max').num()
 
                     channelOsd.disabled = isSpeco
-
-                    if (chlId == selectedChlId.value) {
-                        nameDisabled.value = channelOsd!.disabled
-                        getChlWaterMark(chlId, (flag: boolean) => {
-                            channelOsd!.remarkDisabled = !flag
-                            if (!flag) channelOsd!.remarkNote = ''
-                            formData.value = cloneDeep(channelOsd!)
-                            setOcxData(channelOsd)
-                        })
-                    } else {
-                        getChlWaterMark(chlId, (flag: boolean) => {
-                            channelOsd!.remarkDisabled = !flag
-                            if (!flag) channelOsd!.remarkNote = ''
-                        })
-                    }
+                    return
                 } else {
                     // 处理请求配置信息失败通道（离线）
-                    const channelOsd = getRowById(chlId)
-                    channelOsd!.status = ''
-                    channelOsd!.remarkNote = ''
-                    if (chlId == selectedChlId.value) {
-                        formData.value = cloneDeep(channelOsd!)
-                        nameDisabled.value = true
-                    }
+                    channelOsd.status = ''
                 }
-            })
+            } catch {
+                const channelOsd = getRowById(chlId)
+                if (!channelOsd) {
+                    return
+                }
+                channelOsd.status = ''
+            }
+            return
         }
 
-        const getDataList = () => {
+        const getDataList = async () => {
+            editRows.clear()
+            nameMapping = {}
             openLoading()
-            getChlList({
+
+            const res = await getChlList({
                 pageIndex: pageIndex.value,
                 pageSize: pageSize.value,
                 isSupportOsd: true,
                 requireField: ['ip'],
-            }).then((res) => {
-                closeLoading()
-                const $ = queryXml(res)
-                if ($('status').text() == 'success') {
-                    editRows.clear()
-                    const rowData: ChannelOsd[] = []
-                    nameMapping = {}
-                    $('content/item').forEach((ele) => {
-                        const eleXml = queryXml(ele.element)
-                        const newData = new ChannelOsd()
-                        newData.id = ele.attr('id')!
-                        newData.name = eleXml('name').text()
-                        newData.ip = eleXml('ip').text()
-                        newData.chlIndex = eleXml('chlIndex').text()
-                        newData.chlType = eleXml('chlType').text()
-                        newData.status = 'loading'
-                        // newData.statusTip = tableRowStatusToolTip['loading']
-                        rowData.push(newData)
-                        nameMapping[rowData[rowData.length - 1].id] = rowData[rowData.length - 1].name
-                    })
-                    pageTotal.value = Number($('content').attr('total')!)
-                    tableData.value = rowData
-                    if (rowData.length) {
-                        selectedChlId.value = rowData[0].id
-                        tableRef.value!.setCurrentRow(rowData[0])
-                        formData.value = cloneDeep(rowData[0])
-                        chlList.value = cloneDeep(rowData)
-                        getTimeEnabledData(() => {
-                            rowData.forEach((ele) => {
-                                if (ele.chlType != 'recorder') {
-                                    getData(ele.id)
-                                } else {
-                                    // 通过cms添加的通道会走这里
-                                    ele.disabled = false
-                                    ele.status = ''
-                                    ele.displayNameDisabled = true // todo table cell置空
-                                    ele.displayTimeDisabled = true
-                                    // 置灰水印信息
-                                    ele.remarkDisabled = true
-                                    ele.remarkNote = ''
+            })
+            const $ = queryXml(res)
 
-                                    if (ele.id == selectedChlId.value) formData.value = cloneDeep(ele)
-                                }
-                            })
-                        })
-                    }
+            closeLoading()
+
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/item').map((ele) => {
+                    const $item = queryXml(ele.element)
+                    const newData = new ChannelOsdDto()
+                    newData.id = ele.attr('id')
+                    newData.name = $item('name').text()
+                    newData.ip = $item('ip').text()
+                    newData.chlIndex = $item('chlIndex').text()
+                    newData.chlType = $item('chlType').text()
+                    newData.status = 'loading'
+                    nameMapping[newData.id] = newData.name
+                    return newData
+                })
+                pageTotal.value = $('content').attr('total').num()
+            } else {
+                tableData.value = []
+                selectedChlId.value = ''
+            }
+
+            tableData.value.forEach(async (item, i) => {
+                if (manufacturer[item.id]) {
+                    item.manufacturer = manufacturer[item.id]
+                }
+
+                if (item.chlType !== 'recorder') {
+                    await getData(item.id)
+                    await getChlWaterMark(item.id)
                 } else {
-                    selectedChlId.value = ''
+                    // 通过cms添加的通道会走这里
+                    item.disabled = false
+                    item.status = ''
+                    item.displayNameDisabled = true // todo table cell置空
+                    item.displayTimeDisabled = true
+                    // 置灰水印信息
+                    item.remarkDisabled = true
+                    item.remarkNote = ''
+                }
+
+                if (!tableData.value.some((row) => row === item)) {
+                    return
+                }
+
+                editRows.listen(item)
+
+                if (i === 0) {
+                    selectedChlId.value = item.id
+                    tableRef.value!.setCurrentRow(item)
+                    formData.value = cloneDeep(item)
+                    chlList.value = cloneDeep(tableData.value)
                 }
             })
         }
 
-        const checkAllRqReturn = () => {
-            returnRqCount++
-            if (returnRqCount == editRows.size) {
-                closeLoading()
-                editRows.clear()
-            }
-        }
-
-        const setData = () => {
-            tableData.value.forEach((ele) => (ele.status = ''))
-            btnOKDisabled.value = true
-            returnRqCount = 0
-            if (editRows.size == 0) return
+        const setData = async () => {
             openLoading()
-            editRows.forEach((ele) => sendData(ele))
-        }
 
-        const sendData = (rowData: ChannelOsd) => {
-            if (!rowData.name) {
-                rowData.status = 'error'
-                rowData.statusTip = Translate('IDCS_PROMPT_NAME_EMPTY')
-                checkAllRqReturn()
-                return
+            tableData.value.forEach((ele) => (ele.status = ''))
+
+            for (const rowData of editRows.toArray()) {
+                try {
+                    if (!rowData.name.trim()) {
+                        rowData.status = 'error'
+                        rowData.statusTip = Translate('IDCS_PROMPT_NAME_EMPTY')
+                        continue
+                    }
+
+                    const flagSetDevice = await setDevice(rowData)
+                    if (!flagSetDevice) continue
+
+                    if (rowData.manufacturer === 'TVT') {
+                        await setChlWaterMark(rowData)
+                    }
+
+                    let flagSetOSD = true
+                    if (rowData.chlType !== 'recorder') {
+                        flagSetOSD = await setIPChlORChlOSD(rowData)
+                    }
+
+                    if (flagSetDevice && flagSetOSD) {
+                        nameMapping[rowData.id] = rowData.name
+                        rowData.status = 'success'
+                        editRows.remove(rowData)
+                    }
+                } catch {
+                    rowData.status = 'error'
+                    continue
+                }
             }
 
-            const data = rawXml`
+            closeLoading()
+        }
+
+        const setDevice = async (rowData: ChannelOsdDto) => {
+            const sendXml = rawXml`
                 <content>
                     <id>${rowData.id}</id>
-                    <name><![CDATA[${rowData.name}]]></name>
-                </content>`
-            try {
-                editDev(data)
-                    .then((res) => {
-                        checkAllRqReturn()
-                        const $ = queryXml(res)
-                        if ($('status').text() == 'success') {
-                            if (rowData.manufacturer == 'TVT') {
-                                const watermarkXml = rawXml`
-                                <content>
-                                    <chl id='${rowData.id}'>
-                                        <watermark>
-                                            <value>${rowData.remarkNote}</value>
-                                            <switch>${rowData.remarkSwitch.toString()}</switch>
-                                        </watermark>
-                                    </chl>
-                                </content>`
-                                editChlWaterMark(watermarkXml)
-                            }
-                            nameMapping[rowData.id] = rowData.name
-                            rowData.status = 'success'
-                            // rowData.statusTip = tableRowStatusToolTip['saveSuccess']
-                            if (rowData.chlType == 'recorder') return
+                    <name maxByteLen="63">${wrapCDATA(rowData.name)}</name>
+                </content>
+            `
+            const result = await editDev(sendXml)
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                return true
+            } else {
+                let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
+                if ($('errorCode').text().num() === ErrorCode.USER_ERROR_NAME_EXISTED) {
+                    errorInfo = Translate('IDCS_PROMPT_CHANNEL_NAME_EXIST')
+                }
+                rowData.status = 'error'
+                rowData.statusTip = errorInfo
+                return false
+            }
+        }
 
-                            let editIPChlORChlOSDXml = '<types>'
-                            if (rowData.supportDateFormat) {
-                                editIPChlORChlOSDXml += '<dateFormat>'
-                                rowData.dateEnum.forEach((ele) => {
-                                    editIPChlORChlOSDXml += `<enum>${ele}</enum>`
-                                })
-                                editIPChlORChlOSDXml += '</dateFormat>'
-                            }
-                            if (rowData.supportTimeFormat) {
-                                editIPChlORChlOSDXml += '<timeFormat>'
-                                rowData.timeEnum.forEach((ele) => {
-                                    editIPChlORChlOSDXml += `<enum>${ele}</enum>`
-                                })
-                                editIPChlORChlOSDXml += '</timeFormat>'
-                            }
-                            editIPChlORChlOSDXml += rawXml`
-                            </types>
-                            <content>
-                                <chl id='${rowData.id}'>
-                                    <time>
-                                        <switch>${rowData.displayTime.toString()}</switch>
-                                        <X>${rowData.timeX.toString()}</X>
-                                        <Y>${rowData.timeY.toString()}</Y>
-                                        ${rowData.supportDateFormat ? '<dateFormat type="dateFormat">' + rowData.dateFormat + '</dateFormat>' : ''}
-                                        ${rowData.supportTimeFormat ? '<timeFormat type="timeFormat">' + rowData.timeFormat + '</timeFormat>' : ''}
-                                    </time>
-                                    <chlName>
-                                        <switch>${rowData.displayName.toString()}</switch>
-                                        <X>${rowData.nameX.toString()}</X>
-                                        <Y>${rowData.nameY.toString()}</Y>
-                                        <name>${rowData.name}</name>
-                                    </chlName>
-                                </chl>
-                            </content>`
-                            try {
-                                editIPChlORChlOSD(editIPChlORChlOSDXml)
-                                    .then((res) => {
-                                        const $ = queryXml(res)
-                                        if ($('status').text() == 'success') {
-                                            if (rowData.name == nameMapping[rowData.id]) {
-                                                checkAllRqReturn()
-                                                rowData.status = 'success'
-                                                // rowData.statusTip = tableRowStatusToolTip['saveSuccess']
-                                            }
-                                        } else {
-                                            checkAllRqReturn()
-                                            let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
-                                            if (Number($('errorCode').text()) == ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR) {
-                                                errorInfo = Translate('resourceNotExist').formatForLang(Translate('IDCS_CHANNEL'))
-                                            }
-                                            rowData.status = 'error'
-                                            rowData.statusTip = errorInfo
-                                        }
-                                    })
-                                    .catch(() => checkAllRqReturn())
-                            } catch (error) {
-                                checkAllRqReturn()
-                                alert(error)
-                            }
-                        } else {
-                            let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
-                            if (Number($('errorCode').text()) == ErrorCode.USER_ERROR_NAME_EXISTED) {
-                                errorInfo = Translate('IDCS_PROMPT_CHANNEL_NAME_EXIST')
-                            }
-                            rowData.status = 'error'
-                            rowData.statusTip = errorInfo
-                        }
-                    })
-                    .catch(() => checkAllRqReturn)
-            } catch (error) {
-                checkAllRqReturn()
-                alert(error)
+        const setChlWaterMark = async (rowData: ChannelOsdDto) => {
+            const sendXml = rawXml`
+                <content>
+                    <chl id='${rowData.id}'>
+                        <watermark>
+                            <value>${rowData.remarkNote}</value>
+                            <switch>${rowData.remarkSwitch}</switch>
+                        </watermark>
+                    </chl>
+                </content>
+            `
+            await editChlWaterMark(sendXml)
+        }
+
+        const setIPChlORChlOSD = async (rowData: ChannelOsdDto) => {
+            const sendXml = rawXml`
+                <types>
+                    ${rowData.supportDateFormat ? `<dateFormat>${wrapEnums(rowData.dateEnum)}</dateFormat>` : ''}
+                    ${rowData.supportTimeFormat ? `<timeFormat>${wrapEnums(rowData.timeEnum)}</timeFormat>` : ''}
+                </types>
+                <content>
+                    <chl id='${rowData.id}'>
+                        <time>
+                            <switch>${rowData.displayTime}</switch>
+                            <X>${rowData.timeX}</X>
+                            <Y>${rowData.timeY}</Y>
+                            ${rowData.supportDateFormat ? '<dateFormat type="dateFormat">' + rowData.dateFormat + '</dateFormat>' : ''}
+                            ${rowData.supportTimeFormat ? '<timeFormat type="timeFormat">' + rowData.timeFormat + '</timeFormat>' : ''}
+                        </time>
+                        <chlName>
+                            <switch>${rowData.displayName}</switch>
+                            <X>${rowData.nameX}</X>
+                            <Y>${rowData.nameY}</Y>
+                            <name>${rowData.name}</name>
+                        </chlName>
+                    </chl>
+                </content>
+            `
+            const res = await editIPChlORChlOSD(sendXml)
+            const $ = queryXml(res)
+            if ($('status').text() === 'success') {
+                // if (rowData.name === nameMapping[rowData.id]) {
+                //     rowData.status = 'success'
+                // }
+                return true
+            } else {
+                let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
+                if ($('errorCode').text().num() === ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR) {
+                    errorInfo = Translate('resourceNotExist').formatForLang(Translate('IDCS_CHANNEL'))
+                }
+                rowData.status = 'error'
+                rowData.statusTip = errorInfo
+                return false
             }
         }
 
         const setDateTime = async () => {
             let timeFormat = ''
             let dateFormat = ''
-            tableData.value.forEach((ele) => {
+            tableData.value.some((ele) => {
                 if (ele.timeFormat) timeFormat = ele.timeFormat
                 if (ele.dateFormat) dateFormat = ele.dateFormat
+                return !!timeFormat && !!dateFormat
             })
             const data = rawXml`
                 <content>
@@ -567,24 +505,24 @@ export default defineComponent({
                     </formatInfo>
                 </content>`
             await editTimeCfg(data)
-            dateTime.getTimeConfig(true)
         }
 
-        const save = () => {
-            setData()
-            setDateTime()
+        const save = async () => {
+            await setData()
+            await setDateTime()
+            dateTime.getTimeConfig()
         }
-
-        // 播放模式
-        const mode = computed(() => {
-            if (!playerRef.value) {
-                return ''
-            }
-            return playerRef.value.mode
-        })
 
         const ready = computed(() => {
             return playerRef.value?.ready || false
+        })
+
+        // 播放模式
+        const mode = computed(() => {
+            if (!ready.value) {
+                return ''
+            }
+            return playerRef.value!.mode
         })
 
         let player: PlayerInstance['player']
@@ -595,36 +533,29 @@ export default defineComponent({
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
-                osdDrawer = new CanvasOSD({
-                    el: player.getDrawbordCanvas(0) as HTMLCanvasElement,
+                drawer.destroy()
+                drawer = CanvasOSD({
+                    el: player.getDrawbordCanvas(),
                     onchange: handleOSDChange,
                 })
-            } else {
-                if (!plugin.IsInstallPlugin()) {
-                    plugin.SetPluginNotice('#layout2Content')
-                    return
-                }
-                if (!plugin.IsPluginAvailable()) {
-                    plugin.SetPluginNoResponse()
-                    plugin.ShowPluginNoResponse()
-                }
-                plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
-                const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'OSDConfig' : 'ReadOnly', 'Live')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+            }
+
+            if (mode.value === 'ocx') {
+                const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
-        const onTime = (winIndex: number, data: TVTPlayerWinDataListItem, timeStamp: number) => {
-            if (!supportSHDB) osdDrawer && osdDrawer.setTime(timeStamp)
+        const onTime = (_winIndex: number, _data: TVTPlayerWinDataListItem, timeStamp: number) => {
+            if (!supportSHDB) drawer.setTime(timeStamp)
         }
 
         const handleOSDChange = (nameCfg: CanvasOSDOptionNameConfig, timeCfg: CanvasOSDOptionTimeConfig) => {
-            const preRowData = getRowById(selectedChlId.value)
+            const preRowData = getRowById(selectedChlId.value)!
             preRowData.timeX = timeCfg.X
             preRowData.timeY = timeCfg.Y
             preRowData.nameX = nameCfg.X
             preRowData.nameY = nameCfg.Y
-            btnOKDisabled.value = false
         }
 
         /**
@@ -632,19 +563,19 @@ export default defineComponent({
          */
         const play = () => {
             if (!selectedChlId.value) return
-            if (!ready.value) return
-            const channelOsd = getRowById(selectedChlId.value)
+            const channelOsd = getRowById(selectedChlId.value)!
+
             if (mode.value === 'h5') {
                 player.play({
                     chlID: channelOsd.id,
                     streamType: 2,
                 })
-            } else {
-                if (osType == 'mac') {
-                } else {
-                    plugin.RetryStartChlView(channelOsd.id, channelOsd.name)
-                }
             }
+
+            if (mode.value === 'ocx') {
+                plugin.RetryStartChlView(channelOsd.id, channelOsd.name)
+            }
+
             setOcxData(channelOsd)
         }
 
@@ -656,73 +587,46 @@ export default defineComponent({
             }
         })
 
-        const setOcxData = (rowData: ChannelOsd) => {
+        const setOcxData = (rowData: ChannelOsdDto) => {
             if (supportSHDB) return
+
             if (mode.value === 'h5') {
                 setCanvasDrawerData(rowData)
-            } else {
+            }
+
+            if (mode.value === 'ocx') {
                 if (rowData.timeX) {
-                    if (osType == 'mac') {
-                        // const osdList: OcxXmlSetOsdListDatum[] = [
-                        //     {
-                        //         winIndex: 0,
-                        //         dateFormat: rowData.dateFormat,
-                        //         timeFormat: rowData.timeFormat,
-                        //         x: rowData.timeX,
-                        //         y: rowData.timeY,
-                        //         xMin: rowData.timeXMinValue,
-                        //         xMax: rowData.timeXMaxValue,
-                        //         yMin: rowData.timeYMinValue,
-                        //         yMax: rowData.timeXMaxValue,
-                        //         status: rowData.displayTime ? 'ON' : 'OFF',
-                        //     },
-                        //     {
-                        //         winIndex: 0,
-                        //         osd: rowData.name,
-                        //         x: rowData.nameX,
-                        //         y: rowData.nameY,
-                        //         xMin: rowData.nameXMinValue,
-                        //         xMax: rowData.nameXMaxValue,
-                        //         yMin: rowData.nameYMinValue,
-                        //         yMax: rowData.nameYMaxValue,
-                        //         status: rowData.displayTime ? 'ON' : 'OFF',
-                        //     },
-                        // ]
-                        // const sendXML = OCX_XML_SetOSD('ON', osdList)
-                        // plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                    } else {
-                        const osd: OcxXmlSetOSDInfo = {
-                            timeStamp: {
-                                switch: rowData.displayTime,
-                                X: rowData.timeX,
-                                XMinValue: rowData.timeXMinValue,
-                                XMaxValue: rowData.timeXMaxValue,
-                                Y: rowData.timeY,
-                                YMinValue: rowData.timeYMinValue,
-                                YMaxValue: rowData.timeYMaxValue,
-                                dateFormat: rowData.dateFormat,
-                                timeFormat: rowData.timeFormat,
-                            },
-                            deviceName: {
-                                switch: rowData.displayName,
-                                value: rowData.name,
-                                X: rowData.nameX,
-                                XMinValue: rowData.nameXMinValue,
-                                XMaxValue: rowData.nameXMaxValue,
-                                Y: rowData.nameY,
-                                YMinValue: rowData.nameYMinValue,
-                                YMaxValue: rowData.nameYMaxValue,
-                            },
-                        }
-                        const sendXML = OCX_XML_SetOSDInfo(osd)
-                        plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    const osd: OcxXmlSetOSDInfo = {
+                        timeStamp: {
+                            switch: rowData.displayTime,
+                            X: rowData.timeX,
+                            XMinValue: rowData.timeXMinValue,
+                            XMaxValue: rowData.timeXMaxValue,
+                            Y: rowData.timeY,
+                            YMinValue: rowData.timeYMinValue,
+                            YMaxValue: rowData.timeYMaxValue,
+                            dateFormat: rowData.dateFormat,
+                            timeFormat: rowData.timeFormat,
+                        },
+                        deviceName: {
+                            switch: rowData.displayName,
+                            value: rowData.name,
+                            X: rowData.nameX,
+                            XMinValue: rowData.nameXMinValue,
+                            XMaxValue: rowData.nameXMaxValue,
+                            Y: rowData.nameY,
+                            YMinValue: rowData.nameYMinValue,
+                            YMaxValue: rowData.nameYMaxValue,
+                        },
                     }
+                    const sendXML = OCX_XML_SetOSDInfo(osd)
+                    plugin.ExecuteCmd(sendXML)
                 }
             }
         }
 
-        const setCanvasDrawerData = (rowData: ChannelOsd) => {
-            osdDrawer?.setCfg({
+        const setCanvasDrawerData = (rowData: ChannelOsdDto) => {
+            drawer.setCfg({
                 nameCfg: {
                     value: rowData.name,
                     switch: rowData.displayName,
@@ -749,60 +653,53 @@ export default defineComponent({
 
         watch(selectedChlId, play)
 
-        onMounted(() => {
+        onMounted(async () => {
             formData.value.remarkDisabled = false
             formData.value.supportTimeFormat = true
             formData.value.supportDateFormat = true
-            getDataList()
+            await getTimeEnabledData()
+            await getDataList()
         })
 
         onBeforeUnmount(() => {
-            if (ready.value) {
-                if (mode.value === 'ocx') {
-                    plugin?.VideoPluginNotifyEmitter.removeListener(LiveNotify2Js)
-                    const sendXML = OCX_XML_StopPreview('ALL')
-                    plugin?.GetVideoPlugin().ExecuteCmd(sendXML)
-                } else {
-                    osdDrawer?.destroy()
-                    osdDrawer = undefined
-                }
+            if (mode.value === 'ocx') {
+                const sendXML = OCX_XML_StopPreview('ALL')
+                plugin?.ExecuteCmd(sendXML)
             }
+
+            drawer.destroy()
         })
 
         return {
             playerRef,
+            notify,
             formData,
             tableRef,
             tableData,
-            nameDisabled,
-            btnOKDisabled,
+            editRows,
             pageIndex,
             pageSize,
             pageTotal,
-            DefaultPagerSizeOptions,
-            DefaultPagerLayout,
             chlList,
+            chlOptions,
             selectedChlId,
             tempName,
             dateFormatTip,
-            dateFormatOptions,
             timeFormatTip,
-            handleSizeChange,
-            handleCurrentChange,
             handleRowClick,
             handleChlSel,
-            handleNameBlur,
-            handleChangeSwitch,
+            blurName,
+            changeSwitch,
             changeSwitchAll,
             changeDateFormatAll,
             changeTimeFormatAll,
             handleRemarkNoteInput,
-            handleRemarkNoteBlur,
-            handleInputChange,
-            handleKeydownEnter,
+            blurRemarkNote,
             save,
             onReady,
             onTime,
+            switchOptions,
+            getDataList,
         }
     },
 })

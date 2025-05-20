@@ -2,22 +2,18 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-04-20 16:04:39
  * @Description: 顶层布局页
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-08 16:31:54
 -->
 <template>
     <el-container id="layoutMain">
         <el-header id="layoutMainHeader">
-            <div id="MainHeaderLine1">
+            <div id="Top">
                 <div
                     v-show="pageData.logoShow"
                     id="logo"
                     :style="{
-                        backgroundImage: pageData.logoProductModel ? 'none' : 'var(--img-logo)',
-                        marginLeft: pageData.logoProductModel ? '295px' : '14px',
+                        backgroundImage: userSession.appType === 'STANDARD' ? 'var(--img-logo)' : 'var(--img-authcodelogin-logo)',
                     }"
                 >
-                    &nbsp;
                     <div v-text="pageData.logoProductModel"></div>
                 </div>
                 <div id="topRight">
@@ -34,19 +30,14 @@
                                 v-text="Translate('IDCS_PLUGIN_DOWNLOAD')"
                             ></span>
                         </span>
-                        <el-tooltip
-                            :content="Translate('IDCS_PLUGIN_DOWNLOAD_INSTRUCTIONS')"
-                            :show-after="500"
-                        >
-                            <BaseImgSprite
-                                class="icon_aq"
-                                file="aq"
-                                :index="pageData.hoverPluginIconIndex"
-                                :chunk="3"
-                                @mouseenter="pageData.hoverPluginIconIndex = 2"
-                                @mouseleave="pageData.hoverPluginIconIndex = 1"
-                            />
-                        </el-tooltip>
+                        <BaseImgSprite
+                            class="icon_aq"
+                            file="aq"
+                            :title="Translate('IDCS_PLUGIN_DOWNLOAD_INSTRUCTIONS')"
+                            :index="1"
+                            :hover-index="2"
+                            :chunk="3"
+                        />
                     </div>
                     <div class="nav-item">
                         <span>{{ userName }}</span>
@@ -57,7 +48,10 @@
                             v-text="Translate('IDCS_LOGOUT')"
                         ></a>
                     </div>
-                    <div class="nav-item">
+                    <div
+                        v-show="pageData.isModifyPasswordBtn"
+                        class="nav-item"
+                    >
                         <a
                             class="modifyPassword"
                             @click="showChangePwdPop"
@@ -75,18 +69,18 @@
                     >
                         <BaseImgSprite
                             file="localCfg"
-                            :index="0"
                             :chunk="4"
                         />
                         <a
                             class="divLocalCfg effective"
                             @click="showLocalConfig"
-                            >{{ Translate('IDCS_LOCAL_CONFIG') }}</a
                         >
+                            {{ Translate('IDCS_LOCAL_CONFIG') }}
+                        </a>
                     </div>
                 </div>
             </div>
-            <div id="MainHeaderLine2">
+            <div>
                 <el-menu
                     id="mainMenu"
                     mode="horizontal"
@@ -103,7 +97,7 @@
                         @click="goToPath(route)"
                     >
                         <span
-                            :title="Translate(String(route?.meta?.lk))"
+                            v-title
                             v-text="Translate(String(route?.meta?.lk))"
                         ></span>
                         <span class="menu-split"></span>
@@ -113,26 +107,16 @@
         </el-header>
         <el-main id="layoutMainBody">
             <div id="layoutMainContent">
-                <!-- <router-view v-slot="{ Component }">
-                    <transition name="page-view">
-                        <component
-                            :is="Component"
-                            :key
-                        />
-                    </transition>
-                </router-view> -->
                 <router-view />
             </div>
+            <div
+                id="divCopyRight"
+                v-text="Translate('IDCS_COPYRIGHT')"
+            ></div>
         </el-main>
-        <div
-            id="divCopyRight"
-            v-text="Translate('IDCS_COPYRIGHT')"
-        ></div>
         <ChangePasswordPop
             v-model="pageData.isPasswordDialogVisible"
             :forced="pageData.mustBeModifiedPassword"
-            :title="pageData.passwordDialogTitle"
-            :password-strength="pageData.passwordStrength"
             @close="closeChangePwdPop"
         />
     </el-container>
@@ -147,45 +131,61 @@
 
 #layoutMain {
     height: 100vh;
-    background-color: var(--main-bg);
+    background-color: var(--body-bg);
 }
 
 #layoutMainHeader {
-    padding: 0px;
+    position: fixed;
+    width: 100%;
+    min-width: 1000px;
+    top: 0;
+    left: 0;
+    padding: 0;
     height: auto;
     flex: auto 0 0;
     background-color: var(--header-bg);
+    z-index: 1000;
 }
 
-#MainHeaderLine1 {
+#Top {
     width: 100%;
     display: flex;
     justify-content: space-between;
     height: 65px;
     align-items: center;
+    background-color: var(--header-bg);
+
+    @if $GLOBAL_UI_TYPE == UI2-A {
+        height: 73px;
+    }
 }
 
 #logo {
-    margin-left: 14px;
-    width: 350px;
+    margin-left: 12px;
+    width: 50%;
     height: 65px;
-    background: var(--img-logo) center left no-repeat;
+    background-position: 0 70%;
+    background-repeat: no-repeat;
     text-align: right;
 
     div {
         overflow: hidden;
-        margin: 12px 0px 0px 0px;
+        padding: 42px 0 0 295px;
+        font-weight: bold;
+        font-size: 16px;
+        color: var(--header-menu-text);
+        text-align: left;
     }
 }
 
 #topRight {
     font-size: 14px;
-    margin: 0 60px 0px 0px;
+    margin: 0 56px 12px 0;
     display: flex;
     color: var(--header-text);
 
     .icon_aq {
-        cursor: pointer;
+        margin-left: 5px;
     }
 
     .effective {
@@ -202,15 +202,16 @@
     }
 
     .narrowline {
-        margin: 0 3px;
+        margin: 0 4px;
     }
 
     .nav-item {
         display: flex;
+        align-items: center;
 
         &:not(:first-child)::before {
             content: '|';
-            margin: 0 10px;
+            margin: 0 12px;
         }
 
         .divLocalCfg {
@@ -220,24 +221,28 @@
 }
 
 #mainMenu {
-    height: 40px;
     --el-menu-active-color: var(--primary);
     --el-menu-base-level-padding: 10px;
+
     background-color: var(--header-bg);
+    height: 34px;
+
+    @if $GLOBAL_UI_TYPE == UI2-A {
+        padding-top: 3px;
+    }
 }
 
 .el-menu--horizontal {
     background-color: var(--main-bg);
-    border-bottom: solid 1px var(--main-border);
+    border-bottom: solid 1px var(--header-border);
     --el-menu-active-color: var(--header-menu-text-active);
 
     & > .el-menu-item {
-        margin: 0px 12px;
+        margin: 0 10px;
         line-height: 29px;
-        font-family: 'Microsoft YaHei', Arial, Helvetica, sans-serif;
-        font-style: normal;
         font-weight: bold;
         font-size: 16px;
+        padding-bottom: 2px;
         color: var(--header-menu-text);
         background-color: var(--header-menu-bg);
         border-bottom: 6px solid var(--header-menu-border);
@@ -255,7 +260,7 @@
         }
 
         &:first-of-type {
-            margin-left: 60px;
+            margin-left: 64px;
         }
 
         & > .menu-split {
@@ -265,36 +270,45 @@
         &.is-active,
         &.is-active:hover {
             background-color: var(--header-menu-bg-active);
-            color: var(--header-menu-border-active);
+            color: var(--header-menu-text-active) !important;
             border-bottom-color: var(--header-menu-border-active);
+        }
+
+        @if $GLOBAL_UI_TYPE == UI1-Q {
+            margin: 0;
+            padding: 0 20px;
         }
     }
 }
 
 #layoutMainBody {
-    padding: 0px;
-    flex: auto 1 1;
+    width: 100%;
+    padding: 0;
+    padding-top: 100px;
     overflow-y: auto;
 }
 
 #layoutMainContent {
     position: relative;
-    padding: 25px 49px;
-    box-sizing: border-box;
+    padding-block: 25px;
+    padding-inline: 49px;
     width: 100%;
-    height: 100%;
-    // overflow-y: auto;
-    flex-shrink: 1;
+    height: calc(100vh - 65px - 34px - 19px);
+    min-height: fit-content;
+    box-sizing: border-box;
+
+    @if $GLOBAL_UI_TYPE == UI2-A {
+        height: calc(100vh - 65px - 34px - 19px - 11px);
+    }
 }
 
 #divCopyRight {
     text-align: center;
     font-size: 11px;
-    padding: 1px 0px 1px 0px;
+    padding: 1px 0;
     height: 18px;
     width: 100%;
-    border-top: 1px solid var(--main-border);
-    flex-shrink: 0;
+    border-top: 1px solid var(--header-border);
     color: var(--footer-text);
     background-color: var(--footer-bg);
 }

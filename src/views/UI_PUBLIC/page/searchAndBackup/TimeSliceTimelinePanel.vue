@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-13 09:09:24
  * @Description: 时间切片-时间线界面
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 17:25:25
 -->
 <template>
     <div class="content">
@@ -14,8 +12,7 @@
                     ref="playerRef"
                     only-wasm
                     type="record"
-                    :split="1"
-                    @ontime="handlePlayerTimeUpdate"
+                    @time="handlePlayerTimeUpdate"
                 />
             </div>
             <div class="control-bar">
@@ -43,10 +40,8 @@
             <h3>{{ Translate('IDCS_ARCHIVE_INFO') }}</h3>
             <el-form
                 v-show="pageData.mode === 'day' && (formData.startTime || formData.endTime)"
-                label-position="left"
-                :class="{
-                    '--form-label-width': '150px',
-                }"
+                v-title
+                class="stripe"
             >
                 <el-form-item :label="Translate('IDCS_START_TIME')">
                     <el-input
@@ -99,48 +94,37 @@
                         </div>
                     </div>
                 </div>
-                <el-row>
-                    <el-col
-                        :span="24"
-                        class="el-col-flex-end"
+                <div class="base-btn-box collapse">
+                    <el-radio-group
+                        v-model="pageData.mode"
+                        class="always-border"
+                        @change="changeMode"
                     >
-                        <el-radio-group
-                            v-model="pageData.mode"
-                            class="always-border"
-                            @change="changeMode"
-                        >
-                            <el-radio-button
-                                v-for="item in pageData.modeOptions"
-                                v-show="item.hidden !== pageData.mode"
-                                :key="item.value"
-                                :value="item.value"
-                                >{{ item.label }}</el-radio-button
-                            >
-                        </el-radio-group>
-                    </el-col>
-                </el-row>
+                        <el-radio-button
+                            v-for="item in pageData.modeOptions"
+                            v-show="item.hidden !== pageData.mode"
+                            :key="item.value"
+                            :value="item.value"
+                            :label="item.label"
+                        />
+                    </el-radio-group>
+                </div>
             </div>
-            <div class="right-bottom">
+            <el-scrollbar class="right-bottom">
                 <div class="right-type">
                     <el-form
-                        label-position="left"
+                        v-title
                         :style="{
                             '--form-label-width': '80px',
                         }"
                     >
                         <el-form-item :label="Translate('IDCS_PICTURE')">
-                            <el-select
+                            <el-select-v2
                                 v-model="pageData.sliceType"
                                 :disabled="modeItem.disabled"
+                                :options="modeItem.options"
                                 @change="changeSliceType"
-                            >
-                                <el-option
-                                    v-for="item in modeItem.options"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value"
-                                />
-                            </el-select>
+                            />
                         </el-form-item>
                     </el-form>
                     <div class="count">
@@ -150,31 +134,31 @@
                     </div>
                 </div>
                 <div class="list-box">
-                    <TimeSliceChlCard
+                    <TimeSliceItem
                         v-for="item in pageData.timeSliceList"
                         :key="item.taskId"
                         mode="thumbnail"
-                        :time="displayThumbnailTime(item.startTime)"
+                        :time="displayThumbnailTime(item.frameTime)"
                         :pic="item.imgUrl"
                         :size="pageData.sliceType === 'minute' ? 'small' : 'normal'"
                         :active="!!pageData.activeTimeSlice && pageData.activeTimeSlice === item.taskId"
-                        @click="playTimeSlice(item.startTime, item.endTime, item.taskId)"
-                        @dblclick="changeTimeSlice(item.startTime)"
+                        @click="playTimeSlice(item.frameTime, item.endTime, item.taskId)"
+                        @dblclick="changeTimeSlice(item.frameTime)"
                     />
                 </div>
-            </div>
+            </el-scrollbar>
             <div class="base-btn-box padding">
                 <el-button
                     :disabled="formData.size === 0"
                     @click="backUp"
-                    >{{ Translate('IDCS_BACKUP') }}</el-button
                 >
+                    {{ Translate('IDCS_BACKUP') }}
+                </el-button>
             </div>
         </div>
-        <BasePluginNotice />
         <BackupPop
             v-model="pageData.isBackUpPop"
-            :mode="mode"
+            :mode="pageData.playerMode"
             :backup-list="pageData.backupRecList"
             @confirm="confirmBackUp"
             @close="pageData.isBackUpPop = false"
@@ -205,8 +189,8 @@
 
 .left {
     box-sizing: border-box;
-    width: 450px;
-    height: 100%;
+    width: 438px;
+    height: var(--content-height);
     flex-shrink: 0;
     padding: 20px;
     border-right: 1px solid var(--input-border);
@@ -233,12 +217,16 @@
 
 .start-time,
 .end-time {
-    padding: 5px 5px;
+    padding: 5px;
     font-size: 12px;
     width: 80px;
     flex-shrink: 0;
     text-align: left;
     line-height: 1;
+}
+
+.end-time {
+    text-align: right;
 }
 
 .current-time {
@@ -298,7 +286,6 @@
 
     &-bottom {
         height: 100%;
-        overflow-y: scroll;
     }
 
     &-type {

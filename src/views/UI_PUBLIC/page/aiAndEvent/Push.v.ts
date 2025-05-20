@@ -1,39 +1,22 @@
 /*
- * @Description: AI/事件——事件通知——推送
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-12 15:28:16
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-30 11:35:38
+ * @Description: AI/事件——事件通知——推送
  */
-import { pushForm } from '@/types/apiType/aiAndEvent'
-import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
-
 export default defineComponent({
-    components: {
-        ScheduleManagPop,
-    },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
-        const pushFormData = ref(new pushForm())
+        const formData = ref(new AlarmPushForm())
 
         const pageData = ref({
             scheduleOption: [] as SelectOption<string, string>[],
             //排程管理弹窗显示状态
-            scheduleManagPopOpen: false,
+            isSchedulePop: false,
         })
 
         const getScheduleData = async () => {
-            const result = await queryScheduleList()
-
-            commLoadResponseHandler(result, ($) => {
-                pageData.value.scheduleOption = $('/response/content/item').map((item) => {
-                    return {
-                        value: item.attr('id')!,
-                        label: item.text(),
-                    }
-                })
+            pageData.value.scheduleOption = await buildScheduleList({
+                isDefault: false,
             })
         }
 
@@ -42,47 +25,46 @@ export default defineComponent({
             const result = await queryEventNotifyParam()
 
             commLoadResponseHandler(result, ($) => {
-                pushFormData.value.chkEnable = $('/response/content/mobilePushSwitch').text() == 'true'
+                formData.value.chkEnable = $('content/mobilePushSwitch').text().bool()
 
-                if ($('/response/content/pushSchedule').attr('id')) {
-                    pushFormData.value.pushSchedule = $('/response/content/pushSchedule').attr('id')
+                if ($('content/pushSchedule').attr('id')) {
+                    formData.value.pushSchedule = $('content/pushSchedule').attr('id')
                 } else {
-                    const scheduleName = $('/response/content/pushSchedule').text() || '24x7'
-                    pageData.value.scheduleOption.forEach((item) => {
-                        if (scheduleName == item.label) {
-                            pushFormData.value.pushSchedule = item.value
-                        }
-                    })
+                    const scheduleName = $('content/pushSchedule').text() || '24x7'
+                    formData.value.pushSchedule = pageData.value.scheduleOption.find((item) => scheduleName === item.label)?.value || ''
                 }
             })
         }
 
         // 测试按钮，向手机发送测试推送信息
-        const testMobile = async () => {
+        const testData = async () => {
             const result = await testMobilePush()
             const $ = queryXml(result)
-            if ($('/response/status').text() == 'success') {
-                openMessageTipBox({
+            if ($('status').text() === 'success') {
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_TEST_PUSH_MOBILE_SUCCESS'),
                 })
             } else {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_TEST_PUSH_MOBILE_FAILED'),
-                })
+                openMessageBox(Translate('IDCS_TEST_PUSH_MOBILE_FAILED'))
             }
         }
 
         const setData = async () => {
             const sendXml = rawXml`
                 <content>
-                    <mobilePushSwitch>${String(pushFormData.value.chkEnable)}</mobilePushSwitch>
-                    <pushSchedule id='${pushFormData.value.pushSchedule}'></pushSchedule>
+                    <mobilePushSwitch>${formData.value.chkEnable}</mobilePushSwitch>
+                    <pushSchedule id='${formData.value.pushSchedule}'></pushSchedule>
                 </content>
             `
             const result = await editEventNotifyParam(sendXml)
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
+        }
+
+        const closeSchedulePop = async () => {
+            pageData.value.isSchedulePop = false
+            await getScheduleData()
+            formData.value.pushSchedule = getScheduleId(pageData.value.scheduleOption, formData.value.pushSchedule, '')
         }
 
         onMounted(async () => {
@@ -94,10 +76,11 @@ export default defineComponent({
         })
 
         return {
-            pushFormData,
+            formData,
             pageData,
-            testMobile,
+            testData,
             setData,
+            closeSchedulePop,
         }
     },
 })

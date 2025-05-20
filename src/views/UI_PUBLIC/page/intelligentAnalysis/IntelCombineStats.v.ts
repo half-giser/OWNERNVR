@@ -2,13 +2,10 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-04 15:55:22
  * @Description: 智能分析 - 组合统计
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 10:58:42
  */
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
 import IntelBaseEventSelector from './IntelBaseEventSelector.vue'
 import IntelBaseAttributeSelector from './IntelBaseAttributeSelector.vue'
-import { type IntelCombineStatsList, IntelCombineStatsForm } from '@/types/apiType/intelligentAnalysis'
 import { type BarChartXValueOptionItem } from '@/components/chart/BaseBarChart.vue'
 
 export default defineComponent({
@@ -19,8 +16,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         let chlMap: Record<string, string> = {}
         let eventMap: Record<string, string> = {}
@@ -55,11 +50,7 @@ export default defineComponent({
             // 表格选项
             tableData: {
                 label: [] as string[],
-                data: [] as {
-                    chlId: string
-                    chlName: string
-                    data: number[]
-                }[],
+                data: [] as IntelStatsBarChartDataDto[],
             },
         })
 
@@ -154,10 +145,10 @@ export default defineComponent({
             const sendXml = rawXml`
                 <resultLimit>150000</resultLimit>
                 <condition>
-                    <startTime>${formatDate(formData.value.dateRange[0], 'YYYY-MM-DD HH:mm:ss')}</startTime>
-                    <endTime>${formatDate(formData.value.dateRange[1], 'YYYY-MM-DD HH:mm:ss')}</endTime>
-                    <timeQuantum>${stats.getTimeQuantum().toString()}</timeQuantum>
-                    <deduplicate>${formData.value.deduplicate.toString()}</deduplicate>
+                    <startTime>${formatGregoryDate(formData.value.dateRange[0], DEFAULT_DATE_FORMAT)}</startTime>
+                    <endTime>${formatGregoryDate(formData.value.dateRange[1], DEFAULT_DATE_FORMAT)}</endTime>
+                    <timeQuantum>${stats.getTimeQuantum()}</timeQuantum>
+                    <deduplicate>${formData.value.deduplicate}</deduplicate>
                     <chls type="list">${formData.value.chl.map((item) => `<item id="${item}"></item>`).join('')}</chls>
                     <events type="list">${formData.value.event.map((item) => `<item>${item}</item>`).join('')}</events>
                     <person type="list">${formData.value.personAttribute.map((item) => `<item>${item}</item>`).join('')}</person>
@@ -167,35 +158,40 @@ export default defineComponent({
             const result = await faceImgStatistic_v2(sendXml)
             const $ = queryXml(result)
             closeLoading()
-            if ($('//status').text() === 'success') {
-                tableData.value = $('//content/timeStatistic/item').map((item) => {
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/timeStatistic/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        imageTotalNum: Number($item('imageTotalNum').text()),
-                        imageTotalInNum: Number($item('imageTotalInNum').text()),
-                        imageTotalOutNum: Number($item('imageTotalOutNum').text()),
+                        imageTotalNum: $item('imageTotalNum').text().num(),
+                        imageTotalInNum: $item('imageTotalInNum').text().num(),
+                        imageTotalOutNum: $item('imageTotalOutNum').text().num(),
                         chl: $item('chls/item').map((chl) => {
                             const $chl = queryXml(chl.element)
                             return {
-                                chlId: chl.attr('id')!,
-                                imageNum: Number($chl('imageNum').text()),
-                                personIn: Number($chl('personIn').text()),
-                                personOut: Number($chl('personOut').text()),
-                                vehicleIn: Number($chl('vehicleIn').text()),
-                                vehicleOut: Number($chl('vehicleOut').text()),
-                                nonVehicleIn: Number($chl('nonVehicleIn').text()),
-                                nonVehicleOut: Number($chl('nonVehicleOut').text()),
+                                chlId: chl.attr('id'),
+                                imageNum: $chl('imageNum').text().num(),
+                                personIn: $chl('personIn').text().num(),
+                                personOut: $chl('personOut').text().num(),
+                                vehicleIn: $chl('vehicleIn').text().num(),
+                                vehicleOut: $chl('vehicleOut').text().num(),
+                                nonVehicleIn: $chl('nonVehicleIn').text().num(),
+                                nonVehicleOut: $chl('nonVehicleOut').text().num(),
+                            }
+                        }),
+                        groups: $item('groups/item').map((group) => {
+                            const $group = queryXml(group.element)
+                            return {
+                                groupId: group.attr('id'),
+                                name: $group('name').text() || Translate('IDCS_UNKNOWN_GROUP'),
+                                imageNum: $group('imageNum').text().num(),
                             }
                         }),
                     }
                 })
                 showMaxSearchLimitTips($)
             } else {
-                if (Number($('//errorCode').text()) === ErrorCode.USER_ERROR_JSU_HAVEACSSYSTEM) {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_SELECT_EVENT_TIP'),
-                    })
+                if ($('errorCode').text().num() === ErrorCode.USER_ERROR_JSU_HAVEACSSYSTEM) {
+                    openMessageBox(Translate('IDCS_SELECT_EVENT_TIP'))
                 }
                 tableData.value = []
             }
@@ -254,27 +250,30 @@ export default defineComponent({
          * @returns {Object}
          */
         const getTableData = () => {
-            const chls: Record<string, number[]> = {}
+            const groups: Record<string, { data: number[]; name: string }> = {}
             const label = stats.calLabel()
             tableData.value.forEach((item) => {
-                item.chl.forEach((chl) => {
-                    if (!chls[chl.chlId]) {
-                        chls[chl.chlId] = Array(label.length).fill(0)
+                item.groups.forEach((group) => {
+                    if (!groups[group.groupId]) {
+                        groups[group.groupId] = {
+                            data: Array(label.length).fill(0),
+                            name: group.name,
+                        }
                     }
                 })
             })
             tableData.value.forEach((item, index) => {
-                item.chl.forEach((chl) => {
-                    chls[chl.chlId][index] = chl.imageNum
+                item.groups.forEach((group) => {
+                    groups[group.groupId].data[index] = group.imageNum
                 })
             })
             return {
                 label: label,
-                data: Object.entries(chls).map((item) => {
+                data: Object.entries(groups).map((item) => {
                     return {
-                        chlId: item[0],
-                        chlName: chlMap[item[0]],
-                        data: item[1],
+                        groupId: item[0],
+                        groupName: item[1].name,
+                        data: item[1].data,
                     }
                 }),
             }
@@ -296,10 +295,12 @@ export default defineComponent({
                     csvHead.push(`${Translate('IDCS_DETECTION_PERSON')} (${Translate('IDCS_ENTRANCE')})`, `${Translate('IDCS_DETECTION_PERSON')} (${Translate('IDCS_LEAVE')})`)
                     csvTitle.colspan += 2
                 }
+
                 if (formData.value.vehicleAttribute.includes('car')) {
                     csvHead.push(`${Translate('IDCS_DETECTION_VEHICLE')} (${Translate('IDCS_ENTRANCE')})`, `${Translate('IDCS_DETECTION_VEHICLE')} (${Translate('IDCS_LEAVE')})`)
                     csvTitle.colspan += 2
                 }
+
                 if (formData.value.vehicleAttribute.includes('motor')) {
                     csvHead.push(`${Translate('IDCS_NON_VEHICLE')} (${Translate('IDCS_ENTRANCE')})`, `${Translate('IDCS_NON_VEHICLE')} (${Translate('IDCS_LEAVE')})`)
                     csvTitle.colspan += 2
@@ -319,9 +320,11 @@ export default defineComponent({
                             if (formData.value.personAttribute.includes('')) {
                                 data.push(chl.personIn + '', chl.personOut + '')
                             }
+
                             if (formData.value.vehicleAttribute.includes('car')) {
                                 data.push(chl.vehicleIn + '', chl.vehicleOut + '')
                             }
+
                             if (formData.value.vehicleAttribute.includes('motor')) {
                                 data.push(chl.nonVehicleIn + '', chl.nonVehicleOut + '')
                             }
@@ -335,7 +338,7 @@ export default defineComponent({
             downloadExcel(csvHead, csvBody, xlsName, csvTitle)
         }
 
-        onMounted(async () => {
+        onActivated(() => {
             pageData.value.barData = getBarData()
         })
 
@@ -350,9 +353,6 @@ export default defineComponent({
             changeType,
             changeAttribute,
             exportChart,
-            IntelBaseChannelSelector,
-            IntelBaseEventSelector,
-            IntelBaseAttributeSelector,
         }
     },
 })

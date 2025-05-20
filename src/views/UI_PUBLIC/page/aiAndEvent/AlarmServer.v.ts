@@ -2,47 +2,26 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-14 17:06:11
  * @Description: 报警服务器
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 15:01:59
  */
-import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
-import { type FormInstance, type FormRules } from 'element-plus'
-import { type AlarmTypeInfo } from '@/types/apiType/aiAndEvent'
+import { type FormRules } from 'element-plus'
+
 export default defineComponent({
-    components: {
-        ScheduleManagPop,
-    },
     setup() {
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
-        const openMessageTipBox = useMessageBox().openMessageTipBox
-        const { openLoading, closeLoading } = useLoading()
-        const formRef = ref<FormInstance>()
-        const formData = ref({
-            enable: false,
-            address: '',
-            url: '',
-            port: 0,
-            heartEnable: false,
-            protocol: '',
-            interval: 0,
-            schedule: '',
 
-            deviceId: '',
-            token: '',
-        })
+        const formRef = useFormRef()
+        const formData = ref(new AlarmServerForm())
+
         const pageData = ref({
             protocolOptions: [] as SelectOption<string, string>[],
-            scheduleManagePopOpen: false,
+            isSchedulePop: false,
             scheduleList: [] as SelectOption<string, string>[],
             showAlarmTypeCfg: true,
             showAlarmTransfer: false,
-            alarmList: [] as { id: string; value: string }[],
+            alarmList: [] as SelectOption<string, string>[],
             linkedAlarmList: [] as string[],
-            // 多UI
-            CustomerID: '',
-            maxDeviceIdLength: 6,
-            isAnothorUI: false,
+            showAdditionalServerSetting: false,
             supportAdditionalServerSetting: false,
             deviceIdShow: false,
             isProtocolXML: false,
@@ -54,67 +33,60 @@ export default defineComponent({
             // 将进行的事件
             isTestAlarmServer: false,
         })
+
         const rules = reactive<FormRules>({
             address: [
                 {
-                    validator: (rule, value, callback) => {
-                        if (pageData.value.isTestAlarmServer == true && !value) {
+                    validator: (_rule, value: string, callback) => {
+                        if (pageData.value.isTestAlarmServer && !value) {
                             callback(new Error(Translate('IDCS_DDNS_SERVER_ADDR_EMPTY')))
                             return
+                        }
+
+                        if (value.trim()) {
+                            if (!/(^$|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+.?$)/g.test(value.trim())) {
+                                callback(new Error(Translate('IDCS_PROMPT_INVALID_SERVER')))
+                                return
+                            }
+                        }
+
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
+            deviceId: [
+                {
+                    validator: (_rule, value: string, callback) => {
+                        if ((pageData.value.showAdditionalServerSetting || pageData.value.deviceIdShow) && formData.value.enable && !formData.value.deviceId.trim()) {
+                            if (!value.trim()) {
+                                callback(new Error(Translate('IDCS_PROMPT_ID_OR_TOKEN_EMPTY')))
+                                return
+                            }
                         }
                         callback()
                     },
                     trigger: 'manual',
                 },
-                {
-                    validator: (rule, value, callback) => {
-                        const reg = /(^$|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+.?$)/g
-                        formData.value.address = checkRule(formData.value.address, /([\u4e00-\u9fa5]|[^a-zA-Z\d\.\-:\\/])/g)
-                        value = formData.value.address
-                        if (value && value.length > 0) {
-                            if (!value.trim().match(reg)) {
-                                callback(new Error(Translate('IDCS_PROMPT_INVALID_SERVER')))
-                                return
-                            }
-                            callback()
-                        }
-                        callback()
-                    },
-                    trigger: 'blur',
-                },
-            ],
-            deviceId: [
-                {
-                    validator: (rule, value, callback) => {
-                        if ((pageData.value.isAnothorUI || pageData.value.deviceIdShow) && formData.value.enable && !formData.value.deviceId.trim()) {
-                            if (value.length == 0) {
-                                callback(new Error(Translate('IDCS_PROMPT_ID_OR_TOKEN_EMPTY')))
-                                return
-                            }
-                            callback()
-                        }
-                        callback()
-                    },
-                    trigger: 'blur',
-                },
             ],
             token: [
                 {
-                    validator: (rule, value, callback) => {
-                        if (pageData.value.isAnothorUI && formData.value.enable && !formData.value.token.trim()) {
-                            if (value.length == 0) {
+                    validator: (_rule, value: string, callback) => {
+                        if (pageData.value.showAdditionalServerSetting && formData.value.enable && !formData.value.token.trim()) {
+                            if (!value.trim()) {
                                 callback(new Error(Translate('IDCS_PROMPT_ID_OR_TOKEN_EMPTY')))
                                 return
                             }
-                            callback()
                         }
                         callback()
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
         })
-        const tableData = ref<AlarmTypeInfo[]>([])
+
+        const tableData = ref<SelectOption<string, string>[]>([])
+
         const ALARM_SERVER_TYPE: Record<string, string> = {
             1: Translate('IDCS_MOTION_DETECT_ALARM'), // 移动侦测报警输入
             2: Translate('IDCS_SENSOR_ALARM'), // 传感器报警输入
@@ -148,6 +120,7 @@ export default defineComponent({
             130: Translate('IDCS_FACE_MATCH'), // 人脸识别
             140: Translate('IDCS_PLATE_MATCH'), // 车牌比对
         }
+
         const genAlarmList = () => {
             // 排除阵列报警类型
             const supportRaidArr = [69, 70, 77, 78]
@@ -156,93 +129,90 @@ export default defineComponent({
             // 排除车牌识别类型
             const supportPlateMatchArr = [140]
             const alarmList = []
-            const linkedIds: string[] = []
-            pageData.value.linkedAlarmList.forEach((item) => {
-                linkedIds.push(item)
-            })
+
             for (const key in ALARM_SERVER_TYPE) {
                 const k = Number(key)
                 if (supportRaidArr.includes(k) && !systemCaps.supportRaid) return
                 if (supportFaceMatchArr.includes(k) && !systemCaps.supportFaceMatch) return
                 if (supportPlateMatchArr.includes(k) && !systemCaps.supportPlateMatch) return
-                alarmList.push({ id: key, value: ALARM_SERVER_TYPE[key] })
+                alarmList.push({
+                    value: key,
+                    label: ALARM_SERVER_TYPE[key],
+                })
             }
             pageData.value.alarmList = alarmList
         }
+
         const getBasicCfg = async () => {
             const result = await queryBasicCfg()
-            const res = queryXml(result)
-            pageData.value.CustomerID = res('//content/CustomerID').text()
-            if (pageData.value.CustomerID == '6') {
+            const $ = queryXml(result)
+            const CustomerID = $('content/CustomerID').text()
+            if (CustomerID === '6') {
                 pageData.value.supportAdditionalServerSetting = true
-                pageData.value.maxDeviceIdLength = 16
             }
         }
+
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
         }
-        const getData = async () => {
-            getScheduleList().then(() => {
-                pageData.value.scheduleList.forEach((item) => {
-                    if (item.value == '') {
-                        item.value = ' '
-                    }
-                })
-            })
-            queryAlarmServerParam().then(async (resb) => {
-                const res = queryXml(resb)
-                if (res('status').text() === 'success') {
-                    formData.value.enable = res('//content/switch').text() == 'true'
-                    formData.value.deviceId = res('//content/deviceId').text()
-                    formData.value.token = res('//content/token').text()
-                    formData.value.address = res('//content/address').text()
-                    formData.value.url = res('//content/url').text()
-                    formData.value.port = Number(res('//content/port').text())
-                    formData.value.heartEnable = res('//content/heartbeat/switch').text() == 'true'
-                    formData.value.protocol = res('//content/dataFormat').text()
-                    res('//types/dataFormat/enum').forEach((ele) => {
-                        pageData.value.protocolOptions.push({ value: ele.text(), label: ele.text() })
-                    })
-                    formData.value.interval = Number(res('//content/heartbeat/interval').text())
-                    formData.value.schedule = res('//content/alarmServerSchedule').text() == '{00000000-0000-0000-0000-000000000000}' ? ' ' : res('//content/alarmServerSchedule').text()
 
-                    const alarmServerAlarmTypeValue = res('//content/alarmServerAlarmTypes').text()
-                    const alarmTypes = alarmServerAlarmTypeValue ? alarmServerAlarmTypeValue.split(',') : []
-                    alarmTypes.forEach((item: string) => {
-                        tableData.value.push({ id: item, value: ALARM_SERVER_TYPE[item] })
-                        pageData.value.linkedAlarmList.push(item)
+        const getData = async () => {
+            await getScheduleList()
+            queryAlarmServerParam().then((result) => {
+                const $ = queryXml(result)
+                if ($('status').text() === 'success') {
+                    formData.value.enable = $('content/switch').text().bool()
+                    formData.value.deviceId = $('content/deviceId').text()
+                    formData.value.token = $('content/token').text()
+                    formData.value.address = $('content/address').text()
+                    formData.value.url = $('content/url').text()
+                    formData.value.port = $('content/port').text().num()
+                    formData.value.heartEnable = $('content/heartbeat/switch').text().bool()
+                    formData.value.protocol = $('content/dataFormat').text()
+                    pageData.value.protocolOptions = $('types/dataFormat/enum').map((ele) => {
+                        return {
+                            value: ele.text(),
+                            label: ele.text(),
+                        }
                     })
+                    formData.value.interval = $('content/heartbeat/interval').text().num()
+                    formData.value.schedule = $('content/alarmServerSchedule').text()
+
+                    pageData.value.linkedAlarmList = $('content/alarmServerAlarmTypes').text().array()
+                    tableData.value = pageData.value.linkedAlarmList.map((item) => {
+                        return {
+                            value: item,
+                            label: ALARM_SERVER_TYPE[item],
+                        }
+                    })
+
                     genAlarmList()
 
                     setFormByProtocol()
                 }
             })
         }
+
         const setFormByProtocol = () => {
-            pageData.value.isProtocolXML = formData.value.protocol == 'XML'
-            pageData.value.isArisanProtocol = formData.value.protocol == 'ARISAN'
-            pageData.value.isJSONProtocol = formData.value.protocol == 'JSON' || Trim(formData.value.protocol, 'g') == Trim('VIDEO GUARD', 'g')
+            pageData.value.isProtocolXML = formData.value.protocol === 'XML'
+            pageData.value.isArisanProtocol = formData.value.protocol === 'ARISAN'
+            pageData.value.isJSONProtocol = formData.value.protocol === 'JSON' || trimAllSpace(formData.value.protocol) === trimAllSpace('VIDEO GUARD')
             pageData.value.showAlarmTypeCfg = pageData.value.isProtocolXML ? true : false
             pageData.value.urlDisabled = pageData.value.isProtocolXML ? false : true
             pageData.value.heartEnableDisabled = pageData.value.isArisanProtocol ? true : false
             if (pageData.value.heartEnableDisabled === true) {
                 formData.value.heartEnable = false
             }
-            pageData.value.isAnothorUI = pageData.value.supportAdditionalServerSetting == true && pageData.value.isArisanProtocol ? true : false
+            pageData.value.showAdditionalServerSetting = pageData.value.supportAdditionalServerSetting === true && pageData.value.isArisanProtocol
             pageData.value.deviceIdShow = pageData.value.isJSONProtocol ? true : false
         }
-        const setAlarmTypes = () => {
-            if (pageData.value.linkedAlarmList.length === 0) {
-                tableData.value = []
-                pageData.value.showAlarmTransfer = false
-            } else {
-                tableData.value = []
-                pageData.value.linkedAlarmList.forEach((item) => {
-                    tableData.value.push({ id: item, value: ALARM_SERVER_TYPE[item] })
-                    pageData.value.showAlarmTransfer = false
-                })
-            }
+
+        const setAlarmTypes = (e: SelectOption<string, string>[]) => {
+            tableData.value = e
+            pageData.value.showAlarmTransfer = false
+            pageData.value.linkedAlarmList = e.map((item) => item.value)
         }
+
         const checkRule = (value: string, reg: RegExp) => {
             if (reg.test(value)) {
                 return value.replace(reg, '')
@@ -250,84 +220,90 @@ export default defineComponent({
                 return value
             }
         }
-        const Trim = (str: string, is_global: string) => {
-            if (!str) return ''
-            let result
-            result = str.replace(/(^\s+)|(\s+$)/g, '')
-            if (is_global.toLowerCase() == 'g') {
-                result = result.replace(/\s/g, '')
-            }
-            return result
+
+        const checkAddress = (value: string) => {
+            const reg1 = /([\u4e00-\u9fa5]|[^a-zA-Z\d\.\-:\\/])/g
+            const address = checkRule(value, reg1)
+            formData.value.address = address
         }
+
+        const checkUrl = (value: string) => {
+            const reg = /([\u4e00-\u9fa5]|[^a-zA-Z\d\.\-:\\/])/g
+            const url = checkRule(value, reg)
+            formData.value.url = url
+        }
+
         const getSavaData = (url: string) => {
-            const schedule = formData.value.schedule == ' ' ? '{00000000-0000-0000-0000-000000000000}' : formData.value.schedule
-            let scheduleLabel = ''
-            pageData.value.scheduleList.forEach((item) => {
-                if (item.value == schedule) {
-                    scheduleLabel = item.label
-                }
-            })
-            let sendXml = rawXml`<content>
-                                <address>${formData.value.address}</address>
-                                <url>${formData.value.url}</url>
-                                <switch>${formData.value.enable.toString()}</switch>
-                                <dataFormat>${formData.value.protocol}</dataFormat>
-                                <port>${formData.value.port.toString()}</port>
-                                <alarmServerSchedule>${scheduleLabel}</alarmServerSchedule>`
-            if (pageData.value.isProtocolXML) {
-                sendXml += rawXml`<alarmServerAlarmTypes>${pageData.value.linkedAlarmList.join(',')} </alarmServerAlarmTypes>`
-            }
-            if (url == 'editAlarmServerParam') {
-                sendXml += rawXml`<heartbeat>
-                                <switch>${formData.value.heartEnable.toString()}</switch>
-                                <interval>${formData.value.interval.toString()}</interval>
-                            </heartbeat>`
-            }
-            if (pageData.value.supportAdditionalServerSetting) {
-                sendXml += rawXml`<deviceId><![CDATA[${formData.value.deviceId}]]></deviceId>`
-            }
-            sendXml += rawXml`</content>`
+            const scheduleLabel = formData.value.schedule === DEFAULT_EMPTY_ID ? '' : pageData.value.scheduleList.find((item) => item.value === formData.value.schedule)!.label
+            const sendXml = rawXml`
+                <content>
+                    <address>${formData.value.address}</address>
+                    <url>${formData.value.url}</url>
+                    <switch>${formData.value.enable}</switch>
+                    <dataFormat>${formData.value.protocol}</dataFormat>
+                    <port>${formData.value.port}</port>
+                    <alarmServerSchedule>${scheduleLabel}</alarmServerSchedule>
+                    ${pageData.value.isProtocolXML ? `<alarmServerAlarmTypes>${pageData.value.linkedAlarmList.join(',')} </alarmServerAlarmTypes>` : ''}
+                    ${
+                        url === 'editAlarmServerParam'
+                            ? rawXml`
+                                <heartbeat>
+                                    <switch>${formData.value.heartEnable}</switch>
+                                    <interval>${formData.value.interval}</interval>
+                                </heartbeat>
+                                `
+                            : ''
+                    }
+                    ${
+                        pageData.value.supportAdditionalServerSetting
+                            ? rawXml`
+                                <deviceId>${wrapCDATA(formData.value.deviceId)}</deviceId>
+                                <token>${wrapCDATA(formData.value.token)}</token>
+                            `
+                            : `<deviceId>${wrapCDATA(formData.value.deviceId)}</deviceId>`
+                    }
+                </content>
+            `
+
             return sendXml
         }
+
         const setData = (url: string) => {
             if (!formRef.value) return
-            if (url == 'testAlarmServerParam') {
+            if (url === 'testAlarmServerParam') {
                 pageData.value.isTestAlarmServer = true
+            } else {
+                pageData.value.isTestAlarmServer = false
             }
             formRef.value.validate((valid) => {
                 if (valid) {
-                    if (url == 'testAlarmServerParam') {
+                    if (url === 'testAlarmServerParam') {
                         openLoading()
-                        testAlarmServerParam(getSavaData(url)).then((resb) => {
+                        testAlarmServerParam(getSavaData(url)).then((result) => {
                             closeLoading()
-                            const res = queryXml(resb)
-                            if (res('status').text() == 'success') {
-                                openMessageTipBox({
+                            const $ = queryXml(result)
+                            if ($('status').text() === 'success') {
+                                openMessageBox({
                                     type: 'success',
                                     message: Translate('IDCS_TEST_ALARM_SERVER_SUCCESS'),
                                 })
                             } else {
-                                openMessageTipBox({
-                                    type: 'info',
-                                    message: Translate('IDCS_TEST_ALARM_SERVER_FAILED'),
-                                })
+                                openMessageBox(Translate('IDCS_TEST_ALARM_SERVER_FAILED'))
                             }
                         })
-                        pageData.value.isTestAlarmServer = false
-                    } else if (url == 'editAlarmServerParam') {
-                        pageData.value.isTestAlarmServer = false
+                    } else if (url === 'editAlarmServerParam') {
                         openLoading()
-                        editAlarmServerParam(getSavaData(url)).then((resb) => {
+                        editAlarmServerParam(getSavaData(url)).then((result) => {
                             closeLoading()
-                            const res = queryXml(resb)
-                            if (res('status').text() == 'success') {
-                                openMessageTipBox({
+                            const $ = queryXml(result)
+                            if ($('status').text() === 'success') {
+                                openMessageBox({
                                     type: 'success',
                                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                                 })
                             } else {
                                 let msg = ''
-                                const errorCode = Number(res('errorCode').text())
+                                const errorCode = $('errorCode').text().num()
                                 switch (errorCode) {
                                     case ErrorCode.USER_ERROR_FAIL:
                                         msg = Translate('IDCS_LOGIN_OVERTIME')
@@ -338,30 +314,37 @@ export default defineComponent({
                                     case ErrorCode.USER_ERROR_INVALID_PARAM:
                                         msg = Translate('IDCS_USER_ERROR_INVALID_PARAM')
                                 }
-                                openMessageTipBox({
-                                    type: 'info',
-                                    message: Translate('IDCS_SAVE_DATA_FAIL') + msg,
-                                })
+                                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + msg)
                             }
                         })
                     }
                 }
             })
         }
-        const testAlarmServer = () => {
+
+        const testData = () => {
             setData('testAlarmServerParam')
         }
-        const applyAlarmSever = () => {
+
+        const applyData = () => {
             setData('editAlarmServerParam')
         }
-        const handleProtocolChange = () => {
+
+        const changeProtocol = () => {
             setFormByProtocol()
         }
+
+        const closeSchedulePop = async () => {
+            pageData.value.isSchedulePop = false
+            await getScheduleList()
+            formData.value.schedule = getScheduleId(pageData.value.scheduleList, formData.value.schedule)
+        }
+
         onMounted(async () => {
-            pageData.value.scheduleList = await buildScheduleList()
             await getBasicCfg()
-            await getData()
+            getData()
         })
+
         watch(
             () => formData.value.enable,
             (newValue) => {
@@ -371,6 +354,7 @@ export default defineComponent({
                 }
             },
         )
+
         return {
             formData,
             pageData,
@@ -378,10 +362,12 @@ export default defineComponent({
             rules,
             tableData,
             setAlarmTypes,
-            testAlarmServer,
-            applyAlarmSever,
-            handleProtocolChange,
-            ScheduleManagPop,
+            testData,
+            applyData,
+            changeProtocol,
+            closeSchedulePop,
+            checkAddress,
+            checkUrl,
         }
     },
 })

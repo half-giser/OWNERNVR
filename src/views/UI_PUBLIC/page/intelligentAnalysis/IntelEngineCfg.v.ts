@@ -2,12 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-29 09:41:34
  * @Description: 智能分析-引擎配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 14:40:17
  */
-import { EngineConfigForm, type EngineConfigList } from '@/types/apiType/intelligentAnalysis'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     components: {
@@ -15,8 +11,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         // 事件与文本的映射
         const EVENT_TYPE_MAPPING: Record<string, string> = {
@@ -37,11 +31,11 @@ export default defineComponent({
             isCheckAuthPop: false,
         })
 
-        const formData = ref(new EngineConfigForm())
+        const formData = ref(new IntelEngineConfigForm())
         // 用来记录勾选框的值是否被更改，更改了才需要下发协议
-        const cloneFormData = new EngineConfigForm()
+        const cloneFormData = new IntelEngineConfigForm()
 
-        const tableData = ref<EngineConfigList[]>([])
+        const tableData = ref<IntelEngineConfigList[]>([])
 
         /**
          * @description 获取工作模式
@@ -50,10 +44,10 @@ export default defineComponent({
             const result = await querySystemWorkMode()
             const $ = queryXml(result)
 
-            formData.value.supportAI = $('//content/supportAI').text().toBoolean()
+            formData.value.supportAI = $('content/supportAI').text().bool()
             cloneFormData.supportAI = formData.value.supportAI
-            pageData.value.is3536Amode = !$('//content/openSubOutput').length
-            const openSubOutput = $('//content/openSubOutput').text().toBoolean()
+            pageData.value.is3536Amode = !$('content/openSubOutput').length
+            const openSubOutput = $('content/openSubOutput').text().bool()
             // 3536A机型一直是可勾选的，所以需要排除在外
             pageData.value.disabled = formData.value.supportAI && !openSubOutput && !pageData.value.is3536Amode
             // 3536A机型开启AI，则需要查询明细
@@ -67,11 +61,11 @@ export default defineComponent({
             const result = await queryAIResourceDetail('')
             const $ = queryXml(result)
             tableData.value = []
-            $('//content/chl/item').map((item) => {
+            $('content/chl/item').map((item) => {
                 const $item = queryXml(item.element)
                 const name = $item('name').text()
                 $item('resource/item').forEach((res) => {
-                    const eventType = res.attr('eventType')!.split(',')
+                    const eventType = res.attr('eventType').array()
                     tableData.value.push({
                         name,
                         eventType: eventType.map((event) => EVENT_TYPE_MAPPING[event]).join('+'),
@@ -87,17 +81,17 @@ export default defineComponent({
             if (formData.value.supportAI === cloneFormData.supportAI) {
                 return
             }
+
             if (pageData.value.disabled) {
                 return
             }
 
             let message = Translate('IDCS_OPEN_AI_TIP')
             if (pageData.value.is3536Amode) {
-                // TODO: IDCS_OPEN_AI_REBOOT_TIP 和 IDCS_CLOSE_AI_REBOOT_TIP 的文本不存在
                 message = formData.value.supportAI ? Translate('IDCS_OPEN_AI_REBOOT_TIP') : Translate('IDCS_CLOSE_AI_REBOOT_TIP')
             }
 
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message,
             }).then(() => {
@@ -113,8 +107,8 @@ export default defineComponent({
             openLoading()
             const sendXml = rawXml`
                 <content>
-                    <supportAI>${formData.value.supportAI.toString()}</supportAI>
-                    ${ternary(!pageData.value.is3536Amode, `<openSubOutput>false</openSubOutput>`)}
+                    <supportAI>${formData.value.supportAI}</supportAI>
+                    ${!pageData.value.is3536Amode ? '<openSubOutput>false</openSubOutput>' : ''}
                 </content>
                 <auth>
                     <userName>${e.userName}</userName>
@@ -126,10 +120,10 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 pageData.value.isCheckAuthPop = false
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:
@@ -145,14 +139,11 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_USER_OR_PASSWORD_ERROR')
                         break
                 }
-                openMessageTipBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 
-        onMounted(async () => {
+        onActivated(async () => {
             await getSystemWorkMode()
             if (pageData.value.isDetail) {
                 getAIResourceDetail()
@@ -164,7 +155,6 @@ export default defineComponent({
             formData,
             setData,
             confirmSetData,
-            BaseCheckAuthPop,
         }
     },
 })

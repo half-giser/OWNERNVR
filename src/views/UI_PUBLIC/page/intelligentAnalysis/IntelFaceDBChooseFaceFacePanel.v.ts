@@ -2,11 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-12 11:56:52
  * @Description: 智能分析 - 选择人脸 - 从人脸库选择
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 11:28:29
  */
-import { cloneDeep } from 'lodash-es'
-import { IntelFaceDBFaceInfo, type IntelFaceDBGroupList } from '@/types/apiType/intelligentAnalysis'
 import IntelBaseFaceItem from './IntelBaseFaceItem.vue'
 
 export default defineComponent({
@@ -39,12 +35,10 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
 
         // 缓存人脸Base64图片数据 节约请求
-        const cacheFaceMap: Record<string, IntelFaceDBFaceInfo> = {}
+        const cacheFaceMap = new Map<string, IntelFaceDBFaceInfo>()
 
         const pageData = ref({
             // 人脸数据库选项
@@ -84,14 +78,14 @@ export default defineComponent({
 
             closeLoading()
 
-            pageData.value.faceGroupList = $('//content/item').map((item) => {
+            pageData.value.faceGroupList = $('content/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
-                    id: item.attr('id')!,
+                    id: item.attr('id'),
                     name: $item('name').text(),
                     property: $item('property').text(),
                     groupId: $item('groupId').text(),
-                    enableAlarmSwitch: $item('enableAlarmSwitch').text().toBoolean(),
+                    enableAlarmSwitch: $item('enableAlarmSwitch').text().bool(),
                     count: 0,
                 }
             })
@@ -138,23 +132,37 @@ export default defineComponent({
         const changePage = async (index: number) => {
             formData.value.pageIndex = index
             filterListData.value = listData.value.slice((formData.value.pageIndex - 1) * formData.value.pageSize, formData.value.pageIndex * formData.value.pageSize)
-            for (let i = 0; i < filterListData.value.length; i++) {
-                const item = filterListData.value[i]
+            filterListData.value.forEach(async (item) => {
                 const id = item.id
-                if (!cacheFaceMap[id]) {
+
+                if (!cacheFaceMap.has(id)) {
                     const info = await getFaceInfo(id)
-                    cacheFaceMap[id] = info
-                    for (let j = 1; j <= info.faceImgCount; j++) {
-                        const pic = await getFaceImg(id, j)
-                        cacheFaceMap[id].pic.push(pic)
+                    if (info) {
+                        for (let j = 1; j <= info.faceImgCount; j++) {
+                            const pic = await getFaceImg(id, j)
+                            info.pic.push(pic)
+                        }
+                        cacheFaceMap.set(id, info)
                     }
                 }
-                if (index === formData.value.pageIndex) {
-                    filterListData.value[i] = cloneDeep(cacheFaceMap[id])
-                } else {
-                    break
+
+                if (cacheFaceMap.has(id) && index === formData.value.pageIndex) {
+                    const pic = cacheFaceMap.get(id)!
+                    item.id = pic.id
+                    item.number = pic.number
+                    item.name = pic.name
+                    item.sex = pic.sex
+                    item.birthday = pic.birthday
+                    item.nativePlace = pic.nativePlace
+                    item.certificateType = pic.certificateType
+                    item.certificateNum = pic.certificateNum
+                    item.mobile = pic.mobile
+                    item.note = pic.note
+                    item.faceImgCount = pic.faceImgCount
+                    item.pic = pic.pic
+                    item.groupId = pic.groupId
                 }
-            }
+            })
         }
 
         /**
@@ -177,21 +185,24 @@ export default defineComponent({
                     <faceFeatureGroups type="list">
                         ${formData.value.faceGroup.map((item) => `<item id="${item.groupId}"></item>`).join('')}
                     </faceFeatureGroups>
-                    ${(ternary(!!formData.value.name), `<name>${formData.value.name}</name>`)}
+                    ${formData.value.name ? `<name>${formData.value.name}</name>` : ''}
                 </condition>
             `
-            const result = await queryFacePersonnalInfoList(sendXml)
-            const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                listData.value = $('//content/item').map((item) => {
-                    const $item = queryXml(item.element)
-                    const info = new IntelFaceDBFaceInfo()
-                    info.id = item.attr('id')!
-                    info.name = $item('name').text()
-                    return info
-                })
-            }
-            if (formData.value.faceGroup.length === 0) {
+            try {
+                const result = await queryFacePersonnalInfoList(sendXml)
+                const $ = queryXml(result)
+                if ($('status').text() === 'success') {
+                    listData.value = $('content/item').map((item) => {
+                        const $item = queryXml(item.element)
+                        const info = new IntelFaceDBFaceInfo()
+                        info.id = item.attr('id')
+                        info.name = $item('name').text()
+                        return info
+                    })
+                }
+            } catch {}
+
+            if (!formData.value.faceGroup.length) {
                 listData.value = []
             }
             closeLoading()
@@ -210,25 +221,30 @@ export default defineComponent({
                     <id>${id}</id>
                 </condition>
             `
-            const result = await queryFacePersonnalInfoList(sendXml)
-            const $ = queryXml(result)
 
-            const item = $('//content/item')[0]
-            const $item = queryXml(item.element)
-            return {
-                id: item.attr('id')!,
-                number: $item('number').text(),
-                name: $item('name').text(),
-                sex: $item('sex').text(),
-                birthday: formatDate($item('birthday').text(), dateTime.dateFormat, 'YYYY-MM-DD'),
-                nativePlace: $item('nativePlace').text(),
-                certificateType: $item('certificateType').text(),
-                certificateNum: $item('certificateNum').text(),
-                mobile: $item('mobile').text(),
-                faceImgCount: Number($item('faceImgCount').text()),
-                note: $item('remark').text(),
-                pic: [],
-                groupId: $item('groups/item/groupId').text(),
+            try {
+                const result = await queryFacePersonnalInfoList(sendXml)
+                const $ = queryXml(result)
+
+                const item = $('content/item')[0]
+                const $item = queryXml(item.element)
+                return {
+                    id: item.attr('id'),
+                    number: $item('number').text(),
+                    name: $item('name').text(),
+                    sex: $item('sex').text(),
+                    birthday: formatGregoryDate($item('birthday').text(), dateTime.dateFormat, DEFAULT_YMD_FORMAT),
+                    nativePlace: $item('nativePlace').text(),
+                    certificateType: $item('certificateType').text(),
+                    certificateNum: $item('certificateNum').text(),
+                    mobile: $item('mobile').text(),
+                    faceImgCount: $item('faceImgCount').text().num(),
+                    note: $item('note').text(),
+                    pic: [] as string[],
+                    groupId: $item('groups/item/groupId').text(),
+                }
+            } catch {
+                return null
             }
         }
 
@@ -242,15 +258,19 @@ export default defineComponent({
             const sendXml = rawXml`
                 <condition>
                     <id>${id}</id>
-                    <index>${index.toString()}</index>
+                    <index>${index}</index>
                 </condition>
             `
-            const result = await requestFacePersonnalInfoImage(sendXml)
-            const $ = queryXml(result)
+            try {
+                const result = await requestFacePersonnalInfoImage(sendXml)
+                const $ = queryXml(result)
 
-            const pic = $('//content').text()
-            if (pic) return 'data:image/png;base64,' + pic
-            return ''
+                const pic = $('content').text()
+                if (pic) return wrapBase64Img(pic)
+                return ''
+            } catch {
+                return ''
+            }
         }
 
         /**
@@ -258,7 +278,7 @@ export default defineComponent({
          * @param {IntelFaceDBGroupList} item
          * @param {number} index
          */
-        const getGroupFaceFeatureCount = async (item: IntelFaceDBGroupList, index: number) => {
+        const getGroupFaceFeatureCount = async (item: IntelFaceDBGroupList) => {
             const sendXml = rawXml`
                 <pageIndex>1</pageIndex>
                 <pageSize>1</pageSize>
@@ -270,8 +290,8 @@ export default defineComponent({
             `
             const result = await queryFacePersonnalInfoList(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                pageData.value.faceGroupList[index].count = Number($('//content').attr('total')!)
+            if ($('status').text() === 'success') {
+                item.count = $('content').attr('total').num()
             }
         }
 
@@ -288,10 +308,7 @@ export default defineComponent({
                     formData.value.faceIndex[0] = index
                 } else {
                     if (formData.value.faceIndex.length >= 5) {
-                        openMessageTipBox({
-                            type: 'info',
-                            message: Translate('IDCS_SELECT_FACE_UPTO_MAX').formatForLang(5),
-                        })
+                        openMessageBox(Translate('IDCS_SELECT_FACE_UPTO_MAX').formatForLang(5))
                         return
                     }
                     formData.value.faceIndex.push(index)
@@ -302,7 +319,7 @@ export default defineComponent({
                 'change',
                 formData.value.faceIndex.map((index) => {
                     const item = listData.value[index]
-                    return cacheFaceMap[item.id] || item
+                    return cacheFaceMap.get(item.id) || item
                 }),
             )
         }
@@ -315,12 +332,20 @@ export default defineComponent({
             await getGroupList()
             for (let i = 0; i < pageData.value.faceGroupList.length; i++) {
                 const item = pageData.value.faceGroupList[i]
-                await getGroupFaceFeatureCount(item, i)
+                await getGroupFaceFeatureCount(item)
             }
             formData.value.faceGroup = cloneDeep(pageData.value.faceGroupList)
             ctx.emit('changeGroup', formData.value.faceGroup)
             searchFace()
         }
+
+        onBeforeUnmount(() => {
+            cacheFaceMap.clear()
+        })
+
+        onBeforeRouteLeave(() => {
+            cacheFaceMap.clear()
+        })
 
         watch(
             () => prop.visible,

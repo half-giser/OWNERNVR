@@ -3,19 +3,24 @@
  * @Date: 2024-04-16 13:47:54
  * @Description:
  */
-import path from 'node:path'
-import { defineConfig, loadEnv, type PluginOption } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
+import { type AcceptedPlugin } from 'postcss'
 import Vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import { envDir, sourceDir, manualChunks, getSourceDir } from './scripts/build'
-// import ElementPlus from 'unplugin-element-plus/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import GenerateSprite from './scripts/generateSprite'
-import MinifyXmlTemplateStrings from './scripts/minifyXmlTemplateStrings'
-import PostCssVariableCompress from 'postcss-variable-compress'
-import { visualizer } from 'rollup-plugin-visualizer'
+import { transpileVueTemplatePropTypes, minifyXmlTemplateStrings, postMinifyCodes, postRemoveCSSLink } from './scripts/transformers'
+import { cleanUpTempFiles } from './scripts/cleanTempFiles'
+import BasicSSL from '@vitejs/plugin-basic-ssl'
+// import PostCssVariableCompress from 'postcss-variable-compress'
+import PostCssPresetEnv from 'postcss-preset-env'
+import CssNano from 'cssnano'
+import { visualizer as Visualizer } from 'rollup-plugin-visualizer'
+import optimizeDepsIncludes from './scripts/optimizeDeps'
+import { STATS_FILE_PATH, TYPE_AUTO_IMPORT_FILE_PATH, TYPE_COMPONENTS_FILE_PATH } from './scripts/filePaths'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -26,16 +31,7 @@ export default defineConfig(({ mode }) => {
     console.log(env.VITE_UI_TYPE)
 
     const { VITE_APP_IP, VITE_UI_TYPE } = env
-
-    const devPlugin: PluginOption[] = [
-        visualizer({
-            open: false,
-            gzipSize: true,
-            brotliSize: true,
-        }),
-    ]
-
-    const buildPlugin: PluginOption[] = []
+    const VITE_PACKAGE_VER = Math.ceil(Date.now() / 1000 / 60).toString(36)
 
     return {
         // envDir,
@@ -44,20 +40,17 @@ export default defineConfig(({ mode }) => {
             'import.meta.env.VITE_UI_TYPE': JSON.stringify(env.VITE_UI_TYPE),
             'import.meta.env.VITE_BASE_URL': JSON.stringify(env.VITE_BASE_URL),
             'import.meta.env.VITE_APP_IP': JSON.stringify(env.VITE_APP_IP || ''),
-            'import.meta.env.VITE_APP_NAME': JSON.stringify(env.VITE_APP_NAME),
-            'import.meta.env.VITE_APP_TITLE': JSON.stringify(env.VITE_APP_TITLE),
-            'import.meta.env.VITE_APP_DESC': JSON.stringify(env.VITE_APP_DESC),
-            'import.meta.env.VITE_APP_KEYWORDS': JSON.stringify(env.VITE_APP_KEYWORDS),
-            'import.meta.env.VITE_APP_TYPE': JSON.stringify(env.VITE_APP_TYPE),
-            'import.meta.env.VITE_APP_COPYRIGHT': JSON.stringify(env.VITE_APP_COPYRIGHT),
+            'import.meta.env.VITE_PACKAGE_VER': JSON.stringify(VITE_PACKAGE_VER),
+            'import.meta.env.VITE_P2P_URL': JSON.stringify(env.VITE_P2P_URL || ''),
         },
-        base: env.VITE_DEPLOY_BASE_URL,
+        base: './',
         server: {
             port: 9000,
             proxy: {
                 '/devapi': {
-                    target: `http://${VITE_APP_IP}/`,
+                    target: `${env.VITE_APP_HTTPS === 'true' ? 'https' : 'http'}://${VITE_APP_IP}/`,
                     changeOrigin: true,
+                    ws: true,
                     rewrite: (path) => path.replace(/^\/devapi/, ''),
                     configure: (proxy) => {
                         proxy.on('proxyReq', (proxyReq, req) => {
@@ -70,13 +63,15 @@ export default defineConfig(({ mode }) => {
                             }
                         })
                     },
+                    secure: false,
                 },
             },
+            https: env.VITE_APP_HTTPS === 'true' ? {} : false,
         },
         resolve: {
             alias: {
                 '@': sourceDir,
-                '@public': getSourceDir(`src/views/UI_PUBLIC`),
+                '@public': getSourceDir('src/views/UI_PUBLIC'),
                 '@ui': getSourceDir(`src/views/${VITE_UI_TYPE}`),
             },
         },
@@ -86,31 +81,46 @@ export default defineConfig(({ mode }) => {
                     additionalData: `
                         $GLOBAL_UI_TYPE: ${VITE_UI_TYPE};
                     `,
+                    api: 'modern-compiler',
                 },
             },
             postcss: {
-                plugins: process.env.NODE_ENV === 'development' ? [] : [PostCssVariableCompress([(name: string) => !name.startsWith('--el')])],
+                plugins: ([] as AcceptedPlugin[]).concat(
+                    process.env.NODE_ENV === 'development'
+                        ? []
+                        : [
+                              // 压缩的CSS变量只能在CSS/SCSS中使用，不能在template、typescript等样式外的文件中引用
+                              // PostCssVariableCompress([(name: string) => !name.startsWith('--el')]),
+                              CssNano({
+                                  preset: 'default',
+                              }),
+                              PostCssPresetEnv({
+                                  // 此处配置为:has的最低支持版本
+                                  browsers: ['Chrome >= 105', 'Firefox >= 121', 'Edge >= 105', 'Safari >= 15.4'],
+                              }),
+                          ],
+                ),
             },
         },
         plugins: [
+            cleanUpTempFiles(),
             GenerateSprite({
                 src: `sprite/${VITE_UI_TYPE}-sprite/sprite/*.png`,
-                dist: path.resolve(__dirname, 'src/components/sprite/'),
+                minify: process.env.NODE_ENV !== 'development',
+                additionalData: `$sprite-version:'${VITE_PACKAGE_VER}';$sprite-p2p-url:'${env.VITE_P2P_URL || ''}';`,
             }),
-            MinifyXmlTemplateStrings(),
-            Vue(),
-            // 全局导入将会删除
-            // ElementPlus({}),
+            minifyXmlTemplateStrings(),
+            transpileVueTemplatePropTypes(),
+            Vue({
+                features: {
+                    optionsAPI: false,
+                },
+            }),
             /**
              * 自动导入 API ，不用每次都 import
              */
             AutoImport({
                 imports: [
-                    // {
-                    //     from: 'vue',
-                    //     imports: ['App'],
-                    //     type: true,
-                    // },
                     'vue',
                     'vue-router',
                     'pinia',
@@ -136,31 +146,49 @@ export default defineConfig(({ mode }) => {
                 ],
                 //按需自动导入ElementPlus
                 resolvers: [ElementPlusResolver()],
-                dts: 'src/types/declaration-files/auto-import.d.ts',
-                eslintrc: {
-                    enabled: true,
-                    filepath: './.eslintrc-auto-import.json',
-                    globalsPropValue: true,
-                },
+                dts: TYPE_AUTO_IMPORT_FILE_PATH,
+                // eslintrc: {
+                //     enabled: true,
+                //     filepath: './.eslintrc-auto-import.json',
+                //     globalsPropValue: true,
+                // },
                 defaultExportByFilename: false,
+                dirsScanOptions: {
+                    types: false, // Enable auto import the types under the directories
+                },
                 dirs: [
                     // 添加需要自动导入的模块
-                    // './src/views/UI_PUBLIC/page/**/*.vue',
                     './src/hooks',
                     './src/api',
                     './src/stores',
                     './src/utils',
                     './src/utils/ocx',
-                    './src/utils/websocket',
-                    './src/utils/canvas',
+                    './src/utils/p2p',
+                    {
+                        glob: './src/utils/websocket',
+                        types: true,
+                    },
+                    {
+                        glob: './src/utils/canvas',
+                        types: true,
+                    },
+                    {
+                        glob: './src/utils/wasmPlayer',
+                        types: true,
+                    },
                     './src/components/*.vue',
                     './src/components/**/*.vue',
+                    {
+                        glob: './src/types/apiType',
+                        types: true,
+                    },
                 ],
             }),
             Components({
                 resolvers: [ElementPlusResolver()],
-                dts: 'src/types/declaration-files/components.d.ts',
-                dirs: ['./src/components/'],
+                dts: TYPE_COMPONENTS_FILE_PATH,
+                globs: ['**/Base*.vue', '**/{Intel,Alarm,Record}Base*.vue', '**/*Pop.vue', '**/*Item.vue', '**/!(Function)Panel.vue'],
+                // dirs: ['./src/components/'],
                 deep: true,
             }),
             createHtmlPlugin({
@@ -173,31 +201,65 @@ export default defineConfig(({ mode }) => {
                     },
                 },
             }),
-        ].concat(split[0] === 'dev' ? devPlugin : buildPlugin),
-        // components: [
-        // ],
+        ].concat(
+            split[0] === 'dev'
+                ? [
+                      Visualizer({
+                          open: false,
+                          gzipSize: true,
+                          brotliSize: true,
+                          filename: STATS_FILE_PATH,
+                      }),
+                  ].concat(
+                      env.VITE_APP_HTTPS === 'true'
+                          ? [
+                                BasicSSL({
+                                    /** name of certification */
+                                    name: 'test',
+                                    /** custom trust domains */
+                                    domains: ['*.custom.com'],
+                                    /** custom certification directory */
+                                    certDir: './.temp',
+                                }),
+                            ]
+                          : [],
+                  )
+                : [
+                      postMinifyCodes({
+                          src: `dist/${VITE_UI_TYPE}/**/*.js`,
+                          ui: VITE_UI_TYPE,
+                      }),
+                      postRemoveCSSLink({
+                          src: `dist/${VITE_UI_TYPE}/index.html`,
+                      }),
+                  ],
+        ),
         build: {
             outDir: `dist/${env.VITE_UI_TYPE}`,
             assetsInlineLimit: 0,
             cssCodeSplit: false,
             minify: 'esbuild',
-            target: 'esnext',
+            // target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14']
+            target: ['chrome105', 'edge105', 'firefox121', 'safari15.4'],
             // 设置 source map 选项
             sourcemap: false,
             chunkSizeWarningLimit: 1024,
             rollupOptions: {
                 output: {
-                    chunkFileNames: '[hash].js',
-                    entryFileNames: '[hash].js',
-                    assetFileNames: '[name].[ext]',
+                    chunkFileNames: split[0] === 'dev' ? '[name].[hash].js' : '[hash].js',
+                    entryFileNames: split[0] === 'dev' ? '[name].[hash].js' : '[hash].js',
+                    assetFileNames: () => {
+                        // if (assetInfo.names && assetInfo.names.some((item) => item.endsWith('.css'))) {
+                        //     return '[hash].[ext]'
+                        // }
+                        return '[name].[ext]'
+                    },
                     manualChunks,
                 },
             },
         },
         optimizeDeps: {
-            esbuildOptions: {
-                plugins: [],
-            },
+            include: optimizeDepsIncludes,
         },
     }
 })

@@ -2,10 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-29 16:10:18
  * @Description: 现场预览-目标检测视图-渲染单个抓拍元素组件
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:13:10
  */
-import { type WebsocketSnapOnSuccessSnap } from '@/utils/websocket/websocketSnap'
 
 export default defineComponent({
     props: {
@@ -74,7 +71,7 @@ export default defineComponent({
          */
         const displayBase64Img = (src?: null | string) => {
             if (!src) return ''
-            return 'data:image/png;base64,' + src
+            return wrapBase64Img(src)
         }
 
         /**
@@ -92,18 +89,21 @@ export default defineComponent({
                 const strangeMsg = prop.data.info.text_tip || Translate('IDCS_GROUP_STRANGER')
                 return strangeMsg
             }
+
             if (prop.data.type === 'vehicle_plate') {
                 const plateNum = prop.data.info.plate || '--'
                 // 车牌比对成功
                 if (prop.data.info.compare_status === 1) {
                     return `(${plateNum})`
                 }
+
                 // 陌生车牌
                 if (prop.data.info.compare_status === 3) {
                     return `(${plateNum})`
                 }
                 return plateNum
             }
+
             if (prop.data.type === 'boundary') {
                 const eventType = EVENT_TYPE_MAPPING[prop.data.info.event_type]
                 const targetType = TARGET_TYPE_MAPPING[prop.data.info.target_type]
@@ -121,6 +121,7 @@ export default defineComponent({
                 if (prop.data.info.compare_status === 1) {
                     return plateTip || plateGroup
                 }
+
                 if (prop.data.info.compare_status === 3) {
                     return plateTip || plateRecognise
                 }
@@ -133,6 +134,7 @@ export default defineComponent({
             if (prop.data.type === 'face_detect' && prop.data.info.compare_status === 4) {
                 return true
             }
+
             if (prop.data.type === 'vehicle_plate' && prop.data.info.compare_status === 3) {
                 return true
             }
@@ -153,6 +155,15 @@ export default defineComponent({
             )
         })
 
+        const loadImg = (e: Event) => {
+            const img = e.currentTarget as HTMLImageElement
+            if (img.naturalWidth > img.naturalHeight) {
+                img.style.objectFit = 'contain'
+            } else {
+                img.style.objectFit = 'fill'
+            }
+        }
+
         return {
             displayBase64Img,
             displayTime,
@@ -162,6 +173,7 @@ export default defineComponent({
             msgBorder,
             msgOpacity,
             getTextDir,
+            loadImg,
         }
     },
 })

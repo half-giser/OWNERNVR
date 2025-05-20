@@ -8,153 +8,140 @@
         <div class="base-table-box">
             <el-table
                 ref="tableRef"
-                border
-                stripe
+                v-title
                 :data="tableData"
-                table-layout="fixed"
                 show-overflow-tooltip
-                empty-text=" "
                 highlight-current-row
             >
                 <el-table-column
                     prop="name"
                     :label="Translate('IDCS_CHANNEL')"
-                    min-width="300px"
+                    min-width="300"
                 />
                 <el-table-column
                     v-if="switchableIpChlMaxCount !== 0"
-                    prop="analogIp"
                     :label="Translate('IDCS_ANALOG_IP')"
-                    min-width="220px"
+                    min-width="220"
                 >
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_ANALOG_IP') }}
                             </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
-                                    <el-dropdown-item @click="handleAnalogIpChangeAll('Analog')">{{ Translate('IDCS_SIGNAL_ANALOG') }}</el-dropdown-item>
-                                    <el-dropdown-item @click="handleAnalogIpChangeAll('IP')">{{ Translate('IDCS_SIGNAL_IP') }}</el-dropdown-item>
-                                </el-dropdown-menu>
-                            </template>
-                        </el-dropdown>
-                    </template>
-                    <template #default="scope">
-                        <el-select
-                            v-model="scope.row.analogIp"
-                            @change="handleAnalogIpChange(scope.row)"
-                        >
-                            <el-option
-                                value="Analog"
-                                :label="Translate('IDCS_SIGNAL_ANALOG')"
-                            />
-                            <el-option
-                                value="IP"
-                                :label="Translate('IDCS_SIGNAL_IP')"
-                            />
-                        </el-select>
-                    </template>
-                </el-table-column>
-                <el-table-column
-                    prop="signal"
-                    :label="Translate('IDCS_SIGNAL')"
-                    min-width="220px"
-                >
-                    <template #header>
-                        <el-dropdown trigger="click">
-                            <BaseTableDropdownLink>
-                                {{ Translate('IDCS_SIGNAL') }}
-                            </BaseTableDropdownLink>
-                            <template #dropdown>
-                                <el-dropdown-menu>
                                     <el-dropdown-item
-                                        v-for="item in chlSupSignalTypeList"
-                                        :key="item.value"
-                                        :class="{ signalItemCvi: item.value === 'CVI' }"
-                                        @click="handleSignalChangeAll(item.value)"
-                                        >{{ item.text }}
+                                        v-for="item in analogIpOptions"
+                                        :key="item.label"
+                                        @click="handleAnalogIpChangeAll(item.value)"
+                                    >
+                                        {{ item.label }}
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
-                        <el-select
-                            v-if="scope.row.showSignal"
-                            v-model="scope.row.signal"
-                            @change="btnOkDisabled = false"
-                        >
-                            <el-option
-                                v-for="item in chlSupSignalTypeList"
-                                :key="item.value"
-                                :label="item.text"
-                                :value="item.value"
-                                :class="{ signalItemCvi: item.value === 'CVI' }"
-                            />
-                        </el-select>
+                    <template #default="{ row }: TableColumn<ChannelSignalDto>">
+                        <el-select-v2
+                            v-model="row.analogIp"
+                            :options="analogIpOptions"
+                            @change="handleAnalogIpChange(row)"
+                        />
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    :label="Translate('IDCS_SIGNAL')"
+                    min-width="220"
+                >
+                    <template #header>
+                        <el-dropdown>
+                            <BaseTableDropdownLink>
+                                {{ Translate('IDCS_SIGNAL') }}
+                            </BaseTableDropdownLink>
+                            <template #dropdown>
+                                <el-dropdown-menu>
+                                    <template
+                                        v-for="item in chlSupSignalTypeList"
+                                        :key="item.value"
+                                    >
+                                        <el-dropdown-item
+                                            v-if="!item.options"
+                                            @click="handleSignalChangeAll(item.value)"
+                                        >
+                                            {{ item.label }}
+                                        </el-dropdown-item>
+                                        <template v-else>
+                                            <el-dropdown-item
+                                                v-for="item2 in item.options"
+                                                :key="item2.value"
+                                                class="signalItemCvi"
+                                                @click="handleSignalChangeAll(item2.value)"
+                                            >
+                                                <span class="signalItemCvi">{{ item2.label }}</span>
+                                            </el-dropdown-item>
+                                        </template>
+                                    </template>
+                                </el-dropdown-menu>
+                            </template>
+                        </el-dropdown>
+                    </template>
+                    <template #default="{ row }: TableColumn<ChannelSignalDto>">
+                        <el-select-v2
+                            v-if="row.showSignal"
+                            v-model="row.signal"
+                            :options="chlSupSignalTypeList"
+                            filterable
+                            :persistent="true"
+                            popper-class="base-group-select"
+                        />
                         <span v-else>--</span>
                     </template>
                 </el-table-column>
                 <el-table-column
                     v-if="supportLite"
-                    prop="lite"
                     :label="Translate('IDCS_SUPPORT_LITE')"
-                    min-width="220px"
+                    min-width="220"
                 >
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SUPPORT_LITE') }}
                             </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
-                                    <el-dropdown-item @click="handleLiteChangeAll(true)">{{ Translate('IDCS_ON') }}</el-dropdown-item>
-                                    <el-dropdown-item @click="handleLiteChangeAll(false)">{{ Translate('IDCS_OFF') }}</el-dropdown-item>
+                                    <el-dropdown-item
+                                        v-for="item in switchOptions"
+                                        :key="item.label"
+                                        @click="handleLiteChangeAll(item.value)"
+                                    >
+                                        {{ item.label }}
+                                    </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
-                        <el-select
-                            v-if="scope.row.showLite"
-                            v-model="scope.row.lite"
-                            @change="btnOkDisabled = false"
-                        >
-                            <el-option
-                                :label="Translate('IDCS_ON')"
-                                :value="true"
-                            />
-                            <el-option
-                                :label="Translate('IDCS_OFF')"
-                                :value="false"
-                            />
-                        </el-select>
+                    <template #default="{ row }: TableColumn<ChannelSignalDto>">
+                        <el-select-v2
+                            v-if="row.showLite"
+                            v-model="row.lite"
+                            :options="switchOptions"
+                        />
                         <span v-else>--</span>
                     </template>
                 </el-table-column>
             </el-table>
         </div>
-        <div
-            class="base-btn-box"
-            span="start"
-        >
-            <div v-if="switchableIpChlMaxCount !== 0">
-                <span>{{ `${Translate('IDCS_IP_NUM')}: ${ipChlMaxCount}` }}</span>
-            </div>
+        <div class="base-btn-box flex-start">
+            <span v-if="switchableIpChlMaxCount !== 0">{{ Translate('IDCS_IP_NUM') }}: {{ ipChlMaxCount }}</span>
         </div>
-        <div
-            class="base-btn-box collapse"
-            :span="2"
-        >
+        <div class="base-btn-box space-between collapse">
             <div>{{ Translate('IDCS_SIGNAL_TIPS') }}</div>
-            <div>
-                <el-button
-                    :disabled="btnOkDisabled"
-                    @click="save()"
-                    >{{ Translate('IDCS_APPLY') }}</el-button
-                >
-            </div>
+            <el-button
+                :disabled="watchEdit.disabled.value"
+                @click="save()"
+            >
+                {{ Translate('IDCS_APPLY') }}
+            </el-button>
         </div>
     </div>
 </template>
@@ -162,7 +149,7 @@
 <script lang="ts" src="./ChannelSignal.v.ts"></script>
 
 <style scoped lang="scss">
-.signalItemCvi {
+:deep(.el-dropdown-menu__item).signalItemCvi {
     border-top: 1px solid var(--content-border);
 }
 </style>

@@ -2,18 +2,12 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-27 09:03:07
  * @Description: 录像机OSD配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:24:00
  */
-import { SystemRecorderOSDSettingsForm } from '@/types/apiType/system'
-
 export default defineComponent({
     setup() {
-        const { openLoading, closeLoading } = useLoading()
-
         const pageData = ref({
-            options: DEFAULT_SWITCH_OPTIONS,
-            isAddress: getUiAndTheme().name === 'UI1-E',
+            options: getTranslateOptions(DEFAULT_SWITCH_OPTIONS),
+            isAddress: import.meta.env.VITE_UI_TYPE === 'UI1-E',
         })
 
         const formData = ref(new SystemRecorderOSDSettingsForm())
@@ -27,9 +21,9 @@ export default defineComponent({
             const result = await queryDevOsdDisplayCfg()
             const $ = queryXml(result)
 
-            formData.value.nameEnable = $('//content/nameSwitch').text()
-            formData.value.iconEnable = $('//content/iconSwitch').text()
-            formData.value.addressEnable = $('//content/addressSwitch').text()
+            formData.value.nameEnable = $('content/nameSwitch').text()
+            formData.value.iconEnable = $('content/iconSwitch').text()
+            formData.value.addressEnable = $('content/addressSwitch').text()
 
             closeLoading()
         }
@@ -49,7 +43,7 @@ export default defineComponent({
             `
             const result = await editDevOsdDisplayCfg(sendXml)
 
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
             closeLoading()
         }
 

@@ -2,12 +2,10 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-17 20:32:14
  * @Description: 权限组列表
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 10:29:12
  */
 import PermissionGroupEditPop from './PermissionGroupEditPop.vue'
 import { delAuthGroup } from '@/api/userAndSecurity'
-import { type UserAuthGroupList, UserPermissionChannelAuthList, UserPermissionSystemAuthList } from '@/types/apiType/userAndSecurity'
+import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
     components: {
@@ -15,10 +13,10 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
         const router = useRouter()
+
+        const tableRef = ref<TableInstance>()
 
         // 权限组数据列表
         const authGroupList = ref<UserAuthGroupList[]>([])
@@ -35,15 +33,15 @@ export default defineComponent({
             // 当前选中的通道权限Tab
             activeChannelTab: DEFAULT_CHANNEL_AUTH_TABS[0],
             // 当前选中的权限组索引
-            activeAuthGroup: 0,
+            activeAuthGroup: -1,
             // 是否打开编辑权限组弹窗
             isEditAuthGroup: false,
             // 编辑权限组的ID
             editAuthGroupID: '',
             // 本地通道权限列表
-            localChannelIds: DEFAULT_LOCAL_CHANNEL_AUTH_LIST,
+            localChannelIds: getTranslateOptions(DEFAULT_LOCAL_CHANNEL_AUTH_LIST),
             // 远程通道权限列表
-            remoteChannelIds: DEFAULT_REMOTE_CHANNEL_AUTH_LIST,
+            remoteChannelIds: getTranslateOptions(DEFAULT_REMOTE_CHANNEL_AUTH_LIST),
         })
 
         /**
@@ -55,53 +53,55 @@ export default defineComponent({
             const result = await queryAuthGroupList('')
 
             commLoadResponseHandler(result, ($) => {
-                authGroupList.value = []
-                $('//content/item').forEach((item) => {
+                authGroupList.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
-                    const arrayItem: UserAuthGroupList = {
-                        id: item.attr('id') as string,
+                    // TSSR-2125 权限列表，不可另存为，不可删除，不可编辑；
+                    return {
+                        id: item.attr('id'),
                         name: $item('name').text(),
-                        isDefault: $item('isDefault').text().toBoolean(),
-                        enableEdit: $item('enableEdit').text().toBoolean(),
-                        chlAuth: [],
+                        isDefault: $item('isDefault').text().bool(),
+                        enableEdit: $item('enableEdit').text().bool(),
+                        groupType: $item('groupType').text(),
+                        chlAuth: $item('chlAuth/item').map((chlItem) => {
+                            const $chlItem = queryXml(chlItem.element)
+                            return {
+                                id: chlItem.attr('id'),
+                                name: $chlItem('name').text(),
+                                auth: $chlItem('auth').text(),
+                            }
+                        }),
                         systemAuth: {
-                            localChlMgr: $item('systemAuth/localChlMgr').text().toBoolean(),
-                            remoteChlMgr: $item('systemAuth/remoteChlMgr').text().toBoolean(),
-                            diskMgr: $item('systemAuth/diskMgr').text().toBoolean(),
-                            talk: $item('systemAuth/talk').text().toBoolean(),
-                            alarmMgr: $item('systemAuth/alarmMgr').text().toBoolean(),
-                            net: $item('systemAuth/net').text().toBoolean(),
-                            rec: $item('systemAuth/rec').text().toBoolean(),
-                            remoteLogin: $item('systemAuth/remoteLogin').text().toBoolean(),
-                            scheduleMgr: $item('systemAuth/scheduleMgr').text().toBoolean(),
-                            localSysCfgAndMaintain: $item('systemAuth/localSysCfgAndMaintain').text().toBoolean(),
-                            facePersonnalInfoMgr: $item('systemAuth/facePersonnalInfoMgr').text().toBoolean(),
-                            remoteSysCfgAndMaintain: $item('systemAuth/remoteSysCfgAndMaintain').text().toBoolean(),
-                            securityMgr: $item('systemAuth/securityMgr').text().toBoolean(),
-                            parkingLotMgr: $item('systemAuth/parkingLotMgr').text().toBoolean(),
-                            AccessControlMgr: $item('systemAuth/AccessControlMgr').text().toBoolean(),
+                            localChlMgr: $item('systemAuth/localChlMgr').text().bool(),
+                            remoteChlMgr: $item('systemAuth/remoteChlMgr').text().bool(),
+                            diskMgr: $item('systemAuth/diskMgr').text().bool(),
+                            talk: $item('systemAuth/talk').text().bool(),
+                            alarmMgr: $item('systemAuth/alarmMgr').text().bool(),
+                            net: $item('systemAuth/net').text().bool(),
+                            rec: $item('systemAuth/rec').text().bool(),
+                            remoteLogin: $item('systemAuth/remoteLogin').text().bool(),
+                            scheduleMgr: $item('systemAuth/scheduleMgr').text().bool(),
+                            localSysCfgAndMaintain: $item('systemAuth/localSysCfgAndMaintain').text().bool(),
+                            facePersonnalInfoMgr: $item('systemAuth/facePersonnalInfoMgr').text().bool(),
+                            remoteSysCfgAndMaintain: $item('systemAuth/remoteSysCfgAndMaintain').text().bool(),
+                            securityMgr: $item('systemAuth/securityMgr').text().bool(),
+                            businessCfg: $item('systemAuth/businessCfg').text().bool(),
+                            businessMgr: $item('systemAuth/businessMgr').text().bool(),
                         },
                     }
-                    $item('chlAuth/item').forEach((chlItem) => {
-                        const $chlItem = queryXml(chlItem.element)
-                        arrayItem.chlAuth.push({
-                            id: chlItem.attr('id') as string,
-                            name: $chlItem('name').text(),
-                            auth: $chlItem('auth').text(),
-                        })
-                    })
-                    authGroupList.value.push(arrayItem)
-
-                    if (authGroupList.value.length) {
-                        if (!authGroupList.value[pageData.value.activeAuthGroup]) {
-                            pageData.value.activeAuthGroup = 0
-                        }
-                        getSystemAuth()
-                        getChannelAuth()
-                    } else {
-                        resetAuth()
-                    }
                 })
+
+                if (authGroupList.value.length) {
+                    if (!authGroupList.value[pageData.value.activeAuthGroup]) {
+                        pageData.value.activeAuthGroup = 0
+                    }
+                    getSystemAuth()
+                    getChannelAuth()
+                    nextTick(() => {
+                        tableRef.value!.setCurrentRow(authGroupList.value[pageData.value.activeAuthGroup])
+                    })
+                } else {
+                    resetAuth()
+                }
             })
 
             closeLoading()
@@ -113,9 +113,17 @@ export default defineComponent({
         const getSystemAuth = () => {
             if (!currentAuthGroup.value) return
             const currentItem = currentAuthGroup.value.systemAuth
-            Object.keys(systemAuthList.value).forEach((classify: string) => {
+            Object.keys(systemAuthList.value).forEach((classify) => {
+                systemAuthList.value[classify].label = Translate(systemAuthList.value[classify].key)
                 Object.keys(systemAuthList.value[classify].value).forEach((key) => {
                     systemAuthList.value[classify].value[key].value = currentItem[key] || false
+                    if (systemAuthList.value[classify].value[key].formatForLang?.length) {
+                        systemAuthList.value[classify].value[key].label = Translate(systemAuthList.value[classify].value[key].key).formatForLang(
+                            ...systemAuthList.value[classify].value[key].formatForLang.map((item) => Translate(item)),
+                        )
+                    } else {
+                        systemAuthList.value[classify].value[key].label = Translate(systemAuthList.value[classify].value[key].key)
+                    }
                 })
             })
         }
@@ -132,11 +140,7 @@ export default defineComponent({
                 arrayItem.id = item.id
                 arrayItem.name = item.name
                 DEFAULT_CHANNEL_AUTH_LIST.forEach((key) => {
-                    if (item.auth.includes(key)) {
-                        arrayItem[key] = 'true'
-                    } else {
-                        arrayItem[key] = 'false'
-                    }
+                    arrayItem[key] = item.auth.includes(key)
                 })
                 return arrayItem
             })
@@ -146,7 +150,7 @@ export default defineComponent({
          * @description 清除所有左侧权限信息
          */
         const resetAuth = () => {
-            Object.keys(systemAuthList.value).forEach((classify: string) => {
+            Object.keys(systemAuthList.value).forEach((classify) => {
                 Object.keys(systemAuthList.value[classify].value).forEach((key) => {
                     systemAuthList.value[classify].value[key].value = false
                 })
@@ -158,7 +162,11 @@ export default defineComponent({
          * @description 处理高亮选中的权限组，显示左侧信息
          * @param {UserAuthGroupList} row
          */
-        const handleChangeAuthGroup = async (row: UserAuthGroupList) => {
+        const changeAuthGroup = (row: UserAuthGroupList) => {
+            if (row === authGroupList.value[pageData.value.activeAuthGroup]) {
+                return
+            }
+
             pageData.value.activeAuthGroup = authGroupList.value.findIndex((item) => item.id === row.id)
 
             if (currentAuthGroup.value) {
@@ -173,7 +181,7 @@ export default defineComponent({
          * @description 打开编辑用户弹窗
          * @param {UserAuthGroupList} row
          */
-        const handleEditAuthGroup = (row: UserAuthGroupList) => {
+        const openEditAuthGroupPop = (row: UserAuthGroupList) => {
             pageData.value.editAuthGroupID = row.id
             pageData.value.isEditAuthGroup = true
         }
@@ -181,7 +189,7 @@ export default defineComponent({
         /**
          * @description 确认编辑用户弹窗
          */
-        const handleConfirmEditAuthGroup = () => {
+        const confirmEditAuthGroup = () => {
             pageData.value.isEditAuthGroup = false
             getAuthGroup()
         }
@@ -190,10 +198,10 @@ export default defineComponent({
          * @description 删除权限组
          * @param {UserAuthGroupList} row
          */
-        const handleDeleteAuthGroup = (row: UserAuthGroupList) => {
-            openMessageTipBox({
+        const deleteAuthGroup = (row: UserAuthGroupList) => {
+            openMessageBox({
                 type: 'question',
-                message: Translate('IDCS_USER_DELETE_USERGROUP_S').formatForLang(replaceWithEntity(row.name)),
+                message: Translate('IDCS_USER_DELETE_USERGROUP_S').formatForLang(row.name),
             }).then(async () => {
                 openLoading()
 
@@ -209,14 +217,14 @@ export default defineComponent({
 
                 closeLoading()
 
-                if ($('//status').text() === 'success') {
-                    openMessageTipBox({
+                if ($('status').text() === 'success') {
+                    openMessageBox({
                         type: 'success',
                         message: Translate('IDCS_DELETE_SUCCESS'),
                     })
                     getAuthGroup()
                 } else {
-                    const errorCode = Number($('//errorCode').text())
+                    const errorCode = $('errorCode').text().num()
                     let errorInfo = ''
                     switch (errorCode) {
                         case ErrorCode.USER_ERROR_EXISTED_CHILD_NODE:
@@ -226,10 +234,7 @@ export default defineComponent({
                             errorInfo = Translate('IDCS_DELETE_FAIL')
                             break
                     }
-                    openMessageTipBox({
-                        type: 'info',
-                        message: errorInfo,
-                    })
+                    openMessageBox(errorInfo)
                 }
             })
         }
@@ -238,7 +243,7 @@ export default defineComponent({
          * @description 复制权限组
          * @param {UserAuthGroupList} row
          */
-        const handleSaveAsAuthGroup = (row: UserAuthGroupList) => {
+        const copyAuthGroup = (row: UserAuthGroupList) => {
             router.push({
                 path: '/config/security/auth_group/add',
                 state: {
@@ -260,18 +265,18 @@ export default defineComponent({
             if (currentAuthGroup.value) {
                 const name = currentAuthGroup.value.name
                 const mappingName = displayAuthGroup(name)
-                return Translate('IDCS_USER_RIGHT_INFORMATION').formatForLang(replaceWithEntity(mappingName))
+                return Translate('IDCS_USER_RIGHT_INFORMATION').formatForLang(mappingName)
             }
             return ''
         })
 
         /**
          * @description 显示权限开关文案
-         * @param {boolean} string
+         * @param {boolean} value
          * @returns {string}
          */
-        const displayChannelAuth = (value: string) => {
-            return value === 'true' ? Translate('IDCS_ON') : Translate('IDCS_OFF')
+        const displayChannelAuth = (value: boolean | string) => {
+            return value ? Translate('IDCS_ON') : Translate('IDCS_OFF')
         }
 
         /**
@@ -282,6 +287,18 @@ export default defineComponent({
         const displayAuthGroup = (value: string) => {
             const name = DEFAULT_AUTH_GROUP_MAPPING[value] ? Translate(DEFAULT_AUTH_GROUP_MAPPING[value]) : value
             return name
+        }
+
+        const isShowEdit = (row: UserAuthGroupList) => {
+            return row.enableEdit && row.groupType !== 'debug'
+        }
+
+        const isShowCopy = (row: UserAuthGroupList) => {
+            return row.groupType !== 'debug'
+        }
+
+        const isShowDelete = (row: UserAuthGroupList) => {
+            return !row.isDefault && row.groupType !== 'debug'
         }
 
         onMounted(() => {
@@ -298,13 +315,16 @@ export default defineComponent({
             displayChannelAuth,
             authGroupName,
             authGroupList,
+            tableRef,
             displayAuthGroup,
-            handleChangeAuthGroup,
-            handleEditAuthGroup,
-            handleDeleteAuthGroup,
-            handleConfirmEditAuthGroup,
-            handleSaveAsAuthGroup,
-            PermissionGroupEditPop,
+            changeAuthGroup,
+            openEditAuthGroupPop,
+            deleteAuthGroup,
+            confirmEditAuthGroup,
+            copyAuthGroup,
+            isShowEdit,
+            isShowCopy,
+            isShowDelete,
         }
     },
 })

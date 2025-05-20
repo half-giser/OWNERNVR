@@ -1,59 +1,45 @@
 <!--
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-05-07 19:40:23
- * @Description:
+ * @Description: 通道组 右上方工具栏
 -->
 <template>
     <el-button
-        v-if="uiName !== 'UI2-A'"
-        id="btnAdd"
+        v-if="isAddGroupBtn"
         @click="addChlGroup"
         >{{ Translate('IDCS_ADD_GROUP') }}</el-button
     >
     <BaseImgSprite
         v-else
         file="toolbar_add"
-        class="toolBarBtn"
+        class="base-toolbar-btn"
+        :title="Translate('IDCS_ADD_GROUP')"
         @click="addChlGroup"
     />
 </template>
 
 <script lang="ts">
 export default defineComponent({
-    emits: ['toolBarEvent'],
+    emits: {
+        toolBarEvent(data: ConfigToolBarEvent<undefined>) {
+            return !!data
+        },
+    },
+
     setup(_props, ctx) {
-        const { name: uiName } = getUiAndTheme()
+        const isAddGroupBtn = import.meta.env.VITE_UI_TYPE !== 'UI2-A'
+
         const addChlGroup = () => {
             ctx.emit('toolBarEvent', {
                 type: 'addChlGroup',
+                data: undefined,
             })
         }
-        return { addChlGroup, uiName }
+
+        return {
+            addChlGroup,
+            isAddGroupBtn,
+        }
     },
 })
 </script>
-
-<style lang="scss" scoped>
-.toolBarText {
-    width: 200px;
-    height: 23px;
-    margin-right: 5px;
-
-    :deep(.el-input__inner) {
-        height: 23px;
-    }
-}
-
-#btnAdd {
-    height: 25px;
-}
-
-.toolBarBtn {
-    background-color: var(--btn-bg);
-    cursor: pointer;
-
-    &:hover {
-        background-color: var(--btn-bg-hover);
-    }
-}
-</style>

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-23 10:36:05
  * @Description: 云台-协议
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 14:52:29
 -->
 <template>
     <div class="base-chl-box">
@@ -11,78 +9,80 @@
             <div class="base-chl-box-player">
                 <BaseVideoPlayer
                     ref="playerRef"
-                    type="live"
-                    @onready="handlePlayerReady"
+                    @ready="handlePlayerReady"
                 />
             </div>
             <el-form
-                v-if="tableData.length"
-                label-position="left"
-                :style="{
-                    '--form-label-width': '150px',
-                }"
+                v-title
                 class="stripe"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select
+                    <el-select-v2
+                        v-if="tableData.length"
                         v-model="pageData.tableIndex"
+                        :options="chlOptions"
                         @change="changeChl"
-                    >
-                        <el-option
-                            v-for="(item, index) in tableData"
-                            :key="item.chlId"
-                            :value="index"
-                            :label="item.chlName"
-                        />
-                    </el-select>
+                    />
+                    <el-select-v2
+                        v-else
+                        model-value=""
+                        :options="[]"
+                        disabled
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_PTZ')">
-                    <el-select
+                    <el-select-v2
+                        v-if="tableData[pageData.tableIndex]"
                         v-model="tableData[pageData.tableIndex].ptz"
-                        :disabled="tableData[pageData.tableIndex].status !== 'success'"
-                    >
-                        <el-option
-                            v-for="item in pageData.ptzOptions"
-                            :key="item.label"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-select>
+                        :disabled="tableData[pageData.tableIndex].disabled"
+                        :options="pageData.ptzOptions"
+                    />
+                    <el-select-v2
+                        v-else
+                        model-value=""
+                        :options="[]"
+                        disabled
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_PROTOCOL')">
-                    <el-select
+                    <el-select-v2
+                        v-if="tableData[pageData.tableIndex]"
                         v-model="tableData[pageData.tableIndex].protocol"
-                        :disabled="tableData[pageData.tableIndex].status !== 'success'"
-                    >
-                        <el-option
-                            v-for="item in tableData[pageData.tableIndex].protocolOptions"
-                            :key="item.label"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-select>
+                        :disabled="tableData[pageData.tableIndex].disabled"
+                        :options="tableData[pageData.tableIndex].protocolOptions"
+                    />
+                    <el-select-v2
+                        v-else
+                        model-value=""
+                        :options="[]"
+                        disabled
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_BAUD_RATE')">
-                    <el-select
+                    <el-select-v2
+                        v-if="tableData[pageData.tableIndex]"
                         v-model="tableData[pageData.tableIndex].baudRate"
-                        :disabled="tableData[pageData.tableIndex].status !== 'success'"
-                    >
-                        <el-option
-                            v-for="item in tableData[pageData.tableIndex].baudRateOptions"
-                            :key="item.label"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-select>
+                        :disabled="tableData[pageData.tableIndex].disabled"
+                        :options="tableData[pageData.tableIndex].baudRateOptions"
+                    />
+                    <el-select-v2
+                        v-else
+                        model-value=""
+                        :options="[]"
+                        disabled
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ADDRESS')">
-                    <el-input-number
+                    <BaseNumberInput
+                        v-if="tableData[pageData.tableIndex]"
                         v-model="tableData[pageData.tableIndex].address"
                         :min="tableData[pageData.tableIndex].addressMin"
                         :max="tableData[pageData.tableIndex].addressMax"
-                        :disabled="tableData[pageData.tableIndex].status !== 'success'"
-                        :controls="false"
-                        value-on-clear="min"
+                        :disabled="tableData[pageData.tableIndex].disabled"
+                    />
+                    <el-input
+                        v-else
+                        disabled
                     />
                 </el-form-item>
             </el-form>
@@ -90,30 +90,30 @@
         <div class="base-chl-box-right">
             <div class="base-table-box">
                 <el-table
+                    v-title
                     :data="tableData"
-                    border
-                    stripe
                     highlight-current-row
                     flexible
+                    show-overflow-tooltip
                     @row-click="handleRowClick"
                 >
                     <!-- 状态列 -->
                     <el-table-column
                         label=" "
-                        width="50px"
-                        class-name="custom_cell"
+                        width="50"
                     >
-                        <template #default="scope">
-                            <BaseTableRowStatus :icon="scope.row.status" />
+                        <template #default="{ row }: TableColumn<ChannelPtzProtocolDto>">
+                            <BaseTableRowStatus :icon="row.status" />
                         </template>
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_CHANNEL_NAME')"
                         prop="chlName"
+                        width="185"
                     />
                     <el-table-column :label="Translate('IDCS_PTZ')">
                         <template #header>
-                            <el-dropdown trigger="click">
+                            <el-dropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_PTZ') }}
                                 </BaseTableDropdownLink>
@@ -131,83 +131,72 @@
                             </el-dropdown>
                         </template>
 
-                        <template #default="scope">
-                            <el-select
-                                v-model="scope.row.ptz"
-                                :disabled="scope.row.status !== 'success'"
-                            >
-                                <el-option
-                                    v-for="item in pageData.ptzOptions"
-                                    :key="item.label"
-                                    :value="item.value"
-                                    :label="item.label"
-                                />
-                            </el-select>
+                        <template #default="{ row }: TableColumn<ChannelPtzProtocolDto>">
+                            <el-select-v2
+                                v-model="row.ptz"
+                                :disabled="row.disabled"
+                                :options="pageData.ptzOptions"
+                            />
                         </template>
                     </el-table-column>
 
                     <el-table-column :label="Translate('IDCS_PROTOCOL')">
-                        <template #default="scope">
-                            <el-select
-                                v-model="scope.row.protocol"
-                                :disabled="scope.row.status !== 'success'"
-                            >
-                                <el-option
-                                    v-for="item in scope.row.protocolOptions"
-                                    :key="item.label"
-                                    :value="item.value"
-                                    :label="item.label"
-                                />
-                            </el-select>
+                        <template #default="{ row }: TableColumn<ChannelPtzProtocolDto>">
+                            <el-select-v2
+                                v-model="row.protocol"
+                                :disabled="row.disabled"
+                                :options="row.protocolOptions"
+                            />
                         </template>
                     </el-table-column>
 
                     <el-table-column :label="Translate('IDCS_BAUD_RATE')">
-                        <template #default="scope">
-                            <el-select
-                                v-model="scope.row.baudRate"
-                                :disabled="scope.row.status !== 'success'"
-                            >
-                                <el-option
-                                    v-for="item in scope.row.baudRateOptions"
-                                    :key="item.label"
-                                    :value="item.value"
-                                    :label="item.label"
-                                />
-                            </el-select>
+                        <template #default="{ row }: TableColumn<ChannelPtzProtocolDto>">
+                            <el-select-v2
+                                v-model="row.baudRate"
+                                :disabled="row.disabled"
+                                :options="row.baudRateOptions"
+                            />
                         </template>
                     </el-table-column>
 
-                    <el-table-column
-                        :label="Translate('IDCS_ADDRESS')"
-                        prop="address"
-                    >
-                        <template #default="scope">
-                            <el-input-number
-                                v-model="scope.row.address"
-                                :min="scope.row.addressMin"
-                                :max="scope.row.addressMax"
-                                value-on-clear="min"
-                                :disabled="scope.row.status !== 'success'"
-                                :controls="false"
+                    <el-table-column :label="Translate('IDCS_ADDRESS')">
+                        <template #default="{ row }: TableColumn<ChannelPtzProtocolDto>">
+                            <BaseNumberInput
+                                v-model="row.address"
+                                :min="row.addressMin"
+                                :max="row.addressMax"
+                                :disabled="row.disabled"
                             />
                         </template>
                     </el-table-column>
                 </el-table>
             </div>
-            <div class="base-btn-box">
-                <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
+            <div class="base-pagination-box">
+                <BasePagination
+                    v-model:current-page="pageData.pageIndex"
+                    v-model:page-size="pageData.pageSize"
+                    :total="pageData.total"
+                    @size-change="getData"
+                    @current-change="getData"
+                />
+            </div>
+            <div class="base-btn-box space-between">
+                <div class="text-error">
+                    {{ Translate('IDCS_PTZOPEN_AND_PROTOCOLSET_RULE') }}
+                </div>
+                <el-button
+                    :disabled="!editRows.size()"
+                    @click="setData"
+                >
+                    {{ Translate('IDCS_APPLY') }}
+                </el-button>
             </div>
         </div>
-        <BaseNotification v-model:notifications="pageData.notification" />
     </div>
 </template>
 
 <script lang="ts" src="./ChannelPtzProtocol.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/channel.scss';
-</style>
 
 <style lang="scss" scoped>
 .time {

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-04 11:33:23
  * @Description: 统计界面的一些通用方法
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 09:56:42
  */
 import dayjs from 'dayjs'
 import { type BarChartXValueOptionItem } from '@/components/chart/BaseBarChart.vue'
@@ -12,30 +10,8 @@ export const useStatsAxis = (dateRangeType: Ref<string> | ComputedRef<string>, d
     const { Translate } = useLangStore()
     const dateTime = useDateTimeStore()
 
-    const MONTH_MAPPING: Record<number, string> = {
-        0: Translate('IDCS_Month_ONE'),
-        1: Translate('IDCS_Month_TWO'),
-        2: Translate('IDCS_Month_THREE'),
-        3: Translate('IDCS_Month_FOUR'),
-        4: Translate('IDCS_Month_FIVE'),
-        5: Translate('IDCS_Month_SIX'),
-        6: Translate('IDCS_Month_SEVEN'),
-        7: Translate('IDCS_Month_EIGHT'),
-        8: Translate('IDCS_Month_NINE'),
-        9: Translate('IDCS_Month_TEM'),
-        10: Translate('IDCS_Month_ELEVEN'),
-        11: Translate('IDCS_Month_TWELVE'),
-    }
-
-    const WEEK_MAPPING: Record<string, string> = {
-        1: Translate('IDCS_WEEK_DAY_ONE'),
-        2: Translate('IDCS_WEEK_DAY_TWO'),
-        3: Translate('IDCS_WEEK_DAY_THREE'),
-        4: Translate('IDCS_WEEK_DAY_FOUR'),
-        5: Translate('IDCS_WEEK_DAY_FIVE'),
-        6: Translate('IDCS_WEEK_DAY_SIX'),
-        0: Translate('IDCS_WEEK_DAY_SEVEN'),
-    }
+    const MONTH_MAPPING = getTranslateMapping(DEFAULT_MONTH_MAPPING)
+    const WEEK_MAPPING = getTranslateMapping(DEFAULT_WEEK_MAPPING)
 
     const dateArray = Array(24).fill(0)
     const weekArray = Array(7).fill(0)
@@ -78,15 +54,19 @@ export const useStatsAxis = (dateRangeType: Ref<string> | ComputedRef<string>, d
         if (dateRangeType.value === 'date') {
             return formatDate(dateRange.value[0], dateTime.dateFormat)
         }
+
         if (dateRangeType.value === 'month') {
             return formatDate(dateRange.value[0], dateTime.yearMonthFormat)
         }
+
         if (dateRangeType.value === 'quarter') {
             return formatDate(dateRange.value[0], dateTime.yearMonthFormat) + ' - ' + formatDate(dateRange.value[0], dateTime.yearMonthFormat)
         }
+
         if (dateRangeType.value === 'week') {
             return formatDate(dateRange.value[0], dateTime.dateFormat) + ' ' + formatDate(dateRange.value[1], dateTime.dateFormat)
         }
+
         if (dateRangeType.value === 'custom') {
             if (dayjs(dateRange.value[0]).isSame(dayjs(dateRange.value[1]), 'day')) {
                 return formatDate(dateRange.value[0], dateTime.dateFormat)
@@ -106,7 +86,7 @@ export const useStatsAxis = (dateRangeType: Ref<string> | ComputedRef<string>, d
         if (dateRangeType.value === 'date') {
             return Translate('IDCS_HOUR')
         } else if (dateRangeType.value === 'custom') {
-            if (formatDate(dateRange.value[0], 'YYYY-MM-DD') === formatDate(dateRange.value[1], 'YYYY-MM-DD')) {
+            if (formatDate(dateRange.value[0], DEFAULT_YMD_FORMAT) === formatDate(dateRange.value[1], DEFAULT_YMD_FORMAT)) {
                 return Translate('IDCS_HOUR')
             }
             return ''
@@ -136,35 +116,39 @@ export const useStatsAxis = (dateRangeType: Ref<string> | ComputedRef<string>, d
      */
     const calLabel = () => {
         if (dateRangeType.value === 'date') {
-            return dateArray.map((item, index) => {
+            return dateArray.map((_, index) => {
                 return index + 1 + Translate('IDCS_HOUR')
             })
         }
+
         if (dateRangeType.value === 'month') {
             const date = dayjs(dateRange.value[0])
             const days = date.daysInMonth()
             return Array(days)
                 .fill(0)
-                .map((item, index) => {
+                .map((_, index) => {
                     const day = date.date(index + 1)
                     return day.format(dateTime.monthDateFormat)
                 })
         }
+
         if (dateRangeType.value === 'week') {
             const date = dayjs(dateRange.value[0])
-            return weekArray.map((item, index) => {
+            return weekArray.map((_, index) => {
                 return WEEK_MAPPING[date.add(index, 'day').day()]
             })
         }
+
         if (dateRangeType.value === 'quarter') {
             const date = dayjs(dateRange.value[0])
-            return quarterArray.map((item, index) => {
+            return quarterArray.map((_, index) => {
                 return MONTH_MAPPING[date.add(index, 'month').month()]
             })
         }
+
         if (dateRangeType.value === 'custom') {
-            if (formatDate(dateRange.value[0], 'YYYY-MM-DD') === formatDate(dateRange.value[1], 'YYYY-MM-DD')) {
-                return dateArray.map((item, index) => {
+            if (formatDate(dateRange.value[0], DEFAULT_YMD_FORMAT) === formatDate(dateRange.value[1], DEFAULT_YMD_FORMAT)) {
+                return dateArray.map((_, index) => {
                     return index + 1 + Translate('IDCS_HOUR')
                 })
             }
@@ -172,7 +156,7 @@ export const useStatsAxis = (dateRangeType: Ref<string> | ComputedRef<string>, d
             const date = dayjs(dateRange.value[0])
             return Array(quatum)
                 .fill(0)
-                .map((item, index) => {
+                .map((_, index) => {
                     return date.add(index, 'month').format(dateTime.monthDateFormat)
                 })
         }
@@ -187,19 +171,20 @@ export const useStatsAxis = (dateRangeType: Ref<string> | ComputedRef<string>, d
      */
     const calX = (): BarChartXValueOptionItem[] => {
         if (dateRangeType.value === 'date') {
-            return dateArray.map((item, index) => {
+            return dateArray.map((_, index) => {
                 return {
                     value: index + 1,
                     showBig: (index + 1) % 3 === 0,
                 }
             })
         }
+
         if (dateRangeType.value === 'month') {
             const date = dayjs(dateRange.value[0])
             const days = date.daysInMonth()
             return Array(days)
                 .fill(0)
-                .map((item, index) => {
+                .map((_, index) => {
                     const day = date.date(index + 1)
                     return {
                         value: day.format(dateTime.monthDateFormat),
@@ -207,27 +192,30 @@ export const useStatsAxis = (dateRangeType: Ref<string> | ComputedRef<string>, d
                     }
                 })
         }
+
         if (dateRangeType.value === 'week') {
             const date = dayjs(dateRange.value[0])
-            return weekArray.map((item, index) => {
+            return weekArray.map((_, index) => {
                 return {
                     value: WEEK_MAPPING[date.add(index, 'day').day()],
                     showBig: true,
                 }
             })
         }
+
         if (dateRangeType.value === 'quarter') {
             const date = dayjs(dateRange.value[0])
-            return quarterArray.map((item, index) => {
+            return quarterArray.map((_, index) => {
                 return {
                     value: MONTH_MAPPING[date.add(index, 'month').month()],
                     showBig: true,
                 }
             })
         }
+
         if (dateRangeType.value === 'custom') {
             if (dayjs(dateRange.value[0]).isSame(dayjs(dateRange.value[1]), 'day')) {
-                return dateArray.map((item, index) => {
+                return dateArray.map((_, index) => {
                     return {
                         value: index + 1,
                         showBig: (index + 1) % 3 === 0,
@@ -238,7 +226,7 @@ export const useStatsAxis = (dateRangeType: Ref<string> | ComputedRef<string>, d
                 const date = dayjs(dateRange.value[0])
                 return Array(quatum)
                     .fill(0)
-                    .map((item, index) => {
+                    .map((_, index) => {
                         return {
                             value: date.add(index, 'month').format(dateTime.monthDateFormat),
                             showBig: quatum <= 10 || index % 2 === 0,

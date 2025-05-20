@@ -2,11 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-15 17:12:18
  * @Description: 创建私有证书弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:21:45
  */
-import { type FormInstance, type FormRules } from 'element-plus'
-import { NetHTTPSPrivateCertForm } from '@/types/apiType/net'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -28,23 +25,24 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new NetHTTPSPrivateCertForm())
         const formRule = ref<FormRules>({
             countryName: [
                 {
-                    validator(rule, value: string, callback) {
-                        if (!value.length) {
+                    validator(_rule, value: string, callback) {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_HTTPS_EMPTY_TIP')))
                             return
                         }
+
                         if (!/^([A-Z]){2}$/.test(value)) {
                             callback(new Error(Translate('IDCS_HTTPS_COUNTRY_TIP')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -52,15 +50,17 @@ export default defineComponent({
             ],
             commonName: [
                 {
-                    validator(rule, value: string, callback) {
-                        if (!value.length) {
+                    validator(_rule, value: string, callback) {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_HTTPS_EMPTY_TIP')))
                             return
                         }
+
                         if (value.length > 64) {
                             callback(new Error(Translate('IDCS_MAX_CHARACTER')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -68,8 +68,8 @@ export default defineComponent({
             ],
             validityPeriod: [
                 {
-                    validator(rule, value: string, callback) {
-                        if (prop.type === 2 && value.length === 0) {
+                    validator(_rule, value: number, callback) {
+                        if (prop.type !== 2 && !value) {
                             callback(new Error(Translate('IDCS_HTTPS_EMPTY_TIP')))
                             return
                         }
@@ -80,8 +80,8 @@ export default defineComponent({
             ],
             email: [
                 {
-                    validator(rule, value: string, callback) {
-                        if (value.length && !checkEmail(value)) {
+                    validator(_rule, value: string, callback) {
+                        if (value.trim() && !checkEmail(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_INVALID_EMAIL')))
                             return
                         }
@@ -109,12 +109,12 @@ export default defineComponent({
                         <organizationalUnitName>${formData.value.organizationalUnitName}</organizationalUnitName>
                         <email>${formData.value.email}</email>
                     </DN>
-                    <validityPeriod unit="d">${formData.value.validityPeriod.toString()}</validityPeriod>
+                    <validityPeriod unit="d">${formData.value.validityPeriod || ''}</validityPeriod>
                     <password ${getSecurityVer()}>${AES_encrypt(formData.value.password, userSession.sesionKey)}</password>
                 </content>
             `
             const result = await createCert(sendXml)
-            commSaveResponseHadler(result, () => {
+            commSaveResponseHandler(result, () => {
                 ctx.emit('confirm')
             })
             closeLoading()
@@ -139,7 +139,7 @@ export default defineComponent({
                 </content>
             `
             const result = await createCertReq(sendXml)
-            commSaveResponseHadler(result, () => {
+            commSaveResponseHandler(result, () => {
                 ctx.emit('confirm')
             })
             closeLoading()

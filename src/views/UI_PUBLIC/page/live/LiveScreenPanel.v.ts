@@ -2,15 +2,12 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-29 16:08:14
  * @Description: 现场预览-底部菜单栏视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-26 09:43:54
  */
-import LiveScreenAlarmOut from './LiveScreenAlarmOut.vue'
-import { type LiveSharedWinData } from '@/types/apiType/live'
+import LiveScreenAlarmOutPop from './LiveScreenAlarmOutPop.vue'
 
 export default defineComponent({
     components: {
-        LiveScreenAlarmOut,
+        LiveScreenAlarmOutPop,
     },
     props: {
         /**
@@ -101,34 +98,29 @@ export default defineComponent({
         const userSession = useUserSessionStore()
         const systemCaps = useCababilityStore()
 
-        const WASM_SEG = [1, 4].map((split) => ({
-            split,
-            type: 1,
-        }))
-
-        // 支持旋转分屏
-        const ROTATE_SEG = [3, 5, 7, 10]
-            .filter((split) => systemCaps.supportImageRotate && systemCaps.previewMaxWin >= split)
-            .map((split) => ({
-                split,
-                type: split === 10 ? 2 : 1,
-                file: split === 10 ? 'hallway_seg_10' : 'seg_' + split,
-            }))
-
-        const OCX_SEG = [1, 4, 8, 9, 10, 16, 25, 36]
-            .filter((split) => systemCaps.previewMaxWin >= split)
-            .map((split) => ({
-                split,
-                type: 1,
-                file: 'seg_' + split,
-            }))
-            .concat(ROTATE_SEG)
-
         const pageData = ref({
             // H5模式分屏
-            wasmSeg: WASM_SEG,
+            wasmSeg: [1, 4].map((split) => ({
+                split,
+                type: 1,
+            })),
             // OCX模式分屏
-            ocxSeg: OCX_SEG,
+            ocxSeg: [1, 4, 8, 9, 10, 16, 25, 36]
+                .filter((split) => systemCaps.previewMaxWin >= split)
+                .map((split) => ({
+                    split,
+                    type: 1,
+                    file: 'seg_' + split,
+                })),
+            // 支持旋转分屏
+            ocxRotateSeg: [3, 5, 7, 10]
+                .filter((split) => systemCaps.supportImageRotate && systemCaps.previewMaxWin >= split)
+                .map((split) => ({
+                    split,
+                    type: split === 10 ? 2 : 1,
+                    file: split === 10 ? 'hallway_seg_10' : 'seg_' + split,
+                })),
+            splitType: 1,
             // 码流类型1：主码流，2：子码流
             streamMenuOptions: [
                 {
@@ -157,12 +149,9 @@ export default defineComponent({
          * @param {Boolean} bool
          */
         const recordRemote = async (bool: boolean) => {
-            if (remoteRecordDisabled.value) {
-                return
-            }
             const sendXml = rawXml`
                 <content>
-                    <switch>${bool.toString()}</switch>
+                    <switch>${bool}</switch>
                 </content>
             `
             await editManualRecord(sendXml)
@@ -178,9 +167,9 @@ export default defineComponent({
             const result = await queryRecStatus()
             const $ = queryXml(result)
 
-            let remoteRecord = !!$('//content/item').length
+            let remoteRecord = !!$('content/item').length
 
-            $('//content/item').forEach((item) => {
+            $('content/item').forEach((item) => {
                 const $item = queryXml(item.element)
                 // 查看当前通道录像类型是否有手动录像
                 const recType = $item('recTypes/item').some((rec) => rec.text() === 'manual')
@@ -190,6 +179,11 @@ export default defineComponent({
             })
 
             ctx.emit('update:remoteRecord', remoteRecord)
+        }
+
+        const changeSplit = (split: number, type: number) => {
+            pageData.value.splitType = type
+            ctx.emit('update:split', split, type)
         }
 
         const changeStreamType = (value: string | number | boolean | undefined) => {
@@ -209,9 +203,9 @@ export default defineComponent({
             recordRemote,
             remoteRecordDisabled,
             isTalk,
-            LiveScreenAlarmOut,
             changeStreamType,
             mainStreamDisabled,
+            changeSplit,
         }
     },
 })

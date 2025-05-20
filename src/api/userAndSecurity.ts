@@ -2,152 +2,229 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-14 10:33:32
  * @Description: 用户与安全API
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-18 17:56:42
  */
 
-// import type { AxiosRequestConfig } from 'axios'
-import http from './api'
+import fetch from './api'
 
 /**
  * @description 查询密码安全性
  * @param {boolean} status
  * @returns
  */
-export const queryPasswordSecurity = (status = true) => http.fetch('queryPasswordSecurity', getXmlWrapData(''), {}, status)
+export const queryPasswordSecurity = (status = true) => fetch('queryPasswordSecurity', '', {}, status)
 
 /**
  * @description 重置密码
  * @param {string} data
  * @returns
  */
-export const editUserPassword = (data: string) => http.fetch('editUserPassword', getXmlWrapData(data), {}, false)
+export const editUserPassword = (data: string) => fetch('editUserPassword', data, {}, false)
 
 /**
  * @description 获取权限组列表
  * @param {string} data
  * @returns
  */
-export const queryAuthGroupList = (data: string) => http.fetch('queryAuthGroupList', getXmlWrapData(data))
+export const queryAuthGroupList = (data: string) => fetch('queryAuthGroupList', data)
 
 /**
  * @description 创建用户
  * @param {string} data
  * @returns
  */
-export const createUser = (data: string) => http.fetch('createUser', getXmlWrapData(data), {}, false)
+export const createUser = (data: string) => fetch('createUser', data, {})
 
 /**
  * @description 查询权限组信息
  * @param {string} data
  * @returns
  */
-export const queryAuthGroup = (data: string) => http.fetch('queryAuthGroup', getXmlWrapData(data), {})
+export const queryAuthGroup = (data: string) => fetch('queryAuthGroup', data, {})
 
 /**
  * @description 获取用户列表
  * @param {string} data
  * @returns
  */
-export const queryUserList = (data: string) => http.fetch('queryUserList', getXmlWrapData(data), {})
+export const queryUserList = (data: string) => fetch('queryUserList', data, {})
 
 /**
  * @description 删除用户
  * @param {string} data
  * @returns
  */
-export const delUser = (data: string) => http.fetch('delUser', getXmlWrapData(data), {})
+export const delUser = (data: string) => fetch('delUser', data, {}, false)
 
 /**
  * @description 查询用户信息
  * @param {string} data
  * @returns
  */
-export const queryUser = (data: string) => http.fetch('queryUser', getXmlWrapData(data), {})
+export const queryUser = (data: string) => fetch('queryUser', data, {})
 
 /**
  * @description 修改用户信息
  * @param {string} data
  * @returns
  */
-export const editUser = (data: string) => http.fetch('editUser', getXmlWrapData(data))
+export const editUser = (data: string) => fetch('editUser', data)
 
 /**
  * @description 修改其他用户的密码
  * @param {string} data
  * @returns
  */
-export const editOtherUserPassword = (data: string) => http.fetch('editOtherUserPassword', getXmlWrapData(data), {}, false)
+export const editOtherUserPassword = (data: string) => fetch('editOtherUserPassword', data, {}, false)
 
 /**
  * @description 创建权限组
  * @param {string} data
  * @returns
  */
-export const createAuthGroup = (data: string) => http.fetch('createAuthGroup', getXmlWrapData(data))
+export const createAuthGroup = (data: string) => fetch('createAuthGroup', data)
 
 /**
  * @description 删除权限组
  * @param {string} data
  * @returns
  */
-export const delAuthGroup = (data: string) => http.fetch('delAuthGroup', getXmlWrapData(data))
+export const delAuthGroup = (data: string) => fetch('delAuthGroup', data)
 
 /**
  * @description 修改权限组
  * @param {string} data
  * @returns
  */
-export const editAuthGroup = (data: string) => http.fetch('editAuthGroup', getXmlWrapData(data))
+export const editAuthGroup = (data: string) => fetch('editAuthGroup', data)
 
 /**
  * @description 修改密码安全等级要求
  * @param {string} data
  * @returns
  */
-export const editPasswordSecurity = (data: string) => http.fetch('editPasswordSecurity', getXmlWrapData(data))
+export const editPasswordSecurity = (data: string) => fetch('editPasswordSecurity', data)
 
 /**
  * @description 获取在线用户列表
  * @returns
  */
-export const queryOnlineUserInfo = () => http.fetch('queryOnlineUserInfo', getXmlWrapData(''))
+export const queryOnlineUserInfo = () => fetch('queryOnlineUserInfo', '')
 
 /**
  * @description 查询登出后通道预览权限列表
  * @returns
  */
-export const queryLogoutChlPreviewAuth = () => http.fetch('queryLogoutChlPreviewAuth', getXmlWrapData(''))
+export const queryLogoutChlPreviewAuth = () => fetch('queryLogoutChlPreviewAuth', '')
 
 /**
  * @description 修改登出后预览权限
  * @param {string} data
  * @returns
  */
-export const editLogoutChlPreviewAuth = (data: string) => http.fetch('editLogoutChlPreviewAuth', getXmlWrapData(data))
+export const editLogoutChlPreviewAuth = (data: string) => fetch('editLogoutChlPreviewAuth', data)
 
 /**
  * @description 查询黑白名单列表
  * @returns
  */
-export const queryBlackAndWhiteList = () => http.fetch('queryBlackAndWhiteList', getXmlWrapData(''))
+export const queryBlackAndWhiteList = () => fetch('queryBlackAndWhiteList', '')
 
 /**
  * @description 修改黑白名单
  * @param {string} data
  * @returns
  */
-export const editBlackAndWhiteList = (data: string) => http.fetch('editBlackAndWhiteList', getXmlWrapData(data))
+export const editBlackAndWhiteList = (data: string) => fetch('editBlackAndWhiteList', data)
 
 /**
  * @description 查询网关配置列表
  * @returns
  */
-export const queryArpCfg = () => http.fetch('queryArpCfg', getXmlWrapData(''))
+export const queryArpCfg = () => fetch('queryArpCfg', '')
 
 /**
  * @description 修改网关配置信息
  * @param {string} data
  * @returns
  */
-export const editArpCfg = (data: string) => http.fetch('editArpCfg', getXmlWrapData(data))
+export const editArpCfg = (data: string) => fetch('editArpCfg', data)
+
+/**
+ * @description
+ * @returns
+ */
+export const querySecureEmailcfg = () => fetch('querySecureEmailcfg', '')
+
+/**
+ * @description
+ * @param data
+ * @returns
+ */
+export const editSecureEMailCfg = (data: string) => fetch('editSecureEMailCfg', data)
+
+/**
+ * @description
+ * @returns
+ */
+export const queryPWDProtectQuestion = () => fetch('queryPWDProtectQuestion', '')
+
+/**
+ * @description
+ * @param data
+ * @returns
+ */
+export const editPWDProtectQuestion = (data: string) => fetch('editPWDProtectQuestion', data)
+
+/**
+ * @description
+ * @param data
+ * @returns
+ */
+export const delDualAuthUser = (data: string) => fetch('delDualAuthUser', data)
+
+/**
+ * @description
+ * @returns
+ */
+export const queryDualAuthCfg = () => fetch('queryDualAuthCfg', '')
+
+/**
+ * @description
+ * @returns
+ */
+export const queryDualAuthUserList = () => fetch('queryDualAuthUserList', '')
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const queryDualAuthUser = (data: string) => fetch('queryDualAuthUser', data)
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const editDualAuthCfg = (data: string) => fetch('editDualAuthCfg', data)
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const createDualAuthUser = (data: string) => fetch('createDualAuthUser', data)
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const editDualAuthUser = (data: string) => fetch('editDualAuthUser', data)
+
+/**
+ * @description
+ * @param data
+ * @returns
+ */
+export const queryMyAuth = (data: string) => fetch('queryMyAuth', data)

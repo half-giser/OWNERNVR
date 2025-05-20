@@ -2,25 +2,24 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-08 15:30:50
  * @Description: 物理磁盘 
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 17:33:04
 -->
 <template>
     <div class="base-flex-box">
         <div class="base-table-box">
             <el-table
+                v-title
                 :data="tableData"
-                border
-                stripe
+                show-overflow-tooltip
+                highlight-current-row
             >
                 <el-table-column :label="Translate('IDCS_DISK')">
-                    <template #default="scope">
+                    <template #default="{ row }: TableColumn<DiskPhysicalList>">
                         <el-checkbox
-                            v-if="scope.row.type === 'normal'"
-                            v-model="scope.row.switch"
-                            >{{ scope.row.slotIndex }}</el-checkbox
-                        >
-                        <el-text v-else>{{ scope.row.slotIndex }}</el-text>
+                            v-if="row.type === 'normal'"
+                            v-model="row.switch"
+                            :label="row.slotIndex"
+                        />
+                        <el-text v-else>{{ row.slotIndex }}</el-text>
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -32,7 +31,7 @@
                     prop="raid"
                 />
                 <el-table-column :label="Translate('IDCS_TYPE')">
-                    <template #default="scope">{{ displayType(scope.row.type) }}</template>
+                    <template #default="{ row }: TableColumn<DiskPhysicalList>">{{ displayType(row.type) }}</template>
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_STATE')"
@@ -41,17 +40,14 @@
                 <el-table-column
                     :label="Translate('IDCS_DISK_TYPE')"
                     prop="model"
+                    width="210"
                 />
                 <el-table-column :label="Translate('IDCS_HOT_TO_DISK')">
-                    <template #default="scope">
-                        <BaseImgSprite
+                    <template #default="{ row, $index }: TableColumn<DiskPhysicalList>">
+                        <BaseImgSpriteBtn
                             file="transform"
-                            :index="0"
-                            :hover-index="2"
-                            :chunk="4"
-                            :disabled-index="3"
-                            :disabled="scope.row.type === 'array'"
-                            @click="transformDisk(scope.row, scope.$index)"
+                            :disabled="row.type === 'array'"
+                            @click="transformDisk(row, $index)"
                         />
                     </template>
                 </el-table-column>

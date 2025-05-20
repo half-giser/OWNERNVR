@@ -2,12 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-13 09:25:37
  * @Description: 智能分析 - 人脸搜索 - 轨迹
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 10:28:01
  */
-import { cloneDeep } from 'lodash-es'
 import IntelFaceSearchTrackMapColorPop from './IntelFaceSearchTrackMapColorPop.vue'
-import type { IntelFaceTrackMapList } from '@/types/apiType/intelligentAnalysis'
 
 export default defineComponent({
     components: {
@@ -44,6 +40,8 @@ export default defineComponent({
         },
     },
     setup(prop, ctx) {
+        const { Translate } = useLangStore()
+
         // 通道与通道名的映射
         const chlMap: Record<string, string> = {}
         // 通道与录像数的映射
@@ -117,10 +115,10 @@ export default defineComponent({
                 authList: '@spr,@bk',
             })
             const $ = queryXml(result)
-            pageData.value.chlOptions = $('//content/item').map((item) => {
+            pageData.value.chlOptions = $('content/item').map((item) => {
                 const $item = queryXml(item.element)
                 const text = $item('name').text()
-                const id = item.attr('id')!
+                const id = item.attr('id')
                 chlMap[id] = text
                 return {
                     label: text,
@@ -151,8 +149,8 @@ export default defineComponent({
             if (movingPoint < 0) {
                 return
             }
-            const deltaX = Math.max(0, Math.min(pageData.value.width, e.clientX - movingX + pageData.value.points[movingPoint].X))
-            const deltaY = Math.max(0, Math.min(pageData.value.height, e.clientY - movingY + pageData.value.points[movingPoint].Y))
+            const deltaX = clamp(e.clientX - movingX + pageData.value.points[movingPoint].X, 0, pageData.value.width)
+            const deltaY = clamp(e.clientY - movingY + pageData.value.points[movingPoint].Y, 0, pageData.value.height)
             const element = document.querySelector('.map-point-' + movingPoint) as HTMLElement
             element.style.transform = `translate(${deltaX}px,${deltaY}px)`
         }
@@ -214,9 +212,6 @@ export default defineComponent({
          * @description 播放上一个录像
          */
         const prevFrame = () => {
-            if (prevFrameDisabled.value) {
-                return
-            }
             pageData.value.playingIndex--
             play()
         }
@@ -225,9 +220,6 @@ export default defineComponent({
          * @description 播放下一个录像
          */
         const nextFrame = () => {
-            if (nextFrameDisabled.value) {
-                return
-            }
             pageData.value.playingIndex++
             play()
         }
@@ -414,9 +406,9 @@ export default defineComponent({
         const getEMap = async () => {
             const result = await queryEMap()
             const $ = queryXml(result)
-            const content = $('//content/mapImageFile').text()
+            const content = $('content/mapImageFile').text()
             if (content) {
-                pageData.value.emap = 'data:image/png;base64,' + content
+                pageData.value.emap = wrapBase64Img(content)
             }
         }
 
@@ -426,20 +418,20 @@ export default defineComponent({
         const getEMapParam = async () => {
             const result = await queryEMapParam()
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                pageData.value.colorOptions = $('//types/color/enum').map((item) => item.text())
-                pageData.value.fontColor = $('//content/fontColor').text()
-                pageData.value.lineColor = $('//content/lineColor').text()
+            if ($('status').text() === 'success') {
+                pageData.value.colorOptions = $('types/color/enum').map((item) => item.text())
+                pageData.value.fontColor = $('content/fontColor').text()
+                pageData.value.lineColor = $('content/lineColor').text()
 
-                pageData.value.points = $('//content/hotPointList/item').map((item) => {
+                pageData.value.points = $('content/hotPointList/item').map((item) => {
                     const $item = queryXml(item.element)
-                    const chlId = item.attr('hotPointId')!
+                    const chlId = item.attr('hotPointId')
                     return {
                         hotPointId: chlId,
-                        X: (Number($item('X').text()) / 10000) * pageData.value.width,
-                        Y: (Number($item('Y').text()) / 10000) * pageData.value.height,
+                        X: ($item('X').text().num() / 10000) * pageData.value.width,
+                        Y: ($item('Y').text().num() / 10000) * pageData.value.height,
                         count: countMap[chlId] || 0,
-                        chlName: chlMap[chlId] || '',
+                        chlName: chlMap[chlId] || Translate('IDCS_HISTORY_CHANNEL'),
                     }
                 })
 
@@ -455,12 +447,12 @@ export default defineComponent({
             const pointXml = pageData.value.points
                 .map((item) => {
                     return rawXml`
-                    <item hotPointId="${item.hotPointId}">
-                        <hotPointType>channel</hotPointType>
-                        <X>${Math.floor((item.X / pageData.value.width) * 10000).toString()}</X>
-                        <Y>${Math.floor((item.Y / pageData.value.height) * 10000).toString()}</Y>
-                    </item>
-                `
+                        <item hotPointId="${item.hotPointId}">
+                            <hotPointType>channel</hotPointType>
+                            <X>${Math.floor((item.X / pageData.value.width) * 10000)}</X>
+                            <Y>${Math.floor((item.Y / pageData.value.height) * 10000)}</Y>
+                        </item>
+                    `
                 })
                 .join('')
             const sendXml = rawXml`

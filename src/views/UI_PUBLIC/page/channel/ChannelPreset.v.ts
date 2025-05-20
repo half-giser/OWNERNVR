@@ -2,15 +2,12 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-20 18:26:51
  * @Description: 云台-预置点
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:38:03
  */
 import { type TableInstance } from 'element-plus'
 import ChannelPtzCtrlPanel from './ChannelPtzCtrlPanel.vue'
 import ChannelPresetAddPop from './ChannelPresetAddPop.vue'
 import ChannelPtzTableExpandPanel from './ChannelPtzTableExpandPanel.vue'
 import ChannelPtzTableExpandItem from './ChannelPtzTableExpandItem.vue'
-import { type ChannelPtzPresetChlDto, ChannelPtzPresetDto } from '@/types/apiType/channel'
 
 export default defineComponent({
     components: {
@@ -21,14 +18,11 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
+
         const playerRef = ref<PlayerInstance>()
         const auth = useUserChlAuth(false)
 
         const pageData = ref({
-            // 通知列表
-            notification: [] as string[],
             // 当前表格选中索引
             tableIndex: 0,
             // 表格展开索引列表
@@ -48,6 +42,15 @@ export default defineComponent({
         const tableRef = ref<TableInstance>()
         const tableData = ref<ChannelPtzPresetChlDto[]>([])
 
+        const chlOptions = computed(() => {
+            return tableData.value.map((item, index) => {
+                return {
+                    label: item.chlName,
+                    value: index,
+                }
+            })
+        })
+
         const formData = ref({
             // 预置点名称
             name: '',
@@ -55,16 +58,16 @@ export default defineComponent({
             presetIndex: '' as string | number,
         })
 
-        // 播放模式
-        const mode = computed(() => {
-            if (!playerRef.value) {
-                return ''
-            }
-            return playerRef.value.mode
-        })
-
         const ready = computed(() => {
             return playerRef.value?.ready || false
+        })
+
+        // 播放模式
+        const mode = computed(() => {
+            if (!ready.value) {
+                return ''
+            }
+            return playerRef.value!.mode
         })
 
         let player: PlayerInstance['player']
@@ -77,22 +80,9 @@ export default defineComponent({
             player = playerRef.value!.player
             plugin = playerRef.value!.plugin
 
-            if (mode.value === 'h5') {
-                if (isHttpsLogin()) {
-                    pageData.value.notification = [formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`)]
-                }
-            }
             if (mode.value === 'ocx') {
-                if (!plugin.IsInstallPlugin()) {
-                    plugin.SetPluginNotice('#layout2Content')
-                    return
-                }
-                if (!plugin.IsPluginAvailable()) {
-                    plugin.SetPluginNoResponse()
-                    plugin.ShowPluginNoResponse()
-                }
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -101,12 +91,15 @@ export default defineComponent({
          */
         const play = () => {
             const { chlId, chlName } = tableData.value[pageData.value.tableIndex]
+
             if (mode.value === 'h5') {
                 player.play({
                     chlID: chlId,
                     streamType: 2,
                 })
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 plugin.RetryStartChlView(chlId, chlName)
             }
         }
@@ -128,16 +121,16 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                tableData.value[index].presets = $('//content/presets/item').map((item) => {
+            if ($('status').text() === 'success') {
+                tableData.value[index].presets = $('content/presets/item').map((item) => {
                     // const $item = queryXml(item.element)
                     return {
-                        index: Number(item.attr('index')!),
+                        index: item.attr('index').num(),
                         name: item.text(),
                     }
                 })
                 tableData.value[index].presetCount = tableData.value[index].presets.length
-                tableData.value[index].maxCount = Number($('//content/presets').attr('maxCount'))
+                tableData.value[index].maxCount = $('content/presets').attr('maxCount').num()
             }
         }
 
@@ -157,18 +150,18 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                tableData.value = $('//content/item')
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/item')
                     .filter((item) => {
                         const $item = queryXml(item.element)
-                        return (auth.value.hasAll || auth.value.ptz[item.attr('id')!]) && $item('chlType').text() !== 'recorder'
+                        return (auth.value.hasAll || auth.value.ptz[item.attr('id')]) && $item('chlType').text() !== 'recorder'
                     })
                     .map((item) => {
                         const $item = queryXml(item.element)
                         return {
-                            chlId: item.attr('id')!,
+                            chlId: item.attr('id'),
                             chlName: $item('name').text(),
-                            presetCount: Number($item('presetCount').text()),
+                            presetCount: $item('presetCount').text().num(),
                             presets: [],
                             maxCount: Infinity,
                         }
@@ -180,7 +173,7 @@ export default defineComponent({
          * @description 修改通道选项
          */
         const changeChl = () => {
-            tableRef.value?.setCurrentRow(tableData.value[pageData.value.tableIndex])
+            tableRef.value!.setCurrentRow(tableData.value[pageData.value.tableIndex])
             getPreset(tableData.value[pageData.value.tableIndex].chlId)
         }
 
@@ -201,13 +194,14 @@ export default defineComponent({
          * @param {ChannelPtzPresetChlDto} row
          * @param {boolean} expanded
          */
-        const handleExpandChange = async (row: ChannelPtzPresetChlDto, expanded: boolean) => {
+        const handleExpandChange = (row: ChannelPtzPresetChlDto, expanded: boolean) => {
             const index = tableData.value.findIndex((item) => item.chlId === row.chlId)
-            tableRef.value?.setCurrentRow(row)
+            tableRef.value!.setCurrentRow(row)
             if (index !== pageData.value.tableIndex) {
                 pageData.value.tableIndex = index
                 getPreset(tableData.value[pageData.value.tableIndex].chlId)
             }
+
             if (expanded) {
                 if (!pageData.value.expandRowKey.includes(row.chlId)) {
                     pageData.value.expandRowKey.push(row.chlId)
@@ -234,7 +228,12 @@ export default defineComponent({
 
         // 当前预置点选项
         const presetOptions = computed(() => {
-            return tableData.value[pageData.value.tableIndex]?.presets || []
+            return (
+                tableData.value[pageData.value.tableIndex]?.presets.map((item, value) => ({
+                    ...item,
+                    value,
+                })) || []
+            )
         })
 
         const defaultPreset = new ChannelPtzPresetDto()
@@ -274,10 +273,7 @@ export default defineComponent({
         const addPreset = (index: number) => {
             const current = tableData.value[index]
             if (current.presets.length >= current.maxCount) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
-                })
+                openMessageBox(Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
                 return
             }
             pageData.value.addPresetMax = current.maxCount
@@ -306,7 +302,7 @@ export default defineComponent({
             const chlId = tableData.value[chlIndex].chlId
             const chlName = tableData.value[chlIndex].chlName
             const preset = tableData.value[chlIndex].presets[presetIndex]
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_PRESET_S').formatForLang(Translate('IDCS_CHANNEL'), getShortString(chlName, 10), getShortString(preset.name, 10)),
             }).then(async () => {
@@ -316,14 +312,14 @@ export default defineComponent({
                     <condition>
                         <chlId>${chlId}</chlId>
                         <presetIndexes type="list">
-                            <item index="${preset.index.toString()}">${wrapCDATA(preset.name)}</item> 
+                            <item index="${preset.index}">${wrapCDATA(preset.name)}</item> 
                         </presetIndexes>
                     </condition>
                 `
                 const result = await delChlPreset(sendXml)
 
                 closeLoading()
-                commSaveResponseHadler(result, () => {
+                commDelResponseHandler(result, () => {
                     tableData.value[chlIndex].presets.splice(presetIndex, 1)
                     tableData.value[chlIndex].presetCount--
                 })
@@ -334,17 +330,13 @@ export default defineComponent({
          * @description 修改预置点名称
          */
         const saveName = async () => {
-            if (!formData.value.name || !presetOptions.value.length) {
-                return
-            }
-
             openLoading()
 
             const sendXml = rawXml`
                 <content>
                     <chlId>${tableData.value[pageData.value.tableIndex].chlId}</chlId>
-                    <index>${currentPreset.value.index.toString()}</index>
-                    <name>${wrapCDATA(formData.value.name)}</name>
+                    <index>${currentPreset.value.index}</index>
+                    <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
                 </content>
             `
             const result = await editChlPreset(sendXml)
@@ -352,25 +344,19 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                openMessageTipBox({
+            if ($('status').text() === 'success') {
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).finally(() => {
                     tableData.value[pageData.value.tableIndex].presets[formData.value.presetIndex as number].name = formData.value.name
                 })
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_PROMPT_PRESET_NAME_EXIST'),
-                    })
+                    openMessageBox(Translate('IDCS_PROMPT_PRESET_NAME_EXIST'))
                 } else {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_SAVE_DATA_FAIL'),
-                    })
+                    openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
                 }
             }
         }
@@ -384,13 +370,13 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <chlId>${tableData.value[pageData.value.tableIndex].chlId}</chlId>
-                    <index>${currentPreset.value.index.toString()}</index>
+                    <index>${currentPreset.value.index}</index>
                 </content>  
             `
             const result = await editChlPresetPosition(sendXml)
 
             closeLoading()
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
         }
 
         /**
@@ -405,8 +391,8 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <chlId>${tableData.value[pageData.value.tableIndex].chlId}</chlId>
-                    <index>${currentPreset.value.index.toString()}</index>
-                    <speed>${pageData.value.speed.toString()}</speed>
+                    <index>${currentPreset.value.index}</index>
+                    <speed>${pageData.value.speed}</speed>
                 </content>
             `
             goToPtzPreset(sendXml)
@@ -430,9 +416,9 @@ export default defineComponent({
         })
 
         onBeforeUnmount(() => {
-            if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx') {
                 const sendXML = OCX_XML_StopPreview('ALL')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         })
 
@@ -442,6 +428,7 @@ export default defineComponent({
             handlePlayerReady,
             pageData,
             tableData,
+            chlOptions,
             formData,
             changeChl,
             handleRowClick,
@@ -454,12 +441,6 @@ export default defineComponent({
             savePosition,
             deletePreset,
             setSpeed,
-            nameByteMaxLen,
-            formatInputMaxLength,
-            ChannelPtzCtrlPanel,
-            ChannelPresetAddPop,
-            ChannelPtzTableExpandPanel,
-            ChannelPtzTableExpandItem,
         }
     },
 })

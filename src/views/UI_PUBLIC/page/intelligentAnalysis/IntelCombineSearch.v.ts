@@ -2,10 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-10 18:29:15
  * @Description: 智能分析 - 组合搜索
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:13:25
  */
-import { type IntelSearchCollectList, type IntelSearchList, IntelSnapImgDto, IntelSearchCombineForm, type IntelSnapPopList } from '@/types/apiType/intelligentAnalysis'
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
 import IntelBaseDateTimeSelector from './IntelBaseDateTimeSelector.vue'
 import IntelBaseEventSelector from './IntelBaseEventSelector.vue'
@@ -17,11 +14,9 @@ import IntelBaseSnapPop from './IntelBaseSnapPop.vue'
 import IntelLicencePlateDBAddPlatePop from './IntelLicencePlateDBAddPlatePop.vue'
 import IntelFaceDBSnapRegisterPop from './IntelFaceDBSnapRegisterPop.vue'
 import type { TableInstance, CheckboxValueType } from 'element-plus'
-import { type PlaybackPopList } from '@/components/player/BasePlaybackPop.vue'
 import BackupPop from '../searchAndBackup/BackupPop.vue'
 import BackupLocalPop from '../searchAndBackup/BackupLocalPop.vue'
-import { type PlaybackBackUpRecList } from '@/types/apiType/playback'
-import { type DownloadZipOptions } from '@/utils/tools'
+import { type DownloadZipOptions } from '@/utils/downloaders'
 import dayjs from 'dayjs'
 
 export default defineComponent({
@@ -41,8 +36,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
         const auth = useUserChlAuth()
         const userSession = useUserSessionStore()
@@ -50,7 +43,7 @@ export default defineComponent({
         // 图像失败重新请求最大次数
         const REPEAR_REQUEST_IMG_TIMES = 2
         // 图像缓存，避免重复请求相同的图片
-        const cachePic: Record<string, IntelSnapImgDto> = {}
+        const cachePic = new Map<string, IntelSnapImgDto>()
 
         let chlMap: Record<string, string> = {}
 
@@ -124,6 +117,8 @@ export default defineComponent({
             isAddFacePop: false,
             // 注册人脸的图像数据
             addFacePic: '',
+            // 车牌侦测、车牌识别才下载CSV
+            isSupportCSV: false,
         })
 
         const formData = ref(new IntelSearchCombineForm())
@@ -139,6 +134,8 @@ export default defineComponent({
             lockSlider: false,
             // 当前播放的项
             playId: '',
+            // 通道名称
+            chlName: '',
         })
 
         const playerRef = ref<PlayerInstance>()
@@ -148,11 +145,6 @@ export default defineComponent({
         const tableData = ref<IntelSearchList[]>([])
 
         const sliceTableData = ref<IntelSearchList[]>([])
-
-        // 车牌侦测、车牌识别才下载CSV
-        const isSupportCSV = computed(() => {
-            return !['plateDetection', 'plateMatchWhiteList', 'plateMatchStranger'].some((event) => !formData.value.event.includes(event))
-        })
 
         const attributeRange = computed(() => {
             if (formData.value.target.length) {
@@ -207,8 +199,8 @@ export default defineComponent({
         }
 
         const getUniqueKey = (row: { imgId: string; frameTime: string }) => {
-            if (!row.imgId || !row.frameTime) {
-                return Math.floor(Math.random() * 1e8) + ''
+            if (!row || !row.imgId || !row.frameTime) {
+                return getNonce() + ''
             }
             return `${row.imgId}:${row.frameTime}`
         }
@@ -223,6 +215,7 @@ export default defineComponent({
             playerData.value.playId = getUniqueKey(row)
             playerData.value.startTime = row.recStartTime
             playerData.value.endTime = row.recEndTime
+            playerData.value.chlName = row.chlName
 
             playerRef.value?.player.play({
                 chlID: row.chlId,
@@ -243,6 +236,7 @@ export default defineComponent({
             playerData.value.startTime = 0
             playerData.value.endTime = 0
             playerData.value.currentTime = 0
+            playerData.value.chlName = ''
             playerRef.value?.player.stop(0)
         }
 
@@ -284,7 +278,7 @@ export default defineComponent({
          * @param {TVTPlayerWinDataListItem} data
          * @param {Number} timestamp
          */
-        const handlePlayerTimeUpdate = (index: number, data: any, timestamp: number) => {
+        const handlePlayerTimeUpdate = (_index: number, _data: any, timestamp: number) => {
             if (playerData.value.lockSlider) {
                 return
             }
@@ -296,28 +290,35 @@ export default defineComponent({
          * @param {number} pageIndex
          */
         const changePage = async (pageIndex: number) => {
-            stop()
             tableRef.value!.clearSelection()
             formData.value.pageIndex = pageIndex
             sliceTableData.value = tableData.value.slice((pageIndex - 1) * formData.value.pageSize, pageIndex * formData.value.pageSize)
-            for (let i = 0; i < sliceTableData.value.length; i++) {
-                const item = sliceTableData.value[i]
+            sliceTableData.value.forEach(async (item, i) => {
+                const key = getUniqueKey(item)
                 const flag = await getPic(item, false, i)
                 if (flag) {
                     const flag2 = await getPic(item, true, i)
                     if (flag2) {
-                        sliceTableData.value[i] = {
-                            ...sliceTableData.value[i],
-                            ...cachePic[getUniqueKey(item)],
+                        if (flag2) {
+                            const pic = cachePic.get(key)!
+                            item.pic = pic.pic
+                            item.panorama = pic.panorama
+                            item.width = pic.width
+                            item.height = pic.height
+                            item.X1 = pic.X1
+                            item.Y1 = pic.Y1
+                            item.X2 = pic.X2
+                            item.Y2 = pic.Y2
+                            item.isDelSnap = pic.isDelSnap
+                            item.isNoData = pic.isNoData
+                            item.attribute = pic.attribute
+                            item.eventType = pic.eventType
+                            item.targetType = pic.targetType
+                            item.plateNumber = pic.plateNumber
                         }
-                        continue
-                    } else {
-                        break
                     }
-                } else {
-                    break
                 }
-            }
+            })
         }
 
         /**
@@ -350,41 +351,42 @@ export default defineComponent({
         const getPic = async (row: IntelSearchList, isPanorama: boolean, index: number, times = 0) => {
             try {
                 const key = getUniqueKey(row)
-                if (!row.isDelSnap && (!cachePic[key] || !cachePic[key].pic || !cachePic[key].panorama)) {
+                const pic = cachePic.get(key)
+                if (!row.isDelSnap && (!pic || !pic.pic || !pic.panorama)) {
                     const sendXml = rawXml`
                         <condition>
                             <imgId>${row.imgId}</imgId>
                             <chlId>${row.chlId}</chlId>
                             <frameTime>${row.frameTime}</frameTime>
                             <pathGUID>${row.pathGUID}</pathGUID>
-                            <sectionNo>${row.sectionNo.toString()}</sectionNo>
-                            <fileIndex>${row.fileIndex.toString()}</fileIndex>
-                            <blockNo>${row.bolckNo.toString()}</blockNo>
-                            <offset>${row.offset.toString()}</offset>
-                            <eventType>${row.eventTypeID.toString()}</eventType>
-                            ${ternary(isPanorama, '<isPanorama />')}
+                            <sectionNo>${row.sectionNo}</sectionNo>
+                            <fileIndex>${row.fileIndex}</fileIndex>
+                            <blockNo>${row.bolckNo}</blockNo>
+                            <offset>${row.offset}</offset>
+                            <eventType>${row.eventTypeID}</eventType>
+                            ${isPanorama ? '<isPanorama />' : ''}
                         </condition>
                     `
                     const result = await requestSmartTargetSnapImage(sendXml)
                     const $ = queryXml(result)
 
-                    if ($('//status').text() === 'success') {
-                        const content = $('//content').text()
+                    if ($('status').text() === 'success') {
+                        const content = $('content').text()
                         if (!content && times < REPEAR_REQUEST_IMG_TIMES) {
                             return getPic(row, isPanorama, index, times + 1)
                         }
-                        const width = Number($('//rect/ptWidth').text()) || 1
-                        const height = Number($('//rect/ptHeight').text()) || 1
-                        const leftTopX = Number($('//rect/leftTopX').text())
-                        const leftTopY = Number($('//rect/leftTopY').text())
-                        const rightBottomX = Number($('//rect/rightBottomX').text())
-                        const rightBottomY = Number($('//rect/rightBottomY').text())
+                        const width = $('rect/ptWidth').text().num() || 1
+                        const height = $('rect/ptHeight').text().num() || 1
+                        const leftTopX = $('rect/leftTopX').text().num()
+                        const leftTopY = $('rect/leftTopY').text().num()
+                        const rightBottomX = $('rect/rightBottomX').text().num()
+                        const rightBottomY = $('rect/rightBottomY').text().num()
                         const item = {
-                            pic: cachePic[key] ? cachePic[key].pic : '',
-                            panorama: cachePic[key] ? cachePic[key].panorama : '',
-                            eventType: $('//eventType').text(),
-                            targetType: $('//targetType').text(),
-                            plateNumber: $('//plateNumber').text() || '--',
+                            pic: pic ? pic.pic : '',
+                            panorama: pic ? pic.panorama : '',
+                            eventType: $('eventType').text(),
+                            targetType: $('targetType').text(),
+                            plateNumber: $('plateNumber').text() || '--',
                             width,
                             height,
                             X1: leftTopX / width,
@@ -393,24 +395,32 @@ export default defineComponent({
                             Y2: rightBottomY / height,
                             isDelSnap: false,
                             isNoData: !content,
+                            attribute: {} as Record<string, string>,
                         }
+
+                        $('attribute/item').forEach((attribute) => {
+                            item.attribute[attribute.attr('type')] = attribute.text()
+                        })
+
                         if (isPanorama) {
-                            item.panorama = 'data:image/png;base64,' + content
+                            item.panorama = wrapBase64Img(content)
                         } else {
-                            item.pic = 'data:image/png;base64,' + content
+                            item.pic = wrapBase64Img(content)
                         }
-                        cachePic[key] = item
+                        cachePic.set(key, item)
                     } else {
-                        cachePic[key] = cachePic[key] || new IntelSnapImgDto()
-                        const errorCode = Number($('//errorCode').text())
+                        const item = pic || new IntelSnapImgDto()
+                        const errorCode = $('errorCode').text().num()
                         switch (errorCode) {
                             case ErrorCode.HTTPS_CERT_EXIST:
-                                cachePic[key].isDelSnap = true
-                                cachePic[key].isNoData = false
+                                item.isDelSnap = true
+                                item.isNoData = false
+                                cachePic.set(key, item)
                                 break
                             case ErrorCode.USER_ERROR_NO_RECORDDATA:
-                                cachePic[key].isDelSnap = false
-                                cachePic[key].isNoData = true
+                                item.isDelSnap = false
+                                item.isNoData = true
+                                cachePic.set(key, item)
                                 break
                             default:
                                 // 重复获取数据
@@ -420,6 +430,7 @@ export default defineComponent({
                         }
                     }
                 }
+
                 if (getUniqueKey(row) === getUniqueKey(sliceTableData.value[index])) {
                     return true
                 } else {
@@ -442,6 +453,8 @@ export default defineComponent({
          * @description 获取列表数据
          */
         const getData = async () => {
+            stop()
+
             const attributeXml = Object.keys(formData.value.attribute)
                 .filter((key) => attributeRange.value.includes(key))
                 .map((key) => {
@@ -460,52 +473,53 @@ export default defineComponent({
             const sendXml = rawXml`
                 <resultLimit>10000</resultLimit>
                 <condition>
-                    <startTime>${formatDate(formData.value.dateRange[0], 'YYYY-MM-DD HH:mm:ss')}</startTime>
-                    <endTime>${formatDate(formData.value.dateRange[1], 'YYYY-MM-DD HH:mm:ss')}</endTime>
+                    <startTime>${localToUtc(formData.value.dateRange[0], DEFAULT_DATE_FORMAT)}</startTime>
+                    <endTime>${localToUtc(formData.value.dateRange[1], DEFAULT_DATE_FORMAT)}</endTime>
                     <chls type="list">${formData.value.chl.map((item) => `<item id="${item}"></item>`).join('')}</chls>
                     <events type="list">${formData.value.event.map((item) => `<item>${item}</item>`).join('')}</events>
                     <vehicle>
                         ${formData.value.target[0].map((item) => `<item>${item}</item>`).join('')}
-                        ${ternary(!!formData.value.plateNumber, `<item num="${formData.value.plateNumber}">plate</item>`)}
+                        ${!!formData.value.plateNumber ? `<item num="${formData.value.plateNumber}">plate</item>` : ''}
                     </vehicle>
-                    ${ternary(!!formData.value.target[1].length, `<person type="list"><item></item></person>`)}
+                    ${!!formData.value.target[1].length ? '<person type="list"><item></item></person>' : ''}
                     <targetAttribute>${attributeXml}</targetAttribute>
                 </condition>
             `
 
             openLoading()
             tableData.value = []
+            pageData.value.isSupportCSV = formData.value.event.every((item) => ['plateDetection', 'plateMatchWhiteList', 'plateMatchStranger'].includes(item))
+            cachePic.clear()
 
             const result = await searchSmartTarget(sendXml)
             const $ = queryXml(result)
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                tableData.value = $('//content/i').map((item) => {
-                    const isDelSnap = item.attr('s')! === 'd'
-                    const split = item.text().split(',')
-                    const guid = parseInt(split[3], 16)
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/i').map((item) => {
+                    const isDelSnap = item.attr('s') === 'd'
+                    const split = item.text().array()
+                    const guid = hexToDec(split[3])
                     const chlId = getChlGuid16(split[3]).toUpperCase()
-                    const timestamp = parseInt(split[0], 16) * 1000
+                    const timestamp = hexToDec(split[0]) * 1000
                     return {
                         isDelSnap: isDelSnap,
                         isNoData: false,
-                        imgId: parseInt(split[2], 16) + '',
+                        imgId: hexToDec(split[2]) + '',
                         timestamp,
-                        frameTime: localToUtc(timestamp) + ':' + ('0000000' + parseInt(split[1], 16)).slice(-7),
+                        frameTime: localToUtc(timestamp) + ':' + padStart(hexToDec(split[1]), 7),
                         guid,
                         chlId,
-                        chlName: chlMap[chlId],
-                        recStartTime: parseInt(split[4], 16) * 1000,
-                        recEndTime: parseInt(split[5], 16) * 1000,
+                        chlName: chlMap[chlId] || Translate('IDCS_HISTORY_CHANNEL'),
+                        recStartTime: hexToDec(split[4]) * 1000,
+                        recEndTime: hexToDec(split[5]) * 1000,
                         pathGUID: split[6],
-                        sectionNo: parseInt(split[7], 16),
-                        fileIndex: parseInt(split[8], 16),
-                        bolckNo: parseInt(split[9], 16),
-                        offset: parseInt(split[10], 16),
-                        eventTypeID: parseInt(split[11], 16),
-                        direction: split[13],
+                        sectionNo: hexToDec(split[7]),
+                        fileIndex: hexToDec(split[8]),
+                        bolckNo: hexToDec(split[9]),
+                        offset: hexToDec(split[10]),
+                        eventTypeID: hexToDec(split[11]),
                         plateNumber: '--',
                         pic: '',
                         panorama: '',
@@ -517,15 +531,14 @@ export default defineComponent({
                         Y1: 0,
                         X2: 0,
                         Y2: 0,
+                        attribute: {},
                     }
                 })
                 showMaxSearchLimitTips($)
             }
+
             if (!tableData.value.length) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_RECORD_DATA'),
-                })
+                openMessageBox(Translate('IDCS_NO_RECORD_DATA'))
             }
 
             changeSortType()
@@ -641,10 +654,7 @@ export default defineComponent({
                 return !auth.value.bk[item.chlId]
             })
             if (find) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_CHANNEL_BACUP_NO_PERMISSION').formatForLang(find.chlName),
-                })
+                openMessageBox(Translate('IDCS_CHANNEL_BACUP_NO_PERMISSION').formatForLang(find.chlName))
                 return false
             }
             return true
@@ -713,7 +723,7 @@ export default defineComponent({
          * @description 生成CSV文件名
          */
         const getCsvName = () => {
-            return 'EXPORT_SNAP_PLATE_LIST-' + dayjs().format('YYYYMMDDHHmmss')
+            return 'EXPORT_SNAP_PLATE_LIST-' + dayjs().format('YYYYMMDDHHmmss') + '.csv'
         }
 
         /**
@@ -744,10 +754,7 @@ export default defineComponent({
             if (downloadData.length) {
                 createZip()
             } else {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_RECORD_DATA'),
-                })
+                openMessageBox(Translate('IDCS_NO_RECORD_DATA'))
             }
         }
 
@@ -756,7 +763,7 @@ export default defineComponent({
          */
         const downloadCSV = () => {
             // 车牌侦测、车牌识别才下载CSV
-            if (isSupportCSV.value) {
+            if (pageData.value.isSupportCSV) {
                 const csvContent: string[] = []
                 const csvTitle = [Translate('IDCS_SERIAL_NUMBER'), Translate('IDCS_LICENSE_PLATE_NUM'), Translate('IDCS_CHANNEL'), Translate('IDCS_DEVICE_NAME'), Translate('IDCS_SNAP_TIME')].join(',')
                 csvContent.push(csvTitle)
@@ -782,7 +789,7 @@ export default defineComponent({
             })
                 .then(() => {
                     closeLoading()
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'success',
                         message: Translate('IDCS_BACKUP_SUCCESS'),
                     })
@@ -792,7 +799,7 @@ export default defineComponent({
                 })
         }
 
-        onBeforeUnmount(() => {
+        onBeforeRouteLeave(() => {
             stop()
         })
 
@@ -830,8 +837,8 @@ export default defineComponent({
             downloadVideo,
             auth,
             attributeRange,
-            isSupportCSV,
             getUniqueKey,
+            cacheKey: LocalCacheKey.KEY_COMBINE_SEARCH_COLLECTION,
         }
     },
 })

@@ -1,29 +1,55 @@
-import { type RecMode, RecordDistributeInfo, type RecordSchedule } from '@/types/apiType/record'
+/*
+ * @Author: tengxiang tengxiang@tvt.net.cn
+ * @Date: 2024-07-17 15:44:13
+ * @Description: 录像-模式配置
+ */
 import RecordModeAdvancePop from './RecordModeAdvancePop.vue'
 import RecordModeStreamPop from './RecordModeStreamPop.vue'
-import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
-import { type ApiResult } from '@/api/api'
-import { type XmlElement } from '@/utils/xmlParse'
+
 export default defineComponent({
     components: {
         RecordModeAdvancePop,
         RecordModeStreamPop,
-        ScheduleManagPop,
     },
     setup() {
         const { Translate } = useLangStore()
-        const userSessionStore = useUserSessionStore()
-        const { supportPOS } = useCababilityStore()
-        const theme = getUiAndTheme().name
-        const openMessageTipBox = useMessageBox().openMessageTipBox
-        const { openLoading, closeLoading } = useLoading()
+        const { supportPOS, CustomerID } = useCababilityStore()
 
         const MODE_MAPPING: Record<string, string> = {
             manually: Translate('IDCS_REPLAY_CUSTOMIZE'),
             auto: Translate('IDCS_AUTO'),
         }
 
-        const formData = ref(new RecordDistributeInfo())
+        // icon信息映射
+        const ICON_MAPPING: { icon: string; event: string }[] = [
+            {
+                icon: 'record_all',
+                event: 'INTENSIVE',
+            },
+            {
+                icon: 'motion',
+                event: 'MOTION',
+            },
+            {
+                icon: 'alarm_1',
+                event: 'ALARM',
+            },
+            {
+                icon: 'intelligent',
+                event: 'INTELLIGENT',
+            },
+            {
+                icon: 'pos_2',
+                event: 'POS',
+            },
+        ]
+
+        const formData = ref(new RecordDistributeInfoDto())
+        const watchEdit = useWatchEditData(formData)
+
+        const tableData = ref<RecordScheduleDto[]>([])
+        const watchRows = useWatchEditRows<RecordScheduleDto>()
+
         const pageData = ref({
             //录像模式下拉列表
             recModeTypeList: [] as SelectOption<string, string>[],
@@ -32,18 +58,14 @@ export default defineComponent({
             //手动录像时长
             urgencyRecDurationList: [] as SelectOption<number, string>[],
             //排程管理弹窗显示状态
-            scheduleManagPopOpen: false,
+            isSchedulePop: false,
             // 高级模式配置弹窗打开状态
-            advancePopOpen: false,
+            isAdvancePop: false,
             // 自动模式通道码流参数配置打开状态
-            recModeStreamPopOpen: false,
+            isRecModeStreamPop: false,
 
             //当前生效的高级模式选项（只支持一个）
-            advanceModeCurrent: null as RecMode | null,
-            // 应用按钮是否禁用
-            applyDisabled: true,
-            // 页面初始化完成
-            initComplated: false,
+            advanceModeCurrent: null as RecordModeDto | null,
             // 记录上一次选择的自动模式ID，取消时回退用
             autoModeIdOld: '',
             // 高级模式详细信息
@@ -67,6 +89,7 @@ export default defineComponent({
                     text: Translate('IDCS_INTENSIVE_RECORD'),
                     type: REC_MODE_TYPE.INTENSIVE,
                     events: [REC_MODE_TYPE.INTENSIVE],
+                    icon: [''],
                     index: 0,
                 },
                 {
@@ -76,7 +99,7 @@ export default defineComponent({
                     events: ['INTELLIGENT'],
                     index: 3,
                 },
-            ] as RecMode[],
+            ] as RecordModeDto[],
             basicRecModes: [
                 {
                     id: 'MOTION',
@@ -127,18 +150,13 @@ export default defineComponent({
                     events: ['MOTION', 'ALARM', 'INTELLIGENT'],
                     index: 7,
                 },
-            ] as RecMode[],
-            icons: {} as Record<string, string[]>,
-            // icon信息映射
-            iconMap: {
-                MOTION: 'motion',
-                ALARM: 'alarm_1',
-                INTELLIGENT: 'intelligent',
-                POS: 'POS',
-                INTENSIVE: 'record_all',
-            } as Record<string, string>,
+            ] as RecordModeDto[],
+            // icons: {} as Record<string, string[]>,
             // 根据UI选择是否显示icon
-            showIcon: theme === 'UI1-E',
+            showIcon: import.meta.env.VITE_UI_TYPE === 'UI1-E',
+            // 特定客户的需求
+            isInw48: CustomerID === 100,
+            advanceRecModeId: '',
         })
 
         // 如果支持POS，才在高级模式选项列表中加入POS
@@ -155,78 +173,26 @@ export default defineComponent({
         /**
          * 缓存初始化查询时的列表数据，保存时对比变化了的行
          */
-        let recordScheduleListInit = [] as RecordSchedule[]
+        // let recordScheduleListInit: RecordScheduleDto[] = []
 
         //高级录像模式列表转MAP
-        const advanceRecModeMap = {} as Record<string, RecMode>
+        const advanceRecModeMap: Record<string, RecordModeDto> = {}
         pageData.value.advanceRecModes.forEach((item) => {
             advanceRecModeMap[item.id] = item
         })
 
-        onMounted(async () => {
-            genIconMap(recAutoModeList.value)
-            await getRecModeData()
-            await initChlScheduldTb()
-            pageData.value.initComplated = true
-        })
-
-        watch(
-            formData,
-            () => {
-                if (pageData.value.initComplated) pageData.value.applyDisabled = false
-            },
-            {
-                deep: true,
-            },
-        )
-
-        watch(
-            () => {
-                return formData.value.autoModeId
-            },
-            (newValue: string, oldValue: string) => {
-                if (!pageData.value.initComplated) return
-                const isBack = pageData.value.autoModeIdOld === newValue
-                pageData.value.autoModeIdOld = oldValue
-
-                if (!isBack) {
-                    // TODO 码流配置设置
-                    pageData.value.recModeStreamPopOpen = true
-                } else {
-                    pageData.value.autoModeIdOld = ''
-                }
-            },
-        )
-
-        const genIconMap = (modes: RecMode[]) => {
-            pageData.value.icons = {}
-            modes.forEach((item) => {
-                pageData.value.icons[item.id] = []
-                if (item.text.includes(Translate('IDCS_INTENSIVE_RECORD'))) {
-                    pageData.value.icons[item.id].push(pageData.value.iconMap.INTENSIVE)
-                }
-                if (item.text.includes(Translate('IDCS_MOTION_RECORD'))) {
-                    pageData.value.icons[item.id].push(pageData.value.iconMap.MOTION)
-                }
-                if (item.text.includes(Translate('IDCS_ALARM_RECORD'))) {
-                    pageData.value.icons[item.id].push(pageData.value.iconMap.ALARM)
-                }
-                if (item.text.includes(Translate('IDCS_AI_RECORD'))) {
-                    pageData.value.icons[item.id].push(pageData.value.iconMap.INTELLIGENT)
-                }
-                if (item.text.includes(Translate('IDCS_POS_RECORD'))) {
-                    pageData.value.icons[item.id].push(pageData.value.iconMap.POS)
-                }
-            })
-        }
-        const recModeChange = async (params: string) => {
-            console.log(params)
+        const getIcons = (mode: RecordModeDto) => {
+            return ICON_MAPPING.filter((icon) => mode.type.includes(icon.event) || mode.events.includes(icon.event)).map((icon) => icon.icon)
         }
 
-        const changeAllSchedule = (value: string, field: string) => {
-            formData.value.recordScheduleList.forEach((item) => {
-                ;(item as any)[field] = value
+        const changeAllSchedule = (value: string, field: 'alarmRec' | 'motionRec' | 'intelligentRec' | 'posRec' | 'scheduleRec') => {
+            tableData.value.forEach((item) => {
+                item[field] = value
             })
+        }
+
+        const openSchedulePop = () => {
+            pageData.value.isSchedulePop = true
         }
 
         const getRecModeData = async () => {
@@ -237,29 +203,36 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('/response/status').text() !== 'success') return
+            if ($('status').text() !== 'success') return
 
-            formData.value.mode = $('/response/content/recMode/mode').text()
-            formData.value.autoMode = $('/response/content/recMode/autoMode').text()
-            formData.value.autoModeEvents = $('/response/content/recMode/autoMode').attr('eventType').split(',')
-            formData.value.urgencyRecDuration = Number($('/response/content/urgencyRecDuration').text())
+            formData.value.mode = $('content/recMode/mode').text()
+            formData.value.autoMode = $('content/recMode/autoMode').text()
+            formData.value.autoModeEvents = $('content/recMode/autoMode').attr('eventType').array()
+            formData.value.urgencyRecDuration = $('content/urgencyRecDuration').text().num()
+
+            //TODO: CustomerID为100代表inw48客户,要求隐藏智能侦测
+            if (pageData.value.isInw48) {
+                pageData.value.advanceRecModes = pageData.value.advanceRecModes.filter((item) => item.id !== 'INTELLIGENT')
+                pageData.value.basicRecModes.pop()
+            }
 
             //TODO: CustomerID为351代表USE44客户,要求将manual翻译为schedule
-            //  if(CustomerID=="351"){
-            //     recModeTypeMapping.manually = "IDCS_REC_MODE_MANUAL"
-            // }
+            if (CustomerID === 351) {
+                MODE_MAPPING.manually = Translate('IDCS_REC_MODE_MANUAL')
+            }
+
             //绑定录像模式下拉
-            $('/response/types/recModeType/enum').forEach((item) => {
-                pageData.value.recModeTypeList.push({
+            pageData.value.recModeTypeList = $('types/recModeType/enum').map((item) => {
+                return {
                     value: item.text(),
                     label: MODE_MAPPING[item.text()],
-                })
+                }
             })
 
-            //绑定手动录像时长下拉 TODO 无函数
-            $('/response/content/urgencyRecDurationNote')
+            //绑定手动录像时长下拉
+            $('content/urgencyRecDurationNote')
                 .text()
-                .split(',')
+                .array()
                 .forEach((item) => {
                     const value = Number(item)
                     if (Number.isNaN(value)) return
@@ -283,7 +256,7 @@ export default defineComponent({
                 const item = pageData.value.basicRecModes[index]
                 //如果当前返回的事件列表和基础模式的事件列表相同，则表示选中基础事件模式
                 if (
-                    formData.value.autoModeEvents.length == item.events.length &&
+                    formData.value.autoModeEvents.length === item.events.length &&
                     formData.value.autoMode === item.type &&
                     formData.value.autoModeEvents.filter((o) => item.events.includes(o)).length === formData.value.autoModeEvents.length
                 ) {
@@ -306,8 +279,8 @@ export default defineComponent({
 
             // 如果返回数据中没有高级模式，查看本次会话中是否有已构建好的高级模式
             if (pageData.value.advanceModeCurrent === null) {
-                if (userSessionStore.advanceRecModeId) {
-                    genAdvanceMode(userSessionStore.advanceRecModeId.split('_'))
+                if (pageData.value.advanceRecModeId) {
+                    genAdvanceMode(pageData.value.advanceRecModeId.split('_'))
                 }
             }
         }
@@ -319,7 +292,7 @@ export default defineComponent({
          */
         const genAdvanceMode = (events: string[]) => {
             // 如果选择的项为空，表示删除高级模式项
-            if (events.length === 0) {
+            if (!events.length) {
                 pageData.value.advanceModeCurrent = null
                 return true
             }
@@ -327,10 +300,7 @@ export default defineComponent({
             const intensiveIndex = events.indexOf(REC_MODE_TYPE.INTENSIVE)
             // 不能只选一直录像
             if (events.length === 1 && intensiveIndex > -1) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_ONLY_INTENSIVE_TIP'),
-                })
+                openMessageBox(Translate('IDCS_ONLY_INTENSIVE_TIP'))
                 return false
             }
 
@@ -344,13 +314,18 @@ export default defineComponent({
             events.sort((a, b) => {
                 return advanceRecModeMap[a].index - advanceRecModeMap[b].index
             })
-            const advanceModeCurrent = {} as RecMode
-            advanceModeCurrent.id = events.join('_')
-            advanceModeCurrent.text = events
-                .map((item) => {
-                    return advanceRecModeMap[item].text
-                })
-                .join('+')
+
+            const advanceModeCurrent: RecordModeDto = {
+                id: events.join('_'),
+                text: events
+                    .map((item) => {
+                        return advanceRecModeMap[item].text
+                    })
+                    .join('+'),
+                type: '',
+                events: [],
+                index: 0,
+            }
 
             if (autoModeIsIntensive) {
                 advanceModeCurrent.id = `${REC_MODE_TYPE.INTENSIVE}_${advanceModeCurrent.id}`
@@ -363,10 +338,7 @@ export default defineComponent({
                     return item.id === advanceModeCurrent.id
                 })
             ) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_RECORD_MODE_EXIST'),
-                })
+                openMessageBox(Translate('IDCS_RECORD_MODE_EXIST'))
                 return false
             }
 
@@ -375,9 +347,8 @@ export default defineComponent({
 
             pageData.value.advanceModeCurrent = advanceModeCurrent
 
-            // 存入Store
-            userSessionStore.advanceRecModeId = advanceModeCurrent.id
-            genIconMap(recAutoModeList.value.concat([advanceModeCurrent]))
+            pageData.value.advanceRecModeId = advanceModeCurrent.id
+            // genIconMap(recAutoModeList.value.concat([advanceModeCurrent]))
 
             return true
         }
@@ -388,54 +359,48 @@ export default defineComponent({
         const recAutoModeList = computed(() => {
             return pageData.value.advanceModeCurrent === null ? pageData.value.basicRecModes : pageData.value.basicRecModes.concat(pageData.value.advanceModeCurrent)
         })
+
         /**
          * 初始化通道的录像排程表格
          */
-        const initChlScheduldTb = async () => {
+        const getRecordScheduleList = async () => {
             openLoading()
-            const resultArr = await Promise.all([queryScheduleList(), queryRecordScheduleList()])
 
-            const scheduleXml = queryXml(resultArr[0] as ApiResult)
-            const recScheduleXml = queryXml(resultArr[1] as ApiResult)
-            if (scheduleXml('/response/status').text() !== 'success' || recScheduleXml('/response/status').text() !== 'success') {
-                console.error('initChlScheduldTb failed')
+            pageData.value.scheduleList = await buildScheduleList()
+
+            const result = await queryRecordScheduleList()
+            const $ = queryXml(result)
+
+            if ($('status').text() !== 'success') {
                 return
             }
 
-            // 组装表格中的排程下拉列表
-            pageData.value.scheduleList = scheduleXml('/response/content/item').map((item) => {
+            // 通道的录像排程表格数据
+            tableData.value = $('content/item').map((item) => {
+                const $item = queryXml(item.element)
+                const getRecScheduleSelectValue = (str: string) => {
+                    const switchType = $item(str + '/switch')
+                        .text()
+                        .bool()
+                    return switchType ? $item(str + '/schedule').text() : DEFAULT_EMPTY_ID
+                }
                 return {
-                    label: item.text(),
-                    value: item.attr('id')!,
+                    id: item.attr('id'),
+                    name: $item('name').text(),
+                    alarmRec: getRecScheduleSelectValue('alarmRec'),
+                    motionRec: getRecScheduleSelectValue('motionRec'),
+                    intelligentRec: getRecScheduleSelectValue('intelligentRec'),
+                    posRec: getRecScheduleSelectValue('posRec'),
+                    scheduleRec: getRecScheduleSelectValue('scheduleRec'),
+                    status: '',
+                    statusTip: '',
+                    disabled: false,
                 }
             })
-            pageData.value.scheduleList.push({
-                label: `<${Translate('IDCS_NULL')}>`,
-                value: EmptyId,
+
+            tableData.value.forEach((item) => {
+                watchRows.listen(item)
             })
-
-            const getRecScheduleSelectValue = (item: XmlElement, path: string) => {
-                const scheduleElement = xmlParse(path, item.element)[0].element
-                return xmlParse('./switch', scheduleElement).text() === 'false' ? EmptyId : xmlParse('./schedule', scheduleElement).attr('id')
-            }
-
-            const parseTableData = () => {
-                return recScheduleXml('/response/content/item').map((item) => {
-                    return {
-                        id: item.attr('id')!,
-                        name: xmlParse('./name', item.element).text(),
-                        alarmRec: getRecScheduleSelectValue(item, './alarmRec'),
-                        motionRec: getRecScheduleSelectValue(item, './motionRec'),
-                        intelligentRec: getRecScheduleSelectValue(item, './intelligentRec'),
-                        posRec: getRecScheduleSelectValue(item, './posRec'),
-                        scheduleRec: getRecScheduleSelectValue(item, './scheduleRec'),
-                    }
-                })
-            }
-
-            // 通道的录像排程表格数据
-            formData.value.recordScheduleList = parseTableData()
-            recordScheduleListInit = parseTableData()
 
             closeLoading()
         }
@@ -444,17 +409,17 @@ export default defineComponent({
          * 高级弹窗确认事件
          * @param selectedEvents 选择的事件列表
          */
-        const advancePopConfirm = (selectedEvents: string[]) => {
-            if (genAdvanceMode(selectedEvents)) pageData.value.advancePopOpen = false
+        const confirmAdvancePop = (selectedEvents: string[]) => {
+            if (genAdvanceMode(selectedEvents)) pageData.value.isAdvancePop = false
         }
 
-        const streamPopClose = (isConfirm: boolean) => {
+        const closeStreamPop = (isConfirm: boolean) => {
             if (!isConfirm) {
                 formData.value.autoModeId = pageData.value.autoModeIdOld
             } else {
                 pageData.value.autoModeIdOld = formData.value.autoModeId
             }
-            pageData.value.recModeStreamPopOpen = false
+            pageData.value.isRecModeStreamPop = false
         }
 
         /**
@@ -470,76 +435,78 @@ export default defineComponent({
             const events = formData.value.autoModeEvents.join(',')
 
             const sendXml = rawXml`
-            <types>
-                <recModeType>
-                    <enum>manually</enum>
-                    <enum>auto</enum>
-                </recModeType>
-                <autoRecModeType>
-                    <enum>ALWAYS_HIGH</enum>
-                    <enum>MOTION</enum>
-                    <enum>ALARM</enum>
-                    <enum>MOTION_ALARM</enum>
-                    <enum>INTENSIVE_MOTION</enum>
-                    <enum>INTENSIVE_ALARM</enum>
-                    <enum>INTENSIVE_MOTION_ALARM</enum>
-                    <enum>EVENT</enum>
-                    <enum>INTENSIVE_EVENT</enum>
-                </autoRecModeType>
-                <eventType>
-                    <enum>MOTION</enum>
-                    <enum>ALARM</enum>
-                    <enum>INTELLIGENT</enum>
-                    <enum>POS</enum>
-                </eventType>
-            </types>
-            <content>
-                <recMode>
-                    <mode type="recModeType">${formData.value.mode}</mode>
-                    <autoMode type="autoRecModeType" eventType="${events}">${formData.value.autoMode}</autoMode>
-                </recMode>
-                <urgencyRecDuration unit="m">${formData.value.urgencyRecDuration.toString()}</urgencyRecDuration>
-            </content>`
+                <types>
+                    <recModeType>
+                        <enum>manually</enum>
+                        <enum>auto</enum>
+                    </recModeType>
+                    <autoRecModeType>
+                        <enum>ALWAYS_HIGH</enum>
+                        <enum>MOTION</enum>
+                        <enum>ALARM</enum>
+                        <enum>MOTION_ALARM</enum>
+                        <enum>INTENSIVE_MOTION</enum>
+                        <enum>INTENSIVE_ALARM</enum>
+                        <enum>INTENSIVE_MOTION_ALARM</enum>
+                        <enum>EVENT</enum>
+                        <enum>INTENSIVE_EVENT</enum>
+                    </autoRecModeType>
+                    <eventType>
+                        <enum>MOTION</enum>
+                        <enum>ALARM</enum>
+                        <enum>INTELLIGENT</enum>
+                        <enum>POS</enum>
+                    </eventType>
+                </types>
+                <content>
+                    <recMode>
+                        <mode type="recModeType">${formData.value.mode}</mode>
+                        <autoMode type="autoRecModeType" eventType="${events}">${formData.value.autoMode}</autoMode>
+                    </recMode>
+                    <urgencyRecDuration unit="m">${formData.value.urgencyRecDuration}</urgencyRecDuration>
+                </content>`
             return editRecordDistributeInfo(sendXml)
         }
 
         /**
          * @description 提交通道录像排程信息
          */
-        const setRecScheduleInfo = (editRows: RecordSchedule[]) => {
+        const setRecScheduleInfo = (editRows: RecordScheduleDto[]) => {
             const getSwitch = (scheduleId: string) => {
-                return scheduleId === EmptyId ? 'false' : 'true'
+                return scheduleId !== DEFAULT_EMPTY_ID
             }
-            let sendXml = rawXml`
-            <content type="list" total="${editRows.length.toString()}">`
-            editRows.forEach((row) => {
-                sendXml += rawXml`
-                <item id="${row.id}">
-                    <name><![CDATA[IPCamera]]></name>
-                    <scheduleRec>
-                        <switch>${getSwitch(row.scheduleRec)}</switch>
-                        <schedule id="${row.scheduleRec}"></schedule>
-                    </scheduleRec>
-                    <motionRec>
-                        <switch>${getSwitch(row.motionRec)}</switch>
-                        <schedule id="${row.motionRec}"></schedule>
-                    </motionRec>
-                    <alarmRec>
-                        <switch>${getSwitch(row.alarmRec)}</switch>
-                        <schedule id="${row.alarmRec}"></schedule>
-                    </alarmRec>
-                    <intelligentRec>
-                        <switch>${getSwitch(row.intelligentRec)}</switch>
-                        <schedule id="${row.intelligentRec}"></schedule>
-                    </intelligentRec>
-                    <posRec>
-                        <switch>${getSwitch(row.posRec)}</switch>
-                        <schedule id="${row.posRec}"></schedule>
-                    </posRec>
-                </item>`
-            })
-
-            sendXml += `</content>`
+            const sendXml = rawXml`
+                <content type="list" total="${editRows.length}">
+                    ${editRows
+                        .map((row) => {
+                            return rawXml`
+                                <item id="${row.id}">
+                                    <name>${wrapCDATA(row.name)}</name>
+                                    <scheduleRec>
+                                        <switch>${getSwitch(row.scheduleRec)}</switch>
+                                        <schedule id="${row.scheduleRec}"></schedule>
+                                    </scheduleRec>
+                                    <motionRec>
+                                        <switch>${getSwitch(row.motionRec)}</switch>
+                                        <schedule id="${row.motionRec}"></schedule>
+                                    </motionRec>
+                                    <alarmRec>
+                                        <switch>${getSwitch(row.alarmRec)}</switch>
+                                        <schedule id="${row.alarmRec}"></schedule>
+                                    </alarmRec>
+                                    <intelligentRec>
+                                        <switch>${getSwitch(row.intelligentRec)}</switch>
+                                        <schedule id="${row.intelligentRec}"></schedule>
+                                    </intelligentRec>
+                                    <posRec>
+                                        <switch>${getSwitch(row.posRec)}</switch>
+                                        <schedule id="${row.posRec}"></schedule>
+                                    </posRec>
+                                </item>`
+                        })
+                        .join('')}
+                </content>
+            `
             return editRecordScheduleList(sendXml)
         }
 
@@ -552,29 +519,53 @@ export default defineComponent({
             const requestList = [setRecModeInfo()]
 
             if (formData.value.mode === 'manually') {
-                const diffRows = getArrayDiffRows(formData.value.recordScheduleList, recordScheduleListInit)
-                if (diffRows.length > 0) requestList.push(setRecScheduleInfo(diffRows as RecordSchedule[]))
+                const diffRows = watchRows.toArray()
+                if (diffRows.length) requestList.push(setRecScheduleInfo(diffRows))
             }
             const resultList = await Promise.all(requestList)
 
             closeLoading()
-            if (isPopMessage) commMutiSaveResponseHadler(resultList)
+            if (isPopMessage) commMutiSaveResponseHandler(resultList)
         }
+
+        watch(
+            () => {
+                return formData.value.autoModeId
+            },
+            (newValue, oldValue) => {
+                if (!watchEdit.ready.value) return
+                const isBack = pageData.value.autoModeIdOld === newValue
+                pageData.value.autoModeIdOld = oldValue
+
+                if (!isBack) {
+                    pageData.value.isRecModeStreamPop = true
+                } else {
+                    pageData.value.autoModeIdOld = formData.value.autoModeId
+                }
+            },
+        )
+
+        onMounted(async () => {
+            await getRecModeData()
+            await getRecordScheduleList()
+            watchEdit.listen()
+        })
 
         return {
             formData,
+            tableData,
             pageData,
+            watchEdit,
+            watchRows,
             recAutoModeList,
             advanceRecModeMap,
-            RecordModeAdvancePop,
-            RecordModeStreamPop,
-            ScheduleManagPop,
             supportPOS,
-            recModeChange,
+            openSchedulePop,
             changeAllSchedule,
-            advancePopConfirm,
-            streamPopClose,
+            confirmAdvancePop,
+            closeStreamPop,
             setData,
+            getIcons,
         }
     },
 })

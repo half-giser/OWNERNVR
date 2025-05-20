@@ -2,20 +2,11 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-20 15:59:54
  * @Description: 系统重启
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:29:16
  */
-import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
-    components: {
-        BaseCheckAuthPop,
-    },
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
 
         let timer: NodeJS.Timeout | number = 0
 
@@ -47,14 +38,14 @@ export default defineComponent({
             const result = await reboot(sendXml)
             const $ = queryXml(result)
 
-            closeLoading()
-
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 pageData.value.isAuthPop = false
                 openLoading(LoadingTarget.FullScreen, Translate('IDCS_REBOOTING'))
                 timer = reconnect()
             } else {
-                const errorCode = Number($('//errorCode').text())
+                closeLoading()
+
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NO_AUTH:
@@ -66,10 +57,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_USER_OR_PASSWORD_ERROR')
                         break
                 }
-                openMessageTipBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 
@@ -81,7 +69,6 @@ export default defineComponent({
             verify,
             confirm,
             pageData,
-            BaseCheckAuthPop,
         }
     },
 })

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-20 13:57:01
  * @Description: 云台-预置点
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:51:43
 -->
 <template>
     <div class="base-chl-box">
@@ -11,48 +9,41 @@
             <div class="base-chl-box-player">
                 <BaseVideoPlayer
                     ref="playerRef"
-                    type="live"
-                    @onready="handlePlayerReady"
+                    @ready="handlePlayerReady"
                 />
             </div>
             <ChannelPtzCtrlPanel
                 :chl-id="tableData[pageData.tableIndex]?.chlId || ''"
+                :disabled="!tableData.length"
                 @speed="setSpeed"
             />
             <el-form
-                label-position="left"
-                :style="{
-                    '--form-label-width': '100px',
-                }"
-                class="narrow inline-message"
+                v-title
+                class="stripe"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select
+                    <el-select-v2
+                        v-if="chlOptions.length"
                         v-model="pageData.tableIndex"
-                        max-height="200px"
-                        popper-class="custom-select"
+                        :height="170"
+                        :options="chlOptions"
                         @change="changeChl"
-                    >
-                        <el-option
-                            v-for="(item, index) in tableData"
-                            :key="item.chlId"
-                            :value="index"
-                            :label="item.chlName"
-                        />
-                    </el-select>
+                    />
+                    <el-select-v2
+                        v-else
+                        model-value=""
+                        :options="[]"
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_PRESET')">
-                    <el-select
+                    <el-select-v2
                         v-model="formData.presetIndex"
-                        value-on-clear=""
-                    >
-                        <el-option
-                            v-for="(item, index) in presetOptions"
-                            :key="`${pageData.tableIndex}_${item.index}`"
-                            :label="item.index"
-                            :value="index"
-                        />
-                    </el-select>
+                        :options="presetOptions"
+                        :props="{
+                            label: 'index',
+                        }"
+                        :height="170"
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_PRESET_NAME')">
                     <el-input
@@ -60,37 +51,36 @@
                         :disabled="!presetOptions.length"
                         :formatter="formatInputMaxLength"
                         :parser="formatInputMaxLength"
-                        :maxlength="nameByteMaxLen"
-                        spellcheck="false"
                     />
-                    <el-tooltip
-                        :content="Translate('IDCS_SAVE_CHANGE')"
-                        :show-after="500"
-                    >
-                        <BaseImgSprite
-                            class="base-chl-icon-btn"
-                            file="save"
-                            :index="0"
-                            :hover-index="2"
-                            :disabled-index="3"
-                            :chunk="4"
-                            :disabled="!formData.name || !presetOptions.length"
-                            @click="saveName"
-                        />
+                    <el-tooltip :content="Translate('IDCS_SAVE_CHANGE')">
+                        <div class="base-chl-icon-btn">
+                            <BaseImgSpriteBtn
+                                file="save"
+                                :disabled="!formData.name.trim() || !presetOptions.length"
+                                @click="saveName"
+                            />
+                        </div>
                     </el-tooltip>
                 </el-form-item>
                 <div class="base-btn-box">
-                    <el-button @click="addPreset(pageData.tableIndex)">{{ Translate('IDCS_ADD') }}</el-button>
+                    <el-button
+                        :disabled="!tableData.length"
+                        @click="addPreset(pageData.tableIndex)"
+                    >
+                        {{ Translate('IDCS_ADD') }}
+                    </el-button>
                     <el-button
                         :disabled="!presetOptions.length"
                         @click="deletePreset(pageData.tableIndex, Number(formData.presetIndex))"
-                        >{{ Translate('IDCS_DELETE') }}</el-button
                     >
+                        {{ Translate('IDCS_DELETE') }}
+                    </el-button>
                     <el-button
                         :disabled="!presetOptions.length"
                         @click="savePosition"
-                        >{{ Translate('IDCS_SAVE_POSITION') }}</el-button
                     >
+                        {{ Translate('IDCS_SAVE_POSITION') }}
+                    </el-button>
                 </div>
             </el-form>
         </div>
@@ -98,31 +88,28 @@
             <div class="base-table-box">
                 <el-table
                     ref="tableRef"
+                    v-title
                     :show-header="false"
                     :data="tableData"
                     :row-key="getRowKey"
                     :expand-row-key="pageData.expandRowKey"
+                    :border="false"
                     highlight-current-row
-                    border
-                    stripe
+                    show-overflow-tooltip
                     @row-click="handleRowClick"
                     @expand-change="handleExpandChange"
                 >
                     <el-table-column prop="chlName" />
-                    <el-table-column>
-                        <template #default="scope">
-                            {{ Translate('IDCS_PRESET_NUM_D').formatForLang(scope.row.presetCount) }}
-                        </template>
-                    </el-table-column>
+                    <el-table-column :formatter="(row) => Translate('IDCS_PRESET_NUM_D').formatForLang(row.presetCount)" />
                     <el-table-column type="expand">
-                        <template #default="scope">
-                            <ChannelPtzTableExpandPanel @add="addPreset(scope.$index)">
+                        <template #default="{ row, $index }: TableColumn<ChannelPtzPresetChlDto>">
+                            <ChannelPtzTableExpandPanel @add="addPreset($index)">
                                 <ChannelPtzTableExpandItem
-                                    v-for="(item, index) in scope.row.presets"
+                                    v-for="(item, index) in row.presets"
                                     :key="item.index"
                                     :text="`${item.index}. ${item.name}`"
                                     file="preset"
-                                    @delete="deletePreset(scope.$index, index)"
+                                    @delete="deletePreset($index, index)"
                                 />
                             </ChannelPtzTableExpandPanel>
                         </template>
@@ -138,12 +125,7 @@
             @confirm="confirmAddPreset"
             @close="pageData.isAddPop = false"
         />
-        <BaseNotification v-model:notifications="pageData.notification" />
     </div>
 </template>
 
 <script lang="ts" src="./ChannelPreset.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/channel.scss';
-</style>

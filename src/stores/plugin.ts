@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-11 16:57:24
  * @Description: 插件全局存储
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-18 13:49:08
  */
 
 export const usePluginStore = defineStore('plugin', () => {
@@ -14,6 +12,8 @@ export const usePluginStore = defineStore('plugin', () => {
     const manuaClosePlugin = ref(false)
     const ready = ref(false)
     const isReconn = ref(false) // 登录是否为重连
+    const isAppendInfo = ref(false)
+    const bindStatus = ref(0)
 
     return {
         currPluginMode,
@@ -23,5 +23,7 @@ export const usePluginStore = defineStore('plugin', () => {
         manuaClosePlugin,
         ready,
         isReconn,
+        isAppendInfo,
+        bindStatus,
     }
 })

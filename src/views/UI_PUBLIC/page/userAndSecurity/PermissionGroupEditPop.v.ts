@@ -2,10 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-18 15:33:50
  * @Description: 编辑权限组弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 11:24:54
  */
-import { UserPermissionChannelAuthList, UserPermissionSystemAuthList, UserPermissionGroupAddForm } from '@/types/apiType/userAndSecurity'
 import type { XMLQuery } from '@/utils/xmlParse'
 import PermissionGroupInfoPop from './PermissionGroupInfoPop.vue'
 
@@ -33,8 +30,6 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const userSession = useUserSessionStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { closeLoading, openLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
         const formData = ref(new UserPermissionGroupAddForm())
@@ -52,16 +47,11 @@ export default defineComponent({
             // 当前选中的通道权限Tab
             activeChannelTab: DEFAULT_CHANNEL_AUTH_TABS[0],
             // 通道权限选项
-            channelOption: DEFAULT_SWITCH_OPTIONS.map((item) => {
-                return {
-                    value: item.value,
-                    label: Translate(item.label),
-                }
-            }),
+            channelOption: getTranslateOptions(DEFAULT_BOOL_SWITCH_OPTIONS),
             // 本地通道权限列表
-            localChannelIds: DEFAULT_LOCAL_CHANNEL_AUTH_LIST,
+            localChannelIds: getTranslateOptions(DEFAULT_LOCAL_CHANNEL_AUTH_LIST),
             // 远程通道权限列表
-            remoteChannelIds: DEFAULT_REMOTE_CHANNEL_AUTH_LIST,
+            remoteChannelIds: getTranslateOptions(DEFAULT_REMOTE_CHANNEL_AUTH_LIST),
         })
 
         /**
@@ -84,7 +74,7 @@ export default defineComponent({
             commLoadResponseHandler(result, ($) => {
                 getSystemAuth($)
                 getChannelAuth($)
-                formData.value.name = $('//content/name').text()
+                formData.value.name = $('content/name').text()
             })
         }
 
@@ -93,10 +83,18 @@ export default defineComponent({
          * @param {Function} $doc
          */
         const getSystemAuth = ($doc: XMLQuery) => {
-            const $ = queryXml($doc('//content/systemAuth')[0].element)
+            const $ = queryXml($doc('content/systemAuth')[0].element)
             Object.keys(systemAuthList.value).forEach((classify) => {
+                systemAuthList.value[classify].label = Translate(systemAuthList.value[classify].key)
                 Object.keys(systemAuthList.value[classify].value).forEach((key) => {
-                    systemAuthList.value[classify].value[key].value = $(key).text().toBoolean()
+                    systemAuthList.value[classify].value[key].value = $(key).text().bool()
+                    if (systemAuthList.value[classify].value[key].formatForLang?.length) {
+                        systemAuthList.value[classify].value[key].label = Translate(systemAuthList.value[classify].value[key].key).formatForLang(
+                            ...systemAuthList.value[classify].value[key].formatForLang.map((item) => Translate(item)),
+                        )
+                    } else {
+                        systemAuthList.value[classify].value[key].label = Translate(systemAuthList.value[classify].value[key].key)
+                    }
                 })
             })
             if (userSession.userType === USER_TYPE_DEFAULT_ADMIN) {
@@ -110,17 +108,17 @@ export default defineComponent({
          * @param {boolean} isQueryFromGroupID
          */
         const getChannelAuth = ($: XMLQuery) => {
-            channelAuthList.value = $('//content/chlAuth/item').map((item) => {
+            channelAuthList.value = $('content/chlAuth/item').map((item) => {
                 const arrayItem = new UserPermissionChannelAuthList()
                 const $item = queryXml(item.element)
-                arrayItem.id = item.attr('id')!
+                arrayItem.id = item.attr('id')
                 arrayItem.name = $item('name').text()
                 const auth = $item('auth').text()
                 DEFAULT_CHANNEL_AUTH_LIST.forEach((key) => {
                     if (auth.includes(key)) {
-                        arrayItem[key] = Translate('IDCS_ON') // 'true'
+                        arrayItem[key] = true
                     } else {
-                        arrayItem[key] = Translate('IDCS_OFF') // 'false'
+                        arrayItem[key] = false
                     }
                 })
                 return arrayItem
@@ -130,9 +128,9 @@ export default defineComponent({
         /**
          * @description 一次性处理同列的开关
          * @param {string} key
-         * @param {string} value
+         * @param {boolean} value
          */
-        const changeAllChannelAuth = (key: keyof UserPermissionChannelAuthList, value: string) => {
+        const changeAllChannelAuth = (key: UserPermissionAuthKey, value: boolean) => {
             channelAuthList.value.forEach((item) => {
                 item[key] = value
             })
@@ -144,41 +142,36 @@ export default defineComponent({
         const doEditAuthGroup = async () => {
             openLoading()
 
-            const channelAuthListXml = channelAuthList.value
-                .map((item) => {
-                    return rawXml`
-                        <item id="${item.id}">
-                            <name>${wrapCDATA(item.name)}</name>
-                            <auth>${wrapCDATA(DEFAULT_CHANNEL_AUTH_LIST.filter((key) => item[key] === Translate('IDCS_ON')).join(','))}</auth>
-                        </item>
-                    `
-                })
-                .join('')
-            const systemAuthListXml = Object.keys(systemAuthList.value)
-                .map((item) => {
-                    return Object.keys(systemAuthList.value[item].value)
-                        .map((key) => {
-                            return `<${key}>${systemAuthList.value[item].value[key].value}</${key}>`
-                        })
-                        .join('')
-                })
-                .join('')
             const sendXml = rawXml`
                 <content>
                     <id>${prop.groupId}</id>
                     <name>${wrapCDATA(formData.value.name)}</name>
-                    <chlAuthNote>
-                        <![CDATA[local: [_lp:live preview, _spr: search and play record, _bk:backup, _ptz:PTZ control],remote: [@lp:live preview, @spr: search and play record, @bk:backup, @ptz: PTZ control]]]>
-                    </chlAuthNote>
+                    <chlAuthNote>${wrapCDATA('local: [_lp:live preview, _spr: search and play record, _bk:backup, _ptz:PTZ control],remote: [@lp:live preview, @spr: search and play record, @bk:backup, @ptz: PTZ control]')}</chlAuthNote>
                     <chlAuth type="list">
                         <itemType>
                             <name/>
                             <auth/>
                         </itemType>
-                        ${channelAuthListXml}
+                        ${channelAuthList.value
+                            .map((item) => {
+                                return rawXml`
+                                    <item id="${item.id}">
+                                        <auth>${wrapCDATA(DEFAULT_CHANNEL_AUTH_LIST.filter((key) => item[key]).join(','))}</auth>
+                                    </item>
+                                `
+                            })
+                            .join('')}
                     </chlAuth>
                     <systemAuth>
-                        ${systemAuthListXml}
+                        ${Object.keys(systemAuthList.value)
+                            .map((item) => {
+                                return Object.keys(systemAuthList.value[item].value)
+                                    .map((key) => {
+                                        return `<${key}>${systemAuthList.value[item].value[key].value}</${key}>`
+                                    })
+                                    .join('')
+                            })
+                            .join('')}
                     </systemAuth>
                 </content>
             `
@@ -187,10 +180,10 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 ctx.emit('confirm')
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL:
@@ -203,10 +196,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                         break
                 }
-                openMessageTipBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 
@@ -220,7 +210,7 @@ export default defineComponent({
         /**
          * @description 打开弹窗时处理回显信息
          */
-        const handleOpen = async () => {
+        const open = async () => {
             openLoading()
             formData.value.name = ''
             // channelAuthList.value = []
@@ -253,9 +243,8 @@ export default defineComponent({
             pageData,
             goBack,
             changeAllChannelAuth,
-            handleOpen,
+            open,
             displayAuthGroup,
-            PermissionGroupInfoPop,
         }
     },
 })

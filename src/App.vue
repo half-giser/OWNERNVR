@@ -2,13 +2,11 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-24 17:12:55
  * @Description: 
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-12 14:46:54
 -->
 <template>
     <div>
         <el-config-provider :locale="langStore.elLocale">
-            <router-view :key="route.path" />
+            <router-view />
         </el-config-provider>
         <transition name="intitial-view">
             <div
@@ -16,6 +14,11 @@
                 id="InitialView"
             ></div>
         </transition>
+        <BaseNotification
+            :model-value="layoutStore.notifications"
+            @update:model-value="layoutStore.notifications = $event"
+        />
+        <BasePluginNotice />
     </div>
 </template>
 
@@ -28,26 +31,33 @@ const router = useRouter()
 const layoutStore = useLayoutStore()
 const langStore = useLangStore()
 const session = useUserSessionStore()
-
-const Plugin = usePlugin()
-provide('Plugin', Plugin)
+const plugin = usePlugin()
+const systemCaps = useCababilityStore()
 
 /**
  * @description 如果未激活，跳转开机向导，否则，根据登录状态，跳转登录或现场预览
  * @param {boolean} checkActivationStatus
- * @param {boolean} isUserAuth
  */
-const hanedleActivationStatus = async (checkActivationStatus: boolean, isUserAuth: boolean) => {
+const hanedleActivationStatus = async (checkActivationStatus: boolean) => {
     try {
         layoutStore.isInitial = true
         const auInfo = session.auInfo_N9K
         if (!checkActivationStatus) {
             router.replace('/guide')
         } else {
-            if (!auInfo || !isUserAuth) {
-                router.replace('/login')
+            if (!auInfo) {
+                if (getLoginInfoByURL()) {
+                    // router.replace('/urllogin')
+                } else if (session.urlLoginAuth) {
+                    router.replace('/urllogin')
+                } else {
+                    router.replace('/login')
+                }
                 return
             } else {
+                await systemCaps.updateCabability()
+                await systemCaps.updateDiskMode()
+                await systemCaps.updateBaseConfig()
                 generateAsyncRoutes()
                 if (route.name === 'login') {
                     router.replace('/live')
@@ -59,21 +69,21 @@ const hanedleActivationStatus = async (checkActivationStatus: boolean, isUserAut
     } catch (e) {
         console.error(e)
     }
+
+    // layoutStore.isInitial = true
+    // generateAsyncRoutes()
+    // router.replace('/guide')
 }
 
-if (import.meta.env.VITE_APP_TYPE === 'STANDARD') {
-    let isUserAuth = false
-
-    querySystemCaps()
+if (session.appType === 'STANDARD') {
+    // 标准登录此处请求语言翻译和时间日期配置，P2P登录则延后至插件连接成功后请求
+    langStore
+        .getLangTypes()
+        .then(() => langStore.getLangItems(true))
+        .then(() => queryActivationStatus())
         .then((result) => {
-            const $ = queryXml(result)
-            isUserAuth = $('//status').text() === 'success'
-        })
-        .finally(() => {
-            queryActivationStatus().then((result) => {
-                const checkActivationStatus = queryXml(result)('//content/activated').text().toBoolean()
-                hanedleActivationStatus(checkActivationStatus, isUserAuth)
-            })
+            const checkActivationStatus = queryXml(result)('content/activated').text().bool()
+            hanedleActivationStatus(checkActivationStatus)
         })
 } else {
     session.getP2PSessionInfo()
@@ -94,6 +104,12 @@ watch(
         immediate: true,
     },
 )
+
+if (import.meta.env.PROD) {
+    onBeforeUnmount(() => {
+        plugin.DisposePlugin()
+    })
+}
 </script>
 
 <style lang="scss">
@@ -102,7 +118,7 @@ body {
 }
 
 #InitialView {
-    background: #fff var(--img-initview) center no-repeat;
+    background: var(--color-white) var(--img-initview) center no-repeat;
     position: absolute;
     width: 100%;
     height: 100%;
@@ -116,32 +132,32 @@ body {
     transition: opacity 0.5s ease 0.5s;
 }
 
-.page-view {
-    &-enter-from {
-        opacity: 0;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100vw;
-    }
+// .page-view {
+//     &-enter-from {
+//         opacity: 0;
+//         position: absolute;
+//         top: 0;
+//         left: 0;
+//         width: 100vw;
+//     }
 
-    &-leave-to {
-        opacity: 0;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        z-index: 1;
-    }
+//     &-leave-to {
+//         opacity: 0;
+//         position: absolute;
+//         top: 0;
+//         left: 0;
+//         width: 100vw;
+//         z-index: 1;
+//     }
 
-    &-enter-active {
-        width: 100vw;
-        transition: opacity 0.3s linear;
-    }
+//     &-enter-active {
+//         width: 100vw;
+//         transition: opacity 0.3s linear;
+//     }
 
-    &-leave-active {
-        width: 100vw;
-        transition: opacity 0.3s linear;
-    }
-}
+//     &-leave-active {
+//         width: 100vw;
+//         transition: opacity 0.3s linear;
+//     }
+// }
 </style>

@@ -2,16 +2,14 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-18 18:42:30
  * @Description: 在线用户
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:33:17
  */
-import type { UserOnlineList } from '@/types/apiType/userAndSecurity'
-
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
+        const timer = useRefreshTimer(() => {
+            getData()
+        }, 30000)
 
         const pageData = ref({
             // 是否打开的详情
@@ -38,8 +36,8 @@ export default defineComponent({
             const result = await queryOnlineUserInfo()
 
             closeLoading()
-            commLoadResponseHandler(result, async ($) => {
-                tableData.value = $('//content/item').map((item) => {
+            commLoadResponseHandler(result, ($) => {
+                tableData.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         userName: $item('userName').text(),
@@ -51,13 +49,15 @@ export default defineComponent({
                     }
                 })
             })
+
+            timer.repeat()
         }
 
         /**
          * @description 打开详情弹窗
          * @param {number} index
          */
-        const handleShowDetailInfo = (index: number) => {
+        const showDetailInfo = (index: number) => {
             pageData.value.detailIndex = index
             pageData.value.isDetail = true
         }
@@ -76,7 +76,7 @@ export default defineComponent({
         return {
             tableData,
             currentUser,
-            handleShowDetailInfo,
+            showDetailInfo,
             pageData,
         }
     },

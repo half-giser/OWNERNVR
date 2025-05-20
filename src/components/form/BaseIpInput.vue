@@ -2,14 +2,12 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-04 10:26:32
  * @Description: IPv4地址输入框
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 11:53:47
 -->
 <template>
     <div
         ref="$IpContainer"
         class="IpInput"
-        :class="[{ 'is-focus': isFocus, disabled: prop.disabled }, size]"
+        :class="{ 'is-focus': isFocus, disabled: prop.disabled }"
     >
         <template
             v-for="(item, index) in address"
@@ -23,6 +21,7 @@
                 @input="handleInput($event, index)"
                 @focus="handleFocus"
                 @blur="handleBlur"
+                @paste.prevent="handlePaste($event, index)"
             />
             <span v-if="index !== address.length - 1">.</span>
         </template>
@@ -46,12 +45,15 @@ const prop = withDefaults(
          * @property IP地址值
          */
         modelValue: string
-        size?: string
+        /**
+         * @property 是否允许IP地址为空值，若否，则输入框会默认填充0
+         */
+        allowEmpty?: boolean
     }>(),
     {
         disabled: false,
         invalidateMode: 'PREVENT',
-        default: '',
+        allowEmpty: false,
     },
 )
 
@@ -69,7 +71,7 @@ const isFocus = ref(0)
 // IP地址数组
 const address = computed(() => {
     const split = prop.modelValue.split('.')
-    return IPV4_DFAULT_VALUE.map((item, index) => {
+    return IPV4_DFAULT_VALUE.map((_item, index) => {
         if (!split[index]) return ''
         else return Number(split[index])
     })
@@ -88,29 +90,35 @@ const getInputElement = (index: number) => {
  * @param {number} value
  * @param {number} index
  */
-const updateValue = (value: number, index: number) => {
+const updateValue = (value: number | '', index: number) => {
     let current: string | number = value
-    if (prop.invalidateMode === 'PREVENT') {
-        if (current > MAX_VALUE || current < MIN_VALUE) {
-            current = address.value[index]
+    if (typeof current === 'number') {
+        if (prop.invalidateMode === 'PREVENT') {
+            if (current > MAX_VALUE || current < MIN_VALUE) {
+                current = address.value[index]
+            }
+        } else if (prop.invalidateMode === 'REPLACE') {
+            current = clamp(current, MIN_VALUE, MAX_VALUE)
         }
-    } else if (prop.invalidateMode === 'REPLACE') {
-        current = Math.min(MAX_VALUE, Math.max(MIN_VALUE, current))
     }
 
     const split: (string | number)[] = [...address.value]
     split[index] = current
 
-    const filter = split.filter((i) => i === '')
-
     let join = ''
-    if (filter.length < split.length) {
-        if (filter.length > 0) {
-            split.forEach((i, index) => {
-                if (i === '') split[index] = 0
-            })
-        }
+    if (prop.allowEmpty) {
         join = split.join('.')
+        if (join === '...') join = ''
+    } else {
+        const filter = split.filter((i) => i === '')
+        if (filter.length < split.length) {
+            if (filter.length) {
+                split.forEach((i, index) => {
+                    if (i === '') split[index] = 0
+                })
+            }
+            join = split.join('.')
+        }
     }
 
     emits('update:modelValue', join)
@@ -124,8 +132,8 @@ const updateValue = (value: number, index: number) => {
  * @returns {boolean}
  */
 const isTextSelected = (input: HTMLInputElement) => {
-    if (typeof input.selectionStart == 'number') {
-        return input.selectionStart === 0 && input.selectionEnd == input.value.length
+    if (typeof input.selectionStart === 'number') {
+        return input.selectionStart === 0 && input.selectionEnd === input.value.length
     } else return false
 }
 
@@ -134,8 +142,8 @@ const isTextSelected = (input: HTMLInputElement) => {
  * @param {Event} e
  * @param {number} index
  */
-const handleKeyDown = (e: Event, index: number) => {
-    const keyCode = (e as KeyboardEvent).key
+const handleKeyDown = (e: KeyboardEvent, index: number) => {
+    const keyCode = e.key
     let isPreventDefault = true
 
     switch (keyCode) {
@@ -169,6 +177,16 @@ const handleKeyDown = (e: Event, index: number) => {
         case 'Backspace':
             isPreventDefault = false
             break
+        case 'v':
+            if (e.ctrlKey) {
+                isPreventDefault = false
+            }
+            break
+        case 'c':
+            if (e.ctrlKey) {
+                isPreventDefault = false
+            }
+            break
         // 校验输入的数字合法性，合法则执行输入事件
         default:
             if (/[0-9]/.test(keyCode)) {
@@ -191,9 +209,14 @@ const handleKeyDown = (e: Event, index: number) => {
  * @param {number} index
  */
 const handleInput = (e: Event, index: number) => {
-    const current = Number((e.target as HTMLInputElement).value)
-    const value = updateValue(current, index)
-    ;(e.target as HTMLInputElement).value = String(value)
+    const value = (e.target as HTMLInputElement).value
+    if (prop.allowEmpty && value === '') {
+        updateValue(value, index)
+        return
+    }
+    const current = Number(value)
+    const newValue = updateValue(current, index)
+    ;(e.target as HTMLInputElement).value = String(newValue)
 }
 
 /**
@@ -209,49 +232,62 @@ const handleFocus = (e: Event) => {
  */
 const handleBlur = () => {
     isFocus.value--
+    if (!prop.allowEmpty) {
+        const notEmpty = address.value.some((item, index) => {
+            return index !== 0 && item !== 0 && item !== ''
+        })
+        if ((address.value[0] === 0 || address.value[0] === '') && notEmpty) {
+            updateValue(1, 0)
+        }
+    }
+}
+
+/**
+ * @description 粘贴
+ * @param {ClipboardEvent} e
+ * @param {number} index
+ */
+const handlePaste = (e: ClipboardEvent, index: number) => {
+    const text = e.clipboardData?.getData('text')?.trim()
+    if (text) {
+        if (!isNaN(Number(text))) {
+            const num = Number(text)
+            if (num >= 0 && num <= 255) {
+                updateValue(num, index)
+            }
+        } else if (checkIpV4(text)) {
+            emits('update:modelValue', text)
+            emits('change', text)
+        }
+    }
 }
 </script>
 
 <style lang="scss">
 .IpInput {
-    --el-input-inner-height: 28px;
-
-    align-items: left;
-    border: 1px solid var(--input-border);
     border-radius: var(--el-input-border-radius, var(--el-border-radius-base));
-    box-shadow: 0 0 0 1px var(--el-input-border-color, var(--el-border-color)) inset;
+    box-shadow: 0 0 0 1px var(--input-border) inset;
     cursor: text;
     display: inline-flex;
     justify-content: flex-start;
-    padding: 0 11px;
-    transform: translateZ(0);
+    padding: 0 5px;
     transition: var(--el-transition-box-shadow);
     font-size: var(--el-font-size-base);
-    line-height: var(--el-input-inner-height);
-    width: var(--el-input-width);
+    width: 100%;
+    height: var(--el-component-size);
     box-sizing: border-box;
-    background: var(--el-input-bg-color, var(--el-fill-color-blank));
+    background: var(--input-bg);
+    color: var(--input-text);
 
-    &.small {
-        --el-input-inner-height: 20px;
-        font-size: 12px;
-    }
-
-    &:hover,
-    &.is-focus {
-        box-shadow: 0 0 0 1px var(--el-input-hover-border-color) inset;
+    &:hover:not(.disabled),
+    &.is-focus:not(.disabled) {
+        box-shadow: 0 0 0 1px var(--primary) inset;
         border-color: var(--primary);
-
-        &.disabled {
-            background-color: var(--input-bg-disabled);
-            border-color: var(--input-border-disabled);
-        }
     }
 
     &.disabled {
-        box-shadow: none;
+        box-shadow: 0 0 0 1px var(--input-border-disabled) inset;
         background-color: var(--input-bg-disabled);
-        border-color: var(--input-border-disabled);
         cursor: not-allowed;
         color: var(--el-disabled-text-color);
 
@@ -261,17 +297,16 @@ const handleBlur = () => {
     }
 
     input {
-        height: 100%;
-        border: none;
-        max-width: 25%;
         font-size: inherit;
-        line-height: var(--el-input-inner-height);
-        height: var(--el-input-inner-height);
-        width: 25px;
+        line-height: var(--el-component-size);
+        height: var(--el-component-size);
+        width: 22px;
         border: none;
         outline: 0;
         text-align: center;
         background: transparent;
+        color: var(--input-text);
+        padding: 0;
 
         &:disabled {
             color: var(--el-disabled-text-color);
@@ -281,6 +316,7 @@ const handleBlur = () => {
 
     span {
         color: var(--input-text);
+        line-height: calc(var(--el-component-size) - 2px);
     }
 }
 </style>

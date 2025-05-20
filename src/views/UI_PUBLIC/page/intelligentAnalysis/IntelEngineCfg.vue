@@ -2,15 +2,16 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-28 17:54:08
  * @Description: 智能分析-引擎配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-29 09:41:17
 -->
 <template>
     <div class="base-flex-box">
-        <el-form label-position="left">
+        <el-form v-title>
             <el-form-item>
                 <template #label>
-                    <el-checkbox v-model="formData.supportAI">{{ Translate('IDCS_ENABLE_AI') }}</el-checkbox>
+                    <el-checkbox
+                        v-model="formData.supportAI"
+                        :label="Translate('IDCS_ENABLE_AI')"
+                    />
                 </template>
                 <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
             </el-form-item>
@@ -20,7 +21,10 @@
             v-show="pageData.isDetail"
             class="base-table-box"
         >
-            <el-table>
+            <el-table
+                v-title
+                show-overflow-tooltip
+            >
                 <el-table-column
                     :label="Translate('IDCS_CHANNEL')"
                     prop="name"

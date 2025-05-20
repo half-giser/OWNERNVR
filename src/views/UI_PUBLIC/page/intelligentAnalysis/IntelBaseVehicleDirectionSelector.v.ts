@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-06 11:18:24
  * @Description: 智能分析 - 进出口方向 选择框
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-10 10:17:54
  */
 export default defineComponent({
     props: {

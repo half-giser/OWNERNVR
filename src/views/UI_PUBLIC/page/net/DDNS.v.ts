@@ -2,34 +2,31 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-10 09:13:17
  * @Description: DDNS
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:19:40
  */
-import { NetDDNSForm, NetDDNSServerTypeList } from '@/types/apiType/net'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const userSession = useUserSessionStore()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new NetDDNSForm())
         const formRule = ref<FormRules>({
             serverAddr: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (!isParamEnable('serverAddr')) {
                             callback()
                             return
                         }
+
                         // 服务器地址可能是ipv4/ipv6/域名
                         if (!checkIpV4(value) && !checkIpV6(value) && !checkDomainName(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_INVALID_SERVER')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -37,19 +34,22 @@ export default defineComponent({
             ],
             domainName: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (!isParamEnable('domainName')) {
                             callback()
                             return
                         }
-                        if (!value.length) {
+
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_DOMAIN_NAME_EMPTY')))
                             return
                         }
+
                         if (!checkDomainName(value)) {
                             callback(new Error(Translate('IDCS_TEST_DDNS_NOHOST')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -57,15 +57,17 @@ export default defineComponent({
             ],
             userName: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (!isParamEnable('userName')) {
                             callback()
                             return
                         }
+
                         if (!value.length) {
                             callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -73,15 +75,17 @@ export default defineComponent({
             ],
             password: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (!isParamEnable('userName')) {
                             callback()
                             return
                         }
+
                         if (!value.length) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -90,7 +94,9 @@ export default defineComponent({
         })
 
         // 更新连接状态的定时器
-        let timer: NodeJS.Timeout | number = 0
+        const timer = useRefreshTimer(() => {
+            getConnectStatus()
+        })
 
         const pageData = ref({
             // DDNS类型选项
@@ -108,7 +114,7 @@ export default defineComponent({
             const result = await queryNetCfgV2()
             const $ = queryXml(result)
 
-            const find = $('//content/nicConfigs/item').find((item) => {
+            const find = $('content/nicConfigs/item').find((item) => {
                 return item.attr('id') === 'eth0'
             })
             if (find) {
@@ -128,6 +134,9 @@ export default defineComponent({
          * @returns {boolean}
          */
         const isParamEnable = (param: string) => {
+            if (!formData.value.switch) {
+                return false
+            }
             return current.value.requireParam.includes(param) && !current.value.hideParam.includes(param)
         }
 
@@ -137,23 +146,26 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryDDNSCfg()
             commLoadResponseHandler(result, ($) => {
-                formData.value.serverType = $('//content/serverType').text()
-                formData.value.serverAddr = $('//content/serverAddr').text()
-                formData.value.userName = $('//content/userName').text()
-                formData.value.password = $('//content/password').text()
-                formData.value.domainName = $('//content/domainName').text()
-                formData.value.heartbeatTime = Number($('//content/heartbeatTime').text()) || undefined
-                formData.value.switch = $('//content/switch').text().toBoolean()
+                formData.value.serverType = $('content/serverType').text()
+                formData.value.serverAddrMaxLen = $('content/serverAddr').attr('maxLen').num() || 64
+                formData.value.serverAddr = $('content/serverAddr').text()
+                formData.value.userNameMaxByteLen = $('content/userName').attr('maxByteLen').num() || 63
+                formData.value.userName = $('content/userName').text()
+                formData.value.password = $('content/password').text()
+                formData.value.domainNameMaxLen = $('content/domainName').attr('maxLen').num() || 64
+                formData.value.domainName = $('content/domainName').text()
+                formData.value.heartbeatTime = $('content/heartbeatTime').text().undef()?.num()
+                formData.value.switch = $('content/switch').text().bool()
 
-                pageData.value.serverTypeOptions = $('//types/ddnsServerType/enum').map((item) => {
+                pageData.value.serverTypeOptions = $('types/ddnsServerType/enum').map((item) => {
                     const serverType = item.attr('display') || item.text()
                     const serverTypeValue = item.text()
                     const isSelected = serverTypeValue === formData.value.serverType
 
                     const hideParam = []
                     let defaultDomainName = ''
-                    let defaultServerAddr = item.attr('defaultServerAddr') || ''
-                    let suffix = item.attr('suffix') || ''
+                    let defaultServerAddr = item.attr('defaultServerAddr')
+                    let suffix = item.attr('suffix')
                     let isRegisterBtn = false
                     let isTestBtn = true
                     switch (serverTypeValue) {
@@ -164,6 +176,7 @@ export default defineComponent({
                         case 'specoddns.net':
                             hideParam.push('userName', 'password', 'heartbeat')
                             defaultDomainName = 'speco' + pageData.value.mac
+                            isTestBtn = false
                             break
                         case 'innektdvr.com':
                             hideParam.push('userName', 'password')
@@ -174,6 +187,9 @@ export default defineComponent({
                             defaultServerAddr = 'hifocuslive.com'
                             break
                         case 'members.grasphere.net':
+                            isTestBtn = false
+                            break
+                        case 'www.no-ip.com':
                             isTestBtn = false
                             break
                         default:
@@ -189,10 +205,10 @@ export default defineComponent({
                         domainName: isSelected ? formData.value.domainName : '',
                         heartbeatTime: isSelected ? formData.value.heartbeatTime : undefined,
                         suffix,
-                        requireParam: item.attr('requireParam')!.split(','),
+                        requireParam: item.attr('requireParam').array(),
                         hideParam: hideParam,
                         defaultServerAddr,
-                        defaultHeartBeatTime: Number(item.attr('defaultHeartBeatTime')) || undefined,
+                        defaultHeartBeatTime: item.attr('defaultHeartBeatTime').undef()?.num(),
                         defaultDomainName,
                         isRegisterBtn,
                         isTestBtn,
@@ -203,8 +219,7 @@ export default defineComponent({
                     formData.value.serverType = pageData.value.serverTypeOptions[0].serverType
                 }
 
-                pageData.value.connectState = $('//content/connectState').text() === 'success' ? Translate('IDCS_SUCCESS') : Translate('IDCS_FAILED')
-                timer = setInterval(() => getConnectStatus(), 5000)
+                pageData.value.connectState = $('content/connectState').text() === 'success' ? Translate('IDCS_SUCCESS') : Translate('IDCS_FAILED')
             })
         }
 
@@ -212,7 +227,6 @@ export default defineComponent({
          * @description 处理DDNS类型改变
          */
         const changeServerType = () => {
-            formRef.value!.clearValidate()
             formData.value.serverAddr = current.value.serverAddr || current.value.defaultServerAddr
             formData.value.userName = current.value.userName
             formData.value.password = current.value.password
@@ -237,7 +251,7 @@ export default defineComponent({
                 : ''
             const sendXml = rawXml`
                 <content>
-                    <switch>${formData.value.switch.toString()}</switch>
+                    <switch>${formData.value.switch}</switch>
                     ${enableXml}
                     ${formData.value.heartbeatTime ? `<heartbeatTime>${formData.value.heartbeatTime}</heartbeatTime>` : ''}
                 </content>
@@ -246,47 +260,67 @@ export default defineComponent({
         }
 
         /**
-         * @description 更新数据
+         * @description 符合条件后，更新数据
          */
-        const setData = async () => {
+        const setData = () => {
             formRef.value!.validate(async (valid) => {
                 if (!valid) {
                     return
                 }
 
-                openLoading()
+                if (formData.value.switch && ['specoddns.net', 'www.no-ip.com'].includes(current.value.serverType)) {
+                    openLoading(LoadingTarget.FullScreen, current.value.isRegisterBtn ? Translate('IDCS_REGISTER_HOLD_ON') : undefined)
+                    const result = await testDDNSCfg(getSetDataXml())
+                    const $ = queryXml(result)
 
-                const result = await editDDNSCfg(getSetDataXml())
-
-                commSaveResponseHadler(result)
-                closeLoading()
+                    if ($('status').text() === 'success') {
+                        await confirmSetData()
+                    } else {
+                        openMessageBox(Translate('IDCS_SAVE_FAIL') + ', ' + Translate($('errorDescription').text()))
+                    }
+                } else {
+                    openLoading()
+                    await confirmSetData()
+                }
             })
+        }
+
+        /**
+         * @description 更新数据
+         */
+        const confirmSetData = async () => {
+            const result = await editDDNSCfg(getSetDataXml())
+
+            closeLoading()
+            commSaveResponseHandler(result)
+
+            const findIndex = pageData.value.serverTypeOptions.findIndex((item) => item.serverType === formData.value.serverType)
+            if (findIndex >= 0) {
+                pageData.value.serverTypeOptions[findIndex].password = formData.value.password
+            }
         }
 
         /**
          * @description 测试
          */
-        const test = async () => {
+        const test = () => {
             formRef.value!.validate(async (valid) => {
                 if (!valid) {
                     return
                 }
 
-                openLoading(LoadingTarget.FullScreen, current.value.isRegisterBtn ? Translate('IDCS_REGISTER_HOLD_ON') : '')
+                openLoading(LoadingTarget.FullScreen, current.value.isRegisterBtn ? Translate('IDCS_REGISTER_HOLD_ON') : undefined)
 
                 const result = await testDDNSCfg(getSetDataXml())
                 const $ = queryXml(result)
 
-                if ($('//status').text() === 'success') {
-                    openMessageTipBox({
+                if ($('status').text() === 'success') {
+                    openMessageBox({
                         type: 'success',
                         message: current.value.isRegisterBtn ? Translate('IDCS_REGISTER_SUCCESS') : Translate('IDCS_TEST_SUCCESS'),
                     })
                 } else {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate($('//errorDescription').text()),
-                    })
+                    openMessageBox(Translate($('errorDescription').text()))
                 }
 
                 closeLoading()
@@ -298,7 +332,8 @@ export default defineComponent({
          */
         const getConnectStatus = async () => {
             const result = await queryDDNSCfg()
-            pageData.value.connectState = queryXml(result)('//content/connectState').text() === 'success' ? Translate('IDCS_SUCCESS') : Translate('IDCS_FAILED')
+            pageData.value.connectState = queryXml(result)('content/connectState').text() === 'success' ? Translate('IDCS_SUCCESS') : Translate('IDCS_FAILED')
+            timer.repeat()
         }
 
         /**
@@ -315,12 +350,9 @@ export default defineComponent({
 
             await getNetConfig()
             await getData()
+            timer.repeat()
 
             closeLoading()
-        })
-
-        onBeforeUnmount(() => {
-            clearInterval(timer)
         })
 
         return {
@@ -333,8 +365,6 @@ export default defineComponent({
             test,
             setData,
             formatDomainName,
-            formatInputUserName,
-            nameByteMaxLen,
         }
     },
 })

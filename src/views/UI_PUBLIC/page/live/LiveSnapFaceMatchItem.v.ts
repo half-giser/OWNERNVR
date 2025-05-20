@@ -2,11 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-29 16:09:44
  * @Description: 现场预览-目标检测视图-人脸比对项组件
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:12:33
  */
-import { type WebsocketSnapOnSuccessSnap } from '@/utils/websocket/websocketSnap'
-
 export default defineComponent({
     props: {
         /**
@@ -50,7 +46,8 @@ export default defineComponent({
          * @returns {string}
          */
         const displayBase64Img = (src?: null | string) => {
-            return 'data:image/png;base64,' + String(src)
+            if (!src) return ''
+            return wrapBase64Img(src)
         }
 
         /**
@@ -62,9 +59,19 @@ export default defineComponent({
             return formatDate(time, dateTime.timeFormat)
         }
 
+        const loadImg = (e: Event) => {
+            const img = e.currentTarget as HTMLImageElement
+            if (img.naturalWidth > img.naturalHeight) {
+                img.style.objectFit = 'contain'
+            } else {
+                img.style.objectFit = 'fill'
+            }
+        }
+
         return {
             displayBase64Img,
             displayTime,
+            loadImg,
         }
     },
 })

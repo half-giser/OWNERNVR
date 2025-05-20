@@ -2,21 +2,18 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-29 16:07:26
  * @Description: 现场预览-云台视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 14:32:14
  */
-import { type LiveSharedWinData, type LiveChannelList } from '@/types/apiType/live'
-import LivePtzCruise from './LivePtzCruise.vue'
-import LivePtzGroup from './LivePtzGroup.vue'
-import LivePtzPreset from './LivePtzPreset.vue'
-import LivePtzTrace from './LivePtzTrace.vue'
+import LivePtzCruisePanel from './LivePtzCruisePanel.vue'
+import LivePtzGroupPanel from './LivePtzGroupPanel.vue'
+import LivePtzPresetPanel from './LivePtzPresetPanel.vue'
+import LivePtzTracePanel from './LivePtzTracePanel.vue'
 
 export default defineComponent({
     components: {
-        LivePtzCruise,
-        LivePtzGroup,
-        LivePtzPreset,
-        LivePtzTrace,
+        LivePtzCruisePanel,
+        LivePtzGroupPanel,
+        LivePtzPresetPanel,
+        LivePtzTracePanel,
     },
     props: {
         /**
@@ -44,7 +41,6 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const userSession = useUserSessionStore()
         const systemCaps = useCababilityStore()
-        const theme = getUiAndTheme()
 
         const pageData = ref({
             // 菜单选项
@@ -91,7 +87,7 @@ export default defineComponent({
                     type: 'direction',
                 },
                 {
-                    file: 'Stop (2)',
+                    file: 'stop_ptz',
                     actionType: 'StopAction',
                     type: 'activeStop',
                 },
@@ -179,12 +175,12 @@ export default defineComponent({
 
         // 是否有权限
         const hasAuth = computed(() => {
-            return theme.name === 'UI1-E' || userSession.hasAuth('remoteChlMgr')
+            return userSession.hasAuth('remoteChlMgr')
         })
 
         // 是否有巡航线组和轨迹的权限
         const hasTraceAuth = computed(() => {
-            return theme.name === 'UI1-E' || (hasAuth.value && systemCaps.supportPtzGroupAndTrace && prop.chl[prop.winData.chlID]?.supportPtz && prop.chl[prop.winData.chlID]?.supportPTZGroupTraceTask)
+            return systemCaps.supportPtzGroupAndTrace && prop.chl[prop.winData.chlID]?.supportPtz && prop.chl[prop.winData.chlID]?.supportPTZGroupTraceTask
         })
 
         // 最大菜单数量
@@ -192,8 +188,7 @@ export default defineComponent({
             return hasTraceAuth.value ? pageData.value.menu.length : pageData.value.menu.length - 2
         })
 
-        const cmdQueue: CmdItem[] = []
-        let cmdLock = false // 锁定标识：当前命令没有返回时，不能发送新的命令
+        const cmdQueue = useCmdQueue()
 
         /**
          * @description 新增命令到命令队列
@@ -203,13 +198,18 @@ export default defineComponent({
             if (!chlId.value) {
                 return
             }
-            if (cmdQueue.length > 1000) {
-                return
-            }
-            cmdQueue.push(cmd)
-            if (cmdQueue.length && !cmdLock) {
-                executeCmd()
-            }
+
+            cmdQueue.add(async () => {
+                const sendXml = rawXml`
+                    <content>
+                        <chlId>${chlId.value}</chlId>
+                        <actionType>${cmd.actionType}</actionType>
+                        <speed>${pageData.value.speed}</speed>
+                        <type>${cmd.type}</type>
+                    </content>
+                `
+                await ptzMoveCall(sendXml)
+            })
         }
 
         /**
@@ -217,35 +217,9 @@ export default defineComponent({
          */
         const stopCmd = () => {
             return addCmd({
-                file: 'Stop (2)',
+                file: 'stop_ptz',
                 actionType: 'StopAction',
                 type: 'stop',
-            })
-        }
-
-        /**
-         * @description 执行命令
-         */
-        const executeCmd = () => {
-            if (!chlId.value) {
-                return
-            }
-            if (!cmdQueue.length || cmdLock) {
-                return
-            }
-            cmdLock = true
-            const cmdItem = cmdQueue.shift()!
-            const sendXml = rawXml`
-                <content>
-                    <chlId>${chlId.value}</chlId>
-                    <actionType>${cmdItem.actionType}</actionType>
-                    <speed>${pageData.value.speed.toString()}</speed>
-                    <type>${cmdItem.type}</type>
-                </content>
-            `
-            ptzMoveCall(sendXml).finally(() => {
-                cmdLock = false
-                executeCmd()
             })
         }
 
@@ -294,10 +268,6 @@ export default defineComponent({
             decreaseSpeed,
             increaseSpeed,
             changeMenu,
-            LivePtzCruise,
-            LivePtzGroup,
-            LivePtzPreset,
-            LivePtzTrace,
         }
     },
 })

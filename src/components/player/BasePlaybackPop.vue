@@ -2,123 +2,101 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-04 11:34:14
  * @Description: 回放弹窗（OCX+H5）
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-10 18:22:02
 -->
 <template>
     <el-dialog
         :width="dialogWidth"
         :title="Translate('IDCS_REPLAY')"
-        center
-        draggable
         @close="beforeClose"
         @opened="open"
     >
         <div class="RecordPop">
-            <div class="main">
-                <BaseListBox
-                    v-show="playList.length > 1"
-                    class="chl"
-                    border
+            <BaseListBox
+                v-show="playList.length > 1"
+                class="chl"
+                border
+            >
+                <BaseListBoxItem
+                    v-for="(listItem, index) in playList"
+                    :key="index"
+                    @click="changeChannel(index)"
                 >
-                    <BaseListBoxItem
-                        v-for="(listItem, index) in playList"
-                        :key="index"
-                        @click="changeChannel(index)"
-                    >
-                        <BaseImgSprite
-                            file="chl_icon"
-                            :index="index === pageData.chlIndex ? 1 : 0"
-                            :chunk="4"
-                        />
-                        <span>{{ listItem.chlName }}</span>
-                    </BaseListBoxItem>
-                </BaseListBox>
+                    <BaseImgSprite
+                        file="chl_icon"
+                        :index="0"
+                        :active-index="1"
+                        :active="index === pageData.chlIndex"
+                        :chunk="4"
+                    />
+                    <div class="text-ellipsis">{{ listItem.chlName }}</div>
+                </BaseListBoxItem>
+            </BaseListBox>
+            <div class="main">
                 <div class="player">
                     <BaseVideoPlayer
                         v-if="pageData.mounted"
                         ref="playerRef"
                         type="record"
-                        :split="1"
                         :enable-pos="systemCaps.supportPOS"
-                        @onready="handleReady"
-                        @ontime="handleTime"
-                        @onsuccess="handleSuccess"
+                        @ready="handleReady"
+                        @time="handleTime"
+                        @success="handleSuccess"
+                        @message="ocxNotify"
                     />
                 </div>
-            </div>
-            <div class="control-bar">
-                <span class="start-time">{{ startTime }}</span>
-                <el-slider
-                    v-model="pageData.progress"
-                    :show-tooltip="false"
-                    :min="startTimeStamp"
-                    :max="endTimeStamp"
-                    :disabled="pageData.iconDisabled"
-                    @mousedown="handleSliderMouseDown"
-                    @mouseup="handleSliderMouseUp"
-                    @change="handleSliderChange"
-                />
-                <span class="end-time">{{ endTime }}</span>
-            </div>
-            <div class="control-btns">
-                <span class="current-time">{{ currentTime }}</span>
-                <el-tooltip :content="Translate('IDCS_PAUSE')">
-                    <BaseImgSprite
-                        v-show="!pageData.paused"
-                        class="btn"
-                        file="image_preview_pause"
-                        :index="0"
-                        :hover-index="1"
-                        :disabled-index="3"
+                <div class="control-bar">
+                    <span class="start-time">{{ startTime }}</span>
+                    <el-slider
+                        v-model="pageData.progress"
+                        :show-tooltip="false"
+                        :min="startTimeStamp"
+                        :max="endTimeStamp"
                         :disabled="pageData.iconDisabled"
-                        :chunk="4"
-                        @click="pause"
+                        @mousedown="handleSliderMouseDown"
+                        @mouseup="handleSliderMouseUp"
+                        @change="handleSliderChange"
                     />
-                </el-tooltip>
-                <el-tooltip :content="Translate('IDCS_PLAY')">
-                    <BaseImgSprite
-                        v-show="pageData.paused"
-                        class="btn"
-                        file="image_preview_play"
-                        :index="0"
-                        :hover-index="1"
-                        :disabled-index="3"
-                        :disabled="pageData.iconDisabled"
-                        :chunk="4"
-                        @click="play"
-                    />
-                </el-tooltip>
-                <el-tooltip :content="Translate('IDCS_STOP')">
-                    <BaseImgSprite
-                        file="image_preview_stop"
-                        class="btn"
-                        :index="0"
-                        :hover-index="1"
-                        :disabled-index="3"
-                        :disabled="pageData.iconDisabled"
-                        :chunk="4"
-                        @click="stop"
-                    />
-                </el-tooltip>
+                    <span class="end-time">{{ endTime }}</span>
+                </div>
+                <div class="control-btns">
+                    <span class="current-time">{{ currentTime }}</span>
+                    <el-tooltip :content="Translate('IDCS_PAUSE')">
+                        <BaseImgSpriteBtn
+                            v-show="!pageData.paused"
+                            class="btn"
+                            file="image_preview_pause"
+                            @click="pause"
+                        />
+                    </el-tooltip>
+                    <el-tooltip :content="Translate('IDCS_PLAY')">
+                        <BaseImgSpriteBtn
+                            v-show="pageData.paused"
+                            class="btn"
+                            file="image_preview_play"
+                            :disabled="pageData.iconDisabled"
+                            @click="resume"
+                        />
+                    </el-tooltip>
+                    <el-tooltip :content="Translate('IDCS_STOP')">
+                        <BaseImgSpriteBtn
+                            file="image_preview_stop"
+                            class="btn"
+                            :disabled="pageData.iconDisabled"
+                            @click="stop"
+                        />
+                    </el-tooltip>
+                </div>
             </div>
         </div>
-        <template #footer>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
-                >
-                    <el-button @click="close">{{ Translate('IDCS_CLOSE') }}</el-button>
-                </el-col>
-            </el-row>
-        </template>
+
+        <div class="base-btn-box">
+            <el-button @click="close">{{ Translate('IDCS_CLOSE') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 
 <script lang="ts" setup>
 import dayjs from 'dayjs'
-import { type TVTPlayerWinDataListItem } from '@/utils/wasmPlayer/tvtPlayer'
 import { type XMLQuery } from '@/utils/xmlParse'
 
 const prop = defineProps<{
@@ -147,15 +125,20 @@ const chlMapping: Record<
 
 const playerRef = ref<PlayerInstance>()
 
-// 播放模式
-const mode = computed(() => {
-    if (!playerRef.value) {
-        return ''
-    }
-    return playerRef.value.mode
+let player: PlayerInstance['player']
+let plugin: PlayerInstance['plugin']
+
+const ready = computed(() => {
+    return playerRef.value?.ready || false
 })
 
-const posInfo = usePosInfo(mode)
+// 播放模式
+const mode = computed(() => {
+    if (!ready.value) {
+        return ''
+    }
+    return playerRef.value!.mode
+})
 
 /**
  * @description 回放窗口宽度
@@ -225,19 +208,21 @@ const endTimeStamp = computed(() => {
  * @description 播放器ready时的回调
  */
 const handleReady = () => {
+    player = playerRef.value!.player
+    plugin = playerRef.value!.plugin
+
     if (mode.value === 'h5') {
         play()
     }
 
     if (mode.value === 'ocx') {
-        playerRef.value!.plugin.GetVideoPlugin().ExecuteCmd(OCX_XML_SetPluginModel('ReadOnly', 'Playback'))
-        playerRef.value!.plugin.GetVideoPlugin().ExecuteCmd(
+        plugin.ExecuteCmd(OCX_XML_SetPluginModel('ReadOnly', 'Playback'))
+        plugin.ExecuteCmd(
             OCX_XML_SetProperty({
                 calendarType: userSession.calendarType,
             }),
         )
-        playerRef.value!.plugin.GetVideoPlugin().ExecuteCmd(OCX_XML_SetRecPlayMode('SYNC'))
-        playerRef.value!.plugin.VideoPluginNotifyEmitter.addListener(ocxNotify)
+        plugin.ExecuteCmd(OCX_XML_SetRecPlayMode('SYNC'))
         play()
     }
 }
@@ -250,7 +235,7 @@ const play = () => {
         pageData.value.progress = startTimeStamp.value
         pageData.value.stop = false
         pageData.value.paused = false
-        playerRef.value!.player.play({
+        player.play({
             chlID: current.value.chlId,
             chlName: current.value.chlName,
             startTime: startTimeStamp.value,
@@ -260,6 +245,7 @@ const play = () => {
             showPos: current.value.eventList.includes('POS'),
         })
     }
+
     if (mode.value === 'ocx') {
         pageData.value.progress = startTimeStamp.value
         pageData.value.stop = false
@@ -272,16 +258,16 @@ const play = () => {
         }
         const sendXML = OCX_XML_SearchRec(
             'RecPlay',
-            dayjs(current.value.startTime).calendar('gregory').format('YYYY-MM-DD HH:mm:ss'),
-            dayjs(current.value.endTime).calendar('gregory').format('YYYY-MM-DD HH:mm:ss'),
+            dayjs(current.value.startTime).calendar('gregory').format(DEFAULT_DATE_FORMAT),
+            dayjs(current.value.endTime).calendar('gregory').format(DEFAULT_DATE_FORMAT),
             [0],
             [current.value.chlId],
             [current.value.chlName],
             eventList,
-            localToUtc(current.value.startTime, 'YYYY-MM-DD HH:mm:ss'),
-            localToUtc(current.value.endTime, 'YYYY-MM-DD HH:mm:ss'),
+            localToUtc(current.value.startTime, DEFAULT_DATE_FORMAT),
+            localToUtc(current.value.endTime, DEFAULT_DATE_FORMAT),
         )
-        playerRef.value!.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+        plugin.ExecuteCmd(sendXML)
         seek(startTimeStamp.value)
     }
 }
@@ -290,16 +276,14 @@ const play = () => {
  * @description 播放器暂停
  */
 const pause = () => {
-    if (pageData.value.iconDisabled) {
-        return
-    }
-    if (playerRef.value?.mode === 'h5') {
-        playerRef.value.player.pause(0)
+    if (mode.value === 'h5') {
+        player.pause(0)
         pageData.value.paused = true
     }
-    if (playerRef.value?.mode === 'ocx') {
+
+    if (mode.value === 'ocx') {
         const sendXML = OCX_XML_SetPlayStatus('FORWARDS_PAUSE', 0)
-        playerRef.value.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+        plugin.ExecuteCmd(sendXML)
         pageData.value.paused = true
     }
 }
@@ -307,46 +291,41 @@ const pause = () => {
 /**
  * @description 播放器恢复播放
  */
-// const resume = () => {
-//     if (pageData.value.iconDisabled) {
-//         return
-//     }
-//     if (playerRef.value?.mode === 'h5') {
-//         if (pageData.value.stop) {
-//             play()
-//         } else {
-//             playerRef.value.player.resume(0)
-//             pageData.value.paused = false
-//         }
-//     }
-//     if (playerRef.value?.mode === 'ocx') {
-//         if (pageData.value.stop) {
-//             play()
-//         } else {
-//             const sendXML = OCX_XML_SetPlayStatus('FORWARDS', 0)
-//             playerRef.value.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-//             pageData.value.paused = false
-//         }
-//     }
-// }
+const resume = () => {
+    if (mode.value === 'h5') {
+        if (pageData.value.stop) {
+            play()
+        } else {
+            player.resume(0)
+            pageData.value.paused = false
+        }
+    }
+
+    if (mode.value === 'ocx') {
+        if (pageData.value.stop) {
+            play()
+        } else {
+            const sendXML = OCX_XML_SetPlayStatus('FORWARDS', 0)
+            plugin.ExecuteCmd(sendXML)
+            pageData.value.paused = false
+        }
+    }
+}
 
 /**
  * @description 播放器停止播放
  */
 const stop = () => {
-    if (pageData.value.iconDisabled) {
-        return
-    }
-
     if (mode.value === 'h5') {
-        playerRef.value!.player.stop(0)
+        player.stop(0)
         pageData.value.progress = startTimeStamp.value
         pageData.value.paused = true
         pageData.value.stop = true
     }
+
     if (mode.value === 'ocx') {
         const sendXML = OCX_XML_SetPlayStatus('STOP')
-        playerRef.value!.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+        plugin.ExecuteCmd(sendXML)
         pageData.value.progress = startTimeStamp.value
         pageData.value.paused = true
         pageData.value.stop = true
@@ -359,17 +338,19 @@ const stop = () => {
  */
 const seek = (timestamp: number) => {
     if (mode.value === 'h5') {
-        playerRef.value!.player.seek(Math.floor(timestamp))
+        player.seek(Math.floor(timestamp))
         pageData.value.paused = false
     }
+
     if (mode.value === 'ocx') {
         const sendXML = OCX_XML_RecCurPlayTime([
             {
                 index: 0,
-                time: Math.floor(timestamp),
+                time: getUTCDateByMilliseconds(timestamp),
+                timeStamp: Math.floor(timestamp),
             },
         ])
-        playerRef.value!.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+        plugin.ExecuteCmd(sendXML)
         pageData.value.paused = false
     }
 }
@@ -378,7 +359,7 @@ const seek = (timestamp: number) => {
  * @description 播放器进度回调
  * @param timestamp 时间戳（ms）
  */
-const handleTime = (winIndex: number, data: TVTPlayerWinDataListItem, timestamp: number) => {
+const handleTime = (_winIndex: number, _data: TVTPlayerWinDataListItem, timestamp: number) => {
     if (pageData.value.lockSlider) {
         return
     }
@@ -425,7 +406,6 @@ const beforeClose = () => {
     if (mode.value === 'ocx') {
         stop()
     }
-    playerRef.value!.plugin.VideoPluginNotifyEmitter.removeListener(ocxNotify)
     pageData.value.mounted = false
 }
 
@@ -460,11 +440,11 @@ const changeChannel = (index: number) => {
  * @description 获取通道列表
  */
 const getChannelList = async () => {
-    getChlList({}).then((result) => {
+    getChlList().then((result) => {
         commLoadResponseHandler(result, ($) => {
-            $('//content/item').forEach((item) => {
+            $('content/item').forEach((item) => {
                 const $item = queryXml(item.element)
-                chlMapping[item.attr('id')!] = {
+                chlMapping[item.attr('id')] = {
                     chlType: $item('chlType').text(),
                 }
             })
@@ -486,41 +466,47 @@ const reset = () => {
  * @description OCX通知监听
  * @param {Function} $
  */
-const ocxNotify = ($: XMLQuery) => {
-    if ($('statenotify[@type="connectstate"]').length > 0) {
-        if ($('statenotify[@type="connectstate"]').text() === 'success') {
+const ocxNotify = ($: XMLQuery, stateType: string) => {
+    if (stateType === 'connectstate') {
+        if ($('statenotify').text() === 'success') {
             const sendXML = OCX_XML_SetRecPlayMode('SYNC')
-            playerRef.value!.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+            plugin.ExecuteCmd(sendXML)
             play()
         }
     }
 
-    if ($('statenotify[@type="RecCurPlayTime"]').length > 0) {
+    if (stateType === 'RecCurPlayTime') {
         if (pageData.value.lockSlider) {
             return
         }
-        const seconds = Number($('statenotify[@type="RecCurPlayTime"]/win[@index="0"]').text())
+        const seconds = $('statenotify/win[@index="0"]').text().num()
         pageData.value.progress = seconds
     }
 
-    if ($('statenotify[@type="CurrentSelectedWindow"]').length > 0) {
-        if ($('statenotify[@type="CurrentSelectedWindow"]/playStatus').text() === 'STOP') {
+    if (stateType === 'CurrentSelectedWindow') {
+        if ($('statenotify/playStatus').text() === 'STOP') {
             pageData.value.iconDisabled = false
         }
     }
 
-    if ($('statenotify[@type="RecPlay"]/errorCode').length > 0) {
-        reset()
+    if (stateType === 'RecPlay') {
+        if ($('statenotify/errorCode').length) {
+            reset()
+        }
     }
+
     // StartViewChl
-    if ($('statenotify[@type="StartViewChl"]').length > 0) {
-        const status = $('statenotify[@type="StartViewChl"]/status').text()
-        const chlId = $('statenotify[@type="StartViewChl"]/chlId').text()
-        const winIndex = Number($('statenotify[@type="StartViewChl"]/winIndex').text())
+    if (stateType === 'StartViewChl') {
+        const status = $('statenotify/status').text()
+        const chlId = $('statenotify/chlId').text()
+        const winIndex = $('statenotify/winIndex').text().num()
         if (status.trim() === 'success') {
             if (systemCaps.supportPOS) {
                 //设置通道是否显示POS信息
-                playerRef.value!.plugin.GetVideoPlugin().ExecuteCmd(posInfo(true, chlId, winIndex))
+                const pos = player.getPosInfo(chlId)
+                const area = pos.displayPosition
+                const sendXml = OCX_XML_SetPOSDisplayArea(true, winIndex, area.x, area.y, area.width, area.height, pos.printMode)
+                plugin.ExecuteCmd(sendXml)
             }
         }
     }
@@ -529,33 +515,16 @@ const ocxNotify = ($: XMLQuery) => {
 onMounted(() => {
     getChannelList()
 })
-
-onBeforeUnmount(() => {
-    playerRef.value?.plugin.VideoPluginNotifyEmitter.removeListener(ocxNotify)
-})
-</script>
-
-<script lang="ts">
-export class PlaybackPopList {
-    chlId = ''
-    chlName = ''
-    eventList = [] as string[]
-    startTime = 0 // 时间戳 （毫秒）
-    endTime = 0 // 时间戳 （毫秒）
-}
 </script>
 
 <style lang="scss" scoped>
 .RecordPop {
-    .main {
-        width: 100%;
-        display: flex;
-        height: 350px;
-    }
+    width: 100%;
+    display: flex;
 
     .chl {
         width: 230px;
-        height: 350px;
+        height: 450px;
         border: 1px solid var(--content-border);
     }
 
@@ -575,7 +544,7 @@ export class PlaybackPopList {
 
     .start-time,
     .end-time {
-        padding: 5px 5px;
+        padding: 5px;
         font-size: 12px;
         width: 80px;
         flex-shrink: 0;
@@ -597,7 +566,7 @@ export class PlaybackPopList {
 
     .current-time {
         font-size: 18px;
-        margin-left: 15px;
+        margin-left: 5px;
         margin-right: 70px;
     }
 

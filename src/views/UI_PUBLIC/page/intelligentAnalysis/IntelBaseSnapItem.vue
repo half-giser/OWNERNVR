@@ -2,13 +2,15 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-06 16:33:02
  * @Description: 智能分析 - 抓拍选项框
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-12 09:10:09
 -->
 <template>
     <div
         class="snap"
-        :class="{ panorama: type === 'panorama', match: type === 'match' }"
+        :class="{
+            panorama: type === 'panorama',
+            match: type === 'match',
+            struct: type === 'struct',
+        }"
     >
         <div
             class="snap-box"
@@ -25,21 +27,36 @@
                     v-show="play"
                     file="track_camera_on_play"
                 />
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     file="face_search_more"
-                    :index="3"
-                    :hover-index="2"
-                    :chunk="4"
-                    @click.stop="$emit('detail')"
+                    :index="[3, 2, 2, 0]"
+                    @click="$emit('detail')"
                 />
             </div>
             <div class="snap-pic">
                 <div class="snap-404">{{ errorText }}</div>
-                <img :src />
+                <!-- 抓拍图 -->
+                <img
+                    :src
+                    @load="loadImg"
+                />
+                <!-- 对比图 -->
                 <img
                     v-show="type === 'match'"
                     :src="matchSrc"
                 />
+                <ul
+                    v-if="type === 'struct'"
+                    class="snap-info"
+                >
+                    <li
+                        v-for="(item, key) in infoList"
+                        :key
+                    >
+                        <BaseImgSprite :file="item.icon" />
+                        <span>{{ item.value }}</span>
+                    </li>
+                </ul>
                 <BaseImgSprite
                     v-show="identity"
                     class="identity"
@@ -61,7 +78,6 @@
 
     &.panorama {
         width: 234px;
-        // object-fit: cover;
 
         .snap-pic {
             height: 130px;
@@ -72,12 +88,55 @@
         }
     }
 
+    &.struct {
+        width: 240px;
+
+        .snap-pic {
+            height: 175px;
+        }
+
+        img {
+            width: 114px;
+        }
+
+        .snap-404 {
+            line-height: 130px;
+        }
+    }
+
+    &-info {
+        position: absolute;
+        right: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
+        width: 120px;
+        line-height: 22px;
+        margin: 0;
+        padding: 0;
+
+        li {
+            margin-left: 10px;
+            list-style: none;
+            font-size: 14px;
+
+            &:not(:first-child) {
+                margin-top: 10px;
+            }
+
+            span:last-child {
+                margin-left: 10px;
+            }
+        }
+    }
+
     &.match {
         width: 234px;
 
         img {
             width: 114px;
-            object-fit: cover;
+
             &:nth-of-type(2) {
                 left: unset;
                 right: 0;
@@ -91,10 +150,6 @@
 
         .snap-pic {
             height: 130px;
-        }
-
-        .snap-404 {
-            line-height: 130px;
         }
     }
 
@@ -146,7 +201,6 @@
         left: 0;
         width: 100%;
         height: 100%;
-        object-fit: contain;
         display: block;
 
         &[src=''] {

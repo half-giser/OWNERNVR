@@ -2,11 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-29 10:46:13
  * @Description: 人脸库- 新增/编辑分组
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:16:25
  */
-import { IntelFaceDBGroupList } from '@/types/apiType/intelligentAnalysis'
-import { type FormRules, type FormInstance } from 'element-plus'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -35,10 +32,8 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
 
         const formData = ref({
             groupName: '',
@@ -48,7 +43,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             groupName: [
                 {
-                    validator(rule, value, callback) {
+                    validator: (_rule, value: string, callback) => {
                         if (!value.trim()) {
                             callback(new Error(Translate('IDCS_GROUP_NAME_EMPTY')))
                             return
@@ -64,7 +59,6 @@ export default defineComponent({
          * @description 打开表单时 重置表单
          */
         const open = () => {
-            formRef.value?.clearValidate()
             if (prop.type === 'edit') {
                 formData.value.groupName = prop.data.name
                 formData.value.enableAlarmSwitch = prop.data.enableAlarmSwitch
@@ -89,7 +83,7 @@ export default defineComponent({
                         <groupId>${prop.data.groupId}</groupId>
                         <name>${formData.value.groupName}</name>
                         <property type="property">${prop.data.property}</property>
-                        <enableAlarmSwitch>${formData.value.enableAlarmSwitch.toString()}</enableAlarmSwitch>
+                        <enableAlarmSwitch>${formData.value.enableAlarmSwitch}</enableAlarmSwitch>
                     </item>
                 </content>
             `
@@ -98,15 +92,15 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                openMessageTipBox({
+            if ($('status').text() === 'success') {
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).finally(() => {
                     ctx.emit('confirm')
                 })
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NO_AUTH:
@@ -122,10 +116,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                         break
                 }
-                openMessageTipBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 
@@ -149,15 +140,15 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                openMessageTipBox({
+            if ($('status').text() === 'success') {
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).finally(() => {
                     ctx.emit('confirm')
                 })
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_LIMIT_MAX_SUBSYSTEM_NUM:
@@ -176,10 +167,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                         break
                 }
-                openMessageTipBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 
@@ -187,7 +175,7 @@ export default defineComponent({
          * @description 验证表单通过后，创建/编辑分组
          */
         const verify = () => {
-            formRef.value?.validate(async (valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     if (prop.type === 'edit') {
                         editGroup()

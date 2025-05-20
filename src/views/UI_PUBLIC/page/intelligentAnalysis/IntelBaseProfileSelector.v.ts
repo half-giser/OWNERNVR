@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-06 16:42:13
  * @Description: 智能分析 属性选择器
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 13:44:59
  */
 import {
     GENDER_MAP,
@@ -66,7 +64,7 @@ export default defineComponent({
             return Object.entries(obj)
                 .map((item) => {
                     return {
-                        label: item[1] === '--' ? UNKNOWN : str ? (Translate(item[1]).formatForLang(str) as string) : Translate(item[1]),
+                        label: item[1] === '--' ? UNKNOWN : str ? Translate(item[1]).formatForLang(str) : Translate(item[1]),
                         value: Number(item[0]),
                     }
                 })
@@ -74,9 +72,11 @@ export default defineComponent({
                     if (typeof a.value === 'string' || typeof b.value === 'string') {
                         return -1
                     }
+
                     if (b.value === 0) {
                         return -2
                     }
+
                     return a.value - b.value
                 })
         }
@@ -315,7 +315,7 @@ export default defineComponent({
             })
             const entries = Object.entries(label).filter((item) => prop.range.includes(item[0]))
             if (prop.placeholderType === 'default') {
-                return `${Translate('IDCS_ATTRIBUTE')} (${entries.every((item) => item[1]) ? Translate('IDCS_FULL') : Translate('IDCS_PART')})`
+                return `${Translate('IDCS_ATTRIBUTE')} (${entries.every((item) => item[1]) ? Translate('IDCS_PART') : Translate('IDCS_FULL')})`
             } else {
                 return `${Translate('IDCS_ATTRIBUTE')} (${entries.map((item) => `${NAMES_MAPPING[item[0]]}: ${item[1] ? Translate('IDCS_PART') : Translate('IDCS_FULL')}`).join('; ')})`
             }
@@ -345,8 +345,8 @@ export default defineComponent({
          * @description 重置选项
          */
         const reset = () => {
-            Object(selected.value).keys((key1: string) => {
-                Object(selected.value[key1]).keys((key2: string) => {
+            Object.keys(selected.value).forEach((key1: string) => {
+                Object.keys(selected.value[key1]).forEach((key2: string) => {
                     selected.value[key1][key2] = []
                 })
             })
@@ -370,6 +370,7 @@ export default defineComponent({
                     if (!result[key1]) {
                         result[key1] = {}
                     }
+
                     if (key2 === 'brand') {
                         if (value[0] < 0) {
                             result[key1][key2] = [...CAR_BRAND_OPTIONS]

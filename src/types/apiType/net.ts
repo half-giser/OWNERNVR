@@ -1,10 +1,10 @@
 /*
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-09 14:47:05
- * @Description: 网络
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-20 10:34:10
+ * @Description: 网络的类型定义，类型命名的前缀统一为Net*
  */
+import { TableRowStatus } from './base'
+import { type RecordStreamQualityCapsDto } from './record'
 
 /**
  * @description TCP/IP配置表单
@@ -18,11 +18,12 @@ export class NetTcpIpForm {
         toeEnable: false,
         curWorkMode: '',
     }
-    ipGroupSwitch = false
-    ipGroupMode = ''
-    ipDefaultBond = ''
-    bonds = [] as NetTcpIpBondsList[]
-    nicConfigs = [] as NetTcpIpNicConfigList[]
+    // ipGroupSwitch = false
+    // ipGroupMode = ''
+    // ipDefaultBond = ''
+    ipGroupConfig = new NetTcpIpGroupList()
+    // bonds: NetTcpIpBondsList[] = []
+    nicConfigs: NetTcpIpNicConfigList[] = []
 }
 
 /**
@@ -35,7 +36,7 @@ export class NetTcpIpDhcpList {
     mask = ''
     ipV6 = ''
     gatewayV6 = ''
-    subLengthV6 = 0
+    subLengthV6: number | undefined = undefined
     dns1 = ''
     dns2 = ''
     ipv6Dns1 = ''
@@ -45,12 +46,14 @@ export class NetTcpIpDhcpList {
 /**
  * @description TCP/IP Bond列表项
  */
-export class NetTcpIpBondsList extends NetTcpIpDhcpList {
-    index = 0
-    id = ''
+export class NetTcpIpGroupList extends NetTcpIpDhcpList {
+    // index = 0
+    // id = ''
+    switch = false
+    mode = ''
     dhcpSwitch = false
     primaryNIC = ''
-    NICs = ''
+    // NICs = ''
     // ip = ''
     // gateway = ''
     // mask = ''
@@ -107,19 +110,20 @@ export class NetTcpIpAdvanceForm {
     secondIpSwitch = false
     secondIp = ''
     secondMask = ''
-    mtu = [] as number[]
+    mtu: number[] = []
 }
 
 /**
  * @description 端口配置表单
  */
 export class NetPortForm {
-    httpPort = 0
-    httpsPort = 0
-    netPort = 0
-    posPort = 0
+    httpPort = 10
+    httpsPort = 10
+    netPort = 10
+    posPort = 10
+    autoReportPort = 10
     // rtspPort = 0
-    virtualHostEnabled = false
+    // virtualHostEnabled = false
 }
 
 /**
@@ -140,7 +144,7 @@ export class NetPortUPnPDto {
     switch = ''
     mappingType = ''
     portsType = ''
-    ports = [] as NetPortUPnPPortDto[]
+    ports: NetPortUPnPPortDto[] = []
 }
 
 /**
@@ -167,6 +171,7 @@ export class NetPortRtspServerForm {
 export class NetPPPoEForm {
     switch = false
     userName = ''
+    userNameMaxByteLen = 63
     password = ''
 }
 
@@ -175,11 +180,14 @@ export class NetPPPoEForm {
  */
 export class NetDDNSForm {
     serverType = ''
+    serverAddrMaxLen = 64
     serverAddr = ''
+    userNameMaxByteLen = 63
     userName = ''
     password = ''
+    domainNameMaxLen = 64
     domainName = ''
-    heartbeatTime = undefined as number | undefined
+    heartbeatTime: number | undefined = undefined
     switch = false
 }
 
@@ -193,12 +201,12 @@ export class NetDDNSServerTypeList {
     userName = ''
     password = ''
     domainName = ''
-    heartbeatTime = undefined as number | undefined
+    heartbeatTime: number | undefined = undefined
     defaultServerAddr = ''
-    defaultHeartBeatTime = undefined as number | undefined
+    defaultHeartBeatTime: number | undefined = undefined
     suffix = ''
-    requireParam = [] as string[]
-    hideParam = [] as string[]
+    requireParam: string[] = []
+    hideParam: string[] = []
     defaultDomainName = ''
     isRegisterBtn = true
     isTestBtn = false
@@ -210,14 +218,21 @@ export class NetDDNSServerTypeList {
 export class NetEmailForm {
     anonymousSwitch = false
     name = ''
+    nameMaxByteLen = 63
     address = ''
+    addressMaxByteLen = 63
     userName = ''
+    userNameMaxByteLen = 63
     server = ''
+    serverMaxByteLen = 63
     port = 25
+    portMin = 10
+    portMax = 65535
     attachImg = 0
     imageNumber = 0
     ssl = ''
     password = ''
+    imgType: string[] = []
 }
 
 /**
@@ -233,6 +248,7 @@ export class NetEmailReceiverDto {
  */
 export class NetEmailTestForm {
     address = ''
+    addressMaxByteLen = 63
     password = ''
 }
 
@@ -271,7 +287,8 @@ export class Net8021xForm {
  */
 export class NetNatForm {
     natSwitch = false
-    index = ''
+    index = 1
+    securityAccessSwitch = false
 }
 
 /**
@@ -280,8 +297,10 @@ export class NetNatForm {
 export class NetUPnPReportForm {
     switch = false
     serverAddr = ''
+    serverAddrMaxByteLen = 63
     port = 0
     manId = ''
+    manIdMaxByteLen = 63
 }
 
 /**
@@ -295,7 +314,7 @@ export class NetHTTPSPrivateCertForm {
     organizationName = ''
     organizationalUnitName = ''
     email = ''
-    validityPeriod = 0
+    validityPeriod: number | undefined = undefined
     password = ''
 }
 
@@ -312,11 +331,18 @@ export class NetHTTPSCertPasswordForm {
  */
 export class NetFTPForm {
     switch = false
+    serverAddrMaxLen = 64
     serverAddr = ''
+    portMin = 10
+    portMax = 65535
     port = 0
+    userNameMaxByteLen = 63
     userName = ''
     anonymousSwitch = false
     maxSize = 0
+    maxSizeMin = 0
+    maxSizeMax = 4096
+    pathMaxLen = 64
     path = ''
     disNetUpLoad = false
     password = ''
@@ -344,11 +370,18 @@ export class NetFTPList {
 export class NetSNMPForm {
     snmpv1Switch = false
     snmpv2Switch = false
+    snmpv3Switch = false
     snmpPort = 0
     readCommunity = ''
     writeCommunity = ''
     trapPort = 0
     trapAddress = ''
+    username = ''
+    securityLevel = 0
+    authType = 0
+    privType = 0
+    authPassword = ''
+    privPassword = ''
 }
 
 /**
@@ -378,17 +411,7 @@ export class NetStreamChlList {
 export class NetSubStreamResList {
     fps = 0
     value = ''
-}
-
-/**
- * @description 网络子码流码流质量列表项
- */
-export class NetSubStreamQualityCapsList {
-    enct = ''
-    res = ''
-    digitalDefault = 0
-    analogDefault = 0
-    value = [] as string[]
+    label = ''
 }
 
 /**
@@ -402,26 +425,26 @@ export class NetSubStreamListBitRange {
 /**
  * @description 网络子码流列表项
  */
-export class NetSubStreamList {
+export class NetSubStreamList extends TableRowStatus {
     [key: string]: any
     id = ''
     name = ''
     chlType = ''
     subCaps = {
-        supEnct: [] as string[],
+        supEnct: [] as SelectOption<string, string>[],
         bitType: [] as string[],
         res: [] as NetSubStreamResList[],
     }
     videoEncodeType = ''
-    subStreamQualityCaps = [] as NetSubStreamQualityCapsList[]
+    subStreamQualityCaps: RecordStreamQualityCapsDto[] = []
     streamType = ''
-    GOP = 0
+    GOP: number | undefined = 0
     resolution = ''
     frameRate = 0
     bitType = ''
     level = ''
     videoQuality = 0
-    // bitRange = null as null | NetSubStreamListBitRange
+    // bitRange: null | NetSubStreamListBitRange = null
     // audio = ''
 }
 
@@ -431,8 +454,8 @@ export class NetSubStreamList {
 export class NetSubStreamResolutionList {
     key = ''
     value = ''
-    resolution = [] as NetSubStreamResList[]
-    chlsList = [] as { chlId: string; chlName: string; chlIndex: number }[]
+    resolution: NetSubStreamResList[] = []
+    chlsList: { chlId: string; chlName: string; chlIndex: number }[] = []
 }
 
 /**
@@ -457,7 +480,7 @@ export class NetOnvifUserList {
  */
 export class NetOnvifUserForm {
     userName = ''
-    userLevel = ''
+    userLevel = 'video'
     password = ''
     confirmPassword = ''
 }
@@ -469,7 +492,9 @@ export class NetPlatformAccessForm {
     accessType = ''
     nwms5000Switch = false
     serverAddr = ''
-    reportId = 0
+    serverAddrMaxByteLen = 63
+    reportId: number | undefined = undefined
+    reportIdMax = 99999999
     port = 0
     gb28181Switch = false
     sipRelm = ''
@@ -490,7 +515,7 @@ export class NetPlatformSipList {
     value = ''
     type = ''
     label = ''
-    list = [] as NetPlatformSipCodeList[]
+    list: NetPlatformSipCodeList[] = []
 }
 
 /**
@@ -500,4 +525,29 @@ export class NetPlatformSipCodeList {
     id = ''
     gbId = ''
     text = ''
+}
+
+/**
+ * @description 网络状态检测表单
+ */
+export class NetDetectionForm {
+    address = ''
+}
+
+/**
+ * @description 云升级ipc升级信息列表项
+ */
+export class NetIpcUpgradeInfoList {
+    [key: string]: any
+    ip = ''
+    chlId = ''
+    chlName = ''
+    state = ''
+    formatState = ''
+    version = ''
+    newVersion = ''
+    formatNewVersion = ''
+    newVersionNote = ''
+    newVersionGUID = ''
+    progress = ''
 }

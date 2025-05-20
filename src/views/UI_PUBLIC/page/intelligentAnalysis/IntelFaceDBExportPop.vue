@@ -2,25 +2,23 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-29 17:18:39
  * @Description: 导出人脸库弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-02 16:49:51
 -->
 <template>
     <el-dialog
         :title="Translate('IDCS_EXPORT')"
         :show-close="false"
         :width="600"
-        align-center
-        draggable
         @open="open"
     >
-        <div>
+        <div class="box">
             <el-progress
                 :percentage="progress"
-                :stroke-width="14"
+                :stroke-width="8"
             />
-            <div class="chunk">{{ progress }} %</div>
-            <p class="tip">{{ Translate('IDCS_DOWNLOADING') }}</p>
+            <p class="tip">{{ Translate('IDCS_EXPORTING_FACE_LIB_INFO') }}</p>
+        </div>
+        <div class="base-btn-box">
+            <el-button @click="cancel">{{ Translate('IDCS_CANCEL') }}</el-button>
         </div>
     </el-dialog>
 </template>
@@ -28,7 +26,7 @@
 <script lang="ts" src="./IntelFaceDBExportPop.v.ts"></script>
 
 <style lang="scss" scoped>
-.chunk {
+.box {
     margin-top: 10px;
 }
 

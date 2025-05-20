@@ -1,9 +1,13 @@
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-05-08 17:03:07
- * @Description:
+ * @Description: 通道的类型定义，类型命名的前缀统一为Channel*
  */
+import { TableRowStatus } from './base'
 
+/**
+ * @description 通道列表项
+ */
 export class ChannelInfoDto {
     id = ''
     chlNum = ''
@@ -17,26 +21,32 @@ export class ChannelInfoDto {
     protocolType = ''
     addType = ''
     accessType = ''
-    poeIndex = ''
+    poeIndex = 0
     manufacturer = ''
     productModel = {
         factoryName: '',
         innerText: '',
     }
-    index = ''
+    index = 0
     chlIndex = ''
     isOnline = false
     chlType = ''
     version = ''
     delDisabled = false
     showSetting = true
-    showUpgradeBtn = false
-    upgradeDisabled = true
     upgradeStatus: 'normal' | 'notActive' | 'progress' | 'error' | 'success' = 'normal' // normal：初始状态， notActive：未激活， progress：正在升级， error：升级失败/校验头文件失败, success：升级成功
     upgradeProgressText = '' // 升级进度
 }
 
-export class DefaultPwdDto {
+export interface ChannelIPCUpgradeExpose {
+    init: (type: 'single' | 'multiple', data: ChannelInfoDto[]) => void
+    initWsState: (list: ChannelInfoDto[]) => void
+}
+
+/**
+ * @description 通道 默认密码表单
+ */
+export class ChannelDefaultPwdDto {
     id = ''
     userName = ''
     password = ''
@@ -45,6 +55,9 @@ export class DefaultPwdDto {
     showInput = false
 }
 
+/**
+ * @description 快速添加通道 列表项
+ */
 export class ChannelQuickAddDto {
     ip = ''
     port = ''
@@ -66,6 +79,9 @@ export class ChannelQuickAddDto {
     activateStatus = ''
 }
 
+/**
+ * @description 手动添加 通道列表项
+ */
 export class ChannelManualAddDto {
     name = ''
     ip = ''
@@ -73,13 +89,15 @@ export class ChannelManualAddDto {
     port = 10
     userName = ''
     password = ''
-    index = 0
     manufacturer = ''
     protocolType = ''
     addrType = ''
     portDisabled = false
 }
 
+/**
+ * @description 添加录像通道
+ */
 export class ChannelAddRecorderDto {
     ip = ''
     port = 0
@@ -93,6 +111,9 @@ export class ChannelAddRecorderDto {
     displayName = ''
 }
 
+/**
+ * @description 编辑IPC IP表单
+ */
 export class ChannelAddEditIPCIpDto {
     mac = ''
     ip = ''
@@ -102,15 +123,21 @@ export class ChannelAddEditIPCIpDto {
     password = ''
 }
 
-export class RecorderDto {
-    index = ''
+/**
+ * @description 录像通道列表项
+ */
+export class ChannelRecorderDto {
+    index = 0
     name = ''
     isAdded = false
     bandWidth = ''
     productModel = ''
 }
 
-export class RecorderAddDto {
+/**
+ * @description 添加录像通道列表项
+ */
+export class ChannelRecorderAddDto {
     ip = ''
     domain = ''
     chkDomain = false
@@ -120,10 +147,18 @@ export class RecorderAddDto {
     userName = ''
     password = ''
     useDefaultPwd = true
-    recorderList: Array<RecorderDto> = []
+    recorderList: Array<ChannelRecorderDto> = []
 }
 
-export class QueryNodeListDto {
+export class ChannelRTSPPropertyDto {
+    displayName = ''
+    index = ''
+}
+
+/**
+ * @description 查询IPC列表
+ */
+export class ChannelQueryNodeListDto {
     pageIndex = 0
     pageSize = 0
     nodeType = ''
@@ -143,6 +178,7 @@ export class QueryNodeListDto {
     isSupportTripwire = false
     isSupportImageRotate = false
     isSupportFishEye = false
+    isSupportFishEyeConfig = false
     isSupportMotion = false
     isSupportOsd = false
     isSupportAudioSetting = false
@@ -158,28 +194,41 @@ export class QueryNodeListDto {
     isSupportAutoTrack = false
     isSupportAccessControl = false
     isContainsDeletedItem = false
+    isSupportRegionStatistics = false
+    isSupportVehicleDirection = false
+    isSupportRS485Ptz = false
     authList = ''
     chlType = ''
     ignoreNdChl = false
     requireField: string[] = []
 }
 
-export class ResourcesPathDto {
+/**
+ * @description 设置协议
+ */
+export class ChannelResourcesPathDto {
     streamType = ''
     protocol = ''
     transportProtocol = ''
-    port = ''
+    port = 10
     path = ''
 }
 
-export class ProtocolManageDto {
+/**
+ * @description 协议管理列表项
+ */
+export class ChannelProtocolManageDto {
     id = ''
     enabled = false
     displayName = ''
-    resourcesPath: ResourcesPathDto[] = []
+    label = ''
+    resourcesPath: ChannelResourcesPathDto[] = []
 }
 
-export class MultiChlCheckedInfoDto {
+/**
+ * @description
+ */
+export class ChannelMultiChlCheckedInfoDto {
     operateIndex = 0
     chlType = ''
     chlLabel = ''
@@ -187,12 +236,18 @@ export class MultiChlCheckedInfoDto {
     disabled = false
 }
 
-export class MultiChlIPCAddDto extends ChannelManualAddDto {
-    multichannelCheckedInfoList: MultiChlCheckedInfoDto[] = []
+/**
+ * @description
+ */
+export class ChannelMultiChlIPCAddDto extends ChannelManualAddDto {
+    multichannelCheckedInfoList: ChannelMultiChlCheckedInfoDto[] = []
     type = ''
 }
 
-export class ChlGroup {
+/**
+ * @description 通道组 列表项
+ */
+export class ChannelGroupDto {
     id = ''
     name = ''
     dwellTime = 0
@@ -200,7 +255,10 @@ export class ChlGroup {
     chls: Record<string, string | boolean>[] = []
 }
 
-export class ChlSignal {
+/**
+ * @description 通道信号配置 列表项
+ */
+export class ChannelSignalDto {
     id = 0
     name = ''
     lite = false
@@ -213,13 +271,10 @@ export class ChlSignal {
     showSignal = true
 }
 
-class ChannelRowStatus {
-    status = ''
-    statusTip = ''
-    disabled = true
-}
-
-export class ChannelOsd extends ChannelRowStatus {
+/**
+ * @description OSD配置 列表项
+ */
+export class ChannelOsdDto extends TableRowStatus {
     id = ''
     name = ''
     ip = ''
@@ -232,9 +287,6 @@ export class ChannelOsd extends ChannelRowStatus {
     remarkSwitch = true
     remarkNote = ''
     remarkDisabled = true
-    status = ''
-    disabled = true
-    statusInitToolTip = ''
     manufacturer = ''
     dateFormat = ''
     timeFormat = ''
@@ -257,197 +309,248 @@ export class ChannelOsd extends ChannelRowStatus {
     nameYMaxValue = 0
 }
 
-export class ChannelImage extends ChannelRowStatus {
+/**
+ * @description 图像设置 列表项
+ */
+export class ChannelImageDto extends TableRowStatus {
     id = ''
     name = ''
     chlType = ''
-    bright: number | undefined = undefined
-    contrast: number | undefined = undefined
-    saturation: number | undefined = undefined
-    hue: number | undefined = undefined
+
     isSupportHallway = false //是否支持走廊模式
     isSupportIRCutMode = false //是否支持日夜模式
     isSupportThermal = false // 是否热成像通道
     isSpeco = false
+
+    bright: number | undefined = undefined
+    brightMin = 0
+    brightMax = 100
+    brightDefault: number | undefined = undefined
+
+    contrast: number | undefined = undefined
+    contrastMin = 0
+    contrastMax = 100
+    contrastDefault: number | undefined = undefined
+
+    saturation: number | undefined = undefined
+    saturationMin = 0
+    saturationMax = 100
+    saturationDefault: number | undefined = undefined
+
+    hue: number | undefined = undefined
+    hueMin: number | undefined = undefined
+    hueMax: number | undefined = undefined
+    hueDefault: number | undefined = undefined
+
     paletteCode: string | undefined = undefined
     defaultPaletteCode: string | undefined = undefined
-    brightMinValue: number | undefined = undefined
-    brightMaxValue: number | undefined = undefined
-    brightDefaultValue: number | undefined = undefined
-    contrastMinValue: number | undefined = undefined
-    contrastMaxValue: number | undefined = undefined
-    contrastDefaultValue: number | undefined = undefined
-    hueMinValue: number | undefined = undefined
-    hueMaxValue: number | undefined = undefined
-    hueDefaultValue: number | undefined = undefined
-    saturationMinValue: number | undefined = undefined
-    saturationMaxValue: number | undefined = undefined
-    saturationDefaultValue: number | undefined = undefined
+
     cfgFile: string | undefined = undefined
     cfgFileDefault: string | undefined = undefined
-    denoiseValue: number | undefined = undefined
-    denoiseDefaultValue: number | undefined = undefined
-    denoiseMinValue: number | undefined = undefined
-    denoiseMaxValue: number | undefined = undefined
-    denoiseSwitch: boolean | undefined = false
+
+    denoise: number | undefined = undefined
+    denoiseDefault: number | undefined = undefined
+    denoiseMin = 0
+    denoiseMax = 100
+    denoiseSwitch = false
+
     ShowGainMode: boolean | undefined = false
-    WDRDefaultValue: number | undefined = undefined
-    WDRMinValue: number | undefined = undefined
-    WDRMaxValue: number | undefined = undefined
-    WDRSwitch: boolean | undefined = undefined
-    WDRValue: number | undefined = undefined
+
+    WDR: number | undefined = undefined
+    WDRDefault: number | undefined = undefined
+    WDRMin = 0
+    WDRMax = 100
+    WDRSwitch = false
+
     HFR: boolean | undefined = undefined
+
     whiteBalanceMode: string | undefined = undefined
-    redDefaultValue: number | undefined = undefined
-    redMinValue: number | undefined = undefined
-    redMaxValue: number | undefined = undefined
-    redValue: number | undefined = undefined
-    blueDefaultValue: number | undefined = undefined
-    blueMinValue: number | undefined = undefined
-    blueMaxValue: number | undefined = undefined
-    blueValue: number | undefined = undefined
+
+    red: number | undefined = undefined
+    redDefault: number | undefined = undefined
+    redMin = 0
+    redMax = 100
+
+    blue: number | undefined = undefined
+    blueDefault: number | undefined = undefined
+    blueMin = 0
+    blueMax = 100
+
     IRCutMode: string | undefined = undefined
-    IRCutModeDef: string | undefined = undefined
+    IRCutModeDefault: string | undefined = undefined
     IRCutConvSen: string | undefined = undefined
     IRCutConvSen2: string | undefined = undefined // 只用于判断
-    IRCutConvSenDef: string | undefined = undefined
+    IRCutConvSenDefault: string | undefined = undefined
     IRCutDayTime: string | undefined = undefined
     IRCutNightTime: string | undefined = undefined
-    sharpenDefaultValue: number | undefined = undefined
-    sharpenMinValue: number | undefined = undefined
-    sharpenMaxValue: number | undefined = undefined
-    sharpenValue: number | undefined = undefined
-    sharpenSwitch: boolean | undefined = undefined
+
+    sharpen: number | undefined = undefined
+    sharpenDefault: number | undefined = undefined
+    sharpenMin = 0
+    sharpenMax = 100
+    sharpenSwitch = false
     sharpenSwitchEnable: boolean | undefined = undefined
+
     mirrorSwitch: boolean | undefined = undefined
     flipSwitch: boolean | undefined = undefined
+
     imageRotate: string | undefined = undefined
-    imageRotateDef: string | undefined = undefined
-    imageDefaultValue: number | undefined = undefined
-    imageMinValue: number | undefined = undefined
-    imageMaxValue: number | undefined = undefined
-    imageValue: number | undefined = undefined
+    imageRotateDefault: string | undefined = undefined
+
+    imageShift: number | undefined = undefined
+    imageShiftDefault: number | undefined = undefined
+    imageShiftMin = 0
+    imageShiftMax = 100
+
     BLCMode: string | undefined = undefined
     BLCModeDefault: string | undefined = undefined
+
     HWDRLevel: string | undefined = undefined
     HWDRLevelDefault: string | undefined = undefined
+
     smartIrMode: string | undefined = undefined
     smartIrModeDefault: string | undefined = undefined
-    lightLevelDefaultValue: number | undefined = undefined
-    lightLevelMinValue: number | undefined = undefined
-    lightLevelMaxValue: number | undefined = undefined
-    lightLevelValue: number | undefined = undefined
+
+    lightLevel: number | undefined = undefined
+    lightLevelDefault: number | undefined = undefined
+    lightLevelMin = 0
+    lightLevelMax = 100
+
     smartIrSwitch: boolean | undefined = undefined
     smartIrSwitchDefault: boolean | undefined = undefined
+
     smartIrLevel: string | undefined = undefined
     smartIrLevelDefault: string | undefined = undefined
+
     // 透雾
-    defogValue: number | undefined = undefined
-    defogDefaultValue: number | undefined = undefined
-    defogMinValue: number | undefined = undefined
-    defogMaxValue: number | undefined = undefined
-    defogSwitch: boolean | undefined = undefined
+    defog: number | undefined = undefined
+    defogDefault: number | undefined = undefined
+    defogMin = 0
+    defogMax = 100
+    defogSwitch = false
+
     // 抗闪
     antiflicker: string | undefined = undefined
     antiflickerDefault: string | undefined = undefined
+
     // 曝光模式
     exposureMode: string | undefined = undefined
     exposureModeDefault: string | undefined = undefined
-    exposureModeValue: number | undefined = undefined
-    exposureModeDefaultValue: number | undefined = undefined
-    exposureModeMinValue: number | undefined = undefined
-    exposureModeMaxValue: number | undefined = undefined
+    exposure: number | undefined = undefined
+    exposureDefault: number | undefined = undefined
+    exposureMin = 0
+    exposureMax = 100
+
     // 延迟时间
-    delayTimeValue: number | undefined = undefined
-    delayTimeDefaultValue: number | undefined = undefined
-    delayTimeMinValue: number | undefined = undefined
-    delayTimeMaxValue: number | undefined = undefined
+    delayTime: number | undefined = undefined
+    delayTimeDefault: number | undefined = undefined
+    delayTimeMin = 0
+    delayTimeMax = 100
+
     // 红外模式
     InfraredMode: string | undefined = undefined
     InfraredModeDefault: string | undefined = undefined
+
     // 增益限制
     gainMode: string | undefined = undefined
     gainModeDefault: string | undefined = undefined
-    gainValue: number | undefined = undefined
     gainAGC: number | undefined = undefined
-    gainAGCDefaultValue: number | undefined = undefined
-    gainDefaultValue: number | undefined = undefined
-    gainMinValue: number | undefined = undefined
-    gainMaxValue: number | undefined = undefined
+    gainAGCDefault: number | undefined = undefined
+    gain: number | undefined = undefined
+    gainDefault: number | undefined = undefined
+    gainMin = 0
+    gainMax = 100
+
     IPCVersion = ''
+
     // 快门
     shutterMode: string | undefined = undefined
     shutterModeDefault: string | undefined = undefined
-    shutterValue: string | undefined = undefined
-    shutterValueDefault: string | undefined = undefined
+    shutter: string | undefined = undefined
+    shutterDefault: string | undefined = undefined
     shutterLowLimit: string | undefined = undefined
     shutterLowLimitDefault: string | undefined = undefined
     shutterUpLimit: string | undefined = undefined
     shutterUpLimitDefault: string | undefined = undefined
 
     supportSchedule = false
-    scheduleInfo = new ChannelScheduleInfo()
+    scheduleInfo = new ChannelScheduleInfoDto()
+
     // 白光灯
     whitelightMode: string | undefined = undefined
     whitelightModeDefault: string | undefined = undefined
     whitelightStrength: number | undefined = undefined
-    whitelightStrengthMin: number | undefined = undefined
-    whitelightStrengthMax: number | undefined = undefined
+    whitelightStrengthMin = 0
+    whitelightStrengthMax = 100
     whitelightStrengthDefault: number | undefined = undefined
     whitelightOnTime: string | undefined = undefined
     whitelightOnTimeDefault: string | undefined = undefined
     whitelightOffTime: string | undefined = undefined
     whitelightOffTimeDefault: string | undefined = undefined
 
-    configFileTypeEnum: string[] = []
-    shutterModeEnum: string[] = []
-    shutterValueEnum: string[] = []
-    whiteBalanceModeEnum: string[] = []
-    BLCModeArray: string[] = []
-    HWDRLevelArray: string[] = []
-    IRCutModeArray: string[] = []
-    IRCutConvSenArray: string[] = []
-    SmartIrArray: string[] = []
-    antiflickerModeArray: string[] = []
-    InfraredModeArray: string[] = []
-    exposureModeArray: string[] = []
-    exposureValueArray: string[] = []
-    gainModeEnum: string[] = []
-    paletteList: Record<string, string>[] = []
+    cfgFileList: SelectOption<string, string>[] = []
+    shutterModeList: SelectOption<string, string>[] = []
+    shutterList: SelectOption<string, string>[] = []
+    whiteBalanceModeList: SelectOption<string, string>[] = []
+    BLCModeList: SelectOption<string, string>[] = []
+    HWDRLevelList: SelectOption<string, string>[] = []
+    IRCutModeList: SelectOption<string, string>[] = []
+    IRCutConvSenList: SelectOption<string, string>[] = []
+    SmartIrList: SelectOption<string, string>[] = []
+    antiflickerModeList: SelectOption<string, string>[] = []
+    InfraredModeList: SelectOption<string, string>[] = []
+    exposureModeList: SelectOption<string, string>[] = []
+    exposureList: SelectOption<number, string>[] = []
+    gainModeList: SelectOption<string, string>[] = []
+    paletteList: SelectOption<string, string>[] = []
+
     activeTab = 'imageAdjust'
 }
 
-export class ChannelScheduleInfo {
+/**
+ * @description
+ */
+export class ChannelScheduleInfoDto {
     scheduleType = 'full'
     scheduleInfoEnum: string[] = []
     program = ''
-    dayTime = ''
-    nightTime = ''
+    time: [string, string] = ['00:00:00', '00:00:00']
+    // dayTime = ''
+    // nightTime = ''
 }
 
-export class ChannelLensCtrl {
+/**
+ * @description 镜头控制
+ */
+export class ChannelLensCtrlDto {
     id = ''
     supportAz = false
     focusType = ''
-    focusTypeList: Record<string, string>[] = []
+    focusTypeList: SelectOption<string, string>[] = []
     timeInterval = ''
-    timeIntervalList: Record<string, string>[] = []
+    timeIntervalList: SelectOption<string, string>[] = []
     IrchangeFocus = false
     IrchangeFocusDisabled = false
 }
 
-export class ChannelMask extends ChannelRowStatus {
+/**
+ * @description 视频遮罩 列表项
+ */
+export class ChannelMaskDto extends TableRowStatus {
     id = ''
     name = ''
     chlIndex = ''
     chlType = ''
-    switch = false
+    switch = 'false'
     color = 'black'
     isSpeco = false
-    mask: PrivacyMask[] = []
+    mask: ChannelPrivacyMaskDto[] = []
 }
 
-export class PrivacyMask {
+/**
+ * @description
+ */
+export class ChannelPrivacyMaskDto {
     switch = false
     X = 0
     Y = 0
@@ -455,7 +558,10 @@ export class PrivacyMask {
     height = 0
 }
 
-export class ChannelFisheye extends ChannelRowStatus {
+/**
+ * @description 鱼眼
+ */
+export class ChannelFisheyeDto extends TableRowStatus {
     id = ''
     name = ''
     chlIndex = ''
@@ -464,86 +570,119 @@ export class ChannelFisheye extends ChannelRowStatus {
     installType = ''
     fishEyeEnable = false
     supportFishEyeEnable = false
-    fishEyeModelList: Record<string, string>[] = []
-    installTypeList: Record<string, string>[] = []
     HIKVISION = false
-    privateProtocol = false
+    isPrivateProtocol = false
     reqCfgFail = false
 }
 
-export class ChannelMotion extends ChannelRowStatus {
+/**
+ * @description 移动侦测
+ */
+export class ChannelMotionDto extends TableRowStatus {
     id = ''
     name = ''
     chlIndex = ''
     chlType = ''
     switch = false
     sensitivity = 1
-    sensitivityMinValue = NaN
-    sensitivityMaxValue = NaN
-    holdTime = ''
-    holdTimeList: Record<string, string>[] = []
+    sensitivityMinValue = 1
+    sensitivityMaxValue = 1
+    holdTime = 0
+    holdTimeList: SelectOption<number, string>[] = []
     supportSMD = false
     isOnvifChl = false
-    objectFilterCar: boolean | undefined = undefined
-    objectFilterPerson: boolean | undefined = undefined
+    SMDHuman = false
+    SMDVehicle = false
+    SMDHumanDisabled = false
+    SMDVehicleDisabled = false
     column = 0
     row = 0
     areaInfo: string[] = []
 }
 
+/**
+ * @description 预置点 通道列表项
+ */
 export class ChannelPtzPresetChlDto {
     chlId = ''
     chlName = ''
     presetCount = 0
     maxCount = Infinity
-    presets = [] as ChannelPtzPresetDto[]
+    presets: ChannelPtzPresetDto[] = []
 }
 
+/**
+ * @description 预置点 列表项
+ */
 export class ChannelPtzPresetDto {
     index = 0
     name = ''
 }
 
+/**
+ * @description 轨迹 通道列表项
+ */
 export class ChannelPtzTraceChlDto {
     chlId = ''
     chlName = ''
     traceCount = 0
     maxCount = Infinity
-    trace = [] as ChannelPtzTraceDto[]
+    trace: ChannelPtzTraceDto[] = []
 }
 
+/**
+ * @description 轨迹
+ */
 export class ChannelPtzTraceDto extends ChannelPtzPresetDto {}
 
+/**
+ * @description 巡航线 通道列表项
+ */
 export class ChannelPtzCruiseChlDto {
     chlId = ''
     chlName = ''
     cruiseCount = 0
     maxCount = Infinity
-    cruise = [] as ChannelPtzCruiseDto[]
+    cruise: ChannelPtzCruiseDto[] = []
 }
 
+/**
+ * @description 巡航线 列表项
+ */
 export class ChannelPtzCruiseDto extends ChannelPtzPresetDto {}
 
+/**
+ * @description 巡航线-预置点
+ */
 export class ChannelPtzCruisePresetDto extends ChannelPtzPresetDto {
     id = 0
     speed = 5
     holdTime = 5
 }
 
+/**
+ * @description 巡航线-新增预置点表单
+ */
 export class ChannelPtzCruisePresetForm {
     name = ''
     speed = 5
     holdTime = 5
 }
 
+/**
+ * @description 巡航线组 列表项
+ */
 export class ChannelPtzCruiseGroupChlDto {
     chlId = ''
     chlName = ''
     cruiseCount = 0
     maxCount = Infinity
-    cruise = [] as ChannelPtzCruiseGroupCruiseDto[]
+    cruise: ChannelPtzCruiseGroupCruiseDto[] = []
 }
 
+/**
+ * @description 巡航线组 新增轨迹 列表项
+ */
 export class ChannelPtzCruiseGroupCruiseDto extends ChannelPtzPresetDto {
     id = 0
 }
@@ -583,28 +722,26 @@ export class ChannelPtzTaskForm {
 /**
  * @description 云台 智能跟踪 通道列表项
  */
-export class ChannelPtzSmartTrackDto {
-    [key: string]: boolean | string | number
+export class ChannelPtzSmartTrackDto extends TableRowStatus {
     chlId = ''
     chlName = ''
     autoBackSwitch = false
     autoBackTime = 0
     ptzControlMode = 'manual'
-    status = 'loading'
 }
 
 /**
  * @description 云台协议 通道列表项
  */
-export class ChannelPtzProtocolDto {
+export class ChannelPtzProtocolDto extends TableRowStatus {
     [key: string]: any
     chlId = ''
     chlName = ''
     baudRate = ''
     protocol = ''
-    baudRateOptions = [] as SelectOption<string, string>[]
-    protocolOptions = [] as SelectOption<string, string>[]
-    status = 'loading'
+    baudRateOptions: SelectOption<string, string>[] = []
+    protocolOptions: SelectOption<string, string>[] = []
+    // status = 'loading'
     address = 1
     addressMin = 1
     addressMax = 1
@@ -614,13 +751,30 @@ export class ChannelPtzProtocolDto {
 /**
  * @description 水印设置 通道列表项
  */
-export class ChannelWaterMarkDto {
+export class ChannelWaterMarkDto extends TableRowStatus {
     chlId = ''
     chlName = ''
     chlIndex = ''
     chlType = ''
-    status = 'loading'
-    disabled = false
     switch = 'false'
     customText = ''
+}
+
+/**
+ * @description LOGO设置 通道列表项
+ */
+export class ChannelLogoSetDto extends TableRowStatus {
+    [key: string]: any
+    chlId = ''
+    chlName = ''
+    switch = 'false'
+    opacity = 30
+    minOpacity = 0
+    maxOpacity = 100
+    minX = 0
+    maxX = 10000
+    minY = 0
+    maxY = 10000
+    X = 0
+    Y = 0
 }
