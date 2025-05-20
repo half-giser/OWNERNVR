@@ -13,7 +13,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { supportPOS, CustomerID } = useCababilityStore()
+        const { supportPOS, CustomerID, ipChlMaxCount } = useCababilityStore()
 
         const MODE_MAPPING: Record<string, string> = {
             manually: Translate('IDCS_REPLAY_CUSTOMIZE'),
@@ -41,6 +41,10 @@ export default defineComponent({
             {
                 icon: 'pos_2',
                 event: 'POS',
+            },
+            {
+                icon: 'aq',
+                event: 'ALLEVENT',
             },
         ]
 
@@ -98,6 +102,7 @@ export default defineComponent({
                     type: REC_MODE_TYPE.EVENT,
                     events: ['INTELLIGENT'],
                     index: 3,
+                    disabled: false,
                 },
             ] as RecordModeDto[],
             basicRecModes: [
@@ -151,6 +156,8 @@ export default defineComponent({
                     index: 7,
                 },
             ] as RecordModeDto[],
+            // 自动模式，是否属于支持全事件配置
+            isSupportAllEvent: false,
             // icons: {} as Record<string, string[]>,
             // 根据UI选择是否显示icon
             showIcon: import.meta.env.VITE_UI_TYPE === 'UI1-E',
@@ -170,11 +177,6 @@ export default defineComponent({
             })
         }
 
-        /**
-         * 缓存初始化查询时的列表数据，保存时对比变化了的行
-         */
-        // let recordScheduleListInit: RecordScheduleDto[] = []
-
         //高级录像模式列表转MAP
         const advanceRecModeMap: Record<string, RecordModeDto> = {}
         pageData.value.advanceRecModes.forEach((item) => {
@@ -185,7 +187,7 @@ export default defineComponent({
             return ICON_MAPPING.filter((icon) => mode.type.includes(icon.event) || mode.events.includes(icon.event)).map((icon) => icon.icon)
         }
 
-        const changeAllSchedule = (value: string, field: 'alarmRec' | 'motionRec' | 'intelligentRec' | 'posRec' | 'scheduleRec') => {
+        const changeAllSchedule = (value: string, field: 'alarmRec' | 'motionRec' | 'intelligentRec' | 'posRec' | 'scheduleRec' | 'allEventRec') => {
             tableData.value.forEach((item) => {
                 item[field] = value
             })
@@ -209,11 +211,37 @@ export default defineComponent({
             formData.value.autoMode = $('content/recMode/autoMode').text()
             formData.value.autoModeEvents = $('content/recMode/autoMode').attr('eventType').array()
             formData.value.urgencyRecDuration = $('content/urgencyRecDuration').text().num()
+            pageData.value.isSupportAllEvent = $('content/supportAllEvent').text().bool()
 
             //TODO: CustomerID为100代表inw48客户,要求隐藏智能侦测
             if (pageData.value.isInw48) {
                 pageData.value.advanceRecModes = pageData.value.advanceRecModes.filter((item) => item.id !== 'INTELLIGENT')
                 pageData.value.basicRecModes.pop()
+            }
+
+            if (pageData.value.isSupportAllEvent) {
+                pageData.value.basicRecModes = [
+                    {
+                        id: 'ALLEVENT',
+                        text: Translate('IDCS_ALL_EVENT_RECORD'),
+                        type: REC_MODE_TYPE.ALLEVENT,
+                        events: ['ALLEVENT'],
+                        index: 1,
+                    },
+                    {
+                        id: 'INTENSIVE_ALLEVENT',
+                        text: `${Translate('IDCS_INTENSIVE_RECORD')}+${Translate('IDCS_ALL_EVENT_RECORD')}`,
+                        type: REC_MODE_TYPE.INTENSIVE_ALLEVENT,
+                        events: ['ALLEVENT'],
+                        index: 2,
+                    },
+                ]
+                const targetRecMode = pageData.value.advanceRecModes.find((item) => item.id === 'INTELLIGENT')
+                targetRecMode!.disabled = true
+                // TODO: 支持全部事件时，增加两个基础事件类型映射
+                pageData.value.basicRecModes.forEach((item) => {
+                    advanceRecModeMap[item.id] = item
+                })
             }
 
             //TODO: CustomerID为351代表USE44客户,要求将manual翻译为schedule
@@ -251,16 +279,18 @@ export default defineComponent({
                 })
 
             // 选择自动模式列表
-
             for (let index = 0; index < pageData.value.basicRecModes.length; index++) {
                 const item = pageData.value.basicRecModes[index]
-                //如果当前返回的事件列表和基础模式的事件列表相同，则表示选中基础事件模式
-                if (
+                const baicCond = formData.value.autoMode === item.type
+                const allEventCond = baicCond && pageData.value.isSupportAllEvent
+                // 如果当前返回的事件列表和基础模式的事件列表相同，则表示选中基础事件模式
+                const singleEventCond =
+                    baicCond &&
                     formData.value.autoModeEvents.length === item.events.length &&
-                    formData.value.autoMode === item.type &&
                     formData.value.autoModeEvents.filter((o) => item.events.includes(o)).length === formData.value.autoModeEvents.length
-                ) {
+                if (allEventCond || singleEventCond) {
                     formData.value.autoModeId = item.id
+                    pageData.value.autoModeIdOld = item.id
                     break
                 }
             }
@@ -272,7 +302,6 @@ export default defineComponent({
                     autoModeEvents.push(REC_MODE_TYPE.INTENSIVE)
                 }
                 genAdvanceMode(autoModeEvents)
-                formData.value.autoModeId = pageData.value.advanceModeCurrent!.id
             } else {
                 pageData.value.advanceModeCurrent = null
             }
@@ -346,10 +375,16 @@ export default defineComponent({
             advanceModeCurrent.type = autoModeIsIntensive ? REC_MODE_TYPE.INTENSIVE_EVENT : REC_MODE_TYPE.EVENT
 
             pageData.value.advanceModeCurrent = advanceModeCurrent
-
             pageData.value.advanceRecModeId = advanceModeCurrent.id
-            // genIconMap(recAutoModeList.value.concat([advanceModeCurrent]))
-
+            // TODO: 自动模式下，当前选中的模式为高级模式ID时，自动切换绑定的模式ID
+            if (
+                !pageData.value.basicRecModes.find((item) => {
+                    return item.id === formData.value.autoModeId
+                })
+            ) {
+                formData.value.autoModeId = advanceModeCurrent.id
+                pageData.value.autoModeIdOld = advanceModeCurrent.id
+            }
             return true
         }
 
@@ -358,6 +393,10 @@ export default defineComponent({
          */
         const recAutoModeList = computed(() => {
             return pageData.value.advanceModeCurrent === null ? pageData.value.basicRecModes : pageData.value.basicRecModes.concat(pageData.value.advanceModeCurrent)
+        })
+
+        const allEventTips = computed(() => {
+            return supportPOS ? Translate('IDCS_ALL_EVENT_RECORD_TIP') : Translate('IDCS_ALL_EVENT_RECORD_EXCEPT_POS_TIP')
         })
 
         /**
@@ -392,6 +431,7 @@ export default defineComponent({
                     intelligentRec: getRecScheduleSelectValue('intelligentRec'),
                     posRec: getRecScheduleSelectValue('posRec'),
                     scheduleRec: getRecScheduleSelectValue('scheduleRec'),
+                    allEventRec: getRecScheduleSelectValue('allEventRec'),
                     status: '',
                     statusTip: '',
                     disabled: false,
@@ -433,35 +473,13 @@ export default defineComponent({
             formData.value.autoMode = curAutoMode!.type
             formData.value.autoModeEvents = curAutoMode!.events
             const events = formData.value.autoModeEvents.join(',')
+            const isAllEvents = [REC_MODE_TYPE.ALLEVENT, REC_MODE_TYPE.INTENSIVE_ALLEVENT].includes(formData.value.autoMode)
 
             const sendXml = rawXml`
-                <types>
-                    <recModeType>
-                        <enum>manually</enum>
-                        <enum>auto</enum>
-                    </recModeType>
-                    <autoRecModeType>
-                        <enum>ALWAYS_HIGH</enum>
-                        <enum>MOTION</enum>
-                        <enum>ALARM</enum>
-                        <enum>MOTION_ALARM</enum>
-                        <enum>INTENSIVE_MOTION</enum>
-                        <enum>INTENSIVE_ALARM</enum>
-                        <enum>INTENSIVE_MOTION_ALARM</enum>
-                        <enum>EVENT</enum>
-                        <enum>INTENSIVE_EVENT</enum>
-                    </autoRecModeType>
-                    <eventType>
-                        <enum>MOTION</enum>
-                        <enum>ALARM</enum>
-                        <enum>INTELLIGENT</enum>
-                        <enum>POS</enum>
-                    </eventType>
-                </types>
                 <content>
                     <recMode>
                         <mode type="recModeType">${formData.value.mode}</mode>
-                        <autoMode type="autoRecModeType" eventType="${events}">${formData.value.autoMode}</autoMode>
+                        <autoMode type="${pageData.value.isSupportAllEvent ? 'autoModeType' : 'autoRecModeType'}" eventType="${isAllEvents ? '' : events}">${formData.value.autoMode}</autoMode>
                     </recMode>
                     <urgencyRecDuration unit="m">${formData.value.urgencyRecDuration}</urgencyRecDuration>
                 </content>`
@@ -486,6 +504,10 @@ export default defineComponent({
                                         <switch>${getSwitch(row.scheduleRec)}</switch>
                                         <schedule id="${row.scheduleRec}"></schedule>
                                     </scheduleRec>
+                                    <allEventRec>
+                                        <switch>${getSwitch(row.allEventRec)}</switch>
+                                        <schedule id="${row.allEventRec}"></schedule>
+                                    </allEventRec>
                                     <motionRec>
                                         <switch>${getSwitch(row.motionRec)}</switch>
                                         <schedule id="${row.motionRec}"></schedule>
@@ -560,6 +582,8 @@ export default defineComponent({
             recAutoModeList,
             advanceRecModeMap,
             supportPOS,
+            ipChlMaxCount,
+            allEventTips,
             openSchedulePop,
             changeAllSchedule,
             confirmAdvancePop,

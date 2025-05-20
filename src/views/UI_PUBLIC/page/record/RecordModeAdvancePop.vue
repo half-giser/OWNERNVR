@@ -27,7 +27,21 @@
                     v-else
                     :label="item.text"
                     :value="item.id"
-                />
+                    :disabled="!!item.disabled"
+                >
+                    <div class="checkbox">
+                        {{ item.text }}
+                        <BaseImgSprite
+                            v-if="item.id === 'INTELLIGENT'"
+                            :key="item.id"
+                            file="aq"
+                            :index="1"
+                            :hover-index="0"
+                            :chunk="3"
+                            :title="Translate('IDCS_INTELLIGETN_RECORD_TIPS').formatForLang(Translate('IDCS_AI_AND_EVENT'), Translate('IDCS_INTELLIGENT_CONFIG'), Translate('IDCS_PICTURE_COMPARSION'))"
+                        />
+                    </div>
+                </el-checkbox>
             </template>
         </el-checkbox-group>
         <div class="base-btn-box">
