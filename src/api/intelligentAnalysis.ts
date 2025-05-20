@@ -195,3 +195,17 @@ export const searchImageByImageV2 = (data: string) => fetch('searchImageByImageV
  * @returns
  */
 export const requestSmartTargetSnapImage = (data: string) => fetch('requestSmartTargetSnapImage', data)
+
+/**
+ * @description 智能分析 新- 获取索引数据
+ * @param {string} data
+ * @returns
+ */
+export const searchTargetIndex = (data: string) => fetch('searchTargetIndex', data)
+
+/**
+ * @description 智能分析 新- 获取图片数据
+ * @param {string} data
+ * @returns
+ */
+export const requestTargetData = (data: string) => fetch('requestTargetData', data)
