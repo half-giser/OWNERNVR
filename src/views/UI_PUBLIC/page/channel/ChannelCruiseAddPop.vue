@@ -20,10 +20,9 @@
                 :label="Translate('IDCS_CRUISE_NAME')"
                 prop="name"
             >
-                <el-input
+                <BaseTextInput
                     v-model="formData.name"
-                    :formatter="formatInputMaxLength"
-                    :parser="formatInputMaxLength"
+                    :maxlength="data.cruiseNameMaxLen"
                 />
             </el-form-item>
         </el-form>
@@ -49,10 +48,11 @@
                 :label="Translate('IDCS_SPEED')"
                 prop="speed"
             />
-            <el-table-column
-                :label="Translate('IDCS_TIME')"
-                prop="holdTime"
-            />
+            <el-table-column :label="Translate('IDCS_TIME')">
+                <template #default="{ row }: TableColumn<ChannelPtzCruisePresetDto>">
+                    {{ displayHoldTime(row.holdTime) }}
+                </template>
+            </el-table-column>
             <el-table-column :label="Translate('IDCS_EDIT')">
                 <template #default="{ $index }: TableColumn<ChannelPtzCruisePresetDto>">
                     <BaseImgSpriteBtn
@@ -101,7 +101,7 @@
         </div>
         <ChannelCruiseEditPresetPop
             v-model="pageData.isPresetPop"
-            :chl-id="chlId"
+            :chl-id="data.chlId"
             :type="pageData.presetType"
             :data="tableData[pageData.presetIndex] || undefined"
             @confirm="confirmChangePreset"

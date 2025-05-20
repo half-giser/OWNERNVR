@@ -116,6 +116,7 @@ export default defineComponent({
             QoI: '',
             //
             chlType: '',
+            onlyRead: false,
             // 是否RTSP
             isRTSP: false,
             // 分辨率选项列表
@@ -281,12 +282,20 @@ export default defineComponent({
 
         // 是否禁用码流类型
         const streamTypeDisabled = computed(() => {
-            return prop.split === 4
+            if (prop.mode === 'h5') {
+                return prop.split > 1
+            }
+
+            if (prop.mode === 'ocx') {
+                return prop.split > 4
+            }
+
+            return true
         })
 
         // 是否禁用子码流选项
         const streamOptionDisabled = computed(() => {
-            return pageData.value.isRTSP || !pageData.value.resolutionOptions.length || pageData.value.chlType === 'recorder'
+            return pageData.value.isRTSP || !pageData.value.resolutionOptions.length || pageData.value.chlType === 'recorder' || pageData.value.onlyRead
         })
 
         // 是否禁用码率选项
@@ -365,14 +374,82 @@ export default defineComponent({
             }
 
             if (pageData.value.bitType === 'CBR') {
-                const find = pageData.value.qualityOptions.find((item) => {
-                    return item.res === streamFormData.value.resolution && item.enct === pageData.value.enct
-                })
-                if (find) {
-                    streamFormData.value.quality = find.chlType + 'Default'
-                }
+                console.log(pageData.value.qualityOptions)
+                const qualitys = pageData.value.qualityOptions
+                    .find((item) => item.value)!
+                    .value.split(',')
+                    .map((item) => Number(item))
+
+                streamFormData.value.quality =
+                    getVideoQuality({
+                        videoEncodeType: pageData.value.enct,
+                        resolution: streamFormData.value.resolution,
+                        qualitys: qualitys,
+                    }) + ''
             }
         })
+
+        const getVideoQuality = (rowData: { videoEncodeType: string; resolution: string; qualitys: number[] }) => {
+            const videoEncodeType = rowData.videoEncodeType // h264、h265
+            const resolution = rowData.resolution // 2MP
+            const split = resolution.split('x')
+            if (!videoEncodeType || !split || split.length === 0) {
+                return 0
+            }
+
+            const row = Number(split[0])
+            const column = Number(split[1])
+            const isH264 = videoEncodeType.indexOf('h264') > -1
+            const isH265 = videoEncodeType.indexOf('h265') > -1
+            const product = row * column
+
+            let videoQuality = 0
+
+            // D1及以下
+            if (product <= 5e5) {
+                videoQuality = isH264 ? 768 : isH265 ? 512 : 0
+            }
+            // (D1, 720p]
+            else if (product > 5e5 && product <= 1e6) {
+                videoQuality = isH264 ? 1536 : isH265 ? 1024 : 0
+            }
+            // (720p, 2MP]
+            else if (product > 1e6 && product <= 2e6) {
+                videoQuality = isH264 ? 3072 : isH265 ? 2048 : 0
+            }
+            // (2MP, 3MP]
+            else if (product > 2e6 && product <= 3e6) {
+                videoQuality = isH264 ? 4096 : isH265 ? 3072 : 0
+            }
+            // (3MP, 4MP]
+            else if (product > 3e6 && product <= 4e6) {
+                videoQuality = isH264 ? 5120 : isH265 ? 4096 : 0
+            }
+            // (4MP, 6MP]
+            else if (product > 4e6 && product <= 6e6) {
+                videoQuality = isH264 ? 6144 : isH265 ? 5120 : 0
+            }
+            // (6MP, 12MP]
+            else if (product > 6e6 && product <= 12e6) {
+                videoQuality = isH264 ? 8192 : isH265 ? 6144 : 0
+            }
+            // 12MP以上
+            else if (product > 12e6) {
+                videoQuality = isH264 ? 8192 : isH265 ? 8192 : 0
+            }
+
+            if (rowData.qualitys.length > 1) {
+                // 找一个小的最接近的区间值
+                for (let i = rowData.qualitys.length - 1; i >= 0; i--) {
+                    if (videoQuality >= rowData.qualitys[i]) {
+                        videoQuality = rowData.qualitys[i]
+                        break
+                    }
+                }
+            }
+
+            return videoQuality
+        }
 
         /**
          * @description 更新码流
@@ -411,6 +488,7 @@ export default defineComponent({
                 const $item = queryXml(content[0].element)
                 pageData.value.GOP = $item('sub').attr('GOP')
                 pageData.value.chlType = $item('chlType').text()
+                pageData.value.onlyRead = $item('sub').attr('OnlyRead').bool()
             } else {
                 // rtsp通道无子码流
                 pageData.value.isRTSP = true
@@ -536,6 +614,39 @@ export default defineComponent({
             return !enableTalked
         })
 
+        const wiperDisabled = computed(() => {
+            const endableWiper = prop.chl[chlID.value]?.supportWiper && !disabled.value
+            return !endableWiper
+        })
+
+        const runWiper = () => {
+            setWiper('WiperOn')
+        }
+
+        const stopWiper = () => {
+            setWiper('WiperOff')
+        }
+
+        const setWiper = async (actionType: string) => {
+            const sendXML = rawXml`
+                <content>
+                    <chlId>${chlID.value}</chlId>
+                    <actionType>${actionType}</actionType>
+                </content>
+            `
+            const result = await ptzMoveCall(sendXML)
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+            } else {
+                const errorCode = $('errorCode').text().num()
+                let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
+                if (errorCode === 536870953) {
+                    errorInfo = Translate('IDCS_NO_PERMISSION')
+                }
+                openMessageBox(errorInfo)
+            }
+        }
+
         const fpsOptions = computed(() => {
             return Array(pageData.value.maxFps)
                 .fill(1)
@@ -587,6 +698,9 @@ export default defineComponent({
             audioDisabled,
             talkDisabled,
             fpsOptions,
+            wiperDisabled,
+            runWiper,
+            stopWiper,
         }
     },
 })

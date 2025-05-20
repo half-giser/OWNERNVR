@@ -43,16 +43,13 @@ export default defineComponent({
         const { Translate } = useLangStore()
 
         const pageData = ref({
-            // 预置点最大数量
-            maxCount: 0,
             // 是否显示新增预置点弹窗
             isAddPop: false,
             // 当前选中预置点项索引
             active: 0,
         })
 
-        // 列表数据
-        const listData = ref<ChannelPtzPresetDto[]>([])
+        const formData = ref(new ChannelPtzPresetChlDto())
 
         /**
          * @description 获取预置点列表
@@ -67,13 +64,17 @@ export default defineComponent({
             const result = await queryChlPresetList(sendXml)
             const $ = queryXml(result)
             if ($('status').text() === 'success' && chlId === prop.chlId) {
-                pageData.value.maxCount = $('content/presets').attr('maxCount').num()
-                listData.value = $('content/presets/item').map((item) => {
+                formData.value.chlId = chlId
+                formData.value.chlName = prop.chlName
+                formData.value.maxCount = $('content/presets').attr('maxCount').num()
+                formData.value.presets = $('content/presets/item').map((item) => {
                     return {
                         name: item.text(),
                         index: item.attr('index').num(),
                     }
                 })
+                formData.value.presetCount = formData.value.presets.length
+                formData.value.nameMaxByteLen = $('content/presets/itemType').attr('maxByteLen').num() || nameByteMaxLen
             }
         }
 
@@ -81,10 +82,12 @@ export default defineComponent({
          * @description 打开新增预置点弹窗
          */
         const addPreset = () => {
-            if (listData.value.length >= pageData.value.maxCount) {
+            if (formData.value.presets.length >= formData.value.maxCount) {
                 openMessageBox(Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
                 return
             }
+            formData.value.chlId = prop.chlId
+            formData.value.chlName = prop.chlName
             pageData.value.isAddPop = true
         }
 
@@ -100,7 +103,7 @@ export default defineComponent({
          * @description 删除预置点
          */
         const deletePreset = () => {
-            const item = listData.value[pageData.value.active]
+            const item = formData.value.presets[pageData.value.active]
             if (!item) {
                 openMessageBox(Translate('IDCS_PROMPT_CHANNEL_PRESET_EMPTY'))
                 return
@@ -130,7 +133,7 @@ export default defineComponent({
          * @description 保存预置点
          */
         const savePreset = async () => {
-            const item = listData.value[pageData.value.active]
+            const item = formData.value.presets[pageData.value.active]
             if (!item) {
                 openMessageBox(Translate('IDCS_PROMPT_CHANNEL_PRESET_EMPTY'))
                 return
@@ -180,7 +183,7 @@ export default defineComponent({
         )
 
         return {
-            listData,
+            formData,
             pageData,
             confirmAddPreset,
             addPreset,

@@ -37,7 +37,7 @@ export default defineComponent({
             durationOptions: [5, 1, 3].map((value) => {
                 return {
                     value,
-                    label: getTranslateForSecond(value),
+                    label: displaySecondWithUnit(value),
                 }
             }),
             ruleOptions: [

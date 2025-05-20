@@ -119,17 +119,17 @@ const intelligentAnalysisRoutes: FeatureItem = {
                     },
                 },
                 // 组合
-                combine: {
-                    name: 'statisticsCombine',
-                    component: 'intelligentAnalysis/IntelCombineStats.vue',
-                    meta: {
-                        sort: 40,
-                        lk: 'IDCS_COMBINE_SEARCH',
-                        icon: 'event_search_smart',
-                        minWidth: 1580,
-                        minHeight: 850,
-                    },
-                },
+                // combine: {
+                //     name: 'statisticsCombine',
+                //     component: 'intelligentAnalysis/IntelCombineStats.vue',
+                //     meta: {
+                //         sort: 40,
+                //         lk: 'IDCS_COMBINE_SEARCH',
+                //         icon: 'event_search_smart',
+                //         minWidth: 1580,
+                //         minHeight: 850,
+                //     },
+                // },
             },
         },
         // 样本库

@@ -86,7 +86,8 @@
                     </div>
                     <div class="right-legend">
                         <div
-                            v-for="item in pageData.legend"
+                            v-for="item in pageData.legend.toReversed()"
+                            v-show="item.value !== 'otherType'"
                             :key="item.value"
                         >
                             <span :style="{ backgroundColor: item.color }"></span>

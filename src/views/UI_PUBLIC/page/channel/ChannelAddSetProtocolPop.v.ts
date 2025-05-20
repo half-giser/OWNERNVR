@@ -8,7 +8,7 @@ import type { TableInstance, FormRules } from 'element-plus'
 export default defineComponent({
     props: {
         manufacturerList: {
-            type: Array as PropType<SelectOption<string, string>[]>,
+            type: Array as PropType<string[]>,
             required: true,
         },
     },
@@ -51,7 +51,6 @@ export default defineComponent({
         })
 
         let tempProtocolLogo = ''
-        let manufacturerArray: string[] = []
         let displayNameList: string[] = []
 
         const handleProtocolLogoChange = async (val: string) => {
@@ -117,7 +116,7 @@ export default defineComponent({
                             return
                         }
 
-                        if (displayNameList.concat(manufacturerArray).includes(value)) {
+                        if (displayNameList.concat(props.manufacturerList).includes(value)) {
                             callback(new Error(Translate('IDCS_SHOW_NAME_SAME')))
                             currentProtocolLogo.value = tempProtocolLogo
                             return
@@ -232,7 +231,6 @@ export default defineComponent({
         }
 
         const opened = () => {
-            manufacturerArray = props.manufacturerList.map((ele) => ele.label)
             getData()
         }
 

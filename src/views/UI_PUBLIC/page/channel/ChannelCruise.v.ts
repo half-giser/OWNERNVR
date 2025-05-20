@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 17:50:00
  * @Description: 云台-巡航线
  */
-import { type TableInstance } from 'element-plus'
+import { type FormRules, type TableInstance } from 'element-plus'
 import ChannelCruiseAddPop from './ChannelCruiseAddPop.vue'
 import ChannelCruiseEditPresetPop from './ChannelCruiseEditPresetPop.vue'
 import ChannelPtzTableExpandPanel from './ChannelPtzTableExpandPanel.vue'
@@ -21,11 +21,6 @@ export default defineComponent({
         const playerRef = ref<PlayerInstance>()
         const auth = useUserChlAuth(false)
 
-        // 最大巡航线数量
-        const CRUISE_MAX_COUNT = 8
-        // 巡航线最大预置点数量
-        const PRESET_MAX_COUNT = 16
-
         let presetId = 0
 
         const pageData = ref({
@@ -37,12 +32,8 @@ export default defineComponent({
             expandRowKey: [] as string[],
             // 是否显示新增弹窗
             isAddPop: false,
-            // 新增弹窗轨迹最大值
-            addCruiseMax: CRUISE_MAX_COUNT,
-            // 新增弹窗轨迹列表
-            addCruise: [] as ChannelPtzCruiseDto[],
-            // 通道ID
             addChlId: '',
+            addData: new ChannelPtzCruiseChlDto(),
             // 是否显示预置点弹窗
             isPresetPop: false,
             // 预置点索引
@@ -51,9 +42,32 @@ export default defineComponent({
             presetType: 'add',
         })
 
+        const formRef = useFormRef()
+
         const formData = ref({
             cruiseIndex: '' as number | string,
             name: '',
+        })
+
+        const rules = ref<FormRules>({
+            name: [
+                {
+                    validator(_rule, value: string, callback) {
+                        if (tableData.value[pageData.value.tableIndex].cruise.some((item) => item.name === value)) {
+                            callback(new Error(Translate('IDCS_PROMPT_CRUISE_NAME_EXIST')))
+                            return
+                        }
+
+                        if (!value.trim()) {
+                            callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
+                            return
+                        }
+
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
         })
 
         const tableRef = ref<TableInstance>()
@@ -140,10 +154,29 @@ export default defineComponent({
                     return {
                         index: item.attr('index').num(),
                         name: item.text(),
+                        number: item.attr('number').num(),
                     }
                 })
-                item.maxCount = CRUISE_MAX_COUNT // Number($('content/cruises').attr('maxCount'))
+                item.maxCount = $('content/cruises').attr('maxCount').num()
                 item.cruiseCount = item.cruise.length
+                item.cruisePresetMinSpeed = $('type/cruisePresetMinSpeed').text().num()
+                item.cruisePresetMaxSpeed = $('type/cruisePresetMaxSpeed').text().num()
+                item.cruisePresetMinHoldTime = $('type/cruisePresetMinHoldTime').text().num()
+                item.cruisePresetMaxHoldTime = $('type/cruisePresetMaxHoldTime').text().num()
+                item.cruisePresetDefaultHoldTime = $('type/cruisePresetDefaultHoldTime').text().num()
+                item.cruisePresetMaxCount = $('type/cruisePresetMaxCount').text().num()
+                item.cruisePresetHoldTimeList = $('type/cruisePresetHoldTime')
+                    .text()
+                    .array()
+                    .map((item) => Number(item))
+                    .sort((a, b) => a - b)
+                    .map((item) => {
+                        return {
+                            label: item + getTranslateForSecond(item),
+                            value: item,
+                        }
+                    })
+                item.cruiseNameMaxLen = $('cruises/itemType').attr('maxLen').num()
             }
         }
 
@@ -186,8 +219,7 @@ export default defineComponent({
             const result = await getChlList({
                 pageIndex: 1,
                 pageSize: 999,
-                requireField: ['cruiseCount'],
-                isSupportPtz: true,
+                requireField: ['supportPtz', 'supportIntegratedPtz'],
             })
             const $ = queryXml(result)
 
@@ -197,7 +229,11 @@ export default defineComponent({
                 tableData.value = $('content/item')
                     .filter((item) => {
                         const $item = queryXml(item.element)
-                        return (auth.value.hasAll || auth.value.ptz[item.attr('id')]) && $item('chlType').text() !== 'recorder'
+                        return (
+                            (auth.value.hasAll || auth.value.ptz[item.attr('id')]) &&
+                            $item('chlType').text() !== 'recorder' &&
+                            ($item('supportPtz').text().bool() || $item('supportIntegratedPtz').text().bool())
+                        )
                     })
                     .map((item) => {
                         const $item = queryXml(item.element)
@@ -208,6 +244,14 @@ export default defineComponent({
                             cruiseCount: $item('cruiseCount').text().num(),
                             cruise: [],
                             maxCount: Infinity,
+                            cruisePresetMinSpeed: 1,
+                            cruisePresetMaxSpeed: 8,
+                            cruisePresetMinHoldTime: 5,
+                            cruisePresetMaxHoldTime: 100,
+                            cruisePresetDefaultHoldTime: 5,
+                            cruisePresetMaxCount: 16,
+                            cruisePresetHoldTimeList: [],
+                            cruiseNameMaxLen: 64,
                         }
                     })
             }
@@ -293,36 +337,40 @@ export default defineComponent({
         /**
          * @description 修改巡航线名称
          */
-        const saveName = async () => {
-            openLoading()
+        const saveName = () => {
+            formRef.value?.validate(async (valid) => {
+                if (valid) {
+                    openLoading()
 
-            const sendXml = rawXml`
-                <content>
-                    <chl id="${tableData.value[pageData.value.tableIndex].chlId}"></chl>
-                    <index>${currentCruise.value.index}</index>
-                    <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
-                </content>
-            `
-            const result = await editChlCruise(sendXml)
-            const $ = queryXml(result)
+                    const sendXml = rawXml`
+                        <content>
+                            <chl id="${tableData.value[pageData.value.tableIndex].chlId}"></chl>
+                            <index>${currentCruise.value.index}</index>
+                            <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
+                        </content>
+                    `
+                    const result = await editChlCruise(sendXml)
+                    const $ = queryXml(result)
 
-            closeLoading()
+                    closeLoading()
 
-            if ($('status').text() === 'success') {
-                openMessageBox({
-                    type: 'success',
-                    message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                }).finally(() => {
-                    tableData.value[pageData.value.tableIndex].cruise[formData.value.cruiseIndex as number].name = formData.value.name
-                })
-            } else {
-                const errorCode = $('errorCode').text().num()
-                if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
-                    openMessageBox(Translate('IDCS_PROMPT_CRUISE_NAME_EXIST'))
-                } else {
-                    openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
+                    if ($('status').text() === 'success') {
+                        openMessageBox({
+                            type: 'success',
+                            message: Translate('IDCS_SAVE_DATA_SUCCESS'),
+                        }).finally(() => {
+                            tableData.value[pageData.value.tableIndex].cruise[formData.value.cruiseIndex as number].name = formData.value.name
+                        })
+                    } else {
+                        const errorCode = $('errorCode').text().num()
+                        if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
+                            openMessageBox(Translate('IDCS_PROMPT_CRUISE_NAME_EXIST'))
+                        } else {
+                            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
+                        }
+                    }
                 }
-            }
+            })
         }
 
         /**
@@ -336,8 +384,9 @@ export default defineComponent({
                 return
             }
             pageData.value.addChlId = current.chlId
-            pageData.value.addCruise = current.cruise
-            pageData.value.addCruiseMax = current.maxCount
+            pageData.value.addData = current
+            // pageData.value.addCruise = current.cruise
+            // pageData.value.addCruiseMax = current.maxCount
             pageData.value.isAddPop = true
         }
 
@@ -361,8 +410,8 @@ export default defineComponent({
          * @description 新增预置点
          */
         const addPreset = () => {
-            if (presetTableData.value.length >= PRESET_MAX_COUNT) {
-                openMessageBox(Translate('IDCS_PRESET_MAX_NUM').formatForLang(PRESET_MAX_COUNT))
+            if (presetTableData.value.length >= tableData.value[pageData.value.tableIndex].cruisePresetMaxCount) {
+                openMessageBox(Translate('IDCS_PRESET_MAX_NUM').formatForLang(tableData.value[pageData.value.tableIndex].cruisePresetMaxCount))
                 return
             }
             pageData.value.isPresetPop = true
@@ -556,6 +605,10 @@ export default defineComponent({
             stopPtzCruise(sendXml)
         }
 
+        const displayHoldTime = (time: number) => {
+            return getTranslateForSecond(time)
+        }
+
         watch(
             () => pageData.value.tableIndex,
             () => {
@@ -598,6 +651,8 @@ export default defineComponent({
         })
 
         return {
+            formRef,
+            rules,
             playerRef,
             tableRef,
             pageData,
@@ -626,6 +681,7 @@ export default defineComponent({
             addCruise,
             confirmAddCruise,
             deleteCruise,
+            displayHoldTime,
         }
     },
 })

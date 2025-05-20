@@ -345,7 +345,7 @@ const emits = defineEmits<{
     /**
      * @description
      */
-    (e: 'motion', motion: { motion_infos: { grids: string }[] }): void
+    (e: 'motion', motion: WebsocketMotionDto): void
     /**
      * @description
      */
@@ -2024,7 +2024,7 @@ const play = (params: PlayerPlayParams) => {
 
             setTargetArr(type, data, winIndex)
         },
-        onmotion: (motion) => {
+        onmotion: (motion: WebsocketMotionDto) => {
             emits('motion', motion)
         },
         onaudioerror: (audioFormat) => {
@@ -2211,6 +2211,8 @@ const handlePlayError = (winIndex: number, errorCode: number = 0, url: string = 
                 emits('error', winIndex, winDataList[winIndex], 'noPermission')
                 emits('error', winIndex, winDataList[winIndex], 'audioClosed')
                 break
+            case ErrorCode.USER_ERROR_NODE_NET_DISCONNECT:
+                emits('error', winIndex, winDataList[winIndex], 'offline')
         }
     } else if (url === '/device/preview/audio/close#response' || url === '/device/playback/audio/close#response') {
         // 处理关闭音频回复的错误码
@@ -3130,6 +3132,10 @@ const handleOCXMessage = ($: XMLQuery, stateType: string) => {
     return emits('message', $, stateType)
 }
 
+const setMotion = (data: any, winIndex: number) => {
+    playerList[winIndex]?.setMotion(data)
+}
+
 createVideoPlayer()
 
 onMounted(() => {
@@ -3231,6 +3237,7 @@ const player = {
     setDetectTargetData,
     getSnapBase64,
     setIsEndRec,
+    setMotion,
 }
 
 export type PlayerReturnsType = typeof player

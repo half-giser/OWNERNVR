@@ -27,7 +27,7 @@
                     <el-select-v2
                         v-model="formData.fishEyeMode"
                         :disabled="formData.disabled || formData.reqCfgFail"
-                        :options="fishEyeModeOption"
+                        :options="formData.fishEyeModeList"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_FISHEYE_MODE')">
@@ -92,7 +92,7 @@
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item
-                                            v-for="(item, index) in fishEyeModeOption"
+                                            v-for="(item, index) in pageData.fishEyeModeList"
                                             :key="index"
                                             @click="handleChangeAll('fishEyeMode', item.value)"
                                         >
@@ -106,8 +106,7 @@
                             <el-select-v2
                                 v-model="row.fishEyeMode"
                                 :disabled="row.disabled || row.reqCfgFail || row.HIKVISION"
-                                :options="fishEyeModeOption"
-                                @focus="handleRowClick(row)"
+                                :options="row.fishEyeModeList"
                             />
                         </template>
                     </el-table-column>
@@ -138,7 +137,6 @@
                                 v-model="row.installType"
                                 :disabled="row.disabled || row.reqCfgFail || row.HIKVISION"
                                 :options="installTypeOption"
-                                @focus="handleRowClick(row)"
                             />
                         </template>
                     </el-table-column>
@@ -176,7 +174,6 @@
                                 v-model="row.fishEyeEnable"
                                 :disabled="row.isPrivateProtocol"
                                 :options="switchOptions"
-                                @focus="handleRowClick(row)"
                                 @change="changeFishEyeEnabled(true)"
                             />
                         </template>

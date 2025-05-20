@@ -65,11 +65,13 @@
                 </el-form-item>
                 <el-form-item prop="password">
                     <template #label>
-                        {{ Translate('IDCS_PASSWORD') }}
-                        <el-checkbox
-                            v-model="pageData.passwordSwitch"
-                            :disabled="!formData.switch || formData.anonymousSwitch"
-                        />
+                        <div class="base-label-box">
+                            <span>{{ Translate('IDCS_PASSWORD') }}</span>
+                            <el-checkbox
+                                v-model="pageData.passwordSwitch"
+                                :disabled="!formData.switch || formData.anonymousSwitch"
+                            />
+                        </div>
                     </template>
                     <BasePasswordInput
                         v-model="formData.password"

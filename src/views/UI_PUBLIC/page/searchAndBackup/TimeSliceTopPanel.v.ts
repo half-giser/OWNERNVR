@@ -21,11 +21,12 @@ export default defineComponent({
     setup(_prop, ctx) {
         const { Translate } = useLangStore()
         const dateTime = useDateTimeStore()
+        const userSession = useUserSessionStore()
 
         // 允许显示缩略图的最大数量64
         const MAX_THUMBNAIL_SHOW_COUNTS = 64
-        // 按时间最大显示数量192,超过此数量时按时间选项禁用
-        const MAX_SHOW_COUNTS_BYTIME = 192
+        // 按时间最大显示数量196,超过此数量时按时间选项禁用
+        const MAX_SHOW_COUNTS_BYTIME = 196
 
         // 通道ID与通道名称的映射
         const chlMap = ref<Record<string, string>>({})
@@ -35,6 +36,7 @@ export default defineComponent({
         const chlTimeSliceMap: { startTime: number; endTime: number; chlId: string; chlName: string }[] = []
 
         let keyframe: ReturnType<typeof WebsocketKeyframe>
+        let imgRender: ReturnType<typeof WasmImageRender>
         // 时间切片列表加载完成Flag
         let timesliceFlag = false
         // 通道列表加载完成Flag
@@ -122,29 +124,19 @@ export default defineComponent({
          * @param {Array} chlList
          */
         const getRecSection = async () => {
-            const year = dayjs().calendar('gregory').year()
-            const startTime = dayjs(`${year - 10}-01-01`, { jalali: false, format: DEFAULT_YMD_FORMAT })
-            const endTime = dayjs(`${year + 10}-01-01`, { jalali: false, format: DEFAULT_YMD_FORMAT })
-            const spaceTime = 60 * 60 * 24
-            const spaceNum = (endTime.valueOf() - startTime.valueOf()) / 1000 / spaceTime
-
             const sendXml = rawXml`
                 <condition>
-                    <startTime>${localToUtc(startTime)}</startTime>
-                    <spaceTime>${spaceTime}</spaceTime>
-                    <spaceNum>${spaceNum}</spaceNum>
-                    <chlId type="list">
-                        ${pageData.value.chlList.map((item) => `<item>${item.chlId}</item>`).join('')}
-                    </chlId>
+                    ${pageData.value.chlList.map((item) => `<chlId>${item.chlId}</chlId>`).join('')}
                 </condition>
             `
-            const result = await queryRecSection(sendXml)
+
+            const result = await queryDatesExistRec(sendXml)
             const $ = queryXml(result)
             if ($('status').text() === 'success') {
                 pageData.value.recTimeList = $('content/item').map((item) => {
-                    const index = item.text().num()
-                    const utcTime = startTime.add(index, 'day')
-                    return utcTime.valueOf()
+                    const date = dayjs.utc(item.text(), DEFAULT_YMD_FORMAT).valueOf() // dayjs(item.text(), { format: DEFAULT_YMD_FORMAT, jalali: false }).valueOf()
+                    // const utcTime = startTime.add(index, 'day')
+                    return date
                 })
             }
         }
@@ -153,14 +145,17 @@ export default defineComponent({
          * @description 获取分日的通道录像列表数据
          */
         const getRecChlByDates = async () => {
-            const items = pageData.value.recTimeList
-                .map((timestamp) => {
-                    const startTime = dayjs(timestamp).hour(0).minute(0).second(0).valueOf() / 1000
-                    const endTime = dayjs(timestamp).hour(23).minute(59).second(59).valueOf() / 1000
-                    return `<item start="${startTime}" end="${endTime}"></item>`
-                })
-                .join('')
-            const sendXml = `<condition>${items}</condition>`
+            const sendXml = rawXml`
+                <condition>
+                    ${pageData.value.recTimeList
+                        .map((timestamp) => {
+                            const startTime = dayjs(timestamp).hour(0).minute(0).second(0).valueOf() / 1000
+                            const endTime = dayjs(timestamp).hour(23).minute(59).second(59).valueOf() / 1000
+                            return `<item start="${startTime}" end="${endTime}"></item>`
+                        })
+                        .join('')}
+                </condition>
+            `
             const result = await queryDateListRecChl(sendXml)
             const $ = queryXml(result)
             if ($('status').text() === 'success') {
@@ -212,15 +207,17 @@ export default defineComponent({
          * @description 初始化获取关键帧的websocket
          */
         const createWebsocketKeyframe = () => {
-            keyframe = WebsocketKeyframe({
-                onmessage: (data: WebsocketKeyframeOnMessageParam) => {
-                    if (timesliceMap[data.taskId.toUpperCase()]) {
-                        const [index, chlIndex] = timesliceMap[data.taskId.toUpperCase()]
-                        pageData.value.chlTimeSliceList[index].chlList[chlIndex].imgUrl = data.imgUrl
-                        pageData.value.chlTimeSliceList[index].chlList[chlIndex].frameTime = data.frameTime
-                    }
-                },
-            })
+            if (userSession.appType === 'STANDARD') {
+                keyframe = WebsocketKeyframe({
+                    onmessage: (data: WebsocketKeyframeOnMessageParam) => {
+                        if (timesliceMap[data.taskId.toUpperCase()]) {
+                            const [index, chlIndex] = timesliceMap[data.taskId.toUpperCase()]
+                            pageData.value.chlTimeSliceList[index].chlList[chlIndex].imgUrl = data.imgUrl
+                            pageData.value.chlTimeSliceList[index].chlList[chlIndex].frameTime = data.frameTime
+                        }
+                    },
+                })
+            }
         }
 
         /**
@@ -243,23 +240,78 @@ export default defineComponent({
             }
 
             timesliceFlag = true
-            keyframe.checkReady(() => {
-                pageData.value.chlTimeSliceList.forEach((item, index) => {
-                    item.chlList.forEach((chl, chlIndex) => {
-                        const startTime = item.startTime / 1000
-                        const endTime = item.endTime / 1000
-                        chl.taskId = keyframe
-                            .start({
-                                chlId: chl.chlId,
-                                startTime,
-                                endTime,
-                                frameNum: 1,
+
+            if (userSession.appType === 'P2P') {
+                imgRender = WasmImageRender({
+                    type: 'p2pTimeSlice',
+                    ready() {
+                        pageData.value.chlTimeSliceList.forEach((item, index) => {
+                            item.chlList.forEach(async (chl, chlIndex) => {
+                                const sendXml = rawXml`
+                                    <condition>
+                                        <chlId>${chl.chlId}</chlId>
+                                        <startTimeEx>${localToUtc(item.startTime)}</startTimeEx>
+                                        <endTimeEx>${localToUtc(item.endTime)}</endTimeEx>
+                                        <diskType>write</diskType>
+                                    </condition>
+                                `
+                                const result = await queryChlSnapPicture(sendXml)
+                                const $ = queryXml(result)
+                                if ($('status').text() === 'success') {
+                                    const codecTypeMap: Record<string, number> = {
+                                        H264: 1, // H264帧
+                                        H265: 2, // H265帧
+                                    }
+                                    const encodingType = $('content/encodingType').text()
+                                    const codecType = codecTypeMap[encodingType]
+                                    const frameTime = $('content/recTime').text().num() * 1000
+                                    const dataBase64 = $('content/data').text()
+                                    const dataBlob = dataURLToBlob(dataBase64)
+                                    const reader = new FileReader()
+                                    reader.onload = () => {
+                                        const taskId = getRandomGUID()
+                                        const dataArrayBuffer = reader.result as ArrayBuffer
+                                        if (!dataArrayBuffer) {
+                                            return
+                                        }
+
+                                        imgRender.render(
+                                            dataArrayBuffer,
+                                            (imgUrl: string) => {
+                                                chl.imgUrl = imgUrl
+                                                chl.taskId = taskId
+                                                chl.frameTime = frameTime
+                                            },
+                                            codecType,
+                                        )
+
+                                        timesliceMap[chl.taskId] = [index, chlIndex]
+                                    }
+                                    reader.readAsArrayBuffer(dataBlob)
+                                }
                             })
-                            .toUpperCase()
-                        timesliceMap[chl.taskId] = [index, chlIndex]
+                        })
+                    },
+                })
+            } else {
+                keyframe.checkReady(() => {
+                    pageData.value.chlTimeSliceList.forEach((item, index) => {
+                        item.chlList.forEach((chl, chlIndex) => {
+                            const startTime = item.startTime / 1000
+                            const endTime = item.endTime / 1000
+                            chl.taskId = keyframe
+                                .start({
+                                    chlId: chl.chlId,
+                                    startTime,
+                                    endTime,
+                                    frameNum: 1,
+                                })
+                                .toUpperCase()
+                            timesliceMap[chl.taskId] = [index, chlIndex]
+                        })
                     })
                 })
-            })
+            }
         }
 
         /**
@@ -359,6 +411,7 @@ export default defineComponent({
 
         onBeforeUnmount(() => {
             keyframe?.destroy()
+            imgRender?.destroy()
         })
 
         return {

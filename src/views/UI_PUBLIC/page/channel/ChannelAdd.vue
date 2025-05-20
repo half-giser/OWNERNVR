@@ -46,6 +46,23 @@
                     width="50"
                 />
                 <el-table-column
+                    :label="Translate('IDCS_CHANNEL_NO')"
+                    width="130"
+                >
+                    <template #default="{ row }: TableColumn<ChannelQuickAddDto>">
+                        <div
+                            v-show="row.chlNum"
+                            class="base-cell-box"
+                        >
+                            <span>{{ row.chlNum }}</span>
+                            <BaseImgSpriteBtn
+                                file="edit2"
+                                @click="editQuickAddChlNum(row)"
+                            />
+                        </div>
+                    </template>
+                </el-table-column>
+                <el-table-column
                     v-if="supportsIPCActivation"
                     :label="Translate('IDCS_IPC_ACTIVATE_STATE')"
                     min-width="140"
@@ -57,7 +74,7 @@
                     </template>
                 </el-table-column>
                 <el-table-column
-                    :label="Translate('IDCS_ADDRESS')"
+                    :label="Translate('IDCS_IP_ADDRESS')"
                     min-width="140"
                 >
                     <template #default="{ row }: TableColumn<ChannelQuickAddDto>">
@@ -65,14 +82,8 @@
                     </template>
                 </el-table-column>
                 <el-table-column
-                    prop="port"
-                    :label="Translate('IDCS_PORT')"
-                    width="100"
-                />
-                <el-table-column
                     :label="Translate('IDCS_EDIT')"
                     width="120"
-                    align="center"
                 >
                     <template #default="{ row }: TableColumn<ChannelQuickAddDto>">
                         <BaseImgSpriteBtn
@@ -82,9 +93,9 @@
                     </template>
                 </el-table-column>
                 <el-table-column
-                    prop="mask"
-                    :label="Translate('IDCS_SUBNET_MASK')"
-                    min-width="140"
+                    prop="port"
+                    :label="Translate('IDCS_PORT')"
+                    width="100"
                 />
                 <el-table-column
                     :label="Translate('IDCS_PROTOCOL')"
@@ -100,13 +111,18 @@
                     min-width="200"
                 />
                 <el-table-column
+                    prop="mask"
+                    :label="Translate('IDCS_SUBNET_MASK')"
+                    min-width="140"
+                />
+                <el-table-column
                     prop="version"
                     :label="Translate('IDCS_VERSION')"
                     min-width="140"
                 />
                 <el-table-column
                     prop="mac"
-                    :label="Translate('IDCS_SERIAL_NO')"
+                    :label="Translate('IDCS_MAC_ADDRESS')"
                     min-width="200"
                 />
             </el-table>
@@ -114,7 +130,7 @@
                 v-show="activeTab === tabKeys.manualAdd"
                 ref="manualAddTableRef"
                 v-title
-                :data="manualAddFormData"
+                :data="manualAddTableData"
                 show-overflow-tooltip
             >
                 <el-table-column
@@ -145,7 +161,7 @@
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_PORT')"
-                    width="150"
+                    width="100"
                 >
                     <template #default="{ row, $index }: TableColumn<ChannelManualAddDto>">
                         <el-input
@@ -165,36 +181,49 @@
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_USERNAME')"
-                    min-width="300"
+                    min-width="150"
                 >
                     <template #default="{ row, $index }: TableColumn<ChannelManualAddDto>">
                         <el-input
                             v-model="row.userName"
-                            maxlength="63"
+                            :formatter="formatInputMaxLength"
+                            :parser="formatInputMaxLength"
                             @change="addManualAddRow($index)"
                         />
                     </template>
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_PASSWORD')"
-                    min-width="300"
+                    min-width="150"
                 >
                     <template #default="{ row, $index }: TableColumn<ChannelManualAddDto>">
                         <BasePasswordInput
                             v-model="row.password"
+                            maxlength="16"
                             @blur="addManualAddRow($index)"
                             @focus="row.password === '******' ? (row.password = '') : ''"
                         />
                     </template>
                 </el-table-column>
                 <el-table-column
+                    :label="Translate('IDCS_CHANNEL_NO')"
+                    min-width="150"
+                >
+                    <template #default="{ row }: TableColumn<ChannelManualAddDto>">
+                        <el-select-v2
+                            v-model="row.chlNum"
+                            :options="chlNumOptions"
+                        />
+                    </template>
+                </el-table-column>
+                <el-table-column
                     :label="Translate('IDCS_PROTOCOL')"
-                    min-width="300"
+                    min-width="200"
                 >
                     <template #default="{ row, $index }: TableColumn<ChannelManualAddDto>">
                         <el-select-v2
                             v-model="row.manufacturer"
-                            :options="manufacturerList"
+                            :options="allManufatureList"
                             @change="changeManufacturer($index, row)"
                         />
                     </template>
@@ -220,7 +249,6 @@
                 show-overflow-tooltip
                 highlight-current-row
                 @row-click="handleRecorderRowClick"
-                @row-dblclick="handleRecorderRowDbClick"
             >
                 <el-table-column
                     type="index"
@@ -253,13 +281,102 @@
                     min-width="250"
                 />
             </el-table>
+            <el-table
+                v-show="activeTab === tabKeys.autoReport"
+                ref="autoReportTableRef"
+                v-title
+                :data="autoReportTableData"
+                show-overflow-tooltip
+                highlight-current-row
+                @row-click="handleAddReportRowClick"
+                @selection-change="handleAddReportSelectionChange"
+            >
+                <el-table-column
+                    type="index"
+                    :label="Translate('IDCS_SERIAL_NUMBER')"
+                    width="80"
+                />
+                <el-table-column
+                    type="selection"
+                    width="50"
+                />
+                <el-table-column
+                    :label="Translate('IDCS_CHANNEL_NO')"
+                    min-width="150"
+                >
+                    <template #default="{ row }: TableColumn<ChannelAddReportDto>">
+                        <div
+                            v-show="row.chlNum"
+                            class="base-cell-box"
+                        >
+                            <span>{{ row.chlNum }}</span>
+                            <BaseImgSpriteBtn
+                                file="edit2"
+                                @click="editAutoReportChlNum(row)"
+                            />
+                        </div>
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    :label="Translate('IDCS_SUB_DEVICE_ID')"
+                    min-width="150"
+                    prop="autoReportID"
+                />
+                <el-table-column
+                    :label="Translate('IDCS_IP_ADDRESS')"
+                    min-width="150"
+                    prop="ip"
+                />
+                <el-table-column
+                    :label="Translate('IDCS_PROTOCOL')"
+                    min-width="150"
+                >
+                    <template #default="{ row }: TableColumn<ChannelAddReportDto>">
+                        {{ displayAutoReportManufaturer(row) }}
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    :label="Translate('IDCS_USERNAME')"
+                    min-width="150"
+                >
+                    <template #default="{ row }: TableColumn<ChannelAddReportDto>">
+                        <el-input
+                            v-model="row.username"
+                            :formatter="formatInputMaxLength"
+                            :parser="formatInputMaxLength"
+                            @keydown.enter="blurInput"
+                        />
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    :label="Translate('IDCS_PASSWORD')"
+                    min-width="150"
+                >
+                    <template #default="{ row }: TableColumn<ChannelAddReportDto>">
+                        <BasePasswordInput
+                            v-model="row.password"
+                            maxlength="16"
+                            @focus="row.password === '******' ? (row.password = '') : ''"
+                        />
+                    </template>
+                </el-table-column>
+            </el-table>
         </div>
-        <div class="base-btn-box flex-start">
-            <span v-show="activeTab === tabKeys.quickAdd">{{ Translate('IDCS_SELECT_CHANNEL_COUNT').formatForLang(selNum, total) }}</span>
+        <div
+            v-show="activeTab === tabKeys.quickAdd"
+            class="base-btn-box flex-start"
+        >
+            <span>{{ Translate('IDCS_SELECT_CHANNEL_COUNT').formatForLang(pageData.selNum, total) }}</span>
         </div>
-        <div class="base-btn-box space-between collapse">
+        <div
+            v-show="systemCaps.poeChlMaxCount && systemCaps.poeChlMaxCount < systemCaps.chlMaxCount && activeTab === tabKeys.manualAdd"
+            class="base-btn-box flex-start"
+        >
+            <span>{{ Translate('IDCS_POE_CHANNEL_ID_TIP').formatForLang(1, systemCaps.poeChlMaxCount) }}</span>
+        </div>
+        <div class="base-btn-box space-between">
             <div>
-                {{ txtBandwidth }}
+                {{ pageData.bandwidth }}
             </div>
             <div>
                 <el-button
@@ -268,7 +385,18 @@
                 >
                     {{ Translate('IDCS_ACTIVATE') }}
                 </el-button>
-                <el-button @click="setDefaultPwd">{{ Translate('IDCS_DEV_DEFAULT_PWD') }}</el-button>
+                <el-button
+                    v-show="activeTab !== tabKeys.quickAdd"
+                    @click="setDefaultPwd"
+                    >{{ Translate('IDCS_DEV_DEFAULT_PWD') }}</el-button
+                >
+                <el-dropdown v-show="activeTab === tabKeys.quickAdd">
+                    <el-button>{{ Translate('IDCS_MORE') }}</el-button>
+                    <template #dropdown>
+                        <el-dropdown-item @click="pageData.isIpPlanningPop = true">{{ Translate('IDCS_DEV_CHANNEL_IP_PLANNING') }}</el-dropdown-item>
+                        <el-dropdown-item @click="setDefaultPwd">{{ Translate('IDCS_DEV_DEFAULT_PWD') }}</el-dropdown-item>
+                    </template>
+                </el-dropdown>
                 <el-button
                     v-show="activeTab === tabKeys.addRecorder"
                     @click="addRecorder"
@@ -280,33 +408,49 @@
             </div>
         </div>
         <ChannelAddActivateIPCPop
-            v-model="isActivateIPCPop"
+            v-model="pageData.isActivateIPCPop"
             :activate-ipc-data="activateIpcData"
             @close="closeActivateIPCPop"
         />
         <ChannelAddSetDefaultPwdPop
-            v-model="isSetDefaultPwdPop"
+            v-model="pageData.isSetDefaultPwdPop"
             @close="closeSetDefaultPwdPop"
             @change="changeDefaultPwd"
         />
         <ChannelAddEditIPCIpPop
-            v-model="isEditIPCIpPop"
+            v-model="pageData.isEditIPCIpPop"
             :edit-item="quickAddEditRowData"
-            :mapping="mapping"
+            :mapping="defaultPwdMap"
             @close="closeEditIPCIpPop"
         />
         <ChannelAddToAddRecorderPop
-            v-model="isAddRecorderPop"
+            v-model="pageData.isAddRecorderPop"
             :edit-item="recoderEditItem"
-            :mapping="mapping"
+            :mapping="defaultPwdMap"
             @close="closeAddRecorderPop"
         />
         <ChannelAddSetProtocolPop
             v-model="setProtocolPopVisiable"
-            :manufacturer-list="nameList"
+            :manufacturer-list="manufactureNameList"
             @close="closeSetProtocolPop"
         />
-        <ChannelAddMultiChlIPCAdd ref="multiChlIPCAddRef" />
+        <ChannelAddMultiChlIPCAddPop
+            v-model="pageData.isMultiChlPop"
+            :data="pageData.multiChlList"
+            @confirm="confirmSetMultiChl"
+            @close="pageData.isMultiChlPop = false"
+        />
+        <ChannelAddEditChlNoPop
+            v-model="pageData.isEditChlNoPop"
+            :data="pageData.chlNoEditData"
+            :options="chlNumOptions"
+            @confirm="confirmEditChlNum"
+            @close="pageData.isEditChlNoPop = false"
+        />
+        <ChannelAddDevChlIpPlanningPop
+            v-model="pageData.isIpPlanningPop"
+            @close="pageData.isIpPlanningPop = false"
+        />
     </div>
 </template>
 

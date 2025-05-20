@@ -13,6 +13,7 @@
         >
             <template #reference>
                 <BaseImgSpriteBtn
+                    class="btn"
                     file="manual_trigger_alarm"
                     :title="Translate('IDCS_MANUAL_ALARM')"
                     :active="pageData.isAlarmPop"
@@ -103,3 +104,9 @@
 </template>
 
 <script lang="ts" src="./LiveScreenAlarmOutPop.v.ts"></script>
+
+<style lang="less" scoped>
+.btn {
+    margin: 0 5px;
+}
+</style>

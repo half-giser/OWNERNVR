@@ -65,12 +65,15 @@
                     <el-input
                         v-model="formData.userName"
                         :disabled="eleUserNameDisabled"
+                        :formatter="formatInputMaxLength"
+                        :parser="formatInputMaxLength"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_PASSWORD')">
                     <BasePasswordInput
                         v-model="formData.password"
                         :disabled="formData.useDefaultPwd"
+                        maxlength="16"
                     />
                 </el-form-item>
             </el-form-item>

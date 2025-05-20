@@ -19,9 +19,9 @@
                 :label="Translate('IDCS_RECIPIENT')"
                 prop="recipient"
             >
-                <el-input
+                <BaseTextInput
                     v-model="pageData.form.recipient"
-                    maxlength="63"
+                    :maxlength="pageData.receiverNameMaxByteLen"
                 />
                 <BaseScheduleSelect
                     v-model="pageData.schedule"

@@ -22,45 +22,36 @@ export default defineComponent({
             sysAudio: Translate('IDCS_VOICE_PROMPT'),
             nodeAudioSwitch: 'IPC_' + Translate('IDCS_AUDIO'),
             nodeLightSwitch: 'IPC_' + Translate('IDCS_LIGHT'),
+            ipSpeakerSwitch: Translate('IDCS_TRIGGER_ALARM_AUDIO_DEVICE'),
         }
 
-        const formData = ref({
-            sensorSwitch: false,
-            inputSource: '',
-        })
+        const formData = ref(new AlarmSystemDisarmFormDto())
 
         const addTableRef = ref<TableInstance>()
         const cfgTableRef = ref<TableInstance>()
         const popTableRef = ref<TableInstance>()
 
         // 通道map
-        const chlsMap: Record<string, { id: string; name: string; chlType: string; supportManualAudio: boolean; supportManualWhiteLight: boolean }> = {}
+        const chlsMap = ref<Record<string, AlaramSystemDisarmChlDto>>({})
         // 传感器map
-        const sensorsMap: Record<string, { id: string; name: string; supportManualAudio: boolean; supportManualWhiteLight: boolean }> = {}
+        const sensorsMap = ref<Record<string, AlaramSystemDisarmChlDto>>({})
 
         const pageData = ref({
             // 源传感器列表
-            sensorSourcelist: [] as { id: string; value: string; supportManualAudio: boolean; supportManualWhiteLight: boolean }[],
+            sensorSourcelist: [] as AlaramSystemDisarmChlDto[],
             // 当前在线的通道列表
             onlineChlList: [] as string[],
             // 通道和传感器源列表
-            chlAndsensorSourceList: [] as AlarmSystemDisarmChlAndSensorSrcDto[],
+            chlAndsensorSourceList: [] as AlaramSystemDisarmChlDto[],
             // 撤防联动项通用列表，从后端获取，不包含手动声光报警输出和手动白光报警输出
             defenseParamList: [] as { id: string; value: string }[],
-            // 总的撤防联动项列表
-            totalDefenseParamList: [] as { id: string; value: string }[],
-
-            hasSupportManualAudioChl: false,
-            hasSupportManualWhiteLightChl: false,
-
-            defenseSwitch: false,
-            remoteSwitch: false,
-
             showAddDialog: false,
             showCfgDialog: false,
             // 打开撤防选择框时选择行的索引
             triggerDialogIndex: 0,
             popoverVisible: false,
+            ipSpeakersList: [] as { chlId: string; name: string; ipSpeakerId: string }[],
+            originaInputSource: '',
         })
 
         const tableData = ref<AlarmSystemDisarmDto[]>([])
@@ -77,6 +68,20 @@ export default defineComponent({
             }
         }
 
+        const hasSupportManualAudio = computed(() => {
+            return Object.values(chlsMap.value).some((item) => item.supportManualAudio)
+        })
+
+        const hasSupportManualWhiteLight = computed(() => {
+            return Object.values(chlsMap.value).some((item) => item.supportManualWhiteLight)
+        })
+
+        const hasSupportIpSpeaker = computed(() => {
+            const ids = Object.keys(chlsMap.value)
+            console.log(ids, pageData.value.ipSpeakersList)
+            return pageData.value.ipSpeakersList.some((item) => ids.includes(item.chlId))
+        })
+
         // 获取所有的通道
         const getChlListAll = async () => {
             const result = await getChlList({
@@ -88,28 +93,21 @@ export default defineComponent({
                     const $item = queryXml(item.element)
                     const chlId = item.attr('id')
                     const chlName = $item('name').text()
-                    const chlType = $item('chlType').text()
                     const supportManualAudio = $item('supportManualAudioAlarmOut').text().bool()
                     const supportManualWhiteLight = $item('supportManualWhiteLightAlarmOut').text().bool()
-                    chlsMap[chlId] = {
+
+                    chlsMap.value[chlId] = {
                         id: chlId,
                         name: chlName,
-                        chlType: chlType,
+                        nodeType: 'channel',
                         supportManualAudio: supportManualAudio,
                         supportManualWhiteLight: supportManualWhiteLight,
                     }
+
                     // 过滤不在线通道
                     if (pageData.value.onlineChlList.includes(chlId)) {
-                        pageData.value.chlAndsensorSourceList.push({
-                            id: chlId,
-                            value: chlName,
-                            nodeType: 'channel',
-                            supportManualAudio: supportManualAudio,
-                            supportManualWhiteLight: supportManualWhiteLight,
-                        })
+                        pageData.value.chlAndsensorSourceList.push({ ...chlsMap.value[chlId] })
                     }
-                    if (supportManualAudio) pageData.value.hasSupportManualAudioChl = true
-                    if (supportManualWhiteLight) pageData.value.hasSupportManualWhiteLightChl = true
                 })
             }
         }
@@ -121,116 +119,88 @@ export default defineComponent({
             })
             const $ = queryXml(result)
             if ($('status').text() === 'success') {
-                let virtualMaxIdx = Number.POSITIVE_INFINITY // alarmInType==virtual节点的最大index
                 $('content/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    let name = $item('name').text()
                     const devId = $item('devID').text()
                     const devDesc = $item('devDesc').text()
+                    const name = (devDesc ? devDesc + '_' : '') + $item('name').text()
                     const sensorId = item.attr('id')
-                    const alarmInType = item.attr('alarmInType')
-                    const alarmIndex = item.attr('index').num()
-                    if (devDesc) {
-                        name = devDesc + '_' + name
-                    }
-                    sensorsMap[sensorId] = {
+
+                    sensorsMap.value[sensorId] = {
                         id: sensorId,
                         name: name,
+                        nodeType: 'sensor',
                         supportManualAudio: false,
                         supportManualWhiteLight: false,
                     }
-                    if (alarmInType === 'virtual') {
-                        virtualMaxIdx = alarmIndex
-                    }
 
-                    if (alarmInType !== 'ipc' && alarmIndex <= virtualMaxIdx) {
-                        // 过滤掉IPC和报警盒子(index大于alarmInType==virtual节点的最大index并且不是IPC的就是报警盒子)
-                        pageData.value.sensorSourcelist.push({
-                            id: sensorId,
-                            value: name,
-                            supportManualAudio: false,
-                            supportManualWhiteLight: false,
-                        })
-                    }
+                    // BA-3507 报警输入源包括：本地、虚拟、通道、报警盒子；
+                    pageData.value.sensorSourcelist.push({ ...sensorsMap.value[sensorId] })
 
                     if (devId) {
-                        pageData.value.onlineChlList.forEach((chlId) => {
-                            if (chlId === devId) {
-                                pageData.value.chlAndsensorSourceList.push({
-                                    id: sensorId,
-                                    value: name,
-                                    nodeType: 'sensor',
-                                    supportManualAudio: false,
-                                    supportManualWhiteLight: false,
-                                })
-                            }
-                        })
+                        if (pageData.value.onlineChlList.includes(devId)) {
+                            pageData.value.chlAndsensorSourceList.push({ ...sensorsMap.value[sensorId] })
+                        }
                     } else {
-                        pageData.value.chlAndsensorSourceList.push({
-                            id: sensorId,
-                            value: name,
-                            nodeType: 'sensor',
-                            supportManualAudio: false,
-                            supportManualWhiteLight: false,
-                        })
+                        pageData.value.chlAndsensorSourceList.push({ ...sensorsMap.value[sensorId] })
                     }
                 })
             }
         }
 
-        const getData = () => {
-            querySystemDisArmParam().then((result) => {
-                const $ = queryXml(result)
-                if ($('status').text() === 'success') {
-                    pageData.value.defenseSwitch = $('content/defenseSwitch').text().bool()
-                    pageData.value.remoteSwitch = $('content/remoteSwitch').text().bool()
-                    formData.value.sensorSwitch = $('content/sensorSwitch').text().bool()
-                    formData.value.inputSource = $('content/inputSourceSensor').text()
-                    formData.value.inputSource =
-                        formData.value.inputSource && formData.value.inputSource !== DEFAULT_EMPTY_ID
-                            ? formData.value.inputSource
-                            : pageData.value.sensorSourcelist[0]
-                              ? pageData.value.sensorSourcelist[0].id
-                              : ''
-                    pageData.value.defenseParamList = []
-                    $('types/defenseType/enum').forEach((item) => {
+        const getData = async () => {
+            const result = await querySystemDisArmParam()
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                formData.value.defenseSwitch = $('content/defenseSwitch').text().bool()
+                formData.value.remoteSwitch = $('content/remoteSwitch').text().bool()
+                formData.value.sensorSwitch = $('content/sensorSwitch').text().bool()
+                formData.value.autoResetSwitch = $('content/autoReset/switch').text().bool()
+                formData.value.resetTime = $('content/autoReset/resetTime').text()
+                formData.value.inputSource = $('content/inputSourceSensor').text()
+                formData.value.inputSource =
+                    formData.value.inputSource && formData.value.inputSource !== DEFAULT_EMPTY_ID
+                        ? formData.value.inputSource
+                        : pageData.value.sensorSourcelist[0]
+                          ? pageData.value.sensorSourcelist[0].id
+                          : ''
+                pageData.value.originaInputSource = formData.value.inputSource
+                pageData.value.defenseParamList = $('types/defenseType/enum')
+                    .map((item) => {
                         const defenseType = item.text()
-                        if (defenseType !== 'nodeAudioSwitch' && defenseType !== 'nodeLightSwitch') {
-                            pageData.value.defenseParamList.push({
-                                id: defenseType,
-                                value: DEFENSE_PARAM_MAPPING[defenseType],
-                            })
-                        }
-                    })
-                    pageData.value.totalDefenseParamList = getTotalDefenseParamList(pageData.value.hasSupportManualAudioChl, pageData.value.hasSupportManualWhiteLightChl)
-                    tableData.value = $('content/defenseSwitchParam/item').map((item) => {
-                        const $item = queryXml(item.element)
-                        const chlId = item.attr('id')
-                        const nodeType = $item('nodeType').text()
-                        const support = getCapabilityFieldRes(nodeType, chlId)
-
                         return {
-                            id: chlId,
-                            chlName: nodeType === 'channel' ? (chlsMap[chlId] ? chlsMap[chlId].name : '') : sensorsMap[chlId] ? sensorsMap[chlId].name : '',
-                            disarmItemsList: $item('defenseAttrs/item').map((item) => {
-                                return {
-                                    id: item.text(),
-                                    value: DEFENSE_PARAM_MAPPING[item.text()],
-                                }
-                            }),
-                            nodeType,
-                            disarmItems: getIpcDefenseParamList(support.supportManualAudio, support.supportManualWhiteLight),
+                            id: defenseType,
+                            value: DEFENSE_PARAM_MAPPING[defenseType],
                         }
                     })
-                }
-            })
+                    .filter((item) => !['nodeAudioSwitch', 'nodeLightSwitch', 'ipSpeakerSwitch'].includes(item.id))
+
+                tableData.value = $('content/defenseSwitchParam/item').map((item) => {
+                    const $item = queryXml(item.element)
+                    const chlId = item.attr('id')
+                    const nodeType = $item('nodeType').text()
+
+                    return {
+                        id: chlId,
+                        chlName: nodeType === 'channel' ? chlsMap.value[chlId].name || '' : sensorsMap.value[chlId].name || '',
+                        disarmItemsList: $item('defenseAttrs/item').map((item) => {
+                            return {
+                                id: item.text(),
+                                value: DEFENSE_PARAM_MAPPING[item.text()],
+                            }
+                        }),
+                        nodeType,
+                        disarmItems: getIpcDefenseParamList(nodeType, chlId),
+                    }
+                })
+            }
         }
 
         const getSaveData = () => {
             const sendXml = rawXml`
                 <types>
                     <defenseType>
-                        ${pageData.value.totalDefenseParamList.map((item) => `<enum>${item.id}</enum>`).join('')}
+                        ${totalDefenseParamList.value.map((item) => `<enum>${item.id}</enum>`).join('')}
                     </defenseType>
                     <nodeType>
                         <enum>channel</enum>
@@ -238,10 +208,10 @@ export default defineComponent({
                     </nodeType>
                 </types>
                 <content>
-                    <defenseSwitch>${pageData.value.defenseSwitch}</defenseSwitch>
-                    <remoteSwitch>${pageData.value.remoteSwitch}</remoteSwitch>
+                    <defenseSwitch>${formData.value.defenseSwitch}</defenseSwitch>
+                    <remoteSwitch>${formData.value.remoteSwitch}</remoteSwitch>
                     <sensorSwitch>${formData.value.sensorSwitch}</sensorSwitch>
-                    <inputSourceSensor>${formData.value.inputSource}</inputSourceSensor>
+                    <inputSourceSensor>${formData.value.inputSource || pageData.value.originaInputSource}</inputSourceSensor>
                     <defenseSwitchParam type="list">
                         ${tableData.value
                             .map((item) => {
@@ -256,88 +226,115 @@ export default defineComponent({
                             })
                             .join('')}
                     </defenseSwitchParam>
+                    <autoReset>
+                        <switch>${formData.value.autoResetSwitch}</switch>
+                        <resetTime>${formData.value.resetTime}</resetTime>
+                    </autoReset>
                 </content>
             `
 
             return sendXml
         }
 
-        const setData = () => {
-            const sendXml = getSaveData()
+        const setData = async () => {
             openLoading()
-            editSystemDisArmParam(sendXml).then((result) => {
-                closeLoading()
-                const $ = queryXml(result)
-                if ($('status').text() === 'success') {
-                    openMessageBox({
-                        type: 'success',
-                        message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                    })
-                } else {
-                    const errorCode = $('errorcode').text().num()
-                    if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
-                        openMessageBox(Translate('IDCS_DISARM_SAVE_INVALID'))
-                    }
+
+            const sendXml = getSaveData()
+            const result = await editSystemDisArmParam(sendXml)
+            const $ = queryXml(result)
+
+            closeLoading()
+
+            if ($('status').text() === 'success') {
+                openMessageBox({
+                    type: 'success',
+                    message: Translate('IDCS_SAVE_DATA_SUCCESS'),
+                })
+                pageData.value.originaInputSource = formData.value.inputSource
+            } else {
+                const errorCode = $('errorcode').text().num()
+                if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
+                    openMessageBox(Translate('IDCS_DISARM_SAVE_INVALID'))
                 }
-            })
+            }
         }
 
-        // 获取该通道或传感器的能力，是否支持手动声光报警输出或者手动白光报警输出，后续用于判断是否显示手动声光报警输出或者手动白光报警输出
-        const getCapabilityFieldRes = (nodeType: string, chlId: string) => {
-            let supportManualAudio = false
-            let supportManualWhiteLight = false
+        const getSupportManualAudio = (nodeType: string, chlId: string) => {
             if (nodeType === 'channel') {
-                supportManualAudio = chlsMap[chlId].supportManualAudio || false
-                supportManualWhiteLight = chlsMap[chlId].supportManualWhiteLight || false
+                return chlsMap.value[chlId].supportManualAudio || false
             } else {
-                supportManualAudio = sensorsMap[chlId].supportManualAudio || false
-                supportManualWhiteLight = sensorsMap[chlId].supportManualWhiteLight || false
+                return sensorsMap.value[chlId].supportManualAudio || false
             }
-            return {
-                supportManualAudio,
-                supportManualWhiteLight,
+        }
+
+        const getSupportManualWhiteLight = (nodeType: string, chlId: string) => {
+            if (nodeType === 'channel') {
+                return chlsMap.value[chlId].supportManualWhiteLight || false
+            } else {
+                return sensorsMap.value[chlId].supportManualWhiteLight || false
             }
+        }
+
+        const getSupportIpSpeaker = (chlId: string) => {
+            return pageData.value.ipSpeakersList.some((item) => item.chlId === chlId)
         }
 
         // 获取单个通道或传感器的撤防联动项列表
-        const getIpcDefenseParamList = (supportManualAudio: boolean, supportManualWhiteLight: boolean) => {
+        const getIpcDefenseParamList = (nodeType: string, chlId: string) => {
             const ipcDefenseParamList = cloneDeep(pageData.value.defenseParamList)
-            if (supportManualAudio) {
+
+            if (getSupportManualAudio(nodeType, chlId)) {
                 ipcDefenseParamList.push({
                     id: 'nodeAudioSwitch',
                     value: DEFENSE_PARAM_MAPPING.nodeAudioSwitch,
                 })
             }
 
-            if (supportManualWhiteLight) {
+            if (getSupportManualWhiteLight(nodeType, chlId)) {
                 ipcDefenseParamList.push({
                     id: 'nodeLightSwitch',
                     value: DEFENSE_PARAM_MAPPING.nodeLightSwitch,
                 })
             }
+
+            if (getSupportIpSpeaker(chlId)) {
+                ipcDefenseParamList.push({
+                    id: 'ipSpeakerSwitch',
+                    value: DEFENSE_PARAM_MAPPING.ipSpeakerSwitch,
+                })
+            }
+
             return ipcDefenseParamList
         }
 
-        // 获取所有的撤防联动项列表，用于保存时生成sendXml
-        const getTotalDefenseParamList = (hasSupportManualAudioChl: boolean, hasSupportManualWhiteLightChl: boolean) => {
+        // 总的撤防联动项列表
+        const totalDefenseParamList = computed(() => {
             const totalDefenseParamList = cloneDeep(pageData.value.defenseParamList)
-            if (hasSupportManualAudioChl) {
+            if (hasSupportManualAudio.value) {
                 totalDefenseParamList.push({
                     id: 'nodeAudioSwitch',
                     value: DEFENSE_PARAM_MAPPING.nodeAudioSwitch,
                 })
             }
 
-            if (hasSupportManualWhiteLightChl) {
+            if (hasSupportManualWhiteLight.value) {
                 totalDefenseParamList.push({
                     id: 'nodeLightSwitch',
                     value: DEFENSE_PARAM_MAPPING.nodeLightSwitch,
                 })
             }
-            return totalDefenseParamList
-        }
 
-        const filterChlsSourceList = computed<AlarmSystemDisarmChlAndSensorSrcDto[]>(() => {
+            if (hasSupportIpSpeaker.value) {
+                totalDefenseParamList.push({
+                    id: 'ipSpeakerSwitch',
+                    value: DEFENSE_PARAM_MAPPING.ipSpeakerSwitch,
+                })
+            }
+
+            return totalDefenseParamList
+        })
+
+        const filterChlsSourceList = computed<AlaramSystemDisarmChlDto[]>(() => {
             const added = tableData.value.map((item) => item.id)
             return pageData.value.chlAndsensorSourceList.filter((item) => !added.includes(item.id))
         })
@@ -372,36 +369,42 @@ export default defineComponent({
         }
 
         // 一键撤防或一键布放
-        const setdisarmAll = () => {
-            if (!pageData.value.defenseSwitch) {
+        const setDisarmAll = () => {
+            if (!formData.value.defenseSwitch) {
                 openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_CLOSE_GUARD_QUESTION_TIP'),
                 }).then(() => {
-                    pageData.value.defenseSwitch = true
+                    formData.value.defenseSwitch = true
                 })
             } else {
                 openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_RECOVER_GUARD_QUESTION_TIP'),
                 }).then(() => {
-                    pageData.value.defenseSwitch = false
+                    formData.value.defenseSwitch = false
                 })
             }
         }
 
         // 添加通道或传感器
         const addItem = () => {
-            const selection = addTableRef.value!.getSelectionRows() as AlarmSystemDisarmChlAndSensorSrcDto[]
+            const selection = addTableRef.value!.getSelectionRows() as AlaramSystemDisarmChlDto[]
             if (selection.length) {
                 selection.forEach((item) => {
                     const row = new AlarmSystemDisarmDto()
-                    const ipcDefenseParamList = getIpcDefenseParamList(item.supportManualAudio, item.supportManualWhiteLight)
+                    const ipcDefenseParamList = getIpcDefenseParamList(item.nodeType, item.id)
                     row.id = item.id
-                    row.chlName = item.nodeType === 'channel' ? (chlsMap[item.id] ? chlsMap[item.id].name : '') : sensorsMap[item.id] ? sensorsMap[item.id].name : ''
+                    row.chlName = item.nodeType === 'channel' ? chlsMap.value[item.id].name || '' : sensorsMap.value[item.id].name || ''
                     row.nodeType = item.nodeType
                     row.disarmItemsList = pageData.value.defenseParamList
                     row.disarmItems = ipcDefenseParamList
+                    if (getSupportIpSpeaker(row.id)) {
+                        row.disarmItems.push({
+                            id: 'ipSpeakerSwitch',
+                            value: DEFENSE_PARAM_MAPPING.ipSpeakerSwitch,
+                        })
+                    }
                     tableData.value.push(row)
                 })
             }
@@ -484,11 +487,54 @@ export default defineComponent({
             })
         }
 
+        /**
+         * 获取已添加ipspeaker列表
+         */
+        const getVoiceDevList = async () => {
+            const result = await getChlList({
+                nodeType: 'voices',
+            })
+            const $ = await commLoadResponseHandler(result)
+            pageData.value.ipSpeakersList = []
+
+            const ids = $('content/item').map((item) => item.attr('id'))
+            for (const id of ids) {
+                await getVoiceDev(id)
+            }
+        }
+
+        /**
+         * 获取ipspeaker详情
+         * @param {*} data
+         */
+        const getVoiceDev = async (ipSpeakerId: string) => {
+            const sendXML = rawXml`
+                <condition>
+                    <alarmInId>${ipSpeakerId}</alarmInId>
+                </condition>
+            `
+            const result = await queryVoiceDev(sendXML)
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                const associatedChlId = $('content/associatedType').attr('id') // 关联ipSpeaker的通道id
+                const name = $('content/name').text() // ipSpeaker的名称
+
+                pageData.value.ipSpeakersList.push({
+                    chlId: associatedChlId,
+                    name: name,
+                    ipSpeakerId: ipSpeakerId,
+                })
+            }
+        }
+
         onMounted(async () => {
+            openLoading()
+            await getVoiceDevList()
             await getOnlineChlList()
             await getChlListAll()
             await getSensorSourceList()
-            getData()
+            await getData()
+            closeLoading()
         })
 
         return {
@@ -501,7 +547,7 @@ export default defineComponent({
             popTableRef,
             cfgTableData,
             filterChlsSourceList,
-            setdisarmAll,
+            setDisarmAll,
             addItem,
             disarmCfg,
             cfgItem,
@@ -510,6 +556,7 @@ export default defineComponent({
             deleteItemAll,
             filterConfiguredDefParaList,
             displayDisarmItems,
+            totalDefenseParamList,
         }
     },
 })

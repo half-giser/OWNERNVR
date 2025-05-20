@@ -92,6 +92,8 @@ declare global {
             minWidth?: number
             /** 页面最小高度 */
             minHeight?: number
+            /** 在afterEach执行的回调 */
+            cbk?: () => void
         }
         /** 子路由配置项 */
         children?: FeatureTree
@@ -138,6 +140,8 @@ declare global {
             minWidth?: number
             /** 页面最小高度 */
             minHeight?: number
+            /** 在afterEach执行的回调 */
+            cbk?: () => void
         }
         children: RouteRecordRawExtends[]
         redirect: string

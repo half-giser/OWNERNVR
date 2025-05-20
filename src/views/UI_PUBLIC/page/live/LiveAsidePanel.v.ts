@@ -55,7 +55,6 @@ export default defineComponent({
     }>,
     setup(prop) {
         const { Translate } = useLangStore()
-        const userSession = useUserSessionStore()
 
         const pageData = ref({
             // 是否显示右侧视图
@@ -100,11 +99,7 @@ export default defineComponent({
             if (prop.mode === 'h5') {
                 return [targetDetection, control, lens, ptz]
             } else if (prop.mode === 'ocx') {
-                if (userSession.appType === 'P2P') {
-                    return [control, lens, ptz, fishEye]
-                } else {
-                    return [targetDetection, control, lens, ptz, fishEye]
-                }
+                return [targetDetection, control, lens, ptz, fishEye]
             }
             return []
         })
@@ -129,7 +124,7 @@ export default defineComponent({
                 return false
             }
 
-            if (prop.chl[chlID]?.supportPtz && !prop.winData.isPolling && (prop.auth.hasAll || prop.auth.ptz[chlID])) {
+            if ((prop.chl[chlID]?.supportAZ || prop.chl[chlID]?.supportIris || prop.chl[chlID]?.supportPtz || prop.chl[chlID]?.supportIntegratedPtz) && (prop.auth.hasAll || prop.auth.ptz[chlID])) {
                 return true
             }
 

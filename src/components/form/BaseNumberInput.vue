@@ -51,6 +51,12 @@ const props = withDefaults(
          * @property 步长
          */
         step?: number
+        /**
+         * @property 数字输入框在什么时候阻止最大值的输入
+         * input: 在input事件触发时校验是否超出最大值，超出时禁止输入
+         * blur：在blur事件触发时校验是否超出最大值，超出时禁止输入
+         */
+        mode?: 'input' | 'blur'
     }>(),
     {
         min: 0,
@@ -58,6 +64,7 @@ const props = withDefaults(
         valueOnClear: 'min',
         precision: 0,
         step: 1,
+        mode: 'input',
     },
 )
 
@@ -66,7 +73,7 @@ const emit = defineEmits<{
     (e: 'blur', event: FocusEvent): void
     (e: 'change', currentValue: number | undefined): void
     (e: 'update:modelValue', currentValue: number | undefined): void
-    (e: 'outOfRange'): void
+    (e: 'outOfRange', outOfRangeType: string): void
 }>()
 
 const focusValue = ref('')
@@ -181,27 +188,30 @@ const handleInput = (e: string) => {
         updateValue(e)
     } else {
         const value = Number(e)
-        if (value >= 0) {
-            if (value > props.max) {
-                if (Number(focusValue.value) > props.max) {
-                    updateValue(e)
-                } else {
-                    updateValue(focusValue.value)
-                }
-                return
-            }
-        }
 
-        if (value < 0) {
-            const absValue = Math.abs(value)
-            const absMin = Math.abs(props.min)
-            if (absValue > absMin) {
-                if (Math.abs(Number(focusValue.value)) > absMin) {
-                    updateValue(e)
-                } else {
-                    updateValue(focusValue.value)
+        if (props.mode === 'input') {
+            if (value >= 0) {
+                if (value > props.max) {
+                    if (Number(focusValue.value) > props.max) {
+                        updateValue(e)
+                    } else {
+                        updateValue(focusValue.value)
+                    }
+                    return
                 }
-                return
+            }
+
+            if (value < 0) {
+                const absValue = Math.abs(value)
+                const absMin = Math.abs(props.min)
+                if (absValue > absMin) {
+                    if (Math.abs(Number(focusValue.value)) > absMin) {
+                        updateValue(e)
+                    } else {
+                        updateValue(focusValue.value)
+                    }
+                    return
+                }
             }
         }
 
@@ -227,8 +237,13 @@ const handleBlur = (e: FocusEvent) => {
     const num = toNumber()
     const nan = isNaN(num)
 
-    if (num < props.min) {
-        emit('outOfRange')
+    if (num < props.min || focusValue.value === '') {
+        emit('outOfRange', 'min')
+    }
+
+    if (num > props.max) {
+        emit('outOfRange', 'max')
+        updateValue(props.max + '')
     }
 
     if (props.valueOnClear === 'min') {

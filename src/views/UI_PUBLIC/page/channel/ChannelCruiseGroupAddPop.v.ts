@@ -42,7 +42,7 @@ export default defineComponent({
 
         const pageData = ref({
             // 预置点选项
-            cruiseOptions: [] as SelectOption<string, string>[],
+            cruiseOptions: [] as { value: string; label: string; number: number }[],
         })
 
         const formRef = useFormRef()
@@ -81,6 +81,7 @@ export default defineComponent({
                     return {
                         value: item.attr('index'),
                         label: item.text(),
+                        number: item.attr('number').num(),
                     }
                 })
                 if (pageData.value.cruiseOptions.length) {
@@ -111,10 +112,12 @@ export default defineComponent({
         const setData = async () => {
             openLoading()
 
-            let cruiseXml = prop.cruise.map((item) => `<item index="${item.index}"><name>${wrapCDATA(item.name)}</name></item>`).join('')
-            const find = pageData.value.cruiseOptions.find((item) => item.value === formData.value.name)
-            if (find) {
-                cruiseXml += `<item index="${formData.value.name}"><name>${wrapCDATA(find.label)}</name></item>`
+            const label = pageData.value.cruiseOptions.find((item) => item.value === formData.value.name)!.label
+
+            let number = prop.cruise.length + 1
+            const findIndex = prop.cruise.findIndex((item, index) => item.number !== index + 1)
+            if (findIndex > 0) {
+                number = findIndex + 1
             }
 
             const sendXml = rawXml`
@@ -122,10 +125,22 @@ export default defineComponent({
                     <chlId id="${prop.chlId}"></chlId>
                     <index>1</index>
                     <name>group1</name>
-                    <cruises type="list">${cruiseXml}</cruises>
+                    <cruises type="list">
+                        ${prop.cruise
+                            .map(
+                                (item) => rawXml`
+                                    <item index="${item.index}" number="${item.number}">
+                                        <name>${wrapCDATA(item.name)}</name>
+                                    </item>`,
+                            )
+                            .join('')}
+                        <item index="${formData.value.name}" number="${number}">
+                            <name>${wrapCDATA(label)}</name>
+                        </item>
+                    </cruises>
                 </content>
             `
-            const result = await editChlPtzGroup(sendXml)
+            const result = await editChlPtzGroup(sendXml, false)
             const $ = queryXml(result)
 
             closeLoading()

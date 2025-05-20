@@ -551,3 +551,31 @@ export class NetIpcUpgradeInfoList {
     newVersionGUID = ''
     progress = ''
 }
+
+/**
+ * @description HTTP Post表单
+ */
+export class NetHttpPostForm {
+    switch = false
+    host = ''
+    hostMaxByteLen = 63
+    port = 10
+    portMin = 10
+    portMax = 65535
+    path = ''
+    pathMaxByteLen = 63
+    protocolType = ''
+    userInfoDsiabled = true
+    userNameMaxByteLen = 63
+    userName = ''
+    password = ''
+    connectType = ''
+    schedule = ''
+    keepAliveInfoEnable = false
+    heartbeatInterval = 0
+    heartbeatIntervalMin = 0
+    heartbeatIntervalMax = 1
+    heartbeatIntervalDefault = 0
+    enablePostPic: string[] = []
+    passwordSwitch = false
+}

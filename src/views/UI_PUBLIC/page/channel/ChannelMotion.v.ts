@@ -16,6 +16,17 @@ export default defineComponent({
         const formData = ref(new ChannelMotionDto())
         const tableRef = ref<TableInstance>()
         const tableData = ref<ChannelMotionDto[]>([])
+
+        const pageData = ref({
+            onlineChlList: [] as string[],
+            holdTimeList: [5, 10, 20, 30, 60, 120].map((item) => {
+                return {
+                    label: item + Translate('IDCS_SECONDS'),
+                    value: item,
+                }
+            }),
+        })
+
         const pageIndex = ref(1)
         const pageSize = ref(10)
         const pageTotal = ref(0)
@@ -24,6 +35,7 @@ export default defineComponent({
         const switchOptions = getTranslateOptions(DEFAULT_BOOL_SWITCH_OPTIONS)
 
         let motionAlarmList: string[] = []
+        let webSocket: ReturnType<typeof WebsocketMotion>
 
         const ready = computed(() => {
             return playerRef.value?.ready || false
@@ -125,7 +137,7 @@ export default defineComponent({
                 if (!holdTimeList.value.length && !rowData.isOnvifChl) {
                     holdTimeList.value = [5, 10, 20, 30, 60, 120].map((item) => {
                         return {
-                            label: getTranslateForSecond(Number(item)),
+                            label: item + Translate('IDCS_SECONDS'),
                             value: item,
                         }
                     })
@@ -143,12 +155,15 @@ export default defineComponent({
                     rowData.holdTimeList = getAlarmHoldTimeList($param('holdTimeNote').text(), $param('holdTime').text().num())
                     rowData.switch = $param('switch').text().bool()
                     rowData.sensitivity = $param('sensitivity').text().num()
+
                     rowData.status = ''
-                    rowData.disabled = false
-                    rowData.sensitivityMinValue = $param('sensitivity').length ? $param('sensitivity').attr('min').num() : 0
-                    let max = $param('sensitivity').length ? $param('sensitivity').attr('max').num() : 100
-                    if (import.meta.env.VITE_UI_TYPE === 'UI1-F' && max === 100) max = 120
-                    rowData.sensitivityMaxValue = max
+                    rowData.disabled = !pageData.value.onlineChlList.includes(chlId)
+                    rowData.sensitivityMin = $param('sensitivity').attr('min').num() || 0
+                    rowData.sensitivityMax = $param('sensitivity').attr('max').num() || 100
+                    //UI1-F 泰科最大值根据传过来的值判断，100的转成120,其他的不变  确认人：曹兆  CS-214
+                    if (import.meta.env.VITE_UI_TYPE === 'UI1-F' && rowData.sensitivityMax === 100) {
+                        rowData.sensitivityMax = 120
+                    }
 
                     rowData.SMDVehicle = $param('objectFilter/car/switch').text().bool()
                     rowData.SMDVehicleDisabled = !$param('objectFilter/car/switch').length
@@ -197,6 +212,7 @@ export default defineComponent({
                     newData.chlType = $item('chlType').text()
                     newData.status = 'loading'
                     newData.supportSMD = $item('supportSMD').text().bool()
+
                     return newData
                 })
                 pageTotal.value = $('content').attr('total').num()
@@ -204,7 +220,13 @@ export default defineComponent({
                 tableData.value = []
             }
 
-            tableData.value.forEach(async (item, i) => {
+            let onlineChlId = ''
+
+            tableData.value.forEach(async (item) => {
+                if (!onlineChlId && pageData.value.onlineChlList.includes(item.id)) {
+                    onlineChlId = item.id
+                }
+
                 if (item.chlType !== 'recorder') {
                     await getData(item.id)
                 } else {
@@ -217,12 +239,20 @@ export default defineComponent({
 
                 editRows.listen(item)
 
-                if (i === 0) {
+                if (item.id === onlineChlId) {
                     selectedChlId.value = item.id
                     tableRef.value!.setCurrentRow(item)
                     formData.value = item
                 }
             })
+        }
+
+        const getOnlineChlList = async () => {
+            const result = await queryOnlineChlList()
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                pageData.value.onlineChlList = $('content/item').map((item) => item.attr('id'))
+            }
         }
 
         /**
@@ -254,7 +284,7 @@ export default defineComponent({
                     <chl id='${rowData.id}'>
                         <param>
                             <switch>${rowData.switch}</switch>
-                            <sensitivity min='${rowData.sensitivityMinValue}' max='${rowData.sensitivityMaxValue}'>${rowData.sensitivity}</sensitivity>
+                            <sensitivity min='${rowData.sensitivityMin}' max='${rowData.sensitivityMax}'>${rowData.sensitivity}</sensitivity>
                             <holdTime unit='s'>${rowData.holdTime}</holdTime>
                             ${
                                 rowData.supportSMD
@@ -305,6 +335,15 @@ export default defineComponent({
         }
 
         const notify = ($: XMLQuery, stateType: string) => {
+            if (stateType === 'StartViewChl') {
+                const status = $('statenotify/status').text()
+                if (status === 'success') {
+                    // 通道获取视频流成功后再下发请求motion流指令
+                    const sendXML = OCX_XML_SetDynamicMotion(true)
+                    plugin.ExecuteCmd(sendXML)
+                }
+            }
+
             if (stateType === 'MotionArea') {
                 const rowData = getRowById(selectedChlId.value)!
                 rowData.areaInfo = $('statenotify/areaInfo/item').map((ele) => ele.text())
@@ -406,10 +445,39 @@ export default defineComponent({
             }
         }
 
+        const onPlayerSuccess = (_winIndex: number, item: TVTPlayerWinDataListItem) => {
+            webSocket && webSocket.destroy()
+            if (item.CHANNEL_INFO?.chlID) {
+                webSocket = WebsocketMotion({
+                    config: {
+                        chlID: item.CHANNEL_INFO.chlID,
+                        streamType: 33,
+                        audio: false,
+                    },
+                    onmotion(data) {
+                        player.setMotion(data, 0)
+                    },
+                })
+            }
+        }
+
+        let drawerTime: NodeJS.Timeout | number = 0
+
+        const onPlayerMotion = (motion: WebsocketMotionDto) => {
+            clearTimeout(drawerTime)
+            drawer.setMotion(motion)
+            drawerTime = setTimeout(() => {
+                drawer && drawer.clearRedArea()
+            }, 1e3)
+        }
+
         /**
          * @description 切换播放通道
          */
         const play = () => {
+            clearTimeout(drawerTime)
+            drawer && drawer.clearRedArea()
+
             if (!selectedChlId.value) return
 
             const rowData = getRowById(selectedChlId.value)!
@@ -455,15 +523,18 @@ export default defineComponent({
             play()
         })
 
-        onMounted(() => {
+        onMounted(async () => {
             if (import.meta.env.VITE_UI_TYPE !== 'UI2-A') {
                 alarmStatusTimer.repeat(true)
             }
+            await getOnlineChlList()
             getDataList()
         })
 
         onBeforeUnmount(() => {
-            if (mode.value === 'ocx') {
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx') {
+                plugin.ExecuteCmd(OCX_XML_SetDynamicMotion(false))
+
                 const sendXML = OCX_XML_StopPreview('ALL')
                 plugin.ExecuteCmd(sendXML)
             }
@@ -496,6 +567,8 @@ export default defineComponent({
             handleClear,
             switchOptions,
             getDataList,
+            onPlayerSuccess,
+            onPlayerMotion,
         }
     },
 })

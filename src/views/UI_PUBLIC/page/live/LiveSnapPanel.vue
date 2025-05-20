@@ -21,7 +21,7 @@
                 />
                 <!-- 结构 -->
                 <LiveSnapStructItem
-                    v-else-if="item.type === 'boundary' && (item.info.person_info || item.info.bike_info || item.info.car_info)"
+                    v-else-if="item.type === 'boundary' && (item.info?.person_info || item.info?.bike_info || item.info?.car_info)"
                     :key="`boundary${item.detect_time}`"
                     :data="item"
                     :border="pageData.activeMenu"

@@ -57,6 +57,10 @@
             margin-left: 5px;
         }
 
+        & + .el-dropdown {
+            margin-left: 5px;
+        }
+
         &:not(.is-disabled):active {
             filter: brightness(1.1);
         }
@@ -427,14 +431,14 @@
             padding: 0;
 
             .cell {
-                padding: 0 2px;
-            }
-
-            .cell:not(:has(.BaseDropdownBtn)) {
                 padding: 8px 2px;
                 text-overflow: ellipsis;
                 overflow: hidden;
                 text-wrap: nowrap;
+
+                .el-dropdown {
+                    width: 100%;
+                }
             }
         }
 
@@ -563,6 +567,10 @@
             cursor: pointer;
         }
 
+        & + .el-button {
+            margin-left: 5px;
+        }
+
         &-menu {
             max-height: 270px;
 
@@ -579,10 +587,6 @@
         &__popper {
             --el-dropdown-menuItem-hover-fill: var(--primary);
             --el-dropdown-menuItem-hover-color: var(--color-white);
-        }
-
-        &:has(.BaseDropdownBtn) {
-            width: 100%;
         }
     }
 
@@ -975,9 +979,9 @@
     //     }
     // }
 
-    .el-popper:has(> .el-date-picker) {
-        border-color: var(--datepicker-border);
-    }
+    // .el-popper:has(> .el-date-picker) {
+    //     border-color: var(--datepicker-border);
+    // }
 
     .el-time {
         &-panel {
