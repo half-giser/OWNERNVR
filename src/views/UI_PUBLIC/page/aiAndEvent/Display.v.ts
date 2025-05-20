@@ -27,48 +27,28 @@ export default defineComponent({
 
             commLoadResponseHandler(result, ($) => {
                 videoFormData.value.popVideoDuration = $('content/popVideoDuration').text().num()
-                pageData.value.popVideoDurationOption = $('content/popVideoDurationNote')
-                    .text()
-                    .array()
-                    .map((item) => {
-                        const value = Number(item)
-                        return {
-                            value: value,
-                            label: value === 0 ? Translate('IDCS_ALWAYS_KEEP') : getTranslateForSecond(value),
-                        }!
-                    })
                 videoFormData.value.popVideoOutput = $('content/popVideoOutput').text()
-                const popVideoOutputNote = $('content/popVideoOutputNote').text().array()
-                if (popVideoOutputNote.length >= 2) {
-                    videoFormData.value.popVideoOutputShow = true
-                }
-                popVideoOutputNote.forEach((item) => {
-                    if (popVideoOutputNote.length === 2) {
-                        pageData.value.popVideoOutputOption.push({
-                            value: item,
-                            label: Number(item) === 0 ? Translate('IDCS_MAIN_SCREEN') : Translate('IDCS_SECOND_SCREEN'),
-                        })
-                    } else {
-                        pageData.value.popVideoOutputOption.push({
-                            value: item,
-                            label: Number(item) === 0 ? Translate('IDCS_MAIN_SCREEN') : Translate('IDCS_SECOND_SCREEN') + item,
-                        })
-                    }
-                })
 
                 msgFormData.value.popMsgDuration = $('content/popMsgDuration').text().num()
-                pageData.value.popMsgDurationOption = $('content/popMsgDurationNote')
-                    .text()
-                    .array()
-                    .map((item) => {
-                        const value = Number(item)
-                        return {
-                            value: value,
-                            label: value === 0 ? Translate('IDCS_ALWAYS_KEEP') : getTranslateForSecond(value),
-                        }!
-                    })
-
                 msgFormData.value.popMsgShow = !$('content/popMsgShow').text().bool()
+
+                pageData.value.popVideoDurationOption = getAlarmHoldTimeList($('content/popVideoDurationNote').text(), videoFormData.value.popVideoDuration, 'keep')
+                pageData.value.popMsgDurationOption = getAlarmHoldTimeList($('content/popMsgDurationNote').text(), msgFormData.value.popMsgDuration, 'keep')
+
+                const popVideoOutputNote = $('content/popVideoOutputNote').text().array()
+                pageData.value.popVideoOutputOption = popVideoOutputNote.map((item) => {
+                    if (popVideoOutputNote.length === 2) {
+                        return {
+                            value: item,
+                            label: Number(item) === 0 ? Translate('IDCS_MAIN_SCREEN') : Translate('IDCS_SECOND_SCREEN'),
+                        }
+                    } else {
+                        return {
+                            value: item,
+                            label: Number(item) === 0 ? Translate('IDCS_MAIN_SCREEN') : Translate('IDCS_SECOND_SCREEN') + item,
+                        }
+                    }
+                })
             })
         }
 

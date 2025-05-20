@@ -39,6 +39,10 @@ const emit = defineEmits<{
 
 const $input = ref<InputInstance>()
 
+const adjustMaxLength = computed(() => {
+    return props.maxlength <= 0 ? 256 : props.maxlength
+})
+
 const focus = () => {
     $input.value?.focus()
 }
@@ -58,16 +62,16 @@ defineExpose(expose)
 
 const formatInput = (str: string) => {
     if (!props.isByte) {
-        if (str.length > props.maxlength) {
+        if (str.length > adjustMaxLength.value) {
             emit('outOfRange')
-            str = str.substring(0, props.maxlength)
+            str = str.substring(0, adjustMaxLength.value)
         }
         return props.formatter(str)
     }
 
-    if (getBytesLength(str) > props.maxlength) {
+    if (getBytesLength(str) > adjustMaxLength.value) {
         emit('outOfRange')
-        str = getLimitBytesStr(str, props.maxlength)
+        str = getLimitBytesStr(str, adjustMaxLength.value)
     }
 
     return props.formatter(str)

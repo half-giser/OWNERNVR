@@ -18,6 +18,13 @@ export default defineComponent({
             required: true,
         },
         /**
+         * @property 通道名称
+         */
+        chlName: {
+            type: String,
+            required: true,
+        },
+        /**
          * @property 是否可用
          */
         enabled: {
@@ -37,11 +44,10 @@ export default defineComponent({
             isAddPop: false,
             // 当前选中巡航线组项索引
             active: 0,
-            maxCount: CRUISE_MAX_COUNT,
         })
 
         // 列表数据
-        const listData = ref<ChannelPtzCruiseDto[]>([])
+        const formData = ref(new ChannelPtzCruiseGroupChlDto())
 
         /**
          * @description 获取巡航线组列表
@@ -56,13 +62,18 @@ export default defineComponent({
             const result = await queryLocalChlPtzGroup(sendXml)
             const $ = queryXml(result)
             if ($('status').text() === 'success' && chlId === prop.chlId) {
-                listData.value = $('content/cruises/item').map((item, index) => {
+                formData.value.chlId = chlId
+                formData.value.chlName = prop.chlName
+                formData.value.cruise = $('content/cruises/item').map((item, index) => {
                     const $item = queryXml(item.element)
                     return {
                         name: $item('name').text(),
                         index: item.attr('index').num() || index,
+                        number: item.attr('number').num(),
                     }
                 })
+                formData.value.cruiseCount = formData.value.cruise.length
+                formData.value.maxCount = CRUISE_MAX_COUNT
             }
         }
 
@@ -71,7 +82,7 @@ export default defineComponent({
          */
         const addCruiseGroup = () => {
             // 巡航线数量达到上限8个
-            if (listData.value.length >= CRUISE_MAX_COUNT) {
+            if (formData.value.cruise.length >= formData.value.maxCount) {
                 openMessageBox(Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
                 return
             }
@@ -138,7 +149,7 @@ export default defineComponent({
             if (!prop.enabled) {
                 return
             }
-            const item = listData.value[pageData.value.active]
+            const item = formData.value.cruise[pageData.value.active]
             if (!item) {
                 return
             }
@@ -182,7 +193,7 @@ export default defineComponent({
 
         return {
             pageData,
-            listData,
+            formData,
             deleteCruiseGroup,
             addCruiseGroup,
             playCruiseGroup,

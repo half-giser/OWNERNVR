@@ -11,15 +11,17 @@
             :model="formData"
             :rules="rules"
             class="stripe"
+            :style="{
+                '--form-input-width': '250px',
+            }"
         >
             <el-form-item
                 prop="name"
                 :label="Translate('IDCS_GROUP_NAME')"
             >
-                <el-input
+                <BaseTextInput
                     v-model="formData.name"
-                    :formatter="formatInputMaxLength"
-                    :parser="formatInputMaxLength"
+                    :maxlength="formData.nameMaxByteLen"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_STAY_TIME')">

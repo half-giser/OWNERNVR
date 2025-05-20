@@ -13,8 +13,11 @@
                 />
             </div>
             <el-form
+                ref="formRef"
                 v-title
+                :rules
                 class="stripe"
+                :model="formData"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select-v2
@@ -36,7 +39,10 @@
                         :props="{ label: 'index' }"
                     />
                     <el-tooltip :content="Translate('IDCS_START_CRUISE')">
-                        <div class="base-chl-icon-btn">
+                        <div
+                            class="base-chl-icon-btn"
+                            :class="{ disabled: !cruiseOptions.length }"
+                        >
                             <BaseImgSpriteBtn
                                 file="play"
                                 :disabled="!cruiseOptions.length"
@@ -45,7 +51,10 @@
                         </div>
                     </el-tooltip>
                     <el-tooltip :content="Translate('IDCS_STOP_CRUISE')">
-                        <div class="base-chl-icon-btn">
+                        <div
+                            class="base-chl-icon-btn"
+                            :class="{ disabled: !tableData.length }"
+                        >
                             <BaseImgSpriteBtn
                                 file="stop"
                                 :disabled="!tableData.length"
@@ -54,7 +63,10 @@
                         </div>
                     </el-tooltip>
                 </el-form-item>
-                <el-form-item :label="Translate('IDCS_CRUISE_NAME')">
+                <el-form-item
+                    :label="Translate('IDCS_CRUISE_NAME')"
+                    prop="name"
+                >
                     <el-input
                         v-model="formData.name"
                         :disabled="!cruiseOptions.length"
@@ -62,7 +74,10 @@
                         :parser="formatInputMaxLength"
                     />
                     <el-tooltip :content="Translate('IDCS_SAVE_CHANGE')">
-                        <div class="base-chl-icon-btn">
+                        <div
+                            class="base-chl-icon-btn"
+                            :class="{ disabled: !formData.name.trim() || !cruiseOptions.length }"
+                        >
                             <BaseImgSpriteBtn
                                 file="save"
                                 :disabled="!formData.name.trim() || !cruiseOptions.length"
@@ -97,9 +112,12 @@
                     />
                     <el-table-column
                         :label="Translate('IDCS_TIME')"
-                        prop="holdTime"
                         width="60"
-                    />
+                    >
+                        <template #default="{ row }: TableColumn<ChannelPtzCruisePresetDto>">
+                            {{ displayHoldTime(row.holdTime) }}
+                        </template>
+                    </el-table-column>
                     <el-table-column>
                         <template #header>
                             <el-dropdown>
@@ -197,9 +215,7 @@
         />
         <ChannelCruiseAddPop
             v-model="pageData.isAddPop"
-            :max="pageData.addCruiseMax"
-            :cruise="pageData.addCruise"
-            :chl-id="pageData.addChlId"
+            :data="pageData.addData"
             @confirm="confirmAddCruise"
             @close="pageData.isAddPop = false"
         />

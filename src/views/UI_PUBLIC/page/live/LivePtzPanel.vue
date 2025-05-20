@@ -5,49 +5,22 @@
 -->
 <template>
     <div class="ptz">
-        <div class="pane">
-            <BaseImgSpriteBtn
-                v-for="item in pageData.steer"
-                :key="item.file"
-                :file="item.file"
-                @mousedown="addCmd(item)"
-                @mouseup="stopCmd()"
-            />
-        </div>
-        <div class="speed">
-            <BaseImgSpriteBtn
-                file="SpeedSlow"
-                @click="decreaseSpeed()"
-            />
-            <el-slider
-                v-model="pageData.speed"
-                :min="pageData.minSpeed"
-                :max="pageData.maxSpeed"
-                :step="1"
-            />
-            <BaseImgSpriteBtn
-                file="SpeedQuick"
-                @click="increaseSpeed()"
-            />
-        </div>
+        <ChannelPtzCtrlPanel
+            layout="vertical"
+            :chl-id="winData?.chlID || ''"
+            :enable-ctrl="winData?.supportPtz || winData?.supportIntegratedPtz || false"
+            :enable-zoom="winData?.supportAZ || winData?.supportPtz || winData?.supportIntegratedPtz || false"
+            :enable-focus="winData?.supportAZ || winData?.supportIntegratedPtz || false"
+            :enable-iris="winData?.supportIris || winData?.supportIntegratedPtz || false"
+            :enable-speed="winData?.supportPtz || winData?.supportIntegratedPtz || false"
+            :min-speed="winData?.MinPtzCtrlSpeed || 1"
+            :max-speed="winData?.MaxPtzCtrlSpeed || 8"
+            @speed="setSpeed"
+        />
         <div
-            v-for="item in pageData.controls"
-            :key="item.name"
-            class="row"
+            v-show="winData.supportPtz || winData.supportIntegratedPtz"
+            class="list"
         >
-            <BaseImgSpriteBtn
-                :file="item.control[0].file"
-                @mousedown="addCmd(item.control[0])"
-                @mouseup="stopCmd()"
-            />
-            <span>{{ item.name }}</span>
-            <BaseImgSpriteBtn
-                :file="item.control[1].file"
-                @mousedown="addCmd(item.control[1])"
-                @mouseup="stopCmd()"
-            />
-        </div>
-        <div class="list">
             <div class="list-menu">
                 <BaseImgSpriteBtn
                     file="left"
@@ -87,6 +60,7 @@
                 v-show="pageData.activeMenu === 2"
                 :enabled="hasAuth"
                 :chl-id="chlId"
+                :chl-name="winData.chlName"
             />
             <LivePtzTracePanel
                 v-show="pageData.activeMenu === 3"

@@ -7,26 +7,9 @@ import type { FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
-        /**
-         * @property {Number} 最大轨迹数
-         */
-        max: {
-            type: Number,
-            default: 128,
-        },
-        /**
-         * @property {Array} 轨迹列表
-         */
-        trace: {
-            type: Array as PropType<ChannelPtzTraceDto[]>,
-            required: true,
-        },
-        /**
-         * @property {String} 通道ID
-         */
-        chlId: {
-            type: String,
-            required: true,
+        data: {
+            type: Object as PropType<ChannelPtzTraceChlDto>,
+            default: new ChannelPtzTraceChlDto(),
         },
     },
     emits: {
@@ -43,6 +26,7 @@ export default defineComponent({
         const formRef = useFormRef()
         const formData = ref({
             name: '',
+            number: 0,
         })
         const formRule = ref<FormRules>({
             name: [
@@ -53,7 +37,7 @@ export default defineComponent({
                             return
                         }
 
-                        if (prop.trace.map((item) => item.name).includes(value.trim())) {
+                        if (prop.data.trace.map((item) => item.name).includes(value.trim())) {
                             callback(new Error(Translate('IDCS_PROMPT_CUSTOME_VIEW_NAME_EXIST')))
                             return
                         }
@@ -69,8 +53,8 @@ export default defineComponent({
          * @description 打开弹窗时，重置表单和选项数据
          */
         const open = () => {
-            const traceIndex = prop.trace.map((item) => item.index)
-            const traceOptions = Array(prop.max)
+            const traceIndex = prop.data.trace.map((item) => item.index)
+            const traceOptions = Array(prop.data.maxCount)
                 .fill(0)
                 .map((_, index) => {
                     return index + 1
@@ -78,10 +62,13 @@ export default defineComponent({
                 .filter((item) => {
                     return !traceIndex.includes(item)
                 })
+
             if (traceOptions.length) {
-                formData.value.name = 'trace' + traceOptions[0]
+                formData.value.number = traceOptions[0]
+                formData.value.name = 'PATROL' + traceOptions[0]
             } else {
-                formData.value.name = ''
+                formData.value.number = prop.data.maxCount + 1
+                formData.value.name = 'PATROL' + (prop.data.maxCount + 1)
             }
         }
 
@@ -94,8 +81,8 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <name>${wrapCDATA(formData.value.name)}</name>
-                    <chlId id="${prop.chlId}"></chlId>
-                    <index>1</index>
+                    <chlId id="${prop.data.chlId}"></chlId>
+                    <index>${formData.value.number}</index>
                 </content>
             `
             const result = await createChlPtzTrace(sendXml)

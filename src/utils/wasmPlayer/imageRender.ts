@@ -5,6 +5,7 @@
  */
 
 export interface WasmImageRenderOption {
+    type?: string | number
     ready?: () => void
     onerror?: (code?: number, url?: string) => void
 }
@@ -26,20 +27,26 @@ interface WasmImageRenderVideoFrame {
 type TaskType = {
     buffer: ArrayBuffer
     cb: (str: string, realTimestamp: number) => void
+    codecType?: number
 }
 
 export const WasmImageRender = (option: WasmImageRenderOption) => {
-    const type = 0 // 解码类型，0表示回放
+    const type = option.type || 0 // 解码类型，0表示回放
 
     let curTask: TaskType // 执行完渲染后的回调
     let taskQueue: TaskType[] = [] // 执行完渲染后的回调队列
 
-    const canvas: HTMLCanvasElement = document.createElement('canvas')
+    let canvas: HTMLCanvasElement = document.createElement('canvas')
     canvas.width = 200
     canvas.height = 200
 
     const ready = option.ready
     const onerror = option.onerror
+
+    /**
+     * @description 初始化webgl渲染器
+     */
+    let webglPlayer: ReturnType<typeof WebGLPlayer>
 
     /**
      * @description 初始化解码线程
@@ -63,7 +70,10 @@ export const WasmImageRender = (option: WasmImageRenderOption) => {
                 ready && ready()
                 break
             case 'getVideoFrame':
-                renderVideoFrame(data.data)
+                const frame = data.data
+                webglPlayer?.clear()
+                initWebglPlayer(frame.width, frame.height)
+                renderVideoFrame(frame)
                 break
             case 'frameError':
             case 'bufferError':
@@ -79,12 +89,14 @@ export const WasmImageRender = (option: WasmImageRenderOption) => {
         }
     }
 
-    /**
-     * @description 初始化webgl渲染器
-     */
-    const webglPlayer = WebGLPlayer(canvas, {
-        preserveDrawingBuffer: true,
-    })
+    const initWebglPlayer = (width: number, height: number) => {
+        canvas = document.createElement('canvas')
+        canvas.width = width
+        canvas.height = height
+        webglPlayer = WebGLPlayer(canvas, {
+            preserveDrawingBuffer: false,
+        })
+    }
 
     /**
      * @description 渲染图像
@@ -101,7 +113,7 @@ export const WasmImageRender = (option: WasmImageRenderOption) => {
         webglPlayer.renderFrame(videoBuffer, frame.width, frame.height, yLength, uvLength)
         if (curTask && typeof curTask.cb === 'function') {
             // 回调返回图片url和帧毫秒时间戳；frameType===4为预解码帧，不渲染不统计
-            curTask.cb(frame.frameType !== 4 ? getImgUrl() : 'preDecodedFrame', frame.realTimestamp)
+            curTask.cb(frame.frameType !== 4 ? getImgUrl(frame.width, frame.height) : 'preDecodedFrame', frame.realTimestamp)
             execNextTask()
         }
     }
@@ -110,10 +122,15 @@ export const WasmImageRender = (option: WasmImageRenderOption) => {
      * @description 获取图片Base64格式数据
      * @returns {string{}
      */
-    const getImgUrl = () => {
+    const getImgUrl = (width: number, height: number) => {
         const cav = document.createElement('canvas')
-        cav.width = 800
-        cav.height = 600
+        cav.width = width
+        cav.height = height
+        // 超过2k分辨率就降低画质, 避免传输时xml过长
+        if (width > 1920 && height > 1080) {
+            cav.width = 1920
+            cav.height = 1080
+        }
         const context = cav.getContext('2d')!
         context.drawImage(canvas, 0, 0, cav.width, cav.height)
         const dataURL = cav.toDataURL()
@@ -125,10 +142,11 @@ export const WasmImageRender = (option: WasmImageRenderOption) => {
      * @param {ArrayBuffer} buffer
      * @param {Function} doneCallback
      */
-    const render = (buffer: ArrayBuffer, doneCallback: TaskType['cb']) => {
+    const render = (buffer: ArrayBuffer, doneCallback: TaskType['cb'], codecType?: number) => {
         taskQueue.push({
             buffer: buffer,
             cb: doneCallback,
+            codecType: codecType,
         })
         if (taskQueue.length === 1) {
             execTask()
@@ -145,6 +163,11 @@ export const WasmImageRender = (option: WasmImageRenderOption) => {
                 cmd: 'sendData',
                 buffer: curTask.buffer,
                 isPure: true,
+                codecType: curTask.codecType,
+            })
+            decodeWorker.postMessage({
+                cmd: 'decodeOneFrame',
+                codecType: curTask.codecType,
             })
         }
     }
@@ -165,7 +188,7 @@ export const WasmImageRender = (option: WasmImageRenderOption) => {
             cmd: 'destroy',
         })
         decodeWorker.terminate()
-        webglPlayer.clear()
+        webglPlayer?.clear()
         taskQueue = []
     }
 

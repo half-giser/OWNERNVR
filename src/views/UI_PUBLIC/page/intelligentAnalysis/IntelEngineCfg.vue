@@ -24,14 +24,15 @@
             <el-table
                 v-title
                 show-overflow-tooltip
+                :data="tableData"
             >
                 <el-table-column
                     :label="Translate('IDCS_CHANNEL')"
                     prop="name"
                 />
                 <el-table-column
-                    :label="Translate('IDCS_EVENT_TYPE')"
-                    prop="type"
+                    :label="Translate('IDCS_INTELLIGENT')"
+                    prop="eventType"
                 />
             </el-table>
         </div>

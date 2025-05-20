@@ -5,7 +5,7 @@
 -->
 <template>
     <el-dialog
-        :title="pageData.title"
+        :title="Translate('IDCS_UPLOAD_VOICE')"
         width="500"
         @open="open"
     >
@@ -25,17 +25,17 @@
                     id="upload-audio"
                     type="file"
                     hidden
-                    :accept="pageData.uploadAccept"
+                    :accept="accept"
                     @change="uploadFile"
                 />
             </el-form-item>
         </el-form>
         <div class="base-btn-box flex-start">
             <div class="text-error">
-                <span v-if="pageData.isIpcTipsShow">{{ pageData.audioFilesSizeTips }}</span>
-                <span v-if="pageData.isLocalTipsShow">{{ pageData.localFilesSizeTips }}</span>
+                <span v-if="type === 'ipcAudio'">{{ Translate('IDCS_FILE_SIZE_LIMIT_TIP').formatForLang(displayFileSize, 10 - ipcData.audioTypeList.customize.length) }}</span>
+                <span v-else>{{ Translate('IDCS_FILE_MAX_SIZE_LIMIT_TIP').formatForLang(displayFileSize) }}</span>
                 <br />
-                <span>{{ pageData.audioFormatTips }}</span>
+                <span>{{ tips }}</span>
             </div>
         </div>
         <div class="base-btn-box">

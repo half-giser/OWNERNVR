@@ -49,8 +49,25 @@ export default defineComponent({
         }
 
         // 通道树状态定时刷新
-        const refreshChlStatusTimer = useRefreshTimer(() => {
-            getOnlineChlList()
+        const refreshChlStatusTimer = useRefreshTimer(async () => {
+            const onlineChlList = await getOnlineChlList()
+            const devInfo = await getDevInfo()
+            tableData.value.forEach((item) => {
+                item.supportJump = devInfo[item.id].supportJump
+                item.supportSetting = devInfo[item.id].supportJump || userSession.appType === 'STANDARD'
+                item.ip = devInfo[item.id].ip
+
+                // 模拟通道，状态置为空
+                if (!item.ip) {
+                    return
+                }
+
+                item.isOnline = onlineChlList.includes(item.id)
+                if (item.isOnline) {
+                    getIPChlInfo(item)
+                }
+            })
+            refreshChlStatusTimer.repeat()
         })
 
         const handleToolBarEvent = (toolBarEvent: ConfigToolBarEvent<SearchToolBarEvent>) => {
@@ -74,10 +91,11 @@ export default defineComponent({
             channelEditPopVisable.value = true
         }
 
-        const confirmEditChannel = (newData: ChannelInfoDto) => {
+        const confirmEditChannel = (newData: ChannelEditForm) => {
             editRowData.value.name = newData.name
             editRowData.value.ip = newData.ip
             editRowData.value.port = newData.port
+            editRowData.value.autoReportID = newData.autoReportID
         }
 
         const closeEditChannelPop = (isRefresh = false) => {
@@ -131,7 +149,9 @@ export default defineComponent({
                 const sendXml = rawXml`
                     <condition>
                         <devIds type="list">
-                            <item id="${rowData.id}">${rowData.name}${rowData.poeIndex > 0 ? `<poeIndex>${rowData.poeIndex}</poeIndex>` : ''}</item>
+                            <item id="${rowData.id}">
+                                ${rowData.poeIndex > 0 ? `<poeIndex>${rowData.poeIndex}</poeIndex>` : ''}
+                            </item>
                         </devIds>
                     </condition>
                 `
@@ -144,26 +164,75 @@ export default defineComponent({
             })
         }
 
-        const setChannel = (rowData: ChannelInfoDto) => {
-            if (rowData.poePort && rowData.poePort !== '') {
-                const ip = checkIpV6(userSession.serverIp) ? `[${userSession.serverIp}]` : userSession.serverIp
-                window.open(`http://${ip}:${rowData.poePort}`, '_blank', '')
-            } else {
-                // 非poe通道跳转时要带上端口号，避免用户改了ipc默认的80端口，导致跳转不成功
-                const data = rawXml`
+        const setChannel = async (rowData: ChannelInfoDto) => {
+            const supportJump = rowData.supportJump
+            const isPoe = rowData.addType === 'poe'
+            const isTVT = rowData.manufacturer === 'TVT'
+            if (supportJump) {
+                // 免鉴权跳转至IPC首页
+                const sendXml = rawXml`
                     <condition>
                         <chlId>${rowData.id}</chlId>
                     </condition>
                 `
-                openLoading()
-                queryChlPort(data).then((res) => {
-                    closeLoading()
+                const result = await getTempLoginCert(sendXml)
+                const $ = queryXml(result)
+                if ($('status').text() === 'success') {
+                    const sn = $('sn').text()
+                    const protocol = $('protocol').text() // http、https
+                    let ip = $('ip').text()
+                    ip = isPoe ? window.location.hostname : checkIpV6(ip) ? `[${ip}]` : ip
+                    const port = $('port').text() // http port、https port、poe port
+                    const softVersion = $('softVersion').text()
+                    const p2pWebUrl = $('p2pWebUrl').text()
+                    const userName = userSession.appType === 'STANDARD' ? AES_decrypt($('userName').text(), userSession.sesionKey) : $('userName').text()
+                    const password = userSession.appType === 'STANDARD' ? AES_decrypt($('password').text(), userSession.sesionKey) : $('password').text()
+                    const reqTime = formatDate(new Date(), 'YYYY-MM-DD HH:mm:ss:SSS')
+                    const reqID = getRandomGUID().replace('{', '').replace('}', '')
+                    const jsonStr = JSON.stringify({
+                        sn: sn,
+                        softVersion: softVersion,
+                        tempUserName: userName,
+                        tempPassword: password,
+                        devType: '1',
+                    })
+                    const AESKey = sha256_encrypt_WordArray(reqTime + ':dashboard:' + reqID)
+                    const AESIV = MD5_encrypt_WordArray(reqID)
+                    const info = AES_CBC_Encrypt(jsonStr, AESKey, AESIV)
+                    const base64Str = base64StrToUrl(info)
+                    const host = userSession.appType === 'STANDARD' ? `${protocol}://${ip}:${port}` : `${p2pWebUrl}/servlet/natlogin`
+                    const params: Record<string, string | number> = {
+                        reqTime: reqTime,
+                        reqID: reqID,
+                        info: base64Str,
+                        type: 2, // 免鉴权跳转类型
+                    }
+                    if (isPoe && isTVT) {
+                        params.addType = 'poe'
+                    }
+                    const url = host + getURLSearchParams(params)
+                    window.open(url, '_blank', '')
+                }
+            } else {
+                if (isPoe && rowData.poePort && rowData.poePort !== '') {
+                    const ip = checkIpV6(userSession.serverIp) ? `[${userSession.serverIp}]` : userSession.serverIp
+                    window.open(`http://${ip}:${rowData.poePort}`, '_blank', '')
+                } else {
+                    // 非poe通道跳转时要带上端口号，避免用户改了ipc默认的80端口，导致跳转不成功
+                    const data = rawXml`
+                        <condition>
+                            <chlId>${rowData.id}</chlId>
+                        </condition>
+                    `
+                    openLoading()
+                    const res = await queryChlPort(data)
                     const $ = queryXml(res)
                     const httpPort = $('content/chl/port/httpPort').text()
                     // ipv6地址访问格式为：http://[ipv6]
                     const ip = checkIpV6(rowData.ip) ? `[${rowData.ip}]` : rowData.ip
+                    closeLoading()
                     window.open(`http://${ip}:${httpPort}`, '_blank', '')
-                })
+                }
             }
         }
 
@@ -216,6 +285,8 @@ export default defineComponent({
                     <index/>
                     <chlType/>
                     <chlNum/>
+                    <autoReportID/>
+                    <supportJump/>
                 </requireField>
             `
             const res = await queryDevList(sendXml)
@@ -229,31 +300,34 @@ export default defineComponent({
                 )
 
                 nameMapping.value = {}
-                tableData.value = $('content/item').map((ele) => {
-                    const eleXml = queryXml(ele.element)
-                    nameMapping.value[ele.attr('id')] = eleXml('name').text()
+                tableData.value = $('content/item').map((item) => {
+                    const $item = queryXml(item.element)
+                    nameMapping.value[item.attr('id')] = $item('name').text()
                     const channelInfo = new ChannelInfoDto()
-                    channelInfo.id = ele.attr('id')
-                    channelInfo.chlNum = eleXml('chlNum').text()
-                    channelInfo.name = eleXml('name').text()
-                    channelInfo.devID = eleXml('devID').text()
-                    channelInfo.ip = eleXml('ip').text()
-                    channelInfo.port = eleXml('port').text().num()
-                    channelInfo.poePort = eleXml('poePort').text()
-                    channelInfo.userName = eleXml('userName').text()
-                    channelInfo.password = eleXml('password').text()
-                    channelInfo.protocolType = eleXml('protocolType').text()
-                    channelInfo.addType = eleXml('addType').text()
-                    channelInfo.accessType = eleXml('AccessType').text()
-                    channelInfo.poeIndex = eleXml('poeIndex').text().num()
-                    channelInfo.manufacturer = eleXml('manufacturer').text()
+                    channelInfo.id = item.attr('id')
+                    channelInfo.chlNum = $item('chlNum').text()
+                    channelInfo.name = $item('name').text()
+                    channelInfo.devID = $item('devID').text()
+                    channelInfo.ip = $item('ip').text()
+                    channelInfo.port = $item('port').text().num()
+                    channelInfo.poePort = $item('poePort').text()
+                    channelInfo.userName = $item('userName').text()
+                    channelInfo.password = $item('password').text()
+                    channelInfo.protocolType = $item('protocolType').text()
+                    channelInfo.addType = $item('addType').text()
+                    channelInfo.accessType = $item('AccessType').text()
+                    channelInfo.poeIndex = $item('poeIndex').text().num()
+                    channelInfo.manufacturer = $item('manufacturer').text()
                     channelInfo.productModel = {
-                        factoryName: eleXml('productModel').attr('factoryName'),
-                        innerText: eleXml('productModel').text(),
+                        factoryName: $item('productModel').attr('factoryName'),
+                        innerText: $item('productModel').text(),
                     }
-                    channelInfo.index = eleXml('index').text().num()
-                    channelInfo.chlIndex = eleXml('chlIndex').text()
-                    channelInfo.chlType = eleXml('chlType').text()
+                    channelInfo.index = $item('index').text().num()
+                    channelInfo.chlIndex = $item('chlIndex').text().num()
+                    channelInfo.chlType = $item('chlType').text()
+                    channelInfo.autoReportID = $item('autoReportID').text()
+                    channelInfo.supportJump = $item('supportJump').text().bool()
+                    channelInfo.supportSetting = channelInfo.supportJump || userSession.appType === 'STANDARD'
 
                     return channelInfo
                 })
@@ -274,7 +348,7 @@ export default defineComponent({
                 channelIPCUpgradePopRef.value!.initWsState(tableData.value)
 
                 //获取在线通道列表
-                getOnlineChlList()
+                refreshChlStatusTimer.repeat(true)
             }
         }
 
@@ -295,25 +369,48 @@ export default defineComponent({
             return channelInfo.accessType === '1' || !channelInfo.isOnline
         }
 
-        const getOnlineChlList = () => {
-            queryOnlineChlList().then((res) => {
-                const $ = queryXml(res)
-                if ($('status').text() === 'success') {
-                    const onlineChlList = $('content/item').map((element) => element.attr('id'))
-                    tableData.value.forEach((ele) => {
-                        //模拟通道，状态置为空
-                        if (!ele.ip) {
-                            return
-                        }
-                        ele.isOnline = onlineChlList.includes(ele.id)
-                        if (ele.isOnline) {
-                            getIPChlInfo(ele)
-                        }
-                    })
-                }
+        const getOnlineChlList = async () => {
+            const result = await queryOnlineChlList()
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                const onlineChlList = $('content/item').map((element) => element.attr('id'))
+                return onlineChlList
+            } else {
+                return []
+            }
+        }
 
-                refreshChlStatusTimer.repeat()
-            })
+        const getDevInfo = async () => {
+            const sendXml = rawXml`
+                <requireField>
+                    <name/>
+                    <ip/>
+                    <port/>
+                    <userName/>
+                    <password/>
+                    <protocolType/>
+                    <productModel/>
+                    <chlIndex/>
+                    <index/>
+                    <chlType/>
+                    <chlNum/>
+                    <autoReportID/>
+                    <supportJump/>
+                </requireField>
+            `
+            const res = await queryDevList(sendXml)
+            const $ = queryXml(res)
+            const devInfo: Record<string, { ip: string; supportJump: boolean }> = {}
+            if ($('status').text() === 'success') {
+                $('content/item').forEach((item) => {
+                    const $item = queryXml(item.element)
+                    devInfo[item.attr('id')] = {
+                        ip: $item('ip').text(),
+                        supportJump: $item('supportJump').text().bool(),
+                    }
+                })
+            }
+            return devInfo
         }
 
         const getIpAnalogCout = async () => {
