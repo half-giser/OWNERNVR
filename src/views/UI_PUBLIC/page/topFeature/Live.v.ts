@@ -100,6 +100,8 @@ const useStateSubscribe = (
         const recordTypeMap: Record<string, string> = {
             smart_fire_point: 'fire_point',
             smart_temperature: 'temperature',
+            smart_aoi_entry: 'aoi_entry',
+            smart_aoi_leave: 'aoi_leave',
         }
 
         chlStateInfo.forEach((item) => {
@@ -448,6 +450,7 @@ export default defineComponent({
          */
         const updateWinData = (index: number, winData: TVTPlayerWinDataListItem) => {
             if (playerRef.value && index === player?.getSelectedWinIndex()) {
+                const isSameChl = pageData.value.winData.chlID === winData.CHANNEL_INFO?.chlID
                 pageData.value.winData = {
                     PLAY_STATUS: winData.PLAY_STATUS,
                     winIndex: winData.winIndex,
@@ -462,12 +465,18 @@ export default defineComponent({
                     showPos: winData.showPos,
                     chlID: winData.CHANNEL_INFO?.chlID || '',
                     supportPtz: winData.CHANNEL_INFO?.supportPtz || false,
+                    supportIntegratedPtz: winData.CHANNEL_INFO?.supportIntegratedPtz || false,
+                    supportIris: winData.CHANNEL_INFO?.supportIris || false,
+                    supportAZ: winData.CHANNEL_INFO?.supportAZ || false,
                     chlName: winData.CHANNEL_INFO?.chlID ? pageData.value.chlMap[winData.CHANNEL_INFO!.chlID]?.value || '' : '',
                     streamType: winData.CHANNEL_INFO?.streamType || 2,
+                    MinPtzCtrlSpeed: winData.CHANNEL_INFO?.chlID ? pageData.value.chlMap[winData.CHANNEL_INFO!.chlID]?.MinPtzCtrlSpeed : 1,
+                    MaxPtzCtrlSpeed: winData.CHANNEL_INFO?.chlID ? pageData.value.chlMap[winData.CHANNEL_INFO!.chlID]?.MaxPtzCtrlSpeed : 8,
                     talk: false,
                     isDwellPlay: false,
                     groupID: '',
                     supportAudio: true,
+                    canShowAudioError: isSameChl ? pageData.value.winData.canShowAudioError : false,
                 }
             }
         }
@@ -521,6 +530,9 @@ export default defineComponent({
                 return
             }
 
+            // 切换分屏时，关闭所有通道声音
+            closeAllAudio()
+
             // 切换分屏时，取消通道组轮询
             stopPollingChlGroup()
 
@@ -564,6 +576,9 @@ export default defineComponent({
                         streamType: 2,
                         winIndex: index,
                         supportPtz: pageData.value.chlMap[chlID].supportPtz,
+                        supportAZ: pageData.value.chlMap[chlID].supportAZ,
+                        supportIris: pageData.value.chlMap[chlID].supportIris,
+                        supportIntegratedPtz: pageData.value.chlMap[chlID].supportIntegratedPtz,
                         volumn: pageData.value.volume,
                     }
                     player.play(params)
@@ -624,7 +639,10 @@ export default defineComponent({
                             chlID: curChlID,
                             winIndex: findIndex,
                             streamType: 2,
-                            supportPtz: pageData.value.chlMap[curChlID].supportPtz,
+                            supportPtz: pageData.value.chlMap[chlID].supportPtz,
+                            supportAZ: pageData.value.chlMap[chlID].supportAZ,
+                            supportIris: pageData.value.chlMap[chlID].supportIris,
+                            supportIntegratedPtz: pageData.value.chlMap[chlID].supportIntegratedPtz,
                             volume: pageData.value.volume,
                         })
                         player.play({
@@ -632,6 +650,9 @@ export default defineComponent({
                             winIndex: winIndex,
                             streamType: 2,
                             supportPtz: pageData.value.chlMap[chlID].supportPtz,
+                            supportAZ: pageData.value.chlMap[chlID].supportAZ,
+                            supportIris: pageData.value.chlMap[chlID].supportIris,
+                            supportIntegratedPtz: pageData.value.chlMap[chlID].supportIntegratedPtz,
                             volume: pageData.value.volume,
                         })
                         return
@@ -643,6 +664,9 @@ export default defineComponent({
                     streamType: 2,
                     winIndex: player.getSelectedWinIndex(),
                     supportPtz: pageData.value.chlMap[chlID].supportPtz,
+                    supportAZ: pageData.value.chlMap[chlID].supportAZ,
+                    supportIris: pageData.value.chlMap[chlID].supportIris,
+                    supportIntegratedPtz: pageData.value.chlMap[chlID].supportIntegratedPtz,
                     audioStatus: false,
                     volume: pageData.value.volume,
                 })
@@ -725,6 +749,10 @@ export default defineComponent({
                         callback: () => startPollingChlGroup,
                         audioStatus: false,
                         isPolling: true,
+                        supportPtz: pageData.value.chlMap[chl.id].supportPtz,
+                        supportAZ: pageData.value.chlMap[chl.id].supportAZ,
+                        supportIris: pageData.value.chlMap[chl.id].supportIris,
+                        supportIntegratedPtz: pageData.value.chlMap[chl.id].supportIntegratedPtz,
                         volume: pageData.value.volume,
                     })
                     player.setPollIndex(winIndex)
@@ -894,6 +922,11 @@ export default defineComponent({
             // 音频流关闭事件，将对应通道的音频图标置为关闭状态
             else if (error === 'audioClosed') {
                 updateWinData(index, data)
+            }
+            // 当前选中的通道离线，置灰目标检索按钮
+            else if (error === 'offline') {
+                // TODO
+                updateWinData(index, data)
             } else {
                 updateWinData(index, data)
             }
@@ -909,10 +942,18 @@ export default defineComponent({
             const chlId = data.CHANNEL_INFO!.chlID
             const chlName = chlRef.value!.getChlMap()[chlId].value
             const date = formatDate(recordStartTime, 'YYYYMMDDHHmmss')
-            download(new Blob([recordBuf]), `${chlName}_${date}.avi`)
+            download(new Blob([recordBuf]), `${chlName.replace(FILE_LIMIT_REG, '#')}_${date}.avi`)
             if (!localStorage.getItem(LocalCacheKey.KEY_LOCAL_AVI_NOT_ENCRYPTED)) {
                 openNotify(Translate('IDCS_AVI_UNENCRYPTED_TIP'))
                 localStorage.setItem(LocalCacheKey.KEY_LOCAL_AVI_NOT_ENCRYPTED, 'true')
+            }
+        }
+
+        const handlePlayerAudioError = () => {
+            // 不支持打开音频
+            if (pageData.value.winData.canShowAudioError) {
+                openMessageBox(Translate('IDCS_UNSUPPORT_AUDIO_CODEC_TYPE'))
+                pageData.value.winData.canShowAudioError = false
             }
         }
 
@@ -1287,6 +1328,9 @@ export default defineComponent({
                     chlID: pageData.value.winData.chlID,
                     streamType,
                     supportPtz: pageData.value.chlMap[pageData.value.winData.chlID].supportPtz,
+                    supportAZ: pageData.value.chlMap[pageData.value.winData.chlID].supportAZ,
+                    supportIris: pageData.value.chlMap[pageData.value.winData.chlID].supportIris,
+                    supportIntegratedPtz: pageData.value.chlMap[pageData.value.winData.chlID].supportIntegratedPtz,
                     volume: pageData.value.volume,
                 })
             }
@@ -1391,6 +1435,8 @@ export default defineComponent({
             }
 
             pageData.value.winData.audio = bool
+            pageData.value.winData.canShowAudioError = bool
+
             if (mode.value === 'h5') {
                 if (bool) {
                     player.openAudio(player.getSelectedWinIndex())
@@ -1419,6 +1465,21 @@ export default defineComponent({
                     const sendXML = OCX_XML_SetVolume(0)
                     plugin.ExecuteCmd(sendXML)
                 }
+            }
+        }
+
+        const closeAllAudio = () => {
+            if (!ready.value) {
+                return
+            }
+
+            if (mode.value === 'h5') {
+                player.getPlayingWinIndexList().forEach((index) => {
+                    player.closeAudio(index)
+                })
+            }
+
+            if (mode.value === 'ocx') {
             }
         }
 
@@ -1609,6 +1670,14 @@ export default defineComponent({
                 cacheWinMap[winIndex].magnify3D = $item('is3DMagnifyOn').text().bool()
                 cacheWinMap[winIndex].supportAudio = $item('isSupportAudio').text().bool()
 
+                cacheWinMap[winIndex].canShowAudioError = false
+                cacheWinMap[winIndex].supportPtz = pageData.value.chlMap[chlID].supportPtz
+                cacheWinMap[winIndex].supportAZ = pageData.value.chlMap[chlID].supportAZ
+                cacheWinMap[winIndex].supportIris = pageData.value.chlMap[chlID].supportIris
+                cacheWinMap[winIndex].supportIntegratedPtz = pageData.value.chlMap[chlID].supportIntegratedPtz
+                cacheWinMap[winIndex].MinPtzCtrlSpeed = pageData.value.chlMap[chlID].MinPtzCtrlSpeed
+                cacheWinMap[winIndex].MaxPtzCtrlSpeed = pageData.value.chlMap[chlID].MaxPtzCtrlSpeed
+
                 const streamTypeNode = $item('streamType')
                 cacheWinMap[winIndex].streamType = !streamTypeNode.length ? 2 : streamTypeNode.text().num()
 
@@ -1693,6 +1762,13 @@ export default defineComponent({
                     openNotify(errorInfo)
                 }
             }
+
+            if (stateType === 'AudioNoSupport') {
+                if (pageData.value.winData.canShowAudioError) {
+                    pageData.value.winData.canShowAudioError = false
+                    openMessageBox(Translate('IDCS_UNSUPPORT_AUDIO_CODEC_TYPE'))
+                }
+            }
         }
 
         onBeforeUnmount(() => {
@@ -1758,6 +1834,7 @@ export default defineComponent({
             isSnapPanel,
             isFishEyePanel,
             notify,
+            handlePlayerAudioError,
         }
     },
 })

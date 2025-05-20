@@ -91,11 +91,6 @@ export default defineComponent({
          * @description 获取当前通道是否支持镜头控制
          */
         const getSupportAz = async () => {
-            if (prop.winData.isPolling) {
-                ctx.emit('updateSupportAz', false)
-                return
-            }
-
             const chlID = prop.winData.chlID
             const sendXml = rawXml`
                 <condition>

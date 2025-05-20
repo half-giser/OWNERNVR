@@ -27,10 +27,9 @@
                 :label="Translate('IDCS_PRESET_NAME')"
                 prop="name"
             >
-                <el-input
+                <BaseTextInput
                     v-model="formData.name"
-                    :formatter="formatInputMaxLength"
-                    :parser="formatInputMaxLength"
+                    :maxlength="data.nameMaxByteLen"
                 />
             </el-form-item>
         </el-form>

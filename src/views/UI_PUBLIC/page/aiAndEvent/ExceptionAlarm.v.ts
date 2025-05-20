@@ -230,7 +230,7 @@ export default defineComponent({
                                     <triggerAlarmOut>
                                         <switch>${alarmOutSwitch}</switch>
                                         <alarmOuts>
-                                            ${alarmOuts.map((item) => `<item id="${item.value}">${wrapCDATA(item.label)}</item>`).join('')}
+                                            ${alarmOuts.map((item) => `<item id="${item.value}" />`).join('')}
                                         </alarmOuts>
                                     </triggerAlarmOut>
                                     <msgPushSwitch>${item.msgPush}</msgPushSwitch>
@@ -278,6 +278,7 @@ export default defineComponent({
             changeAllEmail,
             setData,
             switchAlarmOut,
+            systemCaps,
         }
     },
 })

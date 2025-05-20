@@ -29,8 +29,8 @@
                 prop="name"
             >
                 <el-select-v2
-                    v-model="formData.name"
-                    :options="pageData.nameOptions"
+                    v-model="formData.editIndex"
+                    :options="nameOption"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_START_TIME')">
@@ -52,7 +52,7 @@
             </el-form-item>
             <div class="base-btn-box">
                 <el-button
-                    :disabled="!formData.name"
+                    :disabled="!nameOption.length"
                     @click="verify"
                 >
                     {{ Translate('IDCS_OK') }}

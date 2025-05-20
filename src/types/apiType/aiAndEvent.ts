@@ -10,6 +10,7 @@
 export class AlarmOutDto extends TableRowStatus {
     id = '' //告警输出ID
     name = '' //告警输出名称
+    nameMaxByteLen = 32
     index = 0 //告警输出在设备上的序号
     devDesc: string | undefined = undefined //告警输出所在设备的描述，如果为undefined表示本机，否则表示通道的名称
     devID: string | undefined = undefined //告警输出所在设备的ID，如果为undefined表示本机，否则表示通道的ID
@@ -32,7 +33,6 @@ export class AlarmEmailReceiverDto {
  */
 export class AlarmDisplayPopVideoForm {
     popVideoDuration = 0 // 弹出视频持续时间
-    popVideoOutputShow = false // 是否显示
     popVideoOutput = '' // 弹出视频输出
 }
 
@@ -66,7 +66,7 @@ export class AlarmWhiteLightDto extends TableRowStatus {
     id = ''
     name = ''
     enable = false
-    durationTime: number | undefined = undefined
+    durationTime = 0
     frequencyType = ''
     // enableDisable = true
     // durationTimeDisable = false
@@ -131,21 +131,24 @@ export class AlarmEventDto extends TableRowStatus {
     videoPopupList: SelectOption<string, string>[] = []
     msgBoxPopup = ''
     email = ''
+    popMsgSwitch = ''
 }
 
 /**
  * @description IPC声音报警输出项
  */
 export class AlarmAudioAlarmOutDto extends TableRowStatus {
-    editFlag = false
     index = 0
     id = ''
     name = ''
-    audioTypeList: SelectOption<number, string>[] = [{ label: '', value: 0 }]
-    customeAudioNum = 0
+    audioTypeList: Record<string, SelectOption<number, string>[]> = {
+        customize: [],
+    }
+    // customeAudioNum = 0
     langArr: SelectOption<string, string>[] = []
     audioSwitch = false
     audioType = 0
+    customizeAudioType = 0
     alarmTimes: number | undefined = undefined
     audioVolume: number | undefined = undefined
     alarmTimesDisabled = false
@@ -155,14 +158,14 @@ export class AlarmAudioAlarmOutDto extends TableRowStatus {
     sampleRate = ''
     audioChannel = ''
     audioDepth = ''
-    audioFileLimitSize = ''
+    audioFileLimitSize = 200 * 1024
+    schedule = ''
 }
 
 /**
  * @description IPC声音设备项
  */
 export class AlarmAudioDevice extends TableRowStatus {
-    editFlag = false
     index = 0
     id = ''
     name = ''
@@ -183,17 +186,42 @@ export class AlarmAudioDevice extends TableRowStatus {
     micOrLinEnabled = false
     audioOutEnabled = false
     audioInSwitchEnabled = false
+    audioDenoise = ''
+    audioDenoiseEnabled = false
+    isSpeakerMutex = false
+    loudSpeakerswitch = false
+    audioOutputswitch = false
+    audioDenoiseType: SelectOption<string, string>[] = []
+}
+
+export class AlarmLocalAudioDto {
+    audioSchedule = ''
+    volume = 0
+    list: AlarmLocalAudioFileDto[] = []
+    formatType: string[] = []
 }
 
 /**
  * @description 本地声音表格项
  */
-export class AlarmLocalAudioDto {
+export class AlarmLocalAudioFileDto {
     id = ''
     index = ''
     name = ''
     originalName = ''
     fileValid = ''
+    fileType = ''
+}
+
+/**
+ * @description
+ */
+export class AlarmIpSpeakerDto {
+    schedule = ''
+    volume = 0
+    volumeMin = 0
+    volumeMax = 100
+    online = false
 }
 
 /**
@@ -229,9 +257,18 @@ export class AlarmSystemDisarmDto {
     nodeType = ''
 }
 
-export class AlarmSystemDisarmChlAndSensorSrcDto {
+export class AlarmSystemDisarmFormDto {
+    sensorSwitch = false
+    inputSource = ''
+    resetTime = '00:00:00'
+    autoResetSwitch = false
+    defenseSwitch = false
+    remoteSwitch = false
+}
+
+export class AlaramSystemDisarmChlDto {
     id = ''
-    value = ''
+    name = ''
     nodeType = ''
     supportManualAudio = false
     supportManualWhiteLight = false
@@ -323,6 +360,14 @@ export class AlarmCombinedDto extends TableRowStatus {
     preset = {
         switch: false,
         presets: [] as AlarmPresetItem[],
+    }
+    triggerAudio = {
+        switch: false,
+        chls: [] as SelectOption<string, string>[],
+    }
+    triggerWhiteLight = {
+        switch: false,
+        chls: [] as SelectOption<string, string>[],
     }
     sysAudio = ''
     msgPush = ''
@@ -1653,5 +1698,21 @@ export class AlarmPresetPopDto {
     preset = {
         switch: false,
         presets: [] as AlarmPresetItem[],
+    }
+}
+
+export class AlramTriggerAudioPopDto {
+    id = ''
+    triggerAudio = {
+        switch: false,
+        chls: [] as SelectOption<string, string>[],
+    }
+}
+
+export class AlarmTriggerWhiteLightPopDto {
+    id = ''
+    triggerWhiteLight = {
+        switch: false,
+        chls: [] as SelectOption<string, string>[],
     }
 }

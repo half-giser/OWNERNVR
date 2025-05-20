@@ -137,23 +137,22 @@
                             />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_TIME_SERVER')">
-                            <el-select-v2
+                            <BaseSelectInput
                                 v-model="dateTimeFormData.timeServer"
                                 :options="pageData.timeServerOptions"
-                                filterable
                                 :disabled="dateTimeFormData.syncType !== 'NTP'"
+                                :validate="checkTimeServer"
                             />
                         </el-form-item>
                         <el-form-item
                             v-if="dateTimeFormData.syncType === 'Gmouse'"
                             :label="Translate('IDCS_BAUD_RATE')"
                         >
-                            <el-select-v2
+                            <BaseSelectInput
                                 v-model="dateTimeFormData.gpsBaudRate"
                                 :options="pageData.gpsBaudRateOptions"
-                                filterable
-                                allow-create
                                 :disabled="dateTimeFormData.syncType !== 'Gmouse'"
+                                :validate="checkGPSBaudRate"
                             />
                         </el-form-item>
                         <el-form-item
@@ -604,17 +603,21 @@
         .base-chlConfig-tabs {
             width: 100%;
             height: 100%;
+
             :deep(.el-tabs__header) {
                 background-color: var(--subheading-bg);
-                padding: 0px 14px;
-                .el-tabs__nav-wrap:after,
+                padding: 0 14px;
+
+                .el-tabs__nav-wrap::after,
                 .el-tabs__active-bar {
                     display: none;
                 }
             }
+
             :deep(.el-tabs__content) {
                 padding: 4px 40px;
             }
+
             .ipc-password-tip {
                 margin-top: 44px;
             }
@@ -625,19 +628,23 @@
 .emailAndQa {
     .box {
         flex-direction: column;
+
         .base-emailAndQa-tabs {
             width: 100%;
             height: 100%;
+
             :deep(.el-tabs__header) {
                 background-color: var(--subheading-bg);
-                padding: 0px 14px;
-                .el-tabs__nav-wrap:after,
+                padding: 0 14px;
+
+                .el-tabs__nav-wrap::after,
                 .el-tabs__active-bar {
                     display: none;
                 }
             }
+
             :deep(.el-tabs__content) {
-                padding: 0px 4px;
+                padding: 0 4px;
             }
         }
     }

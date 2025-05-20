@@ -60,6 +60,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
+        const userSession = useUserSessionStore()
         const router = useRouter()
         const systemCaps = useCababilityStore()
         const userAuth = useUserChlAuth()
@@ -115,41 +116,26 @@ export default defineComponent({
             sliceType: 'month',
             // 事件图例
             legend: [
+                // 录像条底色（优先级最低，作为时间轴底色，不需要展示在录像条下方作为示例）
                 {
-                    value: 'MANUAL',
-                    name: Translate('IDCS_MANUAL'),
+                    value: 'otherType',
+                    color: '#005692',
+                    name: Translate('IDCS_NORMAL_RECORD'),
                     children: [],
-                    color: '#00FF00',
                 },
+                // 通用录像
                 {
-                    value: 'SENSOR',
-                    name: Translate('IDCS_SENSOR'),
+                    value: 'general',
+                    color: '#A12534',
+                    name: Translate('IDCS_GENERAL'),
                     children: [],
-                    color: '#FF0000',
                 },
+                // AI录像（优先级最低，作为时间轴底色）
                 {
-                    value: 'INTELLIGENT',
-                    name: Translate('IDCS_AI_ALL'),
-                    children: ['FACEDETECTION', 'FACEMATCH', 'VEHICLE', 'TRIPWIRE', 'INVADE', 'AOIENTRY', 'AOILEAVE', 'FIREPOINT', 'TEMPERATURE'],
-                    color: '#02B4B4',
-                },
-                {
-                    value: 'MOTION',
-                    name: Translate('IDCS_MOTION_DETECTION'),
-                    children: ['MOTION', 'SMDHUMAN', 'SMDVEHICLE'],
-                    color: '#fefc0b',
-                },
-                {
-                    value: 'POS',
-                    name: Translate('IDCS_POS'),
+                    value: 'AI',
+                    color: '#00CCCC',
+                    name: Translate('IDCS_AI'),
                     children: [],
-                    color: '#8000ff',
-                },
-                {
-                    value: 'SCHEDULE',
-                    name: Translate('IDCS_SCHEDULE'),
-                    children: [],
-                    color: '#0080FF',
                 },
             ],
             // 时间轴是否开启遮罩 （mode=day时候开启）
@@ -194,10 +180,7 @@ export default defineComponent({
         })
 
         // 备份事件列表
-        const EVENTS = ['MANUAL', 'SENSOR', 'MOTION', 'SCHEDULE']
-        if (systemCaps.ipChlMaxCount) {
-            EVENTS.push('INTELLIGENT')
-        }
+        const EVENTS = ['SCHEDULE', 'INTELLIGENT', 'MOTION', 'SMDHUMAN', 'SMDVEHICLE', 'MANUAL', 'SENSOR']
 
         if (systemCaps.supportPOS) {
             EVENTS.push('POS')
@@ -251,6 +234,7 @@ export default defineComponent({
         })
 
         let keyframe: ReturnType<typeof WebsocketKeyframe>
+        let imgRender: ReturnType<typeof WasmImageRender>
 
         // 当前模式项
         const modeItem = computed(() => {
@@ -656,9 +640,6 @@ export default defineComponent({
             const endTime = timelineRef.value!.getMaxTime() * 1000
 
             const sendXml = rawXml`
-                <types>
-                    <recType>${wrapEnums(['MOTION', 'SCHEDULE', 'SENSOR', 'MANUAL', 'INTELLIGENT', 'POS', 'NORMALALL', 'FACEDETECTION', 'FACEMATCH', 'VEHICLE', 'TRIPWIRE', 'INVADE', 'AOIENTRY', 'AOILEAVE', 'ITEMCARE', 'CROWDDENSITY', 'EXCEPTION'])}</recType>
-                </types>
                 <requireField>
                     <chl/>
                     <recList>
@@ -678,11 +659,9 @@ export default defineComponent({
                     <endTimeEx>${localToUtc(endTime)}</endTimeEx>
                     <recType type='list'>
                         <itemType type='recType'/>
-                        ${pageData.value.legend.map((item) => `<item>${item.value}</item>`).join('')}
+                        ${EVENTS.map((item) => `<item>${item}</item>`).join('')}
                     </recType>
-                    <chl type='list'>
-                        <item id="${prop.chlId}"></item>
-                    </chl>
+                    <chl id="${prop.chlId}" />
                 </condition>
             `
             const result = await queryChlRecLog(sendXml)
@@ -694,12 +673,11 @@ export default defineComponent({
             if (startTime !== timelineRef.value!.getMinTime() * 1000) {
                 return
             }
-            pageData.value.recList = $('content/chl/item').map((item) => {
-                const $item = queryXml(item.element)
-                return {
-                    chlId: item.attr('id'),
-                    chlName: $item('name').text(),
-                    records: $item('recList/item').map((rec) => {
+            pageData.value.recList = [
+                {
+                    chlId: prop.chlId,
+                    chlName: prop.chlName,
+                    records: $('content/recList/item').map((rec) => {
                         const $rec = queryXml(rec.element)
                         const startTime = dayjs.utc($rec('startTime').text()).valueOf()
                         const endTime = dayjs.utc($rec('endTime').text()).valueOf()
@@ -714,28 +692,31 @@ export default defineComponent({
                             recSubType,
                             size: size ? size + 'MB' : '--',
                             duration: dayjs.utc(endTime - startTime).format('HH:mm:ss'),
+                            eventColorType: getEventColorType(recType, recSubType),
                         }
                     }),
-                    timeZone: $item('recList').attr('timeZone'),
-                }
-            })
+                    timeZone: $('content/recList').attr('timeZone'),
+                },
+            ]
         }
 
         /**
          * @description 创建Websocket连接
          */
         const createWebsocket = () => {
-            keyframe = WebsocketKeyframe({
-                onmessage: (data: WebsocketKeyframeOnMessageParam) => {
-                    pageData.value.timeSliceList.forEach((item) => {
-                        if (data.taskId.toUpperCase() === item.taskId) {
-                            item.imgUrl = data.imgUrl
-                            item.frameTime = data.frameTime
-                            pageData.value.timeSliceCount++
-                        }
-                    })
-                },
-            })
+            if (userSession.appType === 'STANDARD') {
+                keyframe = WebsocketKeyframe({
+                    onmessage: (data: WebsocketKeyframeOnMessageParam) => {
+                        pageData.value.timeSliceList.forEach((item) => {
+                            if (data.taskId.toUpperCase() === item.taskId) {
+                                item.imgUrl = data.imgUrl
+                                item.frameTime = data.frameTime
+                                pageData.value.timeSliceCount++
+                            }
+                        })
+                    },
+                })
+            }
         }
 
         /**
@@ -750,27 +731,89 @@ export default defineComponent({
             }
 
             pageData.value.timeSliceCount = 0
-            keyframe.checkReady(() => {
-                pageData.value.timeSliceList = []
-                keyframe.stopAll()
-                timeList.forEach((item) => {
-                    const taskId = keyframe
-                        .start({
-                            chlId: prop.chlId,
-                            startTime: item.startTime,
-                            endTime: item.endTime,
-                            frameNum: 1,
+
+            if (userSession.appType === 'P2P') {
+                imgRender?.destroy()
+                imgRender = WasmImageRender({
+                    type: 'p2pTimeSlice',
+                    ready() {
+                        pageData.value.timeSliceList = []
+                        timeList.forEach(async (item, index) => {
+                            const taskId = getRandomGUID()
+
+                            pageData.value.timeSliceList.push({
+                                startTime: item.startTime * 1000,
+                                endTime: item.endTime * 1000,
+                                taskId: taskId,
+                                frameTime: item.startTime * 1000,
+                                imgUrl: '',
+                            })
+
+                            const sendXML = rawXml`
+                                <condition>
+                                    <chlId>${prop.chlId}</chlId>
+                                    <startTimeEx>${localToUtc(item.startTime * 1000)}</startTimeEx>
+                                    <endTimeEx>${localToUtc(item.endTime * 1000)}</endTimeEx>
+                                    <diskType>write</diskType>
+                                </condition>
+                            `
+                            const result = await queryChlSnapPicture(sendXML)
+                            const $ = queryXml(result)
+                            if ($('status').text() === 'success') {
+                                const codecTypeMap: Record<string, number> = {
+                                    H264: 1, // H264帧
+                                    H265: 2, // H265帧
+                                }
+                                const encodingType = $('content/encodingType').text()
+                                const codecType = codecTypeMap[encodingType]
+                                const frameTime = $('content/recTime').text().num() * 1000
+                                const dataBase64 = $('content/data').text()
+                                const dataBlob = dataURLToBlob(dataBase64)
+                                const reader = new FileReader()
+                                reader.onload = () => {
+                                    const dataArrayBuffer = reader.result as ArrayBuffer
+                                    if (!dataArrayBuffer) {
+                                        return
+                                    }
+
+                                    imgRender.render(
+                                        dataArrayBuffer,
+                                        (imgUrl) => {
+                                            pageData.value.timeSliceList[index].imgUrl = imgUrl
+                                            pageData.value.timeSliceList[index].frameTime = frameTime
+                                        },
+                                        codecType,
+                                    )
+                                }
+                                reader.readAsArrayBuffer(dataBlob)
+                                pageData.value.timeSliceCount++
+                            }
                         })
-                        .toUpperCase()
-                    pageData.value.timeSliceList.push({
-                        startTime: item.startTime * 1000,
-                        endTime: item.endTime * 1000,
-                        taskId,
-                        frameTime: item.startTime * 1000,
-                        imgUrl: '',
+                    },
+                })
+            } else {
+                keyframe.checkReady(() => {
+                    pageData.value.timeSliceList = []
+                    keyframe.stopAll()
+                    timeList.forEach((item) => {
+                        const taskId = keyframe
+                            .start({
+                                chlId: prop.chlId,
+                                startTime: item.startTime,
+                                endTime: item.endTime,
+                                frameNum: 1,
+                            })
+                            .toUpperCase()
+                        pageData.value.timeSliceList.push({
+                            startTime: item.startTime * 1000,
+                            endTime: item.endTime * 1000,
+                            taskId,
+                            frameTime: item.startTime * 1000,
+                            imgUrl: '',
+                        })
                     })
                 })
-            })
+            }
         }
 
         /**
@@ -854,6 +897,21 @@ export default defineComponent({
             pageData.value.isTimeRangePop = false
         }
 
+        const getEventColorType = (event: string, subEvent: string) => {
+            let eventColorType = ''
+            if (subEvent === 'TARGETHUMAN' || subEvent === 'TARGETVEHICLE') {
+                // 子事件为目标人、车时置为otherType颜色, NTA1-3833
+                eventColorType = 'otherType'
+            } else if (['INTELLIGENT'].includes(event)) {
+                eventColorType = 'AI'
+            } else if (['MOTION', 'SMDHUMAN', 'SMDVEHICLE', 'MANUAL', 'POS', 'SENSOR'].includes(event)) {
+                eventColorType = 'general'
+            } else {
+                eventColorType = 'otherType'
+            }
+            return eventColorType
+        }
+
         onMounted(() => {
             createWebsocket()
         })
@@ -864,6 +922,7 @@ export default defineComponent({
 
         onBeforeUnmount(() => {
             keyframe?.destroy()
+            imgRender?.destroy()
         })
 
         return {

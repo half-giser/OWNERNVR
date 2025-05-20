@@ -143,6 +143,13 @@ export const editAudioStreamConfig = (data: string) => fetch('editAudioStreamCon
 export const queryAlarmAudioCfg = () => fetch('queryAlarmAudioCfg', '')
 
 /**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const editAlarmAudioCfg = (data: string) => fetch('editAlarmAudioCfg', data)
+
+/**
  * @description 添加本地声音报警文件
  * @param {string} data
  * @returns
@@ -155,6 +162,13 @@ export const addAlarmAudioCfg = (data: string) => fetch('addAlarmAudioCfg', data
  * @returns
  */
 export const deleteAlarmAudio = (data: string) => fetch('deleteAlarmAudio', data)
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const auditionAlarmAudio = (data: string) => fetch('auditionAlarmAudio', data)
 
 /**
  * @description 获取传感器数据
@@ -675,3 +689,16 @@ export const queryVideoMetadata = (data: string) => fetch('queryVideoMetadata', 
  * @returns
  */
 export const editVideoMetadata = (data: string) => fetch('editVideoMetadata', data)
+
+/**
+ * @description
+ * @returns
+ */
+export const queryREIDCfg = () => fetch('queryREIDCfg', '')
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const editREIDCfg = (data: string) => fetch('editREIDCfg', data)

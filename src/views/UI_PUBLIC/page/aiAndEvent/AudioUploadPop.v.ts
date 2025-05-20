@@ -9,14 +9,30 @@ export default defineComponent({
             type: String,
             required: true,
         },
-        ipcAudioChl: {
-            type: String,
-            required: true,
-        },
-        ipcRowData: {
+        ipcData: {
             type: Object as PropType<AlarmAudioAlarmOutDto>,
             required: true,
             default: () => new AlarmAudioAlarmOutDto(),
+        },
+        format: {
+            type: Array as PropType<string[]>,
+            default: () => ['WAV'],
+        },
+        audioDepth: {
+            type: String,
+            default: '16bit',
+        },
+        sampleRate: {
+            type: String,
+            default: '',
+        },
+        audioChannel: {
+            type: String,
+            default: '',
+        },
+        fileLimitSize: {
+            type: Number,
+            default: 1.5 * 1024 * 1024,
         },
     },
     emits: {
@@ -32,10 +48,7 @@ export default defineComponent({
 
         const pageData = ref({
             title: '',
-            uploadAccept: '',
             audioFilesSizeTips: '',
-            audioFormatTips: '',
-            localFilesSizeTips: '',
             isIpcTipsShow: true,
             isLocalTipsShow: false,
             uploadFileName: '',
@@ -44,28 +57,37 @@ export default defineComponent({
 
         let rawFile: File | undefined = undefined
 
+        const accept = computed(() => {
+            return prop.format.map((item) => '.' + item.toLowerCase()).join(',')
+        })
+
+        const tips = computed(() => {
+            const arr = prop.format.map((item) => '*.' + item.toLowerCase())
+            arr.push(prop.audioDepth, prop.sampleRate, prop.audioChannel)
+            const result = arr.filter((item) => !!item).join(', ')
+            return Translate('IDCS_FILE_FORMAT_LIMIT_TIP').formatForLang('', result)
+        })
+
         const open = () => {
             pageData.value.title = prop.type === 'ipcAudio' ? Translate('IDCS_LOAD_WAV') : Translate('IDCS_LOAD_MP3')
-            pageData.value.uploadAccept = prop.type === 'ipcAudio' ? '.wav' : '.mp3'
 
             rawFile = undefined
             pageData.value.uploadFileName = ''
             pageData.value.btnApplyDisabled = true
-
-            const data = prop.ipcRowData
-            if (prop.type === 'ipcAudio') {
-                pageData.value.isIpcTipsShow = true
-                pageData.value.isLocalTipsShow = false
-                const audioFormat = '*.' + data.audioFormat + ',' + data.audioDepth + ',' + data.sampleRate + ',' + data.audioChannel
-                pageData.value.audioFilesSizeTips = Translate('IDCS_FILE_SIZE_LIMIT_TIP').formatForLang(data.audioFileLimitSize, 10 - data.customeAudioNum)
-                pageData.value.audioFormatTips = Translate('IDCS_FILE_FORMAT_LIMIT_TIP').formatForLang('', audioFormat)
-            } else {
-                pageData.value.isIpcTipsShow = false
-                pageData.value.isLocalTipsShow = true
-                pageData.value.localFilesSizeTips = Translate('IDCS_FILE_MAX_SIZE_LIMIT_TIP').formatForLang('1.5MB')
-                pageData.value.audioFormatTips = Translate('IDCS_FILE_FORMAT_LIMIT_TIP').formatForLang('', '*.mp3')
-            }
         }
+
+        const displayFileSize = computed(() => {
+            let fileLimitSize = prop.fileLimitSize
+            if (fileLimitSize > 1024) {
+                fileLimitSize = fileLimitSize / 1024
+                if (fileLimitSize > 1024) {
+                    return fileLimitSize / 1024 + 'MB'
+                } else {
+                    return fileLimitSize + 'KB'
+                }
+            }
+            return fileLimitSize + 'b'
+        })
 
         const uploadFile = (e: Event) => {
             const files = (e.target as HTMLInputElement).files
@@ -73,15 +95,8 @@ export default defineComponent({
                 return
             }
 
-            if (prop.type === 'nvrAudio' && files[0].name.indexOf('.mp3') === -1) {
-                // 过滤非mp3文件
-                openMessageBox(Translate('IDCS_SELECT_MP3_FILE'))
-                return
-            }
-
-            if (prop.type === 'ipcAudio' && files[0].name.indexOf('.wav') === -1) {
-                openMessageBox(Translate('IDCS_NO_CHOOSE_TDB_FILE').formatForLang('wav'))
-                return
+            if (!prop.format.some((item) => files[0].name.toLowerCase().endsWith(item.toLocaleLowerCase()))) {
+                openMessageBox(Translate('IDCS_SELECT_FILE_TIPS').formatForLang(prop.format.map((item) => item.toLowerCase()).join(', '), displayFileSize.value))
             }
 
             rawFile = files[0]
@@ -97,16 +112,17 @@ export default defineComponent({
             const blob = new Blob([_file])
             const data = await fileToBase64(blob)
             const fileSize = base64FileSize(data)
+            const fileType = prop.format.find((item) => pageData.value.uploadFileName.toLowerCase().endsWith(item.toLowerCase()))!
+
+            if (fileSize > prop.fileLimitSize) {
+                openMessageBox(Translate('IDCS_OUT_FILE_SIZE'))
+                return
+            }
+
             if (prop.type === 'ipcAudio') {
-                // let audioFileLimitSize = prop.ipcRowData.audioFileLimitSize
-                const audioFileLimitSize = (Number(prop.ipcRowData.audioFileLimitSize) / 1024).toFixed(2)
-                if (fileSize > audioFileLimitSize) {
-                    openMessageBox(Translate('IDCS_OUT_FILE_SIZE'))
-                    return
-                }
                 const sendXml = rawXml`
                     <content>
-                        <chl id='${prop.ipcAudioChl}'>
+                        <chl id='${prop.ipcData.id}'>
                             <param>
                                 <addAudioAlarm>
                                     <audioName>${wrapCDATA(pageData.value.uploadFileName)}</audioName>
@@ -129,15 +145,11 @@ export default defineComponent({
                     handleErrorMsg(errorCode)
                 }
             } else {
-                if (Number(fileSize) > 1.5) {
-                    // 上传的音乐文件必须小于1.5MB
-                    openMessageBox(Translate('IDCS_OUT_FILE_SIZE'))
-                    return
-                }
                 const sendXml = rawXml`
                     <content>
                         <item>
                             <name>${wrapCDATA(pageData.value.uploadFileName)}</name>
+                            <format>${fileType}</format>
                             <fileData>${wrapCDATA(data)}</fileData>
                         </item>
                     </content>
@@ -173,6 +185,9 @@ export default defineComponent({
             open,
             uploadFile,
             apply,
+            accept,
+            tips,
+            displayFileSize,
         }
     },
 })

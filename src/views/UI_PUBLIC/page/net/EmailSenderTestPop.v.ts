@@ -32,6 +32,10 @@ export default defineComponent({
             cacheAddress: [] as string[],
         })
 
+        const addressOptions = computed(() => {
+            return arrayToOptions(pageData.value.list.map((item) => item.address))
+        })
+
         const RECEIVER_MAX_COUNT = 16
 
         const formRef = useFormRef()
@@ -222,6 +226,7 @@ export default defineComponent({
             open,
             close,
             confirm,
+            addressOptions,
         }
     },
 })

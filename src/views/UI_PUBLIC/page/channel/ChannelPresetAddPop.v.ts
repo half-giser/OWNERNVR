@@ -7,26 +7,9 @@ import type { FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
-        /**
-         * @property {Number} 最大预置点数
-         */
-        max: {
-            type: Number,
-            default: 128,
-        },
-        /**
-         * @property {Array} 预置点列表
-         */
-        presets: {
-            type: Array as PropType<ChannelPtzPresetDto[]>,
-            required: true,
-        },
-        /**
-         * @property {String} 通道ID
-         */
-        chlId: {
-            type: String,
-            required: true,
+        data: {
+            type: Object as PropType<ChannelPtzPresetChlDto>,
+            default: () => new ChannelPtzPresetChlDto(),
         },
     },
     emits: {
@@ -59,8 +42,13 @@ export default defineComponent({
                             return
                         }
 
-                        if (prop.presets.map((item) => item.name).includes(value.trim())) {
+                        if (prop.data.presets.map((item) => item.name).includes(value.trim())) {
                             callback(new Error(Translate('IDCS_PROMPT_PRESET_NAME_OR_INDEX_EXIST')))
+                            return
+                        }
+
+                        if (!checkPresetName(value)) {
+                            callback(new Error(Translate('IDCS_CAN_NOT_CONTAIN_SPECIAL_CHAR').formatForLang(PRESET_LIMIT_CHAR)))
                             return
                         }
 
@@ -75,9 +63,9 @@ export default defineComponent({
          * @description 打开弹窗时，重置表单和选项数据
          */
         const open = () => {
-            const presetsIndex = prop.presets.map((item) => item.index)
+            const presetsIndex = prop.data.presets.map((item) => item.index)
             pageData.value.presetOptions = arrayToOptions(
-                Array(prop.max)
+                Array(prop.data.maxCount)
                     .fill(0)
                     .map((_, index) => {
                         return index + 1
@@ -104,8 +92,8 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <index>${formData.value.index}</index>
-                    <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
-                    <chlId>${prop.chlId}</chlId>
+                    <name>${wrapCDATA(formData.value.name)}</name>
+                    <chlId>${prop.data.chlId}</chlId>
                 </content>
             `
             const result = await createChlPreset(sendXml)
@@ -128,7 +116,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_PROMPT_PRESET_NAME_OR_INDEX_EXIST')
                         break
                     case ErrorCode.USER_ERROR_OVER_LIMIT:
-                        errorInfo = Translate('IDCS_PRESET_MAX_NUM')
+                        errorInfo = Translate('IDCS_PRESET_MAX_NUM').formatForLang(prop.data.maxCount)
                         break
                     case ErrorCode.USER_ERROR_NO_AUTH:
                         errorInfo = Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_NO_PERMISSION')

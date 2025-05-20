@@ -6,52 +6,6 @@
 <template>
     <div class="by-event">
         <div class="left">
-            <div class="event">
-                <el-checkbox
-                    :model-value="isEventAll"
-                    :label="Translate('IDCS_RECORD_TYPE')"
-                    @change="toggleAllEvent"
-                />
-                <el-popover popper-class="no-padding">
-                    <template #reference>
-                        <BaseImgSprite file="filterBtn" />
-                    </template>
-                    <div class="base-head-box">{{ Translate('IDCS_TARGET') }}</div>
-                    <el-checkbox-group
-                        v-model="formData.targets"
-                        class="event-target"
-                    >
-                        <el-checkbox
-                            v-for="item in pageData.targetOptions"
-                            :key="item.value"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-checkbox-group>
-                </el-popover>
-            </div>
-            <div class="event-box">
-                <div class="event-list">
-                    <div
-                        v-for="item in filterEvents"
-                        :key="item.value"
-                        class="event-item"
-                        @click="changeEvent(item.value)"
-                    >
-                        <el-tooltip :content="item.label">
-                            <BaseImgSprite
-                                :file="formData.events.includes(item.value) ? item.checked : item.unchecked"
-                                :chunk="4"
-                            />
-                        </el-tooltip>
-                    </div>
-                </div>
-                <el-input
-                    v-model="pageData.posKeyword"
-                    :disabled="!formData.events.includes('POS')"
-                    :placeholder="Translate('IDCS_POS_KEY')"
-                />
-            </div>
             <el-form
                 v-title
                 label-position="top"
@@ -59,6 +13,13 @@
                     '--form-input-width': '100%',
                 }"
             >
+                <el-form-item>
+                    <el-input
+                        v-model="formData.pos"
+                        :disabled="!enablePos"
+                        :placeholder="Translate('IDCS_POS_KEY')"
+                    />
+                </el-form-item>
                 <el-form-item :label="Translate('IDCS_START_TIME')">
                     <BaseDatePicker
                         v-model="formData.startTime"
@@ -110,6 +71,17 @@
         </div>
         <div class="main">
             <div class="center">
+                <div class="base-head-box">
+                    <span class="filter-title">{{ Translate('IDCS_EVENT_FILTER') }}</span>
+                    <BaseImgSprite
+                        file="filterBtn"
+                        :index="0"
+                        :hover-index="0"
+                        class="filter-btn"
+                        @click="openEventSelector"
+                    />
+                    <span class="filter-event text-ellipsis">{{ `( ${eventsStr} )` }}</span>
+                </div>
                 <div class="base-table-box">
                     <el-table
                         ref="tableRef"
@@ -237,6 +209,10 @@
             :play-list="pageData.playbackList"
             @close="pageData.isPlaybackPop = false"
         />
+        <RecordBaseEventSelector
+            ref="baseEventSelectorRef"
+            v-model="pageData.events"
+        />
     </div>
 </template>
 
@@ -286,7 +262,7 @@
     display: flex;
     flex-direction: column;
     height: var(--content-height);
-
+    padding-top: 14px;
     .el-form {
         flex-shrink: 0;
         margin-bottom: 0 !important;
@@ -334,6 +310,25 @@
     width: 100%;
     height: 100%;
     box-sizing: border-box;
+    .base-head-box {
+        height: 44px;
+        padding: 10px;
+        margin-bottom: 10px;
+        box-sizing: border-box;
+        background-color: transparent;
+        border: 1px solid var(--content-border);
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        font-weight: unset;
+        .filter-title,
+        .filter-event {
+            padding-top: 2px;
+        }
+        .filter-btn {
+            margin: 0px 10px;
+        }
+    }
 }
 
 .backup {

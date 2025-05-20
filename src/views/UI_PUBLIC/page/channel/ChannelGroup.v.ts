@@ -19,6 +19,10 @@ export default defineComponent({
         const router = useRouter()
         const { Translate } = useLangStore()
 
+        const pageData = ref({
+            dwellTimeList: [] as number[],
+        })
+
         const tableData = ref<ChannelGroupDto[]>([])
         const pageIndex = ref(1)
         const pageSize = ref(10)
@@ -54,7 +58,7 @@ export default defineComponent({
         }
 
         const formatDwellTime = (value: number) => {
-            return Translate('IDCS_STAY_TIME_D').formatForLang(getTranslateForSecond(value), '')
+            return Translate('IDCS_STAY_TIME_D').formatForLang(value, Translate('IDCS_SECONDS'))
         }
 
         const editChlGroup = (rowData: ChannelGroupDto) => {
@@ -137,15 +141,21 @@ export default defineComponent({
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
+                    pageData.value.dwellTimeList = $('content/itemType/dwellTimeNote')
+                        .text()
+                        .array()
+                        .map((item) => Number(item))
                     tableData.value = $('content/item').map((ele) => {
                         const $item = queryXml(ele.element)
                         const newData = new ChannelGroupDto()
                         newData.id = ele.attr('id')
+                        newData.nameMaxByteLen = $item('name').attr('maxByteLen').num() || nameByteMaxLen
                         newData.name = $item('name').text()
                         newData.dwellTime = $item('dwellTime').text().num()
                         newData.chlCount = $item('chlCount').text().num()
                         return newData
                     })
+
                     pageTotal.value = $('content').attr('total').num()
                 }
             })

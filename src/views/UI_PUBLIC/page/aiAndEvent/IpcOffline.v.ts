@@ -406,13 +406,13 @@ export default defineComponent({
                     <sysSnap>
                         <switch>${rowData.snap.switch}</switch>
                         <chls type="list">
-                            ${rowData.snap.chls.map((item) => `<item id="${item.value}">${wrapCDATA(item.label)}</item>`).join('')}
+                            ${rowData.snap.chls.map((item) => `<item id="${item.value}" />`).join('')}
                         </chls>
                     </sysSnap>
                     <alarmOut>
                         <switch>${rowData.alarmOut.switch}</switch>
                         <alarmOuts type="list">
-                            ${rowData.alarmOut.alarmOuts.map((item) => `<item id="${item.value}">${wrapCDATA(item.label)}</item>`).join('')}
+                            ${rowData.alarmOut.alarmOuts.map((item) => `<item id="${item.value}" />`).join('')}
                         </alarmOuts>
                     </alarmOut>
                     <preset>
@@ -424,8 +424,7 @@ export default defineComponent({
                                         return rawXml`
                                             <item>
                                                 <index>${item.index}</index>
-                                                <name>${wrapCDATA(item.name)}</name>
-                                                <chl id="${item.chl.value}">${wrapCDATA(item.chl.label)}</chl>
+                                                <chl id="${item.chl.value}" />
                                             </item>
                                         `
                                     }

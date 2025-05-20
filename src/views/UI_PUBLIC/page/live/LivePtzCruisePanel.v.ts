@@ -42,19 +42,15 @@ export default defineComponent({
     setup(prop) {
         const { Translate } = useLangStore()
 
-        const CRUISE_MAX_COUNT = 8
-
         const pageData = ref({
             // 是否显示增加选航线弹窗
             isAddPop: false,
-            // 巡航线最大数量
-            maxCount: CRUISE_MAX_COUNT,
             // 当前选中的选航线项索引
             active: 0,
         })
 
         // 列表数据
-        const listData = ref<ChannelPtzCruiseDto[]>([])
+        const formData = ref(new ChannelPtzCruiseChlDto())
 
         /**
          * @description 获取列表数据
@@ -69,12 +65,35 @@ export default defineComponent({
             const result = await queryChlCruiseList(sendXml)
             const $ = queryXml(result)
             if ($('status').text() === 'success' && chlId === prop.chlId) {
-                listData.value = $('content/cruises/item').map((item) => {
+                formData.value.chlId = chlId
+                formData.value.chlName = prop.chlName
+                formData.value.cruise = $('content/cruises/item').map((item) => {
                     return {
                         name: item.text(),
                         index: item.attr('index').num(),
+                        number: item.attr('number').num(),
                     }
                 })
+                formData.value.maxCount = $('content/cruises').attr('maxCount').num()
+                formData.value.cruiseCount = formData.value.cruise.length
+                formData.value.cruisePresetMinSpeed = $('type/cruisePresetMinSpeed').text().num()
+                formData.value.cruisePresetMaxSpeed = $('type/cruisePresetMaxSpeed').text().num()
+                formData.value.cruisePresetMinHoldTime = $('type/cruisePresetMinHoldTime').text().num()
+                formData.value.cruisePresetMaxHoldTime = $('type/cruisePresetMaxHoldTime').text().num()
+                formData.value.cruisePresetDefaultHoldTime = $('type/cruisePresetDefaultHoldTime').text().num()
+                formData.value.cruisePresetMaxCount = $('type/cruisePresetMaxCount').text().num()
+                formData.value.cruisePresetHoldTimeList = $('type/cruisePresetHoldTime')
+                    .text()
+                    .array()
+                    .map((item) => Number(item))
+                    .sort((a, b) => a - b)
+                    .map((item) => {
+                        return {
+                            label: item + getTranslateForSecond(item),
+                            value: item,
+                        }
+                    })
+                formData.value.cruiseNameMaxLen = $('cruises/itemType').attr('maxLen').num()
             }
         }
 
@@ -109,7 +128,7 @@ export default defineComponent({
          */
         const addCruise = () => {
             // 巡航线数量达到上限8个
-            if (listData.value.length >= CRUISE_MAX_COUNT) {
+            if (formData.value.cruise.length >= formData.value.maxCount) {
                 openMessageBox(Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
                 return
             }
@@ -137,7 +156,7 @@ export default defineComponent({
          * @description 请求播放巡航线
          */
         const playCruise = () => {
-            const item = listData.value[pageData.value.active]
+            const item = formData.value.cruise[pageData.value.active]
             if (!item) {
                 return
             }
@@ -182,7 +201,7 @@ export default defineComponent({
 
         return {
             pageData,
-            listData,
+            formData,
             deleteCruise,
             playCruise,
             stopCruise,

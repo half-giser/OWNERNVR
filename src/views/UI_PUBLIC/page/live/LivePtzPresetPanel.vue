@@ -7,7 +7,7 @@
     <div class="base-home-ptz">
         <BaseListBox>
             <BaseListBoxItem
-                v-for="(item, index) in listData"
+                v-for="(item, index) in formData.presets"
                 :key="item.index"
                 :class="{
                     active: pageData.active === index,
@@ -48,9 +48,7 @@
         </div>
         <ChannelPresetAddPop
             v-model="pageData.isAddPop"
-            :max="pageData.maxCount"
-            :presets="listData"
-            :chl-id="chlId"
+            :data="formData"
             @confirm="confirmAddPreset"
             @close="pageData.isAddPop = false"
         />

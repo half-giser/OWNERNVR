@@ -13,15 +13,15 @@
                     @message="notify"
                 />
             </div>
-            <div class="base-btn-box">
+            <div class="base-btn-box gap">
                 <el-button
-                    :disabled="formData.disabled"
-                    @click="editStatus = !editStatus"
+                    :disabled="formData.disabled || formData.mask.length >= formData.maxCount"
+                    @click="changeEditStatus(!editStatus)"
                 >
                     {{ editStatus ? Translate('IDCS_STOP_DRAW') : Translate('IDCS_DRAW_AREA') }}
                 </el-button>
                 <el-button
-                    :disabled="formData.disabled"
+                    :disabled="formData.disabled || !drawingArea.length"
                     @click="handleClearArea"
                 >
                     {{ Translate('IDCS_CLEAR_AREA') }}
@@ -29,7 +29,7 @@
             </div>
             <el-form
                 v-title
-                class="stripe"
+                class="stripe odd"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select-v2
@@ -38,22 +38,81 @@
                         @change="handleChlSel"
                     />
                 </el-form-item>
-                <el-form-item :label="Translate('IDCS_VIDEO_MASK')">
+                <el-form-item
+                    v-if="formData.isPtz"
+                    :label="Translate('IDCS_PRESET')"
+                >
                     <el-select-v2
-                        v-if="formData.isSpeco"
-                        model-value=""
-                        :options="[]"
-                        disabled
-                    />
-                    <el-select-v2
-                        v-else
-                        v-model="formData.switch"
+                        v-model="formData.preset"
                         :disabled="formData.disabled"
-                        :options="switchOptions"
-                        @change="handleChangeSwitch"
+                        :options="formData.presetList"
+                        @change="playPreset(formData.id, formData.preset, 4)"
+                    />
+                    <BaseImgSprite
+                        file="call"
+                        :index="1"
+                        :hover-index="1"
+                        :chunk="2"
                     />
                 </el-form-item>
+                <div class="base-btn-box">
+                    <el-button
+                        :disabled="formData.disabled"
+                        @click="addMask"
+                    >
+                        {{ Translate('IDCS_ADD') }}
+                    </el-button>
+                    <el-button
+                        :disabled="formData.disabled"
+                        @click="removeMask"
+                    >
+                        {{ Translate('IDCS_DELETE') }}
+                    </el-button>
+                </div>
             </el-form>
+
+            <div class="base-table-box">
+                <el-table
+                    ref="maskTableRef"
+                    v-title
+                    :data="formData.mask"
+                    show-overflow-tooltip
+                    highlight-current-row
+                    @row-click="handleSelectMask"
+                >
+                    <el-table-column
+                        :label="Translate('IDCS_VIDEO_MASK_AREA')"
+                        prop="areaIndex"
+                    />
+                    <el-table-column min-width="180">
+                        <template #header>
+                            <el-dropdown>
+                                <BaseTableDropdownLink>
+                                    {{ Translate('IDCS_ENABLE') }}
+                                </BaseTableDropdownLink>
+                                <template #dropdown>
+                                    <el-dropdown-menu>
+                                        <el-dropdown-item
+                                            v-for="item in switchOptions"
+                                            :key="item.label"
+                                            @click="changeAllMaskSwitch(item.value)"
+                                        >
+                                            {{ item.label }}
+                                        </el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </template>
+                            </el-dropdown>
+                        </template>
+                        <template #default="{ row }: TableColumn<ChannelPrivacyMaskDto>">
+                            <el-select-v2
+                                v-model="row.switch"
+                                :options="switchOptions"
+                                @change="changeMaskSwitch"
+                            />
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </div>
         </div>
         <div class="base-chl-box-right">
             <div class="base-table-box">
@@ -81,20 +140,17 @@
                         :label="Translate('IDCS_CHANNEL_NAME')"
                         min-width="180"
                     />
-                    <el-table-column
-                        :label="Translate('IDCS_VIDEO_MASK')"
-                        min-width="180"
-                    >
+                    <el-table-column min-width="180">
                         <template #header>
                             <el-dropdown>
                                 <BaseTableDropdownLink>
-                                    {{ Translate('IDCS_WATER_MARK') }}
+                                    {{ Translate('IDCS_ENABLE') }}
                                 </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item
                                             v-for="item in switchOptions"
-                                            :key="item.value"
+                                            :key="item.label"
                                             @click="changeSwitchAll(item.value)"
                                         >
                                             {{ item.label }}
@@ -105,12 +161,10 @@
                         </template>
                         <template #default="{ row }: TableColumn<ChannelMaskDto>">
                             <el-select-v2
-                                v-if="!row.isSpeco"
                                 v-model="row.switch"
-                                :disabled="row.disabled"
+                                :disabled="row.disabled || !row.mask.length"
                                 :options="switchOptions"
-                                @focus="handleRowClick(row)"
-                                @change="handleChangeSwitch()"
+                                @change="changeSwitch"
                             />
                         </template>
                     </el-table-column>
@@ -119,27 +173,10 @@
                         min-width="120"
                     >
                         <template #default="{ row }: TableColumn<ChannelMaskDto>">
-                            <span v-if="!row.isSpeco">{{ colorMap[row.color] }}</span>
+                            {{ colorMap[row.color] }}
                         </template>
                     </el-table-column>
                 </el-table>
-            </div>
-            <div class="base-pagination-box">
-                <BasePagination
-                    v-model:current-page="pageIndex"
-                    v-model:page-size="pageSize"
-                    :total="pageTotal"
-                    @size-change="getDataList"
-                    @current-change="getDataList"
-                />
-            </div>
-            <div class="base-btn-box">
-                <el-button
-                    :disabled="!editRows.size()"
-                    @click="save"
-                >
-                    {{ Translate('IDCS_APPLY') }}
-                </el-button>
             </div>
         </div>
     </div>

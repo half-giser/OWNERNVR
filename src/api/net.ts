@@ -377,3 +377,23 @@ export const editPlatformCfg = (data: string) => fetch('editPlatformCfg', data, 
  * @returns
  */
 export const queryPingCmdResult = (data: string) => fetch('queryPingCmdResult', data)
+
+/**
+ * @description
+ * @returns
+ */
+export const queryHTTPPostConfig = () => fetch('queryHTTPPostConfig', '')
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const testHTTPPost = (data: string) => fetch('testHTTPPost', data)
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const editHTTPPostConfig = (data: string) => fetch('editHTTPPostConfig', data)

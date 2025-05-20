@@ -8,6 +8,7 @@
         <BaseTab
             v-model="pageData.audioTab"
             :options="pageTabs"
+            @change="changeTab"
         />
         <!-- 摄像机声音 -->
         <div v-show="pageData.audioTab === 'ipcAudio'">
@@ -42,9 +43,10 @@
                                 label: 'name',
                                 disabled: 'none',
                             }"
+                            @change="changeAlarmOutChl"
                         />
                         <span
-                            v-show="alarmOutList[pageData.alarmOutIndex].disabled"
+                            v-show="alarmOutFormData.disabled"
                             class="state"
                         >
                             {{ Translate('IDCS_QUERY_DATA_FAIL').replace(/，/g, '') }}
@@ -53,33 +55,46 @@
                     <!-- 声音 -->
                     <el-form-item :label="Translate('IDCS_AUDIO')">
                         <el-checkbox
-                            v-model="alarmOutList[pageData.alarmOutIndex].audioSwitch"
-                            :disabled="alarmOutList[pageData.alarmOutIndex].disabled"
+                            v-model="alarmOutFormData.audioSwitch"
+                            :disabled="alarmOutFormData.disabled"
                             :label="Translate('IDCS_ENABLE')"
                         />
                     </el-form-item>
                     <!-- 语音 -->
                     <el-form-item :label="Translate('IDCS_ALERT_VOICE')">
                         <el-select-v2
-                            v-model="alarmOutList[pageData.alarmOutIndex].audioType"
-                            :disabled="alarmOutList[pageData.alarmOutIndex].disabled || !alarmOutList[pageData.alarmOutIndex].audioSwitch"
-                            :options="alarmOutList[pageData.alarmOutIndex].audioTypeList"
+                            v-if="alarmOutFormData.languageType !== 'customize'"
+                            v-model="alarmOutFormData.audioType"
+                            :disabled="alarmOutFormData.disabled || !alarmOutFormData.audioSwitch"
+                            :options="alarmOutFormData.audioTypeList[alarmOutFormData.languageType] || []"
+                        />
+                        <el-select-v2
+                            v-else-if="alarmOutFormData.customizeAudioType === 0"
+                            model-value=""
+                            :options="[]"
+                            :disabled="alarmOutFormData.disabled || !alarmOutFormData.audioSwitch"
+                        />
+                        <el-select-v2
+                            v-else
+                            v-model="alarmOutFormData.customizeAudioType"
+                            :disabled="alarmOutFormData.disabled || !alarmOutFormData.audioSwitch"
+                            :options="alarmOutFormData.audioTypeList.customize"
                         />
                         <div class="state">
                             <el-button
-                                :disabled="!alarmOutList[pageData.alarmOutIndex].audioSwitch"
+                                :disabled="!alarmOutFormData.audioSwitch || alarmOutFormData.languageType !== 'customize'"
                                 @click="addAudio"
                             >
                                 {{ Translate('IDCS_ADD') }}
                             </el-button>
                             <el-button
-                                :disabled="!alarmOutList[pageData.alarmOutIndex].audioSwitch || alarmOutList[pageData.alarmOutIndex].audioType < 100"
+                                :disabled="!alarmOutFormData.audioSwitch || alarmOutFormData.languageType !== 'customize' || !alarmOutFormData.audioTypeList.customize.length"
                                 @click="deleteAudio"
                             >
                                 {{ Translate('IDCS_DELETE') }}
                             </el-button>
                             <el-button
-                                :disabled="!alarmOutList[pageData.alarmOutIndex].audioSwitch"
+                                :disabled="!alarmOutFormData.audioSwitch"
                                 @click="listenAudio"
                             >
                                 {{ Translate('IDCS_AUDITION') }}
@@ -89,8 +104,8 @@
                     <!-- 次数 -->
                     <el-form-item :label="Translate('IDCS_TIMES')">
                         <BaseNumberInput
-                            v-model="alarmOutList[pageData.alarmOutIndex].alarmTimes"
-                            :disabled="!alarmOutList[pageData.alarmOutIndex].audioSwitch || alarmOutList[pageData.alarmOutIndex].alarmTimesDisabled"
+                            v-model="alarmOutFormData.alarmTimes"
+                            :disabled="!alarmOutFormData.audioSwitch || alarmOutFormData.alarmTimesDisabled"
                             :min="1"
                             :max="50"
                         />
@@ -98,8 +113,8 @@
                     <!-- 音量 -->
                     <el-form-item :label="Translate('IDCS_ALARM_VOLUME')">
                         <BaseNumberInput
-                            v-model="alarmOutList[pageData.alarmOutIndex].audioVolume"
-                            :disabled="!alarmOutList[pageData.alarmOutIndex].audioSwitch || alarmOutList[pageData.alarmOutIndex].audioVolumeDisabled"
+                            v-model="alarmOutFormData.audioVolume"
+                            :disabled="!alarmOutFormData.audioSwitch || alarmOutFormData.audioVolumeDisabled"
                             :min="0"
                             :max="100"
                             @change="changeAudioVolume"
@@ -108,11 +123,26 @@
                     <!-- 语言 -->
                     <el-form-item :label="Translate('IDCS_LANGUAGE')">
                         <el-select-v2
-                            v-model="alarmOutList[pageData.alarmOutIndex].languageType"
-                            :disabled="!alarmOutList[pageData.alarmOutIndex].audioSwitch || alarmOutList[pageData.alarmOutIndex].audioType >= 100"
-                            :options="alarmOutList[pageData.alarmOutIndex].langArr"
+                            v-model="alarmOutFormData.languageType"
+                            :disabled="!alarmOutFormData.audioSwitch || alarmOutFormData.audioType >= 100"
+                            :options="alarmOutFormData.langArr"
                         />
                     </el-form-item>
+                    <el-form-item :label="Translate('IDCS_SCHEDULE')">
+                        <BaseScheduleSelect
+                            v-model="alarmOutFormData.schedule"
+                            :options="pageData.scheduleList"
+                            @edit="pageData.isSchedulePop = true"
+                        />
+                    </el-form-item>
+                    <div class="base-btn-box">
+                        <el-button
+                            :disabled="editAlarmOutFormData.disabled.value"
+                            @click="setAlarmOutData"
+                        >
+                            {{ Translate('IDCS_APPLY') }}
+                        </el-button>
+                    </div>
                 </template>
                 <!-- 声音设备 -->
                 <template v-if="pageData.ipcAudioTab === 'audioDevice'">
@@ -121,117 +151,177 @@
                         <el-select-v2
                             v-model="pageData.deviceIndex"
                             :options="deviceList"
-                            :disabled="!deviceList.length || deviceList[pageData.deviceIndex].id === ''"
+                            :disabled="!deviceList.length || deviceFormData.id === ''"
                             :props="{
                                 value: 'index',
                                 label: 'name',
                                 disabled: 'none',
                             }"
+                            @change="changeDeviceChl"
                         />
-                        <span v-show="deviceList[pageData.deviceIndex].id && deviceList[pageData.deviceIndex].disabled">{{ Translate('IDCS_OFFLINE') }}</span>
+                        <span v-show="deviceFormData.id && deviceFormData.disabled">{{ Translate('IDCS_OFFLINE') }}</span>
                     </el-form-item>
                     <!-- 声音设备 -->
                     <el-form-item :label="Translate('IDCS_AUDIO_DEVICE')">
                         <el-checkbox
-                            v-model="deviceList[pageData.deviceIndex].audioInSwitch"
-                            :disabled="deviceList[pageData.deviceIndex].disabled"
+                            v-model="deviceFormData.audioInSwitch"
+                            :disabled="deviceFormData.disabled"
                             :label="Translate('IDCS_ENABLE')"
                         />
                     </el-form-item>
                     <!-- 音频输入设备 -->
                     <el-form-item :label="Translate('IDCS_DEVICE_AUDIO_IN')">
                         <el-select-v2
-                            v-model="deviceList[pageData.deviceIndex].audioInput"
-                            :options="deviceList[pageData.deviceIndex].audioInputType"
-                            :disabled="!deviceList[pageData.deviceIndex].audioInSwitch || !deviceList[pageData.deviceIndex].audioInput"
+                            v-model="deviceFormData.audioInput"
+                            :options="deviceFormData.audioInputType"
+                            :disabled="!deviceFormData.audioInSwitch || !deviceFormData.audioInput"
                         />
                     </el-form-item>
                     <!-- 音频输入音量 -->
                     <el-form-item :label="Translate('IDCS_IN_VOLUME')">
                         <BaseSliderInput
-                            v-if="deviceList[pageData.deviceIndex].audioInput === 'MIC'"
-                            v-model="deviceList[pageData.deviceIndex].micInVolume"
-                            :disabled="!deviceList[pageData.deviceIndex].audioInSwitch || !deviceList[pageData.deviceIndex].micOrLinEnabled"
-                            :max="deviceList[pageData.deviceIndex].micMaxValue"
+                            v-if="deviceFormData.audioInput === 'MIC'"
+                            v-model="deviceFormData.micInVolume"
+                            :disabled="!deviceFormData.audioInSwitch || !deviceFormData.micOrLinEnabled"
+                            :max="deviceFormData.micMaxValue"
                             :value-on-disabled="null"
                         />
                         <BaseSliderInput
                             v-else
-                            v-model="deviceList[pageData.deviceIndex].linInVolume"
-                            :disabled="!deviceList[pageData.deviceIndex].audioInSwitch || !deviceList[pageData.deviceIndex].micOrLinEnabled"
-                            :max="deviceList[pageData.deviceIndex].linMaxValue"
+                            v-model="deviceFormData.linInVolume"
+                            :disabled="!deviceFormData.audioInSwitch || !deviceFormData.micOrLinEnabled"
+                            :max="deviceFormData.linMaxValue"
                             :value-on-disabled="null"
                         />
                     </el-form-item>
                     <!-- 扬声器（内置） -->
                     <el-form-item :label="Translate('IDCS_DEVICE_SPEAKER_BUILT_IN')">
                         <el-select-v2
-                            v-model="deviceList[pageData.deviceIndex].loudSpeaker"
-                            :disabled="!deviceList[pageData.deviceIndex].audioInSwitch || !deviceList[pageData.deviceIndex].loudSpeaker"
-                            :options="deviceList[pageData.deviceIndex].audioOutputType"
+                            v-model="deviceFormData.loudSpeaker"
+                            :disabled="!deviceFormData.audioInSwitch || !deviceFormData.loudSpeaker || deviceFormData.audioOutputswitch"
+                            :options="deviceFormData.audioOutputType"
+                        />
+                        <el-checkbox
+                            v-show="deviceFormData.isSpeakerMutex"
+                            v-model="deviceFormData.loudSpeakerswitch"
+                            :disabled="!deviceFormData.audioInSwitch"
+                            @change="changeLoudSpeakerswitch"
                         />
                     </el-form-item>
                     <!-- LOUT（外置） -->
                     <el-form-item :label="Translate('IDCS_DEVICE_SPEAKER_LINE_OUT')">
                         <el-select-v2
-                            v-model="deviceList[pageData.deviceIndex].audioOutput"
-                            :options="deviceList[pageData.deviceIndex].audioOutputType"
-                            :disabled="!deviceList[pageData.deviceIndex].audioInSwitch || !deviceList[pageData.deviceIndex].audioOutput"
+                            v-model="deviceFormData.audioOutput"
+                            :options="deviceFormData.audioOutputType"
+                            :disabled="!deviceFormData.audioInSwitch || !deviceFormData.audioOutput || deviceFormData.loudSpeakerswitch"
+                        />
+                        <el-checkbox
+                            v-show="deviceFormData.isSpeakerMutex"
+                            v-model="deviceFormData.audioOutputswitch"
+                            :disabled="!deviceFormData.audioInSwitch"
+                            @change="changeAudioOutputswitch"
                         />
                     </el-form-item>
                     <!-- 音频输出音量 -->
                     <el-form-item :label="Translate('IDCS_AUDIO_OUT_VOLUME')">
                         <BaseSliderInput
-                            v-model="deviceList[pageData.deviceIndex].audioOutVolume"
-                            :disabled="!deviceList[pageData.deviceIndex].audioInSwitch || !deviceList[pageData.deviceIndex].audioOutEnabled"
-                            :max="deviceList[pageData.deviceIndex].audioOutMaxValue"
+                            v-model="deviceFormData.audioOutVolume"
+                            :disabled="!deviceFormData.audioInSwitch || !deviceFormData.audioOutEnabled"
+                            :max="deviceFormData.audioOutMaxValue"
                             :value-on-disabled="null"
                         />
                     </el-form-item>
                     <!-- 音频输入编码 -->
                     <el-form-item :label="Translate('IDCS_ENCODE_AUDIO_IN')">
                         <el-select-v2
-                            v-model="deviceList[pageData.deviceIndex].audioEncode"
-                            :options="deviceList[pageData.deviceIndex].audioEncodeType"
-                            :disabled="!deviceList[pageData.deviceIndex].audioInSwitch || !deviceList[pageData.deviceIndex].audioEncode"
+                            v-model="deviceFormData.audioEncode"
+                            :options="deviceFormData.audioEncodeType"
+                            :disabled="!deviceFormData.audioInSwitch || !deviceFormData.audioEncode"
                         />
                     </el-form-item>
+                    <el-form-item :label="Translate('IDCS_ENCODE_AUDIO_IN')">
+                        <el-select-v2
+                            v-model="deviceFormData.audioDenoise"
+                            :options="deviceFormData.audioDenoiseType"
+                            :disabled="!deviceFormData.audioInSwitch || !deviceFormData.audioDenoiseEnabled"
+                        />
+                    </el-form-item>
+                    <div class="base-btn-box">
+                        <el-button
+                            :disabled="editDeviceFormData.disabled.value"
+                            @click="setDeviceData"
+                        >
+                            {{ Translate('IDCS_APPLY') }}
+                        </el-button>
+                    </div>
                 </template>
-            </el-form>
-            <el-form v-title>
-                <!-- 排程 -->
-                <div class="base-head-box">{{ Translate('IDCS_AUDIO_LINK_SCHEDULE') }}</div>
-                <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                    <BaseScheduleSelect
-                        v-model="pageData.schedule"
-                        :options="pageData.scheduleList"
-                        @change="pageData.isScheduleChanged = true"
-                        @edit="pageData.isSchedulePop = true"
-                    />
-                </el-form-item>
-                <el-form-item>
-                    <span class="text-tips">*{{ Translate('IDCS_AUDIO_LINK_SCHEDULE_TIPS') }}</span>
-                </el-form-item>
-                <div class="base-btn-box">
-                    <el-button
-                        :disabled="btnDisabled"
-                        @click="setData"
-                    >
-                        {{ Translate('IDCS_APPLY') }}
-                    </el-button>
-                </div>
             </el-form>
         </div>
         <!-- 本地声音报警 -->
-        <div v-show="pageData.audioTab === 'nvrAudio'">
-            <div class="base-btn-box flex-start gap">{{ Translate('IDCS_FILE_LIST') }}</div>
+        <div v-show="pageData.audioTab === 'nvrAudio' || pageData.audioTab === 'ipSpeaker'">
+            <el-form
+                v-show="pageData.audioTab === 'nvrAudio'"
+                v-title
+                class="stripe"
+            >
+                <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
+                    <BaseScheduleSelect
+                        v-model="localFormData.audioSchedule"
+                        :options="pageData.scheduleList"
+                        @change="setLocalAudio"
+                        @edit="pageData.isSchedulePop = true"
+                    />
+                </el-form-item>
+                <el-form-item :label="Translate('IDCS_ALARM_VOLUME')">
+                    <BaseSliderInput
+                        v-model="localFormData.volume"
+                        :min="0"
+                        :max="100"
+                        @change="setLocalAudio"
+                    />
+                </el-form-item>
+                <div class="base-btn-box flex-start">{{ Translate('IDCS_FILE_LIST') }}</div>
+            </el-form>
+            <el-form
+                v-show="pageData.audioTab === 'ipSpeaker'"
+                v-title
+                class="stripe"
+            >
+                <el-form-item :label="Translate('IDCS_IPSPEAKER')">
+                    <el-select-v2
+                        v-model="pageData.ipSpeakerId"
+                        :options="ipSepeakerList"
+                        @change="changeIPSpeaker"
+                    />
+                    <span v-show="!ipSpeakerFormData.online">{{ Translate('IDCS_OFFLINE') }}</span>
+                </el-form-item>
+                <el-form-item :label="Translate('IDCS_AUDIO_OUT_VOLUME')">
+                    <BaseSliderInput
+                        v-model="ipSpeakerFormData.volume"
+                        :min="ipSpeakerFormData.volumeMin"
+                        :max="ipSpeakerFormData.volumeMax"
+                        :disabled="!ipSpeakerFormData.online"
+                        @change="setIpSpeakerVolume"
+                    />
+                </el-form-item>
+                <el-form-item :label="Translate('IDCS_SCHEDULE')">
+                    <BaseScheduleSelect
+                        v-model="ipSpeakerFormData.schedule"
+                        :options="pageData.scheduleList"
+                        :disabled="!ipSpeakerFormData.online"
+                        @change="setIpSpeakerSchedule"
+                        @edit="pageData.isSchedulePop = true"
+                    />
+                </el-form-item>
+                <div class="base-btn-box flex-start">{{ Translate('IDCS_FILE_LIST') }}</div>
+            </el-form>
             <div class="local">
                 <el-table
                     ref="localTableRef"
                     v-title
-                    :data="localList"
-                    highlight-current-row
+                    :data="localFormData.list"
                     @row-click="handleRowClick"
+                    @selection-change="handleSelectionChange"
                 >
                     <el-table-column
                         type="selection"
@@ -246,16 +336,31 @@
                 </el-table>
                 <div class="local-btns">
                     <el-button @click="addAudio">{{ Translate('IDCS_ADD') }}</el-button>
-                    <el-button @click="deleteLocalAudio">{{ Translate('IDCS_DELETE') }}</el-button>
+                    <el-button
+                        :disabled="!pageData.selectedLocalAudio.length"
+                        @click="deleteLocalAudio"
+                    >
+                        {{ Translate('IDCS_DELETE') }}
+                    </el-button>
+                    <el-button
+                        v-show="pageData.audioTab === 'ipSpeaker'"
+                        :disabled="pageData.selectedLocalAudio.length !== 1"
+                        @click="listenLocalAudio"
+                    >
+                        {{ Translate('IDCS_AUDITION') }}
+                    </el-button>
                 </div>
             </div>
         </div>
-        <!-- </el-tabs> -->
         <AudioUploadPop
             v-model="pageData.isImportAudioDialog"
             :type="pageData.audioTab"
-            :ipc-audio-chl="alarmOutList[pageData.alarmOutIndex].id"
-            :ipc-row-data="alarmOutList[pageData.alarmOutIndex]"
+            :ipc-data="alarmOutFormData"
+            :format="pageData.audioTab === 'ipcAudio' ? [alarmOutFormData.audioFormat] : localFormData.formatType"
+            :sample-rate="pageData.audioTab === 'ipcAudio' ? alarmOutFormData.sampleRate : ''"
+            :audio-depth="pageData.audioTab === 'ipcAudio' ? alarmOutFormData.audioDepth : '16bit'"
+            :audio-channel="pageData.audioTab === 'ipcAudio' ? alarmOutFormData.audioChannel : ''"
+            :file-limit-size="pageData.audioTab === 'ipcAudio' ? alarmOutFormData.audioFileLimitSize : 1.5 * 1024 * 1024"
             @apply="confirmAddAudio"
             @close="closeAddAudio"
         />
@@ -317,8 +422,8 @@
     margin-top: 10px;
 
     .el-table {
-        width: 450px;
-        height: 180px;
+        width: 415px;
+        height: 200px;
     }
 
     &-btns {

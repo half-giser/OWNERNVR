@@ -11,6 +11,10 @@ export default defineComponent({
             type: Object as PropType<ChannelGroupDto>,
             required: true,
         },
+        dwellTimeList: {
+            type: Array as PropType<number[]>,
+            default: () => [5, 10, 20, 30, 60, 120, 300, 600],
+        },
     },
     emits: {
         close() {
@@ -25,12 +29,14 @@ export default defineComponent({
 
         const formRef = useFormRef()
         const formData = ref(new ChannelGroupDto())
-        const timeList = [5, 10, 20, 30, 60, 120, 300, 600].map((value) => {
-            return {
-                label: getTranslateForSecond(value),
-                value,
-            }
-        })
+        // const timeList = [5, 10, 20, 30, 60, 120, 300, 600].map((value) => {
+        //     return {
+        //         label: value + Translate('IDCS_SECONDS'),
+        //         value,
+        //     }
+        // })
+
+        const timeList = ref<SelectOption<number, string>[]>([])
 
         const rules = ref<FormRules>({
             name: [
@@ -55,6 +61,18 @@ export default defineComponent({
 
         const opened = () => {
             formData.value = cloneDeep(props.editItem)
+            const dwellTimeList = props.dwellTimeList
+            if (!dwellTimeList.includes(formData.value.dwellTime)) {
+                dwellTimeList.push(formData.value.dwellTime)
+            }
+            timeList.value = dwellTimeList
+                .sort((a, b) => a - b)
+                .map((item) => {
+                    return {
+                        label: item + Translate('IDCS_SECONDS'),
+                        value: item,
+                    }
+                })
         }
 
         const verification = async () => {

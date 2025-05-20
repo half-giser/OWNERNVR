@@ -9,14 +9,24 @@
         :class="{ 'is-jumper': layout === 'jumper' }"
     >
         <template v-if="layout === 'pager'">
-            <div class="btn">
+            <div
+                class="btn"
+                :class="{
+                    disabled: currentPage <= 1,
+                }"
+            >
                 <BaseImgSpriteBtn
                     file="pageBtn-first"
                     :disabled="currentPage <= 1"
                     @click="firstPage"
                 />
             </div>
-            <div class="btn">
+            <div
+                class="btn"
+                :class="{
+                    disabled: currentPage <= 1,
+                }"
+            >
                 <BaseImgSpriteBtn
                     file="pageBtn-prev"
                     :disabled="currentPage <= 1"
@@ -31,14 +41,24 @@
                 @keyup.enter="keydownPage(inputNumber)"
             />
             <div class="page-info">{{ currentPage }} / {{ totalPage }}</div>
-            <div class="btn">
+            <div
+                class="btn"
+                :class="{
+                    disabled: currentPage >= totalPage,
+                }"
+            >
                 <BaseImgSpriteBtn
                     file="pageBtn-next"
                     :disabled="currentPage >= totalPage"
                     @click="nextPage"
                 />
             </div>
-            <div class="btn">
+            <div
+                class="btn"
+                :class="{
+                    disabled: currentPage >= totalPage,
+                }"
+            >
                 <BaseImgSpriteBtn
                     file="pageBtn-last"
                     :disabled="currentPage >= totalPage"
@@ -254,7 +274,7 @@ watch(
             border-color: var(--pagination-border-hover);
         }
 
-        &:has(.disabled) {
+        &.disabled {
             border-color: var(--pagination-border-disabled);
         }
     }

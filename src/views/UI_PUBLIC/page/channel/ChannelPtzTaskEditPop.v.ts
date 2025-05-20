@@ -8,22 +8,19 @@ import { type FormRules } from 'element-plus'
 export default defineComponent({
     props: {
         /**
-         * @property 通道ID
-         */
-        chlId: {
-            type: String,
-            required: true,
-        },
-        /**
          * @property 编辑的任务数据
          */
         data: {
             type: Object as PropType<ChannelPtzTaskDto>,
             required: true,
         },
+        row: {
+            type: Object as PropType<ChannelPtzTaskChlDto>,
+            default: new ChannelPtzTaskChlDto(),
+        },
     },
     emits: {
-        confirm(data: ChannelPtzTaskForm) {
+        confirm(data: ChannelPtzTaskDto) {
             return !!data
         },
         close() {
@@ -32,13 +29,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-
-        // 默认名称与显示文本的映射
-        const NAME_TRANS_MAPPING: Record<string, string> = {
-            No: Translate('IDCS_NO'),
-            'Random Scanning': Translate('IDCS_RANDOM_SCANNING'),
-            'Boundary Scanning': Translate('IDCS_BOUNDARY_SCANNING'),
-        }
 
         const pageData = ref({
             // 功能选项
@@ -68,27 +58,12 @@ export default defineComponent({
                     value: 'ASC',
                 },
             ],
-            // 名称选项
-            nameOptions: [] as SelectOption<string, string>[],
         })
 
         const formRef = useFormRef()
-        const formData = ref(new ChannelPtzTaskForm())
+        const formData = ref(new ChannelPtzTaskDto())
 
         const formRule = ref<FormRules>({
-            name: [
-                {
-                    validator: (_rule, value: string, callback) => {
-                        if (!value.trim()) {
-                            callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
-                            return
-                        }
-
-                        callback()
-                    },
-                    trigger: 'manual',
-                },
-            ],
             endTime: [
                 {
                     validator: (_rule, value: string, callback) => {
@@ -113,104 +88,47 @@ export default defineComponent({
             return Number(split[0]) * 3600 + Number(split[1]) * 60
         }
 
-        /**
-         * @description 获取预置点列表
-         * @param {String} chlId
-         */
-        const getPresetNameList = async (chlId: string) => {
-            const sendXml = rawXml`
-                <condition>
-                    <chlId>${chlId}</chlId>
-                </condition>
-            `
-            const result = await queryChlPresetList(sendXml)
-            const $ = queryXml(result)
-
-            pageData.value.nameOptions = $('content/presets/item').map((item) => {
-                return {
-                    value: item.attr('index'),
-                    label: item.text(),
-                }
-            })
-        }
-
-        /**
-         * @description 获取巡航线列表
-         * @param {string} chlId
-         */
-        const getCruiseNameList = async (chlId: string) => {
-            const sendXml = rawXml`
-                <condition>
-                    <chlId>${chlId}</chlId>
-                </condition>
-            `
-            const result = await queryChlCruiseList(sendXml)
-            const $ = queryXml(result)
-            pageData.value.nameOptions = $('content/cruises/item').map((item) => {
-                return {
-                    value: item.attr('index'),
-                    label: item.text(),
-                }
-            })
-        }
-
-        /**
-         * @description 获取轨迹列表
-         * @param {string} chlId
-         */
-        const getTraceNameList = async (chlId: string) => {
-            const sendXml = rawXml`
-                <condition>
-                    <chlId>${chlId}</chlId>
-                </condition>
-            `
-            const result = await queryLocalChlPtzTraceList(sendXml)
-            const $ = queryXml(result)
-            pageData.value.nameOptions = $('content/traces/item').map((item) => {
-                return {
-                    value: item.attr('index'),
-                    label: item.text(),
-                }
-            })
-        }
-
-        /**
-         * @description 获取名称选项
-         */
-        const getName = async () => {
-            const chlId = prop.chlId
-
-            if (formData.value.type === 'NON') {
-                pageData.value.nameOptions = [
-                    {
-                        label: NAME_TRANS_MAPPING.No,
-                        value: 'No',
-                    },
-                ]
-            } else if (formData.value.type === 'PRE') {
-                await getPresetNameList(chlId)
-            } else if (formData.value.type === 'CRU') {
-                await getCruiseNameList(chlId)
-            } else if (formData.value.type === 'TRA') {
-                await getTraceNameList(chlId)
-            } else if (formData.value.type === 'RSC') {
-                pageData.value.nameOptions = [
-                    {
-                        label: NAME_TRANS_MAPPING['Random Scanning'],
-                        value: 'Random Scanning',
-                    },
-                ]
-            } else if (formData.value.type === 'ASC') {
-                pageData.value.nameOptions = [
-                    {
-                        label: NAME_TRANS_MAPPING['Boundary Scanning'],
-                        value: 'Boundary Scanning',
-                    },
-                ]
+        const nameOption = computed(() => {
+            switch (formData.value.type) {
+                case 'PRE':
+                    return prop.row.presetList
+                case 'CRU':
+                    return prop.row.cruiseList
+                case 'TRA':
+                    return prop.row.traceList
+                case 'RSC':
+                    return [
+                        {
+                            value: 0,
+                            label: 'Random Scanning',
+                        },
+                    ]
+                case 'ASC':
+                    return [
+                        {
+                            value: 0,
+                            label: 'Boundary Scanning',
+                        },
+                    ]
+                default:
+                    return []
             }
+        })
 
-            if (pageData.value.nameOptions.length) {
-                formData.value.name = pageData.value.nameOptions[0].value
+        const getNumber = () => {
+            switch (formData.value.type) {
+                case 'PRE':
+                    return prop.row.preMin
+                case 'CRU':
+                    return prop.row.cruMin
+                case 'TRA':
+                    return prop.row.traMin
+                case 'RSC':
+                    return 0
+                case 'ASC':
+                    return 0
+                default:
+                    return 0
             }
         }
 
@@ -218,8 +136,7 @@ export default defineComponent({
          * @description 修改功能选项
          */
         const changeType = () => {
-            formData.value.name = ''
-            getName()
+            getNumber()
         }
 
         /**
@@ -240,8 +157,7 @@ export default defineComponent({
             formData.value.startTime = prop.data.startTime
             formData.value.endTime = prop.data.endTime
             formData.value.type = prop.data.type
-            await getName()
-            formData.value.name = prop.data.name
+            formData.value.editIndex = prop.data.editIndex
         }
 
         /**
@@ -260,6 +176,7 @@ export default defineComponent({
             verify,
             open,
             close,
+            nameOption,
         }
     },
 })

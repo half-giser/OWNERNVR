@@ -14,11 +14,21 @@
             </div>
             <ChannelPtzCtrlPanel
                 :chl-id="tableData[pageData.tableIndex]?.chlId || ''"
+                enable-ctrl
+                enable-focus
+                enable-iris
+                enable-speed
+                enable-zoom
+                :min-speed="tableData[pageData.tableIndex]?.minSpeed || 1"
+                :max-speed="tableData[pageData.tableIndex]?.maxSpeed || 1"
                 :disabled="!tableData.length"
             />
             <el-form
+                ref="formRef"
                 v-title
                 class="stripe"
+                :rules
+                :model="formData"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select-v2
@@ -44,7 +54,10 @@
                         :height="170"
                     />
                     <el-tooltip :content="Translate('IDCS_TRACK_PLAY')">
-                        <div class="base-chl-icon-btn">
+                        <div
+                            class="base-chl-icon-btn"
+                            :class="{ disabled: !traceOptions.length }"
+                        >
                             <BaseImgSpriteBtn
                                 file="play"
                                 :disabled="!traceOptions.length"
@@ -53,7 +66,10 @@
                         </div>
                     </el-tooltip>
                     <el-tooltip :content="Translate('IDCS_TRACK_STOP')">
-                        <div class="base-chl-icon-btn">
+                        <div
+                            class="base-chl-icon-btn"
+                            :class="{ disabled: !tableData.length }"
+                        >
                             <BaseImgSpriteBtn
                                 file="stop"
                                 :disabled="!tableData.length"
@@ -62,15 +78,20 @@
                         </div>
                     </el-tooltip>
                 </el-form-item>
-                <el-form-item :label="Translate('IDCS_TRACE_NAME')">
-                    <el-input
+                <el-form-item
+                    :label="Translate('IDCS_TRACE_NAME')"
+                    prop="name"
+                >
+                    <BaseTextInput
                         v-model="formData.name"
                         :disabled="!traceOptions.length"
-                        :formatter="formatInputMaxLength"
-                        :parser="formatInputMaxLength"
+                        :maxlength="tableData[pageData.tableIndex]?.nameMaxLen || 10"
                     />
                     <el-tooltip :content="Translate('IDCS_SAVE_CHANGE')">
-                        <div class="base-chl-icon-btn">
+                        <div
+                            class="base-chl-icon-btn"
+                            :class="{ disabled: !formData.name.trim() || !traceOptions.length }"
+                        >
                             <BaseImgSpriteBtn
                                 file="save"
                                 :disabled="!formData.name.trim() || !traceOptions.length"
@@ -107,7 +128,7 @@
                         {{ Translate('IDCS_STOP_RECORD') }}
                     </el-button>
                     <p
-                        v-show="pageData.recordTime >= 0 && pageData.recordTime < pageData.maxRecordTime"
+                        v-show="pageData.recordTime >= 0 && pageData.recordTime < (tableData[pageData.tableIndex]?.traceMaxHoldTime || 180)"
                         class="seconds"
                     >
                         {{ pageData.recordTime }}
@@ -151,9 +172,7 @@
         </div>
         <ChannelTraceAddPop
             v-model="pageData.isAddPop"
-            :max="pageData.addTraceMax"
-            :trace="pageData.addTrace"
-            :chl-id="pageData.addChlId"
+            :data="pageData.addData"
             @confirm="confirmAddTrace"
             @close="pageData.isAddPop = false"
         />

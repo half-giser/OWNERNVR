@@ -3,7 +3,7 @@
  * @Date: 2024-08-20 18:26:51
  * @Description: 云台-预置点
  */
-import { type TableInstance } from 'element-plus'
+import { type FormRules, type TableInstance } from 'element-plus'
 import ChannelPtzCtrlPanel from './ChannelPtzCtrlPanel.vue'
 import ChannelPresetAddPop from './ChannelPresetAddPop.vue'
 import ChannelPtzTableExpandPanel from './ChannelPtzTableExpandPanel.vue'
@@ -29,12 +29,9 @@ export default defineComponent({
             expandRowKey: [] as string[],
             // 是否显示新增弹窗
             isAddPop: false,
-            // 最大预置点数
-            addPresetMax: 128,
-            // 预置点列表
-            addPresets: [] as ChannelPtzPresetDto[],
             // 通道ID
             addChlId: '',
+            addData: new ChannelPtzPresetChlDto(),
             // 速度
             speed: 4,
         })
@@ -51,11 +48,39 @@ export default defineComponent({
             })
         })
 
+        const formRef = useFormRef()
+
         const formData = ref({
             // 预置点名称
             name: '',
             // 预置点索引
             presetIndex: '' as string | number,
+        })
+
+        const rules = ref<FormRules>({
+            name: [
+                {
+                    validator(_rule, value: string, callback) {
+                        if (tableData.value[pageData.value.tableIndex].presets.some((item) => item.name === value)) {
+                            callback(new Error(Translate('IDCS_PROMPT_PRESET_NAME_EXIST')))
+                            return
+                        }
+
+                        if (!value.trim()) {
+                            callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
+                            return
+                        }
+
+                        if (!checkPresetName(value)) {
+                            callback(new Error(Translate('IDCS_CAN_NOT_CONTAIN_SPECIAL_CHAR').formatForLang(PRESET_LIMIT_CHAR)))
+                            return
+                        }
+
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
         })
 
         const ready = computed(() => {
@@ -122,15 +147,20 @@ export default defineComponent({
             closeLoading()
 
             if ($('status').text() === 'success') {
-                tableData.value[index].presets = $('content/presets/item').map((item) => {
-                    // const $item = queryXml(item.element)
-                    return {
-                        index: item.attr('index').num(),
-                        name: item.text(),
-                    }
-                })
+                tableData.value[index].presets = $('content/presets/item')
+                    .map((item) => {
+                        // const $item = queryXml(item.element)
+                        return {
+                            index: item.attr('index').num(),
+                            name: item.text(),
+                        }
+                    })
+                    .sort((a, b) => a.index - b.index)
                 tableData.value[index].presetCount = tableData.value[index].presets.length
-                tableData.value[index].maxCount = $('content/presets').attr('maxCount').num()
+                tableData.value[index].maxCount = $('content/presets').attr('maxCount').num() // 可配置的最大预置点数
+                tableData.value[index].nameMaxByteLen = $('content/presets/itemType').attr('maxByteLen').num() || nameByteMaxLen
+            } else {
+                tableData.value[index].disabled = true
             }
         }
 
@@ -143,29 +173,46 @@ export default defineComponent({
             const result = await getChlList({
                 pageIndex: 1,
                 pageSize: 999,
-                requireField: ['presetCount'],
-                isSupportPtz: true,
+                requireField: ['supportAZ', 'supportIris', 'supportPtz', 'supportIntegratedPtz'],
             })
             const $ = queryXml(result)
 
             closeLoading()
 
             if ($('status').text() === 'success') {
-                tableData.value = $('content/item')
-                    .filter((item) => {
-                        const $item = queryXml(item.element)
-                        return (auth.value.hasAll || auth.value.ptz[item.attr('id')]) && $item('chlType').text() !== 'recorder'
-                    })
-                    .map((item) => {
-                        const $item = queryXml(item.element)
-                        return {
-                            chlId: item.attr('id'),
-                            chlName: $item('name').text(),
-                            presetCount: $item('presetCount').text().num(),
-                            presets: [],
-                            maxCount: Infinity,
+                $('content/item').forEach((item) => {
+                    const $item = queryXml(item.element)
+                    if (auth.value.hasAll || auth.value.ptz[item.attr('id')]) {
+                        // 云台权限控制
+                        // supportAZ：新增；支持zoom控制（变倍、聚焦）；支持IPC：支持AZ的IPC，第三方协议添加的IPC;
+                        // supportIris：新增；支持zoom控制（光圈）；支持IPC：支持AZ的IPC，第三方协议添加的IPC;
+                        // supportPtz：修改；支持zoom控制（变倍），ptz云台转动，预置点，巡航线；支持IPC：鱼眼PTZ通道，第三方协议添加的IPC;
+                        // supportIntegratedPtz：新增；支持ptz云台转动，zoom控制（变倍、聚焦、光圈），预置点，巡航线，巡航线组，轨迹，ptz任务，看守位;
+                        const supportAZ = $item('supportAZ').text().bool()
+                        const supportIris = $item('supportIris').text().bool()
+                        const supportPtz = $item('supportPtz').text().bool()
+                        const minSpeed = $item('supportPtz').attr('MinPtzCtrlSpeed').num()
+                        const maxSpeed = $item('supportPtz').attr('MaxPtzCtrlSpeed').num()
+                        const supportIntegratedPtz = $item('supportIntegratedPtz').text().bool()
+                        if ($item('chlType').text() !== 'recorder' && (supportPtz || supportIntegratedPtz)) {
+                            tableData.value.push({
+                                chlId: item.attr('id'),
+                                chlName: $item('name').text(),
+                                presetCount: $item('presetCount').text().num(),
+                                presets: [],
+                                maxCount: Infinity,
+                                nameMaxByteLen: 63,
+                                disabled: false,
+                                supportPtz,
+                                supportAZ,
+                                supportIris,
+                                minSpeed,
+                                maxSpeed,
+                                supportIntegratedPtz,
+                            })
                         }
-                    })
+                    }
+                })
             }
         }
 
@@ -276,9 +323,8 @@ export default defineComponent({
                 openMessageBox(Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
                 return
             }
-            pageData.value.addPresetMax = current.maxCount
-            pageData.value.addPresets = current.presets
             pageData.value.addChlId = current.chlId
+            pageData.value.addData = current
             pageData.value.isAddPop = true
         }
 
@@ -329,36 +375,40 @@ export default defineComponent({
         /**
          * @description 修改预置点名称
          */
-        const saveName = async () => {
-            openLoading()
+        const saveName = () => {
+            formRef.value?.validate(async (valid) => {
+                if (valid) {
+                    openLoading()
 
-            const sendXml = rawXml`
-                <content>
-                    <chlId>${tableData.value[pageData.value.tableIndex].chlId}</chlId>
-                    <index>${currentPreset.value.index}</index>
-                    <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
-                </content>
-            `
-            const result = await editChlPreset(sendXml)
-            const $ = queryXml(result)
+                    const sendXml = rawXml`
+                        <content>
+                            <chlId>${tableData.value[pageData.value.tableIndex].chlId}</chlId>
+                            <index>${currentPreset.value.index}</index>
+                            <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
+                        </content>
+                    `
+                    const result = await editChlPreset(sendXml)
+                    const $ = queryXml(result)
 
-            closeLoading()
+                    closeLoading()
 
-            if ($('status').text() === 'success') {
-                openMessageBox({
-                    type: 'success',
-                    message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                }).finally(() => {
-                    tableData.value[pageData.value.tableIndex].presets[formData.value.presetIndex as number].name = formData.value.name
-                })
-            } else {
-                const errorCode = $('errorCode').text().num()
-                if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
-                    openMessageBox(Translate('IDCS_PROMPT_PRESET_NAME_EXIST'))
-                } else {
-                    openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
+                    if ($('status').text() === 'success') {
+                        openMessageBox({
+                            type: 'success',
+                            message: Translate('IDCS_SAVE_DATA_SUCCESS'),
+                        }).finally(() => {
+                            tableData.value[pageData.value.tableIndex].presets[formData.value.presetIndex as number].name = formData.value.name
+                        })
+                    } else {
+                        const errorCode = $('errorCode').text().num()
+                        if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
+                            openMessageBox(Translate('IDCS_PROMPT_PRESET_NAME_EXIST'))
+                        } else {
+                            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
+                        }
+                    }
                 }
-            }
+            })
         }
 
         /**
@@ -425,6 +475,8 @@ export default defineComponent({
         return {
             playerRef,
             tableRef,
+            formRef,
+            rules,
             handlePlayerReady,
             pageData,
             tableData,

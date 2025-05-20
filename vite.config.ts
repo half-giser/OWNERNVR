@@ -96,7 +96,8 @@ export default defineConfig(({ mode }) => {
                               }),
                               PostCssPresetEnv({
                                   // 此处配置为:has的最低支持版本
-                                  browsers: ['Chrome >= 105', 'Firefox >= 121', 'Edge >= 105', 'Safari >= 15.4'],
+                                  // browsers: ['Chrome >= 105', 'Firefox >= 121', 'Edge >= 105', 'Safari >= 15.4'],
+                                  browsers: ['Chrome >= 87', 'Firefox >= 78', 'Edge >= 88', 'Safari >= 14'],
                               }),
                           ],
                 ),
@@ -239,8 +240,8 @@ export default defineConfig(({ mode }) => {
             assetsInlineLimit: 0,
             cssCodeSplit: false,
             minify: 'esbuild',
-            // target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14']
-            target: ['chrome105', 'edge105', 'firefox121', 'safari15.4'],
+            target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
+            // target: ['chrome105', 'edge105', 'firefox121', 'safari15.4'],
             // 设置 source map 选项
             sourcemap: false,
             chunkSizeWarningLimit: 1024,

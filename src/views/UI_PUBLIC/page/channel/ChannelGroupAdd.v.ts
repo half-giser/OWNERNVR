@@ -33,12 +33,13 @@ export default defineComponent({
         const baseLivePopRef = ref<LivePopInstance>()
         const tableData = ref<ChannelInfoDto[]>([])
         const selNum = ref(0)
-        const timeList = [5, 10, 20, 30, 60, 120, 300, 600].map((value) => {
-            return {
-                label: getTranslateForSecond(value),
-                value,
-            }
-        })
+        const timeList = ref<SelectOption<number, string>[]>([])
+        // [5, 10, 20, 30, 60, 120, 300, 600].map((value) => {
+        //     return {
+        //         label: getTranslateForSecond(value),
+        //         value,
+        //     }
+        // })
         const chlGroupCountLimit = 16 // 通道组个数上限
 
         const handleRowClick = (rowData: ChannelInfoDto) => {
@@ -142,7 +143,7 @@ export default defineComponent({
             }
         }
 
-        const getData = () => {
+        const getData = async () => {
             const data = rawXml`
                 <requireField>
                     <name/>
@@ -150,30 +151,49 @@ export default defineComponent({
                     <chlIndex/>
                     <chlType/>
                 </requireField>`
-            openLoading()
-            queryDevList(data).then((res) => {
-                closeLoading()
-                const $ = queryXml(res)
-                if ($('status').text() === 'success') {
-                    tableData.value = $('content/item').map((ele) => {
-                        const $item = queryXml(ele.element)
-                        const newData = new ChannelInfoDto()
-                        newData.id = ele.attr('id')
-                        newData.chlIndex = $item('chlIndex').text()
-                        newData.chlType = $item('chlType').text()
-                        newData.name = $item('name').text()
-                        newData.ip = $item('ip').text()
-                        newData.addType = $item('addType').text()
-                        return newData
-                    })
-                }
-            })
+            const result = await queryDevList(data)
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/item').map((ele) => {
+                    const $item = queryXml(ele.element)
+                    const newData = new ChannelInfoDto()
+                    newData.id = ele.attr('id')
+                    newData.chlIndex = $item('chlIndex').text().num()
+                    newData.chlType = $item('chlType').text()
+                    newData.name = $item('name').text()
+                    newData.ip = $item('ip').text()
+                    newData.addType = $item('addType').text()
+                    return newData
+                })
+            }
         }
 
-        onMounted(() => {
+        const getChlGroup = async () => {
+            const result = await queryChlGroupList('')
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                timeList.value = $('content/itemType/dwellTimeNote')
+                    .text()
+                    .array()
+                    .map((item) => Number(item))
+                    .sort((a, b) => a - b)
+                    .map((item) => {
+                        return {
+                            label: item + Translate('IDCS_SECONDS'),
+                            value: item,
+                        }
+                    })
+                formData.value.nameMaxByteLen = $('content/itemType/name').attr('maxByteLen').num() || nameByteMaxLen
+            }
+        }
+
+        onMounted(async () => {
             formData.value = new ChannelGroupDto()
             formData.value.dwellTime = 60
-            getData()
+            openLoading()
+            await getChlGroup()
+            await getData()
+            closeLoading()
         })
 
         return {
