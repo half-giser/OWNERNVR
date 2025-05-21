@@ -4,7 +4,12 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  */
 export default defineComponent({
-    setup() {
+    emits: {
+        trigger() {
+            return true
+        },
+    },
+    setup(_prop, ctx) {
         const pageData = ref({
             isRS485Pop: false,
             name: '',
@@ -35,6 +40,13 @@ export default defineComponent({
                 }
             })
         }
+
+        watch(
+            () => pageData.value.isRS485Pop,
+            () => {
+                ctx.emit('trigger')
+            },
+        )
 
         onMounted(() => {
             getData()

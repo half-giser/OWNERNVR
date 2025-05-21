@@ -17,6 +17,9 @@ export default defineComponent({
         updateSupportAz(bool: boolean) {
             return typeof bool === 'boolean'
         },
+        trigger() {
+            return true
+        },
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
@@ -39,6 +42,8 @@ export default defineComponent({
          * @param {string} cmd
          */
         const addCmd = (cmd: string) => {
+            ctx.emit('trigger')
+
             if (!prop.winData.chlID) {
                 return
             }

@@ -32,7 +32,12 @@ export default defineComponent({
             required: true,
         },
     },
-    setup(prop) {
+    emits: {
+        trigger() {
+            return true
+        },
+    },
+    setup(prop, ctx) {
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
 
@@ -138,6 +143,7 @@ export default defineComponent({
          * @param {number} index
          */
         const playCurrentCruiseGroup = (index: number) => {
+            ctx.emit('trigger')
             pageData.value.active = index
             playCruiseGroup()
         }
@@ -169,6 +175,7 @@ export default defineComponent({
          * @description 停止播放巡航线组
          */
         const stopCruiseGroup = () => {
+            ctx.emit('trigger')
             if (prop.chlId) {
                 const sendXml = rawXml`
                     <content>

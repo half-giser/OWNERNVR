@@ -13,7 +13,7 @@
                     :key="`${seg.type}_${seg.split}`"
                     :file="`seg_${seg.split}`"
                     :active="seg.split === split"
-                    @click="$emit('update:split', seg.split, seg.type)"
+                    @click="$emit('trigger'), $emit('update:split', seg.split, seg.type)"
                 />
             </template>
             <template v-else-if="mode === 'ocx'">
@@ -56,19 +56,21 @@
                 file="OSD"
                 :title="osd ? Translate('IDCS_OSD_CLOSE') : Translate('IDCS_OSD_OPEN')"
                 :active="osd"
-                @click="$emit('update:osd', !osd)"
+                @click="$emit('trigger'), $emit('update:osd', !osd)"
             />
             <!-- 目标检测 -->
             <BaseImgSpriteBtn
                 v-if="systemCaps.supportREID"
                 file="target_retrieval"
                 :title="Translate('IDCS_REID')"
+                :active="detectTarget"
+                @click="$emit('update:detectTarget', !detectTarget)"
             />
             <!-- 全屏按钮 -->
             <BaseImgSpriteBtn
                 file="full_screen"
                 :title="Translate('IDCS_FULLSCREEN')"
-                @click="$emit('fullscreen')"
+                @click="$emit('trigger'), $emit('fullscreen')"
             />
             <!-- 码流切换按钮 -->
             <el-radio-group
@@ -86,19 +88,22 @@
             </el-radio-group>
         </div>
         <div class="ctrl-right">
-            <LiveScreenRS485Pop v-if="systemCaps.supportRS485" />
-            <LiveScreenAlarmOutPop />
+            <LiveScreenRS485Pop
+                v-if="systemCaps.supportRS485"
+                @trigger="$emit('trigger')"
+            />
+            <LiveScreenAlarmOutPop @trigger="$emit('trigger')" />
             <!-- 关闭/开启图像 -->
             <BaseImgSpriteBtn
                 :file="preview ? 'close_all_chl' : 'open_all_chl'"
                 :title="preview ? Translate('IDCS_CLOSE_ALL_IMAGE') : Translate('IDCS_PREVIEW_ALL')"
-                @click="$emit('update:preview', !preview)"
+                @click="$emit('trigger'), $emit('update:preview', !preview)"
             />
             <!-- 本地录像 -->
             <BaseImgSpriteBtn
                 :file="clientRecord ? 'stop_rec_all_chl' : 'start_rec_all_chl'"
                 :title="clientRecord ? Translate('IDCS_CLIENT_RECORD_ALL_OFF') : Translate('IDCS_CLIENT_RECORD_ALL_ON')"
-                @click="$emit('update:clientRecord', !clientRecord)"
+                @click="$emit('trigger'), $emit('update:clientRecord', !clientRecord)"
             />
             <!-- 远程录像 -->
             <BaseImgSpriteBtn
@@ -112,7 +117,7 @@
                 v-show="isTalk"
                 :file="talk ? 'stop_talk' : 'start_talk'"
                 :title="talk ? Translate('IDCS_TALKBACK_OFF') : Translate('IDCS_TALKBACK_ON')"
-                @click="$emit('update:talk', !talk)"
+                @click="$emit('trigger'), $emit('update:talk', !talk)"
             />
         </div>
     </div>

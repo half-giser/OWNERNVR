@@ -39,7 +39,12 @@ export default defineComponent({
             required: true,
         },
     },
-    setup(prop) {
+    emits: {
+        trigger() {
+            return true
+        },
+    },
+    setup(prop, ctx) {
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
 
@@ -114,6 +119,7 @@ export default defineComponent({
          * @param {number} index
          */
         const playCurrentTrace = (index: number) => {
+            ctx.emit('trigger')
             pageData.value.active = index
             playTrace()
         }
@@ -144,6 +150,7 @@ export default defineComponent({
          * @description 停止播放轨迹
          */
         const stopTrace = async () => {
+            ctx.emit('trigger')
             if (prop.chlId) {
                 const sendXml = rawXml`
                     <content>
@@ -217,6 +224,7 @@ export default defineComponent({
          * @description 开始录像
          */
         const startRecord = async () => {
+            ctx.emit('trigger')
             const index = pageData.value.active
             const item = formData.value.trace[pageData.value.active]
             if (!item) {
@@ -269,6 +277,7 @@ export default defineComponent({
          * @param {number} index
          */
         const stopRecord = async (index: number) => {
+            ctx.emit('trigger')
             const item = formData.value.trace[index]
             if (!item) {
                 return
