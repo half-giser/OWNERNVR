@@ -407,6 +407,15 @@ export class IntelSearchVehicleForm {
 }
 
 /**
+ * @description 车牌颜色列表项
+ */
+export class IntelPlateColorList {
+    value = ''
+    label = ''
+    selected = false
+}
+
+/**
  * @description 组合搜索 表单
  */
 export class IntelSearchCombineForm {

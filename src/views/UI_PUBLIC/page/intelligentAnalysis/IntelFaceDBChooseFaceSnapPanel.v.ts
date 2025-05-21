@@ -177,11 +177,11 @@ export default defineComponent({
                         const index = $item('index').text()
                         const searchByImageIndex = $item('index').text()
                         const chlId = $item('chlID').text()
-                        const timestamp = Number($item('timestamp').text()) * 1000
+                        const timestamp = $item('timestamp').text().num() * 1000
                         const calTimeS = $item('calTimeS').text()
                         const calTimeNS = $item('calTimeNS').text()
                         const frameTime = localToUtc(calTimeS) + ':' + calTimeNS
-                        const imgId = Number($item('targetID').text())
+                        const imgId = $item('targetID').text().num()
                         return {
                             index,
                             searchByImageIndex,
