@@ -25,6 +25,9 @@ export default defineComponent({
         fishEyeMode(type: string, mode: string) {
             return typeof type === 'string' && typeof mode === 'string'
         },
+        trigger() {
+            return true
+        },
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
@@ -259,6 +262,7 @@ export default defineComponent({
                 installType,
                 fishEyeMode: NO_ADJUST_VALUE,
             }
+            ctx.emit('trigger')
             ctx.emit('fishEyeMode', installType, NO_ADJUST_VALUE)
             pageData.value.fishEyeingId = ''
         }
@@ -277,6 +281,7 @@ export default defineComponent({
                 return
             }
             pageData.value.fishEyeMode = fishEyeMode
+            ctx.emit('trigger')
             ctx.emit('fishEyeMode', pageData.value.installType, fishEyeMode)
 
             fishEyeMap.value[prop.winData.chlID] = {
@@ -307,6 +312,7 @@ export default defineComponent({
                 }
             }
 
+            ctx.emit('trigger')
             ctx.emit('fishEyeMode', 'TOP', NO_ADJUST_VALUE)
         }
 

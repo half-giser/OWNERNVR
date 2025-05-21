@@ -843,6 +843,10 @@ input[type='number'] {
         }
     }
 
+    &.align-item-center {
+        align-items: center;
+    }
+
     &.center {
         justify-content: center;
     }

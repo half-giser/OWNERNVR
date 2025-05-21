@@ -92,6 +92,9 @@ export default defineComponent({
         talk(bool: boolean) {
             return typeof bool === 'boolean'
         },
+        trigger() {
+            return true
+        },
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
@@ -235,6 +238,7 @@ export default defineComponent({
          * @param {Boolean} bool
          */
         const localRecord = (bool: boolean) => {
+            ctx.emit('trigger')
             ctx.emit('localRecord', bool)
         }
 
@@ -255,6 +259,7 @@ export default defineComponent({
                 </content>
             `
             await editManualRecord(sendXml)
+            ctx.emit('trigger')
             ctx.emit('remoteRecord', bool)
         }
 
@@ -463,6 +468,8 @@ export default defineComponent({
             if (streamTypeDisabled.value && pageData.value.isRTSP && type === 1) {
                 return
             }
+
+            ctx.emit('trigger')
             ctx.emit('streamType', type as number)
         }
 
@@ -594,6 +601,8 @@ export default defineComponent({
             if (audioDisabled.value) {
                 return
             }
+
+            ctx.emit('trigger')
             ctx.emit('volume', num)
         }
 
@@ -605,6 +614,8 @@ export default defineComponent({
             if (audioDisabled.value) {
                 return
             }
+
+            ctx.emit('trigger')
             ctx.emit('audio', !bool)
         }
 
@@ -620,10 +631,12 @@ export default defineComponent({
         })
 
         const runWiper = () => {
+            ctx.emit('trigger')
             setWiper('WiperOn')
         }
 
         const stopWiper = () => {
+            ctx.emit('trigger')
             setWiper('WiperOff')
         }
 

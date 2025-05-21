@@ -49,8 +49,6 @@
                     <BaseImgSprite :file="item.icon" />
                     <span>{{ item.value }}</span>
                 </li>
-                <!-- <div>{{ data.chlName }}</div>
-                <div>{{ displayTime(data.detect_time) }}</div> -->
             </ul>
         </div>
         <div class="item-bottom">

@@ -815,7 +815,7 @@ export default defineComponent({
                     ${row.addrType === 'domain' ? (checkIpV4(row.domain) ? `<ip>${row.domain}</ip>` : `<domain>${wrapCDATA(row.domain)}</domain>`) : ''}
                     <port>${row.port}</port>
                     <userName>${wrapCDATA(row.userName)}</userName>
-                    ${row.password && row.password !== '******' ? `<password type='string' encryptType='md5' maxLen='63'${getSecurityVer()}>${wrapCDATA(AES_encrypt(row.password, userSession.sesionKey))}</password>` : ''}
+                    ${row.password && row.password !== '******' ? `<password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(row.password, userSession.sesionKey))}</password>` : ''}
                 </content>
             `
             const result = await queryLanDevice(sendXml)
@@ -917,7 +917,6 @@ export default defineComponent({
                     // 返回“fail”，代表“普通单目IPC”
                     item.industryProductType = 'NORMAL'
                     item.errorMsg = ErrorCodeMap[errorCode] ? ErrorCodeMap[errorCode] : Translate('IDCS_UNKNOWN_ERROR_CODE') + errorCode
-
                     const find = quickAddTableData.value.find((element) => element.ip === item.ip)
                     if (find) {
                         item.channelNumber = find.channelNumber
@@ -950,7 +949,7 @@ export default defineComponent({
                     thermalChlData.push(item)
                 }
                 // 鱼眼
-                else if (item.channelNumber) {
+                else if (item.channelNumber > 1) {
                     const addedChannelNumbers = resArr.filter((item) => item.chlIndex).map((item) => item.chlIndex)
                     for (let i = 0; i < item.channelNumber; i++) {
                         item.multiChlList.push({
@@ -1091,6 +1090,7 @@ export default defineComponent({
                         ${item.addrType === 'domain' ? (checkIpV4(item.domain) ? `<ip>${item.domain}</ip>` : `<domain>${wrapCDATA(item.domain)}</domain>`) : ''}
                         <port>0</port>
                         <userName>${wrapCDATA(item.userName)}</userName>
+                        <password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(item.password, userSession.sesionKey))}</password>
                         <index>${chlIndex}</index>
                         <channelId>${chlNum}</channelId>
                         <manufacturer>RTSP_${manufacturerID}</manufacturer>
@@ -1121,6 +1121,7 @@ export default defineComponent({
                         ${item.addrType === 'domain' ? (checkIpV4(item.domain) ? `<ip>${item.domain}</ip>` : `<domain>${wrapCDATA(item.domain)}</domain>`) : ''}
                         <port>${item.port}</port>
                         <userName>${wrapCDATA(item.userName)}</userName>
+                        <password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(item.password, userSession.sesionKey))}</password>
                         <index>${chlIndex}</index>
                         <channelId>${chlNum}</channelId>
                         <manufacturer>${manufacturer}</manufacturer>
