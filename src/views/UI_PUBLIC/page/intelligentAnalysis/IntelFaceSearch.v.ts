@@ -292,7 +292,7 @@ export default defineComponent({
             return (
                 faceType === 'group' ||
                 (faceType === 'face' && formData.value.featureFace.length > 1) ||
-                (faceType === 'snap' && formData.value.snapFace.length > 1) ||
+                (faceType === 'snap' && (formData.value.snapFace.length > 1 || formData.value.snapBody.length > 1)) ||
                 (faceType === 'import' && formData.value.importFace.length > 1)
             )
         })
