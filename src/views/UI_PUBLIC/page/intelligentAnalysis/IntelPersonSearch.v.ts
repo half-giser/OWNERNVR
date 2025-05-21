@@ -1,7 +1,7 @@
 /*
  * @Author: zhangdongming zhangdongming@tvt.net.cn
  * @Date: 2025-05-20 10:30:00
- * @Description: 智能分析-车（汽车、摩托车/单车、车牌号）
+ * @Description: 智能分析-人（人脸、人体、人属性）
  */
 import IntelBaseDateTimeSelector from './IntelBaseDateTimeSelector.vue'
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
@@ -20,29 +20,29 @@ export default defineComponent({
         const dateTime = useDateTimeStore()
         // key对应界面tab类型，value对应协议需要下发的searchType字段
         const SEARCH_TYPE_MAPPING: Record<string, string> = {
-            byCar: 'byVehicle',
-            byMotorcycle: 'byNonMotorizedVehicle',
-            byPlateNumber: 'byPlate',
+            byFace: 'byHumanFacePic',
+            byBody: 'byHumanBodyPic',
+            byPersonAttribute: 'byHumanBody',
         }
         // 通道ID与通道名称的映射
         let chlIdNameMap: Record<string, string> = {}
 
         const pageData = ref({
-            // 搜索类型（byCar/byMotorcycle/byPlateNumber）
-            searchType: 'byCar',
+            // 搜索类型（byFace/byBody/byPersonAttribute）
+            searchType: 'byFace',
             // 搜索选项
             searchOptions: [
                 {
-                    label: Translate('IDCS_DETECTION_VEHICLE'),
-                    value: 'byCar',
+                    label: Translate('IDCS_FACE'),
+                    value: 'byFace',
                 },
                 {
-                    label: Translate('IDCS_NON_VEHICLE'),
-                    value: 'byMotorcycle',
+                    label: Translate('IDCS_FIGURE'),
+                    value: 'byBody',
                 },
                 {
-                    label: Translate('IDCS_LICENSE_PLATE_NUM'),
-                    value: 'byPlateNumber',
+                    label: Translate('IDCS_ATTRIBUTE'),
+                    value: 'byPersonAttribute',
                 },
             ],
             // 列表类型 （抓拍/原图）
@@ -71,33 +71,29 @@ export default defineComponent({
             dateRange: [0, 0] as [number, number],
             // 选择的通道ID列表
             chlIdList: [] as string[],
-            // 选择的属性列表（汽车）
-            attributeForCar: {} as Record<string, Record<string, number[]>>,
-            // 选择的属性列表（摩托车/单车）
-            attributeForMotorcycle: {} as Record<string, Record<string, number[]>>,
-            // 填写的车牌号
-            plateNumber: '',
-            // 分页器（汽车）
-            pageIndexForCar: 1,
-            pageSizeForCar: 12,
-            // 分页器（摩托车/单车）
-            pageIndexForMotorcycle: 1,
-            pageSizeForMotorcycle: 12,
-            // 分页器（车牌号）
-            pageIndexForPlateNumber: 1,
-            pageSizeForPlateNumber: 12,
-            // 列表数据（汽车）
-            targetIndexDatasForCar: [] as IntelTargetIndexItem[],
-            // 列表数据（摩托车/单车）
-            targetIndexDatasForMotorcycle: [] as IntelTargetIndexItem[],
-            // 列表数据（车牌号）
-            targetIndexDatasForPlateNumber: [] as IntelTargetIndexItem[],
-            // 详情数据（汽车）
-            targetDatasForCar: [] as IntelTargetDataItem[],
-            // 详情数据（摩托车/单车）
-            targetDatasForMotorcycle: [] as IntelTargetDataItem[],
-            // 详情数据（车牌号）
-            targetDatasForPlateNumber: [] as IntelTargetDataItem[],
+            // 选择的属性列表（人属性）
+            attributeForPersonAttribute: {} as Record<string, Record<string, number[]>>,
+            // 分页器（人脸）
+            pageIndexForFace: 1,
+            pageSizeForFace: 12,
+            // 分页器（人体）
+            pageIndexForBody: 1,
+            pageSizeForBody: 12,
+            // 分页器（人属性）
+            pageIndexForPersonAttribute: 1,
+            pageSizeForPersonAttribute: 12,
+            // 列表数据（人脸）
+            targetIndexDatasForFace: [] as IntelTargetIndexItem[],
+            // 列表数据（人体）
+            targetIndexDatasForBody: [] as IntelTargetIndexItem[],
+            // 列表数据（人属性）
+            targetIndexDatasForPersonAttribute: [] as IntelTargetIndexItem[],
+            // 详情数据（人脸）
+            targetDatasForFace: [] as IntelTargetDataItem[],
+            // 详情数据（人体）
+            targetDatasForBody: [] as IntelTargetDataItem[],
+            // 详情数据（人属性）
+            targetDatasForPersonAttribute: [] as IntelTargetDataItem[],
             // 是否打开详情
             isDetailOpen: false,
             // 是否支持备份（H5模式）
@@ -379,14 +375,14 @@ export default defineComponent({
                 // 设置当前界面展示的列表详情数据
                 sliceTargetDatas.value = cloneDeep(tempTargetDatas)
                 switch (pageData.value.searchType) {
-                    case 'byCar':
-                        pageData.value.targetDatasForCar = cloneDeep(tempTargetDatas)
+                    case 'byFace':
+                        pageData.value.targetDatasForFace = cloneDeep(tempTargetDatas)
                         break
-                    case 'byMotorcycle':
-                        pageData.value.targetDatasForMotorcycle = cloneDeep(tempTargetDatas)
+                    case 'byBody':
+                        pageData.value.targetDatasForBody = cloneDeep(tempTargetDatas)
                         break
-                    case 'byPlateNumber':
-                        pageData.value.targetDatasForPlateNumber = cloneDeep(tempTargetDatas)
+                    case 'byPersonAttribute':
+                        pageData.value.targetDatasForPersonAttribute = cloneDeep(tempTargetDatas)
                         break
                     default:
                         break
@@ -399,12 +395,12 @@ export default defineComponent({
          */
         const getCurrTargetDatas = () => {
             switch (pageData.value.searchType) {
-                case 'byCar':
-                    return pageData.value.targetDatasForCar
-                case 'byMotorcycle':
-                    return pageData.value.targetDatasForMotorcycle
-                case 'byPlateNumber':
-                    return pageData.value.targetDatasForPlateNumber
+                case 'byFace':
+                    return pageData.value.targetDatasForFace
+                case 'byBody':
+                    return pageData.value.targetDatasForBody
+                case 'byPersonAttribute':
+                    return pageData.value.targetDatasForPersonAttribute
                 default:
                     return []
             }
@@ -415,14 +411,14 @@ export default defineComponent({
          */
         const setCurrTargetIndexDatas = (targetIndexDatas: IntelTargetIndexItem[]) => {
             switch (pageData.value.searchType) {
-                case 'byCar':
-                    pageData.value.targetIndexDatasForCar = targetIndexDatas
+                case 'byFace':
+                    pageData.value.targetIndexDatasForFace = targetIndexDatas
                     break
-                case 'byMotorcycle':
-                    pageData.value.targetIndexDatasForMotorcycle = targetIndexDatas
+                case 'byBody':
+                    pageData.value.targetIndexDatasForBody = targetIndexDatas
                     break
-                case 'byPlateNumber':
-                    pageData.value.targetIndexDatasForPlateNumber = targetIndexDatas
+                case 'byPersonAttribute':
+                    pageData.value.targetIndexDatasForPersonAttribute = targetIndexDatas
                     break
                 default:
                     break
@@ -434,12 +430,12 @@ export default defineComponent({
          */
         const getCurrTargetIndexDatas = () => {
             switch (pageData.value.searchType) {
-                case 'byCar':
-                    return pageData.value.targetIndexDatasForCar
-                case 'byMotorcycle':
-                    return pageData.value.targetIndexDatasForMotorcycle
-                case 'byPlateNumber':
-                    return pageData.value.targetIndexDatasForPlateNumber
+                case 'byFace':
+                    return pageData.value.targetIndexDatasForFace
+                case 'byBody':
+                    return pageData.value.targetIndexDatasForBody
+                case 'byPersonAttribute':
+                    return pageData.value.targetIndexDatasForPersonAttribute
                 default:
                     return []
             }
@@ -450,14 +446,14 @@ export default defineComponent({
          */
         const setCurrPageIndex = (pageIndex: number) => {
             switch (pageData.value.searchType) {
-                case 'byCar':
-                    pageData.value.pageIndexForCar = pageIndex
+                case 'byFace':
+                    pageData.value.pageIndexForFace = pageIndex
                     break
-                case 'byMotorcycle':
-                    pageData.value.pageIndexForMotorcycle = pageIndex
+                case 'byBody':
+                    pageData.value.pageIndexForBody = pageIndex
                     break
-                case 'byPlateNumber':
-                    pageData.value.pageIndexForPlateNumber = pageIndex
+                case 'byPersonAttribute':
+                    pageData.value.pageIndexForPersonAttribute = pageIndex
                     break
                 default:
                     break
@@ -469,12 +465,12 @@ export default defineComponent({
          */
         const getCurrPageIndex = () => {
             switch (pageData.value.searchType) {
-                case 'byCar':
-                    return pageData.value.pageIndexForCar
-                case 'byMotorcycle':
-                    return pageData.value.pageIndexForMotorcycle
-                case 'byPlateNumber':
-                    return pageData.value.pageIndexForPlateNumber
+                case 'byFace':
+                    return pageData.value.pageIndexForFace
+                case 'byBody':
+                    return pageData.value.pageIndexForBody
+                case 'byPersonAttribute':
+                    return pageData.value.pageIndexForPersonAttribute
                 default:
                     return 1
             }
@@ -485,12 +481,12 @@ export default defineComponent({
          */
         const getCurrPageSize = () => {
             switch (pageData.value.searchType) {
-                case 'byCar':
-                    return pageData.value.pageSizeForCar
-                case 'byMotorcycle':
-                    return pageData.value.pageSizeForMotorcycle
-                case 'byPlateNumber':
-                    return pageData.value.pageSizeForPlateNumber
+                case 'byFace':
+                    return pageData.value.pageSizeForFace
+                case 'byBody':
+                    return pageData.value.pageSizeForBody
+                case 'byPersonAttribute':
+                    return pageData.value.pageSizeForPersonAttribute
                 default:
                     return 1
             }

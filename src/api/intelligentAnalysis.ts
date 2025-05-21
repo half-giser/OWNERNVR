@@ -195,3 +195,17 @@ export const searchImageByImageV2 = (data: string) => fetch('searchImageByImageV
  * @returns
  */
 export const requestSmartTargetSnapImage = (data: string) => fetch('requestSmartTargetSnapImage', data)
+
+/**
+ * @description 智能搜索 - 1.4.13新增，部分业务代替了searchSmartTarget
+ * @param {string} data
+ * @returns
+ */
+export const searchTargetIndex = (data: string) => fetch('searchTargetIndex', data)
+
+/**
+ * @description 智能搜索 - 1.4.13新增，部分业务代替了requestSmartTargetSnapImage
+ * @param {string} data
+ * @returns
+ */
+export const requestTargetData = (data: string) => fetch('requestTargetData', data)

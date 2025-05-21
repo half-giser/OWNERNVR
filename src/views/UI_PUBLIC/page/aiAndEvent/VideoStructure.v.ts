@@ -26,7 +26,7 @@ export default defineComponent({
             notSupport: false,
             // 声音列表
             voiceList: [] as SelectOption<string, string>[],
-            tab: 'param',
+            tab: '',
         })
 
         const chlData = computed(() => {

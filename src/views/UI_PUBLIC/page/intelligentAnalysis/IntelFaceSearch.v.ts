@@ -184,9 +184,12 @@ export default defineComponent({
             searchType: 'event',
             eventType: 'byAll',
             identityFlag: false,
+            // 打开人脸/人体选择弹窗的类型
+            openType: 'byFace',
             face: '',
             faceType: '',
             snapFace: [] as IntelFaceDBSnapFaceList[],
+            snapBody: [] as IntelBodyDBSnapBodyList[],
             featureFace: [] as IntelFaceDBFaceInfo[],
             featureFaceGroup: [] as IntelFaceDBGroupList[],
             importFace: [] as IntelFaceDBImportFaceDto[],
@@ -289,7 +292,7 @@ export default defineComponent({
             return (
                 faceType === 'group' ||
                 (faceType === 'face' && formData.value.featureFace.length > 1) ||
-                (faceType === 'snap' && formData.value.snapFace.length > 1) ||
+                (faceType === 'snap' && (formData.value.snapFace.length > 1 || formData.value.snapBody.length > 1)) ||
                 (faceType === 'import' && formData.value.importFace.length > 1)
             )
         })
@@ -307,7 +310,7 @@ export default defineComponent({
             }
 
             if (faceType === 'snap') {
-                return formData.value.snapFace[0]?.pic || ''
+                return formData.value.snapFace[0]?.pic || formData.value.snapBody[0]?.pic || ''
             }
 
             if (faceType === 'import') {
@@ -383,12 +386,13 @@ export default defineComponent({
         }
 
         /**
-         * @description 清除选中的人脸数据
+         * @description 清除选中的人脸和人体数据
          */
-        const resetFaceData = () => {
+        const resetSelectedData = () => {
             formData.value.featureFace = []
             formData.value.featureFaceGroup = []
             formData.value.snapFace = []
+            formData.value.snapBody = []
             formData.value.importFace = []
             formData.value.face = ''
         }
@@ -397,11 +401,25 @@ export default defineComponent({
          * @description 选择抓拍库人脸数据
          * @param {IntelFaceDBSnapFaceList[]} e
          */
-        const changeSnap = (e: IntelFaceDBSnapFaceList[]) => {
-            resetFaceData()
+        const changeFaceSnap = (e: IntelFaceDBSnapFaceList[]) => {
+            resetSelectedData()
             pageData.value.searchType = 'face'
             formData.value.face = 'snap'
             formData.value.snapFace = e
+            setTimeout(() => {
+                getData()
+            }, 300)
+        }
+
+        /**
+         * @description 选择抓拍库人体数据
+         * @param {IntelFaceDBSnapFaceList[]} e
+         */
+        const changeBodySnap = (e: IntelBodyDBSnapBodyList[]) => {
+            resetSelectedData()
+            pageData.value.searchType = 'face'
+            formData.value.face = 'snap'
+            formData.value.snapBody = e
             setTimeout(() => {
                 getData()
             }, 300)
@@ -412,7 +430,7 @@ export default defineComponent({
          * @param {IntelFaceDBFaceInfo[]} e
          */
         const changeFace = (e: IntelFaceDBFaceInfo[], shouldAddToCache = true) => {
-            resetFaceData()
+            resetSelectedData()
             if (shouldAddToCache) {
                 e.forEach((item) => {
                     cacheInfo.set(item.id, { ...item })
@@ -430,7 +448,7 @@ export default defineComponent({
          * @param {IntelFaceDBGroupList[]} e
          */
         const changeFaceGroup = (e: IntelFaceDBGroupList[]) => {
-            resetFaceData()
+            resetSelectedData()
             formData.value.face = 'group'
             formData.value.featureFaceGroup = e
             setTimeout(() => {
@@ -443,7 +461,7 @@ export default defineComponent({
          * @param {IntelFaceDBImportFaceDto[]} e
          */
         const changeImportFace = (e: IntelFaceDBImportFaceDto[]) => {
-            resetFaceData()
+            resetSelectedData()
             formData.value.face = 'import'
             formData.value.importFace = e
             setTimeout(() => {
@@ -1224,7 +1242,7 @@ export default defineComponent({
         const searchSnap = (row: IntelSnapPopList | IntelFaceMatchPopList) => {
             pageData.value.isDetailPop = false
             pageData.value.isMatchPop = false
-            changeSnap([
+            changeFaceSnap([
                 {
                     timestamp: row.timestamp,
                     frameTime: row.frameTime,
@@ -1431,7 +1449,7 @@ export default defineComponent({
                     item.imgId = history.state.imgId
                     item.frameTime = history.state.frameTime
                     item.pic = history.state.pic
-                    changeSnap([item])
+                    changeFaceSnap([item])
                     delete history.state.picType
                     delete history.state.chlId
                     delete history.state.imgId
@@ -1488,11 +1506,12 @@ export default defineComponent({
             isChartOptionVisible,
             isTrackVisible,
             isIdentityVisible,
-            changeSnap,
+            changeFaceSnap,
+            changeBodySnap,
             changeFace,
             changeFaceGroup,
             changeImportFace,
-            resetFaceData,
+            resetSelectedData,
             isMultiFacePic,
             isFaceInfo,
             formFacePic,

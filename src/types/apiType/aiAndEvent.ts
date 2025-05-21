@@ -528,6 +528,23 @@ export class AlarmVideoMetaDto extends AlarmOnlineChlDto {
 }
 
 /**
+ * @description: AI事件——事件启用通道
+ */
+export class AlarmIntelligentModeDto extends AlarmOnlineChlDto {
+    supportInvokeEventTypeConfig = false
+}
+
+/**
+ * @description: AI事件——事件启用——事件类型
+ *   事件名称、提示文本、icon文件名
+ */
+export class AlarmIntelligentModeEventTypeDto {
+    event = ''
+    title = ''
+    iconFile = ''
+}
+
+/**
  * @description AI资源表格项
  */
 export class AlarmAIResourceDto {

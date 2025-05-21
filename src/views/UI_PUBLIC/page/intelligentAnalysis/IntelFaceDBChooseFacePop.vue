@@ -30,6 +30,7 @@
                 <IntelFaceDBChooseFaceSnapPanel
                     v-if="type !== 'import'"
                     v-show="pageData.type === 'snap'"
+                    :search-type="pageData.openType"
                     @change="chooseSnap"
                 />
                 <IntelFaceDBChooseFaceImportPanel

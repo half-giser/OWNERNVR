@@ -55,8 +55,7 @@
                 border: msgBorder,
             }"
         >
-            <span>{{ displayTip }}</span>
-            <span :dir="data.type === 'vehicle_plate' ? getTextDir() : 'ltr'">{{ displayMsg }}</span>
+            <span>{{ displayMsg }}</span>
         </div>
     </div>
 </template>

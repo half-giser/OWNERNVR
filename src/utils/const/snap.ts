@@ -209,6 +209,23 @@ export const PLATE_COLOR_MAP: Record<number, string> = {
     11: 'IDCS_GREY',
 }
 
+export const PLATE_COLOR_SELECT_MAP: Record<string, string> = {
+    red: 'IDCS_RED',
+    orange: 'IDCS_ORANGE',
+    yellow: 'IDCS_YELLOW',
+    green: 'IDCS_GREEN',
+    blue: 'IDCS_BLUE',
+    cyan: 'IDCS_CYAN',
+    purple: 'IDCS_PURPLE',
+    black: 'IDCS_BLACK',
+    white: 'IDCS_WHITE',
+    silver: 'IDCS_SILVER',
+    gray: 'IDCS_GRAY',
+    gold: 'IDCS_GOLD',
+    brown: 'IDCS_BROWN',
+    greenbalck: 'IDCS_COLOR_GREEN_BLACK',
+}
+
 export type SnapMapping = {
     type: string
     name: string

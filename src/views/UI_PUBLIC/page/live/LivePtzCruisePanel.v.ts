@@ -39,7 +39,12 @@ export default defineComponent({
             required: true,
         },
     },
-    setup(prop) {
+    emits: {
+        trigger() {
+            return true
+        },
+    },
+    setup(prop, ctx) {
         const { Translate } = useLangStore()
 
         const pageData = ref({
@@ -148,6 +153,7 @@ export default defineComponent({
          * @param {number} value
          */
         const playCurrentCruise = (value: number) => {
+            ctx.emit('trigger')
             pageData.value.active = value
             playCruise()
         }
@@ -177,6 +183,7 @@ export default defineComponent({
          * @description 停止播放巡航线
          */
         const stopCruise = () => {
+            ctx.emit('trigger')
             if (prop.chlId) {
                 const sendXml = rawXml`
                     <content>

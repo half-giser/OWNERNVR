@@ -24,19 +24,19 @@
                         {{ item.label }}
                     </div>
                 </div>
-                <div>
+                <!-- <div>
                     <div
                         :class="{ active: 'current' === pageData.type }"
                         @click="changeType('current')"
                     >
                         {{ Translate('IDCS_SELECTED_ITEMS') }}
                     </div>
-                </div>
+                </div> -->
             </div>
             <div class="choose-right">
                 <IntelFaceDBChooseFaceFacePanel
                     v-show="pageData.type === 'face'"
-                    :visible="modelValue"
+                    :visible="pageData.isFaceOpen"
                     multiple
                     @change="chooseFace"
                     @change-group="chooseFaceGroup"
@@ -44,16 +44,17 @@
                 <IntelFaceDBChooseFaceSnapPanel
                     v-show="pageData.type === 'snap'"
                     :visible="modelValue"
+                    :search-type="pageData.openType"
                     multiple
                     @change="chooseSnap"
                 />
-                <IntelFaceDBChooseFaceImportPanel
+                <!-- <IntelFaceDBChooseFaceImportPanel
                     v-show="pageData.type === 'import'"
                     :limit="5"
                     type="search"
                     @change="importImg"
-                />
-                <div v-show="pageData.type === 'current'">
+                /> -->
+                <!-- <div v-show="pageData.type === 'current'">
                     <div
                         v-if="type !== 'group'"
                         class="current"
@@ -61,7 +62,7 @@
                         <el-scrollbar class="current-scroll">
                             <div class="current-list">
                                 <IntelBaseFaceItem
-                                    v-for="item in snap"
+                                    v-for="item in snapFace"
                                     :key="item.frameTime"
                                     type="status"
                                     :src="item.pic"
@@ -118,12 +119,12 @@
                             />
                         </el-table>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
         <div class="base-btn-box">
             <el-button
-                v-show="pageData.type !== 'import'"
+                v-show="pageData.type !== 'import' && pageData.openType !== 'byBody'"
                 :disabled="pageData.type !== 'face'"
                 @click="confirmGroup"
             >

@@ -5,7 +5,10 @@
 -->
 <template>
     <el-dropdown :disabled>
-        <BaseTableDropdownLink>
+        <BaseTableDropdownLink
+            :need-drop-down-tips="showDropDownTips"
+            :title="dropDownTips"
+        >
             {{ label ? label : Translate('IDCS_SCHEDULE') }}
         </BaseTableDropdownLink>
         <template #dropdown>

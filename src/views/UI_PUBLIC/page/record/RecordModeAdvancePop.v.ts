@@ -13,6 +13,10 @@ export default defineComponent({
             type: String,
             required: true,
         },
+        advanceRecModeAllEvents: {
+            type: Boolean,
+            required: true,
+        },
     },
     emits: {
         confirm(e: string[]) {
@@ -27,6 +31,10 @@ export default defineComponent({
             // 选中当前生效的高级模式的时间
             if (prop.advanceRecModeId) {
                 selectedEvents.value = prop.advanceRecModeId.split('_')
+            }
+
+            if (prop.advanceRecModeAllEvents && !selectedEvents.value.includes('INTELLIGENT')) {
+                selectedEvents.value.push('INTELLIGENT')
             }
         }
 

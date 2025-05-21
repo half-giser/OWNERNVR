@@ -2831,7 +2831,10 @@ const snap = (winIndex: number, fileName: string) => {
 /**
  * 抓图-获取base64
  */
-const getSnapBase64 = async (winIndex: number) => {
+const getSnapBase64 = async (winIndex?: number) => {
+    if (typeof winIndex === 'undefined') {
+        winIndex = getSelectedWinIndex()
+    }
     const canvas = getSnapCanvas(winIndex)
     const dataURL = canvas.toDataURL('image/jpg', 1)
     return dataURL.split(',').pop()!
