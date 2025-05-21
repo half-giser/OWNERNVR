@@ -549,3 +549,159 @@ export class IntelFaceTrackMapList {
     imgId = ''
     frameTime = ''
 }
+
+/**
+ * @description 智能搜索 - 索引数据列表项
+ */
+export class IntelTargetIndexItem {
+    index = ''
+    targetID = ''
+    targetType = ''
+    chlID = ''
+    channelName = ''
+    timeStamp = 0
+    timeStampUTC = ''
+    timeStamp100ns = ''
+    quality = ''
+    similarity = ''
+    eventType = ''
+    libIndex = ''
+    startTime = 0
+    startTimeUTC = ''
+    endTime = 0
+    endTimeUTC = ''
+}
+
+/**
+ * @description 智能搜索 - 详情数据
+ */
+export class IntelTargetDataItem extends IntelTargetIndexItem {
+    selected? = false
+    isNoData = false
+    isDelete = false
+    targetID = ''
+    featureStatus = ''
+    supportRegister = ''
+    targetType = ''
+    timeStamp = 0 // 这一帧的时间戳
+    timeStampLocal = '' // 这一帧的本地时间戳文字表达
+    timeStampUTC = '' // 这一帧的UTC时间戳文字表达
+    startTime = 0 // 目标开始时间戳
+    startTimeLocal = '' // 目标开始本地时间戳文字表达
+    startTimeUTC = '' // 目标开始UTC时间戳文字表达
+    endTime = 0 // 目标消失的时间戳
+    endTimeLocal = '' // 目标消失的本地时间戳文字表达
+    endTimeUTC = '' // 目标消失的UTC时间戳文字表达
+    objPicData = {} as IntelObjPicDataItem // 抓拍图信息
+    backgroundPicDatas = [] as IntelBackgroundPicDataList[] // 原图信息（多目ipc会有多张图）
+    targetTrace = {} as IntelTargetTraceItem // 目标框 rect
+    ruleInfos = [] as IntelRuleInfoList[] // 触发了告警的规则信息
+    humanAttrInfo = {} as IntelHumanAttrInfoItem // 人员属性信息
+    vehicleAttrInfo = {} as IntelVehicleAttrInfoItem // 汽车属性信息
+    nonMotorVehicleAttrInfo = {} as IntelNonMotorVehicleAttrInfoItem // 非机动车属性信息
+    plateAttrInfo = {} as IntelPlateAttrInfoItem // 车牌号信息
+}
+
+/**
+ * @description 智能搜索 - 点数据信息
+ */
+export class IntelPointItem {
+    X = 0
+    Y = 0
+}
+
+/**
+ * @description 智能搜索 - 抓拍图数据
+ */
+export class IntelObjPicDataItem {
+    data = ''
+    picWidth = 0
+    picHeight = 0
+}
+
+/**
+ * @description 智能搜索 - 原图数据
+ */
+export class IntelBackgroundPicDataList {
+    index = ''
+    data = ''
+    picWidth = 0
+    picHeight = 0
+}
+
+/**
+ * @description 智能搜索 - 目标框数据
+ */
+export class IntelTargetTraceItem {
+    X1 = 0
+    Y1 = 0
+    X2 = 0
+    Y2 = 0
+}
+
+/**
+ * @description 智能搜索 - 告警规则信息
+ */
+export class IntelRuleInfoList {
+    direction = ''
+    startPoint = {
+        X: 0,
+        Y: 0,
+    }
+    endPoint = {
+        X: 0,
+        Y: 0,
+    }
+    points = [] as IntelPointItem[]
+}
+
+/**
+ * @description 智能搜索 - 人员属性信息
+ */
+export class IntelHumanAttrInfoItem {
+    gender = ''
+    ageBracket = ''
+    mask = ''
+    hat = ''
+    glasses = ''
+    backpack = ''
+    upperCloth = {
+        upperClothType: '',
+        upperClothColor: '',
+    }
+    lowerCloth = {
+        lowerClothType: '',
+        lowerClothColor: '',
+    }
+    skirt = ''
+    direction = ''
+}
+
+/**
+ * @description 智能搜索 - 汽车属性信息
+ */
+export class IntelVehicleAttrInfoItem {
+    vehicleColor = ''
+    vehicleBrand = ''
+    vehicleType = ''
+}
+
+/**
+ * @description 智能搜索 - 非机动车属性信息
+ */
+export class IntelNonMotorVehicleAttrInfoItem {
+    nonMotorizedVehicleType = ''
+}
+
+/**
+ * @description 智能搜索 - 车牌号信息
+ */
+export class IntelPlateAttrInfoItem {
+    plateNumber = ''
+    vehicleStyle = ''
+    plateColor = ''
+    vehicleColor = ''
+    vehicleBrand = ''
+    vehicleType = ''
+    nonMotorizedVehicleType = ''
+}
