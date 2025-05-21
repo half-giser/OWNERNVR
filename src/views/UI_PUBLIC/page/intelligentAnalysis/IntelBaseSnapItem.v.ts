@@ -1,103 +1,22 @@
 /*
- * @Author: yejiahao yejiahao@tvt.net.cn
- * @Date: 2024-09-06 17:34:44
- * @Description: 智能分析 - 抓拍选项框
+ * @Author: zhangdongming zhangdongming@tvt.net.cn
+ * @Date: 2025-05-21 10:30:00
+ * @Description: 智能分析-人、车
  */
-
-import type { CheckboxValueType } from 'element-plus'
-import { DEFAULT_BODY_STRUCT_MAPPING, DEFAULT_NON_VEHICLE_STRUCT_MAPPING, DEFAULT_VEHICLE_STRUCT_MAPPING } from '@/utils/const/snap'
 
 export default defineComponent({
     props: {
         /**
-         * @property 是否选中
-         */
-        modelValue: {
-            type: Boolean,
-            default: false,
-        },
-        /**
-         * @property 图片路径
-         */
-        src: {
-            type: String,
-            default: '',
-        },
-        /**
-         * @property 比对的图像 （type === 'match' 的时候传入）
-         */
-        matchSrc: {
-            type: String,
-            default: '',
-        },
-        /**
-         * @property {enum} 卡片类型 snap | panorama | match | struct
-         */
-        type: {
-            type: String,
-            default: 'snap',
-        },
-        /**
-         * @property 图标
-         */
-        play: {
-            type: Boolean,
-            default: false,
-        },
-        /**
-         * @property 禁用选择
-         */
-        disabled: {
-            type: Boolean,
-            default: false,
-        },
-        /**
-         * @property 错误提示信息
-         */
-        errorText: {
-            type: String,
-            default: '',
-        },
-        /**
-         * @property 是否显示识别成功图标
-         */
-        identity: {
-            type: Boolean,
-            default: false,
-        },
-        /**
          * @property 视频结构化属性
          */
-        attributes: {
-            type: Object as PropType<Record<string, string | number>>,
-            default: () => ({}),
-        },
-        /**
-         * @property 视频结构化目标
-         */
-        targetType: {
-            type: String,
-            default: 'person',
+        targetData: {
+            type: Object as PropType<IntelTargetDataItem>,
+            default: () => new IntelTargetDataItem(),
+            require: true,
         },
     },
-    emits: {
-        'update:modelValue'(bool: boolean) {
-            return typeof bool === 'boolean'
-        },
-        detail() {
-            return true
-        },
-    },
-    setup(prop, ctx) {
-        const { Translate } = useLangStore()
-
-        /**
-         * @description 选中/取消选中
-         * @param {boolean} e
-         */
-        const changeValue = (e: CheckboxValueType) => {
-            ctx.emit('update:modelValue', e as boolean)
-        }
+    setup() {
+        const dateTime = useDateTimeStore()
 
         /**
          * @description 图片按规则自适应父容器
@@ -133,63 +52,18 @@ export default defineComponent({
         }
 
         /**
-         * @description 获取信息列表项
-         * @param {String} icon
-         * @param {String} value
-         * @returns {Object}
+         * @description 日期时间格式化
+         * @param {number} timestamp 毫秒
+         * @returns {String}
          */
-        const getInfoListItem = (icon: string, value: string) => {
-            return {
-                icon,
-                value: !value || value === '--' ? Translate('IDCS_UNCONTRAST') : Translate(value),
-            }
+        const displayDateTime = (timestamp: number) => {
+            if (timestamp === 0) return ''
+            return formatDate(timestamp, dateTime.dateTimeFormat)
         }
 
-        const infoList = computed(() => {
-            if (prop.type !== 'struct') {
-                return []
-            }
-
-            if (prop.targetType === 'person') {
-                return DEFAULT_BODY_STRUCT_MAPPING.slice(0, 5).map((item) => {
-                    if (typeof prop.attributes[item.type] === 'undefined') {
-                        return getInfoListItem(item.type, '')
-                    }
-
-                    const value = prop.attributes[item.type]
-                    return getInfoListItem(item.type, item.map[Number(value)])
-                })
-            }
-
-            if (prop.targetType === 'vehicle') {
-                return DEFAULT_VEHICLE_STRUCT_MAPPING.filter((item) => {
-                    return !['year', 'model'].includes(item.type)
-                }).map((item) => {
-                    if (typeof prop.attributes[item.type] === 'undefined') {
-                        return getInfoListItem('vehicle_' + item.type, '')
-                    }
-
-                    let value = item.map ? item.map[Number(prop.attributes[item.type])] : prop.attributes[item.type]
-                    if (item.type === 'brand' && !value) value = Translate('IDCS_MAINTENSIGN_ITEM_OTHERSYS')
-                    return getInfoListItem('vehicle_' + item.type, String(value))
-                })
-            }
-
-            if (prop.targetType === 'non_vehicle') {
-                return DEFAULT_NON_VEHICLE_STRUCT_MAPPING.map((item) => {
-                    if (typeof prop.attributes[item.type] === 'undefined') {
-                        return getInfoListItem('nonVehicle_' + item.type, '')
-                    }
-
-                    return getInfoListItem('nonVehicle_' + item.type, item.map[Number(prop.attributes[item.type])])
-                })
-            }
-        })
-
         return {
-            changeValue,
             loadImg,
-            infoList,
+            displayDateTime,
         }
     },
 })
