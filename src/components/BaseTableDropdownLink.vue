@@ -5,13 +5,20 @@
 -->
 <template>
     <div
-        class="BaseDropdownBtn"
+        class="BaseDropdownBtn align-item-center"
         :class="[`effect-${effect}`]"
     >
         <div class="BaseDropdownBtn--text">
             <slot></slot>
-            <!-- <div class="dropdown-btn-icon"></div> -->
         </div>
+        <BaseImgSprite
+            v-if="needDropDownTips"
+            file="aq"
+            :index="1"
+            :hover-index="0"
+            :chunk="3"
+            :title="title"
+        />
         <el-icon class="el-icon--right">
             <ArrowDown />
         </el-icon>
@@ -24,9 +31,12 @@ import { ArrowDown } from '@element-plus/icons-vue'
 withDefaults(
     defineProps<{
         effect?: 'plain' | 'table'
+        title?: string
+        needDropDownTips?: boolean
     }>(),
     {
         effect: 'table',
+        needDropDownTips: false,
     },
 )
 </script>
@@ -54,6 +64,10 @@ withDefaults(
         overflow: hidden;
         text-overflow: ellipsis;
         text-wrap: nowrap;
+    }
+
+    &.align-item-center {
+        align-items: center;
     }
 
     .el-icon--right {

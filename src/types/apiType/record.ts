@@ -28,6 +28,7 @@ export class RecordScheduleDto extends TableRowStatus {
     intelligentRec = '' //AI录像排程
     posRec = '' //POS录像排程
     scheduleRec = '' //定时录像排程
+    allEventRec = '' //全事件录像排程
 }
 
 /**
@@ -39,6 +40,7 @@ export interface RecordModeDto {
     type: string
     events: string[]
     index: number //用于指定在自定义组合模式中出现的顺序
+    disabled?: boolean
 }
 
 /**

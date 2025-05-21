@@ -702,3 +702,17 @@ export const queryREIDCfg = () => fetch('queryREIDCfg', '')
  * @returns
  */
 export const editREIDCfg = (data: string) => fetch('editREIDCfg', data)
+
+/**
+ * @description 事件启用——获取事件类型
+ * @param {string} data
+ * @returns
+ */
+export const queryInvokeEventTypeConfig = (data: string) => fetch('queryInvokeEventTypeConfig', data)
+
+/**
+ * @description 事件启用——修改事件类型
+ * @param {string} data
+ * @returns
+ */
+export const editInvokeEventTypeConfig = (data: string) => fetch('editInvokeEventTypeConfig', data)
