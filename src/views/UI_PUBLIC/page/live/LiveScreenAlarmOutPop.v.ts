@@ -4,7 +4,12 @@
  * @Description: 现场预览-底部视图-手动报警
  */
 export default defineComponent({
-    setup() {
+    emits: {
+        trigger() {
+            return true
+        },
+    },
+    setup(_prop, ctx) {
         const { Translate } = useLangStore()
 
         const isDelay = import.meta.env.VITE_UI_TYPE === 'UI2-A'
@@ -169,6 +174,8 @@ export default defineComponent({
         watch(
             () => pageData.value.isAlarmPop,
             (val) => {
+                ctx.emit('trigger')
+
                 if (val) {
                     alarmOutStatusTimer.repeat(true)
                 } else {

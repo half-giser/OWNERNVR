@@ -16,6 +16,7 @@
             :min-speed="winData?.MinPtzCtrlSpeed || 1"
             :max-speed="winData?.MaxPtzCtrlSpeed || 8"
             @speed="setSpeed"
+            @trigger="$emit('trigger')"
         />
         <div
             v-show="winData.supportPtz || winData.supportIntegratedPtz"
@@ -48,6 +49,7 @@
                 :chl-id="chlId"
                 :chl-name="winData.chlName"
                 :speed="pageData.speed"
+                @trigger="$emit('trigger')"
             />
             <LivePtzCruisePanel
                 v-show="pageData.activeMenu === 1"
@@ -55,12 +57,14 @@
                 :chl-id="chlId"
                 :chl-name="winData.chlName"
                 :speed="pageData.speed"
+                @trigger="$emit('trigger')"
             />
             <LivePtzGroupPanel
                 v-show="pageData.activeMenu === 2"
                 :enabled="hasAuth"
                 :chl-id="chlId"
                 :chl-name="winData.chlName"
+                @trigger="$emit('trigger')"
             />
             <LivePtzTracePanel
                 v-show="pageData.activeMenu === 3"
@@ -69,6 +73,7 @@
                 :chl-name="winData.chlName"
                 :speed="pageData.speed"
                 :active="pageData.activeMenu === 3"
+                @trigger="$emit('trigger')"
             />
         </div>
     </div>
