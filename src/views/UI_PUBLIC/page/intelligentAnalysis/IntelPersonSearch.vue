@@ -164,6 +164,9 @@
                         v-for="item in pageData.targetDatasForFace"
                         :key="item.targetID"
                         :target-data="item"
+                        :detail-index="pageData.openDetailIndexForFace"
+                        search-type="byFace"
+                        @detail="showDetail(item)"
                     />
                 </div>
                 <!-- 人体 - 抓拍图容器 -->
@@ -172,7 +175,14 @@
                     id="byBodySearchContentPic"
                     class="base-intel-pics-content"
                 >
-                    人体-IntelBaseSnapItem
+                    <IntelBaseSnapItem
+                        v-for="item in pageData.targetDatasForBody"
+                        :key="item.targetID"
+                        :target-data="item"
+                        :detail-index="pageData.openDetailIndexForBody"
+                        search-type="byBody"
+                        @detail="showDetail(item)"
+                    />
                 </div>
                 <!-- 人属性 - 抓拍图容器 -->
                 <div
@@ -180,7 +190,14 @@
                     id="byPersonAttributeSearchContentPic"
                     class="base-intel-pics-content"
                 >
-                    人属性-IntelBaseSnapItem
+                    <IntelBaseSnapItem
+                        v-for="item in pageData.targetDatasForPersonAttribute"
+                        :key="item.targetID"
+                        :target-data="item"
+                        :detail-index="pageData.openDetailIndexForPersonAttribute"
+                        search-type="byPersonAttribute"
+                        @detail="showDetail(item)"
+                    />
                 </div>
             </el-scrollbar>
             <!-- 分页器容器 -->
