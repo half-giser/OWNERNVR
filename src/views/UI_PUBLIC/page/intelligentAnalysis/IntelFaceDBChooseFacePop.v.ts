@@ -37,6 +37,8 @@ export default defineComponent({
         const pageData = ref({
             // 当前类型
             type: 'snap',
+            // 人脸库固定为byFace
+            openType: 'byFace',
             // 类型选项
             typeOptions: [
                 {

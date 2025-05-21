@@ -17,8 +17,9 @@
         </el-form>
         <div class="mode">
             <div v-show="formData.mode === 'manually'">
-                <div class="base-btn-box flex-start gap">
-                    {{ Translate('IDCS_SCHEDULE_OF_RECORD_SET') }}
+                <div class="base-btn-box space-between padding gap align-item-center">
+                    {{ Translate('IDCS_SCHEDULE_CONFIG') }}
+                    <el-button @click="openSchedulePop">{{ Translate('IDCS_SCHEDULE_MANAGE') }}</el-button>
                 </div>
                 <el-table
                     v-title
@@ -32,7 +33,7 @@
                         show-overflow-tooltip
                     />
                     <!-- 传感器录像排程 -->
-                    <el-table-column>
+                    <el-table-column v-if="!pageData.isSupportAllEvent">
                         <template #header>
                             <BaseScheduleTableDropdown
                                 :label="Translate('IDCS_SENSOR_RECORD_SCHEDULE')"
@@ -50,7 +51,7 @@
                         </template>
                     </el-table-column>
                     <!-- 移动录像排程 -->
-                    <el-table-column>
+                    <el-table-column v-if="!pageData.isSupportAllEvent">
                         <template #header>
                             <BaseScheduleTableDropdown
                                 :label="Translate('IDCS_MOTION_RECORD_SCHEDULE')"
@@ -68,7 +69,7 @@
                         </template>
                     </el-table-column>
                     <!-- AI录像排程 -->
-                    <el-table-column>
+                    <el-table-column v-if="!pageData.isSupportAllEvent || ipChlMaxCount === 0">
                         <template #header>
                             <BaseScheduleTableDropdown
                                 :label="Translate('IDCS_AI_RECORD_SCHEDULE')"
@@ -86,7 +87,7 @@
                         </template>
                     </el-table-column>
                     <!-- POS录像排程 -->
-                    <el-table-column v-if="supportPOS">
+                    <el-table-column v-if="!pageData.isSupportAllEvent && supportPOS">
                         <template #header>
                             <BaseScheduleTableDropdown
                                 :label="Translate('IDCS_POS_RECORD_SCHEDULE')"
@@ -103,8 +104,29 @@
                             />
                         </template>
                     </el-table-column>
+                    <el-table-column
+                        v-if="pageData.isSupportAllEvent"
+                        min-width="190"
+                    >
+                        <template #header>
+                            <BaseScheduleTableDropdown
+                                :label="Translate('IDCS_ALL_EVENT_RECORD')"
+                                :options="pageData.scheduleList"
+                                :drop-down-tips="allEventTips"
+                                @change="changeAllSchedule($event, 'allEventRec')"
+                                @edit="openSchedulePop"
+                            />
+                        </template>
+                        <template #default="{ row }: TableColumn<RecordScheduleDto>">
+                            <BaseScheduleSelect
+                                v-model="row.allEventRec"
+                                :options="pageData.scheduleList"
+                                @edit="openSchedulePop"
+                            />
+                        </template>
+                    </el-table-column>
                     <!-- 定时录像排程 -->
-                    <el-table-column>
+                    <el-table-column :min-width="pageData.isSupportAllEvent ? 190 : ''">
                         <template #header>
                             <BaseScheduleTableDropdown
                                 :label="Translate('IDCS_TIME_RECORD_SCHEDULE')"
@@ -158,7 +180,28 @@
                         :key="item.id"
                         :value="item.id"
                         :label="item.text"
-                    />
+                    >
+                        <div class="radio">
+                            <div class="radio-text huge">
+                                {{ item.text }}
+                                <BaseImgSprite
+                                    v-if="item.id === 'ALLEVENT'"
+                                    :key="item.id"
+                                    file="aq"
+                                    :index="1"
+                                    :hover-index="0"
+                                    :chunk="3"
+                                    :title="allEventTips"
+                                />
+                                <div
+                                    v-if="item.id === 'ALLEVENT'"
+                                    class="radio-text-discribe"
+                                >
+                                    {{ Translate('IDCS_ALL_EVENT_RECORD_LITE_TIP') }}
+                                </div>
+                            </div>
+                        </div>
+                    </el-radio>
                 </el-radio-group>
                 <div class="base-btn-box flex-start gap">
                     <el-button @click="pageData.isAdvancePop = true">{{ Translate('IDCS_ADVANCED') }}</el-button>
@@ -187,6 +230,7 @@
             v-model="pageData.isAdvancePop"
             :advance-rec-modes="pageData.advanceRecModes"
             :advance-rec-mode-id="pageData.advanceRecModeId"
+            :advance-rec-mode-all-events="pageData.isSupportAllEvent"
             @confirm="confirmAdvancePop"
             @close="pageData.isAdvancePop = false"
         />
@@ -216,6 +260,19 @@
     &-text {
         width: 600px;
         flex-shrink: 0;
+
+        &-suffix {
+            display: inline-block;
+        }
+
+        &-discribe {
+            font-size: 12px;
+            color: #999;
+        }
+
+        &.huge {
+            line-height: 15px;
+        }
     }
 
     &-icon {
