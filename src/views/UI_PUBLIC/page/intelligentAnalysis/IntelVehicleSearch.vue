@@ -187,15 +187,11 @@
                     <IntelBaseSnapItem
                         v-for="item in pageData.targetDatasForCar"
                         :key="item.targetID"
-                    >
-                        <div v-title>{{ displayDateTime(item.timeStamp) }}</div>
-                        <div
-                            v-title
-                            class="text-ellipsis"
-                        >
-                            {{ item.channelName }}
-                        </div>
-                    </IntelBaseSnapItem>
+                        :target-data="item"
+                        :detail-index="pageData.openDetailIndexForCar"
+                        search-type="byCar"
+                        @detail="showDetail(item)"
+                    />
                 </div>
                 <!-- 摩托车/单车 - 抓拍图容器 -->
                 <div
@@ -203,7 +199,14 @@
                     id="byMotorcycleSearchContentPic"
                     class="base-intel-pics-content"
                 >
-                    摩托车/单车-IntelBaseSnapItem
+                    <IntelBaseSnapItem
+                        v-for="item in pageData.targetDatasForMotorcycle"
+                        :key="item.targetID"
+                        :target-data="item"
+                        :detail-index="pageData.openDetailIndexForMotorcycle"
+                        search-type="byMotorcycle"
+                        @detail="showDetail(item)"
+                    />
                 </div>
                 <!-- 车牌号 - 抓拍图容器 -->
                 <div
@@ -211,7 +214,14 @@
                     id="byPlateNumberSearchContentPic"
                     class="base-intel-pics-content"
                 >
-                    车牌号-IntelBaseSnapItem
+                    <IntelBaseSnapItem
+                        v-for="item in pageData.targetDatasForPlateNumber"
+                        :key="item.targetID"
+                        :target-data="item"
+                        :detail-index="pageData.openDetailIndexForPlateNumber"
+                        search-type="byPlateNumber"
+                        @detail="showDetail(item)"
+                    />
                 </div>
             </el-scrollbar>
             <!-- 分页器容器 -->

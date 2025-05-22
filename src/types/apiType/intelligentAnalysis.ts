@@ -563,7 +563,7 @@ export class IntelTargetIndexItem {
     timeStampUTC = ''
     timeStamp100ns = ''
     quality = ''
-    similarity = ''
+    similarity = 0
     eventType = ''
     libIndex = ''
     startTime = 0
@@ -576,12 +576,12 @@ export class IntelTargetIndexItem {
  * @description 智能搜索 - 详情数据
  */
 export class IntelTargetDataItem extends IntelTargetIndexItem {
-    selected? = false
+    checked? = false // 界面中使用的变量，标识是否选中头部的checkbox选择框
     isNoData = false
     isDelete = false
     targetID = ''
     featureStatus = ''
-    supportRegister = ''
+    supportRegister = false
     targetType = ''
     timeStamp = 0 // 这一帧的时间戳
     timeStampLocal = '' // 这一帧的本地时间戳文字表达

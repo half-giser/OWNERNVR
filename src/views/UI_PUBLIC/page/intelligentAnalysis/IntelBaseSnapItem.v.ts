@@ -7,16 +7,54 @@
 export default defineComponent({
     props: {
         /**
-         * @property 视频结构化属性
+         * @property 当前搜索类型
+         */
+        searchType: {
+            type: String,
+            default: 'byFace',
+        },
+        /**
+         * @property 当前目标详情数据
          */
         targetData: {
             type: Object as PropType<IntelTargetDataItem>,
             default: () => new IntelTargetDataItem(),
             require: true,
         },
+        /**
+         * @property 当前打开的目标详情索引index
+         */
+        detailIndex: {
+            type: String,
+            default: '',
+        },
     },
-    setup() {
+    emits: {
+        detail() {
+            return true
+        },
+    },
+    setup(prop, ctx) {
+        const { Translate } = useLangStore()
+        const systemCaps = useCababilityStore()
         const dateTime = useDateTimeStore()
+
+        /**
+         * @description 处理点击封面图事件（打开详情）
+         */
+        const handleClickCover = () => {
+            ctx.emit('detail')
+        }
+
+        /**
+         * @description 日期时间格式化
+         * @param {number} timestamp 毫秒
+         * @returns {String}
+         */
+        const displayDateTime = (timestamp: number) => {
+            if (timestamp === 0) return ''
+            return formatDate(timestamp, dateTime.dateTimeFormat)
+        }
 
         /**
          * @description 图片按规则自适应父容器
@@ -51,19 +89,53 @@ export default defineComponent({
             }
         }
 
-        /**
-         * @description 日期时间格式化
-         * @param {number} timestamp 毫秒
-         * @returns {String}
-         */
-        const displayDateTime = (timestamp: number) => {
-            if (timestamp === 0) return ''
-            return formatDate(timestamp, dateTime.dateTimeFormat)
-        }
+        // 是否显示搜索按钮
+        const showSearch = computed(() => {
+            if (prop.searchType === 'byFace') {
+                return systemCaps.supportFaceMatch
+            } else if (prop.searchType === 'byBody') {
+                return systemCaps.supportREID
+            } else {
+                return false
+            }
+        })
+
+        // 是否显示导出按钮
+        const showExport = computed(() => {
+            return true
+        })
+
+        // 是否显示注册按钮
+        const showRegister = computed(() => {
+            if (prop.searchType === 'byFace') {
+                return systemCaps.supportFaceMatch && prop.targetData.supportRegister
+            } else if (prop.searchType === 'byPlateNumber') {
+                return systemCaps.supportPlateMatch && prop.targetData.supportRegister
+            } else {
+                return false
+            }
+        })
+
+        // 是否显示车牌号（只有车牌号界面才显示）
+        const showPlateNumber = computed(() => {
+            return prop.searchType === 'byPlateNumber' && prop.targetData.plateAttrInfo?.plateNumber
+        })
+
+        // 是否显示相似度
+        const showSimilarity = computed(() => {
+            return !!prop.targetData.similarity
+        })
 
         return {
-            loadImg,
+            Translate,
+            handleClickCover,
             displayDateTime,
+            loadImg,
+            showSearch,
+            showExport,
+            showRegister,
+            showPlateNumber,
+            showSimilarity,
         }
     },
 })
