@@ -56,6 +56,9 @@ export default defineComponent({
         speed(speedValue: number) {
             return typeof speedValue === 'number'
         },
+        trigger() {
+            return true
+        },
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
@@ -187,6 +190,8 @@ export default defineComponent({
          * @param {CmdItem} cmd
          */
         const addCmd = (cmd: CmdItem) => {
+            ctx.emit('trigger')
+
             if (!prop.chlId || prop.disabled) {
                 return
             }
@@ -240,6 +245,7 @@ export default defineComponent({
         watch(
             () => pageData.value.speed,
             () => {
+                ctx.emit('trigger')
                 ctx.emit('speed', pageData.value.speed)
             },
         )

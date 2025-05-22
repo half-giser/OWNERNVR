@@ -30,6 +30,17 @@
                     @search="search(item)"
                     @play-rec="playRec(item)"
                 />
+                <!-- 车牌 -->
+                <LiveSnapVehiclePlateItem
+                    v-else-if="item.type === 'vehicle_plate'"
+                    :key="`vehicle_plate${item.detect_time}`"
+                    :data="item"
+                    :border="pageData.activeMenu"
+                    @add="register(item)"
+                    @detail="showDetail(index)"
+                    @search="search(item)"
+                    @play-rec="playRec(item)"
+                />
                 <!-- 抓拍 -->
                 <LiveSnapItem
                     v-else

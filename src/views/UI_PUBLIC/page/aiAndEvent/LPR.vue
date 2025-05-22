@@ -95,7 +95,7 @@
                                                 :label="index + 1"
                                                 :value="index"
                                                 :class="{
-                                                    checked: detectionPageData.regionAreaChecked.includes(detectionPageData.regionArea),
+                                                    checked: detectionPageData.regionAreaChecked.includes(index),
                                                 }"
                                             />
                                         </el-radio-group>
@@ -112,7 +112,7 @@
                                                 :label="index + 1"
                                                 :value="index"
                                                 :class="{
-                                                    checked: detectionPageData.maskAreaChecked.includes(detectionPageData.maskArea),
+                                                    checked: detectionPageData.maskAreaChecked.includes(index),
                                                 }"
                                             />
                                         </el-radio-group>

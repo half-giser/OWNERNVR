@@ -61,6 +61,10 @@ export default defineComponent({
             type: Boolean,
             required: true,
         },
+        detectTarget: {
+            type: Boolean,
+            required: true,
+        },
         /**
          * @property 对讲按钮状态
          */
@@ -88,10 +92,16 @@ export default defineComponent({
         'update:talk': (bool: boolean) => {
             return typeof bool === 'boolean'
         },
+        'update:detectTarget': (bool: boolean) => {
+            return typeof bool === 'boolean'
+        },
         streamType(type: number) {
             return !isNaN(type)
         },
         fullscreen() {
+            return true
+        },
+        trigger() {
             return true
         },
     },
@@ -158,6 +168,7 @@ export default defineComponent({
             `
             await editManualRecord(sendXml)
 
+            ctx.emit('trigger')
             // 设置完全部录像的时候按通道查询不一定会更新到，延迟一下
             ctx.emit('update:remoteRecord', bool)
         }
@@ -185,10 +196,12 @@ export default defineComponent({
 
         const changeSplit = (split: number, type: number) => {
             pageData.value.splitType = type
+            ctx.emit('trigger')
             ctx.emit('update:split', split, type)
         }
 
         const changeStreamType = (value: string | number | boolean | undefined) => {
+            ctx.emit('trigger')
             ctx.emit('streamType', value as number)
         }
 

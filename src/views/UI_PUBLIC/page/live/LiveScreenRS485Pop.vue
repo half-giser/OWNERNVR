@@ -15,7 +15,7 @@
                 <BaseImgSpriteBtn
                     class="btn"
                     file="custom_operate"
-                    :title="Translate('IDCS_RS485_OPERATE')"
+                    :title="pageData.name"
                     :active="pageData.isRS485Pop"
                     :disabled="!pageData.switch"
                 />

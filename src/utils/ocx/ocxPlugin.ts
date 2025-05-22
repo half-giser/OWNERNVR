@@ -1460,6 +1460,12 @@ const getSingletonPlugin = () => {
             observerList.set(popper as HTMLElement, 'intersect')
         }
 
+        const hideOCX = document.querySelectorAll('.hide-ocx')
+        for (const popper of hideOCX) {
+            mutationObserver.observe(popper, { attributes: true })
+            observerList.set(popper as HTMLElement, 'intersect')
+        }
+
         // 观察容器大小变化 重新设置插件大小
         const resizeObserver = new ResizeObserver(() => {
             browserScrollCallback()

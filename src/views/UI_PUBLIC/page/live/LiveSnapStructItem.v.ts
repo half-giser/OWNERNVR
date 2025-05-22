@@ -46,7 +46,7 @@ export default defineComponent({
          * @param {String} src
          * @returns {String}
          */
-        const displayBase64Img = (src: null | string) => {
+        const displayBase64Img = (src: null | string | undefined) => {
             if (!src) return ''
             return wrapBase64Img(src)
         }
@@ -64,8 +64,8 @@ export default defineComponent({
         const isAddBtn = computed(() => {
             return (
                 (systemCaps.supportFaceMatch && prop.data.type === 'face_detect') ||
-                prop.data.type === 'face_verify' ||
-                (systemCaps.supportPlateMatch && prop.data.type === 'vehicle_plate' && prop.data.info.compare_status !== 1)
+                (prop.data.type === 'face_verify' && prop.data.info!.compare_status !== 6) ||
+                (systemCaps.supportPlateMatch && prop.data.type === 'vehicle_plate' && prop.data.info!.compare_status !== 1)
             )
         })
 
@@ -84,9 +84,9 @@ export default defineComponent({
 
         // 信息列表
         const infoList = computed(() => {
-            const targetType = prop.data.info.target_type
+            const targetType = prop.data.info!.target_type
             if (targetType === 'person') {
-                const type = prop.data.info.person_info
+                const type = prop.data.info!.person_info
                 return DEFAULT_BODY_STRUCT_MAPPING.slice(0, 5).map((item) => {
                     const value = type[item.type]
                     return getInfoListItem(item.type, item.map[Number(value)])
@@ -94,7 +94,7 @@ export default defineComponent({
             }
 
             if (targetType === 'vehicle') {
-                const type = prop.data.info.car_info
+                const type = prop.data.info!.car_info
                 return DEFAULT_VEHICLE_STRUCT_MAPPING.filter((item) => {
                     return !['year', 'model'].includes(item.type)
                 }).map((item) => {
@@ -105,7 +105,7 @@ export default defineComponent({
             }
 
             if (targetType === 'non_vehicle') {
-                const type = prop.data.info.bike_info
+                const type = prop.data.info!.bike_info
                 return DEFAULT_NON_VEHICLE_STRUCT_MAPPING.map((item) => {
                     return getInfoListItem('nonVehicle_' + item.type, item.map[Number(type[item.type])])
                 })

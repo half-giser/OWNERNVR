@@ -11,14 +11,14 @@
                 file="capture"
                 :title="Translate('IDCS_SNAP')"
                 :disabled="snapDisabled"
-                @click="$emit('snap')"
+                @click="$emit('trigger'), $emit('snap')"
             />
             <!-- 关闭图像 -->
             <BaseImgSpriteBtn
                 file="close_chl"
                 :title="Translate('IDCS_CLOSE_IMAGE')"
                 :disabled="closeImgDisabled"
-                @click="$emit('closeImg')"
+                @click="$emit('trigger'), $emit('closeImg')"
             />
             <!-- 本地录像 -->
             <BaseImgSpriteBtn
@@ -26,7 +26,7 @@
                 :title="winData.localRecording ? Translate('IDCS_CLIENT_RECORD_OFF') : Translate('IDCS_CLIENT_RECORD_ON')"
                 :active="winData.localRecording"
                 :disabled="localRecordDisabled"
-                @click="$emit('localRecord', !winData.localRecording)"
+                @click="$emit('trigger'), $emit('localRecord', !winData.localRecording)"
             />
             <!-- 远程录像 -->
             <BaseImgSpriteBtn
@@ -41,14 +41,14 @@
                 file="magnify"
                 :title="Translate('IDCS_ZOOM_IN')"
                 :disabled
-                @click="$emit('zoomIn')"
+                @click="$emit('trigger'), $emit('zoomIn')"
             />
             <!-- 缩小 -->
             <BaseImgSpriteBtn
                 file="minify"
                 :title="Translate('IDCS_ZOOM_OUT')"
                 :disabled
-                @click="$emit('zoomOut')"
+                @click="$emit('trigger'), $emit('zoomOut')"
             />
             <!-- 3D放大 -->
             <BaseImgSpriteBtn
@@ -56,7 +56,7 @@
                 :title="Translate('IDCS_3D_ZOOM_IN')"
                 :active="winData.magnify3D"
                 :disabled="zoom3DDisabled"
-                @click="$emit('zoom', !winData.magnify3D)"
+                @click="$emit('trigger'), $emit('zoom', !winData.magnify3D)"
             />
             <!-- 对讲 -->
             <BaseImgSpriteBtn
@@ -65,14 +65,14 @@
                 :title="winData.talk ? Translate('IDCS_TALKBACK_OFF') : Translate('IDCS_TALKBACK_ON')"
                 :active="winData.talk"
                 :disabled="talkDisabled"
-                @click="$emit('talk', !winData.talk)"
+                @click="$emit('trigger'), $emit('talk', !winData.talk)"
             />
             <!-- 原始比例 -->
             <BaseImgSpriteBtn
                 :file="winData.original ? 'originalDisplaying' : 'originalDisplay'"
                 :title="Translate('IDCS_ORIGINAL_DISPLAY')"
                 :disabled="originalDisplayDisabled"
-                @click="$emit('originalDisplay', !winData.original)"
+                @click="$emit('trigger'), $emit('originalDisplay', !winData.original)"
             />
             <!-- 开门 -->
             <BaseImgSpriteBtn

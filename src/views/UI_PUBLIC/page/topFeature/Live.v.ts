@@ -338,6 +338,7 @@ export default defineComponent({
             supportFishEye: false,
             // 通道与能力映射
             chlMap: {} as Record<string, LiveChannelList>,
+            isDetectTarget: false,
         })
 
         // 播放模式
@@ -1536,6 +1537,14 @@ export default defineComponent({
             pageData.value.supportFishEye = bool
         }
 
+        const getSnapBase64 = () => {
+            return player.getSnapBase64()
+        }
+
+        const clearTargetDetect = () => {
+            pageData.value.isDetectTarget = false
+        }
+
         let notifyTimer: NodeJS.Timeout | number = 0
 
         /**
@@ -1835,6 +1844,8 @@ export default defineComponent({
             isFishEyePanel,
             notify,
             handlePlayerAudioError,
+            getSnapBase64,
+            clearTargetDetect,
         }
     },
 })

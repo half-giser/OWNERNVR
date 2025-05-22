@@ -1,7 +1,7 @@
 <!--
  * @Author: zhangdongming zhangdongming@tvt.net.cn
  * @Date: 2025-05-20 10:30:00
- * @Description: 智能分析-车（汽车、摩托车/单车、车牌号）
+ * @Description: 智能分析-人（人脸、人体、人属性）
 -->
 <template>
     <div class="base-intel-box">
@@ -9,7 +9,7 @@
             v-show="!pageData.isDetailOpen"
             class="base-intel-left"
         >
-            <!-- 汽车、摩托车/单车、车牌号 tab -->
+            <!-- 人脸、人体、人属性 tab -->
             <el-radio-group
                 v-model="pageData.searchType"
                 size="large"
@@ -22,7 +22,7 @@
                     :label="item.label"
                 />
             </el-radio-group>
-            <!-- 时间、通道、属性、车牌号等条件筛选 -->
+            <!-- 时间、通道、属性、图片选择等条件筛选 -->
             <div class="base-intel-left-column">
                 <div class="base-intel-left-form">
                     <!-- 时间选择 -->
@@ -32,37 +32,13 @@
                         v-model="pageData.chlIdList"
                         @ready="getChlIdNameMap"
                     />
-                    <!-- 属性选择 - 汽车 -->
+                    <!-- 属性选择 - 人属性 -->
                     <IntelBaseProfileSelector
-                        v-show="pageData.searchType === 'byCar'"
-                        v-model="pageData.attributeForCar"
+                        v-show="pageData.searchType === 'byPersonAttribute'"
+                        v-model="pageData.attributeForPersonAttribute"
                         placeholder-type="spread"
-                        :range="['car']"
+                        :range="['person']"
                     />
-                    <!-- 属性选择 - 摩托车/单车 -->
-                    <IntelBaseProfileSelector
-                        v-show="pageData.searchType === 'byMotorcycle'"
-                        v-model="pageData.attributeForMotorcycle"
-                        placeholder-type="spread"
-                        :range="['motor']"
-                    />
-                    <!-- 车牌号填写、车牌号颜色选择 -->
-                    <el-form
-                        v-show="pageData.searchType === 'byPlateNumber'"
-                        v-title
-                        class="no-padding"
-                        :style="{
-                            '--form-label-width': '100px',
-                        }"
-                    >
-                        <el-form-item :label="Translate('IDCS_LICENSE_PLATE_NUM')">
-                            <el-input
-                                v-model="pageData.plateNumber"
-                                :placeholder="Translate('IDCS_ENTER_PLATE_NUM')"
-                                maxlength="31"
-                            />
-                        </el-form-item>
-                    </el-form>
                 </div>
             </div>
             <!-- 搜索按钮 -->
@@ -96,8 +72,8 @@
                 </div>
                 <!-- 排序、全选 -->
                 <div>
-                    <!-- 汽车 - 排序、全选 -->
-                    <div v-show="pageData.searchType === 'byCar'">
+                    <!-- 人脸 - 排序、全选 -->
+                    <div v-show="pageData.searchType === 'byFace'">
                         <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SORT') }}
@@ -122,8 +98,8 @@
                             @update:model-value="handleSelectAll"
                         />
                     </div>
-                    <!-- 摩托车/单车 - 排序、全选 -->
-                    <div v-show="pageData.searchType === 'byMotorcycle'">
+                    <!-- 人体 - 排序、全选 -->
+                    <div v-show="pageData.searchType === 'byBody'">
                         <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SORT') }}
@@ -148,8 +124,8 @@
                             @update:model-value="handleSelectAll"
                         />
                     </div>
-                    <!-- 车牌号 - 排序、全选 -->
-                    <div v-show="pageData.searchType === 'byPlateNumber'">
+                    <!-- 人属性 - 排序、全选 -->
+                    <div v-show="pageData.searchType === 'byPersonAttribute'">
                         <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SORT') }}
@@ -178,79 +154,79 @@
             </div>
             <!-- 抓拍图容器 -->
             <el-scrollbar class="base-intel-pics-box">
-                <!-- 汽车 - 抓拍图容器 -->
+                <!-- 人脸 - 抓拍图容器 -->
                 <div
-                    v-show="pageData.searchType === 'byCar'"
-                    id="byCarSearchContentPic"
+                    v-show="pageData.searchType === 'byFace'"
+                    id="byFaceSearchContentPic"
                     class="base-intel-pics-content"
                 >
                     <IntelBaseSnapItem
-                        v-for="item in pageData.targetDatasForCar"
+                        v-for="item in pageData.targetDatasForFace"
                         :key="item.targetID"
                         :target-data="item"
-                        :detail-index="pageData.openDetailIndexForCar"
-                        search-type="byCar"
+                        :detail-index="pageData.openDetailIndexForFace"
+                        search-type="byFace"
                         @detail="showDetail(item)"
                     />
                 </div>
-                <!-- 摩托车/单车 - 抓拍图容器 -->
+                <!-- 人体 - 抓拍图容器 -->
                 <div
-                    v-show="pageData.searchType === 'byMotorcycle'"
-                    id="byMotorcycleSearchContentPic"
+                    v-show="pageData.searchType === 'byBody'"
+                    id="byBodySearchContentPic"
                     class="base-intel-pics-content"
                 >
                     <IntelBaseSnapItem
-                        v-for="item in pageData.targetDatasForMotorcycle"
+                        v-for="item in pageData.targetDatasForBody"
                         :key="item.targetID"
                         :target-data="item"
-                        :detail-index="pageData.openDetailIndexForMotorcycle"
-                        search-type="byMotorcycle"
+                        :detail-index="pageData.openDetailIndexForBody"
+                        search-type="byBody"
                         @detail="showDetail(item)"
                     />
                 </div>
-                <!-- 车牌号 - 抓拍图容器 -->
+                <!-- 人属性 - 抓拍图容器 -->
                 <div
-                    v-show="pageData.searchType === 'byPlateNumber'"
-                    id="byPlateNumberSearchContentPic"
+                    v-show="pageData.searchType === 'byPersonAttribute'"
+                    id="byPersonAttributeSearchContentPic"
                     class="base-intel-pics-content"
                 >
                     <IntelBaseSnapItem
-                        v-for="item in pageData.targetDatasForPlateNumber"
+                        v-for="item in pageData.targetDatasForPersonAttribute"
                         :key="item.targetID"
                         :target-data="item"
-                        :detail-index="pageData.openDetailIndexForPlateNumber"
-                        search-type="byPlateNumber"
+                        :detail-index="pageData.openDetailIndexForPersonAttribute"
+                        search-type="byPersonAttribute"
                         @detail="showDetail(item)"
                     />
                 </div>
             </el-scrollbar>
             <!-- 分页器容器 -->
             <div class="base-btn-box">
-                <!-- 汽车 - 分页器 -->
+                <!-- 人脸 - 分页器 -->
                 <BasePagination
-                    v-show="pageData.searchType === 'byCar'"
-                    v-model:current-page="pageData.pageIndexForCar"
-                    v-model:page-size="pageData.pageSizeForCar"
-                    :page-sizes="[pageData.pageSizeForCar]"
-                    :total="pageData.targetIndexDatasForCar.length"
+                    v-show="pageData.searchType === 'byFace'"
+                    v-model:current-page="pageData.pageIndexForFace"
+                    v-model:page-size="pageData.pageSizeForFace"
+                    :page-sizes="[pageData.pageSizeForFace]"
+                    :total="pageData.targetIndexDatasForFace.length"
                     @current-change="handleChangePage"
                 />
-                <!-- 摩托车/单车 - 分页器 -->
+                <!-- 人体 - 分页器 -->
                 <BasePagination
-                    v-show="pageData.searchType === 'byMotorcycle'"
-                    v-model:current-page="pageData.pageIndexForMotorcycle"
-                    v-model:page-size="pageData.pageSizeForMotorcycle"
-                    :page-sizes="[pageData.pageSizeForMotorcycle]"
-                    :total="pageData.targetIndexDatasForMotorcycle.length"
+                    v-show="pageData.searchType === 'byBody'"
+                    v-model:current-page="pageData.pageIndexForBody"
+                    v-model:page-size="pageData.pageSizeForBody"
+                    :page-sizes="[pageData.pageSizeForBody]"
+                    :total="pageData.targetIndexDatasForBody.length"
                     @current-change="handleChangePage"
                 />
-                <!-- 车牌号 - 分页器 -->
+                <!-- 人属性 - 分页器 -->
                 <BasePagination
-                    v-show="pageData.searchType === 'byPlateNumber'"
-                    v-model:current-page="pageData.pageIndexForPlateNumber"
-                    v-model:page-size="pageData.pageSizeForPlateNumber"
-                    :page-sizes="[pageData.pageSizeForPlateNumber]"
-                    :total="pageData.targetIndexDatasForPlateNumber.length"
+                    v-show="pageData.searchType === 'byPersonAttribute'"
+                    v-model:current-page="pageData.pageIndexForPersonAttribute"
+                    v-model:page-size="pageData.pageSizeForPersonAttribute"
+                    :page-sizes="[pageData.pageSizeForPersonAttribute]"
+                    :total="pageData.targetIndexDatasForPersonAttribute.length"
                     @current-change="handleChangePage"
                 />
             </div>
@@ -288,7 +264,7 @@
     </div>
 </template>
 
-<script lang="ts" src="./IntelVehicleSearch.v.ts"></script>
+<script lang="ts" src="./IntelPersonSearch.v.ts"></script>
 
 <style lang="scss" scoped>
 * {

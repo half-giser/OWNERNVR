@@ -79,13 +79,14 @@
     padding: 0 10px;
 }
 
+.base-intel-center,
 .base-intel-right {
     width: 100%;
+    height: 100%;
     box-sizing: border-box;
     padding: 15px;
     display: flex;
     flex-direction: column;
-    height: var(--content-height);
 }
 
 .base-intel-row {

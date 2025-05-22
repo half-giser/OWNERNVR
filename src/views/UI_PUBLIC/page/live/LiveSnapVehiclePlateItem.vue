@@ -1,7 +1,12 @@
 <!--
+ * @Date: 2025-05-20 16:07:27
+ * @Description: 现场预览-目标检测视图-渲染单个车牌抓拍元素
  * @Author: yejiahao yejiahao@tvt.net.cn
- * @Date: 2024-07-22 16:42:37
- * @Description: 现场预览-目标检测视图-人脸比对项组件
+-->
+<!--
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-07-22 16:45:57
+ * @Description: 现场预览-目标检测面板-渲染单个结构化抓拍元素
 -->
 <template>
     <div
@@ -19,6 +24,7 @@
                 />
                 <div class="item-menu">
                     <BaseImgSpriteBtn
+                        v-show="isAddBtn"
                         file="live_add"
                         :title="Translate('IDCS_REGISTER')"
                         @click="$emit('add')"
@@ -26,7 +32,7 @@
                     <BaseImgSpriteBtn
                         file="live_search"
                         :title="Translate('IDCS_SEARCH')"
-                        @click="$emit('search', '')"
+                        @click="$emit('search')"
                     />
                     <BaseImgSpriteBtn
                         file="live_play"
@@ -40,47 +46,42 @@
                     />
                 </div>
             </div>
-            <div
-                class="item-right"
-                @click="$emit('faceDetail')"
-            >
-                <img
-                    :src="displayBase64Img(data.repo_pic)"
-                    @load="loadImg"
-                />
-                <div class="item-menu">
-                    <BaseImgSpriteBtn
-                        file="live_search"
-                        :title="Translate('IDCS_SEARCH')"
-                        @click="$emit('search', 'featureImg')"
-                    />
-                    <BaseImgSpriteBtn
-                        file="live_play"
-                        :title="Translate('IDCS_REPLAY')"
-                        @click="$emit('playRec')"
-                    />
-                    <BaseImgSpriteBtn
-                        file="live_more"
-                        :title="Translate('IDCS_MORE')"
-                        @click="$emit('faceDetail')"
-                    />
-                </div>
-            </div>
-        </div>
-        <div class="item-center">
-            <div>{{ data.chlName }}</div>
-            <div>{{ data.info?.similarity }}%</div>
-            <div>{{ displayTime(data.detect_time) }}</div>
+            <ul class="item-right">
+                <li
+                    v-for="(item, key) in infoList"
+                    :key
+                >
+                    <BaseImgSprite :file="item.icon" />
+                    <span>{{ item.value }}</span>
+                </li>
+                <li
+                    v-for="(item, key) in vehiclePlateInfoList"
+                    :key
+                >
+                    <BaseImgSprite :file="item.icon" />
+                    <span>{{ item.value }}</span>
+                </li>
+                <!-- <div>{{ data.chlName }}</div>
+                <div>{{ displayTime(data.detect_time) }}</div> -->
+            </ul>
         </div>
         <div class="item-bottom">
-            <span>{{ data.info?.text_tip || data.info?.group_name }}</span>
-            <span>({{ data.info?.remarks || data.info?.name }})</span>
-            <span></span>
+            <span>{{ data.chlName }}</span>
+            <span>{{ displayTime(data.detect_time) }}</span>
+        </div>
+        <div
+            class="item-bottom2"
+            :class="{
+                border: msgBorder,
+            }"
+        >
+            <span>{{ displayTip }}</span>
+            <span :dir="data.type === 'vehicle_plate' ? getTextDir() : 'ltr'">{{ displayMsg }}</span>
         </div>
     </div>
 </template>
 
-<script lang="ts" src="./LiveSnapFaceMatchItem.v.ts"></script>
+<script lang="ts" src="./LiveSnapVehiclePlateItem.v.ts"></script>
 
 <style lang="scss" scoped>
 .item {
@@ -88,8 +89,8 @@
     margin: 5px auto;
     padding: 5px;
     border: 1px solid var(--panel-snap-border);
-    font-size: 12px;
     box-sizing: border-box;
+    // font-size: 12px;
 
     &.border {
         border-color: var(--panel-snap-history-border);
@@ -98,13 +99,15 @@
     &-top {
         display: flex;
         justify-content: center;
+        height: 134px;
     }
 
-    &-left,
-    &-right {
+    &-left {
         position: relative;
         width: 100px;
-        height: 120px;
+        height: 134px;
+        background-color: var(--bg-table);
+        flex-shrink: 0;
 
         img {
             width: 100%;
@@ -135,29 +138,41 @@
     }
 
     &-right {
-        margin-left: 10px;
-    }
-
-    &-center {
-        margin-top: 5px;
-        line-height: 22px;
         display: flex;
-        justify-content: space-around;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
+        width: 100%;
+        line-height: 22px;
+        margin: 0;
+        margin-left: 10px;
+        padding: 0;
 
-        & > div {
-            margin: 0 5px;
+        li {
+            list-style: none;
 
-            &:nth-child(2) {
-                padding: 0 5px;
-                border: 1px solid var(--table-border);
-                border-radius: 11px;
+            span:last-child {
+                margin-left: 10px;
             }
         }
     }
 
     &-bottom {
-        margin-top: 5px;
         width: 100%;
+        margin-top: 10px;
+        display: flex;
+        justify-content: center;
+        line-height: 16px;
+
+        span {
+            width: 50%;
+            text-align: center;
+        }
+    }
+
+    &-botton2 {
+        width: 100%;
+        margin-top: 20px;
         display: flex;
         justify-content: center;
         line-height: 16px;
