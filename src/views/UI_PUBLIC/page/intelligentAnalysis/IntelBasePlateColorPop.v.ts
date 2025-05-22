@@ -3,30 +3,9 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2025-05-20 17:07:03
  */
-import { PLATE_COLOR_SELECT_MAP } from '@/utils/const/snap'
+import { type AttrObjDto, getSearchOptions } from '@/utils/tools'
 export default defineComponent({
     props: {
-        /**
-         * @property 弹窗是否打开
-         */
-        modelValue: {
-            type: Boolean,
-            required: true,
-        },
-        /**
-         * @property 颜色选择生 效
-         */
-        enable: {
-            type: Boolean,
-            default: false,
-        },
-        /**
-         * @property 可选择颜色列表
-         */
-        colors: {
-            type: Array as PropType<string[]>,
-            default: () => [],
-        },
         /**
          * @property 已选择颜色列表
          */
@@ -36,50 +15,32 @@ export default defineComponent({
         },
     },
     emits: {
-        'update:modelValue'(e: boolean) {
-            return typeof e === 'boolean'
-        },
-        close() {
-            return true
-        },
-        confirmColor(e: string[], enable: boolean) {
-            return Array.isArray(e) && typeof enable === 'boolean'
+        confirmColor(e: string[]) {
+            return Array.isArray(e)
         },
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
 
         const pageData = ref({
+            isPop: false,
             enable: false,
             colors: [] as IntelPlateColorList[],
             selectedColors: [] as string[],
         })
 
         const open = () => {
-            pageData.value.enable = prop.enable
             if (pageData.value.enable) {
                 pageData.value.selectedColors = cloneDeep(prop.selectedColors)
             }
-            pageData.value.colors = prop.colors.map((item) => {
-                const text = Translate(PLATE_COLOR_SELECT_MAP[item])
-                return {
-                    value: item,
-                    label: text,
-                    selected: pageData.value.selectedColors.includes(item),
+            pageData.value.colors.map((item) => {
+                if (pageData.value.selectedColors.includes(item.value)) {
+                    item.selected = true
+                } else {
+                    item.selected = false
                 }
+                return item
             })
-        }
-
-        const close = () => {
-            destory()
-            ctx.emit('update:modelValue', false)
-            ctx.emit('close')
-        }
-
-        const destory = () => {
-            pageData.value.enable = false
-            pageData.value.colors = []
-            pageData.value.selectedColors = []
         }
 
         const chooseColor = (color: string) => {
@@ -106,20 +67,35 @@ export default defineComponent({
         }
 
         const confirm = () => {
-            ctx.emit('update:modelValue', false)
             if (!pageData.value.enable) {
                 pageData.value.selectedColors = []
             }
-            ctx.emit('confirmColor', pageData.value.selectedColors, pageData.value.enable)
-            ctx.emit('close')
+            ctx.emit('confirmColor', pageData.value.selectedColors)
+            close()
         }
+
+        const close = () => {
+            pageData.value.isPop = false
+        }
+
+        // 占位显示内容
+        const content = computed(() => {
+            return pageData.value.selectedColors.length > 0 ? `${Translate('IDCS_COLOR')}(${Translate('IDCS_PART')})` : `${Translate('IDCS_COLOR')}(${Translate('IDCS_FULL')})`
+        })
+
+        onMounted(async () => {
+            const attrOptions: Record<string, AttrObjDto[]> = await getSearchOptions()
+            pageData.value.colors = attrOptions.plate[0]?.children as unknown as IntelPlateColorList[]
+        })
+
         return {
             pageData,
             open,
-            close,
             chooseColor,
             reset,
             confirm,
+            close,
+            content,
         }
     },
 })

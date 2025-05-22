@@ -6,6 +6,7 @@
 import IntelBaseDateTimeSelector from './IntelBaseDateTimeSelector.vue'
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
 import IntelBaseProfileSelector from './IntelBaseProfileSelector.vue'
+import IntelBasePlateColorPop from './IntelBasePlateColorPop.vue'
 import IntelBaseSnapItem from './IntelBaseSnapItem.vue'
 
 export default defineComponent({
@@ -13,6 +14,7 @@ export default defineComponent({
         IntelBaseDateTimeSelector,
         IntelBaseChannelSelector,
         IntelBaseProfileSelector,
+        IntelBasePlateColorPop,
         IntelBaseSnapItem,
     },
     setup() {
@@ -24,9 +26,18 @@ export default defineComponent({
             byMotorcycle: 'byNonMotorizedVehicle',
             byPlateNumber: 'byPlate',
         }
-        // 通道ID与通道名称的映射
-        let chlIdNameMap: Record<string, string> = {}
+        // key对应界面tab类型，value对应属性弹框返回的属性类型
+        const ATTRIBUTE_TYPE_MAPPING: Record<string, string> = {
+            byPersonAttribute: 'person',
+            byCar: 'car',
+            byMotorcycle: 'motor',
+        }
+        type attrObjToListItem = {
+            attrType: string
+            attrValue: string[]
+        }
 
+        // 界面数据
         const pageData = ref({
             // 搜索类型（byCar/byMotorcycle/byPlateNumber）
             searchType: 'byCar',
@@ -72,11 +83,13 @@ export default defineComponent({
             // 选择的通道ID列表
             chlIdList: [] as string[],
             // 选择的属性列表（汽车）
-            attributeForCar: {} as Record<string, Record<string, number[]>>,
+            attributeForCar: {} as Record<string, Record<string, string[]>>,
             // 选择的属性列表（摩托车/单车）
-            attributeForMotorcycle: {} as Record<string, Record<string, number[]>>,
+            attributeForMotorcycle: {} as Record<string, Record<string, string[]>>,
             // 填写的车牌号
             plateNumber: '',
+            // 选择的车牌颜色
+            plateColors: [] as string[],
             // 分页器（汽车）
             pageIndexForCar: 1,
             pageSizeForCar: 12,
@@ -109,14 +122,24 @@ export default defineComponent({
             // 是否支持备份（H5模式）
             isSupportBackUp: isBrowserSupportWasm() && !isHttpsLogin(),
         })
-
         // 列表索引数据（根据分页索引pageIndex和分页大小pageSize从总数据targetIndexDatas中截取的当页列表数据）
         const sliceTargetIndexDatas = ref<IntelTargetIndexItem[]>([])
 
         /**
-         * @description 获取列表数据
+         * @description 获取通道ID与通道名称的映射
+         * @param {Record<string, string>} e
+         */
+        let chlIdNameMap: Record<string, string> = {}
+        const getChlIdNameMap = (e: Record<string, string>) => {
+            chlIdNameMap = e
+            console.log(chlIdNameMap)
+        }
+
+        /**
+         * @description 获取列表索引数据 - searchTargetIndex
          */
         const getAllTargetIndexDatas = async () => {
+            const currAttrObjToList: attrObjToListItem[] = getCurrAttribute()
             const sendXml = rawXml`
                 <resultLimit>10000</resultLimit>
                 <condition>
@@ -124,6 +147,53 @@ export default defineComponent({
                     <startTime isUTC="true">${localToUtc(pageData.value.dateRange[0], DEFAULT_DATE_FORMAT)}</startTime>
                     <endTime isUTC="true">${localToUtc(pageData.value.dateRange[1], DEFAULT_DATE_FORMAT)}</endTime>
                     <chls type="list">${pageData.value.chlIdList.map((item) => `<item id="${item}"></item>`).join('')}</chls>
+                    ${
+                        pageData.value.searchType !== 'byPlateNumber'
+                            ? ` <byAttrParams>
+                                    <attrs type="list">
+                                    ${currAttrObjToList
+                                        .map((element) => {
+                                            return rawXml`
+                                                <item>
+                                                    <attrType type="${element.attrType}">${element.attrType}</attrType>
+                                                    <attrValues type="list">
+                                                        ${element.attrValue
+                                                            .map((attr) => {
+                                                                return rawXml`
+                                                                    <item>${attr}</item>
+                                                                `
+                                                            })
+                                                            .join('')}
+                                                    </attrValues>
+                                                </item>
+                                                `
+                                        })
+                                        .join('')}
+                                    </attrs>
+                                </byAttrParams>`
+                            : ''
+                    }
+                    ${
+                        pageData.value.searchType === 'byPlateNumber'
+                            ? ` <byPlateParams>
+                                    <licencePlate>${pageData.value.plateNumber}</licencePlate>
+                                    <attrs type="list">
+                                        <item>
+                                            <attrType type="plateColor">plateColor</attrType>
+                                            <attrValues type="list">
+                                                ${pageData.value.plateColors
+                                                    .map((color) => {
+                                                        return rawXml`
+                                                            <item>${color}</item>
+                                                        `
+                                                    })
+                                                    .join('')}
+                                            </attrValues>
+                                        </item>
+                                    </attrs>
+                                </byPlateParams>`
+                            : ''
+                    }
                 </condition>
             `
             openLoading()
@@ -183,46 +253,44 @@ export default defineComponent({
         }
 
         /**
-         * @description 获取通道ID与通道名称的映射
-         * @param {Record<string, string>} e
+         * @description 设置界面列表索引数据targetIndexDatas
          */
-        const getChlIdNameMap = (e: Record<string, string>) => {
-            chlIdNameMap = e
-            console.log(chlIdNameMap)
+        const setCurrTargetIndexDatas = (targetIndexDatas: IntelTargetIndexItem[]) => {
+            switch (pageData.value.searchType) {
+                case 'byCar':
+                    pageData.value.targetIndexDatasForCar = targetIndexDatas
+                    break
+                case 'byMotorcycle':
+                    pageData.value.targetIndexDatasForMotorcycle = targetIndexDatas
+                    break
+                case 'byPlateNumber':
+                    pageData.value.targetIndexDatasForPlateNumber = targetIndexDatas
+                    break
+                default:
+                    break
+            }
         }
 
         /**
-         * @description 手动排序
+         * @description 获取界面列表索引数据targetIndexDatas
          */
-        const handleSort = (sortType: string) => {
-            console.log(sortType)
+        const getCurrTargetIndexDatas = () => {
+            switch (pageData.value.searchType) {
+                case 'byCar':
+                    return pageData.value.targetIndexDatasForCar
+                case 'byMotorcycle':
+                    return pageData.value.targetIndexDatasForMotorcycle
+                case 'byPlateNumber':
+                    return pageData.value.targetIndexDatasForPlateNumber
+                default:
+                    return []
+            }
         }
 
         /**
-         * @description 全选
+         * @description 获取列表详情数据 - requestTargetData
          */
-        const handleSelectAll = () => {
-            console.log('handleSelectAll')
-        }
-
-        /**
-         * @description 切换分页页码
-         */
-        const handleChangePage = (pageIndex: number) => {
-            // 设置分页pageIndex
-            setCurrPageIndex(pageIndex)
-            // 遍历列表索引数据的每一项，获取对应的详情数据
-            const tempPageIndex = getCurrPageIndex()
-            const tempPageSize = getCurrPageSize()
-            const tempTargetIndexDatas = getCurrTargetIndexDatas()
-            sliceTargetIndexDatas.value = tempTargetIndexDatas.slice((tempPageIndex - 1) * tempPageSize, tempPageIndex * tempPageSize)
-            setCurrTargetDatas(sliceTargetIndexDatas.value)
-        }
-
-        /**
-         * @description 设置界面列表详情数据targetDatas
-         */
-        const setCurrTargetDatas = (targetIndexDatas: IntelTargetIndexItem[]) => {
+        const getCurrPageTargetDatas = async (targetIndexDatas: IntelTargetIndexItem[]) => {
             const tempTargetDatas: IntelTargetDataItem[] = []
             targetIndexDatas.forEach(async (item) => {
                 closeLoading()
@@ -387,20 +455,27 @@ export default defineComponent({
                 tempTargetDatas.push(tempTargetData)
 
                 // 设置当前界面展示的列表详情数据
-                switch (pageData.value.searchType) {
-                    case 'byCar':
-                        pageData.value.targetDatasForCar = cloneDeep(tempTargetDatas)
-                        break
-                    case 'byMotorcycle':
-                        pageData.value.targetDatasForMotorcycle = cloneDeep(tempTargetDatas)
-                        break
-                    case 'byPlateNumber':
-                        pageData.value.targetDatasForPlateNumber = cloneDeep(tempTargetDatas)
-                        break
-                    default:
-                        break
-                }
+                setCurrTargetDatas(cloneDeep(tempTargetDatas))
             })
+        }
+
+        /**
+         * @description 设置界面列表详情数据targetDatas
+         */
+        const setCurrTargetDatas = (targetDatas: IntelTargetDataItem[]) => {
+            switch (pageData.value.searchType) {
+                case 'byCar':
+                    pageData.value.targetDatasForCar = targetDatas
+                    break
+                case 'byMotorcycle':
+                    pageData.value.targetDatasForMotorcycle = targetDatas
+                    break
+                case 'byPlateNumber':
+                    pageData.value.targetDatasForPlateNumber = targetDatas
+                    break
+                default:
+                    break
+            }
         }
 
         /**
@@ -414,41 +489,6 @@ export default defineComponent({
                     return pageData.value.targetDatasForMotorcycle
                 case 'byPlateNumber':
                     return pageData.value.targetDatasForPlateNumber
-                default:
-                    return []
-            }
-        }
-
-        /**
-         * @description 设置界面列表索引数据targetIndexDatas
-         */
-        const setCurrTargetIndexDatas = (targetIndexDatas: IntelTargetIndexItem[]) => {
-            switch (pageData.value.searchType) {
-                case 'byCar':
-                    pageData.value.targetIndexDatasForCar = targetIndexDatas
-                    break
-                case 'byMotorcycle':
-                    pageData.value.targetIndexDatasForMotorcycle = targetIndexDatas
-                    break
-                case 'byPlateNumber':
-                    pageData.value.targetIndexDatasForPlateNumber = targetIndexDatas
-                    break
-                default:
-                    break
-            }
-        }
-
-        /**
-         * @description 获取界面列表索引数据targetIndexDatas
-         */
-        const getCurrTargetIndexDatas = () => {
-            switch (pageData.value.searchType) {
-                case 'byCar':
-                    return pageData.value.targetIndexDatasForCar
-                case 'byMotorcycle':
-                    return pageData.value.targetIndexDatasForMotorcycle
-                case 'byPlateNumber':
-                    return pageData.value.targetIndexDatasForPlateNumber
                 default:
                     return []
             }
@@ -525,13 +565,80 @@ export default defineComponent({
         }
 
         /**
-         * @description 日期时间格式化
-         * @param {number} timestamp 毫秒
-         * @returns {String}
+         * @description 获取当前属性数据
          */
-        const displayDateTime = (timestamp: number) => {
-            if (timestamp === 0) return ''
-            return formatDate(timestamp, dateTime.dateTimeFormat)
+        const getCurrAttribute = () => {
+            let attrType = ''
+            let attrObj = {} as Record<string, string[]>
+            let attrObjToList = [] as attrObjToListItem[]
+            switch (pageData.value.searchType) {
+                case 'byCar':
+                    attrType = ATTRIBUTE_TYPE_MAPPING[pageData.value.searchType]
+                    attrObj = pageData.value.attributeForCar[attrType]
+                    attrObjToList = []
+                    Object.keys(attrObj).forEach((key) => {
+                        attrObjToList.push({
+                            attrType: key,
+                            attrValue: attrObj[key],
+                        })
+                    })
+                    return attrObjToList
+                case 'byMotorcycle':
+                    attrType = ATTRIBUTE_TYPE_MAPPING[pageData.value.searchType]
+                    attrObj = pageData.value.attributeForMotorcycle[attrType]
+                    attrObjToList = []
+                    Object.keys(attrObj).forEach((key) => {
+                        attrObjToList.push({
+                            attrType: key,
+                            attrValue: attrObj[key],
+                        })
+                    })
+                    return attrObjToList
+                default:
+                    return []
+            }
+        }
+
+        /**
+         * @description 选择属性（汽车、摩托车/单车）
+         */
+        const handleChangeAttr = () => {
+            console.log('handleChangeAttr')
+        }
+
+        /**
+         * @description 选择车牌号颜色（车牌号）
+         */
+        const handleChangePlateColor = (colors: string[]) => {
+            pageData.value.plateColors = colors
+        }
+
+        /**
+         * @description 切换分页页码
+         */
+        const handleChangePage = (pageIndex: number) => {
+            // 设置分页pageIndex
+            setCurrPageIndex(pageIndex)
+            // 遍历列表索引数据的每一项，获取对应的详情数据
+            const tempPageIndex = getCurrPageIndex()
+            const tempPageSize = getCurrPageSize()
+            const tempTargetIndexDatas = getCurrTargetIndexDatas()
+            sliceTargetIndexDatas.value = tempTargetIndexDatas.slice((tempPageIndex - 1) * tempPageSize, tempPageIndex * tempPageSize)
+            getCurrPageTargetDatas(sliceTargetIndexDatas.value)
+        }
+
+        /**
+         * @description 全选
+         */
+        const handleSelectAll = () => {
+            console.log('handleSelectAll')
+        }
+
+        /**
+         * @description 手动排序
+         */
+        const handleSort = (sortType: string) => {
+            console.log(sortType)
         }
 
         /**
@@ -549,17 +656,29 @@ export default defineComponent({
             setCurrOpenDetailIndex(item.index)
         }
 
+        /**
+         * @description 日期时间格式化
+         * @param {number} timestamp 毫秒
+         * @returns {String}
+         */
+        const displayDateTime = (timestamp: number) => {
+            if (timestamp === 0) return ''
+            return formatDate(timestamp, dateTime.dateTimeFormat)
+        }
+
         return {
             pageData,
-            getAllTargetIndexDatas,
             getChlIdNameMap,
-            handleSort,
-            handleSelectAll,
-            handleChangePage,
+            getAllTargetIndexDatas,
             getCurrTargetDatas,
-            displayDateTime,
+            handleChangeAttr,
+            handleChangePlateColor,
+            handleChangePage,
+            handleSelectAll,
+            handleSort,
             switchDetail,
             showDetail,
+            displayDateTime,
         }
     },
 })

@@ -4,48 +4,60 @@
  * @Date: 2025-05-20 17:07:12
 -->
 <template>
-    <el-dialog
-        :title="Translate('IDCS_COLOR')"
-        :model-value="modelValue"
-        width="600"
-        append-to-body
-        @open="open"
-        @close="close"
-    >
-        <div class="color_enable">
-            <el-checkbox
-                v-model="pageData.enable"
-                :label="Translate('IDCS_PLATE_COLOR')"
+    <div>
+        <div
+            class="base-intel-placeholder"
+            @click="pageData.isPop = !pageData.isPop"
+        >
+            <div class="text-ellipsis">{{ content }}</div>
+            <BaseImgSprite
+                file="arrow"
+                :chunk="4"
             />
         </div>
-        <div
-            v-title
-            class="color_list"
+        <el-dialog
+            v-model="pageData.isPop"
+            width="600"
+            :title="Translate('IDCS_COLOR')"
+            @open="open"
         >
-            <span
-                v-for="(item, index) in pageData.colors"
-                :key="index"
-                class="color_item"
-                :class="{ active: item.selected }"
-            >
-                <BaseImgSpriteBtn
-                    :title="item.label"
-                    :file="`${item.value}Btn`"
-                    :active="item.selected"
-                    @click="chooseColor(item.value)"
+            <div class="color_enable">
+                <el-checkbox
+                    v-model="pageData.enable"
+                    :label="Translate('IDCS_PLATE_COLOR')"
                 />
-            </span>
-        </div>
-        <div class="base-btn-box">
-            <el-button @click="reset">
-                {{ Translate('IDCS_RESET') }}
-            </el-button>
-            <el-button @click="confirm">
-                {{ Translate('IDCS_OK') }}
-            </el-button>
-            <el-button @click="close">{{ Translate('IDCS_CLOSE') }}</el-button>
-        </div>
-    </el-dialog>
+            </div>
+            <div
+                v-title
+                class="color_list"
+            >
+                <span
+                    v-for="(item, index) in pageData.colors"
+                    :key="index"
+                    class="color_item"
+                    :class="{ active: item.selected }"
+                >
+                    <BaseImgSpriteBtn
+                        :title="item.label"
+                        :file="`${item.value}Btn`"
+                        :active="item.selected"
+                        @click="chooseColor(item.value)"
+                    />
+                </span>
+            </div>
+            <div class="base-btn-box">
+                <el-button @click="reset">
+                    {{ Translate('IDCS_RESET') }}
+                </el-button>
+                <el-button @click="confirm">
+                    {{ Translate('IDCS_OK') }}
+                </el-button>
+                <el-button @click="close">
+                    {{ Translate('IDCS_CLOSE') }}
+                </el-button>
+            </div>
+        </el-dialog>
+    </div>
 </template>
 
 <script lang="ts" src="./IntelBasePlateColorPop.v.ts"></script>
