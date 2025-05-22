@@ -39,6 +39,11 @@ export default defineComponent({
             required: true,
         },
     },
+    emits: {
+        trigger() {
+            return true
+        },
+    },
     setup(prop) {
         const { Translate } = useLangStore()
 

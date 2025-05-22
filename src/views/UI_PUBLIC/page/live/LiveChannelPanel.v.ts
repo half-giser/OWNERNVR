@@ -58,6 +58,9 @@ export default defineComponent({
         custom(arr: LiveCustomViewChlList[], segNum: number) {
             return (arr.length || !arr.length) && !isNaN(segNum)
         },
+        trigger() {
+            return true
+        },
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
@@ -276,6 +279,7 @@ export default defineComponent({
             }
             pageData.value.chlConfirmKeyword = pageData.value.chlKeyword
             getChlTreeStatus()
+            ctx.emit('trigger')
         }
 
         /**
@@ -291,6 +295,8 @@ export default defineComponent({
             ctx.emit('refresh', chlMap)
 
             closeLoading()
+
+            ctx.emit('trigger')
         }
 
         /**
@@ -354,6 +360,7 @@ export default defineComponent({
             if (!pageData.value.onlineChlList.includes(id)) {
                 return
             }
+            ctx.emit('trigger')
             ctx.emit('play', id)
         }
 
@@ -364,6 +371,7 @@ export default defineComponent({
          */
         const setWinFromChlGroup = async (id: string, dwellTime: number) => {
             await getChlListOfGroup(id)
+            ctx.emit('trigger')
             if (pageData.value.chlListOfGroup.length > 1) {
                 ctx.emit('polling', pageData.value.chlListOfGroup, id, dwellTime)
             } else {
@@ -376,6 +384,7 @@ export default defineComponent({
          * @param {string} id
          */
         const setWinFormChlOfGroup = (id: string) => {
+            ctx.emit('trigger')
             ctx.emit('play', id)
         }
 

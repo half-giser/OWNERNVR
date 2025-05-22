@@ -14,6 +14,7 @@
             @play="playChl"
             @polling="playChlGroup"
             @custom="playCustomView"
+            @trigger="clearTargetDetect"
         />
         <div class="center">
             <div class="center-player">
@@ -31,6 +32,13 @@
                     @message="notify"
                     @audioerror="handlePlayerAudioError"
                 />
+                <BaseTargetSearchPanel
+                    v-model:visible="pageData.isDetectTarget"
+                    type="live"
+                    :mode="mode"
+                    :snap-pic="getSnapBase64"
+                    :win-index="pageData.winData.winIndex"
+                />
             </div>
             <LiveScreenPanel
                 :mode="mode"
@@ -41,6 +49,7 @@
                 :client-record="pageData.allClientRecord"
                 :remote-record="pageData.allRemoteRecord"
                 :talk="pageData.allTalk"
+                :detect-target="pageData.isDetectTarget"
                 @update:client-record="toggleAllClientRecord"
                 @update:remote-record="toggleAllRemoteRecord"
                 @update:preview="toggleAllPreview"
@@ -49,6 +58,8 @@
                 @update:talk="toggleAllTalk"
                 @fullscreen="fullScreen"
                 @stream-type="changeAllStreamType"
+                @update:detect-target="pageData.isDetectTarget = $event"
+                @trigger="clearTargetDetect"
             />
         </div>
         <div class="right">
@@ -87,18 +98,21 @@
                         @volume="setVolume"
                         @audio="setAudio"
                         @talk="toggleTalk"
+                        @trigger="clearTargetDetect"
                     />
                     <LiveLensPanel
                         v-show="index === 2"
                         :mode="mode"
                         :win-data="pageData.winData"
                         @update-support-az="updateSupportAz"
+                        @trigger="clearTargetDetect"
                     />
                     <LivePtzPanel
                         v-show="index === 3"
                         :win-data="pageData.winData"
                         :chl="pageData.chlMap"
                         :mode="mode"
+                        @trigger="clearTargetDetect"
                     />
                     <LiveFishEyePanel
                         v-if="isFishEyePanel"
@@ -107,6 +121,7 @@
                         :win-data="pageData.winData"
                         @update-support-fish-eye="updateSupportFishEye"
                         @fish-eye-mode="changeFishEyeMode"
+                        @trigger="clearTargetDetect"
                     />
                 </template>
             </LiveAsidePanel>
@@ -136,6 +151,7 @@
     &-player {
         width: 100%;
         height: calc(100% - 50px);
+        position: relative;
     }
 }
 </style>

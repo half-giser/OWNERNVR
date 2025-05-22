@@ -24,10 +24,17 @@ export default defineComponent({
             required: true,
         },
         /**
-         * @property 回显的抓拍数据
+         * @property 回显的人脸抓拍数据
          */
-        snap: {
+        snapFace: {
             type: Array as PropType<IntelFaceDBSnapFaceList[]>,
+            default: () => [],
+        },
+        /**
+         * @property 回显的人体抓拍数据
+         */
+        snapBody: {
+            type: Array as PropType<IntelBodyDBSnapBodyList[]>,
             default: () => [],
         },
         /**
@@ -58,6 +65,14 @@ export default defineComponent({
             type: String,
             default: 'face',
         },
+        /**
+         * @property 打开弹窗类型：人脸/人体
+         * @description byFace: 人脸，byBody: 人体
+         */
+        openType: {
+            type: String,
+            default: 'byFace',
+        },
     },
     emits: {
         'update:modelValue'(e: boolean) {
@@ -66,7 +81,10 @@ export default defineComponent({
         close() {
             return true
         },
-        chooseSnap(e: IntelFaceDBSnapFaceList[]) {
+        chooseFaceSnap(e: IntelFaceDBSnapFaceList[]) {
+            return Array.isArray(e)
+        },
+        chooseBodySnap(e: IntelBodyDBSnapBodyList[]) {
             return Array.isArray(e)
         },
         chooseGroup(e: IntelFaceDBGroupList[]) {
@@ -86,6 +104,8 @@ export default defineComponent({
         const pageData = ref({
             // 当前类型
             type: 'face',
+            // 弹窗打开类型
+            openType: 'byFace',
             // 类型选项
             typeOptions: [
                 {
@@ -96,24 +116,47 @@ export default defineComponent({
                     label: Translate('IDCS_HISTORY_LIBRARY'),
                     value: 'snap',
                 },
-                {
-                    label: Translate('IDCS_EXTERNAL_LIBRARY'),
-                    value: 'import',
-                },
             ],
             // 当前选中的人脸
             currentFace: [] as IntelFaceDBFaceInfo[],
             // 当前选中的人脸组
             currentFaceGroup: [] as IntelFaceDBGroupList[],
-            // 当前选中的抓怕数据
-            currentSnap: [] as IntelFaceDBSnapFaceList[],
+            // 当前选中的人脸抓怕数据
+            currentFaceSnap: [] as IntelFaceDBSnapFaceList[],
+            // 当前选中的人体抓拍数据
+            currentBodySnap: [] as IntelBodyDBSnapBodyList[],
+            // 是否打开人脸库（防止从人体打开时仍请求人脸库数据）
+            isFaceOpen: false,
         })
 
         /**
          * @description 打开弹窗时的一些初始化操作
          */
         const open = () => {
-            pageData.value.type = 'face'
+            pageData.value.openType = prop.openType
+            if (pageData.value.openType === 'byBody') {
+                pageData.value.typeOptions = [
+                    {
+                        label: Translate('IDCS_HISTORY_LIBRARY'),
+                        value: 'snap',
+                    },
+                ]
+                pageData.value.type = 'snap'
+                pageData.value.isFaceOpen = false
+            } else {
+                pageData.value.typeOptions = [
+                    {
+                        label: Translate('IDCS_FEATURE_LIBRARY'),
+                        value: 'face',
+                    },
+                    {
+                        label: Translate('IDCS_HISTORY_LIBRARY'),
+                        value: 'snap',
+                    },
+                ]
+                pageData.value.type = 'face'
+                pageData.value.isFaceOpen = true
+            }
         }
 
         /**
@@ -128,8 +171,12 @@ export default defineComponent({
          * @description 选中抓图
          * @param {IntelFaceDBSnapFaceList[]} list
          */
-        const chooseSnap = (list: IntelFaceDBSnapFaceList[]) => {
-            pageData.value.currentSnap = list
+        const chooseSnap = (list: IntelFaceDBSnapFaceList[] | IntelBodyDBSnapBodyList[]) => {
+            if (pageData.value.openType === 'byFace') {
+                pageData.value.currentFaceSnap = list as IntelFaceDBSnapFaceList[]
+            } else {
+                pageData.value.currentBodySnap = list as IntelBodyDBSnapBodyList[]
+            }
         }
 
         /**
@@ -161,8 +208,11 @@ export default defineComponent({
          * @description 确认抓图，关闭弹窗
          */
         const confirmSnap = () => {
-            if (pageData.value.currentSnap.length) {
-                ctx.emit('chooseSnap', pageData.value.currentSnap)
+            if (pageData.value.currentFaceSnap.length) {
+                ctx.emit('chooseFaceSnap', pageData.value.currentFaceSnap)
+                close()
+            } else if (pageData.value.currentBodySnap.length) {
+                ctx.emit('chooseBodySnap', pageData.value.currentBodySnap)
                 close()
             } else {
                 openMessageBox(Translate('IDCS_SELECT_FACE_EMPTY'))
@@ -233,8 +283,15 @@ export default defineComponent({
                 case 'face':
                     len = prop.face.length
                     break
+                case 'snapFace':
+                    len = prop.snapFace.length
+                    break
+                // 临时，后续已选定项要删除
                 case 'snap':
-                    len = prop.snap.length
+                    len = prop.snapFace.length
+                    break
+                case 'snapBody':
+                    len = prop.snapBody.length
                     break
                 case 'group':
                     len = prop.group.length

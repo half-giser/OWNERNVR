@@ -38,7 +38,7 @@ const intelligentAnalysisRoutes: FeatureItem = {
                     name: 'searchFace',
                     component: 'intelligentAnalysis/IntelFaceSearch.vue',
                     meta: {
-                        sort: 10,
+                        sort: 40,
                         lk: 'IDCS_FACE',
                         icon: 'event_search_face',
                         minWidth: 1580,
@@ -53,21 +53,9 @@ const intelligentAnalysisRoutes: FeatureItem = {
                     name: 'searchBody',
                     component: 'intelligentAnalysis/IntelBodySearch.vue',
                     meta: {
-                        sort: 20,
+                        sort: 50,
                         lk: 'IDCS_FIGURE',
                         icon: 'event_search_body',
-                        minWidth: 1580,
-                        minHeight: 850,
-                    },
-                },
-                // 车辆
-                vehicle: {
-                    name: 'searchVehicle',
-                    component: 'intelligentAnalysis/IntelVehicleSearch.vue',
-                    meta: {
-                        sort: 30,
-                        lk: 'IDCS_VEHICLE',
-                        icon: 'event_search_car',
                         minWidth: 1580,
                         minHeight: 850,
                     },
@@ -77,9 +65,34 @@ const intelligentAnalysisRoutes: FeatureItem = {
                     name: 'searchCombine',
                     component: 'intelligentAnalysis/IntelCombineSearch.vue',
                     meta: {
-                        sort: 40,
+                        sort: 60,
                         lk: 'IDCS_COMBINE_SEARCH',
                         icon: 'event_search_smart',
+                        minWidth: 1580,
+                        minHeight: 850,
+                    },
+                },
+
+                // 人（人脸、人体、人属性）
+                person: {
+                    name: 'searchPerson',
+                    component: 'intelligentAnalysis/IntelPersonSearch.vue',
+                    meta: {
+                        sort: 10,
+                        lk: 'IDCS_DETECTION_PERSON',
+                        icon: 'event_search_body',
+                        minWidth: 1580,
+                        minHeight: 850,
+                    },
+                },
+                // 车（车、摩托车/单车、车牌号）
+                vehicle: {
+                    name: 'searchVehicle',
+                    component: 'intelligentAnalysis/IntelVehicleSearch.vue',
+                    meta: {
+                        sort: 20,
+                        lk: 'IDCS_VEHICLE',
+                        icon: 'event_search_car',
                         minWidth: 1580,
                         minHeight: 850,
                     },

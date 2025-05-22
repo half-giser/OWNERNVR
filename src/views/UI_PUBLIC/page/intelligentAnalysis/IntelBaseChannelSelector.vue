@@ -7,7 +7,7 @@
     <div>
         <el-popover
             v-model:visible="pageData.isPop"
-            width="388"
+            width="409"
             popper-class="selector"
         >
             <template #reference>

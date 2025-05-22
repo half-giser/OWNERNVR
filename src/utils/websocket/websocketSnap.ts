@@ -130,6 +130,7 @@ type SnapDataType = {
 }
 
 type WebsocketSnapOnSuccessSnapInfo = {
+    vehicle_type: number
     similarity: string
     text_tip?: string
     group_name: string
@@ -156,6 +157,10 @@ type WebsocketSnapOnSuccessSnapInfo = {
     ptHeight: number
     serial_number: string
     gender: string
+    hometown: string
+    certificate_type: number
+    faceImgCount: number
+    group_name: string
 }
 
 export type WebsocketSnapOnSuccessSnap = {

@@ -1,102 +1,59 @@
 /*
- * @Author: yejiahao yejiahao@tvt.net.cn
- * @Date: 2024-09-06 17:34:44
- * @Description: 智能分析 - 抓拍选项框
+ * @Author: zhangdongming zhangdongming@tvt.net.cn
+ * @Date: 2025-05-21 10:30:00
+ * @Description: 智能分析-人、车
  */
-
-import type { CheckboxValueType } from 'element-plus'
-import { DEFAULT_BODY_STRUCT_MAPPING, DEFAULT_NON_VEHICLE_STRUCT_MAPPING, DEFAULT_VEHICLE_STRUCT_MAPPING } from '@/utils/const/snap'
 
 export default defineComponent({
     props: {
         /**
-         * @property 是否选中
+         * @property 当前搜索类型
          */
-        modelValue: {
-            type: Boolean,
-            default: false,
+        searchType: {
+            type: String,
+            default: 'byFace',
         },
         /**
-         * @property 图片路径
+         * @property 当前目标详情数据
          */
-        src: {
+        targetData: {
+            type: Object as PropType<IntelTargetDataItem>,
+            default: () => new IntelTargetDataItem(),
+            require: true,
+        },
+        /**
+         * @property 当前打开的目标详情索引index
+         */
+        detailIndex: {
             type: String,
             default: '',
-        },
-        /**
-         * @property 比对的图像 （type === 'match' 的时候传入）
-         */
-        matchSrc: {
-            type: String,
-            default: '',
-        },
-        /**
-         * @property {enum} 卡片类型 snap | panorama | match | struct
-         */
-        type: {
-            type: String,
-            default: 'snap',
-        },
-        /**
-         * @property 图标
-         */
-        play: {
-            type: Boolean,
-            default: false,
-        },
-        /**
-         * @property 禁用选择
-         */
-        disabled: {
-            type: Boolean,
-            default: false,
-        },
-        /**
-         * @property 错误提示信息
-         */
-        errorText: {
-            type: String,
-            default: '',
-        },
-        /**
-         * @property 是否显示识别成功图标
-         */
-        identity: {
-            type: Boolean,
-            default: false,
-        },
-        /**
-         * @property 视频结构化属性
-         */
-        attributes: {
-            type: Object as PropType<Record<string, string | number>>,
-            default: () => ({}),
-        },
-        /**
-         * @property 视频结构化目标
-         */
-        targetType: {
-            type: String,
-            default: 'person',
         },
     },
     emits: {
-        'update:modelValue'(bool: boolean) {
-            return typeof bool === 'boolean'
-        },
         detail() {
             return true
         },
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
+        const systemCaps = useCababilityStore()
+        const dateTime = useDateTimeStore()
 
         /**
-         * @description 选中/取消选中
-         * @param {boolean} e
+         * @description 处理点击封面图事件（打开详情）
          */
-        const changeValue = (e: CheckboxValueType) => {
-            ctx.emit('update:modelValue', e as boolean)
+        const handleClickCover = () => {
+            ctx.emit('detail')
+        }
+
+        /**
+         * @description 日期时间格式化
+         * @param {number} timestamp 毫秒
+         * @returns {String}
+         */
+        const displayDateTime = (timestamp: number) => {
+            if (timestamp === 0) return ''
+            return formatDate(timestamp, dateTime.dateTimeFormat)
         }
 
         /**
@@ -132,64 +89,53 @@ export default defineComponent({
             }
         }
 
-        /**
-         * @description 获取信息列表项
-         * @param {String} icon
-         * @param {String} value
-         * @returns {Object}
-         */
-        const getInfoListItem = (icon: string, value: string) => {
-            return {
-                icon,
-                value: !value || value === '--' ? Translate('IDCS_UNCONTRAST') : Translate(value),
-            }
-        }
-
-        const infoList = computed(() => {
-            if (prop.type !== 'struct') {
-                return []
-            }
-
-            if (prop.targetType === 'person') {
-                return DEFAULT_BODY_STRUCT_MAPPING.slice(0, 5).map((item) => {
-                    if (typeof prop.attributes[item.type] === 'undefined') {
-                        return getInfoListItem(item.type, '')
-                    }
-
-                    const value = prop.attributes[item.type]
-                    return getInfoListItem(item.type, item.map[Number(value)])
-                })
-            }
-
-            if (prop.targetType === 'vehicle') {
-                return DEFAULT_VEHICLE_STRUCT_MAPPING.filter((item) => {
-                    return !['year', 'model'].includes(item.type)
-                }).map((item) => {
-                    if (typeof prop.attributes[item.type] === 'undefined') {
-                        return getInfoListItem('vehicle_' + item.type, '')
-                    }
-
-                    let value = item.map ? item.map[Number(prop.attributes[item.type])] : prop.attributes[item.type]
-                    if (item.type === 'brand' && !value) value = Translate('IDCS_MAINTENSIGN_ITEM_OTHERSYS')
-                    return getInfoListItem('vehicle_' + item.type, String(value))
-                })
-            }
-
-            if (prop.targetType === 'non_vehicle') {
-                return DEFAULT_NON_VEHICLE_STRUCT_MAPPING.map((item) => {
-                    if (typeof prop.attributes[item.type] === 'undefined') {
-                        return getInfoListItem('nonVehicle_' + item.type, '')
-                    }
-
-                    return getInfoListItem('nonVehicle_' + item.type, item.map[Number(prop.attributes[item.type])])
-                })
+        // 是否显示搜索按钮
+        const showSearch = computed(() => {
+            if (prop.searchType === 'byFace') {
+                return systemCaps.supportFaceMatch
+            } else if (prop.searchType === 'byBody') {
+                return systemCaps.supportREID
+            } else {
+                return false
             }
         })
 
+        // 是否显示导出按钮
+        const showExport = computed(() => {
+            return true
+        })
+
+        // 是否显示注册按钮
+        const showRegister = computed(() => {
+            if (prop.searchType === 'byFace') {
+                return systemCaps.supportFaceMatch && prop.targetData.supportRegister
+            } else if (prop.searchType === 'byPlateNumber') {
+                return systemCaps.supportPlateMatch && prop.targetData.supportRegister
+            } else {
+                return false
+            }
+        })
+
+        // 是否显示车牌号（只有车牌号界面才显示）
+        const showPlateNumber = computed(() => {
+            return prop.searchType === 'byPlateNumber' && prop.targetData.plateAttrInfo?.plateNumber
+        })
+
+        // 是否显示相似度
+        const showSimilarity = computed(() => {
+            return !!prop.targetData.similarity
+        })
+
         return {
-            changeValue,
+            Translate,
+            handleClickCover,
+            displayDateTime,
             loadImg,
-            infoList,
+            showSearch,
+            showExport,
+            showRegister,
+            showPlateNumber,
+            showSimilarity,
         }
     },
 })
