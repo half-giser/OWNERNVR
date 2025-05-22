@@ -24,9 +24,18 @@ export default defineComponent({
             byBody: 'byHumanBodyPic',
             byPersonAttribute: 'byHumanBody',
         }
-        // 通道ID与通道名称的映射
-        let chlIdNameMap: Record<string, string> = {}
+        // key对应界面tab类型，value对应属性弹框返回的属性类型
+        const ATTRIBUTE_TYPE_MAPPING: Record<string, string> = {
+            byPersonAttribute: 'person',
+            byCar: 'car',
+            byMotorcycle: 'motor',
+        }
+        type attrObjToListItem = {
+            attrType: string
+            attrValue: string[]
+        }
 
+        // 界面数据
         const pageData = ref({
             // 搜索类型（byFace/byBody/byPersonAttribute）
             searchType: 'byFace',
@@ -72,7 +81,7 @@ export default defineComponent({
             // 选择的通道ID列表
             chlIdList: [] as string[],
             // 选择的属性列表（人属性）
-            attributeForPersonAttribute: {} as Record<string, Record<string, number[]>>,
+            attributeForPersonAttribute: {} as Record<string, Record<string, string[]>>,
             // 分页器（人脸）
             pageIndexForFace: 1,
             pageSizeForFace: 12,
@@ -105,14 +114,24 @@ export default defineComponent({
             // 是否支持备份（H5模式）
             isSupportBackUp: isBrowserSupportWasm() && !isHttpsLogin(),
         })
-
         // 列表索引数据（根据分页索引pageIndex和分页大小pageSize从总数据targetIndexDatas中截取的当页列表数据）
         const sliceTargetIndexDatas = ref<IntelTargetIndexItem[]>([])
 
         /**
-         * @description 获取列表数据
+         * @description 获取通道ID与通道名称的映射
+         * @param {Record<string, string>} e
+         */
+        let chlIdNameMap: Record<string, string> = {}
+        const getChlIdNameMap = (e: Record<string, string>) => {
+            chlIdNameMap = e
+            console.log(chlIdNameMap)
+        }
+
+        /**
+         * @description 获取列表索引数据 - searchTargetIndex
          */
         const getAllTargetIndexDatas = async () => {
+            const currAttrObjToList: attrObjToListItem[] = getCurrAttribute()
             const sendXml = rawXml`
                 <resultLimit>10000</resultLimit>
                 <condition>
@@ -120,6 +139,32 @@ export default defineComponent({
                     <startTime isUTC="true">${localToUtc(pageData.value.dateRange[0], DEFAULT_DATE_FORMAT)}</startTime>
                     <endTime isUTC="true">${localToUtc(pageData.value.dateRange[1], DEFAULT_DATE_FORMAT)}</endTime>
                     <chls type="list">${pageData.value.chlIdList.map((item) => `<item id="${item}"></item>`).join('')}</chls>
+                    ${
+                        pageData.value.searchType === 'byPersonAttribute'
+                            ? ` <byAttrParams>
+                                    <attrs type="list">
+                                    ${currAttrObjToList
+                                        .map((element) => {
+                                            return rawXml`
+                                                <item>
+                                                    <attrType type="${element.attrType}">${element.attrType}</attrType>
+                                                    <attrValues type="list">
+                                                        ${element.attrValue
+                                                            .map((attr) => {
+                                                                return rawXml`
+                                                                    <item>${attr}</item>
+                                                                `
+                                                            })
+                                                            .join('')}
+                                                    </attrValues>
+                                                </item>
+                                                `
+                                        })
+                                        .join('')}
+                                    </attrs>
+                                </byAttrParams>`
+                            : ''
+                    }
                 </condition>
             `
             openLoading()
@@ -179,46 +224,44 @@ export default defineComponent({
         }
 
         /**
-         * @description 获取通道ID与通道名称的映射
-         * @param {Record<string, string>} e
+         * @description 设置界面列表索引数据targetIndexDatas
          */
-        const getChlIdNameMap = (e: Record<string, string>) => {
-            chlIdNameMap = e
-            console.log(chlIdNameMap)
+        const setCurrTargetIndexDatas = (targetIndexDatas: IntelTargetIndexItem[]) => {
+            switch (pageData.value.searchType) {
+                case 'byFace':
+                    pageData.value.targetIndexDatasForFace = targetIndexDatas
+                    break
+                case 'byBody':
+                    pageData.value.targetIndexDatasForBody = targetIndexDatas
+                    break
+                case 'byPersonAttribute':
+                    pageData.value.targetIndexDatasForPersonAttribute = targetIndexDatas
+                    break
+                default:
+                    break
+            }
         }
 
         /**
-         * @description 手动排序
+         * @description 获取界面列表索引数据targetIndexDatas
          */
-        const handleSort = (sortType: string) => {
-            console.log(sortType)
+        const getCurrTargetIndexDatas = () => {
+            switch (pageData.value.searchType) {
+                case 'byFace':
+                    return pageData.value.targetIndexDatasForFace
+                case 'byBody':
+                    return pageData.value.targetIndexDatasForBody
+                case 'byPersonAttribute':
+                    return pageData.value.targetIndexDatasForPersonAttribute
+                default:
+                    return []
+            }
         }
 
         /**
-         * @description 全选
+         * @description 获取列表详情数据 - requestTargetData
          */
-        const handleSelectAll = () => {
-            console.log('handleSelectAll')
-        }
-
-        /**
-         * @description 切换分页页码
-         */
-        const handleChangePage = (pageIndex: number) => {
-            // 设置分页pageIndex
-            setCurrPageIndex(pageIndex)
-            // 遍历列表索引数据的每一项，获取对应的详情数据
-            const tempPageIndex = getCurrPageIndex()
-            const tempPageSize = getCurrPageSize()
-            const tempTargetIndexDatas = getCurrTargetIndexDatas()
-            sliceTargetIndexDatas.value = tempTargetIndexDatas.slice((tempPageIndex - 1) * tempPageSize, tempPageIndex * tempPageSize)
-            setCurrTargetDatas(sliceTargetIndexDatas.value)
-        }
-
-        /**
-         * @description 设置界面列表详情数据targetDatas
-         */
-        const setCurrTargetDatas = (targetIndexDatas: IntelTargetIndexItem[]) => {
+        const getCurrPageTargetDatas = async (targetIndexDatas: IntelTargetIndexItem[]) => {
             const tempTargetDatas: IntelTargetDataItem[] = []
             targetIndexDatas.forEach(async (item) => {
                 closeLoading()
@@ -383,20 +426,27 @@ export default defineComponent({
                 tempTargetDatas.push(tempTargetData)
 
                 // 设置当前界面展示的列表详情数据
-                switch (pageData.value.searchType) {
-                    case 'byFace':
-                        pageData.value.targetDatasForFace = cloneDeep(tempTargetDatas)
-                        break
-                    case 'byBody':
-                        pageData.value.targetDatasForBody = cloneDeep(tempTargetDatas)
-                        break
-                    case 'byPersonAttribute':
-                        pageData.value.targetDatasForPersonAttribute = cloneDeep(tempTargetDatas)
-                        break
-                    default:
-                        break
-                }
+                setCurrTargetDatas(cloneDeep(tempTargetDatas))
             })
+        }
+
+        /**
+         * @description 设置界面列表详情数据targetDatas
+         */
+        const setCurrTargetDatas = (targetDatas: IntelTargetDataItem[]) => {
+            switch (pageData.value.searchType) {
+                case 'byFace':
+                    pageData.value.targetDatasForFace = targetDatas
+                    break
+                case 'byBody':
+                    pageData.value.targetDatasForBody = targetDatas
+                    break
+                case 'byPersonAttribute':
+                    pageData.value.targetDatasForPersonAttribute = targetDatas
+                    break
+                default:
+                    break
+            }
         }
 
         /**
@@ -410,41 +460,6 @@ export default defineComponent({
                     return pageData.value.targetDatasForBody
                 case 'byPersonAttribute':
                     return pageData.value.targetDatasForPersonAttribute
-                default:
-                    return []
-            }
-        }
-
-        /**
-         * @description 设置界面列表索引数据targetIndexDatas
-         */
-        const setCurrTargetIndexDatas = (targetIndexDatas: IntelTargetIndexItem[]) => {
-            switch (pageData.value.searchType) {
-                case 'byFace':
-                    pageData.value.targetIndexDatasForFace = targetIndexDatas
-                    break
-                case 'byBody':
-                    pageData.value.targetIndexDatasForBody = targetIndexDatas
-                    break
-                case 'byPersonAttribute':
-                    pageData.value.targetIndexDatasForPersonAttribute = targetIndexDatas
-                    break
-                default:
-                    break
-            }
-        }
-
-        /**
-         * @description 获取界面列表索引数据targetIndexDatas
-         */
-        const getCurrTargetIndexDatas = () => {
-            switch (pageData.value.searchType) {
-                case 'byFace':
-                    return pageData.value.targetIndexDatasForFace
-                case 'byBody':
-                    return pageData.value.targetIndexDatasForBody
-                case 'byPersonAttribute':
-                    return pageData.value.targetIndexDatasForPersonAttribute
                 default:
                     return []
             }
@@ -521,13 +536,62 @@ export default defineComponent({
         }
 
         /**
-         * @description 日期时间格式化
-         * @param {number} timestamp 毫秒
-         * @returns {String}
+         * @description 获取当前属性数据
          */
-        const displayDateTime = (timestamp: number) => {
-            if (timestamp === 0) return ''
-            return formatDate(timestamp, dateTime.dateTimeFormat)
+        const getCurrAttribute = () => {
+            let attrType = ''
+            let attrObj = {} as Record<string, string[]>
+            let attrObjToList = [] as attrObjToListItem[]
+            switch (pageData.value.searchType) {
+                case 'byPersonAttribute':
+                    attrType = ATTRIBUTE_TYPE_MAPPING[pageData.value.searchType]
+                    attrObj = pageData.value.attributeForPersonAttribute[attrType]
+                    attrObjToList = []
+                    Object.keys(attrObj).forEach((key) => {
+                        attrObjToList.push({
+                            attrType: key,
+                            attrValue: attrObj[key],
+                        })
+                    })
+                    return attrObjToList
+                default:
+                    return []
+            }
+        }
+
+        /**
+         * @description 选择属性（人属性）
+         */
+        const handleChangeAttr = () => {
+            console.log('handleChangeAttr')
+        }
+
+        /**
+         * @description 切换分页页码
+         */
+        const handleChangePage = (pageIndex: number) => {
+            // 设置分页pageIndex
+            setCurrPageIndex(pageIndex)
+            // 遍历列表索引数据的每一项，获取对应的详情数据
+            const tempPageIndex = getCurrPageIndex()
+            const tempPageSize = getCurrPageSize()
+            const tempTargetIndexDatas = getCurrTargetIndexDatas()
+            sliceTargetIndexDatas.value = tempTargetIndexDatas.slice((tempPageIndex - 1) * tempPageSize, tempPageIndex * tempPageSize)
+            getCurrPageTargetDatas(sliceTargetIndexDatas.value)
+        }
+
+        /**
+         * @description 全选
+         */
+        const handleSelectAll = () => {
+            console.log('handleSelectAll')
+        }
+
+        /**
+         * @description 手动排序
+         */
+        const handleSort = (sortType: string) => {
+            console.log(sortType)
         }
 
         /**
@@ -545,17 +609,28 @@ export default defineComponent({
             setCurrOpenDetailIndex(item.index)
         }
 
+        /**
+         * @description 日期时间格式化
+         * @param {number} timestamp 毫秒
+         * @returns {String}
+         */
+        const displayDateTime = (timestamp: number) => {
+            if (timestamp === 0) return ''
+            return formatDate(timestamp, dateTime.dateTimeFormat)
+        }
+
         return {
             pageData,
-            getAllTargetIndexDatas,
             getChlIdNameMap,
-            handleSort,
-            handleSelectAll,
-            handleChangePage,
+            getAllTargetIndexDatas,
             getCurrTargetDatas,
-            displayDateTime,
+            handleChangeAttr,
+            handleChangePage,
+            handleSelectAll,
+            handleSort,
             switchDetail,
             showDetail,
+            displayDateTime,
         }
     },
 })
