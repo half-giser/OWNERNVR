@@ -107,6 +107,7 @@ export class RecordSubStreamList extends TableRowStatus {
     videoQuality = 0
     videoEncodeType = ''
     subStreamQualityCaps: RecordStreamQualityCapsDto[] = []
+    protocolType = ''
     // frameRateList: number[] = []
     // maxFps = 0
 }
@@ -132,6 +133,17 @@ export class RecordStreamInfoAttrDto {
     bitType = ''
     level = ''
     originalFps = 0
+}
+
+export class RecordSubStreamInfoAttrDto {
+    res = ''
+    fps = 0
+    QoI = 0
+    enct = ''
+    bitType = ''
+    level = ''
+    GOP: number | undefined = undefined
+    OnlyRead = ''
 }
 
 /**
