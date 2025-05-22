@@ -219,6 +219,7 @@ export class IntelPersonStatsList {
 export class IntelPersonStatsForm {
     chl: string[] = []
     event: string[] = []
+    attribute: Record<string, Record<string, string[]>> = {}
     dateRange: [number, number] = [0, 0]
 }
 
@@ -315,7 +316,7 @@ export class IntelSearchCollectList {
     chl: string[] = []
     event: string[] = []
     attribute: string[][] = [] // ['车辆选项', '人脸选项']
-    profile: Record<string, Record<string, number[]>> = {}
+    profile: Record<string, Record<string, string[]>> = {}
     direction: number[] = []
     plateNumber: string = ''
 }
@@ -383,7 +384,7 @@ export class IntelSearchBodyForm {
     dateRange: [number, number] = [0, 0]
     chl: string[] = []
     event: string[] = []
-    attribute: Record<string, Record<string, number[]>> = {}
+    attribute: Record<string, Record<string, string[]>> = {}
     pageSize = 40
     pageIndex = 0
     eventType: string[] = []
@@ -563,7 +564,7 @@ export class IntelTargetIndexItem {
     timeStampUTC = ''
     timeStamp100ns = ''
     quality = ''
-    similarity = ''
+    similarity = 0
     eventType = ''
     libIndex = ''
     startTime = 0
@@ -576,12 +577,12 @@ export class IntelTargetIndexItem {
  * @description 智能搜索 - 详情数据
  */
 export class IntelTargetDataItem extends IntelTargetIndexItem {
-    selected? = false
+    checked? = false // 界面中使用的变量，标识是否选中头部的checkbox选择框
     isNoData = false
     isDelete = false
     targetID = ''
     featureStatus = ''
-    supportRegister = ''
+    supportRegister = false
     targetType = ''
     timeStamp = 0 // 这一帧的时间戳
     timeStampLocal = '' // 这一帧的本地时间戳文字表达

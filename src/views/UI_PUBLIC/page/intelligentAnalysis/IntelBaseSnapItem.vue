@@ -8,14 +8,37 @@
         <!-- 封面图区域 -->
         <div class="pic_show_container">
             <div
+                v-if="targetData.isNoData"
+                class="noData_pic"
+            >
+                <BaseImgSprite
+                    file="noData"
+                    :chunk="1"
+                />
+                <span class="tip_text">{{ Translate('IDCS_NO_RECORD_DATA') }}</span>
+            </div>
+            <div
+                v-else-if="targetData.isDelete"
+                class="deleted_pic"
+            >
+                <BaseImgSprite
+                    file="hasDeleted"
+                    :chunk="1"
+                />
+                <span class="tip_text">{{ Translate('IDCS_DELETED') }}</span>
+            </div>
+            <div
+                v-else
                 class="normal_pic"
                 :class="{
-                    selected: targetData.selected,
+                    checked: targetData.checked,
+                    selected: targetData.index === detailIndex,
                 }"
+                @click="handleClickCover"
             >
                 <!-- 顶部操作区域（checkbox选择框） -->
                 <div class="top_operate">
-                    <el-checkbox v-model="targetData.selected" />
+                    <el-checkbox v-model="targetData.checked" />
                 </div>
                 <!-- 封面图 -->
                 <img
@@ -23,21 +46,24 @@
                     class="center_operate"
                     @load="loadImg"
                 />
-                <!-- 底部操作区域（注册、导出...） -->
+                <!-- 底部操作区域（搜索、导出、注册） -->
                 <div class="bottom_operate">
                     <BaseImgSprite
+                        v-if="showSearch"
                         file="snap_search"
                         :chunk="4"
                         :hover-index="1"
                         class="operate_icon"
                     />
                     <BaseImgSprite
-                        file="export"
+                        v-if="showExport"
+                        file="export_btn"
                         :chunk="4"
                         :hover-index="1"
                         class="operate_icon"
                     />
                     <BaseImgSprite
+                        v-if="showRegister"
                         file="register"
                         :chunk="4"
                         :hover-index="1"
@@ -45,26 +71,24 @@
                     />
                 </div>
             </div>
-            <div
-                v-if="false"
-                class="noData_pic"
-            >
-                <div class="onDataSnapText">無資料</div>
-            </div>
-            <div
-                v-if="false"
-                class="deleted_pic"
-            >
-                <div class="delSnapText">已刪除</div>
-            </div>
         </div>
         <!-- 描述信息区域 -->
         <div class="info_show_container">
             <div class="info_show_snap">
                 <span class="frametime">{{ displayDateTime(targetData.timeStamp * 1000) }}</span>
                 <span class="picChlName text-ellipsis">{{ targetData.channelName }}</span>
-                <span class="plateNumber"></span>
-                <span class="similarityValue"></span>
+                <span
+                    v-if="showPlateNumber"
+                    class="plateNumber"
+                >
+                    {{ targetData.plateAttrInfo.plateNumber }}
+                </span>
+                <span
+                    v-if="showSimilarity"
+                    class="similarityValue"
+                >
+                    {{ `'(' ${targetData.similarity} '%)'` }}
+                </span>
             </div>
         </div>
     </div>
@@ -73,6 +97,10 @@
 <script lang="ts" src="./IntelBaseSnapItem.v.ts"></script>
 
 <style lang="scss" scoped>
+* {
+    box-sizing: border-box !important;
+}
+
 .snap {
     width: calc((100% - 35px) / 6);
     margin: 5px 0px 30px 5px;
@@ -125,10 +153,13 @@
                     transform: scale(0.8);
                 }
             }
-            &.selected {
+            &.checked {
                 .top_operate {
                     visibility: visible;
                 }
+            }
+            &.selected {
+                border: 1px solid var(--primary);
             }
             &:hover {
                 .top_operate,
@@ -137,11 +168,36 @@
                 }
             }
         }
+
+        .noData_pic,
+        .deleted_pic {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            .tip_text {
+                font-size: 14px;
+                color: var(--main-text-light);
+            }
+        }
+
+        .deleted_pic {
+            .Sprite {
+                transform: scale(0.5);
+            }
+            .tip_text {
+                position: relative;
+                top: -15px;
+            }
+        }
     }
 
     .info_show_container {
         width: 100%;
         min-height: 50px;
+        font-size: 14px;
+
         .info_show_snap {
             display: flex;
             flex-direction: column;

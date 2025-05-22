@@ -96,20 +96,23 @@ export default defineComponent({
             targetDatasForPersonAttribute: [] as IntelTargetDataItem[],
             // 是否打开详情
             isDetailOpen: false,
+            // 当前打开的详情的索引index（特征值的base64）（人脸）
+            openDetailIndexForFace: '',
+            // 当前打开的详情的索引index（特征值的base64）（人体）
+            openDetailIndexForBody: '',
+            // 当前打开的详情的索引index（特征值的base64）（人属性）
+            openDetailIndexForPersonAttribute: '',
             // 是否支持备份（H5模式）
             isSupportBackUp: isBrowserSupportWasm() && !isHttpsLogin(),
         })
 
         // 列表索引数据（根据分页索引pageIndex和分页大小pageSize从总数据targetIndexDatas中截取的当页列表数据）
         const sliceTargetIndexDatas = ref<IntelTargetIndexItem[]>([])
-        // 列表详情数据（遍历列表索引数据的每一项，获取对应的详情数据）
-        const sliceTargetDatas = ref<IntelTargetDataItem[]>([])
 
         /**
          * @description 获取列表数据
          */
         const getAllTargetIndexDatas = async () => {
-            console.log(chlIdNameMap)
             const sendXml = rawXml`
                 <resultLimit>10000</resultLimit>
                 <condition>
@@ -119,11 +122,11 @@ export default defineComponent({
                     <chls type="list">${pageData.value.chlIdList.map((item) => `<item id="${item}"></item>`).join('')}</chls>
                 </condition>
             `
-            console.log(sendXml)
             openLoading()
             const result = await searchTargetIndex(sendXml)
             const $ = queryXml(result)
             closeLoading()
+
             if ($('status').text() === 'success') {
                 const targetIndexDatas: IntelTargetIndexItem[] = $('content/results/item').map((item) => {
                     const $item = queryXml(item.element)
@@ -136,7 +139,7 @@ export default defineComponent({
                     const timeStampUTC = $item('timeStampUTC').text() // 这一帧的时间戳 UTC
                     const timeStamp100ns = ('0000000' + $item('timeStamp100ns').text()).slice(-7) // 这一帧的时间戳 100ns
                     const quality = $item('quality').text() // quality
-                    const similarity = $item('similarity').text() // 相似度
+                    const similarity = $item('similarity').text().num() // 相似度
                     const eventType = $item('eventType').text() // eventType
                     const libIndex = $item('libIndex').text() // 以图搜索表示是哪张图地搜索结果（用于对比图的展示）
                     const startTime = $item('startTime').text().num() // 目标开始时间戳
@@ -162,10 +165,16 @@ export default defineComponent({
                         endTimeUTC,
                     }
                 })
-                // 设置界面列表索引数据targetIndexDatas
-                setCurrTargetIndexDatas(targetIndexDatas)
-                // 初始化第一页数据
-                handleChangePage(1)
+                if (targetIndexDatas.length === 0) {
+                    openMessageBox(Translate('IDCS_NO_RECORD_DATA'))
+                } else {
+                    // 设置界面列表索引数据targetIndexDatas
+                    setCurrTargetIndexDatas(targetIndexDatas)
+                    // 初始化第一页数据
+                    handleChangePage(1)
+                }
+            } else {
+                openMessageBox(Translate('IDCS_NO_RECORD_DATA'))
             }
         }
 
@@ -175,6 +184,7 @@ export default defineComponent({
          */
         const getChlIdNameMap = (e: Record<string, string>) => {
             chlIdNameMap = e
+            console.log(chlIdNameMap)
         }
 
         /**
@@ -229,7 +239,7 @@ export default defineComponent({
                     const isDelete = $('content/isDelete').text().bool()
                     const targetID = $('content/targetID').text()
                     const featureStatus = $('content/featureStatus').text()
-                    const supportRegister = $('content/supportRegister').text()
+                    const supportRegister = $('content/supportRegister').text().bool()
                     const targetType = $('content/targetType').text()
                     const timeStamp = $('content/timeStamp').text().num()
                     const timeStampLocal = $('content/timeStamp').attr('local')
@@ -373,7 +383,6 @@ export default defineComponent({
                 tempTargetDatas.push(tempTargetData)
 
                 // 设置当前界面展示的列表详情数据
-                sliceTargetDatas.value = cloneDeep(tempTargetDatas)
                 switch (pageData.value.searchType) {
                     case 'byFace':
                         pageData.value.targetDatasForFace = cloneDeep(tempTargetDatas)
@@ -493,6 +502,25 @@ export default defineComponent({
         }
 
         /**
+         * @description 记录当前打开详情的索引index
+         */
+        const setCurrOpenDetailIndex = (index: string) => {
+            switch (pageData.value.searchType) {
+                case 'byFace':
+                    pageData.value.openDetailIndexForFace = index
+                    break
+                case 'byBody':
+                    pageData.value.openDetailIndexForBody = index
+                    break
+                case 'byPersonAttribute':
+                    pageData.value.openDetailIndexForPersonAttribute = index
+                    break
+                default:
+                    break
+            }
+        }
+
+        /**
          * @description 日期时间格式化
          * @param {number} timestamp 毫秒
          * @returns {String}
@@ -503,15 +531,22 @@ export default defineComponent({
         }
 
         /**
-         * @description 打开/关闭详情
+         * @description 切换详情界面的展示与隐藏
          */
         const switchDetail = () => {
             pageData.value.isDetailOpen = !pageData.value.isDetailOpen
         }
 
+        /**
+         * @description 打开详情
+         */
+        const showDetail = (item: IntelTargetDataItem) => {
+            pageData.value.isDetailOpen = true
+            setCurrOpenDetailIndex(item.index)
+        }
+
         return {
             pageData,
-            sliceTargetDatas,
             getAllTargetIndexDatas,
             getChlIdNameMap,
             handleSort,
@@ -520,6 +555,7 @@ export default defineComponent({
             getCurrTargetDatas,
             displayDateTime,
             switchDetail,
+            showDetail,
         }
     },
 })

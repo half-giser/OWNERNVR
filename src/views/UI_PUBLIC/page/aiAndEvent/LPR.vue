@@ -280,6 +280,7 @@
                                     :group-data="groupList"
                                     :schedule-list="pageData.scheduleList"
                                     :voice-list="pageData.voiceList"
+                                    :chl-id="pageData.curChl"
                                     @change="matchFormData.task[index] = $event"
                                 />
                             </template>

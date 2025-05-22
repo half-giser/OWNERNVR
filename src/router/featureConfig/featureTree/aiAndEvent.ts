@@ -307,7 +307,7 @@ const aiAndEventRoutes: FeatureItem = {
             component: 'aiAndEvent/DetectTarget.vue',
             meta: {
                 sort: 10,
-                lk: 'IDCS_TARGET_DETECT',
+                lk: 'IDCS_PICTURE_COMPARSION',
                 group: 'target',
             },
         },

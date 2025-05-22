@@ -336,6 +336,16 @@ export class AlarmPresetItem {
 }
 
 /**
+ * @description IP Speaker
+ */
+export class AlarmIPSpeakerItem {
+    ipSpeakerId = ''
+    ipSpeakerName? = ''
+    audioID = ''
+    audioName? = ''
+}
+
+/**
  * @description: 组合报警
  */
 export class AlarmCombinedDto extends TableRowStatus {
@@ -446,6 +456,7 @@ export class AlarmFaceDetectionDto {
     record: SelectOption<string, string>[] = []
     alarmOut: SelectOption<string, string>[] = []
     preset: AlarmPresetItem[] = []
+    ipSpeaker: AlarmIPSpeakerItem[] = []
     trigger: string[] = []
     sysAudio = ''
 }
@@ -548,14 +559,25 @@ export class AlarmIntelligentModeEventTypeDto {
  * @description AI资源表格项
  */
 export class AlarmAIResourceDto {
-    id = ''
-    name = ''
-    eventType: string[] = []
-    eventTypeText = ''
-    percent = ''
-    decodeResource = '--'
+    aiResType = ''
+    aiResDetailInfo: Record<string, AlarmAIResDetailInfoDto> = {}
+    aiResDetailTips = ''
+    aiResPercent = ''
 }
 
+/**
+ * @description AI资源详细信息项
+ */
+export class AlarmAIResDetailInfoDto {
+    chlId = ''
+    chlName = ''
+    eventTypes: string[] = []
+    decodeStatus = ''
+    connectState = false
+    aiResType: string[] = []
+    aiResPercent = ''
+    occupyDecodeCapPercent = ''
+}
 /**
  * @description 区域入侵不同区域类型的公用页面数据。
  */
@@ -617,6 +639,7 @@ export class AlarmPeaDto {
     alarmOutChls: SelectOption<string, string>[] = []
     presetSwitch = false
     presets: AlarmPresetItem[] = []
+    ipSpeaker: AlarmIPSpeakerItem[] = []
     trigger: string[] = []
     triggerList: string[] = []
 }
@@ -679,6 +702,7 @@ export class AlarmTripwireDto {
     triggerList = ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch']
     alarmOut: SelectOption<string, string>[] = []
     preset: AlarmPresetItem[] = []
+    ipSpeaker: AlarmIPSpeakerItem[] = []
 }
 
 /**
@@ -802,6 +826,7 @@ export class AlarmLoiterDto {
     alarmOutChls: SelectOption<string, string>[] = []
     presetSwitch = false
     presets: AlarmPresetItem[] = []
+    ipSpeaker: AlarmIPSpeakerItem[] = []
     trigger: string[] = []
     triggerList: string[] = []
 }
@@ -844,6 +869,7 @@ export class AlarmAsdDto {
     alarmOutChls: SelectOption<string, string>[] = []
     presetSwitch = false
     presets: AlarmPresetItem[] = []
+    ipSpeaker: AlarmIPSpeakerItem[] = []
     trigger: string[] = []
     triggerList: string[] = []
 }
@@ -1003,6 +1029,7 @@ export class AlarmAreaStatisDto {
     alarmOutChls: SelectOption<string, string>[] = []
     presetSwitch = false
     presets: AlarmPresetItem[] = []
+    ipSpeaker: AlarmIPSpeakerItem[] = []
     trigger: string[] = []
     triggerList: string[] = []
 }
@@ -1280,6 +1307,7 @@ export class AlarmPassLinesDto {
     alarmOutChls: SelectOption<string, string>[] = []
     presetSwitch = false
     presets: AlarmPresetItem[] = []
+    ipSpeaker: AlarmIPSpeakerItem[] = []
     trigger: string[] = []
     triggerList: string[] = []
 }
@@ -1334,6 +1362,7 @@ export class AlarmRecognitionTaskDto {
     alarmOut: SelectOption<string, string>[] = []
     snap: SelectOption<string, string>[] = []
     preset: AlarmPresetItem[] = []
+    ipSpeaker: AlarmIPSpeakerItem[] = []
     trigger: string[] = []
     sysAudio = ''
 }
@@ -1443,6 +1472,7 @@ export class AlarmTemperatureDetectionDto {
     alarmOut: SelectOption<string, string>[] = []
     snap: SelectOption<string, string>[] = []
     preset: AlarmPresetItem[] = []
+    ipSpeaker: AlarmIPSpeakerItem[] = []
     trigger: string[] = []
     sysAudio = ''
     boundaryData: AlarmTemperatureDetectionBoundryDto[] = []
@@ -1524,6 +1554,7 @@ export class AlarmObjectLeftDto {
     record: SelectOption<string, string>[] = []
     alarmOut: SelectOption<string, string>[] = []
     preset: AlarmPresetItem[] = []
+    ipSpeaker: AlarmIPSpeakerItem[] = []
     trigger: string[] = []
     sysAudio = ''
 }
@@ -1546,6 +1577,7 @@ export class AlarmAbnormalDisposeDto {
     record: SelectOption<string, string>[] = []
     alarmOut: SelectOption<string, string>[] = []
     preset: AlarmPresetItem[] = []
+    ipSpeaker: AlarmIPSpeakerItem[] = []
     trigger: string[] = []
     sysAudio = ''
 }
@@ -1636,6 +1668,7 @@ export class AlarmCddDto {
     record: SelectOption<string, string>[] = []
     alarmOut: SelectOption<string, string>[] = []
     preset: AlarmPresetItem[] = []
+    ipSpeaker: AlarmIPSpeakerItem[] = []
     // 报警阈值
     triggerAlarmLevel = 0
     // mutex
@@ -1684,6 +1717,7 @@ export class AlarmFireDetectionDto {
     alarmOut: SelectOption<string, string>[] = []
     snap: SelectOption<string, string>[] = []
     preset: AlarmPresetItem[] = []
+    ipSpeaker: AlarmIPSpeakerItem[] = []
 }
 
 export class AlarmSnapPopDto {
