@@ -34,6 +34,13 @@ export default defineComponent({
             type: Array as PropType<SelectOption<string, string>[]>,
             required: true,
         },
+        /**
+         * @property {string} 通道ID
+         */
+        chlId: {
+            type: String,
+            required: true,
+        },
     },
     emits: {
         change(data: AlarmRecognitionTaskDto) {
