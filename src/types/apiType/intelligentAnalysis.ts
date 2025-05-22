@@ -219,6 +219,7 @@ export class IntelPersonStatsList {
 export class IntelPersonStatsForm {
     chl: string[] = []
     event: string[] = []
+    attribute: Record<string, Record<string, string[]>> = {}
     dateRange: [number, number] = [0, 0]
 }
 
@@ -315,7 +316,7 @@ export class IntelSearchCollectList {
     chl: string[] = []
     event: string[] = []
     attribute: string[][] = [] // ['车辆选项', '人脸选项']
-    profile: Record<string, Record<string, number[]>> = {}
+    profile: Record<string, Record<string, string[]>> = {}
     direction: number[] = []
     plateNumber: string = ''
 }
@@ -383,7 +384,7 @@ export class IntelSearchBodyForm {
     dateRange: [number, number] = [0, 0]
     chl: string[] = []
     event: string[] = []
-    attribute: Record<string, Record<string, number[]>> = {}
+    attribute: Record<string, Record<string, string[]>> = {}
     pageSize = 40
     pageIndex = 0
     eventType: string[] = []

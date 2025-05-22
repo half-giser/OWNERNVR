@@ -6,6 +6,7 @@
 
 import { type ApiResult } from '@/api/api'
 import { type XMLQuery, type XmlResult } from './xmlParse'
+import { ATTR_SORT_MAP, VALUE_NAME_MAPPING } from '@/utils/const/snap'
 
 export { clamp, cloneDeep, debounce, isEqual } from 'lodash-es'
 
@@ -1692,4 +1693,85 @@ const setMinMaxTargetXmlData = (minRegionInfo: AlarmMaxMinRegionInfoDto, maxRegi
             <height>${maxRegionInfo.height * 100}</height>
         </maxDetectTarget>
     `
+}
+
+export interface AttrObjDto {
+    value: string
+    label: string
+    showType: string
+    children: Record<string, string>[]
+}
+
+export const getSearchOptions = async () => {
+    const Translate = useLangStore().Translate
+    const result = await querySearchOptions()
+    const $ = await commLoadResponseHandler(result)
+    const pedAttr: AttrObjDto[] = []
+    const vehicleAttr: AttrObjDto[] = []
+    const nonmotorAttr: AttrObjDto[] = []
+    const plateAttr: AttrObjDto[] = []
+    $('content/searchTypeOptions/item').forEach((item) => {
+        const $item = queryXml(item.element)
+        const searchType = $item('type').text()
+        if (searchType === 'byHumanBody' || searchType === 'byVehicle' || searchType === 'byNonMotorizedVehicle' || searchType === 'byPlate') {
+            $item('attrOptions/item').forEach((attrItem) => {
+                const $attrItem = queryXml(attrItem.element)
+                const attrOptionType = $attrItem('attrOptionType').text()
+                let showType = 'normal'
+                if (attrOptionType === 'upperClothColor' || attrOptionType === 'vehicleColor' || attrOptionType === 'plateColor') {
+                    showType = 'color'
+                } else if (attrOptionType === 'vehicleBrand') {
+                    showType = 'select'
+                }
+
+                if ($attrItem('attrOptionValues').length > 0) {
+                    const attrObj: AttrObjDto = {
+                        value: attrOptionType,
+                        label: Translate(VALUE_NAME_MAPPING[attrOptionType]),
+                        showType: showType,
+                        children: [],
+                    }
+                    // NTA1-2938 汽车品牌增加ALL选项
+                    if (attrOptionType === 'vehicleBrand') {
+                        attrObj.children.push({
+                            label: Translate(VALUE_NAME_MAPPING.all),
+                            value: 'all',
+                        })
+                    }
+                    $attrItem('attrOptionValues/item').forEach((valueItem) => {
+                        const attrItem = {
+                            label: Translate(VALUE_NAME_MAPPING[valueItem.text()]),
+                            value: valueItem.text(),
+                        }
+                        attrObj.children.push(attrItem)
+                    })
+                    attrObj.children = handleSort(attrObj.children, ATTR_SORT_MAP[attrOptionType])
+                    if (searchType === 'byHumanBody') {
+                        pedAttr.push(attrObj)
+                    } else if (searchType === 'byVehicle') {
+                        vehicleAttr.push(attrObj)
+                    } else if (searchType === 'byNonMotorizedVehicle') {
+                        nonmotorAttr.push(attrObj)
+                    } else if (searchType === 'byPlate') {
+                        plateAttr.push(attrObj)
+                    }
+                }
+            })
+        }
+    })
+    console.log({ person: pedAttr, car: vehicleAttr, motor: nonmotorAttr, plate: plateAttr })
+    return { person: pedAttr, car: vehicleAttr, motor: nonmotorAttr, plate: plateAttr }
+}
+
+// 属性排序
+const handleSort = (attrList: Record<string, string>[], targetSort: string[]) => {
+    if (!(targetSort && targetSort.length > 0)) return attrList
+    const list: Record<string, string>[] = []
+    targetSort.forEach((attrValue) => {
+        const attrItem = attrList.find(function (item) {
+            return item.value === attrValue
+        })
+        if (attrItem) list.push(attrItem)
+    })
+    return list
 }

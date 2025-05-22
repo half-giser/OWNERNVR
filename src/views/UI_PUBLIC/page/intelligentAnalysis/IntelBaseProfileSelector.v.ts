@@ -3,29 +3,14 @@
  * @Date: 2024-09-06 16:42:13
  * @Description: 智能分析 属性选择器
  */
-import {
-    GENDER_MAP,
-    AGE_MAP,
-    ORIENT_MAP,
-    HAT_MAP,
-    GLASS_MAP,
-    MASK_MAP,
-    BACKPACK_TYPE_MAP,
-    UPPER_TYPE_MAP,
-    LOWER_TYPE_MAP,
-    COLOR_MAP,
-    SKIRT_TYPE_MAP,
-    CAR_TYPE_MAP,
-    NON_MOTOR_MAP,
-    CAR_BRAND_MAP,
-} from '@/utils/const/snap'
+import { type AttrObjDto, getSearchOptions } from '@/utils/tools'
 export default defineComponent({
     props: {
         /**
          * @property 勾选的属性值
          */
         modelValue: {
-            type: Object as PropType<Record<string, Record<string, number[]>>>,
+            type: Object as PropType<Record<string, Record<string, string[]>>>,
             required: true,
         },
         /**
@@ -44,81 +29,17 @@ export default defineComponent({
         },
     },
     emits: {
-        'update:modelValue'(obj: Record<string, Record<string, number[]>>) {
+        'update:modelValue'(obj: Record<string, Record<string, string[]>>) {
             return !!obj
         },
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
 
-        const UNKNOWN = Translate('IDCS_ENCRYPT_UNKNOWN')
-        const CAR_BRAND_OPTIONS: number[] = []
-
-        /**
-         * @description 构造选项
-         * @param {Object} obj
-         * @param {string} str
-         * @returns {Array}
-         */
-        const getOptions = (obj: Record<number, string>, str?: string) => {
-            return Object.entries(obj)
-                .map((item) => {
-                    return {
-                        label: item[1] === '--' ? UNKNOWN : str ? Translate(item[1]).formatForLang(str) : Translate(item[1]),
-                        value: Number(item[0]),
-                    }
-                })
-                .toSorted((a, b) => {
-                    if (typeof a.value === 'string' || typeof b.value === 'string') {
-                        return -1
-                    }
-
-                    if (b.value === 0) {
-                        return -2
-                    }
-
-                    return a.value - b.value
-                })
-        }
-
-        /**
-         * @description 构造车型品牌选项
-         * @returns {Array}
-         */
-        const getCarBrandOption = () => {
-            return [
-                {
-                    label: Translate('IDCS_FULL'),
-                    value: -2,
-                },
-            ].concat(
-                Object.entries(CAR_BRAND_MAP).map((item) => {
-                    if (item[0] !== 'other' && Number(item[0])) {
-                        CAR_BRAND_OPTIONS.push(Number(item[0]))
-                    }
-                    return {
-                        label: item[1] === '--' ? UNKNOWN : Translate(item[1]),
-                        value: item[0] === 'other' ? -1 : Number(item[0]),
-                    }
-                }),
-            )
-        }
-
         type Options = {
             label: string
             value: string
-            children: {
-                label: string
-                value: string
-                children: {
-                    label: string
-                    value: string
-                    children: {
-                        label: string
-                        value: number
-                    }[]
-                }[]
-            }[]
+            children: AttrObjDto[]
         }
 
         // 所有选项
@@ -126,164 +47,23 @@ export default defineComponent({
             {
                 label: Translate('IDCS_DETECTION_PERSON'),
                 value: 'person',
-                children: [
-                    {
-                        label: Translate('IDCS_GENERAL'),
-                        value: 'general',
-                        children: [
-                            {
-                                label: Translate('IDCS_SEX'),
-                                value: 'gender',
-                                children: getOptions(GENDER_MAP),
-                            },
-                            {
-                                label: Translate('IDCS_AGE'),
-                                value: 'age',
-                                children: getOptions(AGE_MAP),
-                            },
-                            {
-                                label: Translate('IDCS_DIRECTION'),
-                                value: 'orient',
-                                children: getOptions(ORIENT_MAP),
-                            },
-                        ],
-                    },
-                    {
-                        label: Translate('IDCS_HEAD_FACE'),
-                        value: 'head_face',
-                        children: [
-                            {
-                                label: Translate('IDCS_MASK'),
-                                value: 'mask',
-                                children: getOptions(MASK_MAP),
-                            },
-                            {
-                                label: Translate('IDCS_HAT'),
-                                value: 'hat',
-                                children: getOptions(HAT_MAP),
-                            },
-                            {
-                                label: Translate('IDCS_GLASSES'),
-                                value: 'galsses',
-                                children: getOptions(GLASS_MAP),
-                            },
-                        ],
-                    },
-                    {
-                        label: Translate('IDCS_UPPER_BODY'),
-                        value: 'upper_body',
-                        children: [
-                            {
-                                label: Translate('IDCS_BACKPACK'),
-                                value: 'backpack',
-                                children: getOptions(BACKPACK_TYPE_MAP),
-                            },
-                            {
-                                label: Translate('IDCS_UPPER_BODY_CLOTH_TYPE'),
-                                value: 'upper_length',
-                                children: getOptions(UPPER_TYPE_MAP, Translate('IDCS_UPPER_CLOTH')),
-                            },
-                            {
-                                label: Translate('IDCS_UPPERCOLOR'),
-                                value: 'upper_color',
-                                children: getOptions(COLOR_MAP),
-                            },
-                        ],
-                    },
-                    {
-                        label: Translate('IDCS_LOWER_BODY'),
-                        value: 'lower_body',
-                        children: [
-                            {
-                                label: Translate('IDCS_LOWER_BODY_CLOTH_TYPE'),
-                                value: 'lower_length',
-                                children: getOptions(LOWER_TYPE_MAP, Translate('IDCS_LOWER_CLOTH')),
-                            },
-                            {
-                                label: Translate('IDCS_BLOWERCOLOR'),
-                                value: 'lower_color',
-                                children: getOptions(COLOR_MAP),
-                            },
-                        ],
-                    },
-                    {
-                        label: Translate('IDCS_SKIRT'),
-                        value: 'skirt',
-                        children: [
-                            {
-                                label: Translate('IDCS_SKIRT'),
-                                value: 'skirt',
-                                children: getOptions(SKIRT_TYPE_MAP),
-                            },
-                        ],
-                    },
-                ],
+                children: [],
             },
             {
                 label: Translate('IDCS_DETECTION_VEHICLE'),
                 value: 'car',
-                children: [
-                    {
-                        label: '',
-                        value: '',
-                        children: [
-                            {
-                                label: Translate('IDCS_COLOR'),
-                                value: 'color',
-                                children: getOptions(COLOR_MAP),
-                            },
-                            {
-                                label: Translate('IDCS_TYPE'),
-                                value: 'type',
-                                children: getOptions(CAR_TYPE_MAP),
-                            },
-                            {
-                                label: Translate('IDCS_BRAND'),
-                                value: 'brand',
-                                children: getCarBrandOption(),
-                            },
-                        ],
-                    },
-                ],
+                children: [],
             },
             {
                 label: Translate('IDCS_NON_VEHICLE'),
                 value: 'motor',
-                children: [
-                    {
-                        label: '',
-                        value: '',
-                        children: [
-                            {
-                                label: Translate('IDCS_TYPE'),
-                                value: 'type',
-                                children: getOptions(NON_MOTOR_MAP),
-                            },
-                        ],
-                    },
-                ],
+                children: [],
             },
         ]
 
         const NAMES_MAPPING: Record<string, string> = {}
-        const DEFAULT_VALUE: Record<string, Record<string, number[]>> = {}
+        const DEFAULT_VALUE: Record<string, Record<string, string[]>> = {}
         const LEN_MAPPING: Record<string, Record<string, number>> = {}
-
-        OPTIONS.forEach((item1) => {
-            NAMES_MAPPING[item1.value] = item1.label
-            DEFAULT_VALUE[item1.value] = {}
-            LEN_MAPPING[item1.value] = {}
-            item1.children.forEach((item2) => {
-                item2.children.forEach((item3) => {
-                    if (item3.value === 'brand') {
-                        DEFAULT_VALUE[item1.value][item3.value] = [-2]
-                    } else {
-                        DEFAULT_VALUE[item1.value][item3.value] = []
-                    }
-                    LEN_MAPPING[item1.value][item3.value] = item3.children.length
-                })
-            })
-        })
 
         // 选项
         const options = computed(() => {
@@ -293,7 +73,9 @@ export default defineComponent({
         })
 
         // 勾选值对象
-        const selected = ref<Record<string, Record<string, number[]>>>(DEFAULT_VALUE)
+        const selected = ref<Record<string, Record<string, string[]>>>(DEFAULT_VALUE)
+        // 属性checkbox勾选值对象
+        const attrCheckVals = ref<Record<string, Record<string, boolean>>>({})
 
         // 占位显示内容
         const content = computed(() => {
@@ -302,12 +84,12 @@ export default defineComponent({
                 label[key1] = false
                 Object.keys(prop.modelValue[key1]).forEach((key2) => {
                     const value = prop.modelValue[key1][key2]
-                    if (key2 === 'brand') {
-                        if (value.length === 1 && value[0] === 0) {
+                    if (key2 === 'vehicleBrand') {
+                        if (value.length) {
                             label[key1] = true
                         }
                     } else {
-                        if (prop.modelValue[key1][key2].length && prop.modelValue[key1][key2].length !== LEN_MAPPING[key1][key2]) {
+                        if (value.length && value.length !== LEN_MAPPING[key1][key2]) {
                             label[key1] = true
                         }
                     }
@@ -315,7 +97,7 @@ export default defineComponent({
             })
             const entries = Object.entries(label).filter((item) => prop.range.includes(item[0]))
             if (prop.placeholderType === 'default') {
-                return `${Translate('IDCS_ATTRIBUTE')} (${entries.every((item) => item[1]) ? Translate('IDCS_PART') : Translate('IDCS_FULL')})`
+                return entries.map((item) => `${NAMES_MAPPING[item[0]]}(${item[1] ? Translate('IDCS_PART') : Translate('IDCS_FULL')})`).join('; ')
             } else {
                 return `${Translate('IDCS_ATTRIBUTE')} (${entries.map((item) => `${NAMES_MAPPING[item[0]]}: ${item[1] ? Translate('IDCS_PART') : Translate('IDCS_FULL')}`).join('; ')})`
             }
@@ -330,14 +112,23 @@ export default defineComponent({
          * @description 勾选值更新时回调
          * @param {string} key1
          * @param {string} key2
-         * @param {number} value
+         * @param {string} value
          */
-        const change = (key1: string, key2: string, value: number) => {
+        const change = (key1: string, key2: string, value: string) => {
             const index = selected.value[key1][key2].indexOf(value)
             if (index === -1) {
                 selected.value[key1][key2].push(value)
             } else {
                 selected.value[key1][key2].splice(index, 1)
+            }
+        }
+
+        const handleCheckboxChange = (key1: string, key2: string, value: boolean) => {
+            if (key1 === 'person' && key2 === 'upperClothType') {
+                attrCheckVals.value[key1].upperClothColor = value
+            } else if (key1 === 'person' && key2 === 'mask') {
+                attrCheckVals.value[key1].hat = value
+                attrCheckVals.value[key1].glasses = value
             }
         }
 
@@ -347,7 +138,16 @@ export default defineComponent({
         const reset = () => {
             Object.keys(selected.value).forEach((key1: string) => {
                 Object.keys(selected.value[key1]).forEach((key2: string) => {
-                    selected.value[key1][key2] = []
+                    if (key2 === 'vehicleBrand') {
+                        selected.value[key1][key2] = ['all']
+                    } else {
+                        selected.value[key1][key2] = []
+                    }
+                })
+            })
+            Object.keys(attrCheckVals.value).forEach((key1: string) => {
+                Object.keys(attrCheckVals.value[key1]).forEach((key2: string) => {
+                    attrCheckVals.value[key1][key2] = false
                 })
             })
         }
@@ -363,7 +163,7 @@ export default defineComponent({
          * @description 确认选项
          */
         const confirm = () => {
-            const result: Record<string, Record<string, number[]>> = {}
+            const result: Record<string, Record<string, string[]>> = {}
             Object.keys(selected.value).forEach((key1: string) => {
                 Object.keys(selected.value[key1]).forEach((key2: string) => {
                     const value = [...selected.value[key1][key2]]
@@ -371,16 +171,8 @@ export default defineComponent({
                         result[key1] = {}
                     }
 
-                    if (key2 === 'brand') {
-                        if (value[0] < 0) {
-                            result[key1][key2] = [...CAR_BRAND_OPTIONS]
-                        } else {
-                            result[key1][key2] = value
-                        }
-                    } else {
-                        if (value.length) {
-                            result[key1][key2] = value
-                        }
+                    if (attrCheckVals.value[key1][key2] && value.length) {
+                        result[key1][key2] = value
                     }
                 })
             })
@@ -396,14 +188,33 @@ export default defineComponent({
                     Object.keys(selected.value).forEach((key1: string) => {
                         Object.keys(selected.value[key1]).forEach((key2: string) => {
                             if (prop.modelValue[key1] && prop.modelValue[key1][key2]) {
-                                if (key2 === 'brand') {
-                                    if (prop.modelValue[key1][key2].length === CAR_BRAND_OPTIONS.length && selected.value[key1][key2][0] < 0) {
-                                        selected.value[key1][key2][0] = selected.value[key1][key2][0]
-                                    } else {
-                                        selected.value[key1][key2] = [...prop.modelValue[key1][key2]]
-                                    }
+                                selected.value[key1][key2] = [...prop.modelValue[key1][key2]]
+                                if (key2 === 'upperClothType' || key2 === 'upperClothColor') {
+                                    attrCheckVals.value[key1][key2] = selected.value[key1].upperClothType?.length > 0 || selected.value[key1].upperClothColor?.length > 0
+                                } else if (key2 === 'mask' || key2 === 'hat' || key2 === 'glasses') {
+                                    attrCheckVals.value[key1][key2] = selected.value[key1].mask?.length > 0 || selected.value[key1].hat?.length > 0 || selected.value[key1].glasses?.length > 0
                                 } else {
-                                    selected.value[key1][key2] = [...prop.modelValue[key1][key2]]
+                                    attrCheckVals.value[key1][key2] = selected.value[key1][key2].length > 0
+                                }
+
+                                if (key2 === 'vehicleBrand') {
+                                    if (prop.modelValue[key1][key2].length === 0) {
+                                        selected.value[key1][key2] = ['all']
+                                    }
+                                }
+                            } else {
+                                if (key2 === 'vehicleBrand') {
+                                    selected.value[key1][key2] = ['all']
+                                } else {
+                                    selected.value[key1][key2] = []
+                                }
+
+                                if (key2 === 'upperClothType' || key2 === 'upperClothColor') {
+                                    attrCheckVals.value[key1][key2] = prop.modelValue[key1]?.upperClothType?.length > 0 || prop.modelValue[key1]?.upperClothColor?.length > 0
+                                } else if (key2 === 'mask' || key2 === 'hat' || key2 === 'glasses') {
+                                    attrCheckVals.value[key1][key2] = prop.modelValue[key1]?.mask?.length > 0 || prop.modelValue[key1]?.hat?.length > 0 || prop.modelValue[key1]?.glasses?.length > 0
+                                } else {
+                                    attrCheckVals.value[key1][key2] = false
                                 }
                             }
                         })
@@ -412,7 +223,22 @@ export default defineComponent({
             },
         )
 
-        onMounted(() => {
+        onMounted(async () => {
+            const attrOptions: Record<string, AttrObjDto[]> = await getSearchOptions()
+            OPTIONS.filter((item) => prop.range.includes(item.value)).forEach((item) => {
+                item.children = attrOptions[item.value] || []
+            })
+            OPTIONS.forEach((item1) => {
+                NAMES_MAPPING[item1.value] = item1.label
+                DEFAULT_VALUE[item1.value] = {}
+                LEN_MAPPING[item1.value] = {}
+                attrCheckVals.value[item1.value] = {}
+                item1.children.forEach((item2) => {
+                    DEFAULT_VALUE[item1.value][item2.value] = []
+                    LEN_MAPPING[item1.value][item2.value] = item2.children.length
+                    attrCheckVals.value[item1.value][item2.value] = false
+                })
+            })
             // 如果表单没有值，则创造初始值
             if (!Object.keys(prop.modelValue).length) {
                 confirm()
@@ -424,10 +250,12 @@ export default defineComponent({
             selected,
             pageData,
             options,
+            attrCheckVals,
             change,
             reset,
             confirm,
             close,
+            handleCheckboxChange,
         }
     },
 })
