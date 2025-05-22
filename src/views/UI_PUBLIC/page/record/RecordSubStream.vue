@@ -5,6 +5,14 @@
 -->
 <template>
     <div class="base-flex-box">
+        <el-form v-title>
+            <el-form-item :label="Translate('IDCS_MODE')">
+                <el-select-v2
+                    v-model="formData.autoMode"
+                    :options="pageData.recSubResAdaptive"
+                />
+            </el-form-item>
+        </el-form>
         <div class="base-table-box">
             <el-table
                 ref="tableRef"
