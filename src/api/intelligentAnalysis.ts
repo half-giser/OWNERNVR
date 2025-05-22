@@ -209,3 +209,9 @@ export const searchTargetIndex = (data: string) => fetch('searchTargetIndex', da
  * @returns
  */
 export const requestTargetData = (data: string) => fetch('requestTargetData', data)
+
+/**
+ * @description 获取智能搜索属性
+ * @returns
+ */
+export const querySearchOptions = () => fetch('querySearchOptions', '')
