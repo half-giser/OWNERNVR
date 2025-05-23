@@ -206,6 +206,8 @@ export class IntelPersonStatsChlList {
     imageNum = 0
     personIn = 0
     personOut = 0
+    childIn = 0
+    childOut = 0
 }
 
 /**
@@ -267,7 +269,7 @@ export class IntelVehicleStatsForm {
     chl: string[] = []
     event: string[] = []
     dateRange: [number, number] = [0, 0]
-    attribute: string[] = []
+    attribute: Record<string, Record<string, string[]>> = {}
     deduplicate = false
 }
 
