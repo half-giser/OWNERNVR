@@ -215,7 +215,7 @@ export default defineComponent({
                     const quality = $item('quality').text() // quality
                     const similarity = $item('similarity').text().num() // 相似度
                     const eventType = $item('eventType').text() // eventType
-                    const libIndex = $item('libIndex').text() // 以图搜索表示是哪张图地搜索结果（用于对比图的展示）
+                    const libIndex = $item('libIndex').text().num() // 以图搜索表示是哪张图地搜索结果（用于对比图的展示）
                     const startTime = $item('startTime').text().num() // 目标开始时间戳
                     const startTimeUTC = $item('startTimeUTC').text() // 目标开始时间戳 UTC
                     const endTime = $item('endTime').text().num() // 目标消失的时间戳
@@ -600,13 +600,6 @@ export default defineComponent({
         }
 
         /**
-         * @description 选择属性（汽车、摩托车/单车）
-         */
-        const handleChangeAttr = () => {
-            console.log('handleChangeAttr')
-        }
-
-        /**
          * @description 选择车牌号颜色（车牌号）
          */
         const handleChangePlateColor = (colors: string[]) => {
@@ -671,7 +664,6 @@ export default defineComponent({
             getChlIdNameMap,
             getAllTargetIndexDatas,
             getCurrTargetDatas,
-            handleChangeAttr,
             handleChangePlateColor,
             handleChangePage,
             handleSelectAll,

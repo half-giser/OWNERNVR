@@ -45,6 +45,9 @@ export default defineComponent({
         search(chls: PlaybackChlList[]) {
             return Array.isArray(chls)
         },
+        trigger(bool: boolean) {
+            return typeof bool === 'boolean'
+        },
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
@@ -178,6 +181,7 @@ export default defineComponent({
             if (!pageData.value.selectedChl.length) {
                 return
             }
+            ctx.emit('trigger', true)
             ctx.emit('search', sortedSelectedChlList.value)
         }
 
@@ -185,6 +189,7 @@ export default defineComponent({
          * @description 触发左下角播放选中的通道
          */
         const play = () => {
+            ctx.emit('trigger', false)
             ctx.emit('play', sortedSelectedChlList.value)
         }
 
@@ -406,6 +411,7 @@ export default defineComponent({
         watch(
             () => pageData.value.selectedChl,
             () => {
+                ctx.emit('trigger', false)
                 ctx.emit('change', sortedSelectedChlList.value)
             },
         )

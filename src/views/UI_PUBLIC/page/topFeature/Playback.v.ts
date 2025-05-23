@@ -4,13 +4,12 @@
  * @Description: 回放
  */
 import PlaybackChannelPanel, { type ChannelPanelExpose } from '../playback/PlaybackChannelPanel.vue'
-import PlaybackEventPanel, { type EventPanelExpose } from '../playback/PlaybackEventPanel.vue'
+import PlaybackEventPanel from '../playback/PlaybackEventPanel.vue'
 import PlaybackAsidePanel from '../playback/PlaybackAsidePanel.vue'
 import PlaybackControlPanel from '../playback/PlaybackControlPanel.vue'
 import PlaybackScreenPanel from '../playback/PlaybackScreenPanel.vue'
 import PlaybackFisheyePanel, { type FishEyePanelExpose } from '../playback/PlaybackFisheyePanel.vue'
 import PlaybackBackUpPanel from '../playback/PlaybackBackUpPanel.vue'
-import PlaybackRecLogPanel from '../playback/PlaybackRecLogPanel.vue'
 import BackupPop from '../searchAndBackup/BackupPop.vue'
 import BackupLocalPop from '../searchAndBackup/BackupLocalPop.vue'
 import dayjs from 'dayjs'
@@ -90,7 +89,6 @@ export default defineComponent({
         PlaybackControlPanel,
         PlaybackScreenPanel,
         PlaybackBackUpPanel,
-        PlaybackRecLogPanel,
         BackupPop,
         BackupLocalPop,
         PlaybackFisheyePanel,
@@ -104,7 +102,6 @@ export default defineComponent({
         const chlRef = ref<ChannelPanelExpose>()
         const timelineRef = ref<TimelineInstance>()
         const fisheyeRef = ref<FishEyePanelExpose>()
-        const eventRef = ref<EventPanelExpose>()
 
         const ocxCacheWinMap = useOCXCacheWinMap(systemCaps.playbackMaxWin)
 
@@ -123,8 +120,6 @@ export default defineComponent({
             eventList: [] as string[],
             // POS关键字
             posKeyword: '',
-            // 事件模式
-            eventModeType: '',
             // 鱼眼安装类型
             fishEye: '',
             // 当前选中窗口的数据
@@ -153,10 +148,11 @@ export default defineComponent({
             recTimeList: [] as number[],
             // 通道列表
             chls: [] as PlaybackChlList[],
+            chlMap: {} as Record<string, string>[],
             // 事件录像列表
             recLogList: [] as PlaybackRecList[],
             // 事件录像列表是否有POS事件
-            hasPosEvent: false,
+            hasPosEvent: true,
             // 是否打开备份弹窗
             isBackUpPop: false,
             // 录像备份列表
@@ -174,6 +170,11 @@ export default defineComponent({
             // 选择的日期
             startTime: dayjs().calendar('gregory').format(DEFAULT_DATE_FORMAT),
             calendarDate: dayjs().calendar('gregory').format(DEFAULT_DATE_FORMAT),
+            strategy: false,
+            isDetectTarget: false,
+            detectTargetTime: 0,
+            allEventList: [] as string[],
+            isChangingSplit: false,
         })
 
         /**
@@ -182,28 +183,17 @@ export default defineComponent({
          */
         const getRecSection = async (chlList: string[]) => {
             if (chlList.length) {
-                const year = dayjs().utc().calendar('gregory').year()
-                const startTime = dayjs(`${year - 10}-01-01`, DEFAULT_YMD_FORMAT)
-                const endTime = dayjs(`${year + 10}-01-01`, DEFAULT_YMD_FORMAT)
-                const spaceTime = 60 * 60 * 24
-                const spaceNum = (endTime.valueOf() - startTime.valueOf()) / 1000 / spaceTime
                 const sendXml = rawXml`
                     <condition>
-                        <startTime>${localToUtc(startTime)}</startTime>
-                        <spaceTime>${spaceTime}</spaceTime>
-                        <spaceNum>${spaceNum}</spaceNum>
-                        <chlId type="list">
-                            ${chlList.map((item) => `<item>${item}</item>`).join('')}
-                        </chlId>
+                        ${chlList.map((item) => `<chlId>${item}</chlId>`).join('')}
                     </condition>
                 `
-                const result = await queryRecSection(sendXml)
+                const result = await queryDatesExistRec(sendXml)
                 const $ = queryXml(result)
                 if ($('status').text() === 'success') {
                     pageData.value.recTimeList = $('content/item').map((item) => {
-                        const index = item.text().num()
-                        const utcTime = startTime.add(index, 'day')
-                        return utcTime.valueOf()
+                        const date = dayjs.utc(item.text(), DEFAULT_YMD_FORMAT).valueOf()
+                        return date
                     })
                 }
             } else {
@@ -265,6 +255,7 @@ export default defineComponent({
          */
         const updateWinData = (index: number, winData: TVTPlayerWinDataListItem) => {
             if (playerRef.value && index === playerRef.value.player.getSelectedWinIndex()) {
+                const isSameChl = pageData.value.winData.chlID === winData.CHANNEL_INFO?.chlID
                 pageData.value.winData = {
                     PLAY_STATUS: winData.PLAY_STATUS,
                     winIndex: winData.winIndex,
@@ -279,12 +270,18 @@ export default defineComponent({
                     showPos: winData.showPos,
                     chlID: winData.CHANNEL_INFO?.chlID || '',
                     supportPtz: winData.CHANNEL_INFO?.supportPtz || false,
+                    supportIntegratedPtz: winData.CHANNEL_INFO?.supportIntegratedPtz || false,
+                    supportIris: winData.CHANNEL_INFO?.supportIris || false,
+                    supportAZ: winData.CHANNEL_INFO?.supportAZ || false,
+                    MinPtzCtrlSpeed: 1,
+                    MaxPtzCtrlSpeed: 8,
                     chlName: winData.CHANNEL_INFO?.chlName || '',
-                    streamType: winData.CHANNEL_INFO?.streamType || 2,
+                    streamType: typeof winData.CHANNEL_INFO?.streamType === 'number' ? winData.CHANNEL_INFO.streamType : 2,
                     talk: false,
                     isDwellPlay: false,
                     groupID: '',
                     supportAudio: true,
+                    canShowAudioError: isSameChl ? pageData.value.winData.canShowAudioError : false,
                 }
             }
         }
@@ -294,12 +291,121 @@ export default defineComponent({
          * @param {Array} chls
          */
         const handleChlChange = (chls: PlaybackChlList[]) => {
+            const newVal = cloneDeep(chls)
+            const oldVal = cloneDeep(pageData.value.chls)
+
             const chlIds = chls.map((item) => item.id)
             const oldChlIds = pageData.value.chls.map((item) => item.id)
+
+            timelineRef.value?.clearClipRange()
+
             if (!isEqual(chlIds, oldChlIds)) {
                 pageData.value.chls = chls
                 getRecSection(chlIds)
+
+                if (!['pending', 'stop'].includes(pageData.value.playStatus) && chlIds.length) {
+                    getRecList()
+                }
             }
+
+            nextTick(() => {
+                if (pageData.value.isChangingSplit) {
+                    playAll(timelineRef.value!.getTime() || startTimeStamp.value / 1000)
+                    pageData.value.isChangingSplit = false
+                    // timelineRef.value!.getTime()
+                    return
+                }
+
+                if (!['play', 'pause', 'backwards'].includes(pageData.value.playStatus)) {
+                    if (pageData.value.split < newVal.length) {
+                        adjustSplit()
+                    } else if (!newVal.length) {
+                        setSplit(1)
+                    }
+                }
+
+                if (['play', 'pause', 'backwards'].includes(pageData.value.playStatus)) {
+                    if (!newVal.length) {
+                        stop()
+                        setSplit(1)
+                        // pageData.value.recLogList = []
+                        updateTimeline()
+                        return
+                    }
+
+                    if (newVal.length < oldVal.length) {
+                        const newChlIds = newVal.map((item) => item.id)
+                        const filterChls = oldVal.filter((item) => !newChlIds.includes(item.id))
+                        if (mode.value === 'h5') {
+                            filterChls
+                                .map((item) => player.getWinIndexesByChlId(item.id))
+                                .flat()
+                                .forEach((index) => {
+                                    closeImg(index)
+                                    // player.stop(index)
+                                })
+                        }
+
+                        if (mode.value === 'ocx') {
+                            const ids = filterChls.map((item) => item.id)
+                            const indexes = ocxCacheWinMap.getIndexes(ids)
+                            ocxCacheWinMap.remove(ids)
+                            indexes.forEach((index) => {
+                                closeImg(index)
+                            })
+                        }
+                        renderTimeline(false)
+                        return
+                    }
+
+                    if (!oldVal.length) {
+                        playAll(timelineRef.value!.getTime() || startTimeStamp.value / 1000)
+                        return
+                    }
+
+                    if (newVal.length > oldVal.length) {
+                        const timestamp = timelineRef.value!.getTime()
+                        if (mode.value === 'h5') {
+                            const oldChlIds = oldVal.map((item) => item.id)
+                            const unusedIndexes = player.getFreeWinIndexes()
+                            if (pageData.value.playStatus === 'pause') {
+                                resume()
+                            }
+                            const filterChls = newVal.filter((item) => !oldChlIds.includes(item.id))
+                            filterChls.forEach((item) => {
+                                const index = unusedIndexes.shift()
+                                player.play({
+                                    chlID: item.id,
+                                    chlName: item.value,
+                                    startTime: Math.floor(timestamp),
+                                    endTime: Math.floor(endTimeStamp.value / 1000),
+                                    streamType: pageData.value.mainStreamTypeChl === item.id ? 0 : 1,
+                                    audioStatus: false,
+                                    typeMask: pageData.value.strategy ? pageData.value.typeMask : [],
+                                    winIndex: index,
+                                    showWatermark: pageData.value.watermark,
+                                    showPos: pageData.value.pos,
+                                    isEndRec: false,
+                                    volume: pageData.value.volume,
+                                    // callback: (winIndex: number) => {
+                                    //     console.log(winIndex)
+                                    // },
+                                })
+                            })
+                        }
+
+                        if (mode.value === 'ocx') {
+                            playAll(timestamp)
+                        }
+
+                        renderTimeline(false)
+                        return
+                    }
+
+                    playAll(timelineRef.value!.getTime() || startTimeStamp.value / 1000)
+                    return
+                }
+            })
         }
 
         /**
@@ -327,10 +433,9 @@ export default defineComponent({
                         pageData.value.chls.map((_item, index) => index),
                         pageData.value.chls.map((item) => item.id),
                         pageData.value.chls.map((item) => item.value),
-                        pageData.value.eventList,
+                        pageData.value.strategy ? pageData.value.eventList : pageData.value.allEventList,
                         localToUtc(startTimeStamp.value),
                         localToUtc(endTimeStamp.value),
-                        Date.now() + '',
                     )
                     cmd(sendXML)
                 }
@@ -345,6 +450,9 @@ export default defineComponent({
                         cloneData.CHANNEL_INFO = {
                             chlID: pageData.value.chls[winIndex].id,
                             supportPtz: false,
+                            supportAZ: false,
+                            supportIris: false,
+                            supportIntegratedPtz: false,
                             chlName: '',
                             streamType: 2,
                         }
@@ -353,11 +461,8 @@ export default defineComponent({
                 }
             }
 
+            await getRecList()
             pageData.value.playStatus = 'pending'
-
-            // if (pageData.value.playStatus !== 'play') {
-            //     pageData.value.playStatus = 'pending'
-            // }
         }
 
         /**
@@ -366,8 +471,6 @@ export default defineComponent({
          */
         const handleChlPlay = async (chls: PlaybackChlList[], timestamp?: number) => {
             pageData.value.mainStreamTypeChl = ''
-            pageData.value.playStatus = 'stop'
-            // pageData.value.playStatus = 'play'
             await handleChlSearch(chls)
             adjustSplit()
             playAll(timestamp)
@@ -381,6 +484,12 @@ export default defineComponent({
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
+                watch(
+                    () => player.getSplit(),
+                    (val) => {
+                        pageData.value.split = val
+                    },
+                )
             }
 
             if (mode.value === 'ocx') {
@@ -532,9 +641,19 @@ export default defineComponent({
             // 音频流关闭事件，将对应通道的音频图标置为关闭状态
             else if (error === 'audioClosed') {
                 updateWinData(index, data)
+            } else if (error === 'offline') {
+                // 播放器已处理
             } else {
                 updateWinData(index, data)
                 // RecLogsTableModule.clear()
+            }
+        }
+
+        const handlePlayerAudioError = () => {
+            // 不支持打开音频
+            if (pageData.value.winData.canShowAudioError) {
+                openMessageBox(Translate('IDCS_UNSUPPORT_AUDIO_CODEC_TYPE'))
+                pageData.value.winData.canShowAudioError = false
             }
         }
 
@@ -550,6 +669,9 @@ export default defineComponent({
                     cloneData.CHANNEL_INFO = {
                         chlID: pageData.value.chls[index].id,
                         supportPtz: false,
+                        supportAZ: false,
+                        supportIris: false,
+                        supportIntegratedPtz: false,
                         chlName: '',
                         streamType: 2,
                     }
@@ -592,7 +714,7 @@ export default defineComponent({
                         endTime: Math.floor(toTimeStamp || endTimeStamp.value / 1000),
                         streamType: pageData.value.mainStreamTypeChl === item.id ? 0 : 1,
                         audioStatus,
-                        typeMask: pageData.value.typeMask,
+                        typeMask: pageData.value.strategy ? pageData.value.typeMask : [],
                         winIndex: index,
                         showWatermark: pageData.value.watermark,
                         showPos: pageData.value.pos,
@@ -622,10 +744,9 @@ export default defineComponent({
                         pageData.value.chls.map((_item, index) => index),
                         pageData.value.chls.map((item) => item.id),
                         pageData.value.chls.map((item) => item.value),
-                        pageData.value.eventList,
+                        pageData.value.strategy ? pageData.value.eventList : pageData.value.allEventList,
                         localToUtc(startTime),
                         localToUtc(endTime),
-                        Date.now() + '',
                     ),
                 )
             }
@@ -636,22 +757,31 @@ export default defineComponent({
          * @param {Array} legend
          * @param {Array} typeMask
          * @param {Array} eventList
-         * @param {String} eventModeType
          */
-        const changeEvent = (legend: PlaybackEventList[], typeMask: string[], eventList: string[], eventModeType: string, posKeyword: string, forced: boolean) => {
+        const changeEvent = (legend: PlaybackEventList[], typeMask: string[], eventList: string[], posKeyword: string) => {
             pageData.value.legend = legend
             pageData.value.typeMask = typeMask
             pageData.value.eventList = eventList
-            pageData.value.eventModeType = eventModeType
             pageData.value.posKeyword = posKeyword
 
             if (pageData.value.recLogList.length) {
+                pageData.value.recLogList.forEach((item) => {
+                    item.records.forEach((record) => {
+                        record.eventColorType = getEventColorType(record.event)
+                    })
+                })
                 renderTimeline(false)
             }
 
-            if (!forced && ready.value && ['play', 'pause'].includes(pageData.value.playStatus)) {
-                playAll()
+            if (ready.value && ['play', 'pause', 'backwards'].includes(pageData.value.playStatus)) {
+                if (pageData.value.strategy) {
+                    playAll(timelineRef.value!.getTime() || startTimeStamp.value / 1000)
+                }
             }
+        }
+
+        const getAllEventList = (eventList: string[]) => {
+            pageData.value.allEventList = eventList
         }
 
         /**
@@ -659,7 +789,6 @@ export default defineComponent({
          */
         const sortTimelineChlList = () => {
             if (pageData.value.playStatus === 'stop') {
-                // return pageData.value.recLogList
                 const chlList = pageData.value.chls
                 const currentList: PlaybackRecList[] = chlList.map((item) => {
                     const find = pageData.value.recLogList.find((rec) => item.id === rec.chlId)
@@ -729,9 +858,11 @@ export default defineComponent({
                     ] as PlaybackRecList[]
                 }
             }
+
             chlList.sort((a, b) => {
                 return a.position - b.position
             })
+
             const currentList: PlaybackRecList[] = chlList.map((item) => {
                 const find = pageData.value.recLogList.find((rec) => item.CHANNEL_INFO && item.CHANNEL_INFO.chlID === rec.chlId)
                 if (find) {
@@ -747,24 +878,6 @@ export default defineComponent({
             }) as PlaybackRecList[]
 
             return currentList
-        }
-
-        /**
-         * @description 移除没有录像的通道
-         */
-        const removeNoRecChl = () => {
-            const recChlId = pageData.value.recLogList.map((item) => item.chlId)
-            const removeChl = pageData.value.chls.filter((item) => {
-                return !recChlId.find((rec) => rec === item.id)
-            })
-            if (removeChl.length) {
-                chlRef.value?.removeChls(
-                    removeChl.map((item) => {
-                        // openNotify(`${item.value}: ${Translate('IDCS_NO_REC_DATA')}`)
-                        return item.id
-                    }),
-                )
-            }
         }
 
         /**
@@ -950,6 +1063,8 @@ export default defineComponent({
             }
 
             pageData.value.winData.audio = bool
+            pageData.value.winData.canShowAudioError = bool
+
             if (mode.value === 'h5') {
                 const winIndex = typeof current === 'number' ? current : player.getSelectedWinIndex()
                 if (bool) {
@@ -1188,6 +1303,18 @@ export default defineComponent({
             }
 
             pageData.value.split = split
+            //
+        }
+
+        const changeSplit = (split: number) => {
+            setSplit(split)
+            if (['play', 'pause', 'backwards'].includes(pageData.value.playStatus)) {
+                if (split < pageData.value.chls.length) {
+                    pageData.value.isChangingSplit = true
+                    const sliceChl = pageData.value.chls.slice(pageData.value.split)
+                    chlRef.value?.removeChls(sliceChl.map((item) => item.id))
+                }
+            }
         }
 
         /**
@@ -1211,6 +1338,11 @@ export default defineComponent({
                 fisheyeRef.value?.exitAdjust(pageData.value.winData.chlID)
                 cmd(OCX_XML_Skip(seconds))
             }
+        }
+
+        const handleTimelineSeek = (timestamp: number) => {
+            seek(timestamp)
+            clearTargetDetect(false)
         }
 
         /**
@@ -1324,7 +1456,7 @@ export default defineComponent({
                     endTime: endTimeStamp.value / 1000,
                     streamType: type, // 0主码流，其他子码流
                     showPos: pageData.value.pos,
-                    typeMask: pageData.value.typeMask,
+                    typeMask: pageData.value.strategy ? pageData.value.typeMask : [],
                     showWatermark: pageData.value.watermark,
                     volume: pageData.value.volume, // 当前音量
                     isDblClickSplit: true, // 切换主子码流时，如果当前分屏winIndex不是0分屏（这种场景出现的原因：多通道播放时，双击其中一个通道放大，就会切换为一分屏，但是当前的一分屏可能是0分屏以外的分屏），如果此时切换主子码流，播放器则认为是播放了0分屏以外的通道，就会自动增加分屏，此时就会将分屏会自动切割为四分屏-MAX_SPLIT，isDblClickSplit为true则认为当前是双击分屏操作，不会自动切割分屏。
@@ -1358,82 +1490,10 @@ export default defineComponent({
             }
         }
 
-        /**
-         * @description 处理点击事件列表播放回调
-         * @param {Object} row
-         */
-        const handleRecLogPlay = (row: PlaybackRecLogList) => {
-            eventRef.value?.setEvent(row.event)
-
-            nextTick(() => {
-                timelineRef.value?.setTime(Math.floor(row.startTime / 1000))
-                playAll(Math.floor(row.startTime / 1000))
-            })
-        }
-
-        /**
-         * @description 处理编辑事件列表下载回调
-         * @param {Object} row
-         */
-        const handleRecLogDownload = (row: PlaybackRecLogList) => {
-            pageData.value.backupRecList = [
-                {
-                    chlId: row.chlId,
-                    chlName: row.chlName,
-                    startTime: row.startTime,
-                    endTime: row.endTime,
-                    streamType: pageData.value.mainStreamTypeChl === row.chlId ? 0 : 1,
-                    events: [row.event],
-                },
-            ]
-            pageData.value.isBackUpPop = true
-        }
-
-        /**
-         * @description 处理事件列表的错误回调
-         * @param {Array} error
-         */
-        const handleRecLogError = (error: string[]) => {
-            error.forEach((item) => {
-                openNotify(item)
-            })
-            pageData.value.isBackUpPop = false
-        }
-
-        /**
-         * @description 处理事件列表数据更新回调
-         * @param {Array} list
-         * @param {Boolean} hasPosEvent
-         */
-        const handleRecLogCallback = (list: PlaybackRecList[], hasPosEvent: boolean) => {
-            pageData.value.pos = hasPosEvent
-            pageData.value.hasPosEvent = hasPosEvent
-            pageData.value.recLogList = list
-
-            if (pageData.value.playStatus === 'pending') {
-                pageData.value.playStatus = 'stop'
-            }
-
-            if (!ready.value) {
-                return
-            }
-
-            if (mode.value === 'ocx') {
-                list.map((item, index) => {
-                    const recordList = item.records.map((record) => {
-                        return {
-                            chlId: item.chlId,
-                            chlName: item.chlName,
-                            event: record.event,
-                            startTime: formatGregoryDate(record.startTime, DEFAULT_DATE_FORMAT),
-                            startTimeEx: localToUtc(record.startTime),
-                            endTime: formatGregoryDate(record.endTime, DEFAULT_DATE_FORMAT),
-                            endTimeEx: localToUtc(record.endTime),
-                            duration: record.duration,
-                        }
-                    })
-                    cmd(OCX_XML_SetRecList(item.chlId, index, recordList, item.timeZone))
-                })
+        const changeStrategy = (strategy: boolean) => {
+            pageData.value.strategy = strategy
+            if (['play', 'pause', 'backwards'].includes(pageData.value.playStatus)) {
+                playAll(timelineRef.value!.getTime() || startTimeStamp.value / 1000)
             }
         }
 
@@ -1513,6 +1573,127 @@ export default defineComponent({
             } else {
                 pageData.value.isBackUpPop = false
                 pageData.value.isBackUpList = true
+            }
+        }
+
+        const getEventColorType = (str: string) => {
+            const findInEvent = pageData.value.eventList.includes(str)
+            const findInLegend = pageData.value.legend.find((item) => item.children.includes(str))
+            if (findInLegend && findInEvent) {
+                return findInLegend.value
+            }
+            return 'otherType'
+        }
+
+        const getRecItem = async (item: PlaybackRecList) => {
+            // 查询全部事件，后续在web端筛选选中的事件类型
+            const sendXml = rawXml`
+                <condition>
+                    <startTime isUTC="true">${localToUtc(startTimeStamp.value)}</startTime>
+                    <endTime isUTC="true">${localToUtc(endTimeStamp.value)}</endTime>
+                    <recTypes type='list'></recTypes>
+                    <keyword>${pageData.value.posKeyword}</keyword>
+                    <chl id="${item.chlId}"></chl>
+                </condition>
+            `
+            const result = await queryRecLog(sendXml)
+            const $ = queryXml(result)
+
+            if ($('status').text() === 'success') {
+                item.chlId = $('content/chl').attr('id')
+                item.chlName = $('content/chl').text()
+                item.records = $('content/recList/item').map((item) => {
+                    const $item = queryXml(item.element)
+                    const startTime = $item('startTime').text().num() * 1000
+                    const endTime = $item('endTime').text().num() * 1000
+                    const recType = $item('recType').text()
+                    const size = $item('size').text()
+
+                    if (recType === 'pos') {
+                        pageData.value.pos = true
+                        pageData.value.hasPosEvent = true
+                    }
+
+                    return {
+                        startTime,
+                        endTime,
+                        event: recType,
+                        recSubType: recType,
+                        size: size ? size + 'MB' : '--',
+                        duration: dayjs.utc(endTime - startTime).format('HH:mm:ss'),
+                        eventColorType: getEventColorType(recType),
+                    }
+                })
+            } else {
+                const errorType = $('errorDescription').text()
+                if (errorType === 'noRecord') {
+                    openNotify(item.chlName + ' : ' + Translate('IDCS_NO_RECORD_DATA'))
+                }
+            }
+        }
+
+        /**
+         * @description 获取录像列表
+         */
+        const getRecList = async () => {
+            pageData.value.pos = false
+            pageData.value.hasPosEvent = false
+
+            const tableData: PlaybackRecList[] = pageData.value.chls.map((item) => {
+                const row = new PlaybackRecList()
+                row.chlId = item.id
+                row.chlName = item.value
+                return row
+            })
+
+            await Promise.all(tableData.map((item) => getRecItem(item)))
+            pageData.value.recLogList = cloneDeep(tableData.filter((item) => !!item.records.length))
+
+            renderTimeline(false)
+            // removeNoRecChl()
+
+            if (!ready.value) {
+                return
+            }
+
+            if (mode.value === 'ocx') {
+                tableData.forEach((item, index) => {
+                    const recordList = item.records.map((record) => {
+                        return {
+                            chlId: item.chlId,
+                            chlName: item.chlName,
+                            event: record.event,
+                            startTime: formatGregoryDate(record.startTime, DEFAULT_DATE_FORMAT),
+                            startTimeEx: localToUtc(record.startTime),
+                            endTime: formatGregoryDate(record.endTime, DEFAULT_DATE_FORMAT),
+                            endTimeEx: localToUtc(record.endTime),
+                            duration: record.duration,
+                        }
+                    })
+                    cmd(OCX_XML_SetRecList(item.chlId, index, recordList, item.timeZone))
+                })
+            }
+        }
+
+        const changeDetectTarget = (bool: boolean) => {
+            if (!pageData.value.isDetectTarget && bool) {
+                pause()
+                pageData.value.detectTargetTime = timelineRef.value!.getTime() * 1000
+                pageData.value.isDetectTarget = bool
+            } else if (pageData.value.isDetectTarget && !bool) {
+                if (pageData.value.playStatus === 'pause') {
+                    resume()
+                }
+                pageData.value.isDetectTarget = bool
+            }
+        }
+
+        const clearTargetDetect = (isResume = true) => {
+            if (pageData.value.isDetectTarget) {
+                if (isResume && pageData.value.playStatus === 'pause') {
+                    resume()
+                }
+                pageData.value.isDetectTarget = false
             }
         }
 
@@ -1626,6 +1807,14 @@ export default defineComponent({
                     }
                 }
             }
+
+            // 通知通道是否支持当前音频格式解码
+            if (stateType === 'AudioNoSupport') {
+                if (pageData.value.winData.canShowAudioError) {
+                    pageData.value.winData.canShowAudioError = false
+                    openMessageBox(Translate('IDCS_UNSUPPORT_AUDIO_CODEC_TYPE'))
+                }
+            }
         }
 
         onBeforeUnmount(() => {
@@ -1642,124 +1831,6 @@ export default defineComponent({
             }
         })
 
-        watch(
-            () => pageData.value.chls,
-            (newVal, oldVal) => {
-                timelineRef.value?.clearClipRange()
-                nextTick(() => {
-                    if (!['play', 'pause', 'backwards'].includes(pageData.value.playStatus)) {
-                        if (pageData.value.split < newVal.length) {
-                            adjustSplit()
-                        } else if (!newVal.length) {
-                            setSplit(1)
-                        }
-                    }
-
-                    if (['play', 'pause', 'backwards'].includes(pageData.value.playStatus)) {
-                        if (!newVal.length) {
-                            stop()
-                            setSplit(1)
-                            return
-                        }
-
-                        if (newVal.length < oldVal.length) {
-                            const newChlIds = newVal.map((item) => item.id)
-                            const filterChls = oldVal.filter((item) => !newChlIds.includes(item.id))
-                            if (mode.value === 'h5') {
-                                filterChls
-                                    .map((item) => player.getWinIndexesByChlId(item.id))
-                                    .flat()
-                                    .forEach((index) => {
-                                        closeImg(index)
-                                        // player.stop(index)
-                                    })
-                            }
-
-                            if (mode.value === 'ocx') {
-                                const ids = filterChls.map((item) => item.id)
-                                const indexes = ocxCacheWinMap.getIndexes(ids)
-                                ocxCacheWinMap.remove(ids)
-                                indexes.forEach((index) => {
-                                    closeImg(index)
-                                })
-                            }
-                            renderTimeline(false)
-                            return
-                        }
-
-                        if (!oldVal.length) {
-                            playAll(timelineRef.value!.getTime() || startTimeStamp.value / 1000)
-                            return
-                        }
-
-                        if (newVal.length > oldVal.length) {
-                            const timestamp = timelineRef.value!.getTime()
-                            if (mode.value === 'h5') {
-                                const oldChlIds = oldVal.map((item) => item.id)
-                                const unusedIndexes = player.getFreeWinIndexes()
-                                if (pageData.value.playStatus === 'pause') {
-                                    resume()
-                                }
-                                const filterChls = newVal.filter((item) => !oldChlIds.includes(item.id))
-                                filterChls.forEach((item) => {
-                                    const index = unusedIndexes.shift()
-                                    player.play({
-                                        chlID: item.id,
-                                        chlName: item.value,
-                                        startTime: Math.floor(timestamp),
-                                        endTime: Math.floor(endTimeStamp.value / 1000),
-                                        streamType: pageData.value.mainStreamTypeChl === item.id ? 0 : 1,
-                                        audioStatus: false,
-                                        typeMask: pageData.value.typeMask,
-                                        winIndex: index,
-                                        showWatermark: pageData.value.watermark,
-                                        showPos: pageData.value.pos,
-                                        isEndRec: false,
-                                        volume: pageData.value.volume,
-                                        // callback: (winIndex: number) => {
-                                        //     console.log(winIndex)
-                                        // },
-                                    })
-                                })
-                            }
-
-                            if (mode.value === 'ocx') {
-                                playAll(timestamp)
-                            }
-
-                            renderTimeline(false)
-                            return
-                        }
-                        playAll(timelineRef.value!.getTime() || startTimeStamp.value / 1000)
-                        return
-                    }
-                })
-            },
-            {
-                deep: true,
-            },
-        )
-
-        watch(
-            () => pageData.value.recLogList,
-            (newVal, oldVal) => {
-                if (!oldVal.length) {
-                    renderTimeline(false)
-                    return
-                }
-
-                if (!newVal.length) {
-                    renderTimeline(true)
-                    return
-                }
-                updateTimeline()
-                removeNoRecChl()
-            },
-            {
-                deep: true,
-            },
-        )
-
         return {
             pageData,
             userAuth,
@@ -1772,7 +1843,6 @@ export default defineComponent({
             playerRef,
             timelineRef,
             chlRef,
-            eventRef,
             snap,
             closeImg,
             zoomIn,
@@ -1792,10 +1862,6 @@ export default defineComponent({
             handlePlayerStatus,
             handlePlayerError,
             handlePlayerDblclickChange,
-            handleRecLogPlay,
-            handleRecLogDownload,
-            handleRecLogError,
-            handleRecLogCallback,
             pause,
             stop,
             resume,
@@ -1819,6 +1885,13 @@ export default defineComponent({
             updateTimeline,
             changeFishEyeMode,
             isFishEyePanel,
+            changeStrategy,
+            changeDetectTarget,
+            getAllEventList,
+            handlePlayerAudioError,
+            clearTargetDetect,
+            changeSplit,
+            handleTimelineSeek,
         }
     },
 })

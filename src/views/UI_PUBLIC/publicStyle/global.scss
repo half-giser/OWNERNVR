@@ -480,4 +480,11 @@
     // --main-border2: #626262;
     // --border-light: #e9efff;
     // --table-split: #ebeef5; 表格分割线
+
+    /**
+     * 抓拍上墙弹窗属性框
+     */
+    --attribute--title-bg: #f00; // 抓拍上墙弹窗属性框标题背景色
+    --attribute-item-bg: rgb(0 0 0 / 60%); // 抓拍上墙弹窗属性框item背景色
+    --preNext-btn-bg-active: #c8f0f9; // 抓拍上墙弹窗属性框上一页、下一页按钮背景色,选中
 }

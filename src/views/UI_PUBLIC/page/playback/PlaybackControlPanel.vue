@@ -11,35 +11,35 @@
                 file="capture"
                 :title="Translate('IDCS_SNAP')"
                 :disabled="disabled"
-                @click="$emit('snap')"
+                @click="$emit('snap'), $emit('trigger', true)"
             />
             <!-- 关闭图像 -->
             <BaseImgSpriteBtn
                 file="close_chl"
                 :title="Translate('IDCS_CLOSE_IMAGE')"
                 :disabled="disabled"
-                @click="$emit('closeImg')"
+                @click="$emit('closeImg'), $emit('trigger', true)"
             />
             <!-- 放大 -->
             <BaseImgSpriteBtn
                 file="magnify"
                 :title="Translate('IDCS_ZOOM_IN')"
                 :disabled
-                @click="$emit('zoomIn')"
+                @click="$emit('zoomIn'), $emit('trigger', true)"
             />
             <!-- 缩小 -->
             <BaseImgSpriteBtn
                 file="minify"
                 :title="Translate('IDCS_ZOOM_OUT')"
                 :disabled
-                @click="$emit('zoomOut')"
+                @click="$emit('zoomOut'), $emit('trigger', true)"
             />
             <!-- 原始比例 -->
             <BaseImgSpriteBtn
                 :file="winData.original ? 'originalDisplaying' : 'originalDisplay'"
                 :title="Translate('IDCS_ORIGINAL_DISPLAY')"
                 :disabled="originalDisplayDisabled"
-                @click="$emit('originalDisplay', !winData.original)"
+                @click="$emit('originalDisplay', !winData.original), $emit('trigger', true)"
             />
         </div>
         <!-- 音量控制 -->

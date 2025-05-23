@@ -11,10 +11,11 @@
             @search="handleChlSearch"
             @change="handleChlChange"
             @play="handleChlPlay"
+            @trigger="clearTargetDetect"
         >
             <PlaybackEventPanel
-                ref="eventRef"
                 @change="changeEvent"
+                @ready="getAllEventList"
             />
         </PlaybackChannelPanel>
         <div class="center">
@@ -23,6 +24,7 @@
                     ref="playerRef"
                     :split="pageData.split"
                     :enable-pos="systemCaps.supportPOS"
+                    :enable-draw="false"
                     type="record"
                     @ready="handlePlayerReady"
                     @time="handlePlayerTimeUpdate"
@@ -34,6 +36,16 @@
                     @dblclickchange="handlePlayerDblclickChange"
                     @winexchange="updateTimeline"
                     @message="notify"
+                    @audioerror="handlePlayerAudioError"
+                />
+                <BaseTargetSearchPanel
+                    v-model:visible="pageData.isDetectTarget"
+                    type="record"
+                    :mode="mode"
+                    :start-time="pageData.detectTargetTime"
+                    :end-time="pageData.detectTargetTime + 60 * 1000"
+                    :win-index="pageData.winData.winIndex"
+                    :chl-id="pageData.winData.chlID"
                 />
             </div>
             <div class="center-ctrl">
@@ -48,8 +60,13 @@
                     :playing-list="playingListNum"
                     :clip-range="pageData.timelineClipRange"
                     :has-pos-event="pageData.hasPosEvent"
+                    :strategy="pageData.strategy"
+                    :is-back-up-list="pageData.isBackUpList"
+                    :detect-target="pageData.isDetectTarget"
+                    :rec-list="pageData.recLogList"
+                    @update:detect-target="changeDetectTarget"
                     @fullscreen="fullScreen"
-                    @update:split="setSplit"
+                    @update:split="changeSplit"
                     @update:osd="toggleOSD"
                     @update:watermark="toggleWatermark"
                     @update:pos="togglePos"
@@ -65,25 +82,14 @@
                     @clip-start="clipStart"
                     @clip-end="clipEnd"
                     @back-up="backUp"
+                    @show-back-up="pageData.isBackUpList = true"
+                    @update:strategy="changeStrategy"
+                    @trigger="clearTargetDetect"
                 />
                 <PlaybackBackUpPanel
                     ref="backUpRef"
                     v-model:visible="pageData.isBackUpList"
                     :mode
-                />
-                <PlaybackRecLogPanel
-                    :start-time="startTimeStamp"
-                    :end-time="endTimeStamp"
-                    :event-list="pageData.eventList"
-                    :mode-type="pageData.eventModeType"
-                    :chl="pageData.winData.chlID"
-                    :play-status="pageData.playStatus"
-                    :chls="pageData.chls"
-                    :pos-keyword="pageData.posKeyword"
-                    @callback="handleRecLogCallback"
-                    @play="handleRecLogPlay"
-                    @download="handleRecLogDownload"
-                    @error="handleRecLogError"
                 />
             </div>
             <div class="bottom">
@@ -96,7 +102,7 @@
                         <BaseTimeline
                             ref="timelineRef"
                             :colors-map="pageData.legend"
-                            @seek="seek"
+                            @seek="handleTimelineSeek"
                             @set-offset-x="pageData.timelineOffsetX = $event"
                             @set-max-coordinate-x="pageData.timelineMaxCoordinateX = $event"
                             @set-current-pointer-time="pageData.timelineCurrentPointerTime = $event"
@@ -106,6 +112,7 @@
                     <div class="legend">
                         <div
                             v-for="item in pageData.legend.toReversed()"
+                            v-show="item.value !== 'otherType'"
                             :key="item.value"
                         >
                             <span :style="{ backgroundColor: item.color }"></span>
@@ -135,6 +142,7 @@
                     @stream-type="changeStreamType"
                     @volume="setVolume"
                     @audio="setAudio"
+                    @trigger="clearTargetDetect"
                 />
                 <PlaybackFisheyePanel
                     v-if="isFishEyePanel"
@@ -143,6 +151,7 @@
                     :win-data="pageData.winData"
                     :install-type="pageData.fishEye"
                     @fish-eye-mode="changeFishEyeMode"
+                    @trigger="clearTargetDetect"
                 />
             </template>
         </PlaybackAsidePanel>
@@ -184,10 +193,11 @@
     &-player {
         width: 100%;
         height: calc(100% - 222px);
+        position: relative;
     }
 
     &-ctrl {
-        padding: 0 10px;
+        padding: 0 0 0 5px;
         height: 50px;
         display: flex;
         align-items: center;

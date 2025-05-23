@@ -1432,7 +1432,7 @@ export const OCX_XML_GetOcxVersion = () => {
 }
 
 // 通知插件绑定父窗口
-export const OCX_XML_PluginBindWin = (id: string) => {
+export const OCX_XML_PluginBindWin = (id?: string) => {
     if (!id) {
         id = Date.now() + ''
         document.title = id
@@ -2209,7 +2209,7 @@ export const OCX_XML_SetTripwireLineInfo = (data: { switch: boolean; osdFormat: 
             <info>${data.osdFormat}</info>
             <X>${data.X}</X>
             <Y>${data.Y}</Y>
-            <onlyOSD>${onlyOSD}</onlyOSD>
+            <onlyOSD>${onlyOSD as boolean}</onlyOSD>
         </cmd>
     `)
 }

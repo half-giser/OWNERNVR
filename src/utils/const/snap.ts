@@ -600,3 +600,71 @@ export const ATTR_SORT_MAP: Record<string, string[]> = {
     nonMotorizedVehicleType: ['bicycle', 'batteryCar', 'motor', 'tricycle'],
     plateColor: ['blue', 'yellow', 'white', 'black', 'green', 'greenbalck', 'red', 'orange', 'cyan', 'purple', 'gray'],
 }
+
+export const BODY_STRUCT_MAPPING = [
+    {
+        type: 'gender',
+        name: 'IDCS_SEX',
+        map: GENDER_MAP,
+    },
+    {
+        type: 'age',
+        name: 'IDCS_AGE',
+        map: AGE_MAP,
+    },
+    {
+        type: 'mask',
+        name: 'IDCS_MASK',
+        map: MASK_MAP,
+    },
+    {
+        type: 'hat',
+        name: 'IDCS_HAT',
+        map: HAT_MAP,
+    },
+    {
+        type: 'galsses',
+        name: 'IDCS_GLASSES',
+        map: GLASS_MAP,
+    },
+    {
+        type: 'backpack',
+        name: 'IDCS_BACKPACK',
+        map: BACKPACK_TYPE_MAP,
+    },
+    {
+        type: 'upper_length',
+        name: 'IDCS_UPPER_CLOTH',
+        map: UPPER_TYPE_MAP,
+        pre: {
+            type: 'upper_color',
+            name: 'IDCS_COLOR',
+            map: COLOR_MAP,
+        },
+    },
+    {
+        type: 'lower_length',
+        name: 'IDCS_LOWER_CLOTH',
+        map: LOWER_TYPE_MAP,
+        pre: {
+            type: 'lower_color',
+            name: 'IDCS_COLOR',
+            map: COLOR_MAP,
+        },
+    },
+    // {
+    //     type: 'shoulderbag',
+    //     name: "IDCS_SHOULDERBAG"),
+    //     map: BACKPACK_SHOULDERBAG_MAP
+    // },
+    {
+        type: 'skirt',
+        name: 'IDCS_SKIRT',
+        map: SKIRT_TYPE_MAP,
+    },
+    {
+        type: 'orient',
+        name: 'IDCS_DIRECTION',
+        map: ORIENT_MAP,
+    },
+]

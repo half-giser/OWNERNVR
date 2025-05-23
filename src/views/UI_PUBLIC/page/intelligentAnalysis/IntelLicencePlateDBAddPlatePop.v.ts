@@ -36,7 +36,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const userSession = useUserSessionStore()
 
         const groupMap: Record<string, string> = {}
 
@@ -60,7 +59,7 @@ export default defineComponent({
             tab: 'form',
             csvTitle: ['(B1)' + Translate('IDCS_LICENSE_PLATE_NUM'), '(B2)' + Translate('IDCS_VEHICLE_OWNER'), '(B3)' + Translate('IDCS_PHONE_NUMBER'), '(N1)' + Translate('IDCS_VEHICLE_TYPE')],
             // 是否禁用Tab
-            disabledTab: userSession.appType === 'P2P' || isHttpsLogin(),
+            disabledTab: isHttpsLogin(),
             // 导入框是否drag状态
             isDrag: false,
             // 导入的文件名

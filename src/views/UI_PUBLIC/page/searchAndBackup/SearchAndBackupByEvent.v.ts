@@ -8,30 +8,20 @@ import BackupPop from '../searchAndBackup/BackupPop.vue'
 import BackupLocalPop from '../searchAndBackup/BackupLocalPop.vue'
 import { type TableInstance } from 'element-plus'
 import BackupPosInfoPop from './BackupPosInfoPop.vue'
-import { type EventTypeItem } from '@/utils/const/record'
+import PlaybackEventSelector from '../playback/PlaybackEventSelector.vue'
+import { EVENT_TYPE_NAME_MAPPING } from '@/utils/const/record'
 
 export default defineComponent({
     components: {
         BackupPop,
         BackupLocalPop,
         BackupPosInfoPop,
+        PlaybackEventSelector,
     },
     setup() {
         const { Translate } = useLangStore()
         const router = useRouter()
-        const systemCaps = useCababilityStore()
-
         const tableRef = ref<TableInstance>()
-
-        // 事件与显示文本映射
-        const EVENTS_MAPPING: Record<string, string> = {
-            MANUAL: Translate('IDCS_MANUAL'),
-            MOTION: Translate('IDCS_MOTION_DETECTION'),
-            SCHEDULE: Translate('IDCS_SCHEDULE'),
-            SENSOR: Translate('IDCS_SENSOR'),
-            INTELLIGENT: Translate('IDCS_AI'),
-            POS: Translate('IDCS_POS'),
-        }
 
         const plugin = usePlugin({
             onReady: (mode, plugin) => {
@@ -68,68 +58,18 @@ export default defineComponent({
             isBackUpPop: false,
             // 录像备份列表
             backupRecList: [] as PlaybackBackUpRecList[],
-            // 事件选项
-            eventOptions: [
-                {
-                    checked: 'event_type_manual_checked',
-                    unchecked: 'event_type_manual_unchecked',
-                    file: 'event_type_manual',
-                    label: EVENTS_MAPPING.MANUAL,
-                    value: 'MANUAL',
-                    hidden: false,
-                },
-                {
-                    checked: 'event_type_sensor_checked',
-                    unchecked: 'event_type_sensor_unchecked',
-                    file: 'event_type_sensor',
-                    label: EVENTS_MAPPING.SENSOR,
-                    value: 'SENSOR',
-                    hidden: false,
-                },
-                {
-                    checked: 'event_type_Intelligence_checked',
-                    unchecked: 'event_type_Intelligence_unchecked',
-                    file: 'event_type_Intelligence',
-                    label: EVENTS_MAPPING.INTELLIGENT,
-                    value: 'INTELLIGENT',
-                    hidden: false,
-                },
-                {
-                    checked: 'event_type_motion_checked',
-                    unchecked: 'event_type_motion_unchecked',
-                    file: 'event_type_motion',
-                    label: EVENTS_MAPPING.MOTION,
-                    value: 'MOTION',
-                    hidden: systemCaps.ipChlMaxCount <= 0,
-                },
-                {
-                    checked: 'event_type_pos_checked',
-                    unchecked: 'event_type_pos_unchecked',
-                    file: 'event_type_pos',
-                    label: EVENTS_MAPPING.POS,
-                    value: 'POS',
-                    hidden: !systemCaps.supportPOS,
-                },
-                {
-                    checked: 'event_type_schedule_checked',
-                    unchecked: 'event_type_schedule_unchecked',
-                    file: 'event_type_schedule',
-                    label: EVENTS_MAPPING.SCHEDULE,
-                    value: 'SCHEDULE',
-                    hidden: false,
-                },
-            ],
+            allEventList: [] as string[],
             // 目标选项
             targetOptions: [
                 // 人
                 {
                     label: Translate('IDCS_DETECTION_PERSON'),
-                    value: 'SMDHUMAN',
+                    value: 'smdPerson',
                 },
                 // 车
                 {
                     label: Translate('IDCS_DETECTION_VEHICLE'),
-                    value: 'SMDVEHICLE',
+                    value: 'smdCar',
                 },
                 // 无
                 {
@@ -153,8 +93,6 @@ export default defineComponent({
             playbackList: [] as PlaybackPopList[],
             // 最大通道数
             maxChl: 36,
-            // 已选择的事件类型列表
-            events: [] as EventTypeItem[],
         })
 
         // 最大通道数
@@ -165,9 +103,31 @@ export default defineComponent({
         // 表格数据
         const tableData = ref<PlaybackRecLogList[]>([])
 
+        const eventTableData = computed(() => {
+            return tableData.value.filter((item) => {
+                if (!formData.value.target.length || formData.value.target.length === pageData.value.targetOptions.length) {
+                    return true
+                }
+
+                if (item.event === 'smdPerson' && formData.value.target.includes('smdPerson')) {
+                    return true
+                }
+
+                if (item.event === 'smdCar' && formData.value.target.includes('smdCar')) {
+                    return true
+                }
+
+                if (!['smdPerson', 'smdCar'].includes(item.event) && formData.value.target.includes('None')) {
+                    return true
+                }
+
+                return false
+            })
+        })
+
         // 当前页的表格数据
         const filterTableData = computed(() => {
-            return tableData.value.slice((pageData.value.currentPage - 1) * pageData.value.pageSize, pageData.value.currentPage * pageData.value.pageSize)
+            return eventTableData.value.slice((pageData.value.currentPage - 1) * pageData.value.pageSize, pageData.value.currentPage * pageData.value.pageSize)
         })
 
         const formData = ref({
@@ -179,12 +139,18 @@ export default defineComponent({
             chls: [] as string[],
             // POS关键字
             pos: '',
+            events: [] as string[],
+            target: ['smdPerson', 'smdCar', 'None'],
         })
 
         // 通道全选
         const isChlAll = computed(() => {
             return !!formData.value.chls.length && formData.value.chls.length >= maxChl.value
         })
+
+        const changeTarget = () => {
+            pageData.value.currentPage = 1
+        }
 
         /**
          * @description 序号显示
@@ -196,25 +162,12 @@ export default defineComponent({
         }
 
         /**
-         * @description 显示事件图标
-         * @param {Object} row
-         * @returns {Boolean}
-         */
-        const displayEventIcon = (row: PlaybackRecLogList) => {
-            return ['SMDHUMAN', 'SMDHUMAN'].includes(row.event)
-        }
-
-        /**
          * @description 显示事件文本
          * @param {Object} row
          * @returns {String}
          */
         const displayEvent = (row: PlaybackRecLogList) => {
-            if (displayEventIcon(row)) {
-                return EVENTS_MAPPING.MOTION
-            } else {
-                return EVENTS_MAPPING[row.event]
-            }
+            return Translate(EVENT_TYPE_NAME_MAPPING[row.event])
         }
 
         /**
@@ -330,63 +283,66 @@ export default defineComponent({
 
             openLoading()
 
-            const chls = formData.value.chls.map((chl) => `<item id="${chl}"></item>`).join('')
-            const eventsXML = pageData.value.events
-                .map((item1) => {
-                    if (item1.value === 'motion') {
-                        return ['motion', 'smdPerson', 'smdCar'].map((item2) => `<item>${item2}</item>`).join('')
-                    } else {
-                        return `<item>${item1.value}</item>`
+            tableData.value = []
+            pageData.value.currentPage = 1
+            formData.value.target = ['smdPerson', 'smdCar', 'None']
+
+            const events = !formData.value.events.length ? pageData.value.allEventList : formData.value.events
+
+            for (const chl of formData.value.chls) {
+                const sendXml = rawXml`
+                    <condition>
+                        <startTime>${formatGregoryDate(startTime, DEFAULT_DATE_FORMAT)}</startTime>
+                        <endTime>${formatGregoryDate(endTime, DEFAULT_DATE_FORMAT)}</endTime>
+                        <recTypes type='list'>
+                            ${events
+                                .map((item) => {
+                                    if (item === 'motion') {
+                                        return rawXml`
+                                            <item>motion</item>
+                                            <item>smdPerson</item>
+                                            <item>smdCar</item>
+                                        `
+                                    } else {
+                                        return `<item>${item}</item>`
+                                    }
+                                })
+                                .join('')}
+                        </recTypes>
+                        ${events.includes('pos') ? `<keyword>${formData.value.pos}</keyword>` : ''}
+                        <chl id="${chl}" />
+                    </condition>
+                `
+                const result = await queryRecLog(sendXml)
+                const $ = queryXml(result)
+
+                const chlId = $('content/chl').attr('id')
+                const chlName = $('content/chl').text()
+
+                $('content/recList/item').forEach((item) => {
+                    const $item = queryXml(item.element)
+                    const startTime = $item('startTime').text().num() * 1000
+                    const endTime = $item('endTime').text().num() * 1000
+                    const recType = $item('recType').text()
+                    const size = $item('size').text()
+
+                    if (!['human', 'vehicle', 'nonMotorizedVehicle'].includes(recType)) {
+                        tableData.value.push({
+                            chlId: chlId,
+                            chlName: chlName,
+                            startTime: startTime, // 开始时间戳（UTC）
+                            endTime: endTime, // 结束时间戳（UTC）
+                            event: recType,
+                            recSubType: recType,
+                            size: size ? size + 'MB' : '--',
+                            duration: dayjs.utc(endTime - startTime).format('HH:mm:ss'),
+                            timeZone: '',
+                        })
                     }
                 })
-                .join('')
-
-            tableData.value = []
-
-            const sendXml = rawXml`
-                <condition>
-                    <startTime>${formatGregoryDate(startTime, DEFAULT_DATE_FORMAT)}</startTime>
-                    <endTime>${formatGregoryDate(endTime, DEFAULT_DATE_FORMAT)}</endTime>
-                    <recType type='list'>
-                        <itemType type='recType'/>
-                        ${eventsXML}
-                    </recType>
-                    ${enablePos ? `<keyword>${formData.value.pos}</keyword>` : ''}
-                    ${formData.value.chls.length ? `<chl type='list'>${chls}</chl>` : ''}
-                </condition>
-            `
-            const result = await queryRecLog(sendXml)
-            const $ = queryXml(result)
+            }
 
             closeLoading()
-
-            showMaxSearchLimitTips($)
-
-            $('content/chl/item').forEach((item) => {
-                const $item = queryXml(item.element)
-                const chlId = item.attr('id')
-                const chlName = $item('name').text()
-                const timeZone = $item('recList').attr('timeZone')
-                $item('recList/item').forEach((rec) => {
-                    const $rec = queryXml(rec.element)
-                    const startTime = dayjs.utc($rec('startTime').text()).valueOf()
-                    const endTime = dayjs.utc($rec('endTime').text()).valueOf()
-                    const size = $rec('size').text()
-                    const recType = $rec('recType').text()
-                    const recSubType = $rec('recSubType').text()
-                    tableData.value.push({
-                        chlId,
-                        chlName,
-                        startTime,
-                        endTime,
-                        event: recType,
-                        recSubType,
-                        size: size ? size + 'MB' : '--',
-                        duration: dayjs.utc(endTime - startTime).format('HH:mm:ss'),
-                        timeZone,
-                    })
-                })
-            })
 
             if (!tableData.value.length) {
                 openMessageBox(Translate('IDCS_NO_RECORD_DATA'))
@@ -438,33 +394,17 @@ export default defineComponent({
             tableRef.value!.clearSelection()
         })
 
-        /**
-         * @description 打开事件类型筛选框
-         */
-        interface EventSelectorInstance {
-            open(): void
-        }
-        const baseEventSelectorRef = ref<EventSelectorInstance>()
-        const openEventSelector = () => {
-            console.log(pageData.value.events)
-            baseEventSelectorRef.value?.open()
-        }
-
-        // 选择的事件类型列表 - 拼接为字符串
-        const eventsStr = computed(() => {
-            const events = pageData.value.events.map((item) => {
-                return Translate(EVENT_TYPE_NAME_MAPPING[item.value])
-            })
-            return events.length === 0 ? Translate('IDCS_FULL') : events.join(', ')
-        })
-
         // 是否支持POS
         const enablePos = computed(() => {
-            const events = pageData.value.events.map((item) => {
-                return item.value
+            const events = formData.value.events.map((item) => {
+                return item
             })
-            return events.length === 0 || events.includes('POS')
+            return !events.length || events.includes('POS')
         })
+
+        const getRecTypeList = (events: string[]) => {
+            pageData.value.allEventList = events
+        }
 
         onMounted(() => {
             getChlsList()
@@ -490,16 +430,14 @@ export default defineComponent({
             tableRef,
             tableData,
             playRec,
-            displayEventIcon,
             handleRecClick,
+            eventTableData,
             filterTableData,
             handleRecChange,
             showPosInfo,
-
-            baseEventSelectorRef,
-            openEventSelector,
-            eventsStr,
             enablePos,
+            getRecTypeList,
+            changeTarget,
         }
     },
 })

@@ -129,38 +129,46 @@ type SnapDataType = {
     [key in SnapDataKey]: SnapDataDatum[]
 }
 
-type WebsocketSnapOnSuccessSnapInfo = {
-    vehicle_type: number
-    similarity: string
+export type WebsocketSnapOnSuccessSnapInfo = {
+    vehicle_type?: number
+    similarity?: string
     text_tip?: string
-    group_name: string
+    group_name?: string
     remarks?: string
-    name: string
+    name?: string
     compare_status: number
     plate?: string
     event_type: string
     target_type: string
-    person_info: Record<string, string | number>
-    car_info: Record<string, string | number>
-    bike_info: Record<string, string | number>
+    target_id?: string
+    person_info?: Record<string, string | number>
+    car_info?: Record<string, string | number>
+    bike_info?: Record<string, string | number>
     // plate: Record<string, string | number>
-    face_respo_id: string
-    birth_date: string
-    certificate_number: string
-    mobile_phone_number: string
+    face_respo_id?: string
+    birth_date?: string
+    certificate_number?: string
+    mobile_phone_number?: string
     owner?: string
-    repo_pic: string
+    repo_pic?: string
     face_id: string
     point_left_top: string
     point_right_bottom: string
     ptWidth: number
     ptHeight: number
-    serial_number: string
-    gender: string
-    hometown: string
-    certificate_type: number
-    faceImgCount: number
-    group_name: string
+    serial_number?: string
+    gender?: string
+    hometown?: string
+    certificate_type?: number
+    faceImgCount?: number
+    platecolor?: number
+    color?: number
+    type?: number
+    brand_type?: number
+    X1: number
+    Y1: number
+    X2: number
+    Y2: number
 }
 
 export type WebsocketSnapOnSuccessSnap = {

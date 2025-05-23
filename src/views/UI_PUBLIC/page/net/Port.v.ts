@@ -9,7 +9,6 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
-        const userSession = useUserSessionStore()
 
         // 认证方式与显示文本的映射
         const VERIFICATION_MAPPING: Record<string, string> = {
@@ -318,11 +317,9 @@ export default defineComponent({
          * @description P2P获取无线网络数据
          */
         const getWirelessNetworkData = async () => {
-            if (userSession.appType === 'P2P') {
-                const result = await queryWirelessNetworkCfg()
-                const $ = queryXml(result)
-                pageData.value.wirelessSwitch = $('content/switch').text().bool()
-            }
+            const result = await queryWirelessNetworkCfg()
+            const $ = queryXml(result)
+            pageData.value.wirelessSwitch = $('content/switch').text().bool()
         }
 
         /**

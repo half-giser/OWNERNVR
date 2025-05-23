@@ -64,6 +64,7 @@
                 file="target_retrieval"
                 :title="Translate('IDCS_REID')"
                 :active="detectTarget"
+                :disabled="winData.PLAY_STATUS !== 'play'"
                 @click="$emit('update:detectTarget', !detectTarget)"
             />
             <!-- 全屏按钮 -->
