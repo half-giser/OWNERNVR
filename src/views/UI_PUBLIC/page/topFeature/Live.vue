@@ -74,7 +74,6 @@
             >
                 <template #default="{ index }">
                     <LiveSnapPanel
-                        v-if="isSnapPanel"
                         v-show="index === 0"
                         :auth="userAuth"
                     />

@@ -168,11 +168,11 @@ const fetch = (url: string, data: string, config?: AxiosRequestConfig, checkComm
             const p2pTransport = useP2PTransport()
             p2pTransport.HttpRequest({
                 url: url,
-                data: data,
+                data: getXmlWrapData(data, url),
                 callback: (buffer) => {
                     plugin.P2pCmdSender.add({
                         cmd: buffer,
-                        resolve: (xmlDoc) => {
+                        resolve: (xmlDoc: ApiResult) => {
                             const $ = queryXml(xmlDoc)
                             if ($('//status').text() === ApiStatus.fail) {
                                 const errorCode = queryXml(xmlDoc)('//errorCode').text().num()
@@ -181,7 +181,7 @@ const fetch = (url: string, data: string, config?: AxiosRequestConfig, checkComm
                                     return
                                 }
                             }
-                            resolve(xmlDoc)
+                            resolve(xmlDoc as ApiResult)
                         },
                         reject: (e) => {
                             reject(e)

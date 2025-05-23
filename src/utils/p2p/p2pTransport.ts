@@ -28,7 +28,6 @@ export const useP2PTransport = defineStore('p2pTransport', () => {
         const data = option.data
         const callback = option.callback
         const $request = queryXml(XMLStr2XMLDoc(option.data))('request')
-        // let $request = $('request', CommonFunctions.XMLStr2XMLDoc(data))[0]
         console.log('%crequest--' + url, 'color: green', $request)
         const payLoadData = getHttpHead(url, data)
         const metaDataXmlStr = getMetaData(payLoadData)
@@ -60,12 +59,12 @@ export const useP2PTransport = defineStore('p2pTransport', () => {
     }
 
     // P2P websocket请求, 二进制形式: xml元数据长度 + xml元数据 + 负载数据(websocket标准二进制结构报文)
-    const wsRequest = (option: { buffer: ArrayBuffer; identify: number }) => {
+    const wsRequest = (option: { buffer: ArrayBuffer | Uint8Array<ArrayBuffer>; identify: number }) => {
         const buffer = option.buffer
         const identify = option.identify
         const payLoadData = buffer
-        const metaDataXmlStr = getMetaData(payLoadData, identify)
-        handleWsRequest(payLoadData, metaDataXmlStr)
+        const metaDataXmlStr = getMetaData(payLoadData as ArrayBuffer, identify)
+        handleWsRequest(payLoadData as ArrayBuffer, metaDataXmlStr)
     }
 
     // 组合请求消息
@@ -76,8 +75,8 @@ export const useP2PTransport = defineStore('p2pTransport', () => {
         const dataView = new DataView(buffer)
         dataView.setUint32(0, metaDataXmlStr.length, true)
         let resultBuff = dataView.buffer
-        resultBuff = appendBuffer(resultBuff, metaDataBuff)
-        resultBuff = appendBuffer(resultBuff, payLoadDataBuff)
+        resultBuff = appendBuffer(resultBuff, metaDataBuff) as ArrayBuffer
+        resultBuff = appendBuffer(resultBuff, payLoadDataBuff) as ArrayBuffer
         typeof callback === 'function' && callback(resultBuff)
     }
 

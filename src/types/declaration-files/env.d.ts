@@ -16,7 +16,12 @@ interface ImportMetaEnv {
     readonly VITE_BASE_URL: string
     readonly VITE_APP_IP: string
     readonly VITE_PACKAGE_VER: string
-    readonly VITE_P2P_URL: string
+    readonly VITE_P2P_IS_TEST: string
+    readonly VITE_P2P_BASE_URL: string
+    readonly VITE_P2P_VISIT: string
+    readonly VITE_P2P_SN: string
+    readonly VITE_P2P_ADMIN: string
+    readonly VITE_P2P_PASSWORD: string
 }
 
 interface ImportMeta {

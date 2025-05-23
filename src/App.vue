@@ -10,7 +10,7 @@
         </el-config-provider>
         <transition name="intitial-view">
             <div
-                v-show="!layoutStore.isInitial"
+                v-show="!layoutStore.isInitial && !plugin.pluginNoticeContainer"
                 id="InitialView"
             ></div>
         </transition>

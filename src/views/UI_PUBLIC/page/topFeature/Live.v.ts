@@ -370,15 +370,6 @@ export default defineComponent({
             },
         )
 
-        // 抓拍视图是否显示
-        const isSnapPanel = computed(() => {
-            if (userSession.appType === 'P2P') {
-                return false
-            }
-
-            return true
-        })
-
         // 鱼眼视图是否显示
         const isFishEyePanel = computed(() => {
             return mode.value === 'ocx' && userSession.appType === 'STANDARD'
@@ -1840,7 +1831,6 @@ export default defineComponent({
             playCustomView,
             setAudio,
             updateSupportAz,
-            isSnapPanel,
             isFishEyePanel,
             notify,
             handlePlayerAudioError,
