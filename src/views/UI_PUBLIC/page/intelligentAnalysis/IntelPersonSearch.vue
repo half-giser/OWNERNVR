@@ -36,8 +36,8 @@
                     <IntelBaseProfileSelector
                         v-show="pageData.searchType === 'byPersonAttribute'"
                         v-model="pageData.attributeForPersonAttribute"
-                        placeholder-type="spread"
                         :range="['person']"
+                        @update:model-value="handleChangeAttr"
                     />
                 </div>
             </div>
@@ -284,6 +284,7 @@
 
         .el-radio-button {
             height: 100%;
+
             :deep(.el-radio-button__inner) {
                 height: 100%;
                 display: flex;
@@ -297,6 +298,7 @@
                     background-color: transparent !important;
                 }
             }
+
             :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
                 background-color: transparent !important;
                 color: var(--primary) !important;
@@ -315,8 +317,10 @@
         :deep(.el-form) {
             height: 30px;
             margin-bottom: 10px !important;
+
             .el-form-item {
                 padding: 0px !important;
+
                 .el-input__inner {
                     height: 30px;
                 }
@@ -333,10 +337,12 @@
                 width: auto !important;
             }
         }
+
         .el-dropdown {
             margin-right: 30px;
         }
     }
+
     .resize_icon_left,
     .resize_icon_right {
         cursor: pointer;
@@ -346,21 +352,27 @@
         margin: auto;
         width: 10px;
         height: 60px;
+
         &:hover {
             opacity: 0.8;
         }
     }
+
     .resize_icon_left {
         left: -10px;
     }
+
     .resize_icon_right {
         right: 0px;
     }
+
     &.detail_open {
         border-right: 1px solid var(--content-border);
+
         .resize_icon_left {
             left: 0px;
         }
+
         .resize_icon_right {
             right: -10px;
         }
@@ -374,9 +386,11 @@
     padding: 0px 14px;
     cursor: pointer;
     font-size: 14px;
+
     &:hover {
         color: var(--primary);
     }
+
     .Sprite {
         transform: scale(0.7);
     }

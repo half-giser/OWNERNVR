@@ -9,6 +9,7 @@ import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
 import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
 import AlarmBasePresetSelector from './AlarmBasePresetSelector.vue'
+import AlarmBaseIPSpeakerSelector from './AlarmBaseIPSpeakerSelector.vue'
 import AlarmBaseSnapSelector from './AlarmBaseSnapSelector.vue'
 
 export default defineComponent({
@@ -18,6 +19,7 @@ export default defineComponent({
         AlarmBaseTriggerSelector,
         AlarmBasePresetSelector,
         AlarmBaseSnapSelector,
+        AlarmBaseIPSpeakerSelector,
     },
     props: {
         /**
@@ -564,6 +566,12 @@ export default defineComponent({
                                 value: $item('chl').attr('id'),
                                 label: $item('chl').text(),
                             },
+                        }
+                    }),
+                    ipSpeaker: $trigger('triggerAudioDevice/chls/item').map((item) => {
+                        return {
+                            ipSpeakerId: item.attr('id'),
+                            audioID: item.attr('audioID'),
                         }
                     }),
                     trigger: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch', 'popMsgSwitch'].filter((item) => {
@@ -1157,6 +1165,15 @@ export default defineComponent({
                                         .join('')}
                                 </presets>
                             </preset>
+                            <triggerAudioDevice>
+                                <chls type="list">
+                                ${formData.value.ipSpeaker
+                                    .map((item) => {
+                                        return rawXml`<item id='${item.ipSpeakerId}' audioID='${item.audioID}'/>`
+                                    })
+                                    .join('')}
+                                </chls>
+                            </triggerAudioDevice>
                             <snapSwitch>${formData.value.trigger.includes('snapSwitch')}</snapSwitch>
                             <msgPushSwitch>${formData.value.trigger.includes('msgPushSwitch')}</msgPushSwitch>
                             <buzzerSwitch>${formData.value.trigger.includes('buzzerSwitch')}</buzzerSwitch>

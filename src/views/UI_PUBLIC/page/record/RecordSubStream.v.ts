@@ -3,6 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-07-31 10:13:57
  */
+import { type RecordSubStreamInfoAttrDto } from '@/types/apiType/record'
 import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
@@ -11,8 +12,16 @@ export default defineComponent({
         const systemCaps = useCababilityStore()
 
         // “RecordSubResAdaptive” 为true时:录像子码流界面仅显示不可编辑，为false时录像子码流可以编辑
-        const RecordSubResAdaptive = systemCaps.RecordSubResAdaptive
+        const RecordSubResAdaptive = ref(systemCaps.RecordSubResAdaptive)
         const mainStreamLimitFps = systemCaps.mainStreamLimitFps // 主码流帧率限制
+
+        const formData = ref({
+            autoMode: false,
+        })
+        const watchEdit = useWatchEditData(formData)
+
+        // helper variables
+        const chlProtocolTypeMap: Record<string, string> = {}
 
         let poeModeNode = 0
 
@@ -20,29 +29,78 @@ export default defineComponent({
 
         const pageData = ref({
             doubleStreamRecSwitch: true,
-            isAuto: true,
             loopRecSwitch: true,
             maxQoI: 0,
             videoEncodeTypeList: [] as SelectOption<string, string>[],
             // 分辨率表头下拉框
             resolutionHeaderVisble: false,
+            recSubResAdaptive: [] as SelectOption<boolean, string>[],
             resolutionGroups: [] as RecordStreamResolutionDto[],
             videoQualityList: [] as SelectOption<number, string>[],
             expands: [] as string[],
         })
 
+        pageData.value.recSubResAdaptive = [
+            {
+                value: true,
+                label: Translate('IDCS_SELF_ADAPTION'),
+            },
+            {
+                value: false,
+                label: Translate('IDCS_MANUAL'),
+            },
+        ]
+
+        const chlsData = ref<Partial<ChannelInfoDto>[]>([])
         const tableData = ref<RecordSubStreamList[]>([])
         const editRows = useWatchEditRows<RecordSubStreamList>()
         const virtualTableData = computed<number[]>(() => {
             return [...Array(tableData.value.length).keys()]
         })
 
+        const queryChlList = async () => {
+            const result = await getChlList({})
+            const $ = queryXml(result)
+
+            chlsData.value = $('content/item').map((item) => {
+                const $item = queryXml(item.element)
+                return {
+                    id: $item('id').text(),
+                    name: $item('name').text(),
+                    addType: $item('addType').text(),
+                    chlType: $item('chlType').text(),
+                    chlIndex: Number($item('chlIndex').text()),
+                    poeIndex: Number($item('poeIndex').text()),
+                    productModel: {
+                        innerText: $item('productModel').text(),
+                        factoryName: $item('productModel').attr('factoryName'),
+                    },
+                }
+            })
+        }
+
+        const getDevList = async () => {
+            const sendXml = rawXml`
+                <requireField>
+                    <name/>
+                    <protocolType/>
+                    <productModel/>
+                </requireField>
+            `
+            const result = await queryDevList(sendXml)
+            const $ = queryXml(result)
+
+            $('content/item').map((item) => {
+                const $item = queryXml(item.element)
+                chlProtocolTypeMap[item.attr('id')] = $item('protocolType').text()
+            })
+        }
+
         const getDevRecParamCfgModule = async () => {
             const result = await queryRecordDistributeInfo()
             const $ = queryXml(result)
 
             pageData.value.doubleStreamRecSwitch = $('content/doubleStreamRecSwitch').text().bool()
-            pageData.value.isAuto = $('content/recMode/mode').text() === 'auto'
             pageData.value.loopRecSwitch = $('content/loopRecSwitch').text().toLowerCase().bool()
         }
 
@@ -155,11 +213,8 @@ export default defineComponent({
                 <requireField>
                     <name/>
                     <chlType/>
-                    <mainCaps/>
-                    <main/>
-                    ${pageData.value.isAuto ? '<an/><ae/>' : '<mn/><me/>'}
-                    <mainStreamQualityCaps/>
                     <sub/>
+		            <subRec/>
                     <subCaps/>
                     <aux1Caps/>
                     <stream/>
@@ -170,6 +225,8 @@ export default defineComponent({
             const result = await queryNodeEncodeInfo(sendXML)
 
             commLoadResponseHandler(result, ($) => {
+                RecordSubResAdaptive.value = formData.value.autoMode = $('content/subRecResAdaptiveMode').text().bool()
+
                 tableData.value = $('content/item').map((item, index) => {
                     const $item = queryXml(item.element)
 
@@ -254,33 +311,60 @@ export default defineComponent({
                         }
                     })
 
-                    // 初始数据项，一些tableData上的数据只有在有initItem下才存在
-                    let initItem = $item('stream/s').find((item) => {
-                        return item.attr('idx').num() === 3
-                    })
-
-                    if (!initItem) {
-                        if ($item('sub')) {
-                            initItem = $item('sub')[0]
+                    // 初始数据项，一些 tableData 上的数据只有在有 targetNode 才存在
+                    let targetNode = null
+                    const subRecNode = $item('subRec')
+                    const protocolType = chlProtocolTypeMap[item.attr('id').trim()]
+                    if (protocolType === 'SPECO') {
+                        targetNode = $item('stream/s').find((item) => {
+                            return item.attr('idx').num() === 2
+                        })
+                    } else if (
+                        $item('chlType').text() === 'recoder' &&
+                        !subRecNode.attr('res') &&
+                        !subRecNode.attr('fps') &&
+                        !subRecNode.attr('QoI') &&
+                        !subRecNode.attr('enct') &&
+                        !subRecNode.attr('bitType') &&
+                        !subRecNode.attr('level') &&
+                        !subRecNode.attr('GOP')
+                    ) {
+                        targetNode = $item('stream/s').find((item) => {
+                            return item.attr('idx').num() === 3
+                        })
+                        if (!targetNode && $item('sub')) {
+                            targetNode = $item('sub')
                         }
+                    }
+                    targetNode = !targetNode ? $item('subRec') : targetNode
+
+                    // 录像子码流参数（第三码流-录像子码流参数）
+                    const subRec: RecordSubStreamInfoAttrDto = {
+                        res: targetNode?.attr('res'),
+                        fps: Number(targetNode?.attr('fps')),
+                        QoI: Number(targetNode?.attr('QoI')),
+                        enct: targetNode?.attr('enct'),
+                        bitType: targetNode?.attr('bitType'),
+                        level: targetNode?.attr('level'),
+                        GOP: Number(targetNode?.attr('GOP')),
+                        OnlyRead: targetNode?.attr('OnlyRead'),
                     }
 
                     let videoEncodeType = ''
                     let frameRate = 0
 
-                    if (initItem) {
+                    if (targetNode) {
                         // 视频编码
-
-                        if (initItem.attr('enct').indexOf('plus') !== -1) {
-                            videoEncodeType = initItem.attr('enct').replace(/plus/g, 'p')
-                        } else if (initItem.attr('enct').indexOf('smart') !== -1) {
-                            videoEncodeType = initItem.attr('enct').replace(/smart/g, 's')
+                        if (targetNode.attr('enct').indexOf('plus') !== -1) {
+                            videoEncodeType = targetNode.attr('enct').replace(/plus/g, 'p')
+                        } else if (targetNode.attr('enct').indexOf('smart') !== -1) {
+                            videoEncodeType = targetNode.attr('enct').replace(/smart/g, 's')
                         } else {
-                            videoEncodeType = initItem.attr('enct')
+                            videoEncodeType = targetNode.attr('enct')
                         }
 
                         // 分辨率
-                        frameRate = initItem.attr('fps').num()
+                        frameRate = targetNode.attr('fps').num()
                         if (!frameRate && subCaps.res.length) {
                             frameRate = subCaps.res[0].fps
                         }
@@ -297,13 +381,15 @@ export default defineComponent({
                         isRTSPChl: item.attr('isRTSPChl').bool(),
                         chlType: $item('chlType').text(),
                         subCaps,
+                        subRec,
                         streamType: 'sub',
+                        protocolType,
                         streamLength: $item('stream/s').length,
-                        resolution: initItem?.attr('res') || '',
+                        resolution: targetNode?.attr('res') || '',
                         frameRate,
-                        bitType: initItem?.attr('bitType') || '',
-                        level: initItem?.attr('level') || '',
-                        videoQuality: initItem?.attr('QoI').num() || 0,
+                        bitType: targetNode?.attr('bitType') || '',
+                        level: targetNode?.attr('level') || '',
+                        videoQuality: targetNode?.attr('QoI').num() || 0,
                         videoEncodeType,
                         subStreamQualityCaps,
                         disabled: false,
@@ -334,22 +420,15 @@ export default defineComponent({
             const rows = editRows.toArray()
             const sendXML = rawXml`
                 <content type='list' total='${rows.length}'>
+                    <subRecResAdaptiveMode>${formData.value.autoMode}</subRecResAdaptiveMode>
                     ${rows
                         .map((item) => {
                             if (!item.disabled) {
-                                if (item.streamLength === 3) {
-                                    return rawXml`
+                                return rawXml`
                                         <item id='${item.id}'>
                                             <subRec res='${item.resolution}' fps='${item.frameRate}' QoI='${item.videoQuality}' bitType ='${item.bitType || 'CBR'}' level='${item.level}' enct='${item.videoEncodeType}'></subRec>
                                         </item>
                                     `
-                                } else {
-                                    return rawXml`
-                                        <item id='${item.id}'>
-                                            <sub res='${item.resolution}' fps='${item.frameRate}' QoI='${item.videoQuality}' bitType ='${item.bitType || 'CBR'}' level='${item.level}' enct='${item.videoEncodeType}'></sub>
-                                        </item>
-                                    `
-                                }
                             }
                         })
                         .join('')}
@@ -601,27 +680,41 @@ export default defineComponent({
             return key ? Translate(DEFAULT_STREAM_TYPE_MAPPING[key]) : '--'
         }
 
+        watch(
+            () => {
+                return formData.value.autoMode
+            },
+            (newValue) => {
+                if (!watchEdit.ready.value) return
+                RecordSubResAdaptive.value = newValue
+            },
+        )
+
         onMounted(async () => {
             openLoading()
 
+            await queryChlList()
+            await getDevList()
             await getDevRecParamCfgModule()
             await getNetCfgModule()
             await getData()
+            watchEdit.listen()
 
             closeLoading()
         })
 
         return {
-            getQualityList,
+            formData,
             resolutionTableRef,
-            getFrameRateList,
-            getFrameRateSingleList,
-            displayStreamType,
             RecordSubResAdaptive,
             pageData,
             tableData,
             editRows,
             virtualTableData,
+            getQualityList,
+            getFrameRateList,
+            getFrameRateSingleList,
+            displayStreamType,
             setData,
             changeVideoEncodeType,
             changeAllVideoEncodeType,

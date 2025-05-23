@@ -11,14 +11,6 @@
         <div class="BaseDropdownBtn--text">
             <slot></slot>
         </div>
-        <BaseImgSprite
-            v-if="needDropDownTips"
-            file="aq"
-            :index="1"
-            :hover-index="0"
-            :chunk="3"
-            :title="title"
-        />
         <el-icon class="el-icon--right">
             <ArrowDown />
         </el-icon>
@@ -31,12 +23,9 @@ import { ArrowDown } from '@element-plus/icons-vue'
 withDefaults(
     defineProps<{
         effect?: 'plain' | 'table'
-        title?: string
-        needDropDownTips?: boolean
     }>(),
     {
         effect: 'table',
-        needDropDownTips: false,
     },
 )
 </script>
@@ -48,6 +37,7 @@ withDefaults(
 .BaseDropdownBtn {
     width: 100%;
     height: 100%;
+    line-height: 40px;
     display: flex;
     justify-content: center;
     align-items: center;

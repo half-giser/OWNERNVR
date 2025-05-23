@@ -26,24 +26,24 @@
                 show-overflow-tooltip
             >
                 <el-table-column
-                    prop="name"
-                    :label="Translate('IDCS_CHANNEL')"
-                    width="110"
-                />
+                    prop="aiResType"
+                    :label="Translate('IDCS_INTELLIGENT')"
+                    width="270"
+                >
+                    <template #default="{ row }: TableColumn<AlarmAIResourceDto>">
+                        {{ aiResTypeMapping[row.aiResType] }}
+                        <BaseImgSprite
+                            file="warning"
+                            :index="1"
+                            :hover-index="2"
+                            :title="row.aiResDetailTips"
+                            :chunk="3"
+                    /></template>
+                </el-table-column>
                 <el-table-column
-                    prop="eventTypeText"
-                    :label="Translate('IDCS_EVENT_TYPE')"
-                    width="110"
-                />
-                <el-table-column
+                    prop="aiResPercent"
                     :label="Translate('IDCS_USAGE_RATE')"
-                    width="110"
-                    prop="percent"
-                />
-                <el-table-column
-                    prop="decodeResource"
-                    :label="Translate('IDCS_DECODE_RESOURCE')"
-                    width="110"
+                    width="150"
                 />
                 <el-table-column
                     :label="Translate('IDCS_FREE_AI_RESOURCE')"

@@ -17,9 +17,9 @@
         </el-form>
         <div class="mode">
             <div v-show="formData.mode === 'manually'">
-                <div class="base-btn-box space-between padding gap align-item-center">
-                    {{ Translate('IDCS_SCHEDULE_CONFIG') }}
-                    <el-button @click="openSchedulePop">{{ Translate('IDCS_SCHEDULE_MANAGE') }}</el-button>
+                <div class="base-btn-box flex-start padding gap">
+                    <span>{{ Translate('IDCS_SCHEDULE_CONFIG') }}</span>
+                    <!-- <el-button @click="openSchedulePop">{{ Translate('IDCS_SCHEDULE_MANAGE') }}</el-button> -->
                 </div>
                 <el-table
                     v-title
@@ -110,12 +110,19 @@
                     >
                         <template #header>
                             <BaseScheduleTableDropdown
-                                :label="Translate('IDCS_ALL_EVENT_RECORD')"
                                 :options="pageData.scheduleList"
-                                :drop-down-tips="allEventTips"
                                 @change="changeAllSchedule($event, 'allEventRec')"
                                 @edit="openSchedulePop"
-                            />
+                            >
+                                <span>{{ Translate('IDCS_ALL_EVENT_RECORD') }}</span>
+                                <BaseImgSprite
+                                    file="aq"
+                                    :index="1"
+                                    :hover-index="0"
+                                    :chunk="3"
+                                    :title="allEventTips"
+                                />
+                            </BaseScheduleTableDropdown>
                         </template>
                         <template #default="{ row }: TableColumn<RecordScheduleDto>">
                             <BaseScheduleSelect

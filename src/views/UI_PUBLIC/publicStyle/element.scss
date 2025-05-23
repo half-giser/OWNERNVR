@@ -431,10 +431,10 @@
             padding: 0;
 
             .cell {
-                padding: 8px 2px;
                 text-overflow: ellipsis;
                 overflow: hidden;
                 text-wrap: nowrap;
+                line-height: 40px;
 
                 .el-dropdown {
                     width: 100%;

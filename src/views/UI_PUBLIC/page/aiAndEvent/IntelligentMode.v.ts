@@ -120,8 +120,6 @@ export default defineComponent({
                         }
                     }
                 })
-                // pageData.value.intelligentModeChlList = []
-                console.log(pageData.value.intelligentModeChlList)
                 if (!pageData.value.intelligentModeChlList.length) {
                     pageData.value.notSupport = true
                     return
@@ -148,7 +146,6 @@ export default defineComponent({
                     <param/>
                 </requireField>
             `
-            console.log(sendXml)
             const result = await queryInvokeEventTypeConfig(sendXml)
             commLoadResponseHandler(result, ($) => {
                 // 当前通道开启的智能模式

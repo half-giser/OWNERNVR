@@ -9,6 +9,7 @@ import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
 import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
 import AlarmBasePresetSelector from './AlarmBasePresetSelector.vue'
+import AlarmBaseIPSpeakerSelector from './AlarmBaseIPSpeakerSelector.vue'
 import AlarmBaseResourceData from './AlarmBaseResourceData.vue'
 
 export default defineComponent({
@@ -18,6 +19,7 @@ export default defineComponent({
         AlarmBaseAlarmOutSelector,
         AlarmBaseTriggerSelector,
         AlarmBasePresetSelector,
+        AlarmBaseIPSpeakerSelector,
         AlarmBaseResourceData,
     },
     props: {
@@ -403,6 +405,13 @@ export default defineComponent({
                 }
             })
 
+            areaData.ipSpeaker = $trigger('triggerAudioDevice/chls/item').map((item) => {
+                return {
+                    ipSpeakerId: item.attr('id'),
+                    audioID: item.attr('audioID'),
+                }
+            })
+
             areaData.trigger = ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch'].filter((item) => {
                 return $trigger(item).text().bool()
             })
@@ -527,6 +536,15 @@ export default defineComponent({
                                         .join('')}
                                 </presets>
                             </preset>
+                            <triggerAudioDevice>
+                                <chls type="list">
+                                ${data.ipSpeaker
+                                    .map((item) => {
+                                        return rawXml`<item id='${item.ipSpeakerId}' audioID='${item.audioID}'/>`
+                                    })
+                                    .join('')}
+                                </chls>
+                            </triggerAudioDevice>
                             <snapSwitch>${data.trigger.includes('snapSwitch')}</snapSwitch>
                             <msgPushSwitch>${data.trigger.includes('msgPushSwitch')}</msgPushSwitch>
                             <buzzerSwitch>${data.trigger.includes('buzzerSwitch')}</buzzerSwitch>
@@ -553,6 +571,10 @@ export default defineComponent({
                 const errorCode = $('errorCode').text().num()
                 if (errorCode === 536871053) {
                     openMessageBox(Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'))
+                } else if (errorCode === 536870983) {
+                    openMessageBox(Translate('IDCS_DECODE_CAPABILITY_NOT_ENOUGH'))
+                } else if (errorCode === 536871091) {
+                    openMessageBox(Translate('IDCS_RESOLUTION_OVER_CAPABILITY'))
                 } else {
                     openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
                 }
