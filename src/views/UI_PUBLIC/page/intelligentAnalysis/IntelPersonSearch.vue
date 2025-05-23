@@ -32,12 +32,95 @@
                         v-model="pageData.chlIdList"
                         @ready="getChlIdNameMap"
                     />
+                    <!-- 图片选择、相似度 - 人脸 -->
+                    <div v-show="pageData.searchType === 'byFace'">
+                        <!-- 图片 -->
+                        <div class="add_pic_container">
+                            <div
+                                v-for="(item, index) in pageData.picCacheListForFace"
+                                :key="item.pic"
+                                class="add_pic_item"
+                            >
+                                <img
+                                    v-if="item.pic"
+                                    :src="item.pic"
+                                />
+                                <div class="pic_operation">
+                                    <el-button @click="handleChangePic(index)">{{ Translate('IDCS_CHANGE') }}</el-button>
+                                    <el-button @click="handleDeletePic(index)">{{ Translate('IDCS_DELETE') }}</el-button>
+                                </div>
+                            </div>
+                            <div
+                                v-if="pageData.picCacheListForFace.length < 5"
+                                class="add_pic_item"
+                            >
+                                <BaseImgSpriteBtn
+                                    file="addFF"
+                                    :index="[0, 2, 2, 3]"
+                                    @click.stop="openChoosePicPop"
+                                />
+                            </div>
+                        </div>
+                        <!-- 相似度 -->
+                        <div
+                            v-show="pageData.picCacheListForFace.length > 0"
+                            class="similarity_container"
+                        >
+                            <span class="base-ai-slider-label">{{ Translate('IDCS_SIMILARITY') }}</span>
+                            <BaseSliderInput
+                                v-model="pageData.similarityForFace"
+                                :min="1"
+                                :max="100"
+                            />
+                        </div>
+                    </div>
+                    <!-- 图片选择、相似度 - 人体 -->
+                    <div v-show="pageData.searchType === 'byBody'">
+                        <!-- 图片 -->
+                        <div class="add_pic_container">
+                            <div
+                                v-for="(item, index) in pageData.picCacheListForBody"
+                                :key="item.pic"
+                                class="add_pic_item"
+                            >
+                                <img
+                                    v-if="item.pic"
+                                    :src="item.pic"
+                                />
+                                <div class="pic_operation">
+                                    <el-button @click="handleChangePic(index)">{{ Translate('IDCS_CHANGE') }}</el-button>
+                                    <el-button @click="handleDeletePic(index)">{{ Translate('IDCS_DELETE') }}</el-button>
+                                </div>
+                            </div>
+                            <div
+                                v-if="pageData.picCacheListForBody.length < 5"
+                                class="add_pic_item"
+                            >
+                                <BaseImgSpriteBtn
+                                    file="addFF"
+                                    :index="[0, 2, 2, 3]"
+                                    @click.stop="openChoosePicPop"
+                                />
+                            </div>
+                        </div>
+                        <!-- 相似度 -->
+                        <div
+                            v-show="pageData.picCacheListForBody.length > 0"
+                            class="similarity_container"
+                        >
+                            <span class="base-ai-slider-label">{{ Translate('IDCS_SIMILARITY') }}</span>
+                            <BaseSliderInput
+                                v-model="pageData.similarityForBody"
+                                :min="1"
+                                :max="100"
+                            />
+                        </div>
+                    </div>
                     <!-- 属性选择 - 人属性 -->
                     <IntelBaseProfileSelector
                         v-show="pageData.searchType === 'byPersonAttribute'"
                         v-model="pageData.attributeForPersonAttribute"
                         :range="['person']"
-                        @update:model-value="handleChangeAttr"
                     />
                 </div>
             </div>
@@ -165,6 +248,8 @@
                         :key="item.targetID"
                         :target-data="item"
                         :detail-index="pageData.openDetailIndexForFace"
+                        :show-compare="showCompare"
+                        :choose-pics="pageData.picCacheListForFace"
                         search-type="byFace"
                         @detail="showDetail(item)"
                     />
@@ -180,6 +265,8 @@
                         :key="item.targetID"
                         :target-data="item"
                         :detail-index="pageData.openDetailIndexForBody"
+                        :show-compare="showCompare"
+                        :choose-pics="pageData.picCacheListForBody"
                         search-type="byBody"
                         @detail="showDetail(item)"
                     />
@@ -195,6 +282,7 @@
                         :key="item.targetID"
                         :target-data="item"
                         :detail-index="pageData.openDetailIndexForPersonAttribute"
+                        :show-compare="false"
                         search-type="byPersonAttribute"
                         @detail="showDetail(item)"
                     />
@@ -262,6 +350,18 @@
             详情容器
         </div>
     </div>
+    <!-- 人脸/人体 - 选择图片弹框 -->
+    <IntelFaceSearchChooseFacePop
+        v-model="pageData.isChoosePicPop"
+        :type="pageData.picType"
+        :open-type="pageData.searchType"
+        :snap-face="pageData.snapFace"
+        :snap-body="pageData.snapBody"
+        :face="pageData.featureFace"
+        @choose-face-snap="chooseFaceSnap"
+        @choose-body-snap="chooseBodySnap"
+        @choose-face="chooseFace"
+    />
 </template>
 
 <script lang="ts" src="./IntelPersonSearch.v.ts"></script>
@@ -312,6 +412,72 @@
 
         .base-intel-left-form {
             padding: 0px;
+
+            .add_pic_container {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+
+                .add_pic_item {
+                    width: 130px;
+                    height: 150px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    position: relative;
+                    border: 1px solid var(--content-border);
+                    margin: 3px;
+
+                    img {
+                        width: 100%;
+                        height: 100%;
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        bottom: 0;
+                        right: 0;
+                        margin: auto;
+                        z-index: 1;
+                    }
+
+                    .pic_operation {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 20px;
+                        text-align: right;
+                        visibility: hidden;
+                        z-index: 2;
+
+                        &:hover {
+                            visibility: visible;
+                        }
+
+                        .el-button {
+                            min-width: 35px !important;
+                            height: 20px !important;
+                            padding: 2px 4px !important;
+                            font-size: 10px;
+                        }
+                    }
+
+                    & {
+                        img:hover ~ .pic_operation {
+                            visibility: visible;
+                        }
+                    }
+                }
+            }
+
+            .similarity_container {
+                width: 100%;
+                padding: 0px 44px;
+                margin-top: 24px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
         }
 
         :deep(.el-form) {
@@ -327,10 +493,15 @@
             }
         }
     }
+
+    .base-intel-row {
+        margin-top: 24px;
+    }
 }
 
 .base-intel-center {
     position: relative;
+
     .base-intel-row {
         .el-radio-button {
             :deep(.el-radio-button__inner) {

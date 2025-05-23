@@ -5,22 +5,42 @@
  */
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
 import IntelBaseEventSelector from './IntelBaseEventSelector.vue'
-import IntelBaseAttributeSelector from './IntelBaseAttributeSelector.vue'
 import { type BarChartXValueOptionItem } from '@/components/chart/BaseBarChart.vue'
+import { VALUE_NAME_MAPPING } from '@/utils/const/snap'
 
 export default defineComponent({
     components: {
         IntelBaseChannelSelector,
         IntelBaseEventSelector,
-        IntelBaseAttributeSelector,
     },
     setup() {
         const { Translate } = useLangStore()
 
         let chlMap: Record<string, string> = {}
         let eventMap: Record<string, string> = {}
+        let chlLoadComplete = false
 
         const pageData = ref({
+            searchType: 'byCar',
+            searchOptions: [
+                {
+                    label: Translate('IDCS_DETECTION_VEHICLE'),
+                    value: 'byCar',
+                },
+                {
+                    label: Translate('IDCS_NON_VEHICLE'),
+                    value: 'byMotorcycle',
+                },
+                {
+                    label: Translate('IDCS_LICENSE_PLATE_NUM'),
+                    value: 'byPlateNumber',
+                },
+            ],
+            event: [],
+            eventForPlate: [],
+            attributeForCar: {} as Record<string, Record<string, string[]>>,
+            attributeForMotor: {} as Record<string, Record<string, string[]>>,
+            plateNumber: '',
             // 日期范围类型
             dateRangeType: 'date',
             // 统计显示类型选项
@@ -65,6 +85,7 @@ export default defineComponent({
          */
         const getChlMap = (e: Record<string, string>) => {
             chlMap = e
+            chlLoadComplete = true
         }
 
         /**
@@ -90,6 +111,15 @@ export default defineComponent({
          */
         const changeEvent = (e: string[]) => {
             formData.value.event = e
+            if (['plateDetection', 'plateMatchWhiteList', 'plateMatchStranger'].includes(e[0])) {
+                formData.value.deduplicate = false
+            }
+
+            if (pageData.value.searchType === 'byCar') {
+                formData.value.attribute = pageData.value.attributeForCar
+            } else if (pageData.value.searchType === 'byMotorcycle') {
+                formData.value.attribute = pageData.value.attributeForMotor
+            }
             getData()
         }
 
@@ -97,8 +127,25 @@ export default defineComponent({
          * @description 修改属性
          * @param {string[][]} e
          */
-        const changeAttribute = (e: string[][]) => {
-            formData.value.attribute = e[0]
+        const changeAttribute = (e: Record<string, Record<string, string[]>>) => {
+            formData.value.attribute = e
+            getData()
+        }
+
+        const changeTab = () => {
+            if (pageData.value.searchType === 'byCar') {
+                formData.value.attribute = pageData.value.attributeForCar
+                formData.value.event = pageData.value.event
+            } else if (pageData.value.searchType === 'byMotorcycle') {
+                formData.value.attribute = pageData.value.attributeForMotor
+                formData.value.event = pageData.value.event
+            } else {
+                formData.value.event = pageData.value.eventForPlate
+            }
+            getData()
+        }
+
+        const changeDeDuplicate = () => {
             getData()
         }
 
@@ -107,19 +154,51 @@ export default defineComponent({
          */
         const getData = async () => {
             if (!formData.value.chl.length) {
+                // NTA1-1294 不显示已删除通道，表格没有可选通道时，提示“请选择通道”且不下发查询协议
+                if (chlLoadComplete) {
+                    openMessageBox(Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'))
+                }
                 return
             }
             openLoading()
+            const carXml = pageData.value.searchType === 'byCar' ? '<item>car</item>' : ''
+            const motorXml = pageData.value.searchType === 'byMotorcycle' ? '<item>motor</item>' : ''
+            const vehicleXml = pageData.value.searchType === 'byPlateNumber' ? '<item>car</item><item>motor</item>' : carXml + motorXml
+            const attributeXml =
+                formData.value.event[0] === 'videoMetadata'
+                    ? Object.keys(formData.value.attribute)
+                          .map((key) => {
+                              const detail = Object.entries(formData.value.attribute[key])
+                                  .map((item) => {
+                                      if (item[0] === 'vehicleBrand') {
+                                          if (item[1][0] === 'all') {
+                                              return `<item name="${item[0]}"></item>`
+                                          } else {
+                                              return `<item name="${item[0]}">${item[1].join(',')}</item>`
+                                          }
+                                      } else {
+                                          return `<item name="${item[0]}">${item[1].join(',')}</item>`
+                                      }
+                                  })
+                                  .join('')
+                              return rawXml`
+                                <item type="${key}">
+                                    <attribute>${detail}</attribute>
+                                </item>`
+                          })
+                          .join('')
+                    : ''
             const sendXml = rawXml`
                 <resultLimit>150000</resultLimit>
                 <condition>
                     <startTime>${formatGregoryDate(formData.value.dateRange[0], DEFAULT_DATE_FORMAT)}</startTime>
                     <endTime>${formatGregoryDate(formData.value.dateRange[1], DEFAULT_DATE_FORMAT)}</endTime>
                     <timeQuantum>${stats.getTimeQuantum()}</timeQuantum>
-                    <deduplicate>${formData.value.deduplicate}</deduplicate>
+                    <deduplicate>${pageData.value.searchType === 'byPlateNumber' ? formData.value.deduplicate : 'false'}</deduplicate>
                     <chls type="list">${formData.value.chl.map((item) => `<item id="${item}"></item>`).join('')}</chls>
                     <events type="list">${formData.value.event.map((item) => `<item>${item}</item>`).join('')}</events>
-                    <vehicle type="list">${formData.value.attribute.map((item) => `<item>${item}</item>`).join('')}</vehicle>
+                    <vehicle type="list">${vehicleXml}</vehicle>
+                    <targetAttribute type="list">${attributeXml}</targetAttribute>
                 </condition>
             `
             const result = await faceImgStatistic_v2(sendXml)
@@ -156,6 +235,10 @@ export default defineComponent({
             pageData.value.barData = getBarData()
         }
 
+        const isDoubleLine = computed(() => {
+            return ['passLine', 'regionStatistics'].includes(formData.value.event[0])
+        })
+
         /**
          * @description 获取最大条形图值
          * @returns {number}
@@ -163,7 +246,7 @@ export default defineComponent({
         const getMaximun = () => {
             const array = tableData.value
                 .map((item) => {
-                    return formData.value.event[0] === 'passLine' ? [item.imageTotalInNum, item.imageTotalOutNum] : [item.imageTotalNum]
+                    return isDoubleLine.value ? [item.imageTotalInNum, item.imageTotalOutNum] : [item.imageTotalNum]
                 })
                 .flat()
             if (!array.length) {
@@ -178,45 +261,56 @@ export default defineComponent({
          */
         const getBarData = () => {
             const maximun = stats.calY(getMaximun())
-            const isPassLine = formData.value.event[0] === 'passLine'
             return {
                 writeY: maximun,
                 writeYSpacing: maximun / 5,
                 unit: stats.getUnit(),
-                unitNum: isPassLine ? 2 : 1,
+                unitNum: isDoubleLine.value ? 2 : 1,
                 xValue: stats.calX(),
                 yValue: tableData.value.length
                     ? (tableData.value.map((item) => {
-                          return isPassLine ? [item.imageTotalInNum, item.imageTotalOutNum] : item.imageTotalNum
+                          return isDoubleLine.value ? [item.imageTotalInNum, item.imageTotalOutNum] : item.imageTotalNum
                       }) as number[] | number[][])
                     : (Array(stats.getTimeQuantum())
                           .fill(0)
                           .map(() => {
-                              return isPassLine ? [0, 0] : 0
+                              return isDoubleLine.value ? [0, 0] : 0
                           }) as number[] | number[][]),
-                color: isPassLine ? [1, 0] : [0],
-                tooltip: isPassLine ? [Translate('IDCS_ENTRANCE'), Translate('IDCS_LEAVE')] : [],
+                color: isDoubleLine.value ? [1, 0] : [0],
+                tooltip: isDoubleLine.value ? [Translate('IDCS_ENTRANCE'), Translate('IDCS_LEAVE')] : [],
             }
         }
 
         /**
          * @description 导出
          */
-        const exportChart = () => {
+        const exportChart = async () => {
+            let csvTitlePrefix = ''
+            let xlsNamePrefix = ''
+            if (pageData.value.searchType === 'byCar') {
+                csvTitlePrefix = Translate('IDCS_DETECTION_VEHICLE')
+                xlsNamePrefix = 'VEHICLE'
+            } else if (pageData.value.searchType === 'byMotorcycle') {
+                csvTitlePrefix = Translate('IDCS_NON_VEHICLE')
+                xlsNamePrefix = 'NON_VEHICLE'
+            } else {
+                csvTitlePrefix = Translate('IDCS_LICENSE_PLATE')
+                xlsNamePrefix = 'PLATE'
+            }
             const csvTime = stats.getTimeRange()
             const csvTitle = {
                 colspan: 3,
-                content: `${Translate('IDCS_VEHICLE')}(${eventMap[formData.value.event[0]]}) ${Translate('IDCS_COLIMNAR_CHART')} ${csvTime}`,
+                content: `${csvTitlePrefix}(${eventMap[formData.value.event[0]]}) ${Translate('IDCS_COLIMNAR_CHART')} ${csvTime}`,
             }
             const csvHead = [Translate('IDCS_CHANNEL'), Translate('IDCS_TIME'), Translate('IDCS_TIMES')]
 
-            if (formData.value.event[0] === 'passLine') {
-                if (formData.value.attribute.includes('car')) {
+            if (formData.value.event[0] === 'passLine' || formData.value.event[0] === 'regionStatistics') {
+                if (pageData.value.searchType === 'byCar') {
                     csvHead.push(`${Translate('IDCS_DETECTION_VEHICLE')} (${Translate('IDCS_ENTRANCE')})`, `${Translate('IDCS_DETECTION_VEHICLE')} (${Translate('IDCS_LEAVE')})`)
                     csvTitle.colspan += 2
                 }
 
-                if (formData.value.attribute.includes('motor')) {
+                if (pageData.value.searchType === 'byMotorcycle') {
                     csvHead.push(`${Translate('IDCS_NON_VEHICLE')} (${Translate('IDCS_ENTRANCE')})`, `${Translate('IDCS_NON_VEHICLE')} (${Translate('IDCS_LEAVE')})`)
                     csvTitle.colspan += 2
                 }
@@ -231,12 +325,12 @@ export default defineComponent({
                 } else {
                     item.chl.map((chl) => {
                         const data = [chlMap[chl.chlId], labelItem, chl.imageNum + '']
-                        if (formData.value.event[0] === 'passLine') {
-                            if (formData.value.attribute.includes('car')) {
+                        if (formData.value.event[0] === 'passLine' || formData.value.event[0] === 'regionStatistics') {
+                            if (pageData.value.searchType === 'byCar') {
                                 data.push(chl.vehicleIn + '', chl.vehicleOut + '')
                             }
 
-                            if (formData.value.attribute.includes('motor')) {
+                            if (pageData.value.searchType === 'byMotorcycle') {
                                 data.push(chl.nonVehicleIn + '', chl.nonVehicleOut + '')
                             }
                         }
@@ -245,8 +339,34 @@ export default defineComponent({
                 }
             })
 
-            const xlsName = 'VEHICLE_STATISTIC-' + formatDate(new Date(), 'YYYYMMDDHHmmss') + '.xls'
-            downloadExcel(csvHead, csvBody, xlsName, csvTitle)
+            const xlsName = `${xlsNamePrefix}_STATISTIC-` + formatDate(new Date(), 'YYYYMMDDHHmmss') + '.xls'
+            let structureInfo = null
+            if (formData.value.event[0] === 'videoMetadata') {
+                const attributeOption = await getSearchOptions()
+                const vehicleType = pageData.value.searchType === 'byCar' ? 'car' : 'motor'
+                const type = pageData.value.searchType === 'byCar' ? Translate('IDCS_DETECTION_VEHICLE') : Translate('IDCS_NON_VEHICLE')
+                const contentList: string[] = []
+                attributeOption[vehicleType].forEach((item) => {
+                    let content = ''
+                    if (formData.value.attribute[vehicleType][item.value] && formData.value.attribute[vehicleType][item.value].length) {
+                        content = item.label + ':'
+                        content += formData.value.attribute[vehicleType][item.value]
+                            .map((item) => {
+                                return Translate(VALUE_NAME_MAPPING[item])
+                            })
+                            .join(',')
+                        content += ';'
+                    }
+                    if (content) contentList.push(content)
+                })
+                structureInfo = {
+                    type,
+                    content: contentList,
+                }
+                downloadExcel(csvHead, csvBody, xlsName, csvTitle, structureInfo)
+            } else {
+                downloadExcel(csvHead, csvBody, xlsName, csvTitle)
+            }
         }
 
         onActivated(() => {
@@ -263,6 +383,8 @@ export default defineComponent({
             changeEvent,
             changeAttribute,
             exportChart,
+            changeTab,
+            changeDeDuplicate,
         }
     },
 })
