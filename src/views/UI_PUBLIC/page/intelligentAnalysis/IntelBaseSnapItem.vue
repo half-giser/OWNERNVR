@@ -4,7 +4,10 @@
  * @Description: 智能分析-人、车
 -->
 <template>
-    <div class="snap">
+    <div
+        v-if="!showCompare"
+        class="snap normal_snap"
+    >
         <!-- 封面图区域 -->
         <div class="pic_show_container">
             <div
@@ -36,39 +39,41 @@
                 }"
                 @click="handleClickCover"
             >
-                <!-- 顶部操作区域（checkbox选择框） -->
-                <div class="top_operate">
-                    <el-checkbox v-model="targetData.checked" />
-                </div>
-                <!-- 封面图 -->
-                <img
-                    :src="targetData.objPicData.data"
-                    class="center_operate"
-                    @load="loadImg"
-                />
-                <!-- 底部操作区域（搜索、导出、注册） -->
-                <div class="bottom_operate">
-                    <BaseImgSprite
-                        v-if="showSearch"
-                        file="snap_search"
-                        :chunk="4"
-                        :hover-index="1"
-                        class="operate_icon"
+                <div class="snap_pic">
+                    <!-- 顶部操作区域（checkbox选择框） -->
+                    <div class="top_operate">
+                        <el-checkbox v-model="targetData.checked" />
+                    </div>
+                    <!-- 封面图 -->
+                    <img
+                        :src="targetData.objPicData.data"
+                        class="center_operate"
+                        @load="loadImg"
                     />
-                    <BaseImgSprite
-                        v-if="showExport"
-                        file="export_btn"
-                        :chunk="4"
-                        :hover-index="1"
-                        class="operate_icon"
-                    />
-                    <BaseImgSprite
-                        v-if="showRegister"
-                        file="register"
-                        :chunk="4"
-                        :hover-index="1"
-                        class="operate_icon"
-                    />
+                    <!-- 底部操作区域（搜索、导出、注册） -->
+                    <div class="bottom_operate">
+                        <BaseImgSprite
+                            v-if="showSearch"
+                            file="snap_search"
+                            :chunk="4"
+                            :hover-index="1"
+                            class="operate_icon"
+                        />
+                        <BaseImgSprite
+                            v-if="showExport"
+                            file="export_btn"
+                            :chunk="4"
+                            :hover-index="1"
+                            class="operate_icon"
+                        />
+                        <BaseImgSprite
+                            v-if="showRegister"
+                            file="register"
+                            :chunk="4"
+                            :hover-index="1"
+                            class="operate_icon"
+                        />
+                    </div>
                 </div>
             </div>
         </div>
@@ -87,8 +92,106 @@
                     v-if="showSimilarity"
                     class="similarityValue"
                 >
-                    {{ `'(' ${targetData.similarity} '%)'` }}
+                    {{ `${targetData.similarity} %` }}
                 </span>
+            </div>
+        </div>
+    </div>
+    <div
+        v-else
+        class="snap compare_snap"
+    >
+        <!-- 封面图区域 -->
+        <div class="pic_show_container">
+            <div
+                v-if="targetData.isNoData"
+                class="noData_pic"
+            >
+                <BaseImgSprite
+                    file="noData"
+                    :chunk="1"
+                />
+                <span class="tip_text">{{ Translate('IDCS_NO_RECORD_DATA') }}</span>
+            </div>
+            <div
+                v-else-if="targetData.isDelete"
+                class="deleted_pic"
+            >
+                <BaseImgSprite
+                    file="hasDeleted"
+                    :chunk="1"
+                />
+                <span class="tip_text">{{ Translate('IDCS_DELETED') }}</span>
+            </div>
+            <div
+                v-else
+                class="normal_pic"
+                :class="{
+                    checked: targetData.checked,
+                    selected: targetData.index === detailIndex,
+                }"
+                @click="handleClickCover"
+            >
+                <div class="snap_pic">
+                    <!-- 顶部操作区域（checkbox选择框） -->
+                    <div class="top_operate">
+                        <el-checkbox v-model="targetData.checked" />
+                    </div>
+                    <!-- 封面图 -->
+                    <img
+                        :src="targetData.objPicData.data"
+                        class="center_operate"
+                        @load="loadImg"
+                    />
+                    <!-- 底部操作区域（搜索、导出、注册） -->
+                    <div class="bottom_operate">
+                        <BaseImgSprite
+                            v-if="showSearch"
+                            file="snap_search"
+                            :chunk="4"
+                            :hover-index="1"
+                            class="operate_icon"
+                        />
+                        <BaseImgSprite
+                            v-if="showExport"
+                            file="export_btn"
+                            :chunk="4"
+                            :hover-index="1"
+                            class="operate_icon"
+                        />
+                        <BaseImgSprite
+                            v-if="showRegister"
+                            file="register"
+                            :chunk="4"
+                            :hover-index="1"
+                            class="operate_icon"
+                        />
+                    </div>
+                </div>
+                <div class="compare_pic">
+                    <!-- 封面图 -->
+                    <img
+                        :src="comparePicInfo?.pic"
+                        class="center_operate"
+                        @load="loadImg"
+                    />
+                </div>
+            </div>
+        </div>
+        <!-- 描述信息区域 -->
+        <div class="info_show_container">
+            <div class="info_show_snap">
+                <span class="frametime">{{ displayDateTime(targetData.timeStamp * 1000) }}</span>
+                <span class="picChlName text-ellipsis">{{ targetData.channelName }}</span>
+                <span
+                    v-if="showSimilarity"
+                    class="similarityValue"
+                >
+                    {{ `${targetData.similarity} %` }}
+                </span>
+            </div>
+            <div class="info_show_compare">
+                <span class="comparePicName">{{ comparePicInfo?.name || comparePicInfo?.note || Translate('IDCS_SAMPLE') }}</span>
             </div>
         </div>
     </div>
@@ -126,31 +229,45 @@
         }
 
         .normal_pic {
-            .center_operate {
+            .snap_pic {
                 width: 100%;
                 height: 100%;
-            }
-            .top_operate,
-            .bottom_operate {
                 position: absolute;
+                top: 0;
                 left: 0;
+                bottom: 0;
                 right: 0;
                 margin: auto;
-                display: flex;
-                justify-content: flex-start;
-                align-items: center;
-                visibility: hidden;
-            }
-            .top_operate {
-                top: 0;
-                padding: 2px 5px;
-            }
-            .bottom_operate {
-                bottom: 0;
-                padding: 2px;
 
-                .operate_icon {
-                    transform: scale(0.8);
+                .center_operate {
+                    width: 100%;
+                    height: 100%;
+                }
+
+                .top_operate,
+                .bottom_operate {
+                    position: absolute;
+                    left: 0;
+                    right: 0;
+                    margin: auto;
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: center;
+                    visibility: hidden;
+                }
+
+                .top_operate {
+                    top: 0;
+                    padding: 2px 5px;
+                }
+
+                .bottom_operate {
+                    bottom: 0;
+                    padding: 2px;
+
+                    .operate_icon {
+                        transform: scale(0.8);
+                    }
                 }
             }
             &.checked {
@@ -203,6 +320,61 @@
             flex-direction: column;
             justify-content: flex-start;
             align-items: flex-start;
+
+            > span {
+                margin-top: 4px;
+            }
+        }
+    }
+}
+
+.compare_snap {
+    width: calc((100% - 80px) / 3);
+
+    .pic_show_container {
+        padding-top: calc(100% * 2 / 3);
+
+        .normal_pic {
+            .snap_pic {
+                width: 50%;
+                position: absolute;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                right: unset;
+                margin: auto;
+            }
+
+            .compare_pic {
+                width: 50%;
+                position: absolute;
+                top: 0;
+                left: unset;
+                bottom: 0;
+                right: 0;
+                margin: auto;
+
+                .center_operate {
+                    width: 100%;
+                    height: 100%;
+                }
+            }
+        }
+    }
+
+    .info_show_container {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+
+        .info_show_snap,
+        .info_show_compare {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+
             > span {
                 margin-top: 4px;
             }

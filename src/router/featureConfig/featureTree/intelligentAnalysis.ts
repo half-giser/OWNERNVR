@@ -33,45 +33,45 @@ const intelligentAnalysisRoutes: FeatureItem = {
                 lk: 'IDCS_SEARCH',
             },
             children: {
-                // 人脸
-                face: {
-                    name: 'searchFace',
-                    component: 'intelligentAnalysis/IntelFaceSearch.vue',
-                    meta: {
-                        sort: 40,
-                        lk: 'IDCS_FACE',
-                        icon: 'event_search_face',
-                        minWidth: 1580,
-                        minHeight: 850,
-                        hasCap(systemCaps) {
-                            return systemCaps.supportFaceMatch
-                        },
-                    },
-                },
-                // 人体
-                body: {
-                    name: 'searchBody',
-                    component: 'intelligentAnalysis/IntelBodySearch.vue',
-                    meta: {
-                        sort: 50,
-                        lk: 'IDCS_FIGURE',
-                        icon: 'event_search_body',
-                        minWidth: 1580,
-                        minHeight: 850,
-                    },
-                },
-                // 组合
-                combine: {
-                    name: 'searchCombine',
-                    component: 'intelligentAnalysis/IntelCombineSearch.vue',
-                    meta: {
-                        sort: 60,
-                        lk: 'IDCS_COMBINE_SEARCH',
-                        icon: 'event_search_smart',
-                        minWidth: 1580,
-                        minHeight: 850,
-                    },
-                },
+                // // 人脸
+                // face: {
+                //     name: 'searchFace',
+                //     component: 'intelligentAnalysis/IntelFaceSearch.vue',
+                //     meta: {
+                //         sort: 40,
+                //         lk: 'IDCS_FACE',
+                //         icon: 'event_search_face',
+                //         minWidth: 1580,
+                //         minHeight: 850,
+                //         hasCap(systemCaps) {
+                //             return systemCaps.supportFaceMatch
+                //         },
+                //     },
+                // },
+                // // 人体
+                // body: {
+                //     name: 'searchBody',
+                //     component: 'intelligentAnalysis/IntelBodySearch.vue',
+                //     meta: {
+                //         sort: 50,
+                //         lk: 'IDCS_FIGURE',
+                //         icon: 'event_search_body',
+                //         minWidth: 1580,
+                //         minHeight: 850,
+                //     },
+                // },
+                // // 组合
+                // combine: {
+                //     name: 'searchCombine',
+                //     component: 'intelligentAnalysis/IntelCombineSearch.vue',
+                //     meta: {
+                //         sort: 60,
+                //         lk: 'IDCS_COMBINE_SEARCH',
+                //         icon: 'event_search_smart',
+                //         minWidth: 1580,
+                //         minHeight: 850,
+                //     },
+                // },
 
                 // 人（人脸、人体、人属性）
                 person: {

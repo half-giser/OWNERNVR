@@ -140,7 +140,7 @@ export default defineComponent({
                     if (info) {
                         for (let j = 1; j <= info.faceImgCount; j++) {
                             const pic = await getFaceImg(id, j)
-                            info.pic.push(pic)
+                            info.pic = pic
                         }
                         cacheFaceMap.set(id, info)
                     }
@@ -240,7 +240,7 @@ export default defineComponent({
                     mobile: $item('mobile').text(),
                     faceImgCount: $item('faceImgCount').text().num(),
                     note: $item('note').text(),
-                    pic: [] as string[],
+                    pic: '',
                     groupId: $item('groups/item/groupId').text(),
                 }
             } catch {
