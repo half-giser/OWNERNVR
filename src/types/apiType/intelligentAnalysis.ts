@@ -413,7 +413,7 @@ export class IntelSearchVehicleForm {
 export class IntelPlateColorList {
     value = ''
     label = ''
-    selected = false
+    selected? = false
 }
 
 /**

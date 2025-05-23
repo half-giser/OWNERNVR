@@ -77,6 +77,12 @@
             <AlarmBaseSnapSelector v-model="taskData.snap" />
             <!-- 联动预置点 -->
             <AlarmBasePresetSelector v-model="taskData.preset" />
+            <!-- Ip Speaker -->
+            <AlarmBaseIPSpeakerSelector
+                v-if="supportAlarmAudioConfig"
+                v-model="taskData.ipSpeaker"
+                :chl-id="chlId"
+            />
         </div>
         <!-- 人脸分组 -->
         <BaseTableSelectPop

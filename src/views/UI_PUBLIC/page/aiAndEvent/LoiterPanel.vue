@@ -243,6 +243,12 @@
                             <AlarmBaseAlarmOutSelector v-model="formData.alarmOutChls" />
                             <!-- preset -->
                             <AlarmBasePresetSelector v-model="formData.presets" />
+                            <!-- Ip Speaker -->
+                            <AlarmBaseIPSpeakerSelector
+                                v-if="pageData.supportAlarmAudioConfig"
+                                v-model="formData.ipSpeaker"
+                                :chl-id="currChlId"
+                            />
                         </div>
                     </el-tab-pane>
                 </el-tabs>

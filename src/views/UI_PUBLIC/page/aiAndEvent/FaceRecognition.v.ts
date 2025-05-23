@@ -11,6 +11,7 @@ import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
 import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
 import AlarmBasePresetSelector from './AlarmBasePresetSelector.vue'
+import AlarmBaseIPSpeakerSelector from './AlarmBaseIPSpeakerSelector.vue'
 import AlarmBaseResourceData from './AlarmBaseResourceData.vue'
 
 export default defineComponent({
@@ -21,6 +22,7 @@ export default defineComponent({
         AlarmBaseAlarmOutSelector,
         AlarmBaseTriggerSelector,
         AlarmBasePresetSelector,
+        AlarmBaseIPSpeakerSelector,
         AlarmBaseResourceData,
     },
     setup() {
@@ -425,6 +427,12 @@ export default defineComponent({
                             },
                         }
                     }),
+                    ipSpeaker: $trigger('triggerAudioDevice/chls/item').map((item) => {
+                        return {
+                            ipSpeakerId: item.attr('id'),
+                            audioID: item.attr('audioID'),
+                        }
+                    }),
                     trigger: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch'].filter((item) => {
                         return $trigger(item).text().bool()
                     }),
@@ -777,6 +785,15 @@ export default defineComponent({
                                         .join('')}
                                 </presets>
                             </preset>
+                            <triggerAudioDevice>
+                                <chls type="list">
+                                ${detectionFormData.value.ipSpeaker
+                                    .map((item) => {
+                                        return rawXml`<item id='${item.ipSpeakerId}' audioID='${item.audioID}'/>`
+                                    })
+                                    .join('')}
+                                </chls>
+                            </triggerAudioDevice>
                             <snapSwitch>${detectionFormData.value.trigger.includes('snapSwitch')}</snapSwitch>
                             <msgPushSwitch>${detectionFormData.value.trigger.includes('msgPushSwitch')}</msgPushSwitch>
                             <buzzerSwitch>${detectionFormData.value.trigger.includes('buzzerSwitch')}</buzzerSwitch>
@@ -797,8 +814,33 @@ export default defineComponent({
         const setDetectionData = async () => {
             const sendXml = getFaceDetectionSaveData()
             openLoading()
-            await editVfd(sendXml)
+            const result = await editVfd(sendXml)
+            const $ = queryXml(result)
             closeLoading()
+
+            if ($('status').text() === 'success') {
+                openMessageBox({
+                    type: 'success',
+                    message: Translate('IDCS_SAVE_DATA_SUCCESS'),
+                })
+            } else {
+                const errorCode = $('errorCode').text().num()
+                switch (errorCode) {
+                    case 536870983:
+                        openMessageBox(Translate('IDCS_DECODE_CAPABILITY_NOT_ENOUGH'))
+                        break
+                    case 536871042:
+                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_NO_RESOURCE'))
+                        break
+                    case 536871091:
+                        openMessageBox(Translate('IDCS_RESOLUTION_OVER_CAPABILITY'))
+                        break
+                    default:
+                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
+                        break
+                }
+            }
+
             if (detectionFormData.value.enabledSwitch) {
                 detectionFormData.value.originalSwitch = true
             }
@@ -821,8 +863,32 @@ export default defineComponent({
                 </content>
             `
             openLoading()
-            await editRealFaceMatch(sendXml)
+            const result = await editRealFaceMatch(sendXml)
+            const $ = queryXml(result)
             closeLoading()
+
+            if ($('status').text() === 'success') {
+                openMessageBox({
+                    type: 'success',
+                    message: Translate('IDCS_SAVE_DATA_SUCCESS'),
+                })
+            } else {
+                const errorCode = $('errorCode').text().num()
+                switch (errorCode) {
+                    case 536870983:
+                        openMessageBox(Translate('IDCS_DECODE_CAPABILITY_NOT_ENOUGH'))
+                        break
+                    case 536871042:
+                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_NO_RESOURCE'))
+                        break
+                    case 536871091:
+                        openMessageBox(Translate('IDCS_RESOLUTION_OVER_CAPABILITY'))
+                        break
+                    default:
+                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
+                        break
+                }
+            }
             watchDetection.update()
         }
 
@@ -881,6 +947,7 @@ export default defineComponent({
                 alarmOut: [],
                 snap: [],
                 preset: [],
+                ipSpeaker: [],
                 trigger: ['msgPushSwitch'],
             })
         }
@@ -1142,6 +1209,12 @@ export default defineComponent({
                                 },
                             }
                         }),
+                        ipSpeaker: $trigger('triggerAudioDevice/chls/item').map((item) => {
+                            return {
+                                ipSpeakerId: item.attr('id'),
+                                audioID: item.attr('audioID'),
+                            }
+                        }),
                         trigger: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'popMsgSwitch'].filter((item) => {
                             return $trigger(item).text().bool()
                         }),
@@ -1232,6 +1305,15 @@ export default defineComponent({
                                                             .join('')}
                                                     </presets>
                                                 </preset>
+                                                <triggerAudioDevice>
+                                                    <chls type="list">
+                                                    ${item.ipSpeaker
+                                                        .map((ele) => {
+                                                            return rawXml`<item id='${ele.ipSpeakerId}' audioID='${ele.audioID}'/>`
+                                                        })
+                                                        .join('')}
+                                                    </chls>
+                                                </triggerAudioDevice>
                                                 <sysRec>
                                                     <switch>true</switch>
                                                     <chls type='list'>

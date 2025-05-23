@@ -36,30 +36,34 @@
                     <IntelBaseProfileSelector
                         v-show="pageData.searchType === 'byCar'"
                         v-model="pageData.attributeForCar"
-                        placeholder-type="spread"
                         :range="['car']"
+                        @update:model-value="handleChangeAttr"
                     />
                     <!-- 属性选择 - 摩托车/单车 -->
                     <IntelBaseProfileSelector
                         v-show="pageData.searchType === 'byMotorcycle'"
                         v-model="pageData.attributeForMotorcycle"
-                        placeholder-type="spread"
                         :range="['motor']"
+                        @update:model-value="handleChangeAttr"
                     />
                     <!-- 车牌号填写、车牌号颜色选择 -->
                     <el-form
                         v-show="pageData.searchType === 'byPlateNumber'"
                         v-title
-                        class="no-padding"
+                        class="no-padding plate_number_color"
                         :style="{
                             '--form-label-width': '100px',
                         }"
                     >
-                        <el-form-item :label="Translate('IDCS_LICENSE_PLATE_NUM')">
+                        <el-form-item :label="Translate('IDCS_LICENSE_PLATE')">
                             <el-input
                                 v-model="pageData.plateNumber"
                                 :placeholder="Translate('IDCS_ENTER_PLATE_NUM')"
                                 maxlength="31"
+                            />
+                            <IntelBasePlateColorPop
+                                :selected-colors="pageData.plateColors"
+                                @confirm-color="handleChangePlateColor"
                             />
                         </el-form-item>
                     </el-form>
@@ -308,6 +312,7 @@
 
         .el-radio-button {
             height: 100%;
+
             :deep(.el-radio-button__inner) {
                 height: 100%;
                 display: flex;
@@ -321,6 +326,7 @@
                     background-color: transparent !important;
                 }
             }
+
             :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
                 background-color: transparent !important;
                 color: var(--primary) !important;
@@ -334,13 +340,45 @@
 
         .base-intel-left-form {
             padding: 0px;
+
+            :deep(.el-form) {
+                height: 30px;
+
+                &.plate_number_color {
+                    .el-form-item__label,
+                    .el-input {
+                        height: 30px;
+                    }
+
+                    .el-form-item__content {
+                        height: 30px;
+                        display: flex;
+                        justify-content: flex-start;
+                        align-items: center;
+
+                        > div {
+                            flex: 1;
+                        }
+
+                        > div.el-input {
+                            flex: 1.5;
+                        }
+
+                        .base-intel-placeholder {
+                            margin-bottom: 0px;
+                        }
+                    }
+                }
+            }
         }
 
         :deep(.el-form) {
             height: 30px;
             margin-bottom: 10px !important;
+
             .el-form-item {
                 padding: 0px !important;
+
                 .el-input__inner {
                     height: 30px;
                 }
@@ -351,16 +389,19 @@
 
 .base-intel-center {
     position: relative;
+
     .base-intel-row {
         .el-radio-button {
             :deep(.el-radio-button__inner) {
                 width: auto !important;
             }
         }
+
         .el-dropdown {
             margin-right: 30px;
         }
     }
+
     .resize_icon_left,
     .resize_icon_right {
         cursor: pointer;
@@ -370,21 +411,27 @@
         margin: auto;
         width: 10px;
         height: 60px;
+
         &:hover {
             opacity: 0.8;
         }
     }
+
     .resize_icon_left {
         left: -10px;
     }
+
     .resize_icon_right {
         right: 0px;
     }
+
     &.detail_open {
         border-right: 1px solid var(--content-border);
+
         .resize_icon_left {
             left: 0px;
         }
+
         .resize_icon_right {
             right: -10px;
         }
@@ -398,9 +445,11 @@
     padding: 0px 14px;
     cursor: pointer;
     font-size: 14px;
+
     &:hover {
         color: var(--primary);
     }
+
     .Sprite {
         transform: scale(0.7);
     }

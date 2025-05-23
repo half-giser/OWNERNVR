@@ -190,6 +190,12 @@
                                 <AlarmBaseAlarmOutSelector v-model="detectionFormData.alarmOut" />
                                 <!-- 联动预置点 -->
                                 <AlarmBasePresetSelector v-model="detectionFormData.preset" />
+                                <!-- Ip Speaker -->
+                                <AlarmBaseIPSpeakerSelector
+                                    v-if="supportAlarmAudioConfig"
+                                    v-model="detectionFormData.ipSpeaker"
+                                    :chl-id="pageData.curChl"
+                                />
                             </div>
                         </el-tab-pane>
                     </el-tabs>
@@ -372,6 +378,7 @@
                                     :group-data="faceGroupData"
                                     :schedule-list="pageData.scheduleList"
                                     :voice-list="pageData.voiceList"
+                                    :chl-id="pageData.curChl"
                                     @change="recognitionFormData.task[index] = $event"
                                 />
                             </template>
