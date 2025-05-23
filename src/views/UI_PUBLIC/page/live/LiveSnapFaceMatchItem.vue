@@ -18,11 +18,11 @@
                     @load="loadImg"
                 />
                 <div class="item-menu">
-                    <BaseImgSpriteBtn
+                    <!-- <BaseImgSpriteBtn
                         file="live_add"
                         :title="Translate('IDCS_REGISTER')"
                         @click="$emit('add')"
-                    />
+                    /> -->
                     <BaseImgSpriteBtn
                         file="live_search"
                         :title="Translate('IDCS_SEARCH')"

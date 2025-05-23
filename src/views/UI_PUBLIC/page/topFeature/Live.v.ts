@@ -370,15 +370,6 @@ export default defineComponent({
             },
         )
 
-        // 抓拍视图是否显示
-        const isSnapPanel = computed(() => {
-            if (userSession.appType === 'P2P') {
-                return false
-            }
-
-            return true
-        })
-
         // 鱼眼视图是否显示
         const isFishEyePanel = computed(() => {
             return mode.value === 'ocx' && userSession.appType === 'STANDARD'
@@ -1680,12 +1671,12 @@ export default defineComponent({
                 cacheWinMap[winIndex].supportAudio = $item('isSupportAudio').text().bool()
 
                 cacheWinMap[winIndex].canShowAudioError = false
-                cacheWinMap[winIndex].supportPtz = pageData.value.chlMap[chlID].supportPtz
-                cacheWinMap[winIndex].supportAZ = pageData.value.chlMap[chlID].supportAZ
-                cacheWinMap[winIndex].supportIris = pageData.value.chlMap[chlID].supportIris
-                cacheWinMap[winIndex].supportIntegratedPtz = pageData.value.chlMap[chlID].supportIntegratedPtz
-                cacheWinMap[winIndex].MinPtzCtrlSpeed = pageData.value.chlMap[chlID].MinPtzCtrlSpeed
-                cacheWinMap[winIndex].MaxPtzCtrlSpeed = pageData.value.chlMap[chlID].MaxPtzCtrlSpeed
+                cacheWinMap[winIndex].supportPtz = chlID ? pageData.value.chlMap[chlID].supportPtz : false
+                cacheWinMap[winIndex].supportAZ = chlID ? pageData.value.chlMap[chlID].supportAZ : false
+                cacheWinMap[winIndex].supportIris = chlID ? pageData.value.chlMap[chlID].supportIris : false
+                cacheWinMap[winIndex].supportIntegratedPtz = chlID ? pageData.value.chlMap[chlID].supportIntegratedPtz : false
+                cacheWinMap[winIndex].MinPtzCtrlSpeed = chlID ? pageData.value.chlMap[chlID].MinPtzCtrlSpeed : 1
+                cacheWinMap[winIndex].MaxPtzCtrlSpeed = chlID ? pageData.value.chlMap[chlID].MaxPtzCtrlSpeed : 8
 
                 const streamTypeNode = $item('streamType')
                 cacheWinMap[winIndex].streamType = !streamTypeNode.length ? 2 : streamTypeNode.text().num()
@@ -1840,7 +1831,6 @@ export default defineComponent({
             playCustomView,
             setAudio,
             updateSupportAz,
-            isSnapPanel,
             isFishEyePanel,
             notify,
             handlePlayerAudioError,

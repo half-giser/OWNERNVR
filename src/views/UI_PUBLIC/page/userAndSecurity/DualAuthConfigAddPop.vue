@@ -28,10 +28,7 @@
                 v-if="type === 'edit'"
                 :label="Translate('IDCS_CHANGE_PWD')"
             >
-                <el-checkbox
-                    v-model="pageData.isChangePassword"
-                    :label="Translate('IDCS_CHANGE_PWD')"
-                />
+                <el-checkbox v-model="pageData.isChangePassword" />
             </el-form-item>
             <el-form-item
                 :label="Translate('IDCS_PASSWORD')"
@@ -62,17 +59,22 @@
                 v-clean-html="noticeMsg"
                 class="notice base-rich-text"
             ></div>
-            <el-table
-                ref="tableRef"
-                :data="tableData"
-                height="150"
+            <el-form-item
+                class="login-user-item"
+                :label="Translate('IDCS_LOGIN_USER')"
             >
-                <el-table-column
-                    type="selection"
-                    width="80"
-                />
-                <el-table-column prop="userName" />
-            </el-table>
+                <el-table
+                    ref="tableRef"
+                    :data="tableData"
+                    height="150"
+                >
+                    <el-table-column
+                        type="selection"
+                        width="80"
+                    />
+                    <el-table-column prop="userName" />
+                </el-table>
+            </el-form-item>
             <div class="base-btn-box">
                 <el-button @click="setData">{{ Translate('IDCS_OK') }}</el-button>
                 <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
@@ -87,3 +89,20 @@
 </template>
 
 <script lang="ts" src="./DualAuthConfigAddPop.v.ts"></script>
+
+<style lang="scss" scoped>
+.el-dialog {
+    .notice {
+        margin: 5px 0 10px;
+        font-size: 12px;
+    }
+
+    #n9web & {
+        .el-form {
+            :deep(.login-user-item) {
+                background-color: transparent;
+            }
+        }
+    }
+}
+</style>

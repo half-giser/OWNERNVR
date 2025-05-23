@@ -223,7 +223,7 @@
 .form {
     display: flex;
     justify-content: space-between;
-    margin: 10px;
+    margin: 0 10px 10px;
 
     & > div {
         display: flex;

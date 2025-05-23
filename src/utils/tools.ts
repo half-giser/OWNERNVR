@@ -244,6 +244,9 @@ export const wrapEnums = <T extends number | string | boolean, K>(array: string[
  * @returns {string}
  */
 export const wrapBase64Img = (str: string): string => {
+    if (str.startsWith('data:image/png;base64,')) {
+        return str
+    }
     return 'data:image/png;base64,' + str
 }
 

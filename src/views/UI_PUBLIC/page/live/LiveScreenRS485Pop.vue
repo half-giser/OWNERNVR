@@ -17,7 +17,6 @@
                     file="custom_operate"
                     :title="pageData.name"
                     :active="pageData.isRS485Pop"
-                    :disabled="!pageData.switch"
                 />
             </template>
             <div>

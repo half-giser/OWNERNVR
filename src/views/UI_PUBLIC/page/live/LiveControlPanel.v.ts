@@ -379,7 +379,6 @@ export default defineComponent({
             }
 
             if (pageData.value.bitType === 'CBR') {
-                console.log(pageData.value.qualityOptions)
                 const qualitys = pageData.value.qualityOptions
                     .find((item) => item.value)!
                     .value.split(',')

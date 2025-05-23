@@ -26,10 +26,6 @@ export default defineComponent({
             type: String,
             default: '',
         },
-        dropDownTips: {
-            type: String,
-            default: '',
-        },
     },
     emits: {
         change(e: string) {
@@ -40,11 +36,17 @@ export default defineComponent({
         },
     },
     setup(props, ctx) {
-        const showDropDownTips = props.dropDownTips !== ''
+        const { Translate } = useLangStore()
+        const SCHEDULE_MANAGE = 'SCHEDULE_MANAGE'
 
         // 排程列表选项
         const scheduleList = computed(() => {
-            return props.options.concat([])
+            return props.options.concat([
+                {
+                    value: SCHEDULE_MANAGE,
+                    label: Translate('IDCS_SCHEDULE_MANAGE'),
+                },
+            ])
         })
 
         /**
@@ -52,11 +54,14 @@ export default defineComponent({
          * @param {string} value
          */
         const update = (value: string) => {
-            ctx.emit('change', value)
+            if (value === SCHEDULE_MANAGE) {
+                ctx.emit('edit')
+            } else {
+                ctx.emit('change', value)
+            }
         }
 
         return {
-            showDropDownTips,
             scheduleList,
             update,
         }

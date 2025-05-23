@@ -14,10 +14,10 @@
                     :data="item"
                     :border="pageData.activeMenu"
                     @add="register(item)"
-                    @detail="showDetail(index)"
+                    @detail="showDetail(index, 'normal')"
                     @search="search(item, $event)"
                     @play-rec="playRec(item)"
-                    @face-detail="showFaceDetail(index)"
+                    @face-detail="showDetail(index, 'faceCompare')"
                 />
                 <!-- 结构 -->
                 <LiveSnapStructItem
@@ -26,7 +26,7 @@
                     :data="item"
                     :border="pageData.activeMenu"
                     @add="register(item)"
-                    @detail="showDetail(index)"
+                    @detail="showDetail(index, 'normal')"
                     @search="search(item)"
                     @play-rec="playRec(item)"
                 />
@@ -37,7 +37,7 @@
                     :data="item"
                     :border="pageData.activeMenu"
                     @add="register(item)"
-                    @detail="showDetail(index)"
+                    @detail="showDetail(index, 'normal')"
                     @search="search(item)"
                     @play-rec="playRec(item)"
                 />
@@ -48,7 +48,7 @@
                     :data="item"
                     :border="pageData.activeMenu"
                     @add="register(item)"
-                    @detail="showDetail(index)"
+                    @detail="showDetail(index, 'normal')"
                     @search="search(item)"
                     @play-rec="playRec(item)"
                 />
@@ -66,23 +66,16 @@
                 {{ item.label }}
             </div>
         </div>
-        <IntelBaseSnapPop
-            v-model="pageData.isInfoPop"
-            :list="pageData.infoList"
-            :index="pageData.infoIndex"
-            show-search
-            @play-rec="handleSnapRec"
+        <LiveSnapPop
+            v-model="pageData.isSnapPop"
+            :list="pageData.snapList"
+            :index="pageData.snapIndex"
+            :open-type="pageData.openType"
+            @close="pageData.isSnapPop = false"
             @add="handleSnapRegister"
             @search="handleSnapSearch"
-            @close="pageData.isInfoPop = false"
-        />
-        <IntelBaseFaceMatchPop
-            v-model="pageData.isFacePop"
-            :list="pageData.faceList"
-            :index="pageData.faceIndex"
-            @play-rec="handleMatchSnapRec"
-            @search="handleMatchSnapSearch"
-            @close="pageData.isFacePop = false"
+            @export-pic="handleSnapExport"
+            @play-rec="handleSnapRec"
         />
         <IntelFaceDBSnapRegisterPop
             v-model="pageData.isRegisterPop"

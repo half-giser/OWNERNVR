@@ -111,11 +111,45 @@ export default defineComponent({
             }
         }
 
+        const getIsRecExist = async () => {
+            let flag = false
+
+            openLoading()
+
+            for (const chl of formData.value.chls) {
+                const sendXml = rawXml`
+                    <condition>
+                        <chlId>${chl}</chlId>
+                        <startTime>${dayjs(formData.value.startTime, { jalali: false, format: DEFAULT_DATE_FORMAT }).valueOf() / 1000}</startTime>
+                        <endTime>${dayjs(formData.value.endTime, { jalali: false, format: DEFAULT_DATE_FORMAT }).valueOf() / 1000}</endTime>
+                        <eventType>all</eventType>
+                    </condition>
+                `
+                const result = await queryRecDataSize(sendXml)
+                const $ = queryXml(result)
+                const size = $('content/dataSize').text().num()
+                if (size) {
+                    flag = true
+                    break
+                }
+            }
+
+            closeLoading()
+
+            return flag
+        }
+
         /**
          * @description 备份
          */
-        const backUp = () => {
+        const backUp = async () => {
             if (!formData.value.chls.length) {
+                return
+            }
+
+            const flag = await getIsRecExist()
+            if (!flag) {
+                openMessageBox(Translate('IDCS_BACKUP_FAIL') + ' ' + Translate('IDCS_NO_RECORD_DATA'))
                 return
             }
 

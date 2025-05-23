@@ -75,6 +75,22 @@ export default defineComponent({
             type: Boolean,
             required: true,
         },
+        strategy: {
+            type: Boolean,
+            required: true,
+        },
+        isBackUpList: {
+            type: Boolean,
+            required: true,
+        },
+        detectTarget: {
+            type: Boolean,
+            required: true,
+        },
+        recList: {
+            type: Array as PropType<PlaybackRecList[]>,
+            required: true,
+        },
     },
     emits: {
         'update:split': (num: number, type: number) => {
@@ -87,6 +103,9 @@ export default defineComponent({
             return typeof bool === 'boolean'
         },
         'update:watermark': (bool: boolean) => {
+            return typeof bool === 'boolean'
+        },
+        'update:detectTarget': (bool: boolean) => {
             return typeof bool === 'boolean'
         },
         fullscreen() {
@@ -131,6 +150,15 @@ export default defineComponent({
         backUp() {
             return true
         },
+        'update:strategy'(bool: boolean) {
+            return typeof bool === 'boolean'
+        },
+        showBackUp() {
+            return true
+        },
+        trigger(bool: boolean) {
+            return typeof bool === 'boolean'
+        },
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
@@ -159,8 +187,15 @@ export default defineComponent({
             speedList: [1 / 32, 1 / 16, 1 / 8, 1 / 4, 1 / 2, 1, 2, 4, 8, 16, 32],
             // 速度值索引
             speedIndex: 5,
-            // 是否显示POS按钮
-            isPosBtn: systemCaps.supportPOS,
+            forwardValue: 30,
+            forwardOptions: [5, 10, 15, 20, 30].map((item) => {
+                return {
+                    value: item,
+                    label: displaySecondWithUnit(item),
+                }
+            }),
+            strategy: false,
+            isStrategyPop: false,
         })
 
         // 没有播放视图时，禁用操作按钮
@@ -177,6 +212,7 @@ export default defineComponent({
             } else {
                 ctx.emit('pause')
             }
+            ctx.emit('trigger', false)
         }
 
         // 当前速度值
@@ -210,6 +246,7 @@ export default defineComponent({
         const rewind = () => {
             pageData.value.speedIndex--
             setSpeed()
+            ctx.emit('trigger', true)
         }
 
         // 禁用倍速
@@ -223,6 +260,7 @@ export default defineComponent({
         const forward = () => {
             pageData.value.speedIndex++
             setSpeed()
+            ctx.emit('trigger', true)
         }
 
         // 禁用重置倍速播放
@@ -236,6 +274,7 @@ export default defineComponent({
         const resetSpeed = () => {
             pageData.value.speedIndex = pageData.value.speedList.findIndex((index) => index === 1)
             setSpeed()
+            ctx.emit('trigger', true)
         }
 
         // 显示播放速度
@@ -267,6 +306,17 @@ export default defineComponent({
             return disabled.value || prop.clipRange.length !== 2 || prop.clipRange[0] >= prop.clipRange[1]
         })
 
+        const openStrategyPop = () => {
+            pageData.value.strategy = prop.strategy
+            pageData.value.isStrategyPop = true
+            ctx.emit('trigger', true)
+        }
+
+        const confirmStrategy = () => {
+            ctx.emit('update:strategy', pageData.value.strategy)
+            pageData.value.isStrategyPop = false
+        }
+
         /**
          * @description 备份
          */
@@ -281,7 +331,17 @@ export default defineComponent({
             }
 
             ctx.emit('backUp')
+            ctx.emit('trigger', true)
         }
+
+        const detectTargetDisabled = computed(() => {
+            if (!prop.winData.chlID) return true
+            const find = prop.recList.find((item) => item.chlId === prop.winData.chlID)
+            if (!find) {
+                return true
+            }
+            return !find.records.length
+        })
 
         return {
             speed,
@@ -299,6 +359,10 @@ export default defineComponent({
             displaySpeed,
             backUpDisabled,
             backUp,
+            openStrategyPop,
+            confirmStrategy,
+            systemCaps,
+            detectTargetDisabled,
         }
     },
 })
