@@ -9,6 +9,7 @@
         width="950"
         @open="open"
         @opened="opened"
+        @close="close"
     >
         <div class="dialog">
             <!-- 普通页面 -->
@@ -72,6 +73,13 @@
                         </div>
                     </div>
                 </div>
+                <div class="target-search">
+                    <BaseTargetSearchPanel
+                        v-model:visible="pageData.showTargetSearch"
+                        type="image"
+                        :pic="getCurrentPano"
+                    />
+                </div>
             </div>
             <!-- 热成像可见光切换 -->
             <div
@@ -118,7 +126,7 @@
                                 <span class="similarity">{{ `${current.info?.similarity}%` }}</span>
                             </div>
                             <el-form-item :label="`${Translate('IDCS_SEX')} ：`">
-                                {{ displayGender(current.info?.gender) }}
+                                <div class="text-ellipsis">{{ displayGender(current.info?.gender) }}</div>
                             </el-form-item>
                             <el-form-item :label="`${Translate('IDCS_NUMBER')} ：`">
                                 {{ current.info?.serial_number }}
@@ -404,6 +412,15 @@
                 }
             }
         }
+
+        &-search {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 900px;
+            height: 500px;
+            z-index: 2;
+        }
     }
 
     .compare {
@@ -463,13 +480,6 @@
                         margin-left: 10px;
                     }
                 }
-
-                .text-ellipsis {
-                    max-width: 160px;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                }
             }
 
             .split-line {
@@ -526,6 +536,7 @@
         justify-content: center;
         align-items: center;
         height: 20px;
+        margin-top: 3px;
 
         &-item {
             width: 10px;
@@ -537,11 +548,11 @@
         }
 
         &-item:nth-child(2) {
-            margin-left: 10px;
+            margin-left: 14px;
         }
 
         &-item.selected {
-            background-color: var(--primary);
+            background-color: var(--tab-active-bg);
         }
     }
 
@@ -599,7 +610,7 @@
         height: 48px;
         left: 0;
         top: 430px;
-        z-index: 1;
+        z-index: 3;
         background-color: var(--color-white);
 
         .btn {
@@ -630,52 +641,35 @@
         }
     }
 
-    ::v-deep(.top-line .el-form-item__content),
-    ::v-deep(.top-line .el-form-item__label) {
+    ::v-deep(.compare-info-form .top-line .el-form-item__content),
+    ::v-deep(.compare-info-form .top-line .el-form-item__label) {
         height: 26px;
         line-height: 26px;
         font-size: 20px;
     }
 
+    ::v-deep(.plate-compare-info .el-form-item__content),
+    ::v-deep(.plate-compare-info .el-form-item__label),
     ::v-deep(.compare-info-form .el-form-item__content),
     ::v-deep(.compare-info-form .el-form-item__label) {
         line-height: 24px;
         height: 24px;
     }
 
-    ::v-deep(.top-line .el-form-item) {
+    ::v-deep(.compare-info-form .top-line .el-form-item) {
         min-height: 26px !important;
         height: 26px;
     }
 
+    ::v-deep(.plate-compare-info .el-form-item),
     ::v-deep(.compare-info-form .el-form-item) {
         min-height: 24px !important;
         height: 24px;
     }
 
+    ::v-deep(.compare-info-form .top-line .el-form-item__content),
     ::v-deep(.compare-info-form .el-form-item__content) {
         max-width: 160px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    ::v-deep(.top-line .el-form-item__content) {
-        max-width: 160px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    ::v-deep(.plate-compare-info .el-form-item) {
-        min-height: 24px !important;
-        height: 24px;
-    }
-
-    ::v-deep(.plate-compare-info .el-form-item__content),
-    ::v-deep(.plate-compare-info .el-form-item__label) {
-        line-height: 24px;
-        height: 24px;
     }
 }
 </style>

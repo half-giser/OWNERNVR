@@ -554,7 +554,7 @@ export default defineComponent({
         const showDetail = (index: number, openType: string) => {
             pageData.value.openType = openType
             infoListMapping = pageData.value.snapListQueue.slice(0, pageData.value.menu[pageData.value.activeMenu].maxlength)
-
+            console.log('infoListMapping', infoListMapping)
             pageData.value.snapIndex = index
             pageData.value.snapList = infoListMapping.map((item) => {
                 let eventType = EVENT_TYPE[item.info!.event_type] || EVENT_TYPE[item.type] || ''
