@@ -305,9 +305,9 @@ export default defineComponent({
          * @param {String} key
          */
         const changeData = (value: string | number | undefined, key: keyof NetTcpIpDhcpList) => {
-            if (formData.value.netConfig.curWorkMode === 'multiple_address_setting') {
+            if (formData.value.netConfig.curWorkMode !== 'network_fault_tolerance') {
                 formData.value.nicConfigs[pageData.value.nicIndex][key] = value
-            } else {
+            } else if (formData.value.netConfig.curWorkMode === 'network_fault_tolerance') {
                 if (pageData.value.toleranceAndPoe) {
                     formData.value.nicConfigs[pageData.value.nicIndex][key] = value
                 } else {
@@ -322,13 +322,13 @@ export default defineComponent({
          * @param {String} key
          */
         const changeSwitch = (value: CheckboxValueType, key: 'dhcpSwitch' | 'ipv4DnsDhcpSwitch' | 'ipv6DnsDhcpSwitch' | 'ipV6Switch') => {
-            if (formData.value.netConfig.curWorkMode === 'multiple_address_setting') {
+            if (formData.value.netConfig.curWorkMode !== 'network_fault_tolerance') {
                 formData.value.nicConfigs[pageData.value.nicIndex][key] = !!value
                 if (key === 'dhcpSwitch' && !value) {
                     formData.value.nicConfigs[pageData.value.nicIndex].ipv4DnsDhcpSwitch = false
                     formData.value.nicConfigs[pageData.value.nicIndex].ipv6DnsDhcpSwitch = false
                 }
-            } else {
+            } else if (formData.value.netConfig.curWorkMode === 'network_fault_tolerance') {
                 formData.value.ipGroupConfig[key] = !!value
                 if (key === 'dhcpSwitch' && !value) {
                     formData.value.ipGroupConfig.ipv4DnsDhcpSwitch = false

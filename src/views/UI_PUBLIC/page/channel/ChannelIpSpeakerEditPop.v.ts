@@ -78,29 +78,15 @@ export default defineComponent({
                     const associatedType = formData.value.associatedDeviceID === '' ? 'NONE' : formData.value.associatedDeviceID === DEFAULT_EMPTY_ID ? 'LOCAL' : 'CHANNEL'
                     const associatedDeviceID = associatedType === 'CHANNEL' ? formData.value.associatedDeviceID : ''
                     const sendXml = rawXml`
-                            <types>
-                                <protocolType>
-                                    <enum>ONVIF</enum>
-                                </protocolType>
-                                <associatedType>
-                                    <enum>NONE</enum>
-                                    <enum>LOCAL</enum>
-                                    <enum>CHANNEL</enum>
-                                </associatedType>
-                            </types>
-                            <content type="list">
-                                <itemType>
-                                    <protocolType type="protocolType" />
-                                </itemType>
-                                <item>
-                                    ${formData.value.devName ? `<name>${wrapCDATA(formData.value.devName)}</name>` : ''}
-                                    <ip>${formData.value.ip}</ip>
-                                    <port>${formData.value.port}</port>
-                                    <userName>${formData.value.userName.trim()}</userName>
-                                    ${!formData.value.defaultPwd ? '' : `<password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.password, userSession.sesionKey))}</password>`}
-                                    <protocolType>${formData.value.protocolType}</protocolType>
-                                    <associatedType id="${associatedDeviceID}">${associatedType}</associatedType>
-                                </item>
+                            <content>
+                                <id>${prop.data.id}</id>
+                                ${formData.value.devName ? `<name>${wrapCDATA(formData.value.devName)}</name>` : ''}
+                                <ip>${formData.value.ip}</ip>
+                                <port>${formData.value.port}</port>
+                                <userName>${formData.value.userName.trim()}</userName>
+                                ${!formData.value.defaultPwd ? '' : `<password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.password, userSession.sesionKey))}</password>`}
+                                <associatedType id="${associatedDeviceID}">${associatedType}</associatedType>
+                                <protocolType>${formData.value.protocolType}</protocolType>
                             </content>
                         `
                     const result = await editVoiceDev(sendXml)

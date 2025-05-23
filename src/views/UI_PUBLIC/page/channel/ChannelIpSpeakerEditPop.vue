@@ -18,7 +18,7 @@
             :rules="rules"
         >
             <el-form-item
-                :label="Translate('IDCS_IPV4')"
+                :label="Translate('IDCS_IPSPEAKER_NAME').formatForLang(Translate('IDCS_IPSPEAKER'))"
                 prop="ip"
             >
                 <el-input

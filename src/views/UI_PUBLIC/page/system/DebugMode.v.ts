@@ -50,7 +50,7 @@ export default defineComponent({
 
             const sendXml = rawXml`
                 <content>
-                    <debugModeSwitch>${formData.value.debugModeSwitch}</debugModeSwitch>
+                    <debugModeSwitch>${formData.value.debugModeSwitch ? 'on' : 'off'}</debugModeSwitch>
                     <timeLen unit="hour">${formData.value.timeLen * 24}</timeLen>
                 </content>
                 <auth>
@@ -120,7 +120,7 @@ export default defineComponent({
         }
 
         const calculateTimeLen = () => {
-            return (formData.value.endTime - formData.value.startTime) / 1000 / 3600 / 24
+            return (formData.value.endTime - formData.value.startTime) / 1000 / 3600 / 24 || 1
         }
 
         const displayTime = computed(() => {
