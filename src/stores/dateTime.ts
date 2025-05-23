@@ -52,6 +52,8 @@ export const useDateTimeStore = defineStore('dateTime', () => {
     const hourMinuteFormat = ref('HH:mm')
     // 月日时间格式
     const monthDateFormat = ref('MM/DD')
+    // 月日年格式
+    const monthDateYearFormat = ref('MM/DD/YYYY HH:mm:ss')
 
     const timeMode = ref(24)
 
@@ -106,6 +108,7 @@ export const useDateTimeStore = defineStore('dateTime', () => {
         yearMonthFormat,
         hourMinuteFormat,
         monthDateFormat,
+        monthDateYearFormat,
         getTimeConfig,
         getSystemTime,
         timeMode,
