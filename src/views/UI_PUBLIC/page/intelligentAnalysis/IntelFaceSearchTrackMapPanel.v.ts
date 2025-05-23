@@ -25,21 +25,7 @@ export default defineComponent({
             default: false,
         },
     },
-    emits: {
-        stop() {
-            return true
-        },
-        play(data: IntelFaceTrackMapList) {
-            return !!data
-        },
-        pause() {
-            return true
-        },
-        resume() {
-            return true
-        },
-    },
-    setup(prop, ctx) {
+    setup(prop) {
         const { Translate } = useLangStore()
 
         // 通道与通道名的映射
@@ -87,9 +73,9 @@ export default defineComponent({
             // 颜色选项
             colorOptions: [] as string[],
             // 画布宽度
-            width: 960,
+            width: 1248,
             // 画布高度
-            height: 500,
+            height: 610,
             // IPC列表
             points: [] as Points[],
             // 是否打开颜色弹窗
@@ -168,60 +154,6 @@ export default defineComponent({
             movingX = 0
             movingY = 0
             movingPoint = -1
-        }
-
-        /**
-         * @description 播放
-         */
-        const play = () => {
-            if (pageData.value.playStatus === 'pasue') {
-                ctx.emit('resume')
-            } else {
-                ctx.emit('play', prop.data[pageData.value.playingIndex])
-            }
-            pageData.value.playStatus = 'play'
-        }
-
-        /**
-         * @description 停止播放
-         */
-        const stop = () => {
-            pageData.value.playStatus = 'stop'
-            ctx.emit('stop')
-        }
-
-        /**
-         * @description 暂停播放
-         */
-        const pause = () => {
-            pageData.value.playStatus = 'pause'
-            ctx.emit('pause')
-        }
-
-        // 禁用上一个录像按钮
-        const prevFrameDisabled = computed(() => {
-            return pageData.value.playStatus === 'stop' || pageData.value.playingIndex === 0
-        })
-
-        // 禁用下一个录像按钮
-        const nextFrameDisabled = computed(() => {
-            return pageData.value.playStatus === 'stop' || pageData.value.playingIndex >= prop.data.length - 1
-        })
-
-        /**
-         * @description 播放上一个录像
-         */
-        const prevFrame = () => {
-            pageData.value.playingIndex--
-            play()
-        }
-
-        /**
-         * @description 播放下一个录像
-         */
-        const nextFrame = () => {
-            pageData.value.playingIndex++
-            play()
         }
 
         /**
@@ -559,10 +491,6 @@ export default defineComponent({
         watch(
             () => prop.data,
             () => {
-                if (pageData.value.playStatus === 'play' || pageData.value.playStatus === 'pause') {
-                    stop()
-                }
-
                 stopTrack()
                 pageData.value.playingIndex = 0
 
@@ -604,28 +532,10 @@ export default defineComponent({
             },
         )
 
-        watch(
-            () => prop.visible,
-            (visible) => {
-                if (!visible) {
-                    if (pageData.value.playStatus === 'play' || pageData.value.playStatus === 'pause') {
-                        stop()
-                    }
-                }
-            },
-        )
-
         return {
             pageData,
-            play,
-            stop,
-            pause,
-            prevFrame,
-            nextFrame,
             playTrack,
             stopTrack,
-            prevFrameDisabled,
-            nextFrameDisabled,
             changeEditMap,
             canvas,
             handleMouseDown,
