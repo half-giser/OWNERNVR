@@ -46,11 +46,17 @@ export default defineComponent({
             faceMatchStranger: Translate('IDCS_FACE_MATCH') + '-' + Translate('IDCS_GROUP_STRANGER'),
             intrusion: Translate('IDCS_INVADE_DETECTION'),
             tripwire: Translate('IDCS_BEYOND_DETECTION'),
+            smartEntry: Translate('IDCS_SMART_AOI_ENTRY_DETECTION'),
+            smartLeave: Translate('IDCS_SMART_AOI_LEAVE_DETECTION'),
             passLine: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
+            regionStatistics: Translate('IDCS_REGION_STATISTICS'),
+            smartLoitering: Translate('IDCS_LOITERING_DETECTION'),
+            passengerFlow: Translate('IDCS_PASSENGER_FLOW_STATIST'),
             videoMetadata: Translate('IDCS_VSD_DETECTION'),
             plateDetection: Translate('IDCS_PLATE_DETECTION'),
             plateMatchWhiteList: Translate('IDCS_PLATE_MATCH') + '-' + Translate('IDCS_SUCCESSFUL_RECOGNITION'),
             plateMatchStranger: Translate('IDCS_PLATE_MATCH') + '-' + Translate('IDCS_STRANGE_PLATE'),
+            smartPvd: Translate('IDCS_PARKING_DETECTION'),
         }
 
         const pageData = ref({
@@ -90,6 +96,18 @@ export default defineComponent({
             // 人体选项
             personOptions: [
                 {
+                    value: 'faceDetection',
+                    hidden: false,
+                },
+                {
+                    value: 'faceMatchWhiteList',
+                    hidden: !systemCaps.supportFaceMatch,
+                },
+                {
+                    value: 'faceMatchStranger',
+                    hidden: !systemCaps.supportFaceMatch,
+                },
+                {
                     value: 'intrusion',
                     hidden: false,
                 },
@@ -98,12 +116,32 @@ export default defineComponent({
                     hidden: false,
                 },
                 {
+                    value: 'smartEntry',
+                    hidden: false,
+                },
+                {
+                    value: 'smartLeave',
+                    hidden: false,
+                },
+                {
                     value: 'passLine',
                     hidden: false,
                 },
                 {
+                    value: 'regionStatistics',
+                    hidden: false,
+                },
+                {
+                    value: 'smartLoitering',
+                    hidden: false,
+                },
+                {
+                    value: 'passengerFlow',
+                    hidden: false,
+                },
+                {
                     value: 'videoMetadata',
-                    hidden: prop.mode === 'radio',
+                    hidden: false,
                 },
             ],
             // 车辆选项
@@ -117,16 +155,35 @@ export default defineComponent({
                     hidden: false,
                 },
                 {
+                    value: 'smartEntry',
+                    hidden: false,
+                },
+                {
+                    value: 'smartLeave',
+                    hidden: false,
+                },
+                {
                     value: 'passLine',
                     hidden: false,
                 },
                 {
-                    value: 'videoMetadata',
-                    hidden: prop.mode === 'radio',
+                    value: 'regionStatistics',
+                    hidden: false,
                 },
                 {
+                    value: 'smartPvd',
+                    hidden: false,
+                },
+                {
+                    value: 'videoMetadata',
+                    hidden: false,
+                },
+            ],
+            // 车牌选项
+            plateOptions: [
+                {
                     value: 'plateDetection',
-                    hidden: !systemCaps.supportPlateMatch,
+                    hidden: false,
                 },
                 {
                     value: 'plateMatchWhiteList',
@@ -160,6 +217,14 @@ export default defineComponent({
 
             if (prop.range.includes('vehicle')) {
                 pageData.value.vehicleOptions.forEach((item) => {
+                    if (!item.hidden) {
+                        list.push(item.value)
+                    }
+                })
+            }
+
+            if (prop.range.includes('plate')) {
+                pageData.value.plateOptions.forEach((item) => {
                     if (!item.hidden) {
                         list.push(item.value)
                     }

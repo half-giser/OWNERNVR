@@ -3,20 +3,26 @@
  * @Date: 2024-09-03 14:44:19
  * @Description: 智能分析-人员统计
  */
+import { VALUE_NAME_MAPPING } from '@/utils/const/snap'
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
 import IntelBaseEventSelector from './IntelBaseEventSelector.vue'
+import IntelBaseProfileSelector from './IntelBaseProfileSelector.vue'
 import { type BarChartXValueOptionItem } from '@/components/chart/BaseBarChart.vue'
 
 export default defineComponent({
     components: {
         IntelBaseChannelSelector,
         IntelBaseEventSelector,
+        IntelBaseProfileSelector,
     },
     setup() {
         const { Translate } = useLangStore()
 
         let chlMap: Record<string, string> = {}
         let eventMap: Record<string, string> = {}
+        let chlLoadComplete = false
+        let totalTableData: IntelPersonStatsList[] = []
+        let childTableData: IntelPersonStatsList[] = []
 
         const pageData = ref({
             // 日期范围类型
@@ -59,6 +65,7 @@ export default defineComponent({
         const dateRangeType = computed(() => pageData.value.dateRangeType)
         const dateRange = computed(() => formData.value.dateRange)
         const stats = useStatsAxis(dateRangeType, dateRange)
+        const onlyChild = ref(false)
 
         /**
          * @description 更改时间范围类型
@@ -81,6 +88,7 @@ export default defineComponent({
          */
         const getChlMap = (e: Record<string, string>) => {
             chlMap = e
+            chlLoadComplete = true
         }
 
         /**
@@ -114,6 +122,11 @@ export default defineComponent({
             getData()
         }
 
+        const changeAttr = (e: Record<string, Record<string, string[]>>) => {
+            formData.value.attribute = e
+            getData()
+        }
+
         /**
          * @description 修改图表类型
          * @param {string} type
@@ -127,9 +140,29 @@ export default defineComponent({
          */
         const getData = async () => {
             if (!formData.value.chl.length) {
+                // NTA1-1294 不显示已删除通道，表格没有可选通道时，提示“请选择通道”且不下发查询协议
+                if (chlLoadComplete) {
+                    openMessageBox(Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'))
+                }
                 return
             }
             openLoading()
+            const attributeXml =
+                formData.value.event[0] === 'videoMetadata'
+                    ? Object.keys(formData.value.attribute)
+                          .map((key) => {
+                              const detail = Object.entries(formData.value.attribute[key])
+                                  .map((item) => {
+                                      return `<item name="${item[0]}">${item[1].join(',')}</item>`
+                                  })
+                                  .join('')
+                              return rawXml`
+                                <item type="${key}">
+                                    <attribute>${detail}</attribute>
+                                </item>`
+                          })
+                          .join('')
+                    : ''
             const sendXml = rawXml`
                 <resultLimit>150000</resultLimit>
                 <condition>
@@ -142,37 +175,87 @@ export default defineComponent({
                         <item>male</item>
                         <item>female</item>
                     </person>
+                    <targetAttribute type="list">${attributeXml}</targetAttribute>
                 </condition>
             `
             const result = await faceImgStatistic_v2(sendXml)
             const $ = queryXml(result)
             closeLoading()
+            totalTableData = []
+            childTableData = []
             if ($('status').text() === 'success') {
-                tableData.value = $('content/timeStatistic/item').map((item) => {
+                $('content/timeStatistic/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    return {
+
+                    let childTotalNum = 0 // 儿童 -- 总数
+                    let childTotalInNum = 0 // 儿童 -- 进入总数
+                    let childTotalOutNum = 0 // 儿童 -- 离开总数
+                    const totalData: IntelPersonStatsChlList[] = []
+                    const childData: IntelPersonStatsChlList[] = []
+                    const groupData: IntelPersonStatsGroupList[] = []
+                    $item('chls/item').forEach((chl) => {
+                        const $chl = queryXml(chl.element)
+                        const tempData = new IntelPersonStatsChlList()
+                        const childTempData = new IntelPersonStatsChlList()
+                        const chlId = chl.attr('id')
+                        const imageNum = $chl('imageNum').text().num()
+                        tempData.chlId = chlId
+                        tempData.imageNum = imageNum
+                        childTempData.chlId = chlId
+                        childTempData.imageNum = imageNum
+
+                        const personIn = $chl('personIn').text().num()
+                        const personOut = $chl('personOut').text().num()
+                        const childIn = $chl('childIn').text().num()
+                        const childOut = $chl('childOut').text().num()
+
+                        if (formData.value.event[0] === 'passLine' || formData.value.event[0] === 'regionStatistics') {
+                            tempData.personIn = personIn
+                            tempData.personOut = personOut
+                        } else if (formData.value.event[0] === 'passengerFlow') {
+                            // 大人 + 儿童
+                            tempData.personIn = personIn
+                            tempData.personOut = personOut
+                            tempData.childIn = childIn
+                            tempData.childOut = childOut
+
+                            // 仅儿童
+                            childTempData.personIn = 0
+                            childTempData.personOut = 0 //导出时，人数统计为0
+                            childTempData.childIn = childIn
+                            childTempData.childOut = childOut
+                            childTempData.imageNum = childIn + childOut
+                            childTotalInNum += childIn
+                            childTotalOutNum += childOut
+                            childTotalNum += childIn + childOut
+                        }
+                        totalData.push(tempData)
+                        childData.push(childTempData)
+                    })
+                    $item('groups/item').forEach((group) => {
+                        const $group = queryXml(group.element)
+                        groupData.push({
+                            groupId: group.attr('id'),
+                            name: $group('name').text() || Translate('IDCS_UNKNOWN_GROUP'),
+                            imageNum: $group('imageNum').text().num(),
+                        })
+                    })
+                    totalTableData.push({
                         imageTotalNum: $item('imageTotalNum').text().num(),
                         imageTotalInNum: $item('imageTotalInNum').text().num(),
                         imageTotalOutNum: $item('imageTotalOutNum').text().num(),
-                        chl: $item('chls/item').map((chl) => {
-                            const $chl = queryXml(chl.element)
-                            return {
-                                chlId: chl.attr('id'),
-                                imageNum: $chl('imageNum').text().num(),
-                                personIn: $chl('personIn').text().num(),
-                                personOut: $chl('personOut').text().num(),
-                            }
-                        }),
-                        groups: $item('groups/item').map((group) => {
-                            const $group = queryXml(group.element)
-                            return {
-                                groupId: group.attr('id'),
-                                name: $group('name').text() || Translate('IDCS_UNKNOWN_GROUP'),
-                                imageNum: $group('imageNum').text().num(),
-                            }
-                        }),
-                    }
+                        chl: totalData,
+                        groups: groupData,
+                    })
+                    childTableData.push({
+                        imageTotalNum: childTotalNum,
+                        imageTotalInNum: childTotalInNum,
+                        imageTotalOutNum: childTotalOutNum,
+                        chl: childData,
+                        groups: groupData,
+                    })
                 })
+                tableData.value = onlyChild.value ? childTableData : totalTableData
                 showMaxSearchLimitTips($)
             } else {
                 if ($('errorCode').text().num() === ErrorCode.USER_ERROR_JSU_HAVEACSSYSTEM) {
@@ -194,7 +277,7 @@ export default defineComponent({
         const getMaximun = () => {
             const array = tableData.value
                 .map((item) => {
-                    return formData.value.event[0] === 'passLine' ? [item.imageTotalInNum, item.imageTotalOutNum] : [item.imageTotalNum]
+                    return isDoubleLine.value ? [item.imageTotalInNum, item.imageTotalOutNum] : [item.imageTotalNum]
                 })
                 .flat()
             if (!array.length) {
@@ -209,26 +292,29 @@ export default defineComponent({
          */
         const getBarData = () => {
             const maximun = stats.calY(getMaximun())
-            const isPassLine = formData.value.event[0] === 'passLine'
             return {
                 writeY: maximun,
                 writeYSpacing: maximun / 5,
                 unit: stats.getUnit(),
-                unitNum: isPassLine ? 2 : 1,
+                unitNum: isDoubleLine.value ? 2 : 1,
                 xValue: stats.calX(),
                 yValue: tableData.value.length
                     ? (tableData.value.map((item) => {
-                          return isPassLine ? [item.imageTotalInNum, item.imageTotalOutNum] : item.imageTotalNum
+                          return isDoubleLine.value ? [item.imageTotalInNum, item.imageTotalOutNum] : item.imageTotalNum
                       }) as number[] | number[][])
                     : (Array(stats.getTimeQuantum())
                           .fill(0)
                           .map(() => {
-                              return isPassLine ? [0, 0] : 0
+                              return isDoubleLine.value ? [0, 0] : 0
                           }) as number[] | number[][]),
-                color: isPassLine ? [1, 0] : [0],
-                tooltip: isPassLine ? [Translate('IDCS_ENTRANCE'), Translate('IDCS_LEAVE')] : [],
+                color: isDoubleLine.value ? [1, 0] : [0],
+                tooltip: isDoubleLine.value ? [Translate('IDCS_ENTRANCE'), Translate('IDCS_LEAVE')] : [],
             }
         }
+
+        const isDoubleLine = computed(() => {
+            return ['passLine', 'regionStatistics', 'passengerFlow'].includes(formData.value.event[0])
+        })
 
         /**
          * @description 生成表格数据
@@ -267,17 +353,25 @@ export default defineComponent({
         /**
          * @description 导出
          */
-        const exportChart = () => {
+        const exportChart = async () => {
             const csvTime = stats.getTimeRange()
             const csvTitle = {
                 colspan: 3,
-                content: `${Translate('IDCS_PERSON_STATISTICS')}(${eventMap[formData.value.event[0]]}) ${Translate('IDCS_COLIMNAR_CHART')} ${csvTime}`,
+                content: `${Translate('IDCS_DETECTION_PERSON')}(${eventMap[formData.value.event[0]] ? eventMap[formData.value.event[0]] : ' '}) ${Translate('IDCS_COLIMNAR_CHART')} ${csvTime}`,
             }
             const csvHead = [Translate('IDCS_CHANNEL'), Translate('IDCS_TIME'), Translate('IDCS_TIMES')]
 
-            if (formData.value.event[0] === 'passLine') {
+            if (formData.value.event[0] === 'passLine' || formData.value.event[0] === 'regionStatistics') {
                 csvHead.push(`${Translate('IDCS_DETECTION_PERSON')} (${Translate('IDCS_ENTRANCE')})`, `${Translate('IDCS_DETECTION_PERSON')} (${Translate('IDCS_LEAVE')})`)
                 csvTitle.colspan = 5
+            } else if (formData.value.event[0] === 'passengerFlow') {
+                csvHead.push(
+                    `${Translate('IDCS_DETECTION_PERSON')} (${Translate('IDCS_ENTRANCE')})`,
+                    `${Translate('IDCS_DETECTION_PERSON')} (${Translate('IDCS_LEAVE')})`,
+                    `${Translate('IDCS_CHILD_ENTRY_NUMBER')}`,
+                    `${Translate('IDCS_CHILD_EXIT_NUMBER')}`,
+                )
+                csvTitle.colspan = 7
             }
             const label = stats.calLabel()
             const csvBody: string[][] = []
@@ -289,8 +383,10 @@ export default defineComponent({
                 } else {
                     item.chl.map((chl) => {
                         const data = [chlMap[chl.chlId], labelItem, chl.imageNum + '']
-                        if (formData.value.event[0] === 'passLine') {
+                        if (formData.value.event[0] === 'passLine' || formData.value.event[0] === 'regionStatistics') {
                             data.push(chl.personIn + '', chl.personOut + '')
+                        } else if (formData.value.event[0] === 'passengerFlow') {
+                            data.push(chl.personIn + '', chl.personOut + '', chl.childIn + '', chl.childOut + '')
                         }
                         csvBody.push(data)
                     })
@@ -298,7 +394,37 @@ export default defineComponent({
             })
 
             const xlsName = 'PEOPLE_STATISTIC-' + formatDate(new Date(), 'YYYYMMDDHHmmss') + '.xls'
-            downloadExcel(csvHead, csvBody, xlsName, csvTitle)
+            let structureInfo = null
+            if (formData.value.event[0] === 'videoMetadata') {
+                const attributeOption = await getSearchOptions()
+                const type = Translate('IDCS_DETECTION_PERSON')
+                const contentList: string[] = []
+                attributeOption.person.forEach((attr) => {
+                    let content = ''
+                    if (formData.value.attribute.person[attr.value] && formData.value.attribute.person[attr.value].length) {
+                        content += attr.label + ':'
+                        content += formData.value.attribute.person[attr.value]
+                            .map((item) => {
+                                return Translate(VALUE_NAME_MAPPING[item])
+                            })
+                            .join(',')
+                        content += ';'
+                    }
+                    if (content) contentList.push(content)
+                })
+                structureInfo = {
+                    type,
+                    content: contentList,
+                }
+                downloadExcel(csvHead, csvBody, xlsName, csvTitle, structureInfo)
+            } else {
+                downloadExcel(csvHead, csvBody, xlsName, csvTitle)
+            }
+        }
+
+        const handleOnlyChildChange = () => {
+            tableData.value = onlyChild.value ? childTableData : totalTableData
+            pageData.value.barData = getBarData()
         }
 
         onActivated(() => {
@@ -307,14 +433,17 @@ export default defineComponent({
 
         return {
             formData,
-            changeDateRange,
             pageData,
+            onlyChild,
+            changeDateRange,
             getChlMap,
             changeChl,
             getEventMap,
             changeEvent,
+            changeAttr,
             changeType,
             exportChart,
+            handleOnlyChildChange,
         }
     },
 })

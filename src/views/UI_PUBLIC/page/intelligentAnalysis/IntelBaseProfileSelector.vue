@@ -34,7 +34,7 @@
                             v-if="!(item2.value === 'upperClothColor' || item2.value === 'hat' || item2.value === 'glasses')"
                             v-model="attrCheckVals[item1.value][item2.value]"
                             :label="item2.value === 'upperClothType' ? Translate('IDCS_UPPER_CLOTH') : item2.value === 'mask' ? Translate('IDCS_DECORATE') : item2.label"
-                            @change="handleCheckboxChange(item1.value, item2.value, $event)"
+                            @change="handleCheckboxChange(item1.value, item2.value)"
                         />
                         <div
                             v-if="item2.value === 'upperClothType' || item2.value === 'upperClothColor'"

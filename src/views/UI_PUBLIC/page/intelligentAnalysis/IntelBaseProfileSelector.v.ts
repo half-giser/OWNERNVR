@@ -123,12 +123,12 @@ export default defineComponent({
             }
         }
 
-        const handleCheckboxChange = (key1: string, key2: string, value: boolean) => {
+        const handleCheckboxChange = (key1: string, key2: string) => {
             if (key1 === 'person' && key2 === 'upperClothType') {
-                attrCheckVals.value[key1].upperClothColor = value
+                attrCheckVals.value[key1].upperClothColor = attrCheckVals.value.person.upperClothType
             } else if (key1 === 'person' && key2 === 'mask') {
-                attrCheckVals.value[key1].hat = value
-                attrCheckVals.value[key1].glasses = value
+                attrCheckVals.value[key1].hat = attrCheckVals.value.person.mask
+                attrCheckVals.value[key1].glasses = attrCheckVals.value.person.mask
             }
         }
 

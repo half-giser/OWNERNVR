@@ -81,8 +81,8 @@ const createExcelTemplate = (titleArr: string[], contentArr: string[][], xlsDesc
     return rawXml`
         <table cellspacing='0' cellpadding='0' border='1' style='display:none'>
             <thead>
-                ${structHead}
                 ${xlsDesc ? `<tr><th colspan="${xlsDesc.colspan}">${xlsDesc.content}</th></tr>` : ''}
+                ${structHead}
                 <tr>${titleArr.map((item) => `<th>${item}</th>`).join('')}</tr>
             </thead>
             <tbody>${content}</tbody>
