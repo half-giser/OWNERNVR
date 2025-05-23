@@ -152,7 +152,7 @@
             </el-form-item>
             <div class="base-btn-box">
                 <el-button
-                    :disabled="pageData.wirelessSwitch"
+                    :disabled="pageData.wirelessSwitch || (watchEditPortForm.disabled.value && watchEditRtspServerForm.disabled.value && watchEditApiServerForm.disabled.value)"
                     @click="setData"
                 >
                     {{ Translate('IDCS_APPLY') }}

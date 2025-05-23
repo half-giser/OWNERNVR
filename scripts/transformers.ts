@@ -69,12 +69,12 @@ interface MinifyWorkerOption {
     ui: string
 }
 
-function hideOriginalFilePath(ui: string, code: string) {
-    // a tricky way to hide original file paths
-    code = code.replace(new RegExp('/src/views/UI_PUBLIC/page/', 'g'), '/page/')
-    code = code.replace(new RegExp(`/src/views/${ui}/page/`, 'g'), '/page/')
-    return code
-}
+// function hideOriginalFilePath(ui: string, code: string) {
+//     // a tricky way to hide original file paths
+//     code = code.replace(new RegExp('/src/views/UI_PUBLIC/page/', 'g'), '/page/')
+//     code = code.replace(new RegExp(`/src/views/${ui}/page/`, 'g'), '/page/')
+//     return code
+// }
 
 export function postMinifyCodes(option: MinifyWorkerOption): Plugin {
     return {
@@ -94,13 +94,14 @@ export function postMinifyCodes(option: MinifyWorkerOption): Plugin {
                             module: false,
                         })
                         await fs.writeFile(file, result.code)
-                    } else {
-                        const result = await minify(data, {
-                            module: true,
-                        })
-                        const code = hideOriginalFilePath(option.ui, result.code)
-                        await fs.writeFile(file, code)
                     }
+                    // else {
+                    //     const result = await minify(data, {
+                    //         module: true,
+                    //     })
+                    //     const code = hideOriginalFilePath(option.ui, result.code)
+                    //     await fs.writeFile(file, code)
+                    // }
                 } catch (e) {
                     console.error(e)
                 }
