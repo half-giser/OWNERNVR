@@ -246,7 +246,7 @@ export default defineComponent({
                             <ownerPhone>${form.ownerPhone}</ownerPhone>
                             <vehicleType>${form.vehicleType}</vehicleType>
                             <startTime>${form.startTime.replace(/\-/g, '/')}</startTime>
-                            <endTime>${form.endTime.replace(/\-/g, '/')}</endTime>
+                            <endTime>${pageData.value.isPermanentlyValid ? pageData.value.permanentDate.replace(/\-/g, '/') : form.endTime.replace(/\-/g, '/')}</endTime>
                         </item>
                     </plate>
                 </content>
@@ -285,7 +285,7 @@ export default defineComponent({
                             <ownerPhone>${form.ownerPhone}</ownerPhone>
                             <vehicleType>${form.vehicleType}</vehicleType>
                             <startTime>${form.startTime.replace(/\-/g, '/')}</startTime>
-                            <endTime>${form.endTime.replace(/\-/g, '/')}</endTime>
+                            <endTime>${pageData.value.isPermanentlyValid ? pageData.value.permanentDate.replace(/\-/g, '/') : form.endTime.replace(/\-/g, '/')}</endTime>
                         </item>
                     </plate>
                 </content>
