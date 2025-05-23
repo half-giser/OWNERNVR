@@ -188,7 +188,7 @@ export default defineConfig(({ mode }) => {
             Components({
                 resolvers: [ElementPlusResolver()],
                 dts: TYPE_COMPONENTS_FILE_PATH,
-                globs: ['**/Base*.vue', '**/{Intel,Alarm,Record}Base*.vue', '**/*Pop.vue', '**/*Item.vue', '**/!(Function)Panel.vue'],
+                globs: ['**/Base*.vue', '**/{Intel,Alarm,Record}Base*.vue', '**/*Pop.vue', '**/*Item.vue', '**/*Selector.vue', '**/!(Function)Panel.vue'],
                 // dirs: ['./src/components/'],
                 deep: true,
             }),

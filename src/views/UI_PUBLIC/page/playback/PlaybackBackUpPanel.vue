@@ -10,13 +10,15 @@
             :width="1000"
             placement="top-end"
             popper-class="no-padding"
+            :offset="26"
             @update:visible="$emit('update:visible', $event)"
         >
             <template #reference>
-                <BaseImgSpriteBtn
+                <span></span>
+                <!-- <BaseImgSpriteBtn
                     file="backUpTask"
                     :title="Translate('IDCS_BACKUP_TASKS')"
-                />
+                /> -->
             </template>
             <el-table
                 v-title
@@ -69,10 +71,7 @@
                     :label="Translate('IDCS_PROGRESS')"
                     prop="progress"
                 />
-                <el-table-column
-                    width="110"
-                    :label="Translate('IDCS_OPERATION')"
-                >
+                <el-table-column width="110">
                     <template #header>
                         <el-dropdown>
                             <BaseTableDropdownLink>

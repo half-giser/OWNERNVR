@@ -369,7 +369,6 @@ const handleDetectResultFail = (failType: string) => {
         pageData.value.isFailTip = true
     } else {
         openMessageBox(Translate('IDCS_NOT_DETECT_TARGET') + Translate('IDCS_SELECT_OTHER_TIMEPOINT_RETRY'))
-        emits('update:visible', false)
     }
 }
 
