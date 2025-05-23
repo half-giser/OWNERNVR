@@ -1762,7 +1762,6 @@ export const getSearchOptions = async () => {
             })
         }
     })
-    console.log({ person: pedAttr, car: vehicleAttr, motor: nonmotorAttr, plate: plateAttr })
     return { person: pedAttr, car: vehicleAttr, motor: nonmotorAttr, plate: plateAttr }
 }
 

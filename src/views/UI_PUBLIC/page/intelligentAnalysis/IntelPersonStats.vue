@@ -6,17 +6,26 @@
 <template>
     <div class="base-intel-box">
         <div class="base-intel-left">
-            <div class="base-intel-left-form">
-                <IntelBaseChannelSelector
-                    v-model="formData.chl"
-                    @update:model-value="changeChl"
-                    @ready="getChlMap"
-                />
-                <IntelBaseEventSelector
-                    v-model="formData.event"
-                    @update:model-value="changeEvent"
-                    @ready="getEventMap"
-                />
+            <div class="base-intel-left-column">
+                <div class="base-intel-left-form">
+                    <IntelBaseChannelSelector
+                        v-model="formData.chl"
+                        @update:model-value="changeChl"
+                        @ready="getChlMap"
+                    />
+                    <IntelBaseEventSelector
+                        v-model="formData.event"
+                        :range="['person']"
+                        @update:model-value="changeEvent"
+                        @ready="getEventMap"
+                    />
+                    <IntelBaseProfileSelector
+                        v-show="formData.event[0] === 'videoMetadata'"
+                        v-model="formData.attribute"
+                        :range="['person']"
+                        @update:model-value="changeAttr"
+                    />
+                </div>
             </div>
         </div>
         <div class="base-intel-right">
@@ -67,6 +76,13 @@
                     :unit-num="pageData.barData.unitNum"
                     :color="pageData.barData.color"
                     :tooltip="pageData.barData.tooltip"
+                />
+                <el-checkbox
+                    v-show="formData.event[0] === 'passengerFlow'"
+                    v-model="onlyChild"
+                    :label="Translate('IDCS_ONLY_CHILD_COUNT')"
+                    class="base-only-child-checkbox"
+                    @change="handleOnlyChildChange"
                 />
             </div>
             <div
