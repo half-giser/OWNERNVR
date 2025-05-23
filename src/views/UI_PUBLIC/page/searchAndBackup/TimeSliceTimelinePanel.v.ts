@@ -234,7 +234,6 @@ export default defineComponent({
         })
 
         let keyframe: ReturnType<typeof WebsocketKeyframe>
-        let imgRender: ReturnType<typeof WasmImageRender>
 
         // 当前模式项
         const modeItem = computed(() => {
@@ -732,88 +731,27 @@ export default defineComponent({
 
             pageData.value.timeSliceCount = 0
 
-            if (userSession.appType === 'P2P') {
-                imgRender?.destroy()
-                imgRender = WasmImageRender({
-                    type: 'p2pTimeSlice',
-                    ready() {
-                        pageData.value.timeSliceList = []
-                        timeList.forEach(async (item, index) => {
-                            const taskId = getRandomGUID()
-
-                            pageData.value.timeSliceList.push({
-                                startTime: item.startTime * 1000,
-                                endTime: item.endTime * 1000,
-                                taskId: taskId,
-                                frameTime: item.startTime * 1000,
-                                imgUrl: '',
-                            })
-
-                            const sendXML = rawXml`
-                                <condition>
-                                    <chlId>${prop.chlId}</chlId>
-                                    <startTimeEx>${localToUtc(item.startTime * 1000)}</startTimeEx>
-                                    <endTimeEx>${localToUtc(item.endTime * 1000)}</endTimeEx>
-                                    <diskType>write</diskType>
-                                </condition>
-                            `
-                            const result = await queryChlSnapPicture(sendXML)
-                            const $ = queryXml(result)
-                            if ($('status').text() === 'success') {
-                                const codecTypeMap: Record<string, number> = {
-                                    H264: 1, // H264帧
-                                    H265: 2, // H265帧
-                                }
-                                const encodingType = $('content/encodingType').text()
-                                const codecType = codecTypeMap[encodingType]
-                                const frameTime = $('content/recTime').text().num() * 1000
-                                const dataBase64 = $('content/data').text()
-                                const dataBlob = dataURLToBlob(dataBase64)
-                                const reader = new FileReader()
-                                reader.onload = () => {
-                                    const dataArrayBuffer = reader.result as ArrayBuffer
-                                    if (!dataArrayBuffer) {
-                                        return
-                                    }
-
-                                    imgRender.render(
-                                        dataArrayBuffer,
-                                        (imgUrl) => {
-                                            pageData.value.timeSliceList[index].imgUrl = imgUrl
-                                            pageData.value.timeSliceList[index].frameTime = frameTime
-                                        },
-                                        codecType,
-                                    )
-                                }
-                                reader.readAsArrayBuffer(dataBlob)
-                                pageData.value.timeSliceCount++
-                            }
+            keyframe.checkReady(() => {
+                pageData.value.timeSliceList = []
+                keyframe.stopAll()
+                timeList.forEach((item) => {
+                    const taskId = keyframe
+                        .start({
+                            chlId: prop.chlId,
+                            startTime: item.startTime,
+                            endTime: item.endTime,
+                            frameNum: 1,
                         })
-                    },
-                })
-            } else {
-                keyframe.checkReady(() => {
-                    pageData.value.timeSliceList = []
-                    keyframe.stopAll()
-                    timeList.forEach((item) => {
-                        const taskId = keyframe
-                            .start({
-                                chlId: prop.chlId,
-                                startTime: item.startTime,
-                                endTime: item.endTime,
-                                frameNum: 1,
-                            })
-                            .toUpperCase()
-                        pageData.value.timeSliceList.push({
-                            startTime: item.startTime * 1000,
-                            endTime: item.endTime * 1000,
-                            taskId,
-                            frameTime: item.startTime * 1000,
-                            imgUrl: '',
-                        })
+                        .toUpperCase()
+                    pageData.value.timeSliceList.push({
+                        startTime: item.startTime * 1000,
+                        endTime: item.endTime * 1000,
+                        taskId,
+                        frameTime: item.startTime * 1000,
+                        imgUrl: '',
                     })
                 })
-            }
+            })
         }
 
         /**
@@ -922,7 +860,6 @@ export default defineComponent({
 
         onBeforeUnmount(() => {
             keyframe?.destroy()
-            imgRender?.destroy()
         })
 
         return {

@@ -197,15 +197,21 @@ export const searchImageByImageV2 = (data: string) => fetch('searchImageByImageV
 export const requestSmartTargetSnapImage = (data: string) => fetch('requestSmartTargetSnapImage', data)
 
 /**
- * @description 智能分析 新- 获取索引数据
+ * @description 智能搜索 - 1.4.13新增，部分业务代替了searchSmartTarget
  * @param {string} data
  * @returns
  */
 export const searchTargetIndex = (data: string) => fetch('searchTargetIndex', data)
 
 /**
- * @description 智能分析 新- 获取图片数据
+ * @description 智能搜索 - 1.4.13新增，部分业务代替了requestSmartTargetSnapImage
  * @param {string} data
  * @returns
  */
 export const requestTargetData = (data: string) => fetch('requestTargetData', data)
+
+/**
+ * @description 获取智能搜索属性
+ * @returns
+ */
+export const querySearchOptions = () => fetch('querySearchOptions', '')

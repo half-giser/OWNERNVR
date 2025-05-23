@@ -1,217 +1,212 @@
 <!--
- * @Author: yejiahao yejiahao@tvt.net.cn
- * @Date: 2024-09-06 16:33:02
- * @Description: 智能分析 - 抓拍选项框
+ * @Author: zhangdongming zhangdongming@tvt.net.cn
+ * @Date: 2025-05-21 10:30:00
+ * @Description: 智能分析-人、车
 -->
 <template>
-    <div
-        class="snap"
-        :class="{
-            panorama: type === 'panorama',
-            match: type === 'match',
-            struct: type === 'struct',
-        }"
-    >
-        <div
-            class="snap-box"
-            @click="changeValue(!modelValue)"
-        >
-            <div class="snap-cbx">
-                <el-checkbox
-                    :model-value
-                    :disabled
-                    @update:model-value="changeValue"
-                    @click.stop
-                />
+    <div class="snap">
+        <!-- 封面图区域 -->
+        <div class="pic_show_container">
+            <div
+                v-if="targetData.isNoData"
+                class="noData_pic"
+            >
                 <BaseImgSprite
-                    v-show="play"
-                    file="track_camera_on_play"
+                    file="noData"
+                    :chunk="1"
                 />
-                <BaseImgSpriteBtn
-                    file="face_search_more"
-                    :index="[3, 2, 2, 0]"
-                    @click="$emit('detail')"
-                />
+                <span class="tip_text">{{ Translate('IDCS_NO_RECORD_DATA') }}</span>
             </div>
-            <div class="snap-pic">
-                <div class="snap-404">{{ errorText }}</div>
-                <!-- 抓拍图 -->
+            <div
+                v-else-if="targetData.isDelete"
+                class="deleted_pic"
+            >
+                <BaseImgSprite
+                    file="hasDeleted"
+                    :chunk="1"
+                />
+                <span class="tip_text">{{ Translate('IDCS_DELETED') }}</span>
+            </div>
+            <div
+                v-else
+                class="normal_pic"
+                :class="{
+                    checked: targetData.checked,
+                    selected: targetData.index === detailIndex,
+                }"
+                @click="handleClickCover"
+            >
+                <!-- 顶部操作区域（checkbox选择框） -->
+                <div class="top_operate">
+                    <el-checkbox v-model="targetData.checked" />
+                </div>
+                <!-- 封面图 -->
                 <img
-                    :src
+                    :src="targetData.objPicData.data"
+                    class="center_operate"
                     @load="loadImg"
                 />
-                <!-- 对比图 -->
-                <img
-                    v-show="type === 'match'"
-                    :src="matchSrc"
-                />
-                <ul
-                    v-if="type === 'struct'"
-                    class="snap-info"
-                >
-                    <li
-                        v-for="(item, key) in infoList"
-                        :key
-                    >
-                        <BaseImgSprite :file="item.icon" />
-                        <span>{{ item.value }}</span>
-                    </li>
-                </ul>
-                <BaseImgSprite
-                    v-show="identity"
-                    class="identity"
-                    file="identify_icon"
-                />
+                <!-- 底部操作区域（搜索、导出、注册） -->
+                <div class="bottom_operate">
+                    <BaseImgSprite
+                        v-if="showSearch"
+                        file="snap_search"
+                        :chunk="4"
+                        :hover-index="1"
+                        class="operate_icon"
+                    />
+                    <BaseImgSprite
+                        v-if="showExport"
+                        file="export_btn"
+                        :chunk="4"
+                        :hover-index="1"
+                        class="operate_icon"
+                    />
+                    <BaseImgSprite
+                        v-if="showRegister"
+                        file="register"
+                        :chunk="4"
+                        :hover-index="1"
+                        class="operate_icon"
+                    />
+                </div>
             </div>
         </div>
-        <div class="snap-text"><slot></slot></div>
+        <!-- 描述信息区域 -->
+        <div class="info_show_container">
+            <div class="info_show_snap">
+                <span class="frametime">{{ displayDateTime(targetData.timeStamp * 1000) }}</span>
+                <span class="picChlName text-ellipsis">{{ targetData.channelName }}</span>
+                <span
+                    v-if="showPlateNumber"
+                    class="plateNumber"
+                >
+                    {{ targetData.plateAttrInfo.plateNumber }}
+                </span>
+                <span
+                    v-if="showSimilarity"
+                    class="similarityValue"
+                >
+                    {{ `'(' ${targetData.similarity} '%)'` }}
+                </span>
+            </div>
+        </div>
     </div>
 </template>
 
 <script lang="ts" src="./IntelBaseSnapItem.v.ts"></script>
 
 <style lang="scss" scoped>
+* {
+    box-sizing: border-box !important;
+}
+
 .snap {
-    width: 102px;
-    margin: 5px 20px;
+    width: calc((100% - 35px) / 6);
+    margin: 5px 0px 30px 5px;
     user-select: none;
 
-    &.panorama {
-        width: 234px;
+    .pic_show_container {
+        width: 100%;
+        position: relative;
+        border: 1px solid var(--content-border);
+        padding-top: calc(100% * 4 / 3);
 
-        .snap-pic {
-            height: 130px;
+        .normal_pic,
+        .noData_pic,
+        .deleted_pic {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            margin: auto;
         }
 
-        .snap-404 {
-            line-height: 130px;
-        }
-    }
-
-    &.struct {
-        width: 240px;
-
-        .snap-pic {
-            height: 175px;
-        }
-
-        img {
-            width: 114px;
-        }
-
-        .snap-404 {
-            line-height: 130px;
-        }
-    }
-
-    &-info {
-        position: absolute;
-        right: 0;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        height: 100%;
-        width: 120px;
-        line-height: 22px;
-        margin: 0;
-        padding: 0;
-
-        li {
-            margin-left: 10px;
-            list-style: none;
-            font-size: 14px;
-
-            &:not(:first-child) {
-                margin-top: 10px;
+        .normal_pic {
+            .center_operate {
+                width: 100%;
+                height: 100%;
             }
-
-            span:last-child {
-                margin-left: 10px;
-            }
-        }
-    }
-
-    &.match {
-        width: 234px;
-
-        img {
-            width: 114px;
-
-            &:nth-of-type(2) {
-                left: unset;
+            .top_operate,
+            .bottom_operate {
+                position: absolute;
+                left: 0;
                 right: 0;
+                margin: auto;
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+                visibility: hidden;
+            }
+            .top_operate {
+                top: 0;
+                padding: 2px 5px;
+            }
+            .bottom_operate {
+                bottom: 0;
+                padding: 2px;
+
+                .operate_icon {
+                    transform: scale(0.8);
+                }
+            }
+            &.checked {
+                .top_operate {
+                    visibility: visible;
+                }
+            }
+            &.selected {
+                border: 1px solid var(--primary);
+            }
+            &:hover {
+                .top_operate,
+                .bottom_operate {
+                    visibility: visible;
+                }
             }
         }
 
-        .snap-404 {
-            width: 102px;
-            line-height: 130px;
+        .noData_pic,
+        .deleted_pic {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            .tip_text {
+                font-size: 14px;
+                color: var(--main-text-light);
+            }
         }
 
-        .snap-pic {
-            height: 130px;
-        }
-    }
-
-    &-cbx {
-        padding: 0 5px;
-        display: flex;
-        width: 100%;
-        height: 25px;
-        box-sizing: border-box;
-        justify-content: space-between;
-        align-items: center;
-        line-height: 10px;
-        background-color: var(--subheading-bg);
-
-        .el-checkbox {
-            height: 25px;
+        .deleted_pic {
+            .Sprite {
+                transform: scale(0.5);
+            }
+            .tip_text {
+                position: relative;
+                top: -15px;
+            }
         }
     }
 
-    &-box {
-        position: relative;
+    .info_show_container {
         width: 100%;
-        border: 1px solid var(--intel-snap-border);
-        box-sizing: border-box;
-    }
-
-    &-text {
-        width: 100%;
-        text-align: center;
-        margin-top: 2px;
+        min-height: 50px;
         font-size: 14px;
-    }
 
-    &-pic {
-        width: 100%;
-        height: 120px;
-        position: relative;
-    }
-
-    &-404 {
-        line-height: 120px;
-        width: 100%;
-        text-align: center;
-    }
-
-    img {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: block;
-
-        &[src=''] {
-            opacity: 0;
+        .info_show_snap {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            > span {
+                margin-top: 4px;
+            }
         }
-    }
-
-    .identity {
-        position: absolute;
-        top: 0;
-        right: 0;
     }
 }
 </style>

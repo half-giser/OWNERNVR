@@ -232,6 +232,7 @@ export default defineComponent({
                 //处于校正状态并且当前通道id为正处于校正的通道id 选中校正中的安装模式和显示模式
                 pageData.value.installType = fishEyeMap.value[chlId].installType
                 pageData.value.fishEyeMode = fishEyeMap.value[chlId].fishEyeMode
+                ctx.emit('fishEyeMode', pageData.value.installType, pageData.value.fishEyeMode)
             }
         }
 
@@ -302,14 +303,6 @@ export default defineComponent({
         const exitAdjust = (chlId: string) => {
             if (chlId === pageData.value.fishEyeingId) {
                 pageData.value.fishEyeingId = ''
-            }
-
-            if (fishEyeMap.value[prop.winData.chlID]) {
-                fishEyeMap.value[prop.winData.chlID] = {
-                    ...fishEyeMap.value[prop.winData.chlID],
-                    installType: 'TOP',
-                    fishEyeMode: NO_ADJUST_VALUE,
-                }
             }
 
             ctx.emit('trigger')

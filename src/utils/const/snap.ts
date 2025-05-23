@@ -381,6 +381,226 @@ export const DEFAULT_NON_VEHICLE_STRUCT_MAPPING: SnapMapping[] = [
     },
 ]
 
+export const VALUE_NAME_MAPPING: Record<string, string> = {
+    // 性别
+    gender: 'IDCS_SEX',
+    male: 'IDCS_MALE',
+    female: 'IDCS_FEMALE',
+    // 年龄
+    ageBracket: 'IDCS_AGE',
+    child: 'IDCS_CHILD',
+    adult: 'IDCS_ADULT',
+    infant: 'IDCS_INFANT',
+    juvenile: 'IDCS_JUVENILE',
+    youth: 'IDCS_YOUTH',
+    midlife: 'IDCS_MIDLIFE',
+    elderly: 'IDCS_ELDERLY',
+    // 上衣
+    upperClothType: 'IDCS_UPPER_BODY_CLOTH_TYPE',
+    upperClothColor: 'IDCS_UPPERCOLOR',
+    longSleeve: 'IDCS_LONG_CLOTH',
+    shortSleeve: 'IDCS_SHORT_CLOTH',
+    // 配饰
+    mask: 'IDCS_MASK',
+    nonMask: 'IDCS_NO_MASK',
+    hat: 'IDCS_HAT',
+    nonHat: 'IDCS_NO_HAT',
+    glasses: 'IDCS_GLASSES',
+    glass: 'IDCS_GLASSES',
+    nonGlass: 'IDCS_NO_GLASSES',
+    backpack: 'IDCS_BACKPACK',
+    nonBackpack: 'IDCS_NO_BACKPACK',
+    skirt: 'IDCS_SKIRT',
+    nonSkirt: 'IDCS_NO_WEAR_SKIRT',
+    front: 'IDCS_FRONT_FACE',
+    back: 'IDCS_BACK_FACE',
+    side: 'IDCS_SIDE_FACE',
+    // 汽车颜色
+    vehicleColor: 'IDCS_COLOR',
+    red: 'IDCS_RED', // 红
+    orange: 'IDCS_ORANGE', // 橙
+    yellow: 'IDCS_YELLOW', // 黄
+    green: 'IDCS_GREEN', // 绿
+    blue: 'IDCS_BLUE', // 蓝
+    cyan: 'IDCS_CYAN', // 青
+    purple: 'IDCS_PURPLE', // 紫
+    black: 'IDCS_BLACK', // 黑
+    white: 'IDCS_WHITE', // 白
+    silver: 'IDCS_SILVER', // 银
+    gray: 'IDCS_GRAY', // 灰
+    gold: 'IDCS_GOLD', // 金
+    brown: 'IDCS_BROWN', // 棕
+    // 汽车类型
+    vehicleType: 'IDCS_TYPE',
+    bus: 'IDCS_BUS',
+    lightBus: 'IDCS_LIGHT_BUS',
+    mpv: 'IDCS_MPV',
+    pickUp: 'IDCS_PICKUP',
+    publicBus: 'IDCS_BIG_BUS',
+    schoolBus: 'IDCS_SCHOOL_BUS',
+    sedan: 'IDCS_SEDAN',
+    specialVehicle: 'IDCS_SPECIAL_VEHICLE',
+    sportsCar: 'IDCS_SPORTS_CAR',
+    suv: 'IDCS_SUV',
+    truck: 'IDCS_TRUCK',
+    van: 'IDCS_VAN',
+    // 汽车品牌
+    vehicleBrand: 'IDCS_BRAND',
+    all: 'IDCS_FULL', // 全部
+    other: 'IDCS_MAINTENSIGN_ITEM_OTHERSYS', // 其他
+    acura: 'IDCS_CAR_BRAND_ACURA', // 讴歌
+    alfaromeo: 'IDCS_CAR_BRAND_ALFAROMEO', // 阿尔法•罗密欧
+    astonmartin: 'IDCS_CAR_BRAND_ASTONMARTIN', // 阿斯顿•马丁
+    audi: 'IDCS_CAR_BRAND_AUDI', // 奥迪
+    bmw: 'IDCS_CAR_BRAND_BMW', // 宝马
+    brabus: 'IDCS_CAR_BRAND_BRABUS', // 巴博斯
+    bentley: 'IDCS_CAR_BRAND_BENTLEY', // 宾利
+    benz: 'IDCS_CAR_BRAND_BENZ', // 奔驰
+    bugatti: 'IDCS_CAR_BRAND_BUGATTI', // 布加迪
+    buick: 'IDCS_CAR_BRAND_BUICK', // 别克
+    cowin: 'IDCS_CAR_BRAND_COWIN', // 凯翼
+    cadillac: 'IDCS_CAR_BRAND_CADILLAC', // 凯迪拉克
+    chevrolet: 'IDCS_CAR_BRAND_CHEVROLET', // 雪佛兰
+    chrysler: 'IDCS_CAR_BRAND_CHRYSLER', // 克莱斯勒
+    citroen: 'IDCS_CAR_BRAND_CITROEN', // 雪铁龙
+    denza: 'IDCS_CAR_BRAND_DENZA', // 腾势
+    ds: 'IDCS_CAR_BRAND_DS', // ds
+    dacia: 'IDCS_CAR_BRAND_DACIA', // dacia
+    dodge: 'IDCS_CAR_BRAND_DODGE', // 道奇
+    fiat: 'IDCS_CAR_BRAND_FIAT', // 菲亚特
+    ferrari: 'IDCS_CAR_BRAND_FERRARI', // 法拉利
+    foday: 'IDCS_CAR_BRAND_FODAY', // 福迪
+    ford: 'IDCS_CAR_BRAND_FORD', // 福特
+    gmc: 'IDCS_CAR_BRAND_GMC', // gmc
+    genesis: 'IDCS_CAR_BRAND_GENESIS', // 捷尼赛思
+    honda: 'IDCS_CAR_BRAND_HONDA', // 本田
+    hyundai: 'IDCS_CAR_BRAND_HYUNDAI', // 现代
+    infiniti: 'IDCS_CAR_BRAND_INFINITI', // 英菲尼迪
+    jaguar: 'IDCS_CAR_BRAND_JAGUAR', // 捷豹
+    jeep: 'IDCS_CAR_BRAND_JEEP', // jeep
+    jetta: 'IDCS_CAR_BRAND_JETTA', // 捷达
+    kia: 'IDCS_CAR_BRAND_KIA', // 起亚
+    lancia: 'IDCS_CAR_BRAND_LANCIA', // 蓝旗亚
+    lamborghini: 'IDCS_CAR_BRAND_LAMBORGHINI', // 兰博基尼
+    landrover: 'IDCS_CAR_BRAND_LANDROVER', // 路虎
+    lexus: 'IDCS_CAR_BRAND_LEXUS', // 雷克萨斯
+    lincoln: 'IDCS_CAR_BRAND_LINCOLN', // 林肯
+    lotus: 'IDCS_CAR_BRAND_LOTUS', // 路特斯
+    mg: 'IDCS_CAR_BRAND_MG', // mg名爵
+    mini: 'IDCS_CAR_BRAND_MINI', // mini
+    maserati: 'IDCS_CAR_BRAND_MASERATI', // 玛莎拉蒂
+    mazda: 'IDCS_CAR_BRAND_MAZDA', // 马自达
+    mclaren: 'IDCS_CAR_BRAND_MCLAREN', // 迈凯伦
+    mitsubishi: 'IDCS_CAR_BRAND_MITSUBISHI', // 三菱
+    nissan: 'IDCS_CAR_BRAND_NISSAN', // 日产
+    opel: 'IDCS_CAR_BRAND_OPEL', // 欧宝
+    pagani: 'IDCS_CAR_BRAND_PAGANI', // 帕加尼
+    peugeot: 'IDCS_CAR_BRAND_PEUGEOT', // 标致
+    porsche: 'IDCS_CAR_BRAND_PORSCHE', // 保时捷
+    renault: 'IDCS_CAR_BRAND_RENAULT', // 雷诺
+    rollsroyce: 'IDCS_CAR_BRAND_ROLLSROYCE', // 劳斯莱斯
+    skoda: 'IDCS_CAR_BRAND_SKODA', // 斯柯达
+    suzuki: 'IDCS_CAR_BRAND_SUZUKI', // 铃木
+    swm: 'IDCS_CAR_BRAND_SWM', // swm斯威
+    seat: 'IDCS_CAR_BRAND_SEAT', // 西雅特
+    smart: 'IDCS_CAR_BRAND_SMART', // smart
+    ssangyong: 'IDCS_CAR_BRAND_SSANGYONG', // 双龙
+    subaru: 'IDCS_CAR_BRAND_SUBARU', // 斯巴鲁
+    toyota: 'IDCS_CAR_BRAND_TOYOTA', // 丰田
+    tesla: 'IDCS_CAR_BRAND_TESLA', // 特斯拉
+    volkswagen: 'IDCS_CAR_BRAND_VOLKSWAGEN', // 大众
+    volvo: 'IDCS_CAR_BRAND_VOLVO', // 沃尔沃
+    // other: 'IDCS_MAINTENSIGN_ITEM_OTHERSYS', // 其他
+    // 摩托车类型
+    nonMotorizedVehicleType: 'IDCS_TYPE',
+    batteryCar: 'IDCS_BATTERY_CAR',
+    bicycle: 'IDCS_BICYCLE',
+    motor: 'IDCS_DETECTION_MOTORCYCLE',
+    tricycle: 'IDCS_TRICYCLE',
+    // 车牌颜色
+    plateColor: 'IDCS_PLATE_COLOR',
+    greenbalck: 'IDCS_COLOR_GREEN_BLACK',
+}
+
+const colorSort = ['red', 'orange', 'yellow', 'green', 'blue', 'cyan', 'purple', 'black', 'white', 'silver', 'gray', 'gold', 'brown']
+
+export const ATTR_SORT_MAP: Record<string, string[]> = {
+    gender: ['male', 'female'],
+    ageBracket: ['child', 'adult'],
+    upperClothType: ['longSleeve', 'shortSleeve'],
+    upperClothColor: colorSort,
+    vehicleColor: colorSort,
+    vehicleBrand: [
+        'all',
+        'acura',
+        'alfaromeo',
+        'astonmartin',
+        'audi',
+        'bmw',
+        'brabus',
+        'bentley',
+        'benz',
+        'bugatti',
+        'buick',
+        'cowin',
+        'cadillac',
+        'chevrolet',
+        'chrysler',
+        'citroen',
+        'denza',
+        'ds',
+        'dacia',
+        'dodge',
+        'fiat',
+        'ferrari',
+        'foday',
+        'ford',
+        'gmc',
+        'genesis',
+        'honda',
+        'hyundai',
+        'infiniti',
+        'jaguar',
+        'jeep',
+        'jetta',
+        'kia',
+        'lancia',
+        'lamborghini',
+        'landrover',
+        'lexus',
+        'lincoln',
+        'lotus',
+        'mg',
+        'mini',
+        'maserati',
+        'mazda',
+        'mclaren',
+        'mitsubishi',
+        'nissan',
+        'opel',
+        'pagani',
+        'peugeot',
+        'porsche',
+        'renault',
+        'rollsroyce',
+        'skoda',
+        'suzuki',
+        'swm',
+        'seat',
+        'smart',
+        'ssangyong',
+        'subaru',
+        'toyota',
+        'tesla',
+        'volkswagen',
+        'volvo',
+        'other',
+    ],
+    vehicleType: ['sedan', 'suv', 'mpv', 'sportsCar', 'van', 'publicBus', 'schoolBus', 'bus', 'lightBus', 'pickUp', 'truck', 'specialVehicle'],
+    nonMotorizedVehicleType: ['bicycle', 'batteryCar', 'motor', 'tricycle'],
+    plateColor: ['blue', 'yellow', 'white', 'black', 'green', 'greenbalck', 'red', 'orange', 'cyan', 'purple', 'gray'],
+}
+
 export const BODY_STRUCT_MAPPING = [
     {
         type: 'gender',

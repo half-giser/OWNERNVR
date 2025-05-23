@@ -15,12 +15,12 @@
         >
             <el-table-column
                 prop="label"
-                width="180"
+                width="150"
                 :label="Translate('IDCS_CHANNEL_NAME')"
                 show-overflow-tooltip
             />
             <el-table-column
-                width="170"
+                width="150"
                 :label="Translate('IDCS_PRESET_NAME')"
             >
                 <template #default="{ row }: TableColumn<SelectOption<string, string>>">
