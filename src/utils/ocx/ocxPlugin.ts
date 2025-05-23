@@ -235,7 +235,7 @@ const getSingletonPlugin = () => {
                             clearTimeout(VideoPluginReconnectTimeoutId)
                             VideoPluginReconnectTimeoutId = null
                         } else {
-                            //初始化多语言翻译模块
+                            // 初始化多语言翻译模块
                             await getLangTypes()
                             await getLangItems()
 
@@ -663,7 +663,7 @@ const getSingletonPlugin = () => {
             resolve: () => {},
             reject: () => {},
         } as CmdQueue,
-        queue: [] as CmdQueue[], // { cmd: string }
+        queue: [] as CmdQueue[],
         lock: false, //锁定标识：当前命令没有返回时，不能发送新的命令
         timeout: 300000, //命令超时时长，如果一个命令发出后，在_timeout时间内没返回，就认为超时
         timeoutId: 0 as NodeJS.Timeout | number,
@@ -688,10 +688,19 @@ const getSingletonPlugin = () => {
             this.lock = true
             const cmd = this.queue.shift()!
             this.cmd = cmd
-            getVideoPlugin().ExecuteCmd(cmd.cmd)
-            this.timeoutId = setTimeout(() => {
-                this.reject()
-            }, this.timeout)
+            this.checkPluginReady(() => {
+                getVideoPlugin().ExecuteCmd(cmd.cmd)
+                this.timeoutId = setTimeout(() => {
+                    this.reject()
+                }, this.timeout)
+            })
+        },
+        checkPluginReady(callback: { (): void; (): void }) {
+            pluginStore.ready
+                ? callback()
+                : setTimeout(() => {
+                      this.checkPluginReady(callback)
+                  }, 200)
         },
         resolve($: Element) {
             clearTimeout(this.timeout)
@@ -823,17 +832,19 @@ const getSingletonPlugin = () => {
      */
     const loadVideoPlugin = async () => {
         let ver = ''
-        if (userSession.appType === 'STANDARD') {
-            if (systemInfo.platform === 'windows') {
-                ver = ClientPluVer
+        if (import.meta.env.PROD) {
+            if (userSession.appType === 'STANDARD') {
+                if (systemInfo.platform === 'windows') {
+                    ver = ClientPluVer
+                } else {
+                    return
+                }
             } else {
-                return
-            }
-        } else {
-            if (systemInfo.platform === 'windows') {
-                ver = P2PClientPluVer
-            } else {
-                ver = MacP2PClientPluVer
+                if (systemInfo.platform === 'windows') {
+                    ver = P2PClientPluVer
+                } else {
+                    ver = MacP2PClientPluVer
+                }
             }
         }
         let needUpate = true
@@ -843,7 +854,7 @@ const getSingletonPlugin = () => {
             const $xmlDoc = $('//response[@type="GetOcxVersion"]')
             if ($xmlDoc.length > 0) {
                 const intCurVer = $xmlDoc.text()
-                if (compareOcxVersion(intCurVer, ver) >= 0) {
+                if (import.meta.env.DEV || compareOcxVersion(intCurVer, ver) >= 0) {
                     needUpate = false
                 }
             }
@@ -1602,11 +1613,7 @@ const getSingletonPlugin = () => {
     onMounted(async () => {
         disposePlugin()
 
-        let clientPluVerFilePath = 'OCX/ClientPluVerFile.js'
-        if (import.meta.env.DEV) {
-            clientPluVerFilePath = '/plugin/' + clientPluVerFilePath
-        }
-        await loadScript(clientPluVerFilePath)
+        import.meta.env.PROD && (await loadScript('OCX/ClientPluVerFile.js'))
 
         if (userSession.appType === 'STANDARD') {
             startV2Process()
@@ -1617,8 +1624,8 @@ const getSingletonPlugin = () => {
                 return
             }
 
-            // siteDictionary.js 在根目录下
-            await loadScript(`${import.meta.env.VITE_P2P_URL}/siteDictionary.js?v=${import.meta.env.VITE_PACKAGE_VER}`)
+            // siteDictionary.js 在P2P服务器根目录下
+            await loadScript(`${import.meta.env.VITE_P2P_BASE_URL}/siteDictionary.js?v=${import.meta.env.VITE_PACKAGE_VER}`)
             await p2pLang.getLangTypes()
             await p2pLang.getLangItems()
             lang.langType = p2pLang.langType

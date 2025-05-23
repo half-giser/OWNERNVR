@@ -56,7 +56,7 @@ export const useUserSessionStore = defineStore(
          * 为了P2P仅部署一套代码减少发布件，将P2P版本、设备登录方式通过动态方式进行获取
          * P2P公共代码逻辑里存储了相关信息到sessionStorage中，若没有这些信息则采取默认的值
          */
-        const appType = ref<'P2P' | 'STANDARD'>(Number(getCookie(LocalCacheKey.KEY_IS_P2P)) === 1 ? 'P2P' : 'STANDARD')
+        const appType = ref<'P2P' | 'STANDARD'>(Number(getCookie(LocalCacheKey.KEY_IS_P2P)) === 1 || import.meta.env.VITE_P2P_IS_TEST === 'true' ? 'P2P' : 'STANDARD')
 
         const p2pVersion = ref<'1.0' | '2.0'>(sessionStorage.getItem(LocalCacheKey.KEY_P2P_VERSION) === '1.0' ? '1.0' : '2.0')
 
@@ -80,6 +80,7 @@ export const useUserSessionStore = defineStore(
          * @returns {string[]}
          */
         const getAuthInfo = () => {
+            if (import.meta.env.VITE_P2P_IS_TEST) return [import.meta.env.VITE_P2P_ADMIN, import.meta.env.VITE_P2P_PASSWORD, import.meta.env.VITE_P2P_SN]
             if (!auInfo_N9K.value) return null
             if (!unmask.value) return null
 

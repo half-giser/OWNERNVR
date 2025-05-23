@@ -41,7 +41,14 @@ export default defineConfig(({ mode }) => {
             'import.meta.env.VITE_BASE_URL': JSON.stringify(env.VITE_BASE_URL),
             'import.meta.env.VITE_APP_IP': JSON.stringify(env.VITE_APP_IP || ''),
             'import.meta.env.VITE_PACKAGE_VER': JSON.stringify(VITE_PACKAGE_VER),
-            'import.meta.env.VITE_P2P_URL': JSON.stringify(env.VITE_P2P_URL || ''),
+            'import.meta.env.VITE_P2P_IS_TEST': JSON.stringify(env.VITE_P2P_IS_TEST),
+            'import.meta.env.VITE_P2P_BASE_URL': JSON.stringify(env.VITE_P2P_BASE_URL),
+            'import.meta.env.VITE_P2P_VISIT': JSON.stringify(env.VITE_P2P_VISIT),
+            'import.meta.env.VITE_P2P_NAT': JSON.stringify(env.VITE_P2P_NAT),
+            'import.meta.env.VITE_P2P_NAT_PORT': JSON.stringify(env.VITE_P2P_NAT_PORT),
+            'import.meta.env.VITE_P2P_SN': JSON.stringify(env.VITE_P2P_SN),
+            'import.meta.env.VITE_P2P_ADMIN': JSON.stringify(env.VITE_P2P_ADMIN),
+            'import.meta.env.VITE_P2P_PASSWORD': JSON.stringify(env.VITE_P2P_PASSWORD),
         },
         base: './',
         server: {
@@ -63,6 +70,13 @@ export default defineConfig(({ mode }) => {
                             }
                         })
                     },
+                    secure: false,
+                },
+                '/p2p': {
+                    target: `${env.VITE_P2P_VISIT}/`,
+                    changeOrigin: true,
+                    ws: true,
+                    rewrite: (path) => path.replace(/^\/p2p/, ''),
                     secure: false,
                 },
             },
@@ -108,7 +122,7 @@ export default defineConfig(({ mode }) => {
             GenerateSprite({
                 src: `sprite/${VITE_UI_TYPE}-sprite/sprite/*.png`,
                 minify: process.env.NODE_ENV !== 'development',
-                additionalData: `$sprite-version:'${VITE_PACKAGE_VER}';$sprite-p2p-url:'${env.VITE_P2P_URL || ''}';`,
+                additionalData: `$sprite-version:'${VITE_PACKAGE_VER}';$sprite-p2p-url:'${env.VITE_P2P_VISIT || ''}';`,
             }),
             minifyXmlTemplateStrings(),
             transpileVueTemplatePropTypes(),

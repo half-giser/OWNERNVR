@@ -177,7 +177,7 @@ export default defineComponent({
                 <auth>
                     <userName>${e.userName}</userName>
                     <password>${e.hexHash}</password>
-                <auth>
+                </auth>
             `
             const result = await createDualAuthUser(sendXml)
             const $ = queryXml(result)
@@ -215,7 +215,7 @@ export default defineComponent({
                 <auth>
                     <userName>${e.userName}</userName>
                     <password>${e.hexHash}</password>
-                <auth>
+                </auth>
             `
             const result = await editDualAuthUser(sendXml)
             const $ = queryXml(result)

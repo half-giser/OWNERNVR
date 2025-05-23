@@ -96,7 +96,7 @@ export const dataToBuffer = (data: string | ArrayBufferLike | Blob | ArrayBuffer
     }
 
     return new Promise((resolve: (param: ArrayBuffer) => void) => {
-        const blob = new Blob([data])
+        const blob = new Blob([data as ArrayBufferView])
         const reader = new FileReader()
         reader.readAsArrayBuffer(blob)
         reader.onloadend = () => {
