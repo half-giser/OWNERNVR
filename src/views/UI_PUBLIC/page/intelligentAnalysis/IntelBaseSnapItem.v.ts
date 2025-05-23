@@ -14,7 +14,7 @@ export default defineComponent({
             default: 'byFace',
         },
         /**
-         * @property 当前目标详情数据
+         * @property 当前目标详情数据项
          */
         targetData: {
             type: Object as PropType<IntelTargetDataItem>,
@@ -27,6 +27,21 @@ export default defineComponent({
         detailIndex: {
             type: String,
             default: '',
+        },
+        /**
+         * @property 是否显示对比图
+         */
+        showCompare: {
+            type: Boolean,
+            default: false,
+        },
+        /**
+         * @property 当前选择的对比图列表
+         */
+        choosePics: {
+            type: Array as PropType<(IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)[]>,
+            default: () => [new IntelFaceDBSnapFaceList()],
+            require: true,
         },
     },
     emits: {
@@ -123,7 +138,12 @@ export default defineComponent({
 
         // 是否显示相似度
         const showSimilarity = computed(() => {
-            return !!prop.targetData.similarity
+            return prop.showCompare && !!prop.targetData.similarity
+        })
+
+        // 当前目标数据对应的对比图
+        const comparePicInfo = computed(() => {
+            return prop.choosePics.find((item) => item.libIndex === prop.targetData.libIndex)
         })
 
         return {
@@ -136,6 +156,7 @@ export default defineComponent({
             showRegister,
             showPlateNumber,
             showSimilarity,
+            comparePicInfo,
         }
     },
 })
