@@ -26,7 +26,9 @@
                     show-overflow-tooltip
                     min-width="300"
                 >
-                    <template #default="{ row }: TableColumn<IntelPlateDBGroupList>"> {{ row.name }} ({{ row.plateNum }}) </template>
+                    <template #default="{ row }: TableColumn<IntelPlateDBGroupList>">
+                        {{ displayGroupName(row) }}
+                    </template>
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_EDIT')"
@@ -75,6 +77,7 @@
                                 :data="groupTableData"
                                 highlight-current-row
                                 height="300"
+                                show-overflow-tooltip
                                 @row-click="handleExpandRowClick"
                             >
                                 <el-table-column :label="Translate('IDCS_LICENSE_PLATE_NUM')">
@@ -96,7 +99,20 @@
                                         {{ displayPhone(data.row) }}
                                     </template>
                                 </el-table-column>
-                                <el-table-column :label="Translate('IDCS_EDIT')">
+                                <el-table-column :label="Translate('IDCS_EFFECTIVE_START_TIME')">
+                                    <template #default="data: TableColumn<IntelPlateDBPlateInfo>">
+                                        {{ displayDate(data.row.startTime) }}
+                                    </template>
+                                </el-table-column>
+                                <el-table-column :label="Translate('IDCS_EFFECTIVE_END_TIME')">
+                                    <template #default="data: TableColumn<IntelPlateDBPlateInfo>">
+                                        <span :class="{ 'text-error': isOutOfDate(data.row.endTime) }">{{ displayDate(data.row.endTime) }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                    width="100"
+                                    :label="Translate('IDCS_EDIT')"
+                                >
                                     <template #default="data: TableColumn<IntelPlateDBPlateInfo>">
                                         <BaseImgSpriteBtn
                                             file="edit2"
@@ -104,7 +120,10 @@
                                         />
                                     </template>
                                 </el-table-column>
-                                <el-table-column :label="Translate('IDCS_DELETE')">
+                                <el-table-column
+                                    width="100"
+                                    :label="Translate('IDCS_DELETE')"
+                                >
                                     <template #default="data: TableColumn<IntelPlateDBPlateInfo>">
                                         <BaseImgSpriteBtn
                                             file="del"

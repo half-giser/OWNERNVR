@@ -5,6 +5,7 @@
  */
 import IntelLicenceDBEditPop from './IntelLicencePlateDBEditPop.vue'
 import { type FormRules } from 'element-plus'
+import dayjs from 'dayjs'
 
 export default defineComponent({
     components: {
@@ -57,7 +58,14 @@ export default defineComponent({
             ],
             // 当前tab
             tab: 'form',
-            csvTitle: ['(B1)' + Translate('IDCS_LICENSE_PLATE_NUM'), '(B2)' + Translate('IDCS_VEHICLE_OWNER'), '(B3)' + Translate('IDCS_PHONE_NUMBER'), '(N1)' + Translate('IDCS_VEHICLE_TYPE')],
+            csvTitle: [
+                '(B1)' + Translate('IDCS_LICENSE_PLATE_NUM'),
+                '(B2)' + Translate('IDCS_VEHICLE_OWNER'),
+                '(B3)' + Translate('IDCS_PHONE_NUMBER'),
+                '(N1)' + Translate('IDCS_VEHICLE_TYPE'),
+                '(N2)' + Translate('IDCS_EFFECTIVE_START_TIME'),
+                '(N3)' + Translate('IDCS_EFFECTIVE_END_TIME'),
+            ],
             // 是否禁用Tab
             disabledTab: isHttpsLogin(),
             // 导入框是否drag状态
@@ -66,6 +74,8 @@ export default defineComponent({
             fileName: '',
             // 导入的文件数据
             fileData: [] as IntelPlateDBAddPlateForm[],
+            isPermanentlyValid: false,
+            permanentDate: '2037-12-31 23:59:59',
         })
 
         const formRef = useFormRef()
@@ -88,6 +98,18 @@ export default defineComponent({
                     validator: (_rule, value: string, callback) => {
                         if (!value) {
                             callback(new Error(Translate('IDCS_PLATE_LIBRARY_GROUP_NOT_EXIST')))
+                            return
+                        }
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
+            endTime: [
+                {
+                    validator: (_rule, value: string, callback) => {
+                        if (dayjs(value, DEFAULT_DATE_FORMAT).isBefore(dayjs(formData.value.startTime, DEFAULT_DATE_FORMAT))) {
+                            callback(new Error(Translate('IDCS_END_TIME_GREATER_THAN_START')))
                             return
                         }
                         callback()
@@ -223,6 +245,8 @@ export default defineComponent({
                             <owner>${form.owner}</owner>
                             <ownerPhone>${form.ownerPhone}</ownerPhone>
                             <vehicleType>${form.vehicleType}</vehicleType>
+                            <startTime>${form.startTime.replace(/\-/g, '/')}</startTime>
+                            <endTime>${form.endTime.replace(/\-/g, '/')}</endTime>
                         </item>
                     </plate>
                 </content>
@@ -260,6 +284,8 @@ export default defineComponent({
                             <owner>${form.owner}</owner>
                             <ownerPhone>${form.ownerPhone}</ownerPhone>
                             <vehicleType>${form.vehicleType}</vehicleType>
+                            <startTime>${form.startTime.replace(/\-/g, '/')}</startTime>
+                            <endTime>${form.endTime.replace(/\-/g, '/')}</endTime>
                         </item>
                     </plate>
                 </content>
@@ -295,10 +321,18 @@ export default defineComponent({
                 formData.value.ownerPhone = prop.data.ownerPhone || ''
                 formData.value.vehicleType = prop.data.vehicleType || ''
                 formData.value.id = prop.data.id || ''
+                formData.value.startTime = prop.data.startTime!.replace(/\//g, '-')
+                formData.value.endTime = prop.data.endTime!.replace(/\//g, '-')
+                pageData.value.isPermanentlyValid = formData.value.endTime === pageData.value.permanentDate
             }
 
             if (prop.type === 'register') {
                 formData.value.plateNumber = !prop.data.plateNumber || prop.data.plateNumber === '--' ? '' : prop.data.plateNumber
+            }
+
+            if (prop.type === 'register' || prop.type === 'add') {
+                formData.value.startTime = dayjs().hour(0).minute(0).second(0).calendar('gregory').format(DEFAULT_DATE_FORMAT)
+                formData.value.endTime = dayjs().hour(23).minute(59).second(59).calendar('gregory').format(DEFAULT_DATE_FORMAT)
             }
 
             await getGroupList()
@@ -408,11 +442,15 @@ export default defineComponent({
                 ['B2', 'owner'],
                 ['B3', 'ownerPhone'],
                 ['N1', 'vehicleType'],
+                ['N2', 'startTime'],
+                ['N3', 'endTime'],
 
                 ['01', 'plateNumber'],
                 ['03', 'owner'],
                 ['04', 'ownerPhone'],
                 ['02', 'vehicleType'],
+                ['05', 'startTime'],
+                ['06', 'endTime'],
             ]
             const dataIndexArray: [string, number][] = []
 
@@ -447,6 +485,8 @@ export default defineComponent({
                     owner: (split[dataIndexMap.owner] || '').trim(),
                     ownerPhone: (split[dataIndexMap.ownerPhone] || '').trim(),
                     vehicleType: (split[dataIndexMap.vehicleType] || '').trim(),
+                    startTime: (split[dataIndexMap.startTime] || '').trim(),
+                    endTime: (split[dataIndexMap.endTime] || '').trim(),
                 }
             })
         }

@@ -7,6 +7,7 @@ import { type TableInstance } from 'element-plus'
 import IntelLicencePlateDBEditPop from './IntelLicencePlateDBEditPop.vue'
 import IntelLicencePlateDBExportPop from './IntelLicencePlateDBExportPop.vue'
 import IntelLicencePlateDBAddPlatePop from './IntelLicencePlateDBAddPlatePop.vue'
+import dayjs from 'dayjs'
 
 export default defineComponent({
     components: {
@@ -18,6 +19,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const userSession = useUserSessionStore()
         const router = useRouter()
+        const dateTime = useDateTimeStore()
 
         const pageData = ref({
             // 是否显示编辑分组弹窗
@@ -77,6 +79,10 @@ export default defineComponent({
                 return false
             }
             return true
+        }
+
+        const displayGroupName = (row: IntelPlateDBGroupList) => {
+            return `${row.name}${userSession.facePersonnalInfoMgr ? `(${row.plateNum})` : ''}`
         }
 
         /**
@@ -370,6 +376,8 @@ export default defineComponent({
                         ownerPhone: $item('ownerPhone').text(),
                         vehicleType: $item('vehicleType').text(),
                         ownerFaceId: $item('ownerFaceId').text(),
+                        startTime: $item('startTime').text(),
+                        endTime: $item('endTime').text(),
                     }
                 })
                 formData.value.total = $('content/plate').attr('total').num()
@@ -478,6 +486,21 @@ export default defineComponent({
             return row.id
         }
 
+        const displayDate = (date: string) => {
+            if (date) {
+                return formatDate(date, dateTime.dateTimeFormat)
+            }
+            return '--'
+        }
+
+        const isOutOfDate = (date: string) => {
+            if (!date) {
+                return false
+            }
+            const endDate = dayjs(date, { format: DEFAULT_DATE_FORMAT, jalali: false })
+            return dateTime.getSystemTime().isAfter(endDate)
+        }
+
         onActivated(async () => {
             openLoading()
             await getGroupList()
@@ -519,6 +542,9 @@ export default defineComponent({
             searchPlate,
             bounceSearchPlate,
             handleVehicleRecognition,
+            displayGroupName,
+            displayDate,
+            isOutOfDate,
         }
     },
 })

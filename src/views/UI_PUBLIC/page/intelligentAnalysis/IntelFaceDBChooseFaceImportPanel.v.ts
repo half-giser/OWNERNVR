@@ -59,10 +59,12 @@ export default defineComponent({
                                 openMessageBox(Translate('IDCS_ADD_FACE_FAIL') + ',' + Translate('IDCS_PICTURE_SIZE_LIMIT_TIP'))
                                 return
                             case ErrorCode.USER_ERROR_SPECIAL_CHAR_2:
-                                closeLoading()
-                                resetOCXData()
-                                openMessageBox(Translate('IDCS_FILE_NOT_AVAILABLE'))
-                                return
+                                if (prop.type === 'search') {
+                                    closeLoading()
+                                    resetOCXData()
+                                    openMessageBox(Translate('IDCS_FILE_NOT_AVAILABLE'))
+                                    return
+                                }
                         }
                     }
 
@@ -232,7 +234,7 @@ export default defineComponent({
                 }
 
                 // 图片小于200KB
-                if (file.size > 200 * 1024) {
+                if (file.size > 200 * 1024 && prop.type === 'search') {
                     reject(`${Translate('IDCS_ADD_FACE_FAIL')},${Translate('IDCS_OUT_FILE_SIZE')}`)
                     return
                 }
