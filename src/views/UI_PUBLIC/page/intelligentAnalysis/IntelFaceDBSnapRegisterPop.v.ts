@@ -136,10 +136,10 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     ${pageData.value.forceCreate ? '<force>true</force>' : ''}
-                    <name>${formData.value.name}</name>
+                    <name>${wrapCDATA(formData.value.name)}</name>
                     <sex>${formData.value.sex}</sex>
                     <birthday>${formData.value.birthday}</birthday>
-                    <nativePlace></nativePlace>
+                    <nativePlace>${formData.value.nativePlace}</nativePlace>
                     <certificateType type="certificateType">${formData.value.certificateType}</certificateType>
                     <mobile>${formData.value.mobile}</mobile>
                     <number>${formData.value.number}</number>

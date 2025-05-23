@@ -26,6 +26,10 @@ export default defineComponent({
             type: String,
             default: '',
         },
+        limit: {
+            type: Object as PropType<{ name: number; note: number; nativePlace: number; number: number; certificateNum: number; mobile: number }>,
+            required: true,
+        },
     },
     emits: {
         confirm(ids: string[]) {
@@ -111,7 +115,7 @@ export default defineComponent({
                 formData.value.number = item.number
                 formData.value.note = item.note
                 formData.value.nativePlace = item.nativePlace
-                formData.value.pic = item.pic[0]
+                formData.value.pic = item.pic
             }
             await getFaceGroup()
             if (pageData.value.groupList.length) {
@@ -275,16 +279,6 @@ export default defineComponent({
             }
         }
 
-        /**
-         * @description 约束名字输入最大字节数为31
-         * @param {string} value
-         * @returns {string}
-         */
-        const formatName = (value: string) => {
-            value = cutStringByByte(value, 31)
-            return value
-        }
-
         return {
             disabled,
             formData,
@@ -294,7 +288,6 @@ export default defineComponent({
             confirmChooseFace,
             verify,
             close,
-            formatName,
         }
     },
 })

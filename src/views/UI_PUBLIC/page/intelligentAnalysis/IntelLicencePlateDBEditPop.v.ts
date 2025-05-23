@@ -117,7 +117,7 @@ export default defineComponent({
                 <content>
                     <group type="list">
                         <item>
-                            <name>${formData.value.groupName}</name>
+                            <name>${wrapCDATA(formData.value.groupName)}</name>
                         </item>
                     </group>
                 </content>

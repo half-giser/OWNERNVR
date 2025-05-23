@@ -61,6 +61,33 @@
                         maxlength="15"
                     />
                 </el-form-item>
+                <el-form-item :label="Translate('IDCS_EFFECTIVE_START_TIME')">
+                    <BaseDatePicker
+                        v-model="formData.startTime"
+                        :range="['1999-01-01', '2037-12-31']"
+                        type="datetime"
+                    />
+                </el-form-item>
+                <el-form-item
+                    prop="endTime"
+                    :label="Translate('IDCS_EFFECTIVE_END_TIME')"
+                >
+                    <BaseDatePicker
+                        v-if="!pageData.isPermanentlyValid"
+                        v-model="formData.endTime"
+                        :range="['1999-01-01', '2037-12-31']"
+                        type="datetime"
+                    />
+                    <BaseDatePicker
+                        v-else
+                        :model-value="pageData.permanentDate"
+                        disabled
+                        type="datetime"
+                    />
+                </el-form-item>
+                <el-form-item :label="Translate('IDCS_PERMANENTLY_VALID')">
+                    <el-checkbox v-model="pageData.isPermanentlyValid" />
+                </el-form-item>
                 <el-form-item
                     :label="Translate('IDCS_ADD_FACE_GROUP')"
                     prop="groupId"
@@ -130,11 +157,12 @@
                 <div>{{ Translate('IDCS_FILE_TYPE') }} *.csv</div>
                 <div>{{ Translate('IDCS_FOR_EXAMPLE') }} CSV</div>
                 <div class="indent">{{ pageData.csvTitle.join(', ') }}</div>
-                <div class="indent">A888888, user, 18888888888, suv</div>
+                <div class="indent">A888888, user, 18888888888, suv, 2019/01/01 00:00:00, 2029/01/01 23:59:59</div>
                 <div>{{ Translate('IDCS_REMARK') }}</div>
                 <div class="indent">1. {{ Translate('IDCS_PERSONAL_EXPLAIN_NUM1') }}</div>
                 <div class="indent">2. {{ Translate('IDCS_PLATE_EXPLAIN') }}</div>
                 <div class="indent">3. {{ Translate('IDCS_PLATE_LIST_FILE') }}</div>
+                <div class="indent">4. {{ Translate('IDCS_TIME_RANGE') }}</div>
             </div>
         </div>
         <IntelLicenceDBEditPop

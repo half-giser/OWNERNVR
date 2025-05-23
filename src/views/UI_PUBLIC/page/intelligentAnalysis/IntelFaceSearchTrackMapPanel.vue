@@ -37,7 +37,7 @@
                         />
                         <span>{{ item.count }}</span>
                     </div>
-                    <BaseImgSprite :file="pageData.playStatus !== 'stop' && data[pageData.playingIndex]?.chlId === item.hotPointId ? 'track_camera_on_play' : 'track_camera'" />
+                    <BaseImgSprite :file="pageData.playStatus !== 'stop' && data[pageData.playingIndex] === item.hotPointId ? 'track_camera_on_play' : 'track_camera'" />
                     <div
                         class="chlname text-ellipsis"
                         :style="{ color: pageData.fontColor }"

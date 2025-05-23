@@ -184,6 +184,8 @@ export class IntelPlateDBPlateInfo {
     ownerPhone = ''
     vehicleType = ''
     ownerFaceId = ''
+    startTime = ''
+    endTime = ''
 }
 
 /**
@@ -196,6 +198,8 @@ export class IntelPlateDBAddPlateForm {
     owner = ''
     ownerPhone = ''
     vehicleType = ''
+    startTime = ''
+    endTime = ''
 }
 
 /**

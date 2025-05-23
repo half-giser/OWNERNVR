@@ -14,7 +14,7 @@ export default defineComponent({
          * @property 播放列表
          */
         data: {
-            type: Array as PropType<IntelFaceTrackMapList[]>,
+            type: Array as PropType<string[]>,
             required: true,
         },
         /**
@@ -228,18 +228,18 @@ export default defineComponent({
             // 获取轨迹数据
             trackMap = []
             let lastChlId = ''
-            prop.data.map((item) => {
-                if (item.chlId !== lastChlId && pointsMap[item.chlId]) {
+            prop.data.map((chlId) => {
+                if (chlId !== lastChlId && pointsMap[chlId]) {
                     const lastX = lastChlId ? pointsMap[lastChlId].X : Infinity
                     const lastY = lastChlId ? pointsMap[lastChlId].Y : Infinity
-                    const X = pointsMap[item.chlId].X + 14
-                    const Y = pointsMap[item.chlId].Y + 18
-                    lastChlId = item.chlId
+                    const X = pointsMap[chlId].X + 14
+                    const Y = pointsMap[chlId].Y + 18
+                    lastChlId = chlId
                     if (lastX !== X || lastY !== Y) {
                         trackMap.push({
-                            chlId: item.chlId,
-                            X: pointsMap[item.chlId].X + 14,
-                            Y: pointsMap[item.chlId].Y + 18,
+                            chlId: chlId,
+                            X: pointsMap[chlId].X + 14,
+                            Y: pointsMap[chlId].Y + 18,
                         })
                     }
                 }
@@ -250,6 +250,10 @@ export default defineComponent({
          * @description 绘制轨迹
          */
         const paintTrack = () => {
+            if (!context) {
+                return
+            }
+
             context.clearRect(0, 0, pageData.value.width, pageData.value.height)
             for (let i = 1; i <= trackMap.length - 1; i++) {
                 const start = trackMap[i - 1]
@@ -496,11 +500,11 @@ export default defineComponent({
 
                 // 获取各通道的录像数量
                 countMap = {}
-                prop.data.forEach((item) => {
-                    if (!countMap[item.chlId]) {
-                        countMap[item.chlId] = 1
+                prop.data.forEach((chlId) => {
+                    if (!countMap[chlId]) {
+                        countMap[chlId] = 1
                     } else {
-                        countMap[item.chlId]++
+                        countMap[chlId]++
                     }
                 })
 

@@ -19,6 +19,10 @@ export default defineComponent({
             type: String,
             default: '',
         },
+        limit: {
+            type: Object as PropType<{ name: number; note: number; nativePlace: number; number: number; certificateNum: number; mobile: number }>,
+            required: true,
+        },
     },
     emits: {
         confirm() {
@@ -38,7 +42,7 @@ export default defineComponent({
             [ErrorCode.USER_ERROR_NO_AUTH]: Translate('IDCS_NO_PERMISSION'),
             [ErrorCode.USER_ERROR_LIVE_RECONNECT]: Translate('IDCS_PICTURE_SIZE_LIMIT_TIP'),
             [ErrorCode.USER_ERROR_LICENSEPLATE_EXISTS]: Translate('IDCS_PICTURE_SIZE_LIMIT_TIP'),
-            [ErrorCode.USER_ERROR_MDU_HAVEDEVICE]: Translate('IDCS_OUT_FILE_SIZE'),
+            [ErrorCode.USER_ERROR_MDU_HAVEDEVICE]: Translate('IDCS_PICTURE_SIZE_LIMIT_TIP'),
             [ErrorCode.USER_ERROR_FILE_MISMATCHING]: Translate('IDCS_NO_DISK'),
             [ErrorCode.USER_ERROR_WALL_HAVEDECODER]: Translate('IDCS_UNQUALIFIED_PICTURE'),
         }
@@ -256,6 +260,12 @@ export default defineComponent({
             if (!item.name) {
                 openMessageBox(Translate('IDCS_PROMPT_FULL_NAME_EMPTY'))
                 return
+            }
+
+            const imgBlob = dataURLToBlob(item.pic.split(',').pop()!)
+            if (imgBlob.size > 2 * 1024 * 1024) {
+                formData.value[index].error = true
+                formData.value[index].errorTip = Translate('IDCS_ADD_FACE_FAIL') + ',' + Translate('IDCS_OUT_FILE_SIZE')
             }
 
             openLoading()

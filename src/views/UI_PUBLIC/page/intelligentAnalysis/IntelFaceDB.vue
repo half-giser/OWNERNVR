@@ -26,7 +26,9 @@
                     show-overflow-tooltip
                     min-width="300"
                 >
-                    <template #default="{ row }: TableColumn<IntelFaceDBGroupList>"> {{ row.name }} ({{ row.count }}) </template>
+                    <template #default="{ row }: TableColumn<IntelFaceDBGroupList>">
+                        {{ displayGroupName(row) }}
+                    </template>
                 </el-table-column>
                 <!-- <el-table-column>
                     <template #default="{ row }: TableColumn<IntelFaceDBGroupList>">
@@ -105,7 +107,7 @@
                                             <IntelBaseFaceItem
                                                 v-for="(item, index) in groupTableData"
                                                 :key="item.id"
-                                                :src="item.pic[0] || ''"
+                                                :src="item.pic || ''"
                                                 :model-value="formData.faceIndex.includes(index)"
                                                 @update:model-value="selectFace(index, $event)"
                                             >
@@ -238,12 +240,14 @@
         <IntelFaceDBAddFacePop
             v-model="pageData.isAddFacePop"
             :group-id="pageData.addFaceGroupId"
+            :limit="limitData"
             @close="confirmAddFace"
         />
         <IntelFaceDBEditFacePop
             v-model="pageData.isEditFacePop"
             :list="pageData.editFaceData"
             :group-id="pageData.editFaceGroupId"
+            :limit="limitData"
             @confirm="confirmEditFace"
             @close="pageData.isEditFacePop = false"
         />
