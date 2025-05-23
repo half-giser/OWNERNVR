@@ -5,6 +5,22 @@
  */
 
 /**
+ * @description 图片（抓拍库和人脸库图片可能存在的信息）
+ */
+export class ImageInfo {
+    id? = '' // 人脸库faceFeatureId
+    imgId? = 0 // 抓拍库imgId
+    chlId? = '' // 通道id
+    frameTime? = '' // 帧时间
+    picBase64? = '' // dataURL的base64部分
+    name? = '' // 图片名称
+    note? = '' // 图片描述
+    libIndex? = 0
+    picWidth? = 0
+    picHeight? = 0
+}
+
+/**
  * @description 引擎配置 表单
  */
 export class IntelEngineConfigForm {
@@ -40,7 +56,7 @@ export class IntelFaceDBGroupList extends IntelFaceDBGroupDto {
 /**
  * @description 样本库 - 人脸详情
  */
-export class IntelFaceDBFaceInfo {
+export class IntelFaceDBFaceInfo extends ImageInfo {
     id = ''
     number = ''
     name = ''
@@ -51,9 +67,8 @@ export class IntelFaceDBFaceInfo {
     certificateNum = ''
     mobile = ''
     note = ''
-    // createTime = ''
     faceImgCount = 0
-    pic: string[] = []
+    pic = ''
     groupId = ''
 }
 
@@ -96,7 +111,7 @@ export class IntelFaceDBFaceForm {
 /**
  * @description 人脸抓拍列表
  */
-export class IntelFaceDBSnapFaceList {
+export class IntelFaceDBSnapFaceList extends ImageInfo {
     faceFeatureId = ''
     timestamp = 0
     frameTime = ''
@@ -110,7 +125,7 @@ export class IntelFaceDBSnapFaceList {
 /**
  * @description 人体抓拍列表
  */
-export class IntelBodyDBSnapBodyList {
+export class IntelBodyDBSnapBodyList extends ImageInfo {
     index = ''
     searchByImageIndex = ''
     faceFeatureId = ''
@@ -566,7 +581,7 @@ export class IntelTargetIndexItem {
     quality = ''
     similarity = 0
     eventType = ''
-    libIndex = ''
+    libIndex = 0
     startTime = 0
     startTimeUTC = ''
     endTime = 0

@@ -6,6 +6,7 @@
 import IntelBaseDateTimeSelector from './IntelBaseDateTimeSelector.vue'
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
 import IntelBaseProfileSelector from './IntelBaseProfileSelector.vue'
+import IntelFaceSearchChooseFacePop from './IntelFaceSearchChooseFacePop.vue'
 import IntelBaseSnapItem from './IntelBaseSnapItem.vue'
 
 export default defineComponent({
@@ -13,6 +14,7 @@ export default defineComponent({
         IntelBaseDateTimeSelector,
         IntelBaseChannelSelector,
         IntelBaseProfileSelector,
+        IntelFaceSearchChooseFacePop,
         IntelBaseSnapItem,
     },
     setup() {
@@ -111,6 +113,24 @@ export default defineComponent({
             openDetailIndexForBody: '',
             // 当前打开的详情的索引index（特征值的base64）（人属性）
             openDetailIndexForPersonAttribute: '',
+            // 是否是轨迹界面（人脸界面才有轨迹）
+            isTrail: false,
+            // 是否打开人脸/人体的选择图片弹框
+            isChoosePicPop: false,
+            picType: '', // 图片类型：抓拍库/人脸库/组/导入...
+            snapFace: [] as IntelFaceDBSnapFaceList[], // 抓拍库
+            snapBody: [] as IntelBodyDBSnapBodyList[], // 抓拍库
+            featureFace: [] as IntelFaceDBFaceInfo[], // 人脸库
+            isChangingPic: false, // 是否是通过点击“修改按钮”打开的选择图片弹框
+            currChangingIndex: 0, // 当前正在修改的图片index
+            // 相似度（人脸）
+            similarityForFace: 75,
+            // 相似度（人体）
+            similarityForBody: 75,
+            // 选择的图片列表（人脸）
+            picCacheListForFace: [] as (IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)[],
+            // 选择的图片列表（人体）
+            picCacheListForBody: [] as (IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)[],
             // 是否支持备份（H5模式）
             isSupportBackUp: isBrowserSupportWasm() && !isHttpsLogin(),
         })
@@ -132,6 +152,7 @@ export default defineComponent({
          */
         const getAllTargetIndexDatas = async () => {
             const currAttrObjToList: attrObjToListItem[] = getCurrAttribute()
+            const currPicCacheList: (IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)[] = getCurrPicCacheList()
             const sendXml = rawXml`
                 <resultLimit>10000</resultLimit>
                 <condition>
@@ -165,6 +186,44 @@ export default defineComponent({
                                 </byAttrParams>`
                             : ''
                     }
+                    ${
+                        currPicCacheList.length > 0
+                            ? ` <byPicParams>
+                                    <similarity>${pageData.value.searchType === 'byFace' ? pageData.value.similarityForFace : pageData.value.similarityForBody}</similarity>
+                                    <picInfos type="list">
+                                    ${currPicCacheList
+                                        .map((element) => {
+                                            return rawXml`
+                                                <item>
+                                                    ${
+                                                        element.imgId || element.imgId === 0
+                                                            ? ` <searchAttr>
+                                                                    <snapsLib>
+                                                                        <imgId>${element.imgId}</imgId>
+                                                                        <chlId>${element.chlId}</chlId>
+                                                                        <frameTime>${element.frameTime}</frameTime>
+                                                                    </snapsLib>
+                                                                </searchAttr>`
+                                                            : element.id || element.id === '0'
+                                                              ? `<searchAttr>
+                                                                    <snapsLib>
+                                                                        <faceLiraryID>${element.id}</faceLiraryID>
+                                                                    </snapsLib>
+                                                                </searchAttr>`
+                                                              : ''
+                                                    }
+                                                    <index>${element.libIndex || 0}</index>
+                                                    <data>${element.picBase64 || ''}</data>
+                                                    <picWidth>${element.picWidth || 0}</picWidth>
+                                                    <picHeight>${element.picHeight || 0}</picHeight>
+                                                </item>
+                                                `
+                                        })
+                                        .join('')}
+                                    </picInfos>
+                                </byPicParams>`
+                            : ''
+                    }
                 </condition>
             `
             openLoading()
@@ -186,7 +245,7 @@ export default defineComponent({
                     const quality = $item('quality').text() // quality
                     const similarity = $item('similarity').text().num() // 相似度
                     const eventType = $item('eventType').text() // eventType
-                    const libIndex = $item('libIndex').text() // 以图搜索表示是哪张图地搜索结果（用于对比图的展示）
+                    const libIndex = $item('libIndex').text().num() // 以图搜索表示是哪张图地搜索结果（用于对比图的展示）
                     const startTime = $item('startTime').text().num() // 目标开始时间戳
                     const startTimeUTC = $item('startTimeUTC').text() // 目标开始时间戳 UTC
                     const endTime = $item('endTime').text().num() // 目标消失的时间戳
@@ -536,6 +595,120 @@ export default defineComponent({
         }
 
         /**
+         * @description 设置当前界面选择的图片信息列表
+         */
+        const setCurrPicCacheList = (e: (IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)[]) => {
+            switch (pageData.value.searchType) {
+                case 'byFace':
+                    if (pageData.value.isChangingPic) {
+                        pageData.value.picCacheListForFace.splice(pageData.value.currChangingIndex, 1, ...e)
+                    } else {
+                        pageData.value.picCacheListForFace = pageData.value.picCacheListForFace.concat(e)
+                    }
+                    pageData.value.picCacheListForFace.splice(5)
+                    pageData.value.picCacheListForFace.forEach((item) => {
+                        getImageSize(item)
+                    })
+                    pageData.value.isChangingPic = false
+                    break
+                case 'byBody':
+                    if (pageData.value.isChangingPic) {
+                        pageData.value.picCacheListForBody.splice(pageData.value.currChangingIndex, 1, ...e)
+                    } else {
+                        pageData.value.picCacheListForBody = pageData.value.picCacheListForBody.concat(e)
+                    }
+                    pageData.value.picCacheListForBody.splice(5)
+                    pageData.value.picCacheListForBody.forEach((item) => {
+                        getImageSize(item)
+                    })
+                    pageData.value.isChangingPic = false
+                    break
+                default:
+                    break
+            }
+        }
+
+        /**
+         * @description 获取当前界面选择的图片信息列表
+         */
+        const getCurrPicCacheList = () => {
+            switch (pageData.value.searchType) {
+                case 'byFace':
+                    pageData.value.picCacheListForFace = pageData.value.picCacheListForFace.map((item, index) => {
+                        item.libIndex = index
+                        item.picBase64 = item.pic.indexOf(';base64,') !== -1 ? item.pic.split(',')[1] : item.pic
+                        return item
+                    })
+                    return pageData.value.picCacheListForFace
+                case 'byBody':
+                    pageData.value.picCacheListForBody = pageData.value.picCacheListForBody.map((item, index) => {
+                        item.libIndex = index
+                        item.picBase64 = item.pic.indexOf(';base64,') !== -1 ? item.pic.split(',')[1] : item.pic
+                        return item
+                    })
+                    return pageData.value.picCacheListForBody
+                default:
+                    return []
+            }
+        }
+
+        /**
+         * @description 打开图片选择弹框
+         */
+        const openChoosePicPop = () => {
+            pageData.value.isChangingPic = false
+            pageData.value.currChangingIndex = 0
+            pageData.value.isChoosePicPop = true
+        }
+
+        /**
+         * @description 选择抓拍库人脸数据 - 抓拍库
+         * @param {IntelFaceDBSnapFaceList[]} e
+         */
+        const chooseFaceSnap = (e: IntelFaceDBSnapFaceList[]) => {
+            pageData.value.picType = 'snap'
+            pageData.value.snapFace = e
+            setCurrPicCacheList(e)
+        }
+
+        /**
+         * @description 选择抓拍库人体数据 - 抓拍库
+         * @param {IntelFaceDBSnapFaceList[]} e
+         */
+        const chooseBodySnap = (e: IntelBodyDBSnapBodyList[]) => {
+            pageData.value.picType = 'snap'
+            pageData.value.snapBody = e
+            setCurrPicCacheList(e)
+        }
+
+        /**
+         * @description 选择人脸库人脸数据 - 人脸库
+         * @param {IntelFaceDBFaceInfo[]} e
+         */
+        const chooseFace = (e: IntelFaceDBFaceInfo[]) => {
+            pageData.value.picType = 'face'
+            pageData.value.featureFace = e
+            setCurrPicCacheList(e)
+        }
+
+        /**
+         * @description 修改某一张图片
+         */
+        const handleChangePic = (index: number) => {
+            pageData.value.isChangingPic = true
+            pageData.value.currChangingIndex = index
+            pageData.value.isChoosePicPop = true
+        }
+
+        /**
+         * @description 删除某一张图片
+         */
+        const handleDeletePic = (index: number) => {
+            const currPicCacheList = getCurrPicCacheList()
+            currPicCacheList.splice(index, 1)
+        }
+
+        /**
          * @description 获取当前属性数据
          */
         const getCurrAttribute = () => {
@@ -557,13 +730,6 @@ export default defineComponent({
                 default:
                     return []
             }
-        }
-
-        /**
-         * @description 选择属性（人属性）
-         */
-        const handleChangeAttr = () => {
-            console.log('handleChangeAttr')
         }
 
         /**
@@ -619,18 +785,51 @@ export default defineComponent({
             return formatDate(timestamp, dateTime.dateTimeFormat)
         }
 
+        /**
+         * @description 获取图片尺寸
+         * @param {(IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)} 图片信息
+         */
+        const getImageSize = (item: IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo) => {
+            if (item.pic) {
+                const img = new Image()
+                img.src = item.pic
+                img.onload = function () {
+                    item.picWidth = img.width
+                    item.picHeight = img.height
+                }
+            }
+        }
+
+        // 计算出当前是否需要显示对比图
+        const showCompare = computed(() => {
+            let flag = false
+            const currTargetIndexDatas = getCurrTargetIndexDatas()
+            currTargetIndexDatas.forEach((item) => {
+                if (item.similarity && item.similarity !== 0) {
+                    flag = true
+                }
+            })
+            return flag
+        })
+
         return {
             pageData,
             getChlIdNameMap,
             getAllTargetIndexDatas,
             getCurrTargetDatas,
-            handleChangeAttr,
+            openChoosePicPop,
+            chooseFaceSnap,
+            chooseBodySnap,
+            chooseFace,
+            handleChangePic,
+            handleDeletePic,
             handleChangePage,
             handleSelectAll,
             handleSort,
             switchDetail,
             showDetail,
             displayDateTime,
+            showCompare,
         }
     },
 })

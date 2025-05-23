@@ -37,14 +37,12 @@
                         v-show="pageData.searchType === 'byCar'"
                         v-model="pageData.attributeForCar"
                         :range="['car']"
-                        @update:model-value="handleChangeAttr"
                     />
                     <!-- 属性选择 - 摩托车/单车 -->
                     <IntelBaseProfileSelector
                         v-show="pageData.searchType === 'byMotorcycle'"
                         v-model="pageData.attributeForMotorcycle"
                         :range="['motor']"
-                        @update:model-value="handleChangeAttr"
                     />
                     <!-- 车牌号填写、车牌号颜色选择 -->
                     <el-form
@@ -193,6 +191,7 @@
                         :key="item.targetID"
                         :target-data="item"
                         :detail-index="pageData.openDetailIndexForCar"
+                        :show-compare="false"
                         search-type="byCar"
                         @detail="showDetail(item)"
                     />
@@ -208,6 +207,7 @@
                         :key="item.targetID"
                         :target-data="item"
                         :detail-index="pageData.openDetailIndexForMotorcycle"
+                        :show-compare="false"
                         search-type="byMotorcycle"
                         @detail="showDetail(item)"
                     />
@@ -223,6 +223,7 @@
                         :key="item.targetID"
                         :target-data="item"
                         :detail-index="pageData.openDetailIndexForPlateNumber"
+                        :show-compare="false"
                         search-type="byPlateNumber"
                         @detail="showDetail(item)"
                     />

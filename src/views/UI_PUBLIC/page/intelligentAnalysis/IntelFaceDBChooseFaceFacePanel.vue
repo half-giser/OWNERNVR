@@ -42,9 +42,9 @@
                     <IntelBaseFaceItem
                         v-for="(item, index) in filterListData"
                         :key="item.id"
-                        :src="item.pic[0] || ''"
+                        :src="item.pic || ''"
                         :model-value="formData.faceIndex.includes(index + (formData.pageIndex - 1) * formData.pageSize)"
-                        :disabled="!item.pic[0]"
+                        :disabled="!item.pic"
                         @update:model-value="selectFace(index + (formData.pageIndex - 1) * formData.pageSize)"
                     >
                         <div
