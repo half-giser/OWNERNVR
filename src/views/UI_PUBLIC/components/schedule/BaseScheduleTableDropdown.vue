@@ -5,11 +5,11 @@
 -->
 <template>
     <el-dropdown :disabled>
-        <BaseTableDropdownLink
-            :need-drop-down-tips="showDropDownTips"
-            :title="dropDownTips"
-        >
-            {{ label ? label : Translate('IDCS_SCHEDULE') }}
+        <BaseTableDropdownLink>
+            <slot v-if="$slots.default"></slot>
+            <template v-else>
+                {{ label ? label : Translate('IDCS_SCHEDULE') }}
+            </template>
         </BaseTableDropdownLink>
         <template #dropdown>
             <el-dropdown-menu>

@@ -59,6 +59,9 @@ export default defineComponent({
         audio(bool: boolean) {
             return typeof bool === 'boolean'
         },
+        trigger(bool: boolean) {
+            return typeof bool === 'boolean'
+        },
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
@@ -125,6 +128,8 @@ export default defineComponent({
             if (streamTypeDisabled.value && type === 0) {
                 return
             }
+
+            ctx.emit('trigger', false)
             ctx.emit('streamType', type as number)
         }
 
@@ -144,6 +149,7 @@ export default defineComponent({
                 return
             }
             ctx.emit('volume', num)
+            ctx.emit('trigger', true)
         }
 
         /**
@@ -155,6 +161,7 @@ export default defineComponent({
                 return
             }
             ctx.emit('audio', !bool)
+            ctx.emit('trigger', true)
         }
 
         return {

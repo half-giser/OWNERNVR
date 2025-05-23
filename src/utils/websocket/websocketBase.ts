@@ -56,6 +56,7 @@ export const WebsocketBase = (option: WebsocketBaseOption) => {
         } else {
             // plugin.add
             plugin.VideoPluginNotifyEmitter.addListener((id: number, buffer: ArrayBuffer) => {
+                if (typeof id !== 'number' || !isBuffer(buffer)) return false
                 if (id === identify) {
                     const payLoadData = Uint8ArrayToStr(new Uint8Array(buffer))
                     // console.log('%cwebsocket--response =', 'color: red', payLoadData)
@@ -65,8 +66,8 @@ export const WebsocketBase = (option: WebsocketBaseOption) => {
                     }
                 } else {
                     if (tempObj) {
-                        tempObj.buffer = appendBuffer(tempObj.buffer, buffer)
-                        buffer = tempObj.buffer
+                        tempObj.buffer = appendBuffer(tempObj.buffer as ArrayBuffer, buffer) as ArrayBuffer
+                        buffer = tempObj.buffer as ArrayBuffer
                     }
 
                     const headerObj = splitWebSocketHeader(new Uint8Array(buffer))
@@ -83,7 +84,7 @@ export const WebsocketBase = (option: WebsocketBaseOption) => {
                         }
 
                         if (tempObj && tempObj.buffer.byteLength >= tempObj.headerLen + tempObj.payLoadLen) {
-                            let payLoadData: string | ArrayBuffer = tempObj.buffer.slice(tempObj.headerLen)
+                            let payLoadData: string | ArrayBuffer = tempObj.buffer.slice(tempObj.headerLen) as ArrayBuffer
                             if (opCode === 1) {
                                 payLoadData = Uint8ArrayToStr(new Uint8Array(payLoadData))
                             }
@@ -138,9 +139,9 @@ export const WebsocketBase = (option: WebsocketBaseOption) => {
             const payLoadLen = isBuffer(data) ? (data as ArrayBuffer).byteLength : (data as string).length
             const bFin = true
             const bMask = false
-            const headerBuff = getWebSocketHeader(opCode, payLoadLen, bFin, bMask)
-            const dataBuff = (await dataToBuffer(data)) as ArrayBufferLike
-            const sendBuff = appendBuffer(headerBuff, dataBuff)
+            const headerBuff = getWebSocketHeader(opCode, payLoadLen, bFin, bMask).buffer
+            const dataBuff = await dataToBuffer(data)
+            const sendBuff = appendBuffer(headerBuff, dataBuff as ArrayBuffer)
             p2pTransport.WsRequest({
                 buffer: sendBuff,
                 identify: identify,

@@ -22,6 +22,7 @@
                     ref="playerRef"
                     :split="pageData.split"
                     :enable-pos="systemCaps.supportPOS"
+                    :enable-draw="false"
                     @ready="handlePlayerReady"
                     @select="handlePlayerSelect"
                     @success="handlePlayerSuccess"
@@ -73,7 +74,6 @@
             >
                 <template #default="{ index }">
                     <LiveSnapPanel
-                        v-if="isSnapPanel"
                         v-show="index === 0"
                         :auth="userAuth"
                     />

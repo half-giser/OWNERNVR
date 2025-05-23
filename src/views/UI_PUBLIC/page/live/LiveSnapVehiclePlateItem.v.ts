@@ -131,20 +131,20 @@ export default defineComponent({
         // 信息列表
         const infoList = computed(() => {
             if (Number(prop.data.info!.vehicle_type) === 2) {
-                const type = prop.data.info!.bike_info
+                const type = prop.data.info!.bike_info ?? {}
                 return DEFAULT_NON_VEHICLE_STRUCT_MAPPING.map((item) => {
                     return getInfoListItem('nonVehicle_' + item.type, item.map[Number(type[item.type])])
                 })
             }
 
-            const type = prop.data.info!.car_info
+            const type = prop.data.info!.car_info ?? {}
             return DEFAULT_PLATE_VEHICLE_STRUCT_MAPPING.map((item) => {
                 return getInfoListItem('vehicle_' + item.type, item.map[Number(type[item.type])])
             })
         })
 
         const vehiclePlateInfoList = computed(() => {
-            const type = prop.data.info!.target_type === 'vehicle' ? prop.data.info!.car_info : prop.data.info!.bike_info
+            const type = (prop.data.info!.target_type === 'vehicle' ? prop.data.info!.car_info : prop.data.info!.bike_info) ?? {}
             return DEFAULT_VEHICLE_PLATE_STRUCT_MAPPING.filter((item) => !['plate', 'owner', 'mobile_phone_number', 'group_name'].includes(item.type)).map((item) => {
                 return getInfoListItem('vehicle_plate_' + item.type, item.map[Number(type[item.type])])
             })

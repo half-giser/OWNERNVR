@@ -13,7 +13,7 @@
                     :key="`${seg.type}_${seg.split}`"
                     :file="`seg_${seg.split}`"
                     :active="seg.split === split"
-                    @click="$emit('update:split', seg.split, seg.type)"
+                    @click="$emit('update:split', seg.split, seg.type), $emit('trigger', true)"
                 />
             </template>
             <template v-else-if="mode === 'ocx'">
@@ -35,7 +35,7 @@
                             :key="`${seg.type}_${seg.split}`"
                             :file="`seg_${seg.split}`"
                             :active="seg.split === split"
-                            @click="$emit('update:split', seg.split, seg.type)"
+                            @click="$emit('update:split', seg.split, seg.type), $emit('trigger', true)"
                         />
                     </div>
                 </el-popover>
@@ -45,13 +45,13 @@
                 file="OSD"
                 :title="osd ? Translate('IDCS_OSD_CLOSE') : Translate('IDCS_OSD_OPEN')"
                 :active="osd"
-                @click="$emit('update:osd', !osd)"
+                @click="$emit('update:osd', !osd), $emit('trigger', true)"
             />
             <!-- 全屏按钮 -->
             <BaseImgSpriteBtn
                 file="full_screen"
                 :title="Translate('IDCS_FULLSCREEN')"
-                @click="$emit('fullscreen')"
+                @click="$emit('fullscreen'), $emit('trigger', true)"
             />
         </div>
         <div class="ctrl-center">
@@ -60,7 +60,7 @@
                 file="stop_rec"
                 :title="Translate('IDCS_STOP')"
                 :disabled
-                @click="$emit('stop')"
+                @click="$emit('stop'), $emit('trigger', false)"
             />
             <!-- 倒放 -->
             <BaseImgSpriteBtn
@@ -69,7 +69,7 @@
                 file="bkPlay"
                 :title="Translate('IDCS_PLAY_FORWARD')"
                 :disabled
-                @click="$emit('backwards')"
+                @click="$emit('backwards'), $emit('trigger', false)"
             />
             <!-- 暂停播放 -->
             <BaseImgSpriteBtn
@@ -85,7 +85,7 @@
                 file="fwPlay"
                 :title="Translate('IDCS_PLAY_FORWARD')"
                 :disabled
-                @click="$emit('resume')"
+                @click="$emit('resume'), $emit('trigger', false)"
             />
             <!-- 慢进 -->
             <BaseImgSpriteBtn
@@ -94,13 +94,6 @@
                 :disabled="rewindDisabled"
                 @click="rewind"
             />
-            <!-- 快进 -->
-            <BaseImgSpriteBtn
-                file="fwSpeed"
-                :title="Translate('IDCS_PLAY_FAST_FORWARD')"
-                :disabled="forwardDisabled"
-                @click="forward"
-            />
             <!-- 1倍速 -->
             <BaseImgSpriteBtn
                 file="playOriginIcon"
@@ -108,44 +101,56 @@
                 :disabled="resetSpeedDisabled"
                 @click="resetSpeed"
             />
+            <!-- 快进 -->
+            <BaseImgSpriteBtn
+                file="fwSpeed"
+                :title="Translate('IDCS_PLAY_FAST_FORWARD')"
+                :disabled="forwardDisabled"
+                @click="forward"
+            />
             <!-- 上一帧 -->
             <BaseImgSpriteBtn
                 v-if="mode === 'ocx'"
                 file="preFrame"
                 :title="Translate('IDCS_PLAY_PREVIOUS_FRAME')"
                 :disabled="nextFrameDisabled"
-                @click="$emit('prevFrame')"
+                @click="$emit('prevFrame'), $emit('trigger', false)"
             />
             <!-- 下一帧 -->
             <BaseImgSpriteBtn
                 file="nextFrame"
                 :title="Translate('IDCS_PLAY_NEXT_FRAME')"
                 :disabled="nextFrameDisabled"
-                @click="$emit('nextFrame')"
+                @click="$emit('nextFrame'), $emit('trigger', false)"
             />
             <!-- 跳转播放 -->
-            <div class="seek">
-                <BaseImgSprite
-                    file="30s_bk"
-                    :disabled-index="1"
-                    :disabled
-                    :chunk="2"
-                />
-                <div>
-                    <BaseImgSpriteBtn
-                        file="bk30s"
-                        :title="Translate('IDCS_PLAY_DEC_30_SECONDS')"
-                        :disabled
-                        @click="$emit('jump', -30)"
-                    />
-                    <BaseImgSpriteBtn
-                        file="fw30s"
-                        :title="Translate('IDCS_PLAY_INC_30_SECONDS')"
-                        :disabled
-                        @click="$emit('jump', 30)"
-                    />
-                </div>
-            </div>
+            <el-select-v2
+                v-model="pageData.forwardValue"
+                class="fw-select"
+                :options="pageData.forwardOptions"
+                :disabled
+                @visible-change="$emit('trigger', true)"
+            />
+            <BaseImgSprite
+                file="bk30s"
+                :index="0"
+                :hover-index="0"
+                :disabled-index="3"
+                :disabled
+                :chunk="4"
+                class="fw-btn"
+                @click="$emit('jump', -pageData.forwardValue), $emit('trigger', false)"
+            />
+            <BaseImgSprite
+                file="fw30s"
+                :index="0"
+                :hover-index="0"
+                :disabled-index="3"
+                :disabled
+                :chunk="4"
+                class="fw-btn"
+                @click="$emit('jump', pageData.forwardValue), $emit('trigger', false)"
+            />
             <BaseImgSpriteBtn
                 v-show="playStatus === 'backwards'"
                 file="bkPlay"
@@ -167,35 +172,35 @@
         </div>
         <div class="ctrl-right">
             <!-- POS按钮 -->
-            <BaseImgSpriteBtn
+            <!-- <BaseImgSpriteBtn
                 v-show="pageData.isPosBtn"
                 file="POS"
                 :title="pos ? Translate('IDCS_CANCEL_POS') : Translate('IDCS_VIEW_POS')"
                 :active="pos"
                 :disabled="posDisabled"
                 @click="$emit('update:pos', !pos)"
-            />
-            <!-- 水印按钮 -->
+            /> -->
             <BaseImgSpriteBtn
-                file="backupWaterMark"
-                :title="watermark ? Translate('IDCS_CANCEL_WATER_MARK') : Translate('IDCS_VIEW_WATER_MARK')"
-                :active="watermark"
-                :disabled
-                @click="$emit('update:watermark', !watermark)"
+                v-if="systemCaps.supportREID"
+                file="target_retrieval"
+                :title="Translate('IDCS_REID')"
+                :active="detectTarget"
+                :disabled="detectTargetDisabled"
+                @click="$emit('update:detectTarget', !detectTarget)"
             />
             <!-- 开始裁切 -->
             <BaseImgSpriteBtn
                 file="backupStart"
                 :title="Translate('IDCS_BACKUP_START_TIME')"
                 :disabled
-                @click="$emit('clipStart')"
+                @click="$emit('clipStart'), $emit('trigger', true)"
             />
             <!-- 结束裁切 -->
             <BaseImgSpriteBtn
                 file="backupEnd"
                 :title="Translate('IDCS_BACKUP_END_TIME')"
                 :disabled
-                @click="$emit('clipEnd')"
+                @click="$emit('clipEnd'), $emit('trigger', true)"
             />
             <!-- 备份 -->
             <BaseImgSpriteBtn
@@ -204,7 +209,74 @@
                 :disabled="backUpDisabled"
                 @click="backUp"
             />
+            <BaseImgSpriteBtn
+                file="playStrategy"
+                :title="Translate('IDCS_PLAY_STRATEGY')"
+                @click="openStrategyPop"
+            />
+            <el-popover
+                trigger="hover"
+                popper-class="no-padding"
+            >
+                <template #reference>
+                    <BaseImgSpriteBtn
+                        file="more"
+                        :title="Translate('IDCS_MORE')"
+                    />
+                </template>
+                <div class="detail-btns">
+                    <!-- 水印按钮 -->
+                    <div @click="$emit('update:watermark', !watermark), $emit('trigger', true)">
+                        <BaseImgSpriteBtn
+                            file="backupWaterMark"
+                            :active="watermark"
+                        />
+                        <span class="detail-btns-text">{{ Translate('IDCS_WATER_MARK') }}</span>
+                    </div>
+                    <!-- POS按钮 -->
+                    <div
+                        v-show="systemCaps.supportPOS"
+                        @click="$emit('update:pos', !pos), $emit('trigger', true)"
+                    >
+                        <BaseImgSpriteBtn
+                            file="POS_rec"
+                            :active="pos"
+                            :disabled="!hasPosEvent"
+                        />
+                        <span class="detail-btns-text">{{ Translate('IDCS_POS') }}</span>
+                    </div>
+                    <!-- 备份状态 -->
+                    <div @click="$emit('showBackUp'), $emit('trigger', true)">
+                        <BaseImgSpriteBtn
+                            file="backUpTask"
+                            :active="isBackUpList"
+                        />
+                        <span class="detail-btns-text">{{ Translate('IDCS_BACKUP_STATE') }}</span>
+                    </div>
+                </div>
+            </el-popover>
         </div>
+        <el-dialog
+            v-model="pageData.isStrategyPop"
+            :title="Translate('IDCS_PLAY_STRATEGY')"
+            width="500"
+        >
+            <el-form>
+                <el-form-item>
+                    <el-checkbox
+                        v-model="pageData.strategy"
+                        :label="Translate('IDCS_SKID_ORDINARY_RECORD')"
+                    />
+                </el-form-item>
+                <el-form-item>
+                    {{ Translate('IDCS_SKIP_NORMAL_TIP') }}
+                </el-form-item>
+            </el-form>
+            <div class="base-btn-box">
+                <el-button @click="confirmStrategy">{{ Translate('IDCS_OK') }}</el-button>
+                <el-button @click="pageData.isStrategyPop = false">{{ Translate('IDCS_CANCEL') }}</el-button>
+            </div>
+        </el-dialog>
     </div>
 </template>
 
@@ -226,7 +298,7 @@
         height: 100%;
 
         & > span {
-            margin: 0 5px;
+            margin: 0 3px;
             flex-shrink: 0;
         }
     }
@@ -261,8 +333,27 @@
         align-items: center;
 
         & > span {
-            margin: 0 5px;
+            margin: 0 3px;
         }
+    }
+}
+
+.fw-select {
+    width: 70px;
+    margin: 0 3px;
+}
+
+.fw-btn {
+    border: 1px solid var(--panel-btn-bg);
+    border-radius: 2px;
+
+    &.disabled {
+        border-color: var(--panel-btn-bg-disabled);
+    }
+
+    &:hover(:not(.disabled)) {
+        border-color: var(--primary);
+        // opacity: 0.6;
     }
 }
 
@@ -295,6 +386,36 @@
 
     & > span {
         margin: 0 5px;
+    }
+}
+
+.detail-btns {
+    & > div {
+        padding: 5px;
+        display: flex;
+        align-items: center;
+        box-sizing: border-box;
+        position: relative;
+        cursor: pointer;
+
+        &:not(:last-child) {
+            border-bottom: 1px solid var(--content-border);
+        }
+
+        .Sprite {
+            &::before {
+                position: absolute;
+                top: -5px;
+                left: -5px;
+                width: 200px;
+                height: 100%;
+                content: '';
+            }
+        }
+    }
+
+    &-text {
+        margin-left: 5px;
     }
 }
 </style>

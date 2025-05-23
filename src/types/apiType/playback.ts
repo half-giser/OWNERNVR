@@ -87,6 +87,7 @@ export class PlaybackRecList {
         size: string
         duration: string
         recSubType: string
+        eventColorType?: string
     }[] = []
     timeZone = ''
 }

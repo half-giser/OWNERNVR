@@ -8,7 +8,7 @@
                 />
             </el-form-item>
         </el-form>
-        <div class="base-btn-box space-between">
+        <div class="header base-btn-box space-between">
             <div>{{ Translate('IDCS_USER_LIST') }}</div>
             <el-button @click="add">{{ Translate('IDCS_ADD') }}</el-button>
         </div>
@@ -87,3 +87,17 @@
 </template>
 
 <script lang="ts" src="./DualAuthConfig.v.ts"></script>
+
+<style lang="scss" scoped>
+.base-flex-box {
+    #n9web & {
+        :deep(.el-form-item) {
+            padding: 0;
+        }
+    }
+}
+
+.header {
+    margin: 0 0 10px;
+}
+</style>
