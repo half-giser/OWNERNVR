@@ -100,7 +100,7 @@
                 <div>
                     <!-- 汽车 - 排序、全选 -->
                     <div v-show="pageData.searchType === 'byCar'">
-                        <el-dropdown>
+                        <el-dropdown ref="carSortDropdown">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SORT') }}
                             </BaseTableDropdownLink>
@@ -109,12 +109,13 @@
                                     v-for="opt in pageData.sortOptions"
                                     :key="opt.value"
                                     class="sort_item"
+                                    @click="handleSort(opt.value)"
                                 >
-                                    <span>{{ opt.label }}</span>
+                                    <span class="sort_item_label">{{ opt.label }}</span>
                                     <BaseImgSprite
-                                        file="sortDes"
+                                        :file="opt.status === 'up' ? 'sortAsc' : 'sortDes'"
                                         :chunk="4"
-                                        class="icon_right"
+                                        :index="pageData.sortType === opt.value ? 1 : 3"
                                     />
                                 </div>
                             </template>
@@ -126,7 +127,7 @@
                     </div>
                     <!-- 摩托车/单车 - 排序、全选 -->
                     <div v-show="pageData.searchType === 'byMotorcycle'">
-                        <el-dropdown>
+                        <el-dropdown ref="motorcycleSortDropdown">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SORT') }}
                             </BaseTableDropdownLink>
@@ -135,12 +136,13 @@
                                     v-for="opt in pageData.sortOptions"
                                     :key="opt.value"
                                     class="sort_item"
+                                    @click="handleSort(opt.value)"
                                 >
-                                    <span>{{ opt.label }}</span>
+                                    <span class="sort_item_label">{{ opt.label }}</span>
                                     <BaseImgSprite
-                                        file="sortDes"
+                                        :file="opt.status === 'up' ? 'sortAsc' : 'sortDes'"
                                         :chunk="4"
-                                        class="icon_right"
+                                        :index="pageData.sortType === opt.value ? 1 : 3"
                                     />
                                 </div>
                             </template>
@@ -152,7 +154,7 @@
                     </div>
                     <!-- 车牌号 - 排序、全选 -->
                     <div v-show="pageData.searchType === 'byPlateNumber'">
-                        <el-dropdown>
+                        <el-dropdown ref="plateNumberSortDropdown">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SORT') }}
                             </BaseTableDropdownLink>
@@ -161,12 +163,13 @@
                                     v-for="opt in pageData.sortOptions"
                                     :key="opt.value"
                                     class="sort_item"
+                                    @click="handleSort(opt.value)"
                                 >
-                                    <span>{{ opt.label }}</span>
+                                    <span class="sort_item_label">{{ opt.label }}</span>
                                     <BaseImgSprite
-                                        file="sortDes"
+                                        :file="opt.status === 'up' ? 'sortAsc' : 'sortDes'"
                                         :chunk="4"
-                                        class="icon_right"
+                                        :index="pageData.sortType === opt.value ? 1 : 3"
                                     />
                                 </div>
                             </template>
@@ -340,7 +343,7 @@
         width: 100%;
 
         .base-intel-left-form {
-            padding: 0px;
+            padding: 0;
 
             :deep(.el-form) {
                 height: 30px;
@@ -366,7 +369,7 @@
                         }
 
                         .base-intel-placeholder {
-                            margin-bottom: 0px;
+                            margin-bottom: 0;
                         }
                     }
                 }
@@ -378,7 +381,7 @@
             margin-bottom: 10px !important;
 
             .el-form-item {
-                padding: 0px !important;
+                padding: 0 !important;
 
                 .el-input__inner {
                     height: 30px;
@@ -423,14 +426,14 @@
     }
 
     .resize_icon_right {
-        right: 0px;
+        right: 0;
     }
 
     &.detail_open {
         border-right: 1px solid var(--content-border);
 
         .resize_icon_left {
-            left: 0px;
+            left: 0;
         }
 
         .resize_icon_right {
@@ -441,11 +444,21 @@
 
 .sort_item {
     display: flex;
-    justify-content: flex-start;
+    justify-content: flex-end;
     align-items: center;
-    padding: 0px 14px;
+    max-width: 85px;
     cursor: pointer;
     font-size: 14px;
+    border: solid 1px var(--content-border);
+    background-color: var(--color-white);
+
+    &_label {
+        display: flex;
+        flex: 1;
+        padding-left: 10px;
+        justify-content: flex-end;
+        white-space: nowrap;
+    }
 
     &:hover {
         color: var(--primary);
