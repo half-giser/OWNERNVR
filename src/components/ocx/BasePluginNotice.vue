@@ -47,15 +47,20 @@ const getPluginLoadLang = (langKey: keyof typeof OCX_Plugin_Notice_Map) => {
  */
 const getHTML = (langKey: string, downloadUrl?: string) => {
     const item = OCX_Plugin_Notice_Map[langKey]
+    const downloadName = downloadUrl ? downloadUrl.split('/').at(-1)! : ''
     return {
         warning: item.warning,
-        html: item.downloadUrl ? getPluginLoadLang(langKey).formatForLang(downloadUrl!) : getPluginLoadLang(langKey),
+        html: item.downloadUrl ? getPluginLoadLang(langKey).formatForLang(downloadUrl!).replace('<a href=', `<a download="${downloadName}" href=`) : getPluginLoadLang(langKey),
     }
 }
 
 const notice = computed(() => {
     if (plugin.pluginNoticeHtml.value) {
-        return getHTML(plugin.pluginNoticeHtml.value, getPluginPath())
+        let path = getPluginPath()
+        if (import.meta.env.DEV) {
+            path = '/plugin/' + path
+        }
+        return getHTML(plugin.pluginNoticeHtml.value, path)
     } else {
         return {
             warning: false,
@@ -89,7 +94,7 @@ router.beforeResolve(() => {
     width: 100%;
     min-height: 100%;
     height: 100%;
-    z-index: 9999;
+    z-index: 99;
     display: flex;
     flex-direction: column;
     align-items: center;
