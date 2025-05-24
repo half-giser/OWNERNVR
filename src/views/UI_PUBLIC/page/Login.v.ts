@@ -124,10 +124,9 @@ export default defineComponent({
                         await userSessionStore.updateByLogin(result, formData.value)
                         handleLoginSuccess()
                     } catch (e) {
+                        progress.done()
                         console.error(e)
                         pageData.value.btnDisabled = false
-                    } finally {
-                        progress.done()
                     }
                 }
             })
@@ -145,7 +144,6 @@ export default defineComponent({
                 handleLoginSuccess()
             } catch (e) {
                 console.error(e)
-            } finally {
                 progress.done()
                 pageData.value.btnDisabled = false
             }

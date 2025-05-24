@@ -6,6 +6,7 @@
 <template>
     <div>
         <el-form
+            ref="formRef"
             :model="formData"
             :rules="rules"
         >

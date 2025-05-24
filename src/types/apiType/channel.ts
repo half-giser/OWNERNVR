@@ -972,7 +972,7 @@ export class ChannelIpSpeakerDevDto {
 
 export class ChannelIpSpeakerAddDto {
     ip = '0.0.0.0'
-    protocolType = 'OVNIF'
+    protocolType = 'ONVIF'
     port = 80
     userName = 'admin'
     password = ''

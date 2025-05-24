@@ -7,7 +7,10 @@
     <fieldset>
         <legend>{{ Translate('IDCS_RECORD_TYPE') }}</legend>
         <div class="list">
-            <div class="event-normal">
+            <div
+                v-show="pageData.playMode === 'normal'"
+                class="event-normal"
+            >
                 <div
                     v-for="item in pageData.normalEvent"
                     :key="item.value"
@@ -21,16 +24,34 @@
                     <span class="event-normal-item-text">{{ item.name }}</span>
                 </div>
             </div>
-            <!-- <div></div> -->
+            <div
+                v-show="pageData.playMode === 'event'"
+                class="event-type"
+            >
+                <PlaybackEventSelector v-model="pageData.eventList" />
+                <div class="event-type-btn-box">
+                    <BaseImgSprite
+                        file="setFilterTypeIcon"
+                        :hover-index="0"
+                        class="event-type-btn"
+                        @click="pageData.isFilterPop = true"
+                    />
+                </div>
+            </div>
+            <BaseImgSpriteBtn
+                class="btn"
+                file="arrow"
+                @click="pageData.isPlayModePop = true"
+            />
+        </div>
+        <div class="popover">
             <el-popover
                 v-model:visible="pageData.isPlayModePop"
                 popper-class="no-padding"
+                width="207"
             >
                 <template #reference>
-                    <BaseImgSpriteBtn
-                        class="btn"
-                        file="arrow"
-                    />
+                    <span></span>
                 </template>
                 <div class="play-mode">
                     <div
@@ -51,84 +72,50 @@
                     </div>
                 </div>
             </el-popover>
-
-            <!-- <div
-                v-for="item in pageData.events[pageData.eventIndex]"
-                v-show="item.enable"
-                :key="item.value"
-                class="item"
-                @click="changeEvent(item.value)"
-            >
-                <BaseImgSprite
-                    :file="pageData.eventList.includes(item.value) ? item.checked : item.unchecked"
-                    :title="item.name"
-                    :chunk="4"
-                />
-            </div> -->
-            <!-- <el-popover
-                v-model:visible="pageData.isEventPop"
-                placement="right"
-                width="440"
-                popper-class="no-padding"
+            <el-popover
+                v-model:visible="pageData.isFilterPop"
+                width="207"
             >
                 <template #reference>
-                    <BaseImgSpriteBtn
-                        v-show="pageData.isEventPopBtn"
-                        file="event_type_menu"
-                        class="btn"
-                    />
+                    <span></span>
                 </template>
-                <div class="event">
-                    <div class="event-title">{{ Translate('IDCS_MODE_SELECT') }}</div>
-                    <div class="event-list">
-                        <div
-                            v-for="(item, index) in pageData.events"
-                            :key="index"
-                            :class="{
-                                active: index === pageData.activeEventIndex,
-                            }"
-                            @click="pageData.activeEventIndex = index"
+                <div class="filter">
+                    <el-radio-group
+                        v-model="pageData.filterType"
+                        class="filter-group"
+                    >
+                        <el-radio
+                            v-for="item in pageData.filterTypeList"
+                            :key="item.value"
+                            :value="item.value"
+                            :label="item.label"
                         >
+                            <span class="filter-label">{{ item.label }}</span>
                             <div
-                                v-for="event in item"
-                                v-show="event.enablePop"
-                                :key="event.value"
+                                v-for="child in item.children"
+                                v-show="!child.hidden"
+                                :key="child.value"
+                                class="filter-item"
                             >
-                                <BaseImgSprite :file="event.file" />
-                                <p>{{ event.name }}</p>
+                                <span
+                                    class="filter-item-color"
+                                    :style="{
+                                        backgroundColor: child.color,
+                                    }"
+                                ></span>
+                                <span class="filter-item-text">{{ child.name }}</span>
                             </div>
-                        </div>
-                    </div>
-                    <div class="event-info">
-                        <h3>{{ Translate('IDCS_DESCRIPTION') }}</h3>
-                        <p
-                            v-for="(tip, key) in pageData.eventTips"
-                            :key
-                        >
-                            {{ tip }}
-                        </p>
-                    </div>
-                    <div class="base-btn-box">
-                        <el-button
-                            class="event-btn"
-                            @click="changeEventList"
-                        >
-                            {{ Translate('IDCS_OK') }}
-                        </el-button>
-                        <el-button
-                            class="event-btn"
-                            @click="closeEventPop"
-                        >
-                            {{ Translate('IDCS_CLOSE') }}
-                        </el-button>
+                        </el-radio>
+                    </el-radio-group>
+                    <div class="base-btn-box center">
+                        <el-button @click="pageData.isFilterPop = false">{{ Translate('IDCS_CLOSE') }}</el-button>
                     </div>
                 </div>
-            </el-popover> -->
+            </el-popover>
         </div>
         <el-input
-            v-show="pageData.isPosInput"
+            v-show="systemCaps.supportPOS"
             v-model="pageData.posKeyword"
-            :disabled="!pageData.eventList.includes('POS')"
             :placeholder="Translate('IDCS_POS_KEY')"
             class="pos"
         />
@@ -147,7 +134,6 @@ fieldset {
 
 .list {
     display: flex;
-    // padding: 5px 10px 5px 0;
     position: relative;
     height: 34px;
     width: 100%;
@@ -173,10 +159,10 @@ fieldset {
         border-radius: 2px;
         margin-right: 5px;
         justify-content: flex-start;
+        user-select: none;
 
         &:hover {
             background-color: var(--primary-light);
-            // border-color: var(--primary-light);
         }
 
         &.active,
@@ -199,16 +185,39 @@ fieldset {
     }
 }
 
-.play-mode {
-    width: 207px;
+.event-type {
+    display: flex;
+    width: 100%;
+    height: 25px;
+    align-items: center;
 
+    &-btn {
+        transform: scale(0.2);
+
+        &:hover {
+            opacity: 0.7;
+        }
+    }
+
+    &-btn-box {
+        width: 25px;
+        height: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+.play-mode {
     &-item {
         display: flex;
         width: 100%;
         cursor: pointer;
+        align-items: center;
 
         .Sprite {
             opacity: 0;
+            transform: scale(0.5);
         }
 
         &:not(:last-child) {
@@ -220,12 +229,56 @@ fieldset {
                 opacity: 1;
             }
         }
+
+        &:hover {
+            background-color: var(--primary);
+            color: var(--main-text-active);
+
+            .Sprite {
+                filter: brightness(25);
+            }
+        }
     }
 }
 
-// .item {
-//     margin: 0 5px;
-// }
+.popover {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.filter {
+    &-group {
+        display: flex;
+        flex-wrap: wrap;
+
+        .el-radio {
+            width: 100%;
+            height: auto;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        :deep(.el-radio__input) {
+            margin-top: 2px;
+        }
+    }
+
+    &-item {
+        display: flex;
+        margin: 10px 0;
+        align-items: center;
+
+        &-color {
+            width: 14px;
+            height: 14px;
+        }
+
+        &-text {
+            margin-left: 5px;
+        }
+    }
+}
 
 .pos {
     margin-top: 10px;
@@ -233,76 +286,5 @@ fieldset {
 
 .btn {
     flex-shrink: 0;
-    // position: absolute;
-    // right: -5px;
 }
-
-// .event {
-//     padding-bottom: 10px;
-//     background-color: var(--panel-event-bg);
-//     color: var(--panel-event-text);
-
-//     &-title {
-//         width: 100%;
-//         background-color: var(--panel-event-title-bg);
-//         text-align: center;
-//         line-height: 30px;
-//         color: var(--panel-event-title-text);
-//     }
-
-//     &-list {
-//         & > div {
-//             display: flex;
-//             padding: 10px;
-//             cursor: pointer;
-
-//             &:hover {
-//                 background-color: var(--panel-event-bg-hover);
-//                 color: var(--main-text-active);
-//             }
-
-//             &.active {
-//                 background-color: var(--panel-event-bg-active);
-//                 color: var(--main-text-active);
-//             }
-
-//             & > div {
-//                 width: 100px;
-//                 display: flex;
-//                 flex-direction: column;
-//                 justify-content: center;
-//                 align-items: center;
-//             }
-//         }
-
-//         p {
-//             margin: 0;
-//             padding: 0;
-//             margin-top: 5px;
-//             width: 100%;
-//             text-align: center;
-//             font-size: 12px;
-//         }
-//     }
-
-//     &-info {
-//         margin-bottom: 20px;
-
-//         h3 {
-//             margin: 10px;
-//             font-size: 14px;
-//             font-weight: normal;
-//         }
-
-//         p {
-//             margin: 10px;
-//             padding: 0;
-//         }
-//     }
-
-//     &-btn {
-//         margin-right: 10px;
-//         margin-left: 0;
-//     }
-// }
 </style>

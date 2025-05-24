@@ -67,7 +67,7 @@ export default defineComponent({
                 '(14)' + Translate('IDCS_REMARK'),
             ],
             // 导入说明的文本
-            descBody: ['user', '0', '2023/01/01', Translate('IDCS_ID_CARD'), '123456', '18888888888', 'user.jpg', '88', 'doctor'],
+            descBody: ['user', '0', '2019/01/01', Translate('IDCS_ID_CARD'), '123456', '18888888888', 'user.jpg', '88', 'doctor'],
         })
 
         /**

@@ -26,13 +26,6 @@
                     :class="`map-point-${key}`"
                     @mousedown="handleMouseDown($event, key)"
                 >
-                    <BaseImgSprite :file="pageData.playStatus !== 'stop' && data[pageData.playingIndex]?.chlId === item.hotPointId ? 'track_camera_on_play' : 'track_camera'" />
-                    <div
-                        class="chlname text-ellipsis"
-                        :style="{ color: pageData.fontColor }"
-                    >
-                        {{ item.chlName }}
-                    </div>
                     <div
                         v-show="!pageData.isEdit"
                         class="badge"
@@ -44,6 +37,13 @@
                         />
                         <span>{{ item.count }}</span>
                     </div>
+                    <BaseImgSprite :file="pageData.playStatus !== 'stop' && data[pageData.playingIndex] === item.hotPointId ? 'track_camera_on_play' : 'track_camera'" />
+                    <div
+                        class="chlname text-ellipsis"
+                        :style="{ color: pageData.fontColor }"
+                    >
+                        {{ item.chlName }}
+                    </div>
                     <BaseImgSpriteBtn
                         v-show="pageData.isEdit"
                         class="close"
@@ -53,73 +53,29 @@
                 </div>
             </div>
         </div>
-        <div class="control">
+        <div class="base-btn-box space-between padding gap">
+            <div></div>
             <div class="control-btns">
-                <!-- 停止播放 -->
-                <el-tooltip :content="Translate('IDCS_STOP')">
-                    <BaseImgSpriteBtn
-                        file="stop_rec"
-                        :disabled="pageData.playStatus === 'stop'"
-                        @click="stop"
-                    />
-                </el-tooltip>
-                <!-- 暂停播放 -->
-                <el-tooltip :content="Translate('IDCS_PAUSE')">
-                    <BaseImgSpriteBtn
-                        v-show="pageData.playStatus === 'play'"
-                        file="pause"
-                        @click="pause"
-                    />
-                </el-tooltip>
-                <!-- 播放 -->
-                <el-tooltip :content="Translate('IDCS_PLAY_FORWARD')">
-                    <BaseImgSpriteBtn
-                        v-show="pageData.playStatus !== 'play'"
-                        file="fwPlay"
-                        @click="play"
-                    />
-                </el-tooltip>
-                <!-- 上一个 -->
-                <el-tooltip :content="Translate('IDCS_PREVIOUS')">
-                    <BaseImgSpriteBtn
-                        file="preFrame"
-                        :disabled="prevFrameDisabled"
-                        @click="prevFrame"
-                    />
-                </el-tooltip>
-                <!-- 下一个 -->
-                <el-tooltip :content="Translate('IDCS_NEXT')">
-                    <BaseImgSpriteBtn
-                        file="nextFrame"
-                        :disabled="nextFrameDisabled"
-                        @click="nextFrame"
-                    />
-                </el-tooltip>
-                <!-- 轨迹播放 -->
-                <el-tooltip :content="Translate('IDCS_TRACK_PLAY')">
-                    <BaseImgSpriteBtn
-                        v-show="pageData.trackStatus === 'stop'"
-                        file="start_track"
-                        :index="[0, 2, 2, 3]"
-                        @click="playTrack"
-                    />
-                </el-tooltip>
-                <!-- 停止轨迹播放 -->
-                <el-tooltip :content="Translate('IDCS_TRACK_STOP')">
-                    <BaseImgSpriteBtn
-                        v-show="pageData.trackStatus === 'play'"
-                        file="stop_track"
-                        :index="[0, 2, 2, 3]"
-                        @click="stopTrack"
-                    />
-                </el-tooltip>
-                <el-tooltip :content="Translate('IDCS_EDIT_COLOR')">
-                    <BaseImgSpriteBtn
-                        file="track_color_edit"
-                        :index="[0, 2, 2, 3]"
-                        @click="pageData.isColorPop = true"
-                    />
-                </el-tooltip>
+                <BaseImgSpriteBtn
+                    v-show="pageData.trackStatus === 'stop'"
+                    file="start_track"
+                    :title="Translate('IDCS_TRACK_PLAY')"
+                    :index="[0, 2, 2, 3]"
+                    @click="playTrack"
+                />
+                <BaseImgSpriteBtn
+                    v-show="pageData.trackStatus === 'play'"
+                    file="stop_track"
+                    :title="Translate('IDCS_TRACK_STOP')"
+                    :index="[0, 2, 2, 3]"
+                    @click="stopTrack"
+                />
+                <BaseImgSpriteBtn
+                    file="track_color_edit"
+                    :title="Translate('IDCS_EDIT_COLOR')"
+                    :index="[0, 2, 2, 3]"
+                    @click="pageData.isColorPop = true"
+                />
             </div>
             <div class="control-settings">
                 <el-checkbox
@@ -160,22 +116,23 @@
 <style lang="scss" scoped>
 .track {
     margin-top: 10px;
-    width: 960px;
-    height: 100%;
+    width: 100%;
+    height: calc(100vh - 350px);
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
+    border: 1px solid var(--content-border);
 }
 
 .map {
     position: relative;
-    width: 960px;
-    height: 500px;
+    width: 100%;
+    height: 100%;
     border: 1px solid var(--content-border);
+    overflow: scroll;
 
     img {
-        width: 100%;
-        height: 100%;
+        width: 1248px;
+        height: 610px;
 
         &[src=''] {
             opacity: 0;
@@ -187,8 +144,8 @@
         top: 0;
         left: 0;
         background: transparent;
-        width: 100%;
-        height: 100%;
+        width: 1248px;
+        height: 610px;
         pointer-events: none;
     }
 
@@ -196,8 +153,8 @@
         position: absolute;
         top: 0;
         left: 0;
-        width: 100%;
-        height: 100%;
+        width: 1248px;
+        height: 610px;
     }
 
     &-point {
@@ -244,10 +201,6 @@
 }
 
 .control {
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-
     &-btns {
         span {
             margin: 0 5px;

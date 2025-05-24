@@ -68,10 +68,3 @@ export const EVENT_TYPE_NAME_MAPPING: Record<string, string> = {
     vehicle: 'IDCS_DETECTION_VEHICLE',
     nonMotorizedVehicle: 'IDCS_DETECTION_MOTORCYCLE',
 }
-
-export type EventTypeItem = {
-    value: string
-    label: string
-    belongTo?: string
-    children?: string[]
-}

@@ -48,8 +48,8 @@ const prop = withDefaults(
         type: 'live' | 'record' | 'image'
         pic?: string
         snapPic?: () => Promise<string>
-        mode: string
-        winIndex: number
+        mode?: string
+        winIndex?: number
         chlId?: string
         startTime?: number
         endTime?: number
@@ -57,6 +57,7 @@ const prop = withDefaults(
     {
         pic: '',
         snapPic: () => Promise.resolve(''),
+        mode: 'h5',
         chlId: '',
         startTime: 0,
         endTime: 0,
@@ -216,7 +217,7 @@ const getSnapPic = async () => {
             }
 
             if (prop.mode === 'ocx') {
-                const sendXML = OCX_XML_TakePhotoBase64ByWinIndex(prop.winIndex)
+                const sendXML = OCX_XML_TakePhotoBase64ByWinIndex(prop.winIndex ?? 0)
                 plugin.ExecuteCmd(sendXML)
                 const stopWatch = watch(ocxBase64, (data) => {
                     resolve(data)
@@ -369,7 +370,6 @@ const handleDetectResultFail = (failType: string) => {
         pageData.value.isFailTip = true
     } else {
         openMessageBox(Translate('IDCS_NOT_DETECT_TARGET') + Translate('IDCS_SELECT_OTHER_TIMEPOINT_RETRY'))
-        emits('update:visible', false)
     }
 }
 

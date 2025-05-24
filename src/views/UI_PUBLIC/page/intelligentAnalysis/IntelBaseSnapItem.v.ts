@@ -3,8 +3,12 @@
  * @Date: 2025-05-21 10:30:00
  * @Description: 智能分析-人、车
  */
+import IntelFaceDBSnapRegisterPop from './IntelFaceDBSnapRegisterPop.vue'
 
 export default defineComponent({
+    components: {
+        IntelFaceDBSnapRegisterPop,
+    },
     props: {
         /**
          * @property 当前搜索类型
@@ -14,7 +18,7 @@ export default defineComponent({
             default: 'byFace',
         },
         /**
-         * @property 当前目标详情数据
+         * @property 当前目标详情数据项
          */
         targetData: {
             type: Object as PropType<IntelTargetDataItem>,
@@ -28,10 +32,28 @@ export default defineComponent({
             type: String,
             default: '',
         },
+        /**
+         * @property 是否显示对比图
+         */
+        showCompare: {
+            type: Boolean,
+            default: false,
+        },
+        /**
+         * @property 当前选择的对比图列表
+         */
+        choosePics: {
+            type: Array as PropType<(IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)[]>,
+            default: () => [new IntelFaceDBSnapFaceList()],
+            require: true,
+        },
     },
     emits: {
         detail() {
             return true
+        },
+        search(targetData: IntelTargetDataItem) {
+            return !!targetData
         },
     },
     setup(prop, ctx) {
@@ -39,11 +61,47 @@ export default defineComponent({
         const systemCaps = useCababilityStore()
         const dateTime = useDateTimeStore()
 
+        const pageData = ref({
+            isRegisterFacePop: false, // 注册人脸的弹框
+            isRegisterPlatePop: false, // 注册车牌的弹框
+        })
+
         /**
          * @description 处理点击封面图事件（打开详情）
          */
         const handleClickCover = () => {
             ctx.emit('detail')
+        }
+
+        /**
+         * @description 搜索（以图搜图）
+         */
+        const handleSearch = () => {
+            // NTA1-3680: 与设备端保持一致效果
+            if (prop.choosePics.length >= 5) {
+                openMessageBox(Translate('IDCS_SELECT_IMAGE_UPTO_MAX'))
+                return
+            }
+            // 设置图片数据（人-人脸界面、人体界面）
+            ctx.emit('search', prop.targetData)
+        }
+
+        /**
+         * @description 导出选中项数据（单个数据）
+         */
+        const handleExport = () => {
+            console.log('handleExport')
+        }
+
+        /**
+         * @description 注册（人脸、车牌号）
+         */
+        const handleRegister = () => {
+            if (prop.searchType === 'byFace') {
+                pageData.value.isRegisterFacePop = true
+            } else if (prop.searchType === 'byPlateNumber') {
+                pageData.value.isRegisterPlatePop = true
+            }
         }
 
         /**
@@ -123,12 +181,21 @@ export default defineComponent({
 
         // 是否显示相似度
         const showSimilarity = computed(() => {
-            return !!prop.targetData.similarity
+            return prop.showCompare && !!prop.targetData.similarity
+        })
+
+        // 当前目标数据对应的对比图
+        const comparePicInfo = computed(() => {
+            return prop.choosePics.find((item) => item.libIndex === prop.targetData.libIndex)
         })
 
         return {
+            pageData,
             Translate,
             handleClickCover,
+            handleSearch,
+            handleExport,
+            handleRegister,
             displayDateTime,
             loadImg,
             showSearch,
@@ -136,6 +203,7 @@ export default defineComponent({
             showRegister,
             showPlateNumber,
             showSimilarity,
+            comparePicInfo,
         }
     },
 })

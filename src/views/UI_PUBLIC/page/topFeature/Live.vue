@@ -22,6 +22,7 @@
                     ref="playerRef"
                     :split="pageData.split"
                     :enable-pos="systemCaps.supportPOS"
+                    :enable-draw="false"
                     @ready="handlePlayerReady"
                     @select="handlePlayerSelect"
                     @success="handlePlayerSuccess"

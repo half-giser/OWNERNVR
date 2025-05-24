@@ -3,48 +3,42 @@
  * @Date: 2025-05-17 15:38:48
  * @Description: 大回放/按事件搜索备份 - 属性选择器
  */
-import { type EventTypeItem, EVENT_TYPE_NAME_MAPPING } from '@/utils/const/record'
+import { EVENT_TYPE_NAME_MAPPING } from '@/utils/const/record'
 export default defineComponent({
     props: {
         /**
          * @property 勾选的属性值
          */
         modelValue: {
-            type: Array as PropType<EventTypeItem[]>,
-            default: () => [],
+            type: Array as PropType<string[]>,
             required: true,
+        },
+        layout: {
+            type: String as PropType<'selector' | 'filter'>,
+            default: 'selector',
         },
     },
     emits: {
-        'update:modelValue'(events: EventTypeItem[]) {
+        'update:modelValue'(events: string[]) {
+            return Array.isArray(events)
+        },
+        ready(events: string[]) {
             return Array.isArray(events)
         },
     },
     setup(prop, ctx) {
-        type OptionListItem = {
-            eventTitle: string
-            eventList: EventTypeItem[]
-        }
+        const { Translate } = useLangStore()
+
         // 所有的录像事件类型枚举（全集）
-        const OPTIONS: OptionListItem[] = [
+        const OPTIONS = [
             // 通用事件
             {
-                eventTitle: 'IDCS_COMMON_EVENT',
+                eventTitle: Translate('IDCS_COMMON_EVENT'),
                 eventList: [
                     {
                         value: 'motion',
                         label: EVENT_TYPE_NAME_MAPPING.motion,
                         children: ['smdPerson', 'smdCar'],
-                    },
-                    {
-                        value: 'smdPerson',
-                        label: EVENT_TYPE_NAME_MAPPING.motion,
-                        belongTo: 'motion',
-                    },
-                    {
-                        value: 'smdCar',
-                        label: EVENT_TYPE_NAME_MAPPING.motion,
-                        belongTo: 'motion',
                     },
                     {
                         value: 'manual',
@@ -62,7 +56,7 @@ export default defineComponent({
             },
             // 周界防范
             {
-                eventTitle: 'IDCS_HUMAN_CAR_OTHER_BOUNDARY',
+                eventTitle: Translate('IDCS_HUMAN_CAR_OTHER_BOUNDARY'),
                 eventList: [
                     {
                         value: 'intrusion',
@@ -84,7 +78,7 @@ export default defineComponent({
             },
             // 目标事件
             {
-                eventTitle: 'IDCS_TARGET_EVENT',
+                eventTitle: Translate('IDCS_TARGET_EVENT'),
                 eventList: [
                     {
                         value: 'vfd',
@@ -102,7 +96,7 @@ export default defineComponent({
             },
             // 异常行为
             {
-                eventTitle: 'IDCS_EXCEPTION_BEHAVIOR',
+                eventTitle: Translate('IDCS_EXCEPTION_BEHAVIOR'),
                 eventList: [
                     {
                         value: 'loitering',
@@ -140,7 +134,7 @@ export default defineComponent({
             },
             // 热成像
             {
-                eventTitle: 'IDCS_THERMAL_LIGHT',
+                eventTitle: Translate('IDCS_THERMAL_LIGHT'),
                 eventList: [
                     {
                         value: 'firePoint',
@@ -154,9 +148,17 @@ export default defineComponent({
             },
         ]
 
+        const options = computed(() => {
+            return OPTIONS.map((item) => {
+                return {
+                    eventTitle: item.eventTitle,
+                    eventList: item.eventList.filter((event) => pageData.value.recTypeList.includes(event.value)),
+                }
+            }).filter((item) => item.eventList.length)
+        })
+
         // 页面数据
         const pageData = ref({
-            // 是否打开事件类型筛选框
             isPop: false,
             // 硬盘中存在的事件类型列表
             recTypeList: [] as string[],
@@ -164,16 +166,19 @@ export default defineComponent({
             selectedRecTypeList: [] as string[],
         })
 
+        const content = computed(() => {
+            if (!prop.modelValue.length || prop.modelValue.length === pageData.value.recTypeList.length) {
+                return Translate('IDCS_FULL')
+            } else {
+                return prop.modelValue.map((item) => (EVENT_TYPE_NAME_MAPPING[item] ? Translate(EVENT_TYPE_NAME_MAPPING[item]) : '')).join(';')
+            }
+        })
+
         /**
          * @description 每次打开事件筛选框都会调用open方法
          */
-        const open = () => {
-            pageData.value.isPop = true
-            pageData.value.selectedRecTypeList = []
-            prop.modelValue.forEach((item: EventTypeItem) => {
-                pageData.value.selectedRecTypeList.push(item.value)
-            })
-            getRecTypeList()
+        const open = async () => {
+            pageData.value.selectedRecTypeList = [...prop.modelValue]
         }
 
         /**
@@ -183,12 +188,10 @@ export default defineComponent({
             const result = await queryRecTypeList()
             const $ = queryXml(result)
             if ($('status').text() === 'success') {
-                pageData.value.recTypeList = []
-                const $recTypeListContent = queryXml(queryXml(result)('content')[0].element)
-                $recTypeListContent('recTypeList/item').forEach((item) => {
-                    const recType = item.text()
-                    pageData.value.recTypeList.push(recType)
+                pageData.value.recTypeList = $('content/recTypeList/item').map((item) => {
+                    return item.text()
                 })
+                ctx.emit('ready', pageData.value.recTypeList)
             }
         }
 
@@ -215,44 +218,20 @@ export default defineComponent({
          * @description 全选
          */
         const chooseAll = () => {
-            pageData.value.selectedRecTypeList = []
-            pageData.value.recTypeList.forEach((eventType: string) => {
-                pageData.value.selectedRecTypeList.push(eventType)
-            })
+            pageData.value.selectedRecTypeList = [...pageData.value.recTypeList]
         }
 
         /**
          * @description 确认
          */
         const confirm = () => {
-            const tempEvents = [] as EventTypeItem[]
-            OPTIONS.forEach((item1: OptionListItem) => {
-                item1.eventList.forEach((item2: EventTypeItem) => {
-                    if (!item2.belongTo && pageData.value.selectedRecTypeList.includes(item2.value)) {
-                        tempEvents.push(item2)
-                    }
-                })
-            })
-            ctx.emit('update:modelValue', tempEvents)
             pageData.value.isPop = false
+            ctx.emit('update:modelValue', pageData.value.selectedRecTypeList)
         }
 
-        // 根据“所有事件类型全集”和“硬盘中存在的事件类型”计算出弹框要展示的事件类型选项（因为界面有展示顺序的要求，所以需要提前定义好事件类型全集来约束展示顺序）
-        const options = computed(() => {
-            const tempOptions = JSON.parse(JSON.stringify(OPTIONS))
-            tempOptions.forEach((item1: OptionListItem) => {
-                const tempEventList = [] as EventTypeItem[]
-                item1.eventList.forEach((item2: EventTypeItem) => {
-                    if (!item2.belongTo && pageData.value.recTypeList.includes(item2.value)) {
-                        tempEventList.push(item2)
-                    }
-                })
-                item1.eventList = tempEventList
-            })
-            return tempOptions
+        onMounted(() => {
+            getRecTypeList()
         })
-
-        onMounted(() => {})
 
         ctx.expose({
             open,
@@ -265,6 +244,8 @@ export default defineComponent({
             reset,
             chooseAll,
             confirm,
+            open,
+            content,
         }
     },
 })

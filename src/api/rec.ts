@@ -141,4 +141,4 @@ export const queryDatesExistRec = (data: string) => fetch('queryDatesExistRec', 
  * @param data
  * @returns
  */
-export const queryChlSnapPicture = (data: string) => fetch('queryDatesExistRec', data)
+export const queryChlSnapPicture = (data: string) => fetch('queryChlSnapPicture', data)

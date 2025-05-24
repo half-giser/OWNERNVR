@@ -871,6 +871,8 @@ const getSingletonPlugin = () => {
                 }
                 return
             } else {
+                const sendXML = OCX_XML_PluginBindWin()
+                executeCmd(sendXML)
                 isPluginAvailable.value = true
                 setVideoPluginStatus('Loaded')
             }

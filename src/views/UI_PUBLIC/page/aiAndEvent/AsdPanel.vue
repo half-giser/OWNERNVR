@@ -24,10 +24,17 @@
                 v-show="pageData.tab !== 'trigger'"
                 class="base-ai-param-box-left fixed"
             >
-                <div
+                <!-- <div
                     ref="asdChartRef"
                     class="voiceChartDiv"
-                ></div>
+                >
+                    
+                </div> -->
+                <v-chart
+                    class="voiceChartDiv"
+                    :option="options"
+                    autoresize
+                />
                 <div class="legend">
                     <div class="legendItem">
                         <span class="circle red"></span>
@@ -186,7 +193,13 @@
     height: 300px;
 }
 
-.circle {
+.legendItem {
+    margin: 5px 0;
+}
+</style>
+
+<style lang="scss">
+.asd-circle {
     display: inline-block;
     width: 7px;
     height: 7px;
@@ -195,19 +208,15 @@
     vertical-align: middle;
 }
 
-.circle.red {
+.asd-circle.red {
     background-color: #f00;
 }
 
-.circle.blue {
+.asd-circle.blue {
     background-color: #00f;
 }
 
-.circle.green {
+.asd-circle.green {
     background-color: #61a0a8;
-}
-
-.legendItem {
-    margin: 5px 0;
 }
 </style>

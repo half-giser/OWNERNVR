@@ -1010,9 +1010,9 @@ const drawRecord = () => {
         // 绘制剪切层
         if (chl.records.length) drawClipRange(index)
         // 绘制通道之间的分割线
-        if (chlList.length === 1 && minTime > 0) {
-            return
-        }
+        // if (chlList.length === 1 && minTime > 0) {
+        //     return
+        // }
         const positonY = 28 + 25 * index
         drawLine(recordCtx, 0, positonY, canvasWidth, positonY, splitLineColor)
     })

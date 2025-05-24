@@ -91,6 +91,7 @@
                 </div>
             </div>
             <div
+                v-if="enablePos"
                 class="pos"
                 :style="{
                     width: `${item.posPosition.width}px`,
@@ -122,10 +123,14 @@
                 {{ item.chlIpInfo }}
             </div>
             <canvas
+                v-if="enableDetect"
                 v-show="item.isTargetDetect"
                 class="target-detect"
             ></canvas>
-            <canvas class="draw"></canvas>
+            <canvas
+                v-if="enableDraw"
+                class="draw"
+            ></canvas>
             <div
                 class="error"
                 :class="{
@@ -281,6 +286,10 @@ const prop = withDefaults(
          * @property 是否向插件发送位置数据
          */
         ocxUpdatePos?: boolean
+        /**
+         * @peoperty
+         */
+        enableDraw?: boolean
     }>(),
     {
         onlyWasm: false,
@@ -289,6 +298,7 @@ const prop = withDefaults(
         enablePos: false,
         enableDetect: false,
         ocxUpdatePos: true,
+        enableDraw: true,
     },
 )
 
@@ -897,6 +907,11 @@ const setItemSize = () => {
  */
 const setPlayCavItemSize = (winIndex: number) => {
     const $playWrapItem = getVideoWrapDiv(winIndex)
+
+    if (!$playWrapItem) {
+        return
+    }
+
     const { width, height } = $playWrapItem.getBoundingClientRect()
 
     const playCav = getVideoCanvas(winIndex)
@@ -1002,11 +1017,13 @@ const setVideoDivSize = (winIndex: number, width: number, height: number) => {
  */
 const resetVideoDivSize = (winIndex: number) => {
     const $item = getVideoWrapDiv(winIndex)
-    $item.style.width = '100%'
-    $item.style.height = '100%'
-    nextTick(() => {
-        setPlayCavItemSize(winIndex)
-    })
+    if ($item) {
+        $item.style.width = '100%'
+        $item.style.height = '100%'
+        nextTick(() => {
+            setPlayCavItemSize(winIndex)
+        })
+    }
 }
 
 /**
@@ -1014,7 +1031,7 @@ const resetVideoDivSize = (winIndex: number) => {
  * @param {number} winIndex
  */
 const getVideoWrapDiv = (winIndex: number) => {
-    return $screen.value!.children[winIndex].querySelector('.play') as HTMLDivElement
+    return $screen.value?.children[winIndex].querySelector('.play') as HTMLDivElement
 }
 
 /**
@@ -1025,19 +1042,31 @@ const getVideoCanvas = (winIndex = 0) => {
     return $screen.value!.children[winIndex].querySelector('.play-canvas') as HTMLCanvasElement
 }
 
+const fakeCanvas = document.createElement('canvas')
+
 /**
  * @description 根据窗口索引获取视频覆盖层canvas元素
  * @param {number} winIndex
  */
 const getOverlayCanvas = (winIndex = 0) => {
-    return $screen.value!.children[winIndex].querySelector('.draw') as HTMLCanvasElement
+    const canvas = $screen.value?.children[winIndex].querySelector('.draw')
+    if (canvas) {
+        return canvas as HTMLCanvasElement
+    } else {
+        return fakeCanvas as HTMLCanvasElement
+    }
 }
 
 /**
  * @description 根据窗口索引获取视频目标框canvas元素
  */
 const getDetectTargetCanvas = (winIndex = 0) => {
-    return $screen.value!.children[winIndex].querySelector('.target-detect') as HTMLCanvasElement
+    const canvas = $screen.value?.children[winIndex].querySelector('.target-detect')
+    if (canvas) {
+        return canvas as HTMLCanvasElement
+    } else {
+        return fakeCanvas as HTMLCanvasElement
+    }
 }
 
 /**
@@ -1402,10 +1431,10 @@ const hideErrorTips = (winIndex: number) => {
 const showErrorTips = (type: string, winIndex: number, winData?: PlayerWinDataListItem) => {
     if (!type) return
     if (type === 'none') {
-        if (!pageData.value[winIndex].isErrorTips) {
-            pageData.value[winIndex].isErrorTips = true
-            pageData.value[winIndex].errorTipsText = 'none'
-        }
+        // if (!pageData.value[winIndex].isErrorTips) {
+        //     pageData.value[winIndex].isErrorTips = true
+        //     pageData.value[winIndex].errorTipsText = 'none'
+        // }
         return
     }
     pageData.value[winIndex].isErrorTips = true
@@ -2040,7 +2069,7 @@ const play = (params: PlayerPlayParams) => {
         supportIris: params.supportIris || false,
         supportAZ: params.supportAZ || false,
         chlName: params.chlName || '',
-        streamType: params.streamType || 2,
+        streamType: typeof params.streamType === 'number' ? params.streamType : 2,
     }
     winDataList[winIndex].original = false
     winDataList[winIndex].localRecording = false

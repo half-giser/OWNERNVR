@@ -244,6 +244,9 @@ export const wrapEnums = <T extends number | string | boolean, K>(array: string[
  * @returns {string}
  */
 export const wrapBase64Img = (str: string): string => {
+    if (str.startsWith('data:image/png;base64,')) {
+        return str
+    }
     return 'data:image/png;base64,' + str
 }
 
@@ -1759,7 +1762,6 @@ export const getSearchOptions = async () => {
             })
         }
     })
-    console.log({ person: pedAttr, car: vehicleAttr, motor: nonmotorAttr, plate: plateAttr })
     return { person: pedAttr, car: vehicleAttr, motor: nonmotorAttr, plate: plateAttr }
 }
 
@@ -1774,4 +1776,24 @@ const handleSort = (attrList: Record<string, string>[], targetSort: string[]) =>
         if (attrItem) list.push(attrItem)
     })
     return list
+}
+
+// 获取有文本内容但还未渲染到页面的元素的文本宽度
+export const getTextWidth = (str: string, fontSize: number) => {
+    // 创建临时元素
+    const _span = document.createElement('span')
+    // 放入文本
+    _span.innerText = str
+    // 设置文字大小
+    _span.style.fontSize = fontSize + 'px'
+    // span元素转块级
+    _span.style.position = 'absolute'
+    // span放入body中
+    document.body.appendChild(_span)
+    // 获取span的宽度
+    const width = _span.offsetWidth
+    // 从body中删除该span
+    document.body.removeChild(_span)
+    // 返回span宽度
+    return width
 }

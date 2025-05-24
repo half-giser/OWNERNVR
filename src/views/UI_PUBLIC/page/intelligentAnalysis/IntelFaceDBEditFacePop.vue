@@ -6,7 +6,7 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_EDIT')"
-        width="800"
+        width="550"
         @open="open"
     >
         <div class="edit">
@@ -15,11 +15,9 @@
                 class="stripe"
             >
                 <el-form-item :label="Translate('IDCS_NAME_PERSON')">
-                    <el-input
+                    <BaseTextInput
                         v-model="formData.name"
-                        :formatter="formatName"
-                        :parser="formatName"
-                        maxlength="31"
+                        :maxlength="limit.name"
                         :disabled
                     />
                 </el-form-item>
@@ -37,6 +35,13 @@
                         :disabled
                     />
                 </el-form-item>
+                <el-form-item :label="Translate('IDCS_NATIVE_PLACE')">
+                    <BaseTextInput
+                        v-model="formData.nativePlace"
+                        :maxlength="limit.nativePlace"
+                        :disabled
+                    />
+                </el-form-item>
                 <el-form-item :label="Translate('IDCS_ID_TYPE')">
                     <el-select-v2
                         v-model="formData.certificateType"
@@ -45,9 +50,9 @@
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ID_NUMBER')">
-                    <el-input
+                    <BaseTextInput
                         v-model="formData.certificateNum"
-                        maxlength="31"
+                        :maxlength="limit.certificateNum"
                         :disabled
                     />
                 </el-form-item>
@@ -56,7 +61,7 @@
                         v-model="formData.mobile"
                         :parser="formatDigit"
                         :formatter="formatDigit"
-                        maxlength="15"
+                        :maxlength="limit.mobile"
                         :disabled
                     />
                 </el-form-item>
@@ -65,15 +70,15 @@
                         v-model="formData.number"
                         :parser="formatDigit"
                         :formatter="formatDigit"
-                        maxlength="15"
+                        :maxlength="limit.number"
                         :disabled
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_REMARK')">
-                    <el-input
+                    <BaseTextInput
                         v-model="formData.note"
                         :disabled
-                        maxlength="15"
+                        :maxlength="limit.note"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ADD_FACE_GROUP')">
@@ -87,23 +92,18 @@
                     />
                 </el-form-item>
             </el-form>
-            <div class="pics">
-                <div class="pics-list">
-                    <IntelBaseFaceItem
-                        v-show="!disabled"
-                        type="status"
-                        :src="formData.pic"
-                        :icon="formData.success ? 'success' : formData.error ? 'error' : ''"
-                    />
-                </div>
-                <div class="base-btn-box">
+            <div
+                v-show="!disabled"
+                class="pic"
+            >
+                <div class="pic-head">
                     <el-button
-                        :disabled="disabled"
+                        link
                         @click="chooseFace"
+                        >{{ Translate('IDCS_CHANGE') }}</el-button
                     >
-                        {{ Translate('IDCS_ADD') }}
-                    </el-button>
                 </div>
+                <img :src="formData.pic" />
             </div>
             <IntelFaceDBChooseFacePop
                 v-model="pageData.isChooseFacePop"
@@ -123,23 +123,37 @@
 
 <style lang="scss" scoped>
 .edit {
+    width: 100%;
     display: flex;
 
     .el-form {
-        width: 50%;
-        flex-shrink: 0;
+        width: 100%;
+        flex-shrink: 1 !important;
     }
 
-    .pics {
-        margin-left: 10px;
-        width: 100%;
-        height: 378px;
+    .pic {
+        margin-left: 20px;
+        width: 102px;
+        height: 120px;
         border: 1px solid var(--content-border);
-        padding: 10px;
-        box-sizing: border-box;
+        flex-shrink: 0;
 
-        &-list {
-            height: 315px;
+        &-head {
+            height: 20px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            box-sizing: border-box;
+            padding: 0 5px;
+        }
+
+        img {
+            width: 100%;
+            height: 100px;
+
+            &[src=''] {
+                opacity: 0;
+            }
         }
     }
 }

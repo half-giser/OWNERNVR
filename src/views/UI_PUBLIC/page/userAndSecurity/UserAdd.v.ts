@@ -192,7 +192,7 @@ export default defineComponent({
                     <mac>${wrapCDATA(DEFAULT_EMPTY_MAC)}</mac>
                     <enabled>true</enabled>
                     <authEffective>true</authEffective>
-                    <loginScheduleInfo enable="${formData.value.loginScheduleInfoEnabled}">${formData.value.loginScheduleInfo}</loginScheduleInfo>
+                    <loginScheduleInfo enable="${formData.value.loginScheduleInfoEnabled}" scheduleId="${formData.value.loginScheduleInfo}"></loginScheduleInfo>
                 </content>
                 <auth>
                     <userName>${e.userName}</userName>

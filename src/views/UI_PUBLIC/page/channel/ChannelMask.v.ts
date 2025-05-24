@@ -405,7 +405,6 @@ export default defineComponent({
             drawingArea.value = []
 
             if (mode.value === 'h5') {
-                console.log(rowData.mask)
                 drawer.setMask(rowData.mask)
             }
 

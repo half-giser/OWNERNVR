@@ -6,18 +6,27 @@
 import IntelBaseDateTimeSelector from './IntelBaseDateTimeSelector.vue'
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
 import IntelBaseProfileSelector from './IntelBaseProfileSelector.vue'
+import IntelFaceSearchChooseFacePop from './IntelFaceSearchChooseFacePop.vue'
 import IntelBaseSnapItem from './IntelBaseSnapItem.vue'
+import { type DropdownInstance } from 'element-plus'
 
 export default defineComponent({
     components: {
         IntelBaseDateTimeSelector,
         IntelBaseChannelSelector,
         IntelBaseProfileSelector,
+        IntelFaceSearchChooseFacePop,
         IntelBaseSnapItem,
     },
     setup() {
         const { Translate } = useLangStore()
+        const systemCaps = useCababilityStore()
         const dateTime = useDateTimeStore()
+        // 三个排序下拉框的引用
+        const faceSortDropdown = ref<DropdownInstance>()
+        const bodySortDropdown = ref<DropdownInstance>()
+        const personAttributeSortDropdown = ref<DropdownInstance>()
+
         // key对应界面tab类型，value对应协议需要下发的searchType字段
         const SEARCH_TYPE_MAPPING: Record<string, string> = {
             byFace: 'byHumanFacePic',
@@ -63,6 +72,8 @@ export default defineComponent({
                     value: 'snap',
                 },
             ],
+            // 是否是以图搜图
+            isByPic: false,
             // 排序类型（按时间/按通道）
             sortType: 'time',
             // 排序选项
@@ -70,10 +81,17 @@ export default defineComponent({
                 {
                     label: Translate('IDCS_CHANNEL'),
                     value: 'chl',
+                    status: 'down',
                 },
                 {
                     label: Translate('IDCS_TIME'),
                     value: 'time',
+                    status: 'down',
+                },
+                {
+                    label: Translate('IDCS_SIMILARITY'),
+                    value: 'similarity',
+                    status: 'down',
                 },
             ],
             // 选择的日期时间范围
@@ -111,6 +129,41 @@ export default defineComponent({
             openDetailIndexForBody: '',
             // 当前打开的详情的索引index（特征值的base64）（人属性）
             openDetailIndexForPersonAttribute: '',
+            // 是否是轨迹界面（人脸界面才有轨迹）
+            isTrail: false,
+            // 是否打开人脸/人体的选择图片弹框
+            isChoosePicPop: false,
+            picType: '', // 图片类型：抓拍库/人脸库/组/导入...
+            snapFace: [] as IntelFaceDBSnapFaceList[], // 抓拍库
+            snapBody: [] as IntelBodyDBSnapBodyList[], // 抓拍库
+            featureFace: [] as IntelFaceDBFaceInfo[], // 人脸库
+            isChangingPic: false, // 是否是通过点击“修改按钮”打开的选择图片弹框
+            currChangingIndex: 0, // 当前正在修改的图片index
+            // 相似度（人脸）
+            similarityForFace: 75,
+            // 相似度（人体）
+            similarityForBody: 75,
+            // 选择的图片列表（人脸）
+            picCacheListForFace: [] as (IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)[],
+            choosePicsForFace: [] as (IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)[],
+            // 选择的图片列表（人体）
+            picCacheListForBody: [] as (IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)[],
+            choosePicsForBody: [] as (IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)[],
+            // 备份类型选项
+            backupTypeOptions: [
+                {
+                    label: Translate('IDCS_BACKUP_PICTURE'),
+                    value: 'pic' as 'pic' | 'video' | 'picAndVideo',
+                },
+                {
+                    label: Translate('IDCS_BACKUP_RECORD'),
+                    value: 'video' as 'pic' | 'video' | 'picAndVideo',
+                },
+                {
+                    label: Translate('IDCS_BACKUP_PICTURE_AND_RECORD'),
+                    value: 'picAndVideo' as 'pic' | 'video' | 'picAndVideo',
+                },
+            ],
             // 是否支持备份（H5模式）
             isSupportBackUp: isBrowserSupportWasm() && !isHttpsLogin(),
         })
@@ -130,8 +183,13 @@ export default defineComponent({
         /**
          * @description 获取列表索引数据 - searchTargetIndex
          */
-        const getAllTargetIndexDatas = async () => {
+        const getAllTargetIndexDatas = async (isByPic?: boolean) => {
+            resetChoosePics()
+            resetSortStatus()
+            setCurrTargetIndexDatas([])
+            setCurrTargetDatas([])
             const currAttrObjToList: attrObjToListItem[] = getCurrAttribute()
+            const currPicCacheList: (IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)[] = getCurrPicCacheList()
             const sendXml = rawXml`
                 <resultLimit>10000</resultLimit>
                 <condition>
@@ -165,6 +223,56 @@ export default defineComponent({
                                 </byAttrParams>`
                             : ''
                     }
+                    ${
+                        currPicCacheList.length > 0
+                            ? ` <byPicParams>
+                                    <similarity>${pageData.value.searchType === 'byFace' ? pageData.value.similarityForFace : pageData.value.similarityForBody}</similarity>
+                                    <picInfos type="list">
+                                    ${currPicCacheList
+                                        .map((element) => {
+                                            return rawXml`
+                                                <item>
+                                                    ${
+                                                        element.featureData
+                                                            ? `<searchAttr>
+                                                                    <snapsLib>
+                                                                        <featureData>${element.featureData}</featureData>
+                                                                    </snapsLib>
+                                                                </searchAttr>`
+                                                            : element.featureIndex
+                                                              ? `<searchAttr>
+                                                                    <snapsLib>
+                                                                        <index>${element.featureIndex}</index>
+                                                                    </snapsLib>
+                                                                </searchAttr>`
+                                                              : element.imgId || element.imgId === 0
+                                                                ? `<searchAttr>
+                                                                    <snapsLib>
+                                                                        <imgId>${element.imgId}</imgId>
+                                                                        <chlId>${element.chlId}</chlId>
+                                                                        <frameTime>${element.frameTime}</frameTime>
+                                                                    </snapsLib>
+                                                                </searchAttr>`
+                                                                : element.id || element.id === '0'
+                                                                  ? `<searchAttr>
+                                                                    <snapsLib>
+                                                                        <faceLiraryID>${element.id}</faceLiraryID>
+                                                                    </snapsLib>
+                                                                </searchAttr>`
+                                                                  : ''
+                                                    }
+                                                    <index>${element.libIndex || 0}</index>
+                                                    <data>${element.picBase64 || ''}</data>
+                                                    <picWidth>${element.picWidth || 0}</picWidth>
+                                                    <picHeight>${element.picHeight || 0}</picHeight>
+                                                </item>
+                                                `
+                                        })
+                                        .join('')}
+                                    </picInfos>
+                                </byPicParams>`
+                            : ''
+                    }
                 </condition>
             `
             openLoading()
@@ -186,7 +294,7 @@ export default defineComponent({
                     const quality = $item('quality').text() // quality
                     const similarity = $item('similarity').text().num() // 相似度
                     const eventType = $item('eventType').text() // eventType
-                    const libIndex = $item('libIndex').text() // 以图搜索表示是哪张图地搜索结果（用于对比图的展示）
+                    const libIndex = $item('libIndex').text().num() // 以图搜索表示是哪张图地搜索结果（用于对比图的展示）
                     const startTime = $item('startTime').text().num() // 目标开始时间戳
                     const startTimeUTC = $item('startTimeUTC').text() // 目标开始时间戳 UTC
                     const endTime = $item('endTime').text().num() // 目标消失的时间戳
@@ -210,6 +318,51 @@ export default defineComponent({
                         endTimeUTC,
                     }
                 })
+
+                if (isByPic) {
+                    targetIndexDatas.sort((a, b) => {
+                        if (a.similarity !== b.similarity) {
+                            return b.similarity - a.similarity
+                        }
+
+                        if (a.timeStamp !== b.timeStamp) {
+                            return b.timeStamp - a.timeStamp
+                        }
+
+                        if (a.timeStamp100ns !== b.timeStamp100ns) {
+                            return Number(b.timeStamp100ns) - Number(a.timeStamp100ns)
+                        }
+
+                        if (a.chlID !== b.chlID) {
+                            const chlIdA = getChlId16(a.chlID)
+                            const chlIdB = getChlId16(b.chlID)
+                            return chlIdA - chlIdB
+                        }
+                        return Number(a.targetID) - Number(b.targetID)
+                    })
+                } else {
+                    targetIndexDatas.sort((a, b) => {
+                        if (a.timeStamp !== b.timeStamp) {
+                            return b.timeStamp - a.timeStamp
+                        }
+
+                        if (a.timeStamp100ns !== b.timeStamp100ns) {
+                            return Number(b.timeStamp100ns) - Number(a.timeStamp100ns)
+                        }
+
+                        if (a.chlID !== b.chlID) {
+                            const chlIdA = getChlId16(a.chlID)
+                            const chlIdB = getChlId16(b.chlID)
+                            return chlIdA - chlIdB
+                        }
+                        return Number(a.targetID) - Number(b.targetID)
+                    })
+                }
+
+                if ($('content/IsMaxSearchResultNum').text() === 'true') {
+                    openMessageBox(Translate('IDCS_SEARCH_RESULT_LIMIT_TIPS'))
+                }
+
                 if (targetIndexDatas.length === 0) {
                     openMessageBox(Translate('IDCS_NO_RECORD_DATA'))
                 } else {
@@ -263,8 +416,8 @@ export default defineComponent({
          */
         const getCurrPageTargetDatas = async (targetIndexDatas: IntelTargetIndexItem[]) => {
             const tempTargetDatas: IntelTargetDataItem[] = []
+            closeLoading()
             targetIndexDatas.forEach(async (item) => {
-                closeLoading()
                 const sendXml = rawXml`
                     <condition>
                         <index>${item.index}</index>
@@ -274,14 +427,13 @@ export default defineComponent({
                 `
                 const result = await requestTargetData(sendXml)
                 const $ = queryXml(result)
-                closeLoading()
 
                 const tempTargetData: IntelTargetDataItem = Object.assign({}, new IntelTargetDataItem(), cloneDeep(item))
                 if ($('status').text() === 'success') {
                     const isNoData = false
                     const isDelete = $('content/isDelete').text().bool()
                     const targetID = $('content/targetID').text()
-                    const featureStatus = $('content/featureStatus').text()
+                    const featureStatus = $('content/featureStatus').text().bool()
                     const supportRegister = $('content/supportRegister').text().bool()
                     const targetType = $('content/targetType').text()
                     const timeStamp = $('content/timeStamp').text().num()
@@ -428,6 +580,7 @@ export default defineComponent({
                 // 设置当前界面展示的列表详情数据
                 setCurrTargetDatas(cloneDeep(tempTargetDatas))
             })
+            closeLoading()
         }
 
         /**
@@ -536,6 +689,147 @@ export default defineComponent({
         }
 
         /**
+         * @description 设置当前界面选择的图片信息列表（只在每次点击搜索的时候更新一次，避免修改、删除所选图片时影响抓拍列表中的对比图展示）
+         */
+        const resetChoosePics = () => {
+            switch (pageData.value.searchType) {
+                case 'byFace':
+                    pageData.value.choosePicsForFace = cloneDeep(pageData.value.picCacheListForFace)
+                    break
+                case 'byBody':
+                    pageData.value.choosePicsForBody = cloneDeep(pageData.value.picCacheListForBody)
+                    break
+                default:
+                    break
+            }
+        }
+
+        /**
+         * @description 设置当前界面选择的图片信息列表
+         */
+        const setCurrPicCacheList = (e: (IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)[]) => {
+            switch (pageData.value.searchType) {
+                case 'byFace':
+                    if (pageData.value.isChangingPic) {
+                        pageData.value.picCacheListForFace.splice(pageData.value.currChangingIndex, 1, ...e)
+                    } else {
+                        pageData.value.picCacheListForFace = pageData.value.picCacheListForFace.concat(e)
+                    }
+                    pageData.value.picCacheListForFace.splice(5)
+                    pageData.value.picCacheListForFace.forEach((item, index) => {
+                        getImageSize(item)
+                        item.libIndex = index
+                        item.picBase64 = item.pic.includes(';base64,') ? item.pic.split(',')[1] : item.pic
+                    })
+                    pageData.value.isChangingPic = false
+                    break
+                case 'byBody':
+                    if (pageData.value.isChangingPic) {
+                        pageData.value.picCacheListForBody.splice(pageData.value.currChangingIndex, 1, ...e)
+                    } else {
+                        pageData.value.picCacheListForBody = pageData.value.picCacheListForBody.concat(e)
+                    }
+                    pageData.value.picCacheListForBody.splice(5)
+                    pageData.value.picCacheListForBody.forEach((item, index) => {
+                        getImageSize(item)
+                        item.libIndex = index
+                        item.picBase64 = item.pic.includes(';base64,') ? item.pic.split(',')[1] : item.pic
+                    })
+                    pageData.value.isChangingPic = false
+                    break
+                default:
+                    break
+            }
+        }
+
+        /**
+         * @description 获取当前界面选择的图片信息列表
+         */
+        const getCurrPicCacheList = () => {
+            switch (pageData.value.searchType) {
+                case 'byFace':
+                    return pageData.value.picCacheListForFace
+                case 'byBody':
+                    return pageData.value.picCacheListForBody
+                default:
+                    return []
+            }
+        }
+
+        /**
+         * @description 获取当前界面的排序下拉框引用
+         */
+        const getCurrDropdownRef = () => {
+            switch (pageData.value.searchType) {
+                case 'byFace':
+                    return faceSortDropdown
+                case 'byBody':
+                    return bodySortDropdown
+                case 'byPersonAttribute':
+                    return personAttributeSortDropdown
+                default:
+                    // 返回空的引用
+                    return ref()
+            }
+        }
+
+        /**
+         * @description 打开图片选择弹框
+         */
+        const openChoosePicPop = () => {
+            pageData.value.isChangingPic = false
+            pageData.value.currChangingIndex = 0
+            pageData.value.isChoosePicPop = true
+        }
+
+        /**
+         * @description 选择抓拍库人脸数据 - 抓拍库
+         * @param {IntelFaceDBSnapFaceList[]} e
+         */
+        const chooseFaceSnap = (e: IntelFaceDBSnapFaceList[]) => {
+            pageData.value.picType = 'snap'
+            pageData.value.snapFace = e
+            setCurrPicCacheList(e)
+        }
+
+        /**
+         * @description 选择抓拍库人体数据 - 抓拍库
+         * @param {IntelFaceDBSnapFaceList[]} e
+         */
+        const chooseBodySnap = (e: IntelBodyDBSnapBodyList[]) => {
+            pageData.value.picType = 'snap'
+            pageData.value.snapBody = e
+            setCurrPicCacheList(e)
+        }
+
+        /**
+         * @description 选择人脸库人脸数据 - 人脸库
+         * @param {IntelFaceDBFaceInfo[]} e
+         */
+        const chooseFace = (e: IntelFaceDBFaceInfo[]) => {
+            pageData.value.picType = 'face'
+            pageData.value.featureFace = e
+            setCurrPicCacheList(e)
+        }
+
+        /**
+         * @description 修改某一张图片
+         */
+        const handleChangePic = (index: number) => {
+            pageData.value.isChangingPic = true
+            pageData.value.currChangingIndex = index
+            pageData.value.isChoosePicPop = true
+        }
+
+        /**
+         * @description 删除某一张图片
+         */
+        const handleDeletePic = (index: number) => {
+            const currPicCacheList = getCurrPicCacheList()
+            currPicCacheList.splice(index, 1)
+        }
+
+        /**
          * @description 获取当前属性数据
          */
         const getCurrAttribute = () => {
@@ -560,13 +854,6 @@ export default defineComponent({
         }
 
         /**
-         * @description 选择属性（人属性）
-         */
-        const handleChangeAttr = () => {
-            console.log('handleChangeAttr')
-        }
-
-        /**
          * @description 切换分页页码
          */
         const handleChangePage = (pageIndex: number) => {
@@ -588,10 +875,265 @@ export default defineComponent({
         }
 
         /**
-         * @description 手动排序
+         * @description 重置排序状态
+         */
+        const resetSortStatus = () => {
+            pageData.value.sortOptions.forEach((item) => {
+                item.status = 'down'
+            })
+            pageData.value.sortType = 'time'
+        }
+
+        /**
+         * @description 手动排序: 时间排序、通道排序、相似度排序
          */
         const handleSort = (sortType: string) => {
-            console.log(sortType)
+            const dropdownRef = getCurrDropdownRef()
+            dropdownRef.value?.handleClose()
+            if (sortType === 'time') {
+                if (pageData.value.sortType === 'time') {
+                    // 时间排序升序降序切换
+                    if (pageData.value.sortOptions.find((item) => item.value === 'time')?.status === 'up') {
+                        pageData.value.sortOptions.find((item) => item.value === 'time')!.status = 'down'
+                    } else {
+                        pageData.value.sortOptions.find((item) => item.value === 'time')!.status = 'up'
+                    }
+                    handleSortByTime(pageData.value.sortOptions.find((item) => item.value === 'time')!.status)
+                } else if (pageData.value.sortType === 'chl') {
+                    // 切换为通道排序降序
+                    pageData.value.sortOptions.find((item) => item.value === 'chl')!.status = 'down'
+                    handleSortByChl('down')
+                } else {
+                    // 切换为相似度排序降序
+                    pageData.value.sortOptions.find((item) => item.value === 'similarity')!.status = 'down'
+                    handleSortBySimilarity('down')
+                }
+            } else if (sortType === 'chl') {
+                if (pageData.value.sortType === 'chl') {
+                    // 通道排序升序降序切换
+                    if (pageData.value.sortOptions.find((item) => item.value === 'chl')?.status === 'up') {
+                        pageData.value.sortOptions.find((item) => item.value === 'chl')!.status = 'down'
+                    } else {
+                        pageData.value.sortOptions.find((item) => item.value === 'chl')!.status = 'up'
+                    }
+                    handleSortByChl(pageData.value.sortOptions.find((item) => item.value === 'chl')!.status)
+                } else if (pageData.value.sortType === 'time') {
+                    // 切换为时间排序降序
+                    pageData.value.sortOptions.find((item) => item.value === 'time')!.status = 'down'
+                    handleSortByTime('down')
+                } else {
+                    // 切换为相似度排序降序
+                    pageData.value.sortOptions.find((item) => item.value === 'similarity')!.status = 'down'
+                    handleSortBySimilarity('down')
+                }
+            } else if (sortType === 'similarity') {
+                if (pageData.value.sortType === 'similarity') {
+                    // 相似度排序升序降序切换
+                    if (pageData.value.sortOptions.find((item) => item.value === 'similarity')?.status === 'up') {
+                        pageData.value.sortOptions.find((item) => item.value === 'similarity')!.status = 'down'
+                    } else {
+                        pageData.value.sortOptions.find((item) => item.value === 'similarity')!.status = 'up'
+                    }
+                    handleSortBySimilarity(pageData.value.sortOptions.find((item) => item.value === 'similarity')!.status)
+                } else if (pageData.value.sortType === 'time') {
+                    // 切换为时间排序降序
+                    pageData.value.sortOptions.find((item) => item.value === 'time')!.status = 'down'
+                    handleSortByTime('down')
+                } else {
+                    // 切换为通道排序降序
+                    pageData.value.sortOptions.find((item) => item.value === 'chl')!.status = 'down'
+                    handleSortByChl('down')
+                }
+            }
+            pageData.value.sortType = sortType
+        }
+
+        /**
+         * @description 时间排序
+         * @param {String} sortDirection 排序方向
+         */
+        const handleSortByTime = (sortDirection: string) => {
+            const targetIndexDatas = getCurrTargetIndexDatas()
+            if (targetIndexDatas.length === 0) {
+                return
+            }
+
+            if (sortDirection === 'up') {
+                targetIndexDatas.sort((a, b) => {
+                    if (a.timeStamp !== b.timeStamp) {
+                        return a.timeStamp - b.timeStamp
+                    }
+
+                    if (a.timeStamp100ns !== b.timeStamp100ns) {
+                        return Number(a.timeStamp100ns) - Number(b.timeStamp100ns)
+                    }
+
+                    if (a.similarity !== b.similarity) {
+                        return b.similarity - a.similarity
+                    }
+
+                    if (a.chlID !== b.chlID) {
+                        const chlIdA = getChlId16(a.chlID)
+                        const chlIdB = getChlId16(b.chlID)
+                        return chlIdA - chlIdB
+                    }
+                    return Number(a.targetID) - Number(b.targetID)
+                })
+            } else {
+                targetIndexDatas.sort((a, b) => {
+                    if (a.timeStamp !== b.timeStamp) {
+                        return b.timeStamp - a.timeStamp
+                    }
+
+                    if (a.timeStamp100ns !== b.timeStamp100ns) {
+                        return Number(b.timeStamp100ns) - Number(a.timeStamp100ns)
+                    }
+
+                    if (a.similarity !== b.similarity) {
+                        return b.similarity - a.similarity
+                    }
+
+                    if (a.chlID !== b.chlID) {
+                        const chlIdA = getChlId16(a.chlID)
+                        const chlIdB = getChlId16(b.chlID)
+                        return chlIdA - chlIdB
+                    }
+                    return Number(a.targetID) - Number(b.targetID)
+                })
+            }
+            setCurrTargetIndexDatas(targetIndexDatas)
+            const tempPageIndex = getCurrPageIndex()
+            const tempPageSize = getCurrPageSize()
+            sliceTargetIndexDatas.value = targetIndexDatas.slice((tempPageIndex - 1) * tempPageSize, tempPageIndex * tempPageSize)
+            openLoading()
+            getCurrPageTargetDatas(sliceTargetIndexDatas.value)
+        }
+
+        /**
+         * @description 通道排序
+         * @param {String} sortDirection 排序方向
+         */
+        const handleSortByChl = (sortDirection: string) => {
+            const targetIndexDatas = getCurrTargetIndexDatas()
+            if (targetIndexDatas.length === 0) {
+                return
+            }
+
+            if (sortDirection === 'up') {
+                targetIndexDatas.sort((a, b) => {
+                    if (a.chlID !== b.chlID) {
+                        const chlIdA = getChlId16(a.chlID)
+                        const chlIdB = getChlId16(b.chlID)
+                        return chlIdA - chlIdB
+                    }
+
+                    if (a.timeStamp !== b.timeStamp) {
+                        return b.timeStamp - a.timeStamp
+                    }
+
+                    if (a.timeStamp100ns !== b.timeStamp100ns) {
+                        return Number(b.timeStamp100ns) - Number(a.timeStamp100ns)
+                    }
+                    return Number(a.targetID) - Number(b.targetID)
+                })
+            } else {
+                targetIndexDatas.sort((a, b) => {
+                    if (a.chlID !== b.chlID) {
+                        const chlIdA = getChlId16(a.chlID)
+                        const chlIdB = getChlId16(b.chlID)
+                        return chlIdB - chlIdA
+                    }
+
+                    if (a.timeStamp !== b.timeStamp) {
+                        return b.timeStamp - a.timeStamp
+                    }
+
+                    if (a.timeStamp100ns !== b.timeStamp100ns) {
+                        return Number(b.timeStamp100ns) - Number(a.timeStamp100ns)
+                    }
+                    return Number(a.targetID) - Number(b.targetID)
+                })
+            }
+            setCurrTargetIndexDatas(targetIndexDatas)
+            const tempPageIndex = getCurrPageIndex()
+            const tempPageSize = getCurrPageSize()
+            sliceTargetIndexDatas.value = targetIndexDatas.slice((tempPageIndex - 1) * tempPageSize, tempPageIndex * tempPageSize)
+            openLoading()
+            getCurrPageTargetDatas(sliceTargetIndexDatas.value)
+        }
+
+        /**
+         * @description 相似度排序
+         */
+        const handleSortBySimilarity = (sortDirection: string) => {
+            const targetIndexDatas = getCurrTargetIndexDatas()
+            if (targetIndexDatas.length === 0) {
+                return
+            }
+
+            if (sortDirection === 'up') {
+                targetIndexDatas.sort((a, b) => {
+                    if (a.similarity !== b.similarity) {
+                        return a.similarity - b.similarity
+                    }
+
+                    if (a.timeStamp !== b.timeStamp) {
+                        return b.timeStamp - a.timeStamp
+                    }
+
+                    if (a.timeStamp100ns !== b.timeStamp100ns) {
+                        return Number(b.timeStamp100ns) - Number(a.timeStamp100ns)
+                    }
+
+                    if (a.chlID !== b.chlID) {
+                        const chlIdA = getChlId16(a.chlID)
+                        const chlIdB = getChlId16(b.chlID)
+                        return chlIdA - chlIdB
+                    }
+                    return Number(a.targetID) - Number(b.targetID)
+                })
+            } else {
+                targetIndexDatas.sort((a, b) => {
+                    if (a.similarity !== b.similarity) {
+                        return b.similarity - a.similarity
+                    }
+
+                    if (a.timeStamp !== b.timeStamp) {
+                        return b.timeStamp - a.timeStamp
+                    }
+
+                    if (a.timeStamp100ns !== b.timeStamp100ns) {
+                        return Number(b.timeStamp100ns) - Number(a.timeStamp100ns)
+                    }
+
+                    if (a.chlID !== b.chlID) {
+                        const chlIdA = getChlId16(a.chlID)
+                        const chlIdB = getChlId16(b.chlID)
+                        return chlIdA - chlIdB
+                    }
+                    return Number(a.targetID) - Number(b.targetID)
+                })
+            }
+            setCurrTargetIndexDatas(targetIndexDatas)
+            const tempPageIndex = getCurrPageIndex()
+            const tempPageSize = getCurrPageSize()
+            sliceTargetIndexDatas.value = targetIndexDatas.slice((tempPageIndex - 1) * tempPageSize, tempPageIndex * tempPageSize)
+            openLoading()
+            getCurrPageTargetDatas(sliceTargetIndexDatas.value)
+        }
+
+        /**
+         * @description 备份全部
+         */
+        const handleBackupAll = () => {
+            console.log('handleBackupAll')
+        }
+
+        /**
+         * @description 备份选中项
+         */
+        const handleBackup = (backupType: 'pic' | 'video' | 'picAndVideo') => {
+            console.log(backupType)
         }
 
         /**
@@ -604,9 +1146,214 @@ export default defineComponent({
         /**
          * @description 打开详情
          */
-        const showDetail = (item: IntelTargetDataItem) => {
+        const showDetail = (targetDataItem: IntelTargetDataItem) => {
             pageData.value.isDetailOpen = true
-            setCurrOpenDetailIndex(item.index)
+            setCurrOpenDetailIndex(targetDataItem.index)
+        }
+
+        /**
+         * @description 关闭详情
+         */
+        const hideDetail = () => {
+            pageData.value.isDetailOpen = false
+        }
+
+        /**
+         * @description 以图搜图
+         */
+        const handleSearch = async (targetDataItem: IntelTargetDataItem) => {
+            const imgDataItem = new IntelFaceDBSnapFaceList()
+            imgDataItem.chlId = targetDataItem.chlID
+            imgDataItem.featureIndex = targetDataItem.index
+            imgDataItem.pic = targetDataItem.objPicData.data
+            imgDataItem.picWidth = targetDataItem.objPicData.picWidth
+            imgDataItem.picHeight = targetDataItem.objPicData.picHeight
+
+            // NTA1-3999：点击搜索按钮图标时，如果获取不到特征，则走错误提示业务：提示图片不合格，并且该图片不要添加到以图搜图控件中；
+            if (targetDataItem.featureStatus) {
+                setCurrPicCacheList([imgDataItem])
+            } else {
+                openLoading()
+                try {
+                    const imgBase64 = targetDataItem.objPicData.data
+                    const picWidth = targetDataItem.objPicData.picWidth
+                    const picHeight = targetDataItem.objPicData.picHeight
+                    const targetData = await getDetectResultInfos(imgBase64, picWidth, picHeight) // 获取"目标"数据
+                    const featureData = await extractTragetInfos(targetData) // 获取目标的"BASE64特征数据"
+                    imgDataItem.featureData = featureData
+                    setCurrPicCacheList([imgDataItem])
+                } catch {
+                    openMessageBox(Translate('IDCS_UNQUALIFIED_PICTURE'))
+                }
+                closeLoading()
+            }
+
+            // 关闭详情
+            hideDetail()
+        }
+
+        /**
+         * @description 根据"通道抓拍图"信息数据，去侦测"目标"
+         */
+        const getDetectResultInfos = async (imgData: string, imgWidth: number, imgHeight: number) => {
+            if (!imgData || !imgWidth || !imgHeight) {
+                return
+            }
+
+            imgData = imgData.includes(';base64,') ? imgData.split(',')[1] : imgData
+            const sendXml = rawXml`
+                <content>
+                    <detectImgInfos>
+                        <item index="1">
+                            <imgWidth>${imgWidth}</imgWidth>
+                            <imgHeight>${imgHeight}</imgHeight>
+                            <imgFormat>jpg</imgFormat>
+                            <imgData>${imgData}</imgData>
+                        </item>
+                    </detectImgInfos>
+                </content>
+            `
+            const result = await detectTarget(sendXml)
+            const $ = queryXml(result)
+            const detectResultInfos = $('content/detectResultInfos/Item').map((item) => {
+                const $item = queryXml(item.element)
+                const detectIndex = item.attr('index').num()
+                return {
+                    detectIndex: detectIndex,
+                    detectImgInfo: {
+                        detectIndex: 1,
+                        imgData,
+                        imgWidth,
+                        imgHeight,
+                        imgFormat: 'jpg',
+                    },
+                    targetList: $item('targetList/item').map((el) => {
+                        const $el = queryXml(el.element)
+                        return {
+                            targetId: el.attr('id').num(),
+                            targetType: $el('targetType').text(),
+                            rect: {
+                                leftTop: {
+                                    x: $el('rect/leftTop/x').text().num(),
+                                    y: $el('rect/leftTop/y').text().num(),
+                                },
+                                rightBottom: {
+                                    x: $el('rect/rightBottom/x').text().num(),
+                                    y: $el('rect/rightBottom/y').text().num(),
+                                },
+                                scaleWidth: $el('rect/scaleWidth').text().num(),
+                                scaleHeight: $el('rect/scaleHeight').text().num(),
+                            },
+                            featurePointInfos: $el('featurePointInfos/item').map((point) => {
+                                const $point = queryXml(point.element)
+                                return {
+                                    faceFeatureIndex: point.attr('index'),
+                                    x: $point('x').text().num(),
+                                    y: $point('y').text().num(),
+                                }
+                            }),
+                        }
+                    }),
+                }
+            })
+
+            if (detectResultInfos.length) {
+                // 先判断当前图片是否合格（对于以图搜图来说）
+                const isDetectHumanFace = pageData.value.searchType === 'byFace'
+                const isDetectHumanBody = pageData.value.searchType === 'byBody'
+                let targetListLength = 0
+                let humanFaceTargetListLength = 0
+                let humanBodyTargetListLength = 0
+                detectResultInfos.forEach((item1) => {
+                    item1.targetList.forEach((item2) => {
+                        targetListLength++
+
+                        if (item2.targetType === 'humanFace') {
+                            humanFaceTargetListLength++
+                        }
+
+                        if (item2.targetType === 'humanBody') {
+                            humanBodyTargetListLength++
+                        }
+                    })
+                })
+                if (targetListLength > 0) {
+                    if (isDetectHumanFace) {
+                        if (humanFaceTargetListLength !== 1) {
+                            throw new Error('')
+                        }
+                    } else if (isDetectHumanBody) {
+                        if (humanBodyTargetListLength !== 1) {
+                            throw new Error('')
+                        }
+                    } else {
+                        throw new Error('')
+                    }
+                } else {
+                    throw new Error('')
+                }
+
+                // 获取目标信息
+                const find = detectResultInfos[0].targetList.find((item) => item.targetType === 'humanFace' || item.targetType === 'humanBody') // humanFace humanBody
+                if (find) {
+                    return {
+                        detectImgInfo: detectResultInfos[0].detectImgInfo,
+                        targetItem: find,
+                    }
+                } else {
+                    throw new Error('')
+                }
+            }
+
+            throw new Error('')
+        }
+
+        /**
+         * @description 根据"通道抓拍图"和侦测到的"目标"综合信息数据，去提取目标的"BASE64特征数据"
+         */
+        const extractTragetInfos = async (data: Awaited<ReturnType<typeof getDetectResultInfos>>) => {
+            const detectImgInfo = data!.detectImgInfo
+            const targetItem = data!.targetItem
+            const sendXml = rawXml`
+                <content>
+                    <extractImgInfos>
+                            <item index="${detectImgInfo.detectIndex}">
+                                <imgWidth>${detectImgInfo.imgWidth}</imgWidth>
+                                <imgHeight>${detectImgInfo.imgHeight}</imgHeight>
+                                <imgFormat>${detectImgInfo.imgFormat}</imgFormat>
+                                <imgData>${detectImgInfo.imgData}</imgData>
+                                <rect>
+                                    <leftTop>
+                                        <x>${targetItem.rect.leftTop.x}</x>
+                                        <y>${targetItem.rect.leftTop.y}</y>
+                                    </leftTop>
+                                    <rightBottom>
+                                        <x>${targetItem.rect.rightBottom.x}</x>
+                                        <y>${targetItem.rect.rightBottom.y}</y>
+                                    </rightBottom>
+                                    <scaleWidth>${targetItem.rect.scaleWidth}</scaleWidth>
+                                    <scaleHeight>${targetItem.rect.scaleHeight}</scaleHeight>
+                                </rect>
+                                <targetType>${targetItem.targetType}</targetType>
+                                <featurePointInfos>
+                                    ${targetItem.featurePointInfos
+                                        .map((point) => {
+                                            return rawXml`
+                                                <item index="${point.faceFeatureIndex}">
+                                                    <x>${point.x}</x>
+                                                    <y>${point.y}</y>
+                                                </item>
+                                            `
+                                        })
+                                        .join('')}
+                                </featurePointInfos>
+                            </item>
+                    </extractImgInfos>
+                </content>
+            `
+            const result = await extractTraget(sendXml)
+            const $ = queryXml(result)
+            return $('extractResultInfos/item/featureData').text()
         }
 
         /**
@@ -619,18 +1366,70 @@ export default defineComponent({
             return formatDate(timestamp, dateTime.dateTimeFormat)
         }
 
+        /**
+         * @description 获取图片尺寸
+         * @param {(IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)} 图片信息
+         */
+        const getImageSize = (item: IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo) => {
+            if (item.pic) {
+                const img = new Image()
+                img.src = item.pic
+                img.onload = function () {
+                    item.picWidth = img.width
+                    item.picHeight = img.height
+                }
+            }
+        }
+
+        // 是否显示图片选择器
+        const showPicChooser = computed(() => {
+            if (pageData.value.searchType === 'byFace') {
+                return systemCaps.supportFaceMatch
+            } else if (pageData.value.searchType === 'byBody') {
+                return systemCaps.supportREID
+            } else {
+                return false
+            }
+        })
+
+        // 计算出当前是否需要显示对比图
+        const showCompare = computed(() => {
+            let flag = false
+            const currTargetIndexDatas = getCurrTargetIndexDatas()
+            currTargetIndexDatas.forEach((item) => {
+                if (item.similarity && item.similarity !== 0) {
+                    flag = true
+                }
+            })
+            return flag
+        })
+
         return {
+            faceSortDropdown,
+            bodySortDropdown,
+            personAttributeSortDropdown,
             pageData,
             getChlIdNameMap,
             getAllTargetIndexDatas,
             getCurrTargetDatas,
-            handleChangeAttr,
+            openChoosePicPop,
+            chooseFaceSnap,
+            chooseBodySnap,
+            chooseFace,
+            handleChangePic,
+            handleDeletePic,
             handleChangePage,
             handleSelectAll,
             handleSort,
+            handleBackupAll,
+            handleBackup,
             switchDetail,
             showDetail,
+            hideDetail,
+            handleSearch,
             displayDateTime,
+            showPicChooser,
+            showCompare,
         }
     },
 })

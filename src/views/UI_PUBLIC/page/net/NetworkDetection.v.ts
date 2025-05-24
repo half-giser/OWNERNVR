@@ -37,40 +37,45 @@ export default defineComponent({
          * @description 网络检测
          */
         const test = async () => {
-            openLoading()
+            formRef.value!.validate(async (valid) => {
+                if (!valid) {
+                    return
+                }
+                openLoading()
 
-            const sendXml = rawXml`
+                const sendXml = rawXml`
                 <content>
                     <destAddr>${formData.value.address}</destAddr>
                 </content>
             `
-            const result = await queryPingCmdResult(sendXml)
-            const $ = queryXml(result)
+                const result = await queryPingCmdResult(sendXml)
+                const $ = queryXml(result)
 
-            closeLoading()
+                closeLoading()
 
-            if ($('status').text() === 'success') {
-                if ($('content/result').text() === 'success') {
-                    const delay = $('content/avgDelay').text()
-                    const loss = $('content/packetLoss').text()
-                    openMessageBox({
-                        type: 'success',
-                        message: Translate('IDCS_TEST_RESULTS_SUCCESS_TIP').formatForLang(delay, loss),
-                    })
+                if ($('status').text() === 'success') {
+                    if ($('content/result').text() === 'success') {
+                        const delay = $('content/avgDelay').text()
+                        const loss = $('content/packetLoss').text()
+                        openMessageBox({
+                            type: 'success',
+                            message: Translate('IDCS_TEST_RESULTS_SUCCESS_TIP').formatForLang(delay, loss),
+                        })
+                    } else {
+                        openMessageBox(Translate('IDCS_TEST_RESULTS_FAIL_TIP'))
+                    }
                 } else {
-                    openMessageBox(Translate('IDCS_TEST_RESULTS_FAIL_TIP'))
+                    const errorCode = $('errorCode').text().num()
+                    switch (errorCode) {
+                        case ErrorCode.USER_ERROR_LOG_QUERY_BE_IN_A_MONTH:
+                            openMessageBox(Translate('IDCS_DNSCFG_EMPTY_TIP'))
+                            break
+                        default:
+                            openMessageBox(Translate('IDCS_TEST_FAIL'))
+                            break
+                    }
                 }
-            } else {
-                const errorCode = $('errorCode').text().num()
-                switch (errorCode) {
-                    case ErrorCode.USER_ERROR_LOG_QUERY_BE_IN_A_MONTH:
-                        openMessageBox('IDCS_DNSCFG_EMPTY_TIP')
-                        break
-                    default:
-                        openMessageBox('IDCS_TEST_FAIL')
-                        break
-                }
-            }
+            })
         }
 
         /**

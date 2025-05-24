@@ -1432,7 +1432,7 @@ export const OCX_XML_GetOcxVersion = () => {
 }
 
 // 通知插件绑定父窗口
-export const OCX_XML_PluginBindWin = (id: string) => {
+export const OCX_XML_PluginBindWin = (id?: string) => {
     if (!id) {
         id = Date.now() + ''
         document.title = id

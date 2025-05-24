@@ -215,3 +215,17 @@ export const requestTargetData = (data: string) => fetch('requestTargetData', da
  * @returns
  */
 export const querySearchOptions = () => fetch('querySearchOptions', '')
+
+/**
+ * @description 根据"通道抓拍图"信息数据，去侦测"目标"
+ * @param {string} data
+ * @returns
+ */
+export const detectTarget = (data: string) => fetch('detectTarget', data)
+
+/**
+ * @description 根据"通道抓拍图"和侦测到的"目标"综合信息数据，去提取目标的"BASE64特征数据"
+ * @param {string} data
+ * @returns
+ */
+export const extractTraget = (data: string) => fetch('extractTraget', data)
