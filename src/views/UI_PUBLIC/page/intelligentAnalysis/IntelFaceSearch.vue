@@ -423,7 +423,7 @@
                 <IntelFaceSearchTrackMapPanel
                     v-show="isTrackVisible && !pageData.isMultiFaceSearch"
                     :visible="isTrackVisible && !pageData.isMultiFaceSearch"
-                    :data="pageData.trackMapList"
+                    :data="pageData.trackMapList.map((item) => item.chlId)"
                     @play="play"
                     @pause="pause"
                     @stop="stop"

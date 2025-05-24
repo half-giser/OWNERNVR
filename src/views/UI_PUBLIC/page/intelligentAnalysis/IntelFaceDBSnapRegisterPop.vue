@@ -47,6 +47,12 @@
                         :range="['1910-01-01', '2037-12-31']"
                     />
                 </el-form-item>
+                <el-form-item :label="Translate('IDCS_NATIVE_PLACE')">
+                    <el-input
+                        v-model="formData.nativePlace"
+                        maxlength="15"
+                    />
+                </el-form-item>
                 <el-form-item :label="Translate('IDCS_ID_TYPE')">
                     <el-select-v2
                         v-model="formData.certificateType"

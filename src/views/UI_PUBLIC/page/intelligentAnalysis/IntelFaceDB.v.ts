@@ -63,6 +63,15 @@ export default defineComponent({
             pageSize: 16,
         })
 
+        const limitData = ref({
+            name: 31,
+            nativePlace: 15,
+            certificateNum: 31,
+            note: 15,
+            mobile: 15,
+            number: 15,
+        })
+
         const formData = ref({
             pageIndex: 1,
             name: '',
@@ -409,7 +418,7 @@ export default defineComponent({
                         <faceFeatureGroups type="list">
                             <item id="${groupId}"></item>
                         </faceFeatureGroups>
-                        ${formData.value.name ? `<name>${formData.value.name}</name>` : ''}
+                        ${formData.value.name ? `<name>${wrapCDATA(formData.value.name)}</name>` : ''}
                     </condition>
                 `
                 const result = await queryFacePersonnalInfoList(sendXml)
@@ -425,6 +434,13 @@ export default defineComponent({
                         info.name = $item('name').text()
                         return info
                     })
+
+                    limitData.value.name = $('content/itemType/name').attr('maxByteLen').num() || limitData.value.name
+                    limitData.value.nativePlace = $('content/itemType/nativePlace').attr('maxByteLen').num() || limitData.value.nativePlace
+                    limitData.value.certificateNum = $('content/itemType/certificateNum').attr('maxByteLen').num() || limitData.value.certificateNum
+                    limitData.value.note = $('content/itemType/note').attr('maxByteLen').num() || limitData.value.note
+                    limitData.value.mobile = $('content/itemType/mobile').attr('maxByteLen').num() || limitData.value.mobile
+                    limitData.value.number = $('content/itemType/number').attr('maxByteLen').num() || limitData.value.number
                 }
             }
 
@@ -436,10 +452,8 @@ export default defineComponent({
                 const id = item.id
                 if (!cacheFaceMap.has(id)) {
                     const info = await getFaceInfo(id)
-                    for (let j = 1; j <= info.faceImgCount; j++) {
-                        const pic = await getFaceImg(id, j)
-                        info.pic.push(pic)
-                    }
+                    const pic = await getFaceImg(id, 1)
+                    info.pic = pic
                     cacheFaceMap.set(id, info)
                 }
 
@@ -491,7 +505,7 @@ export default defineComponent({
                 mobile: $item('mobile').text(),
                 faceImgCount: $item('faceImgCount').text().num(),
                 note: $item('note').text(),
-                pic: [] as string[],
+                pic: '',
                 groupId: '',
             }
         }
@@ -797,6 +811,10 @@ export default defineComponent({
             return formatDate(date, dateTime.dateFormat)
         }
 
+        const displayGroupName = (row: IntelFaceDBGroupList) => {
+            return `${row.name}${userSession.facePersonnalInfoMgr ? `(${row.count})` : ''}`
+        }
+
         onActivated(async () => {
             await getGroupList()
             tableData.value.forEach((item) => {
@@ -846,6 +864,8 @@ export default defineComponent({
             confirmEditFace,
             displayDate,
             isExportDisabled,
+            limitData,
+            displayGroupName,
         }
     },
 })

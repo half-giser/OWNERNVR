@@ -1100,6 +1100,7 @@ export default defineComponent({
                 alarmOut: [],
                 snap: [],
                 preset: [],
+                ipSpeaker: [],
                 trigger: ['msgPushSwitch'],
             })
         }
@@ -1202,6 +1203,12 @@ export default defineComponent({
                                 },
                             }
                         }),
+                        ipSpeaker: $trigger('triggerAudioDevice/chls/item').map((item) => {
+                            return {
+                                ipSpeakerId: item.attr('id'),
+                                audioID: item.attr('audioID'),
+                            }
+                        }),
                         trigger: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'popMsgSwitch'].filter((item) => {
                             return $trigger(item).text().bool()
                         }),
@@ -1289,6 +1296,15 @@ export default defineComponent({
                                                             .join('')}
                                                     </presets>
                                                 </preset>
+                                                <triggerAudioDevice>
+                                                    <chls type="list">
+                                                    ${item.ipSpeaker
+                                                        .map((ele) => {
+                                                            return rawXml`<item id='${ele.ipSpeakerId}' audioID='${ele.audioID}'/>`
+                                                        })
+                                                        .join('')}
+                                                    </chls>
+                                                </triggerAudioDevice>
                                                 <sysRec>
                                                     <switch>true</switch>
                                                     <chls type='list'>

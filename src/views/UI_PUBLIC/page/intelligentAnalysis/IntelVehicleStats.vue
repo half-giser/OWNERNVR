@@ -6,22 +6,55 @@
 <template>
     <div class="base-intel-box">
         <div class="base-intel-left">
-            <div class="base-intel-left-form">
-                <IntelBaseChannelSelector
-                    v-model="formData.chl"
-                    @update:model-value="changeChl"
-                    @ready="getChlMap"
+            <!-- 汽车、摩托车/单车、车牌号 tab -->
+            <el-radio-group
+                v-model="pageData.searchType"
+                size="large"
+                class="inline hide-border-top hide-border-inline tab_container"
+                @change="changeTab"
+            >
+                <el-radio-button
+                    v-for="item in pageData.searchOptions"
+                    :key="item.value"
+                    :value="item.value"
+                    :label="item.label"
                 />
-                <IntelBaseEventSelector
-                    v-model="formData.event"
-                    :range="['vehicle']"
-                    @update:model-value="changeEvent"
-                    @ready="getEventMap"
-                />
-                <IntelBaseAttributeSelector
-                    :model-value="[formData.attribute, []]"
-                    @update:model-value="changeAttribute"
-                />
+            </el-radio-group>
+            <!-- 时间、通道、属性、车牌号等条件筛选 -->
+            <div class="base-intel-left-column">
+                <div class="base-intel-left-form">
+                    <IntelBaseChannelSelector
+                        v-model="formData.chl"
+                        @update:model-value="changeChl"
+                        @ready="getChlMap"
+                    />
+                    <IntelBaseEventSelector
+                        v-show="pageData.searchType === 'byCar' || pageData.searchType === 'byMotorcycle'"
+                        v-model="pageData.event"
+                        :range="['vehicle']"
+                        @update:model-value="changeEvent"
+                        @ready="getEventMap"
+                    />
+                    <IntelBaseEventSelector
+                        v-show="pageData.searchType === 'byPlateNumber'"
+                        v-model="pageData.eventForPlate"
+                        :range="['plate']"
+                        @update:model-value="changeEvent"
+                        @ready="getEventMap"
+                    />
+                    <IntelBaseProfileSelector
+                        v-show="pageData.searchType === 'byCar' && formData.event[0] === 'videoMetadata'"
+                        v-model="pageData.attributeForCar"
+                        :range="['car']"
+                        @update:model-value="changeAttribute"
+                    />
+                    <IntelBaseProfileSelector
+                        v-show="pageData.searchType === 'byMotorcycle' && formData.event[0] === 'videoMetadata'"
+                        v-model="pageData.attributeForMotor"
+                        :range="['motor']"
+                        @update:model-value="changeAttribute"
+                    />
+                </div>
             </div>
         </div>
         <div class="base-intel-right">
@@ -62,6 +95,7 @@
                         v-show="['plateDetection', 'plateMatchWhiteList', 'plateMatchStranger'].includes(formData.event[0] || '')"
                         v-model="formData.deduplicate"
                         :label="Translate('IDCS_REMOVE_DUPLICATE_LICENSE_PLATE')"
+                        @change="changeDeDuplicate"
                     />
                 </div>
                 <el-button @click="exportChart">{{ Translate('IDCS_EXPORT') }}</el-button>

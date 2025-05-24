@@ -18,9 +18,9 @@
         >
             <el-form-item>
                 <el-form-item :label="Translate('IDCS_NAME_PERSON')">
-                    <el-input
+                    <BaseTextInput
                         v-model="formData[pageData.formIndex].name"
-                        maxlength="31"
+                        :maxlength="limit.name"
                         :disabled="formData[pageData.formIndex].success"
                         @blur="handleNameBlur(pageData.formIndex)"
                     />
@@ -41,6 +41,15 @@
                         :range="['1910-01-01', '2037-12-31']"
                     />
                 </el-form-item>
+                <el-form-item :label="Translate('IDCS_NATIVE_PLACE')">
+                    <BaseTextInput
+                        v-model="formData[pageData.formIndex].nativePlace"
+                        :disabled="formData[pageData.formIndex].success"
+                        :maxlength="limit.nativePlace"
+                    />
+                </el-form-item>
+            </el-form-item>
+            <el-form-item>
                 <el-form-item :label="Translate('IDCS_ID_TYPE')">
                     <el-select-v2
                         v-model="formData[pageData.formIndex].certificateType"
@@ -48,53 +57,53 @@
                         :disabled="formData[pageData.formIndex].success"
                     />
                 </el-form-item>
-            </el-form-item>
-            <el-form-item>
                 <el-form-item :label="Translate('IDCS_ID_NUMBER')">
-                    <el-input
+                    <BaseTextInput
                         v-model="formData[pageData.formIndex].certificateNum"
                         :disabled="formData[pageData.formIndex].success"
-                        maxlength="31"
+                        :maxlength="limit.certificateNum"
                     />
                 </el-form-item>
+            </el-form-item>
+            <el-form-item>
                 <el-form-item :label="Translate('IDCS_PHONE_NUMBER')">
                     <el-input
                         v-model="formData[pageData.formIndex].mobile"
                         :parser="formatDigit"
                         :formatter="formatDigit"
                         :disabled="formData[pageData.formIndex].success"
-                        maxlength="15"
+                        :maxlength="limit.mobile"
                     />
                 </el-form-item>
-            </el-form-item>
-            <el-form-item>
                 <el-form-item :label="Translate('IDCS_NUMBER')">
                     <el-input
                         v-model="formData[pageData.formIndex].number"
                         :parser="formatDigit"
                         :formatter="formatDigit"
                         :disabled="formData[pageData.formIndex].success"
-                        maxlength="15"
-                    />
-                </el-form-item>
-                <el-form-item :label="Translate('IDCS_REMARK')">
-                    <el-input
-                        v-model="formData[pageData.formIndex].note"
-                        :disabled="formData[pageData.formIndex].success"
-                        maxlength="15"
+                        :maxlength="limit.number"
                     />
                 </el-form-item>
             </el-form-item>
-            <el-form-item :label="Translate('IDCS_ADD_FACE_GROUP')">
-                <el-select-v2
-                    v-model="formData[pageData.formIndex].groupId"
-                    :props="{
-                        value: 'groupId',
-                        label: 'name',
-                    }"
-                    :options="pageData.groupList"
-                    :disabled="formData[pageData.formIndex].success"
-                />
+            <el-form-item>
+                <el-form-item :label="Translate('IDCS_REMARK')">
+                    <BaseTextInput
+                        v-model="formData[pageData.formIndex].note"
+                        :disabled="formData[pageData.formIndex].success"
+                        :maxlength="limit.note"
+                    />
+                </el-form-item>
+                <el-form-item :label="Translate('IDCS_ADD_FACE_GROUP')">
+                    <el-select-v2
+                        v-model="formData[pageData.formIndex].groupId"
+                        :props="{
+                            value: 'groupId',
+                            label: 'name',
+                        }"
+                        :options="pageData.groupList"
+                        :disabled="formData[pageData.formIndex].success"
+                    />
+                </el-form-item>
             </el-form-item>
         </el-form>
         <div class="swiper">

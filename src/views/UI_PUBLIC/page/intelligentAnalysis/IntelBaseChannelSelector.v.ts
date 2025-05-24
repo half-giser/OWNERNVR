@@ -108,19 +108,21 @@ export default defineComponent({
                 authList: '@spr,@bk',
             })
             const $ = queryXml(result)
-            tableData.value = $('content/item').map((item) => {
-                const $item = queryXml(item.element)
-                let text = $item('name').text()
-                const id = item.attr('id')
-                if (id === DEFAULT_EMPTY_ID) {
-                    text = prop.mode === 'channel' ? Translate('IDCS_HISTORY_CHANNEL') : Translate('IDCS_HISTORY_ENTRANCE_EXIT')
-                }
-                chlMap[id] = text
-                return {
-                    label: text,
-                    value: id,
-                }
-            })
+            tableData.value = $('content/item')
+                .map((item) => {
+                    const $item = queryXml(item.element)
+                    const text = $item('name').text()
+                    const id = item.attr('id')
+                    if (id === DEFAULT_EMPTY_ID) {
+                        return null
+                    }
+                    chlMap[id] = text
+                    return {
+                        label: text,
+                        value: id,
+                    }
+                })
+                .filter((item) => item !== null) // NTA1-1294 不显示已删除通道
         }
 
         // 打开弹窗时 重置选项

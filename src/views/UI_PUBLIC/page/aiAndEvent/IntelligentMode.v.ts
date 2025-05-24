@@ -170,7 +170,7 @@ export default defineComponent({
             }).then(async () => {
                 const sendXml = rawXml`
                 <content>
-                    <chl id=${pageData.value.currChlId}>
+                    <chl id="${pageData.value.currChlId}">
                         <enableEventType type="eventType">${pageData.value.enableEventType}</enableEventType>
                     </chl>
                 </content>

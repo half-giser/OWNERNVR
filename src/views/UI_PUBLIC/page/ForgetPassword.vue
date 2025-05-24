@@ -93,6 +93,7 @@
                     >
                         <el-form-item :label="Translate('IDCS_NEW_PASSWORD')">
                             <BasePasswordInput
+                                v-model="formData.password"
                                 maxlength="16"
                                 :placeholder="Translate('IDCS_PASSWORD_TIP')"
                             />
@@ -102,6 +103,7 @@
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_CONFIRM_NEW_PASSWORD')">
                             <BasePasswordInput
+                                v-model="formData.confirmPassword"
                                 maxlength="16"
                                 :placeholder="Translate('IDCS_PASSWORD_TIP')"
                             />
