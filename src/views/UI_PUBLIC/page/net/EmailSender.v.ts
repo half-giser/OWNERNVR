@@ -42,7 +42,7 @@ export default defineComponent({
             userName: [
                 {
                     validator(_rule, value: string, callback) {
-                        if (!formData.value.anonymousSwitch) {
+                        if (formData.value.anonymousSwitch) {
                             callback()
                             return
                         }
@@ -65,7 +65,7 @@ export default defineComponent({
             password: [
                 {
                     validator(_rule, value: string, callback) {
-                        if (!formData.value.anonymousSwitch || !pageData.value.passwordSwitch) {
+                        if (formData.value.anonymousSwitch || !pageData.value.passwordSwitch) {
                             callback()
                             return
                         }

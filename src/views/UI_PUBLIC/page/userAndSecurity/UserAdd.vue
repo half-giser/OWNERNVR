@@ -9,7 +9,7 @@
             ref="formRef"
             v-title
             class="stripe"
-            :rules
+            :rules="rules"
             :model="formData"
         >
             <el-form-item
