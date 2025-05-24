@@ -10,8 +10,12 @@ import {
     NON_MOTOR_MAP,
     PLATE_COLOR_MAP,
 } from '@/utils/const/snap'
+import BaseTargetSearchPanel from '@/components/player/BaseTargetSearchPanel.vue'
 
 export default defineComponent({
+    components: {
+        BaseTargetSearchPanel,
+    },
     props: {
         list: {
             type: Array as PropType<WebsocketSnapOnSuccessSnap[]>,
@@ -146,6 +150,7 @@ export default defineComponent({
 
             // 目标检索按钮状态 on/disabled/default
             searchTargetStatus: 'default',
+            showTargetSearch: false,
         })
 
         // NTA1-3779彻底将人脸识别成功和其他事件分开，从对比图进入需要过滤掉其他事件；从人脸识别成功的原图进入，无需过滤，但无法切换到对比图
@@ -169,6 +174,11 @@ export default defineComponent({
                 pageData.value.index = prop.index
             }
             toggleTab()
+            if (pageData.value.showFaceCompare || pageData.value.showPlateCompare) {
+                pageData.value.searchTargetStatus = 'disabled'
+            } else {
+                pageData.value.searchTargetStatus = 'default'
+            }
         }
 
         /**
@@ -195,6 +205,14 @@ export default defineComponent({
                 pageData.value.showPlateCompare = true
             } else {
                 pageData.value.showPlateCompare = false
+            }
+        }
+
+        const toggleSearchTarget = () => {
+            if (pageData.value.showFaceCompare || pageData.value.showPlateCompare) {
+                pageData.value.searchTargetStatus = 'disabled'
+            } else {
+                pageData.value.searchTargetStatus = 'default'
             }
         }
 
@@ -277,6 +295,14 @@ export default defineComponent({
             return ''
         })
 
+        const getCurrentPano = computed(() => {
+            if (isThermalDouble.value) {
+                const panoSrc = pageData.value.showThermal ? current.value.thermal_scene_pic : current.value.optical_scene_pic
+                return panoSrc ? (panoSrc.split(',').pop() as string) : undefined
+            }
+            return current.value.scene_pic ? current.value.scene_pic.split(',').pop() : undefined
+        })
+
         const handlePrev = () => {
             if (pageData.value.index <= 0) {
                 return
@@ -290,8 +316,7 @@ export default defineComponent({
                 pageData.value.showFaceCompare = false
                 pageData.value.type = 'normal'
             }
-            // 切换时，关闭目标检索
-            pageData.value.searchTargetStatus = 'default'
+            toggleSearchTarget()
             toggleTab()
         }
 
@@ -308,8 +333,7 @@ export default defineComponent({
                 pageData.value.showFaceCompare = false
                 pageData.value.type = 'normal'
             }
-            // 切换时，关闭目标检索
-            pageData.value.searchTargetStatus = 'default'
+            toggleSearchTarget()
             toggleTab()
         }
 
@@ -355,11 +379,11 @@ export default defineComponent({
         const searchTarget = () => {
             if (pageData.value.searchTargetStatus === 'on') {
                 pageData.value.searchTargetStatus = 'default'
+                pageData.value.showTargetSearch = false
             } else {
                 pageData.value.searchTargetStatus = 'on'
+                pageData.value.showTargetSearch = true
             }
-            console.log('pageData.value.searchTargetStatus', pageData.value.searchTargetStatus)
-            // 打开或关闭目标检索
         }
 
         const search = () => {
@@ -379,7 +403,13 @@ export default defineComponent({
         }
 
         const close = () => {
+            destorySearchTarget()
             ctx.emit('close')
+        }
+
+        const destorySearchTarget = () => {
+            pageData.value.searchTargetStatus = 'default'
+            pageData.value.showTargetSearch = false
         }
 
         // 显示/隐藏抓拍图和上一个下一个按钮，并监听图片实际宽高，用于判断isCoverTargetBoxTopRight
@@ -835,26 +865,6 @@ export default defineComponent({
             return validFlag
         }
 
-        // 获取有文本内容但还未渲染到页面的元素的文本宽度
-        const getTextWidth = (str: string, fontSize: number) => {
-            // 创建临时元素
-            const _span = document.createElement('span')
-            // 放入文本
-            _span.innerText = str
-            // 设置文字大小
-            _span.style.fontSize = fontSize + 'px'
-            // span元素转块级
-            _span.style.position = 'absolute'
-            // span放入body中
-            document.body.appendChild(_span)
-            // 获取span的宽度
-            const width = _span.offsetWidth
-            // 从body中删除该span
-            document.body.removeChild(_span)
-            // 返回span宽度
-            return width
-        }
-
         watch(current, () => {
             renderCanvas()
         })
@@ -863,11 +873,7 @@ export default defineComponent({
         watch(
             () => [pageData.value.showFaceCompare, pageData.value.showPlateCompare],
             () => {
-                if (pageData.value.showFaceCompare || pageData.value.showPlateCompare) {
-                    pageData.value.searchTargetStatus = 'disabled'
-                } else {
-                    pageData.value.searchTargetStatus = 'default'
-                }
+                toggleSearchTarget()
             },
             { immediate: true },
         )
@@ -894,8 +900,8 @@ export default defineComponent({
             eventType,
             isThermalDouble,
             isPlateCompare,
-            targetType,
             targetTypeTxt,
+            getCurrentPano,
             isCoverTargetBoxTopRight,
             handlePrev,
             handleNext,
