@@ -9,203 +9,215 @@
         width="1200"
         @open="open"
     >
-        <div>
-            <div class="tab">
-                <div
-                    class="tab-item"
-                    :class="{ active: pageData.tabIndex === 0 }"
-                    @click="pageData.tabIndex = 0"
-                >
-                    {{ current.type === 'nonEnter-nonExit' ? Translate('IDCS_NOT_HAVE_IN') : Translate('IDCS_VEHICLE_IN') }}
-                </div>
-                <div
-                    class="tab-item"
-                    :class="{ active: pageData.tabIndex === 1 }"
-                    @click="pageData.tabIndex = 1"
-                >
-                    {{ current.type === 'out-nonEnter-nonExit' ? Translate('IDCS_VEHICLE_NOT_OUT_TIPS') : Translate('IDCS_VEHICLE_OUT') }}
-                </div>
-            </div>
-        </div>
         <div class="dialog">
-            <div
-                class="left"
-                @mouseenter="pageData.isBtnVisible = true"
-                @mouseleave="pageData.isBtnVisible = false"
-            >
-                <div
-                    v-show="pageData.tabIndex === 0"
-                    class="panel"
-                >
-                    <img
-                        :src="current.enterImg"
-                        class="pano-img"
-                    />
-                    <canvas
-                        ref="$enterCanvas"
-                        :width="pageData.canvasWidth"
-                        :height="pageData.canvasHeight"
-                    ></canvas>
-                    <img
-                        v-show="pageData.isBtnVisible && current.enterSnapImg"
-                        :src="current.enterSnapImg"
-                        class="snap-img"
-                    />
+            <div class="box">
+                <div class="tab">
                     <div
-                        v-show="!(current.isEnter && current.enterImg) && current.type === 'nonEnter-exit'"
-                        class="panel-wrap"
+                        class="tab-item"
+                        :class="{ active: pageData.tabIndex === 0 }"
+                        @click="pageData.tabIndex = 0"
                     >
-                        {{ Translate('IDCS_NONE_VEHICLE_IN_TIPS') }}
+                        {{ current.type === 'nonEnter-nonExit' ? Translate('IDCS_NOT_HAVE_IN') : Translate('IDCS_VEHICLE_IN') }}
+                    </div>
+                    <div
+                        class="tab-item"
+                        :class="{ active: pageData.tabIndex === 1 }"
+                        @click="pageData.tabIndex = 1"
+                    >
+                        {{ current.type === 'out-nonEnter-nonExit' ? Translate('IDCS_VEHICLE_NOT_OUT_TIPS') : Translate('IDCS_VEHICLE_OUT') }}
                     </div>
                 </div>
                 <div
-                    v-show="pageData.tabIndex === 1"
-                    class="panel"
+                    class="left"
+                    @mouseenter="pageData.isBtnVisible = true"
+                    @mouseleave="pageData.isBtnVisible = false"
                 >
-                    <img
-                        :src="current.exitImg"
-                        class="pano-img"
-                    />
-                    <canvas
-                        ref="$exitCanvas"
-                        :width="pageData.canvasWidth"
-                        :height="pageData.canvasHeight"
-                    ></canvas>
-                    <img
-                        v-show="pageData.isBtnVisible && current.exitSnapImg"
-                        :src="current.exitSnapImg"
-                        class="snap-img"
-                    />
                     <div
-                        v-show="!(current.isExit && current.exitImg) && current.type === 'enter-nonExit'"
-                        class="panel-wrap"
+                        v-show="pageData.tabIndex === 0"
+                        class="panel"
                     >
-                        {{ Translate('IDCS_NONE_VEHICLE_OUT_TIPS') }}
+                        <div
+                            v-show="pageData.isEnterImgLoading"
+                            class="panel-loading"
+                        >
+                            {{ Translate('IDCS_LOADING') }}
+                        </div>
+                        <img
+                            :src="current.enterImg"
+                            class="pano-img"
+                        />
+                        <canvas
+                            ref="$enterCanvas"
+                            :width="pageData.canvasWidth"
+                            :height="pageData.canvasHeight"
+                        ></canvas>
+                        <img
+                            v-show="pageData.isBtnVisible && current.enterSnapImg"
+                            :src="current.enterSnapImg"
+                            class="snap-img"
+                        />
+                        <div
+                            v-show="!(current.isEnter && current.enterImg) && current.type === 'nonEnter-exit'"
+                            class="panel-wrap"
+                        >
+                            {{ Translate('IDCS_NONE_VEHICLE_IN_TIPS') }}
+                        </div>
+                    </div>
+                    <div
+                        v-show="pageData.tabIndex === 1"
+                        class="panel"
+                    >
+                        <div
+                            v-show="pageData.isExitImgLoading"
+                            class="panel-loading"
+                        >
+                            {{ Translate('IDCS_LOADING') }}
+                        </div>
+                        <img
+                            :src="current.exitImg"
+                            class="pano-img"
+                        />
+                        <canvas
+                            ref="$exitCanvas"
+                            :width="pageData.canvasWidth"
+                            :height="pageData.canvasHeight"
+                        ></canvas>
+                        <img
+                            v-show="pageData.isBtnVisible && current.exitSnapImg"
+                            :src="current.exitSnapImg"
+                            class="snap-img"
+                        />
+                        <div
+                            v-show="!(current.isExit && current.exitImg) && current.type === 'enter-nonExit'"
+                            class="panel-wrap"
+                        >
+                            {{ Translate('IDCS_NONE_VEHICLE_OUT_TIPS') }}
+                        </div>
+                    </div>
+                    <div
+                        v-show="pageData.isBtnVisible"
+                        class="btns"
+                    >
+                        <div
+                            class="btn"
+                            :class="{
+                                disabled: pageData.index === 0,
+                            }"
+                            @click="handlePrev"
+                        >
+                            {{ Translate('IDCS_PREVIOUS') }}
+                        </div>
+                        <div
+                            class="btn"
+                            :class="{
+                                disabled: pageData.index === pageData.list.length - 1,
+                            }"
+                            @click="handleNext"
+                        >
+                            {{ Translate('IDCS_NEXT') }}
+                        </div>
                     </div>
                 </div>
-                <div
-                    v-show="pageData.isBtnVisible"
-                    class="btns"
-                >
+                <div class="base-btn-box space-between">
                     <div
-                        class="btn"
-                        :class="{
-                            disabled: pageData.index === 0,
-                        }"
-                        @click="handlePrev"
+                        v-show="pageData.tabIndex === 0"
+                        class="bottom-info"
                     >
-                        {{ Translate('IDCS_PREVIOUS') }}
+                        <div>{{ current.enterChl }}</div>
+                        <div>{{ displayOpenGateType(current.enterType) }}</div>
                     </div>
                     <div
-                        class="btn"
-                        :class="{
-                            disabled: pageData.index === pageData.list.length - 1,
-                        }"
-                        @click="handleNext"
+                        v-show="pageData.tabIndex === 1"
+                        class="bottom-info"
                     >
-                        {{ Translate('IDCS_NEXT') }}
+                        <div>{{ current.exitChl }}</div>
+                        <div>{{ displayOpenGateType(current.exitType) }}</div>
                     </div>
+                    <BaseImgSpriteBtn
+                        file="register"
+                        :disabled="!formData.plateNum"
+                        :title="Translate('IDCS_ENTRY')"
+                        @click="addPlate"
+                    />
                 </div>
             </div>
-            <div class="data">
-                <div class="data-box">
-                    <div class="data-item">
-                        <label>{{ Translate('IDCS_LICENSE_PLATE_NUM') }}</label>
-                        <span v-if="type === 'edit'">
-                            <el-input
-                                v-model="formData.plateNum"
-                                maxlength="31"
-                            />
-                        </span>
-                        <span v-else>{{ formData.plateNum }}</span>
+            <div class="right">
+                <div class="data">
+                    <div class="data-box">
+                        <div class="data-item">
+                            <label>{{ Translate('IDCS_LICENSE_PLATE_NUM') }}</label>
+                            <span v-if="type === 'edit'">
+                                <el-input
+                                    v-model="formData.plateNum"
+                                    maxlength="31"
+                                />
+                            </span>
+                            <span v-else>{{ formData.plateNum }}</span>
+                        </div>
+                        <div class="data-item">
+                            <label>{{ Translate('IDCS_DIRECTION') }}</label>
+                            <span class="bold">{{ displayDirection(current.direction) }}</span>
+                        </div>
                     </div>
-                    <div class="data-item">
-                        <label>{{ Translate('IDCS_DIRECTION') }}</label>
-                        <span class="bold">{{ displayDirection(current.direction) }}</span>
+                    <div class="data-box">
+                        <div class="data-item">
+                            <label>{{ Translate('IDCS_VEHICLE_IN_TIME') }}</label>
+                            <span>{{ current.type !== 'nonEnter-nonExit' ? displayDateTime(current.enterTime) : '--' }}</span>
+                        </div>
+                        <div class="data-item">
+                            <label>{{ Translate('IDCS_VEHICLE_OUT_TIME') }}</label>
+                            <span>{{ current.type !== 'nonEnter-nonExit' ? displayDateTime(current.exitTime) : '--' }}</span>
+                        </div>
+                        <div class="data-item">
+                            <label>{{ Translate('IDCS_VEHICLE_PARKING_TIME') }}</label>
+                            <span class="bold">{{ displayDuration(current) }}</span>
+                        </div>
+                    </div>
+                    <div class="data-box">
+                        <div class="data-item">
+                            <label>{{ Translate('IDCS_VEHICLE_OWNER') }}</label>
+                            <span>{{ current.master || '--' }}</span>
+                        </div>
+                        <div class="data-item">
+                            <label>{{ Translate('IDCS_PHONE_NUMBER') }}</label>
+                            <span>{{ current.phoneNum || '--' }}</span>
+                        </div>
+                        <div class="data-item">
+                            <label>{{ Translate('IDCS_VEHICLE_IN_OUT_RESULT') }}</label>
+                            <span>{{ displayType(current.type) }}</span>
+                        </div>
+                    </div>
+                    <div class="data-box">
+                        <div class="data-item">
+                            <label>{{ Translate('IDCS_EFFECTIVE_ENTERING_TIM') }}</label>
+                            <span :class="{ 'text-error': getPlateStartTimeState() }">{{ displayDateTime(current.plateStartTime) }}</span>
+                        </div>
+                        <div class="data-item">
+                            <label>{{ Translate('IDCS_EFFECTIVE_EXITING_TIME') }}</label>
+                            <span :class="{ 'text-error': getPlateEndTimeState() }">{{ displayDateTime(current.plateEndTime) }}</span>
+                        </div>
+                    </div>
+                    <div class="data-box">
+                        <!-- 超出有效出场时间的提示信息 -->
+                        <div class="data-item">
+                            <label>{{ Translate('IDCS_REMARK') }}</label>
+                            <span>{{ current.remark || '--' }}</span>
+                        </div>
+                    </div>
+                    <div
+                        v-if="type === 'edit'"
+                        class="base-btn-box"
+                    >
+                        <el-button @click="commit">{{ Translate('IDCS_EDIT_SUBMIT_AND_OPEN') }}</el-button>
                     </div>
                 </div>
-                <div class="data-box">
-                    <div class="data-item">
-                        <label>{{ Translate('IDCS_VEHICLE_IN_TIME') }}</label>
-                        <span>{{ current.type !== 'nonEnter-nonExit' ? displayDateTime(current.enterTime) : '--' }}</span>
-                    </div>
-                    <div class="data-item">
-                        <label>{{ Translate('IDCS_VEHICLE_OUT_TIME') }}</label>
-                        <span>{{ current.type !== 'nonEnter-nonExit' ? displayDateTime(current.exitTime) : '--' }}</span>
-                    </div>
-                    <div class="data-item">
-                        <label>{{ Translate('IDCS_VEHICLE_PARKING_TIME') }}</label>
-                        <span class="bold">{{ displayDuration(current) }}</span>
-                    </div>
+                <div class="base-btn-box no-padding">
+                    <BaseImgSpriteBtn
+                        file="snap_exit"
+                        :title="Translate('IDCS_EXIT')"
+                        @click="close"
+                    />
                 </div>
-                <div class="data-box">
-                    <div class="data-item">
-                        <label>{{ Translate('IDCS_VEHICLE_OWNER') }}</label>
-                        <span>{{ current.master || '--' }}</span>
-                    </div>
-                    <div class="data-item">
-                        <label>{{ Translate('IDCS_PHONE_NUMBER') }}</label>
-                        <span>{{ current.phoneNum || '--' }}</span>
-                    </div>
-                    <div class="data-item">
-                        <label>{{ Translate('IDCS_VEHICLE_IN_OUT_RESULT') }}</label>
-                        <span>{{ displayType(current.type) }}</span>
-                    </div>
-                </div>
-                <div class="data-box">
-                    <div class="data-item">
-                        <label>{{ Translate('IDCS_EFFECTIVE_ENTERING_TIM') }}</label>
-                        <span :class="{ 'text-error': getPlateStartTimeState() }">{{ displayDateTime(current.plateStartTime) }}</span>
-                    </div>
-                    <div class="data-item">
-                        <label>{{ Translate('IDCS_EFFECTIVE_EXITING_TIME') }}</label>
-                        <span :class="{ 'text-error': getPlateEndTimeState() }">{{ displayDateTime(current.plateEndTime) }}</span>
-                    </div>
-                </div>
-                <div class="data-box">
-                    <!-- 超出有效出场时间的提示信息 -->
-                    <div class="data-item">
-                        <label>{{ Translate('IDCS_REMARK') }}</label>
-                        <span>{{ current.remark }}</span>
-                    </div>
-                </div>
-                <div
-                    v-if="type === 'edit'"
-                    class="base-btn-box"
-                >
-                    <el-button @click="commit">{{ Translate('IDCS_EDIT_SUBMIT_AND_OPEN') }}</el-button>
-                </div>
-            </div>
-        </div>
-        <div class="base-btn-box space-between">
-            <div class="bottom-left">
-                <div
-                    v-show="pageData.tabIndex === 0"
-                    class="bottom-info"
-                >
-                    <div>{{ current.enterChl }}</div>
-                    <div>{{ displayOpenGateType(current.enterType) }}</div>
-                </div>
-                <div
-                    v-show="pageData.tabIndex === 1"
-                    class="bottom-info"
-                >
-                    <div>{{ current.exitChl }}</div>
-                    <div>{{ displayOpenGateType(current.exitType) }}</div>
-                </div>
-                <BaseImgSpriteBtn
-                    file="register"
-                    :disabled="!formData.plateNum"
-                    :title="Translate('IDCS_ENTRY')"
-                    @click="addPlate"
-                />
-            </div>
-            <div class="bottom-right">
-                <BaseImgSpriteBtn
-                    file="snap_exit"
-                    :title="Translate('IDCS_EXIT')"
-                    @click="close"
-                />
             </div>
         </div>
         <IntelLicencePlateDBAddPlatePop
@@ -229,6 +241,15 @@
 <script lang="ts" src="./ParkLotPop.v.ts"></script>
 
 <style lang="scss" scoped>
+.wrap {
+    width: 100%;
+    display: flex;
+}
+
+.box {
+    width: 796px;
+}
+
 .dialog {
     width: 100%;
     display: flex;
@@ -247,6 +268,7 @@
         line-height: 32px;
         text-align: center;
         cursor: pointer;
+        user-select: none;
 
         &:hover,
         &.active {
@@ -269,6 +291,7 @@
     height: 538px;
     border: 1px solid var(--subheading-bg);
     position: relative;
+    background-color: var(--parklog-box-bg);
 
     &-wrap {
         background-color: var(--parklog-box-bg);
@@ -282,7 +305,18 @@
         align-items: center;
     }
 
+    &-loading {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
     .pano-img {
+        position: absolute;
+        right: 0;
+        top: 0;
         width: 100%;
         height: 100%;
 
@@ -311,12 +345,17 @@
     }
 }
 
+.right {
+    margin-top: 38px;
+    margin-left: 10px;
+}
+
 .data {
     width: 100%;
     padding: 0 20px;
     box-sizing: border-box;
-    margin-left: 10px;
     background-color: var(--parklog-bg);
+    height: 538px;
 
     &-box {
         padding: 5px 0;
@@ -384,6 +423,8 @@
         line-height: 48px;
         text-align: center;
         cursor: pointer;
+        background-color: var(--color-white);
+        user-select: none;
 
         &:hover:not(.disabled) {
             background-color: var(--primary-light);

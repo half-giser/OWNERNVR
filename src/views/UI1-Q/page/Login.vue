@@ -9,7 +9,10 @@
  * @Description: 登录页
 -->
 <template>
-    <div class="login">
+    <div
+        class="login"
+        :style="{ opacity }"
+    >
         <div class="login-content">
             <el-form
                 ref="formRef"
