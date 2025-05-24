@@ -8,6 +8,7 @@ import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
 import IntelBaseProfileSelector from './IntelBaseProfileSelector.vue'
 import IntelBasePlateColorPop from './IntelBasePlateColorPop.vue'
 import IntelBaseSnapItem from './IntelBaseSnapItem.vue'
+import { type DropdownInstance } from 'element-plus'
 
 export default defineComponent({
     components: {
@@ -20,6 +21,11 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const dateTime = useDateTimeStore()
+        // 三个排序下拉框的引用
+        const carSortDropdown = ref<DropdownInstance>()
+        const motorcycleSortDropdown = ref<DropdownInstance>()
+        const plateNumberSortDropdown = ref<DropdownInstance>()
+
         // key对应界面tab类型，value对应协议需要下发的searchType字段
         const SEARCH_TYPE_MAPPING: Record<string, string> = {
             byCar: 'byVehicle',
@@ -72,10 +78,12 @@ export default defineComponent({
                 {
                     label: Translate('IDCS_CHANNEL'),
                     value: 'chl',
+                    status: 'down',
                 },
                 {
                     label: Translate('IDCS_TIME'),
                     value: 'time',
+                    status: 'down',
                 },
             ],
             // 选择的日期时间范围
@@ -139,6 +147,7 @@ export default defineComponent({
          * @description 获取列表索引数据 - searchTargetIndex
          */
         const getAllTargetIndexDatas = async () => {
+            resetSortStatus()
             const currAttrObjToList: attrObjToListItem[] = getCurrAttribute()
             const sendXml = rawXml`
                 <resultLimit>10000</resultLimit>
@@ -239,6 +248,28 @@ export default defineComponent({
                         endTimeUTC,
                     }
                 })
+
+                targetIndexDatas.sort((a, b) => {
+                    if (a.timeStamp !== b.timeStamp) {
+                        return b.timeStamp - a.timeStamp
+                    }
+
+                    if (a.timeStamp100ns !== b.timeStamp100ns) {
+                        return Number(b.timeStamp100ns) - Number(a.timeStamp100ns)
+                    }
+
+                    if (a.chlID !== b.chlID) {
+                        const chlIdA = getChlId16(a.chlID)
+                        const chlIdB = getChlId16(b.chlID)
+                        return chlIdA - chlIdB
+                    }
+                    return Number(a.targetID) - Number(b.targetID)
+                })
+
+                if ($('content/IsMaxSearchResultNum').text() === 'true') {
+                    openMessageBox(Translate('IDCS_SEARCH_RESULT_LIMIT_TIPS'))
+                }
+
                 if (targetIndexDatas.length === 0) {
                     openMessageBox(Translate('IDCS_NO_RECORD_DATA'))
                 } else {
@@ -310,7 +341,7 @@ export default defineComponent({
                     const isNoData = false
                     const isDelete = $('content/isDelete').text().bool()
                     const targetID = $('content/targetID').text()
-                    const featureStatus = $('content/featureStatus').text()
+                    const featureStatus = $('content/featureStatus').text().bool()
                     const supportRegister = $('content/supportRegister').text().bool()
                     const targetType = $('content/targetType').text()
                     const timeStamp = $('content/timeStamp').text().num()
@@ -600,6 +631,22 @@ export default defineComponent({
         }
 
         /**
+         * @description 获取当前页面的下拉框引用
+         */
+        const getCurrDropdownRef = () => {
+            switch (pageData.value.searchType) {
+                case 'byCar':
+                    return carSortDropdown
+                case 'byMotorcycle':
+                    return motorcycleSortDropdown
+                case 'byPlateNumber':
+                    return plateNumberSortDropdown
+                default:
+                    return ref()
+            }
+        }
+
+        /**
          * @description 选择车牌号颜色（车牌号）
          */
         const handleChangePlateColor = (colors: string[]) => {
@@ -628,10 +675,158 @@ export default defineComponent({
         }
 
         /**
-         * @description 手动排序
+         * @description 重置排序状态
+         */
+        const resetSortStatus = () => {
+            pageData.value.sortOptions.forEach((item) => {
+                item.status = 'down'
+            })
+            pageData.value.sortType = 'time'
+        }
+
+        /**
+         * @description 手动排序: 时间排序、通道排序
          */
         const handleSort = (sortType: string) => {
-            console.log(sortType)
+            const dropdownRef = getCurrDropdownRef()
+            dropdownRef.value?.handleClose()
+            if (sortType === 'time') {
+                if (pageData.value.sortType === 'time') {
+                    // 时间排序升序降序切换
+                    if (pageData.value.sortOptions.find((item) => item.value === 'time')?.status === 'up') {
+                        pageData.value.sortOptions.find((item) => item.value === 'time')!.status = 'down'
+                    } else {
+                        pageData.value.sortOptions.find((item) => item.value === 'time')!.status = 'up'
+                    }
+                    handleSortByTime(pageData.value.sortOptions.find((item) => item.value === 'time')!.status)
+                } else {
+                    // 切换为通道排序降序
+                    pageData.value.sortOptions.find((item) => item.value === 'chl')!.status = 'down'
+                    handleSortByChl('down')
+                }
+            } else if (sortType === 'chl') {
+                if (pageData.value.sortType === 'chl') {
+                    // 通道排序升序降序切换
+                    if (pageData.value.sortOptions.find((item) => item.value === 'chl')?.status === 'up') {
+                        pageData.value.sortOptions.find((item) => item.value === 'chl')!.status = 'down'
+                    } else {
+                        pageData.value.sortOptions.find((item) => item.value === 'chl')!.status = 'up'
+                    }
+                    handleSortByChl(pageData.value.sortOptions.find((item) => item.value === 'chl')!.status)
+                } else {
+                    // 切换为时间排序降序
+                    pageData.value.sortOptions.find((item) => item.value === 'time')!.status = 'down'
+                    handleSortByTime('down')
+                }
+            }
+            pageData.value.sortType = sortType
+        }
+
+        /**
+         * @description 时间排序
+         * @param {String} sortDirection 排序方向
+         */
+        const handleSortByTime = (sortDirection: string) => {
+            const targetIndexDatas = getCurrTargetIndexDatas()
+            if (targetIndexDatas.length === 0) {
+                return
+            }
+
+            if (sortDirection === 'up') {
+                targetIndexDatas.sort((a, b) => {
+                    if (a.timeStamp !== b.timeStamp) {
+                        return a.timeStamp - b.timeStamp
+                    }
+
+                    if (a.timeStamp100ns !== b.timeStamp100ns) {
+                        return Number(a.timeStamp100ns) - Number(b.timeStamp100ns)
+                    }
+
+                    if (a.chlID !== b.chlID) {
+                        const chlIdA = getChlId16(a.chlID)
+                        const chlIdB = getChlId16(b.chlID)
+                        return chlIdA - chlIdB
+                    }
+                    return Number(a.targetID) - Number(b.targetID)
+                })
+            } else {
+                targetIndexDatas.sort((a, b) => {
+                    if (a.timeStamp !== b.timeStamp) {
+                        return b.timeStamp - a.timeStamp
+                    }
+
+                    if (a.timeStamp100ns !== b.timeStamp100ns) {
+                        return Number(b.timeStamp100ns) - Number(a.timeStamp100ns)
+                    }
+
+                    if (a.chlID !== b.chlID) {
+                        const chlIdA = getChlId16(a.chlID)
+                        const chlIdB = getChlId16(b.chlID)
+                        return chlIdA - chlIdB
+                    }
+                    return Number(a.targetID) - Number(b.targetID)
+                })
+            }
+
+            setCurrTargetIndexDatas(targetIndexDatas)
+            const tempPageIndex = getCurrPageIndex()
+            const tempPageSize = getCurrPageSize()
+            sliceTargetIndexDatas.value = targetIndexDatas.slice((tempPageIndex - 1) * tempPageSize, tempPageIndex * tempPageSize)
+            openLoading()
+            getCurrPageTargetDatas(sliceTargetIndexDatas.value)
+        }
+
+        /**
+         * @description 通道排序
+         * @param {String} sortDirection 排序方向
+         */
+        const handleSortByChl = (sortDirection: string) => {
+            const targetIndexDatas = getCurrTargetIndexDatas()
+            if (targetIndexDatas.length === 0) {
+                return
+            }
+
+            if (sortDirection === 'up') {
+                targetIndexDatas.sort((a, b) => {
+                    if (a.chlID !== b.chlID) {
+                        const chlIdA = getChlId16(a.chlID)
+                        const chlIdB = getChlId16(b.chlID)
+                        return chlIdA - chlIdB
+                    }
+
+                    if (a.timeStamp !== b.timeStamp) {
+                        return b.timeStamp - a.timeStamp
+                    }
+
+                    if (a.timeStamp100ns !== b.timeStamp100ns) {
+                        return Number(b.timeStamp100ns) - Number(a.timeStamp100ns)
+                    }
+                    return Number(a.targetID) - Number(b.targetID)
+                })
+            } else {
+                targetIndexDatas.sort((a, b) => {
+                    if (a.chlID !== b.chlID) {
+                        const chlIdA = getChlId16(a.chlID)
+                        const chlIdB = getChlId16(b.chlID)
+                        return chlIdB - chlIdA
+                    }
+
+                    if (a.timeStamp !== b.timeStamp) {
+                        return b.timeStamp - a.timeStamp
+                    }
+
+                    if (a.timeStamp100ns !== b.timeStamp100ns) {
+                        return Number(b.timeStamp100ns) - Number(a.timeStamp100ns)
+                    }
+                    return Number(a.targetID) - Number(b.targetID)
+                })
+            }
+            setCurrTargetIndexDatas(targetIndexDatas)
+            const tempPageIndex = getCurrPageIndex()
+            const tempPageSize = getCurrPageSize()
+            sliceTargetIndexDatas.value = targetIndexDatas.slice((tempPageIndex - 1) * tempPageSize, tempPageIndex * tempPageSize)
+            openLoading()
+            getCurrPageTargetDatas(sliceTargetIndexDatas.value)
         }
 
         /**
@@ -644,9 +839,9 @@ export default defineComponent({
         /**
          * @description 打开详情
          */
-        const showDetail = (item: IntelTargetDataItem) => {
+        const showDetail = (targetDataItem: IntelTargetDataItem) => {
             pageData.value.isDetailOpen = true
-            setCurrOpenDetailIndex(item.index)
+            setCurrOpenDetailIndex(targetDataItem.index)
         }
 
         /**
@@ -660,6 +855,9 @@ export default defineComponent({
         }
 
         return {
+            carSortDropdown,
+            motorcycleSortDropdown,
+            plateNumberSortDropdown,
             pageData,
             getChlIdNameMap,
             getAllTargetIndexDatas,

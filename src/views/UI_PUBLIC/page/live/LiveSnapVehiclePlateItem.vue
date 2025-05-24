@@ -170,6 +170,15 @@
         }
     }
 
+    &-bottom2 {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 12px;
+        color: var(--primary);
+        margin-top: 5px;
+    }
+
     &-botton2 {
         width: 100%;
         margin-top: 20px;

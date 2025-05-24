@@ -33,7 +33,7 @@
                         @ready="getChlIdNameMap"
                     />
                     <!-- 图片选择、相似度 - 人脸 -->
-                    <div v-show="pageData.searchType === 'byFace'">
+                    <div v-show="pageData.searchType === 'byFace' && showPicChooser">
                         <!-- 图片 -->
                         <div class="add_pic_container">
                             <div
@@ -75,7 +75,7 @@
                         </div>
                     </div>
                     <!-- 图片选择、相似度 - 人体 -->
-                    <div v-show="pageData.searchType === 'byBody'">
+                    <div v-show="pageData.searchType === 'byBody' && showPicChooser">
                         <!-- 图片 -->
                         <div class="add_pic_container">
                             <div
@@ -126,7 +126,7 @@
             </div>
             <!-- 搜索按钮 -->
             <div class="base-intel-row">
-                <el-button @click="getAllTargetIndexDatas">{{ Translate('IDCS_SEARCH') }}</el-button>
+                <el-button @click="getAllTargetIndexDatas()">{{ Translate('IDCS_SEARCH') }}</el-button>
             </div>
         </div>
         <div
@@ -157,21 +157,23 @@
                 <div>
                     <!-- 人脸 - 排序、全选 -->
                     <div v-show="pageData.searchType === 'byFace'">
-                        <el-dropdown>
+                        <el-dropdown ref="faceSortDropdown">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SORT') }}
                             </BaseTableDropdownLink>
                             <template #dropdown>
                                 <div
                                     v-for="opt in pageData.sortOptions"
+                                    v-show="(pageData.isByPic && opt.value !== 'chl') || (!pageData.isByPic && opt.value !== 'similarity')"
                                     :key="opt.value"
                                     class="sort_item"
+                                    @click="handleSort(opt.value)"
                                 >
-                                    <span>{{ opt.label }}</span>
+                                    <span class="sort_item_label">{{ opt.label }}</span>
                                     <BaseImgSprite
-                                        file="sortDes"
+                                        :file="opt.status === 'up' ? 'sortAsc' : 'sortDes'"
                                         :chunk="4"
-                                        class="icon_right"
+                                        :index="pageData.sortType === opt.value ? 1 : 3"
                                     />
                                 </div>
                             </template>
@@ -183,21 +185,23 @@
                     </div>
                     <!-- 人体 - 排序、全选 -->
                     <div v-show="pageData.searchType === 'byBody'">
-                        <el-dropdown>
+                        <el-dropdown ref="bodySortDropdown">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SORT') }}
                             </BaseTableDropdownLink>
                             <template #dropdown>
                                 <div
                                     v-for="opt in pageData.sortOptions"
+                                    v-show="(pageData.isByPic && opt.value !== 'chl') || (!pageData.isByPic && opt.value !== 'similarity')"
                                     :key="opt.value"
                                     class="sort_item"
+                                    @click="handleSort(opt.value)"
                                 >
-                                    <span>{{ opt.label }}</span>
+                                    <span class="sort_item_label">{{ opt.label }}</span>
                                     <BaseImgSprite
-                                        file="sortDes"
+                                        :file="opt.status === 'up' ? 'sortAsc' : 'sortDes'"
                                         :chunk="4"
-                                        class="icon_right"
+                                        :index="pageData.sortType === opt.value ? 1 : 3"
                                     />
                                 </div>
                             </template>
@@ -209,7 +213,7 @@
                     </div>
                     <!-- 人属性 - 排序、全选 -->
                     <div v-show="pageData.searchType === 'byPersonAttribute'">
-                        <el-dropdown>
+                        <el-dropdown ref="personAttributeSortDropdown">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SORT') }}
                             </BaseTableDropdownLink>
@@ -218,12 +222,13 @@
                                     v-for="opt in pageData.sortOptions"
                                     :key="opt.value"
                                     class="sort_item"
+                                    @click="handleSort(opt.value)"
                                 >
-                                    <span>{{ opt.label }}</span>
+                                    <span class="sort_item_label">{{ opt.label }}</span>
                                     <BaseImgSprite
-                                        file="sortDes"
+                                        :file="opt.status === 'up' ? 'sortAsc' : 'sortDes'"
                                         :chunk="4"
-                                        class="icon_right"
+                                        :index="pageData.sortType === opt.value ? 1 : 3"
                                     />
                                 </div>
                             </template>
@@ -252,6 +257,7 @@
                         :choose-pics="pageData.picCacheListForFace"
                         search-type="byFace"
                         @detail="showDetail(item)"
+                        @search="handleSearch"
                     />
                 </div>
                 <!-- 人体 - 抓拍图容器 -->
@@ -269,6 +275,7 @@
                         :choose-pics="pageData.picCacheListForBody"
                         search-type="byBody"
                         @detail="showDetail(item)"
+                        @search="handleSearch"
                     />
                 </div>
                 <!-- 人属性 - 抓拍图容器 -->
@@ -285,6 +292,7 @@
                         :show-compare="false"
                         search-type="byPersonAttribute"
                         @detail="showDetail(item)"
+                        @search="handleSearch"
                     />
                 </div>
             </el-scrollbar>
@@ -411,7 +419,7 @@
         width: 100%;
 
         .base-intel-left-form {
-            padding: 0px;
+            padding: 0;
 
             .add_pic_container {
                 display: flex;
@@ -432,10 +440,7 @@
                         width: 100%;
                         height: 100%;
                         position: absolute;
-                        top: 0;
-                        left: 0;
-                        bottom: 0;
-                        right: 0;
+                        inset: 0;
                         margin: auto;
                         z-index: 1;
                     }
@@ -462,17 +467,15 @@
                         }
                     }
 
-                    & {
-                        img:hover ~ .pic_operation {
-                            visibility: visible;
-                        }
+                    img:hover ~ .pic_operation {
+                        visibility: visible;
                     }
                 }
             }
 
             .similarity_container {
                 width: 100%;
-                padding: 0px 44px;
+                padding: 0 44px;
                 margin-top: 24px;
                 display: flex;
                 justify-content: center;
@@ -485,7 +488,7 @@
             margin-bottom: 10px !important;
 
             .el-form-item {
-                padding: 0px !important;
+                padding: 0 !important;
 
                 .el-input__inner {
                     height: 30px;
@@ -534,14 +537,14 @@
     }
 
     .resize_icon_right {
-        right: 0px;
+        right: 0;
     }
 
     &.detail_open {
         border-right: 1px solid var(--content-border);
 
         .resize_icon_left {
-            left: 0px;
+            left: 0;
         }
 
         .resize_icon_right {
@@ -552,11 +555,21 @@
 
 .sort_item {
     display: flex;
-    justify-content: flex-start;
+    justify-content: flex-end;
     align-items: center;
-    padding: 0px 14px;
+    max-width: 85px;
     cursor: pointer;
     font-size: 14px;
+    border: solid 1px var(--content-border);
+    background-color: var(--color-white);
+
+    &_label {
+        display: flex;
+        flex: 1;
+        padding-left: 10px;
+        justify-content: flex-end;
+        white-space: nowrap;
+    }
 
     &:hover {
         color: var(--primary);

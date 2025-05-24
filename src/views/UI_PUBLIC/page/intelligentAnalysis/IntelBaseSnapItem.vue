@@ -58,6 +58,7 @@
                             :chunk="4"
                             :hover-index="1"
                             class="operate_icon"
+                            @click.stop="handleSearch"
                         />
                         <BaseImgSprite
                             v-if="showExport"
@@ -65,6 +66,7 @@
                             :chunk="4"
                             :hover-index="1"
                             class="operate_icon"
+                            @click.stop="handleExport"
                         />
                         <BaseImgSprite
                             v-if="showRegister"
@@ -72,6 +74,7 @@
                             :chunk="4"
                             :hover-index="1"
                             class="operate_icon"
+                            @click.stop="handleRegister"
                         />
                     </div>
                 </div>
@@ -151,6 +154,7 @@
                             :chunk="4"
                             :hover-index="1"
                             class="operate_icon"
+                            @click.stop="handleSearch"
                         />
                         <BaseImgSprite
                             v-if="showExport"
@@ -158,6 +162,7 @@
                             :chunk="4"
                             :hover-index="1"
                             class="operate_icon"
+                            @click.stop="handleExport"
                         />
                         <BaseImgSprite
                             v-if="showRegister"
@@ -165,6 +170,7 @@
                             :chunk="4"
                             :hover-index="1"
                             class="operate_icon"
+                            @click.stop="handleRegister"
                         />
                     </div>
                 </div>
@@ -195,6 +201,23 @@
             </div>
         </div>
     </div>
+    <!-- 人脸注册弹框 -->
+    <IntelFaceDBSnapRegisterPop
+        v-model="pageData.isRegisterFacePop"
+        :pic="targetData.objPicData.data"
+        @confirm="pageData.isRegisterFacePop = false"
+        @close="pageData.isRegisterFacePop = false"
+    />
+    <!-- 车牌注册弹框 -->
+    <IntelLicencePlateDBAddPlatePop
+        v-model="pageData.isRegisterPlatePop"
+        type="register"
+        :data="{
+            plateNumber: targetData.plateAttrInfo.plateNumber,
+        }"
+        @confirm="pageData.isRegisterPlatePop = false"
+        @close="pageData.isRegisterPlatePop = false"
+    />
 </template>
 
 <script lang="ts" src="./IntelBaseSnapItem.v.ts"></script>
@@ -263,10 +286,10 @@
 
                 .bottom_operate {
                     bottom: 0;
-                    padding: 2px;
 
                     .operate_icon {
-                        transform: scale(0.8);
+                        transform: scale(0.7);
+                        margin-right: -4px;
                     }
                 }
             }

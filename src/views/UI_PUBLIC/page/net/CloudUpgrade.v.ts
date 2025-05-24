@@ -118,15 +118,15 @@ export default defineComponent({
             })
 
             // 数据赋值 - pageData(devInfoObj)
-            pageData.value.devInfoObj.state = $upgradeInfoContent('devInfoObj/state').text()
-            pageData.value.devInfoObj.version = $upgradeInfoContent('devInfoObj/version').text()
-            const newVersionGUID = $upgradeInfoContent('devInfoObj/newVersionGUID').text()
+            pageData.value.devInfoObj.state = $upgradeInfoContent('devInfo/state').text()
+            pageData.value.devInfoObj.version = $upgradeInfoContent('devInfo/version').text()
+            const newVersionGUID = $upgradeInfoContent('devInfo/newVersionGUID').text()
             if (newVersionGUID && newVersionInfo[newVersionGUID]) {
                 pageData.value.devInfoObj.newVersion = newVersionInfo[newVersionGUID].newVersion
                 pageData.value.devInfoObj.newVersionNote = newVersionInfo[newVersionGUID].newVersionNote
                 pageData.value.devInfoObj.newVersionGUID = newVersionGUID
             }
-            pageData.value.devInfoObj.progress = getRealProgress($upgradeInfoContent('devInfoObj/progress').text())
+            pageData.value.devInfoObj.progress = getRealProgress($upgradeInfoContent('devInfo/progress').text())
 
             // 数据赋值 - pageData(ipcInfoList)
             pageData.value.ipcInfoList = []
