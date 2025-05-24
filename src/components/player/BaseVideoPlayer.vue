@@ -149,7 +149,7 @@
             </div>
             <!-- 视频丢失提示层
                 （VideoLossLogo.png存在时显示videoloss-wrap：Logo+错误码，
-                否则只显示error-tips-info：错误码） 
+                否则只显示error-tips-info：错误码）
             -->
             <div
                 v-if="isVideoLossWrap"
@@ -2369,7 +2369,7 @@ const setTargetArr = (type: string, data: PlayerDetectTargetDto, winIndex: numbe
 
 // 设置当前目标框
 const setCurrTarget = (frameTime: number, winIndex: number) => {
-    if (pageData.value[winIndex].cacheDetectInfo.length) {
+    if (pageData.value[winIndex].cacheDetectInfo.length === 0) {
         return
     }
 
@@ -3121,7 +3121,7 @@ const setShowTargetBox = (bool: boolean) => {
  * @description 是否接收目标框数据流（大回放暂停、倍速、画面放大缩小时不接收）
  */
 const isGetDetect = (winIndex: number) => {
-    if (!showDetect) return false
+    if (!showDetect.value) return false
     if (getCurrZoom(winIndex) !== 1 || speed !== 1) return false
     return true
 }

@@ -601,8 +601,9 @@ export class IntelTargetIndexItem {
  */
 export class IntelTargetDataItem extends IntelTargetIndexItem {
     checked? = false // 界面中使用的变量，标识是否选中头部的checkbox选择框
-    isNoData = false
-    isDelete = false
+    isFaceFeature = false // 是否是人脸库图片
+    isNoData = true
+    isDelete = true
     targetID = ''
     featureStatus = false
     supportRegister = false
@@ -617,6 +618,7 @@ export class IntelTargetDataItem extends IntelTargetIndexItem {
     endTimeLocal = '' // 目标消失的本地时间戳文字表达
     endTimeUTC = '' // 目标消失的UTC时间戳文字表达
     objPicData = {} as IntelObjPicDataItem // 抓拍图信息
+    personInfoData = {} as IntelDetailPersonInfo // 人脸库图片信息
     backgroundPicDatas = [] as IntelBackgroundPicDataList[] // 原图信息（多目ipc会有多张图）
     targetTrace = {} as IntelTargetTraceItem // 目标框 rect
     ruleInfos = [] as IntelRuleInfoList[] // 触发了告警的规则信息
@@ -728,4 +730,30 @@ export class IntelPlateAttrInfoItem {
     vehicleBrand = ''
     vehicleType = ''
     nonMotorizedVehicleType = ''
+}
+
+/**
+ * @description 智能分析 - 详情 - 人员信息
+ */
+export class IntelDetailPersonInfo {
+    name = ''
+    similarity = ''
+    sex = ''
+    number = ''
+    mobile = ''
+    birthday = ''
+    nativePlace = ''
+    certificateType = ''
+    certificateNum = ''
+    groupName = ''
+    groups: string[] = []
+    note = ''
+}
+
+/**
+ * @description 智能分析详情 属性列表项
+ */
+export class IntelAttributeList {
+    name = ''
+    value = ''
 }
