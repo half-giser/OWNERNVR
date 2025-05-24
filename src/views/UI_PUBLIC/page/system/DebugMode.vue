@@ -46,7 +46,7 @@
                 {{ displayTime }}
             </el-form-item>
             <div class="base-btn-box">
-                <el-button>{{ Translate('IDCS_APPLY') }}</el-button>
+                <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
             </div>
         </el-form>
         <el-form
@@ -88,9 +88,6 @@
                     v-show="exportFormData.infoLeve === 'advanced' && pageData.debugModeSwitch"
                     class="el-button"
                     for="h5BrowerImport"
-                    :class="{
-                        'is-disabled': pageData.isUploadDisabled,
-                    }"
                 >
                     <input
                         id="h5BrowerImport"
