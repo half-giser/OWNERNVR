@@ -19,6 +19,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
+        const systemCaps = useCababilityStore()
         const dateTime = useDateTimeStore()
         // key对应界面tab类型，value对应协议需要下发的searchType字段
         const SEARCH_TYPE_MAPPING: Record<string, string> = {
@@ -196,21 +197,33 @@ export default defineComponent({
                                             return rawXml`
                                                 <item>
                                                     ${
-                                                        element.imgId || element.imgId === 0
-                                                            ? ` <searchAttr>
+                                                        element.featureData
+                                                            ? `<searchAttr>
+                                                                    <snapsLib>
+                                                                        <featureData>${element.featureData}</featureData>
+                                                                    </snapsLib>
+                                                                </searchAttr>`
+                                                            : element.featureIndex
+                                                              ? `<searchAttr>
+                                                                    <snapsLib>
+                                                                        <index>${element.featureIndex}</index>
+                                                                    </snapsLib>
+                                                                </searchAttr>`
+                                                              : element.imgId || element.imgId === 0
+                                                                ? `<searchAttr>
                                                                     <snapsLib>
                                                                         <imgId>${element.imgId}</imgId>
                                                                         <chlId>${element.chlId}</chlId>
                                                                         <frameTime>${element.frameTime}</frameTime>
                                                                     </snapsLib>
                                                                 </searchAttr>`
-                                                            : element.id || element.id === '0'
-                                                              ? `<searchAttr>
+                                                                : element.id || element.id === '0'
+                                                                  ? `<searchAttr>
                                                                     <snapsLib>
                                                                         <faceLiraryID>${element.id}</faceLiraryID>
                                                                     </snapsLib>
                                                                 </searchAttr>`
-                                                              : ''
+                                                                  : ''
                                                     }
                                                     <index>${element.libIndex || 0}</index>
                                                     <data>${element.picBase64 || ''}</data>
@@ -269,6 +282,11 @@ export default defineComponent({
                         endTimeUTC,
                     }
                 })
+
+                if ($('content/IsMaxSearchResultNum').text() === 'true') {
+                    openMessageBox(Translate('IDCS_SEARCH_RESULT_LIMIT_TIPS'))
+                }
+
                 if (targetIndexDatas.length === 0) {
                     openMessageBox(Translate('IDCS_NO_RECORD_DATA'))
                 } else {
@@ -322,8 +340,8 @@ export default defineComponent({
          */
         const getCurrPageTargetDatas = async (targetIndexDatas: IntelTargetIndexItem[]) => {
             const tempTargetDatas: IntelTargetDataItem[] = []
+            closeLoading()
             targetIndexDatas.forEach(async (item) => {
-                closeLoading()
                 const sendXml = rawXml`
                     <condition>
                         <index>${item.index}</index>
@@ -333,14 +351,13 @@ export default defineComponent({
                 `
                 const result = await requestTargetData(sendXml)
                 const $ = queryXml(result)
-                closeLoading()
 
                 const tempTargetData: IntelTargetDataItem = Object.assign({}, new IntelTargetDataItem(), cloneDeep(item))
                 if ($('status').text() === 'success') {
                     const isNoData = false
                     const isDelete = $('content/isDelete').text().bool()
                     const targetID = $('content/targetID').text()
-                    const featureStatus = $('content/featureStatus').text()
+                    const featureStatus = $('content/featureStatus').text().bool()
                     const supportRegister = $('content/supportRegister').text().bool()
                     const targetType = $('content/targetType').text()
                     const timeStamp = $('content/timeStamp').text().num()
@@ -487,6 +504,7 @@ export default defineComponent({
                 // 设置当前界面展示的列表详情数据
                 setCurrTargetDatas(cloneDeep(tempTargetDatas))
             })
+            closeLoading()
         }
 
         /**
@@ -636,14 +654,14 @@ export default defineComponent({
                 case 'byFace':
                     pageData.value.picCacheListForFace = pageData.value.picCacheListForFace.map((item, index) => {
                         item.libIndex = index
-                        item.picBase64 = item.pic.indexOf(';base64,') !== -1 ? item.pic.split(',')[1] : item.pic
+                        item.picBase64 = item.pic.includes(';base64,') ? item.pic.split(',')[1] : item.pic
                         return item
                     })
                     return pageData.value.picCacheListForFace
                 case 'byBody':
                     pageData.value.picCacheListForBody = pageData.value.picCacheListForBody.map((item, index) => {
                         item.libIndex = index
-                        item.picBase64 = item.pic.indexOf(';base64,') !== -1 ? item.pic.split(',')[1] : item.pic
+                        item.picBase64 = item.pic.includes(';base64,') ? item.pic.split(',')[1] : item.pic
                         return item
                     })
                     return pageData.value.picCacheListForBody
@@ -770,9 +788,204 @@ export default defineComponent({
         /**
          * @description 打开详情
          */
-        const showDetail = (item: IntelTargetDataItem) => {
+        const showDetail = (targetDataItem: IntelTargetDataItem) => {
             pageData.value.isDetailOpen = true
-            setCurrOpenDetailIndex(item.index)
+            setCurrOpenDetailIndex(targetDataItem.index)
+        }
+
+        /**
+         * @description 以图搜图
+         */
+        const handleSearch = async (targetDataItem: IntelTargetDataItem) => {
+            const imgDataItem = new IntelFaceDBSnapFaceList()
+            imgDataItem.chlId = targetDataItem.chlID
+            imgDataItem.featureIndex = targetDataItem.index
+            imgDataItem.pic = targetDataItem.objPicData.data
+            imgDataItem.picWidth = targetDataItem.objPicData.picWidth
+            imgDataItem.picHeight = targetDataItem.objPicData.picHeight
+
+            // NTA1-3999：点击搜索按钮图标时，如果获取不到特征，则走错误提示业务：提示图片不合格，并且该图片不要添加到以图搜图控件中；
+            if (targetDataItem.featureStatus) {
+                setCurrPicCacheList([imgDataItem])
+            } else {
+                openLoading()
+                try {
+                    const imgBase64 = targetDataItem.objPicData.data
+                    const picWidth = targetDataItem.objPicData.picWidth
+                    const picHeight = targetDataItem.objPicData.picHeight
+                    const targetData = await getDetectResultInfos(imgBase64, picWidth, picHeight) // 获取"目标"数据
+                    const featureData = await extractTragetInfos(targetData) // 获取目标的"BASE64特征数据"
+                    imgDataItem.featureData = featureData
+                    setCurrPicCacheList([imgDataItem])
+                } catch {
+                    openMessageBox(Translate('IDCS_UNQUALIFIED_PICTURE'))
+                }
+                closeLoading()
+            }
+        }
+
+        /**
+         * @description 根据"通道抓拍图"信息数据，去侦测"目标"
+         */
+        const getDetectResultInfos = async (imgData: string, imgWidth: number, imgHeight: number) => {
+            if (!imgData || !imgWidth || !imgHeight) {
+                return
+            }
+
+            imgData = imgData.includes(';base64,') ? imgData.split(',')[1] : imgData
+            const sendXml = rawXml`
+                <content>
+                    <detectImgInfos>
+                        <item index="1">
+                            <imgWidth>${imgWidth}</imgWidth>
+                            <imgHeight>${imgHeight}</imgHeight>
+                            <imgFormat>jpg</imgFormat>
+                            <imgData>${imgData}</imgData>
+                        </item>
+                    </detectImgInfos>
+                </content>
+            `
+            const result = await detectTarget(sendXml)
+            const $ = queryXml(result)
+            const detectResultInfos = $('content/detectResultInfos/Item').map((item) => {
+                const $item = queryXml(item.element)
+                const detectIndex = item.attr('index').num()
+                return {
+                    detectIndex: detectIndex,
+                    detectImgInfo: {
+                        detectIndex: 1,
+                        imgData,
+                        imgWidth,
+                        imgHeight,
+                        imgFormat: 'jpg',
+                    },
+                    targetList: $item('targetList/item').map((el) => {
+                        const $el = queryXml(el.element)
+                        return {
+                            targetId: el.attr('id').num(),
+                            targetType: $el('targetType').text(),
+                            rect: {
+                                leftTop: {
+                                    x: $el('rect/leftTop/x').text().num(),
+                                    y: $el('rect/leftTop/y').text().num(),
+                                },
+                                rightBottom: {
+                                    x: $el('rect/rightBottom/x').text().num(),
+                                    y: $el('rect/rightBottom/y').text().num(),
+                                },
+                                scaleWidth: $el('rect/scaleWidth').text().num(),
+                                scaleHeight: $el('rect/scaleHeight').text().num(),
+                            },
+                            featurePointInfos: $el('featurePointInfos/item').map((point) => {
+                                const $point = queryXml(point.element)
+                                return {
+                                    faceFeatureIndex: point.attr('index'),
+                                    x: $point('x').text().num(),
+                                    y: $point('y').text().num(),
+                                }
+                            }),
+                        }
+                    }),
+                }
+            })
+
+            if (detectResultInfos.length) {
+                // 先判断当前图片是否合格（对于以图搜图来说）
+                const isDetectHumanFace = pageData.value.searchType === 'byFace'
+                const isDetectHumanBody = pageData.value.searchType === 'byBody'
+                let targetListLength = 0
+                let humanFaceTargetListLength = 0
+                let humanBodyTargetListLength = 0
+                detectResultInfos.forEach((item1) => {
+                    item1.targetList.forEach((item2) => {
+                        targetListLength++
+
+                        if (item2.targetType === 'humanFace') {
+                            humanFaceTargetListLength++
+                        }
+
+                        if (item2.targetType === 'humanBody') {
+                            humanBodyTargetListLength++
+                        }
+                    })
+                })
+                if (targetListLength > 0) {
+                    if (isDetectHumanFace) {
+                        if (humanFaceTargetListLength !== 1) {
+                            throw new Error('')
+                        }
+                    } else if (isDetectHumanBody) {
+                        if (humanBodyTargetListLength !== 1) {
+                            throw new Error('')
+                        }
+                    } else {
+                        throw new Error('')
+                    }
+                } else {
+                    throw new Error('')
+                }
+
+                // 获取目标信息
+                const find = detectResultInfos[0].targetList.find((item) => item.targetType === 'humanFace' || item.targetType === 'humanBody') // humanFace humanBody
+                if (find) {
+                    return {
+                        detectImgInfo: detectResultInfos[0].detectImgInfo,
+                        targetItem: find,
+                    }
+                } else {
+                    throw new Error('')
+                }
+            }
+
+            throw new Error('')
+        }
+
+        /**
+         * @description 根据"通道抓拍图"和侦测到的"目标"综合信息数据，去提取目标的"BASE64特征数据"
+         */
+        const extractTragetInfos = async (data: Awaited<ReturnType<typeof getDetectResultInfos>>) => {
+            const detectImgInfo = data!.detectImgInfo
+            const targetItem = data!.targetItem
+            const sendXml = rawXml`
+                <content>
+                    <extractImgInfos>
+                            <item index="${detectImgInfo.detectIndex}">
+                                <imgWidth>${detectImgInfo.imgWidth}</imgWidth>
+                                <imgHeight>${detectImgInfo.imgHeight}</imgHeight>
+                                <imgFormat>${detectImgInfo.imgFormat}</imgFormat>
+                                <imgData>${detectImgInfo.imgData}</imgData>
+                                <rect>
+                                    <leftTop>
+                                        <x>${targetItem.rect.leftTop.x}</x>
+                                        <y>${targetItem.rect.leftTop.y}</y>
+                                    </leftTop>
+                                    <rightBottom>
+                                        <x>${targetItem.rect.rightBottom.x}</x>
+                                        <y>${targetItem.rect.rightBottom.y}</y>
+                                    </rightBottom>
+                                    <scaleWidth>${targetItem.rect.scaleWidth}</scaleWidth>
+                                    <scaleHeight>${targetItem.rect.scaleHeight}</scaleHeight>
+                                </rect>
+                                <targetType>${targetItem.targetType}</targetType>
+                                <featurePointInfos>
+                                    ${targetItem.featurePointInfos
+                                        .map((point) => {
+                                            return rawXml`
+                                                <item index="${point.faceFeatureIndex}">
+                                                    <x>${point.x}</x>
+                                                    <y>${point.y}</y>
+                                                </item>
+                                            `
+                                        })
+                                        .join('')}
+                                </featurePointInfos>
+                            </item>
+                    </extractImgInfos>
+                </content>
+            `
+            const result = await extractTraget(sendXml)
+            const $ = queryXml(result)
+            return $('extractResultInfos/item/featureData').text()
         }
 
         /**
@@ -799,6 +1012,17 @@ export default defineComponent({
                 }
             }
         }
+
+        // 是否显示图片选择器
+        const showPicChooser = computed(() => {
+            if (pageData.value.searchType === 'byFace') {
+                return systemCaps.supportFaceMatch
+            } else if (pageData.value.searchType === 'byBody') {
+                return systemCaps.supportREID
+            } else {
+                return false
+            }
+        })
 
         // 计算出当前是否需要显示对比图
         const showCompare = computed(() => {
@@ -828,7 +1052,9 @@ export default defineComponent({
             handleSort,
             switchDetail,
             showDetail,
+            handleSearch,
             displayDateTime,
+            showPicChooser,
             showCompare,
         }
     },
