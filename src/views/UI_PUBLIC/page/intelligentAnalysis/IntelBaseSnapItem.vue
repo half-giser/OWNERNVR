@@ -42,7 +42,10 @@
                 <div class="snap_pic">
                     <!-- 顶部操作区域（checkbox选择框） -->
                     <div class="top_operate">
-                        <el-checkbox v-model="targetData.checked" />
+                        <el-checkbox
+                            v-model="targetData.checked"
+                            @click.stop=""
+                        />
                     </div>
                     <!-- 封面图 -->
                     <img
@@ -142,7 +145,10 @@
                 <div class="snap_pic">
                     <!-- 顶部操作区域（checkbox选择框） -->
                     <div class="top_operate">
-                        <el-checkbox v-model="targetData.checked" />
+                        <el-checkbox
+                            v-model="targetData.checked"
+                            @click.stop=""
+                        />
                     </div>
                     <!-- 封面图 -->
                     <img

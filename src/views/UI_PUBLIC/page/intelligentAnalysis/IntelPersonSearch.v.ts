@@ -149,6 +149,21 @@ export default defineComponent({
             // 选择的图片列表（人体）
             picCacheListForBody: [] as (IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)[],
             choosePicsForBody: [] as (IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)[],
+            // 备份类型选项
+            backupTypeOptions: [
+                {
+                    label: Translate('IDCS_BACKUP_PICTURE'),
+                    value: 'pic' as 'pic' | 'video' | 'picAndVideo',
+                },
+                {
+                    label: Translate('IDCS_BACKUP_RECORD'),
+                    value: 'video' as 'pic' | 'video' | 'picAndVideo',
+                },
+                {
+                    label: Translate('IDCS_BACKUP_PICTURE_AND_RECORD'),
+                    value: 'picAndVideo' as 'pic' | 'video' | 'picAndVideo',
+                },
+            ],
             // 是否支持备份（H5模式）
             isSupportBackUp: isBrowserSupportWasm() && !isHttpsLogin(),
         })
@@ -1108,6 +1123,20 @@ export default defineComponent({
         }
 
         /**
+         * @description 备份全部
+         */
+        const handleBackupAll = () => {
+            console.log('handleBackupAll')
+        }
+
+        /**
+         * @description 备份选中项
+         */
+        const handleBackup = (backupType: 'pic' | 'video' | 'picAndVideo') => {
+            console.log(backupType)
+        }
+
+        /**
          * @description 切换详情界面的展示与隐藏
          */
         const switchDetail = () => {
@@ -1120,6 +1149,13 @@ export default defineComponent({
         const showDetail = (targetDataItem: IntelTargetDataItem) => {
             pageData.value.isDetailOpen = true
             setCurrOpenDetailIndex(targetDataItem.index)
+        }
+
+        /**
+         * @description 关闭详情
+         */
+        const hideDetail = () => {
+            pageData.value.isDetailOpen = false
         }
 
         /**
@@ -1151,6 +1187,9 @@ export default defineComponent({
                 }
                 closeLoading()
             }
+
+            // 关闭详情
+            hideDetail()
         }
 
         /**
@@ -1382,8 +1421,11 @@ export default defineComponent({
             handleChangePage,
             handleSelectAll,
             handleSort,
+            handleBackupAll,
+            handleBackup,
             switchDetail,
             showDetail,
+            hideDetail,
             handleSearch,
             displayDateTime,
             showPicChooser,

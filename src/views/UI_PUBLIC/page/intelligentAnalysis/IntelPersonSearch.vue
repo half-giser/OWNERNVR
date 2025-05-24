@@ -32,6 +32,12 @@
                         v-model="pageData.chlIdList"
                         @ready="getChlIdNameMap"
                     />
+                    <!-- 属性选择 - 人属性 -->
+                    <IntelBaseProfileSelector
+                        v-show="pageData.searchType === 'byPersonAttribute'"
+                        v-model="pageData.attributeForPersonAttribute"
+                        :range="['person']"
+                    />
                     <!-- 图片选择、相似度 - 人脸 -->
                     <div v-show="pageData.searchType === 'byFace' && showPicChooser">
                         <!-- 图片 -->
@@ -116,12 +122,6 @@
                             />
                         </div>
                     </div>
-                    <!-- 属性选择 - 人属性 -->
-                    <IntelBaseProfileSelector
-                        v-show="pageData.searchType === 'byPersonAttribute'"
-                        v-model="pageData.attributeForPersonAttribute"
-                        :range="['person']"
-                    />
                 </div>
             </div>
             <!-- 搜索按钮 -->
@@ -136,7 +136,7 @@
             }"
         >
             <!-- 抓拍图/轨迹tab、排序、全选 -->
-            <div class="base-intel-row space-between">
+            <div class="base-intel-center-top base-intel-row space-between">
                 <!-- 抓拍图、轨迹 tab -->
                 <div>
                     <el-radio-group
@@ -241,7 +241,7 @@
                 </div>
             </div>
             <!-- 抓拍图容器 -->
-            <el-scrollbar class="base-intel-pics-box">
+            <div class="base-intel-center-center base-intel-pics-box">
                 <!-- 人脸 - 抓拍图容器 -->
                 <div
                     v-show="pageData.searchType === 'byFace'"
@@ -295,42 +295,108 @@
                         @search="handleSearch"
                     />
                 </div>
-            </el-scrollbar>
-            <!-- 分页器容器 -->
-            <div class="base-btn-box">
-                <!-- 人脸 - 分页器 -->
-                <BasePagination
-                    v-show="pageData.searchType === 'byFace'"
-                    v-model:current-page="pageData.pageIndexForFace"
-                    v-model:page-size="pageData.pageSizeForFace"
-                    :page-sizes="[pageData.pageSizeForFace]"
-                    :total="pageData.targetIndexDatasForFace.length"
-                    @current-change="handleChangePage"
-                />
-                <!-- 人体 - 分页器 -->
-                <BasePagination
-                    v-show="pageData.searchType === 'byBody'"
-                    v-model:current-page="pageData.pageIndexForBody"
-                    v-model:page-size="pageData.pageSizeForBody"
-                    :page-sizes="[pageData.pageSizeForBody]"
-                    :total="pageData.targetIndexDatasForBody.length"
-                    @current-change="handleChangePage"
-                />
-                <!-- 人属性 - 分页器 -->
-                <BasePagination
-                    v-show="pageData.searchType === 'byPersonAttribute'"
-                    v-model:current-page="pageData.pageIndexForPersonAttribute"
-                    v-model:page-size="pageData.pageSizeForPersonAttribute"
-                    :page-sizes="[pageData.pageSizeForPersonAttribute]"
-                    :total="pageData.targetIndexDatasForPersonAttribute.length"
-                    @current-change="handleChangePage"
-                />
             </div>
-            <!-- 备份/全部备份按钮容器 -->
-            <div class="base-btn-box">
-                <el-button>
-                    {{ Translate('IDCS_BACKUP') }}
-                </el-button>
+            <!-- 分页器、备份/全部备份按钮容器 -->
+            <div class="base-intel-center-bottom">
+                <!-- 分页器 -->
+                <div class="base-btn-box">
+                    <!-- 人脸 - 分页器 -->
+                    <BasePagination
+                        v-show="pageData.searchType === 'byFace'"
+                        v-model:current-page="pageData.pageIndexForFace"
+                        v-model:page-size="pageData.pageSizeForFace"
+                        :page-sizes="[pageData.pageSizeForFace]"
+                        :total="pageData.targetIndexDatasForFace.length"
+                        @current-change="handleChangePage"
+                    />
+                    <!-- 人体 - 分页器 -->
+                    <BasePagination
+                        v-show="pageData.searchType === 'byBody'"
+                        v-model:current-page="pageData.pageIndexForBody"
+                        v-model:page-size="pageData.pageSizeForBody"
+                        :page-sizes="[pageData.pageSizeForBody]"
+                        :total="pageData.targetIndexDatasForBody.length"
+                        @current-change="handleChangePage"
+                    />
+                    <!-- 人属性 - 分页器 -->
+                    <BasePagination
+                        v-show="pageData.searchType === 'byPersonAttribute'"
+                        v-model:current-page="pageData.pageIndexForPersonAttribute"
+                        v-model:page-size="pageData.pageSizeForPersonAttribute"
+                        :page-sizes="[pageData.pageSizeForPersonAttribute]"
+                        :total="pageData.targetIndexDatasForPersonAttribute.length"
+                        @current-change="handleChangePage"
+                    />
+                </div>
+                <!-- 备份/全部备份按钮 -->
+                <div class="base-btn-box">
+                    <!-- 人脸 -->
+                    <div v-show="pageData.searchType === 'byFace'">
+                        <el-button @click="handleBackupAll">
+                            {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
+                        </el-button>
+                        <el-dropdown placement="top-end">
+                            <el-button>
+                                {{ Translate('IDCS_BACKUP') }}
+                            </el-button>
+                            <template #dropdown>
+                                <el-dropdown-menu>
+                                    <el-dropdown-item
+                                        v-for="item in pageData.backupTypeOptions"
+                                        :key="item.value"
+                                        @click="handleBackup(item.value)"
+                                    >
+                                        {{ Translate(item.label) }}
+                                    </el-dropdown-item>
+                                </el-dropdown-menu>
+                            </template>
+                        </el-dropdown>
+                    </div>
+                    <!-- 人体 -->
+                    <div v-show="pageData.searchType === 'byBody'">
+                        <el-button @click="handleBackupAll">
+                            {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
+                        </el-button>
+                        <el-dropdown placement="top-end">
+                            <el-button>
+                                {{ Translate('IDCS_BACKUP') }}
+                            </el-button>
+                            <template #dropdown>
+                                <el-dropdown-menu>
+                                    <el-dropdown-item
+                                        v-for="item in pageData.backupTypeOptions"
+                                        :key="item.value"
+                                        @click="handleBackup(item.value)"
+                                    >
+                                        {{ Translate(item.label) }}
+                                    </el-dropdown-item>
+                                </el-dropdown-menu>
+                            </template>
+                        </el-dropdown>
+                    </div>
+                    <!-- 人属性 -->
+                    <div v-show="pageData.searchType === 'byPersonAttribute'">
+                        <el-button @click="handleBackupAll">
+                            {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
+                        </el-button>
+                        <el-dropdown placement="top-end">
+                            <el-button>
+                                {{ Translate('IDCS_BACKUP') }}
+                            </el-button>
+                            <template #dropdown>
+                                <el-dropdown-menu>
+                                    <el-dropdown-item
+                                        v-for="item in pageData.backupTypeOptions"
+                                        :key="item.value"
+                                        @click="handleBackup(item.value)"
+                                    >
+                                        {{ Translate(item.label) }}
+                                    </el-dropdown-item>
+                                </el-dropdown-menu>
+                            </template>
+                        </el-dropdown>
+                    </div>
+                </div>
             </div>
             <!-- 打开/关闭详情按钮 -->
             <div class="resize_icon_left">
@@ -472,6 +538,10 @@
 
 .base-intel-center {
     position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
 
     .base-intel-row {
         .el-radio-button {
@@ -522,6 +592,26 @@
         .resize_icon_right {
             right: -10px;
         }
+    }
+
+    .base-intel-center-top {
+        width: 100%;
+        height: 27px;
+    }
+
+    .base-intel-center-center {
+        width: calc(100% - 30px);
+        height: calc(100% - 139px);
+        position: absolute;
+        top: 52px;
+        left: 15px;
+        right: 15px;
+        overflow: auto;
+    }
+
+    .base-intel-center-bottom {
+        width: 100%;
+        height: 72px;
     }
 }
 
