@@ -28,6 +28,8 @@ export interface WebsocketPlateLibOnSuccessParam {
     vehicleType: string
     ownerValue: string
     phoneValue: string
+    startTime: string
+    endTime: string
 }
 
 export const WebsocketPlateLib = (option: WebsocketPlateLibOption) => {

@@ -239,6 +239,11 @@ export default defineComponent({
                         endTimeUTC,
                     }
                 })
+
+                if ($('content/IsMaxSearchResultNum').text() === 'true') {
+                    openMessageBox(Translate('IDCS_SEARCH_RESULT_LIMIT_TIPS'))
+                }
+
                 if (targetIndexDatas.length === 0) {
                     openMessageBox(Translate('IDCS_NO_RECORD_DATA'))
                 } else {
@@ -310,7 +315,7 @@ export default defineComponent({
                     const isNoData = false
                     const isDelete = $('content/isDelete').text().bool()
                     const targetID = $('content/targetID').text()
-                    const featureStatus = $('content/featureStatus').text()
+                    const featureStatus = $('content/featureStatus').text().bool()
                     const supportRegister = $('content/supportRegister').text().bool()
                     const targetType = $('content/targetType').text()
                     const timeStamp = $('content/timeStamp').text().num()
@@ -644,9 +649,9 @@ export default defineComponent({
         /**
          * @description 打开详情
          */
-        const showDetail = (item: IntelTargetDataItem) => {
+        const showDetail = (targetDataItem: IntelTargetDataItem) => {
             pageData.value.isDetailOpen = true
-            setCurrOpenDetailIndex(item.index)
+            setCurrOpenDetailIndex(targetDataItem.index)
         }
 
         /**

@@ -32,7 +32,14 @@ export default defineComponent({
 
         let websocket: ReturnType<typeof WebsocketPlateLib> | null = null
 
-        const csvHeader = ['(B1)' + Translate('IDCS_LICENSE_PLATE_NUM'), '(B2)' + Translate('IDCS_VEHICLE_OWNER'), '(B3)' + Translate('IDCS_PHONE_NUMBER'), '(N1)' + Translate('IDCS_VEHICLE_TYPE')]
+        const csvHeader = [
+            '(B1)' + Translate('IDCS_LICENSE_PLATE_NUM'),
+            '(B2)' + Translate('IDCS_VEHICLE_OWNER'),
+            '(B3)' + Translate('IDCS_PHONE_NUMBER'),
+            '(N1)' + Translate('IDCS_VEHICLE_TYPE'),
+            '(N2)' + Translate('IDCS_EFFECTIVE_START_TIME'),
+            '(N3)' + Translate('IDCS_EFFECTIVE_END_TIME'),
+        ]
 
         const pageData = ref({
             // 当前任务
@@ -181,6 +188,8 @@ export default defineComponent({
                 row.ownerValue || '', // 车主
                 row.phoneValue || '', // 手机号码
                 row.vehicleType || '', // 车型
+                row.startTime || '', // 开始时间
+                row.endTime || '', // 结束时间
             ]
             return csvRow.join(',')
         }

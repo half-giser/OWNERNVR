@@ -397,7 +397,9 @@ export default defineComponent({
          */
         const handleToolBarEvent = (event: ConfigToolBarEvent<any>) => {
             if (event.type === 'refresh') {
+                openLoading()
                 getData()
+                closeLoading()
                 return
             }
         }

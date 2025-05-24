@@ -33,7 +33,7 @@
                         @ready="getChlIdNameMap"
                     />
                     <!-- 图片选择、相似度 - 人脸 -->
-                    <div v-show="pageData.searchType === 'byFace'">
+                    <div v-show="pageData.searchType === 'byFace' && showPicChooser">
                         <!-- 图片 -->
                         <div class="add_pic_container">
                             <div
@@ -75,7 +75,7 @@
                         </div>
                     </div>
                     <!-- 图片选择、相似度 - 人体 -->
-                    <div v-show="pageData.searchType === 'byBody'">
+                    <div v-show="pageData.searchType === 'byBody' && showPicChooser">
                         <!-- 图片 -->
                         <div class="add_pic_container">
                             <div
@@ -252,6 +252,7 @@
                         :choose-pics="pageData.picCacheListForFace"
                         search-type="byFace"
                         @detail="showDetail(item)"
+                        @search="handleSearch"
                     />
                 </div>
                 <!-- 人体 - 抓拍图容器 -->
@@ -269,6 +270,7 @@
                         :choose-pics="pageData.picCacheListForBody"
                         search-type="byBody"
                         @detail="showDetail(item)"
+                        @search="handleSearch"
                     />
                 </div>
                 <!-- 人属性 - 抓拍图容器 -->
@@ -285,6 +287,7 @@
                         :show-compare="false"
                         search-type="byPersonAttribute"
                         @detail="showDetail(item)"
+                        @search="handleSearch"
                     />
                 </div>
             </el-scrollbar>

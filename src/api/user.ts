@@ -121,4 +121,4 @@ export const sendCaptchaEmail = (data: string) => fetch('sendCaptchaEmail', data
  * @param data
  * @returns
  */
-export const recoverPassword = (data: string) => fetch('sendCaptchaEmail', data, {}, false)
+export const recoverPassword = (data: string) => fetch('recoverPassword', data, {}, false)

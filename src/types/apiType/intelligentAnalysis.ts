@@ -15,6 +15,8 @@ export class ImageInfo {
     picBase64? = '' // dataURL的base64部分
     name? = '' // 图片名称
     note? = '' // 图片描述
+    featureIndex? = '' // 图片特征索引index
+    featureData? = '' // 图片特征值featureData
     libIndex? = 0
     picWidth? = 0
     picHeight? = 0
@@ -184,6 +186,8 @@ export class IntelPlateDBPlateInfo {
     ownerPhone = ''
     vehicleType = ''
     ownerFaceId = ''
+    startTime = ''
+    endTime = ''
 }
 
 /**
@@ -196,6 +200,8 @@ export class IntelPlateDBAddPlateForm {
     owner = ''
     ownerPhone = ''
     vehicleType = ''
+    startTime = ''
+    endTime = ''
 }
 
 /**
@@ -598,7 +604,7 @@ export class IntelTargetDataItem extends IntelTargetIndexItem {
     isNoData = false
     isDelete = false
     targetID = ''
-    featureStatus = ''
+    featureStatus = false
     supportRegister = false
     targetType = ''
     timeStamp = 0 // 这一帧的时间戳

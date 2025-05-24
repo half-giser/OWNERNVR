@@ -81,7 +81,7 @@ export default defineComponent({
                     <item>
                         <id>${prop.data.id}</id>
                         <groupId>${prop.data.groupId}</groupId>
-                        <name>${formData.value.groupName}</name>
+                        <name>${wrapCDATA(formData.value.groupName)}</name>
                         <property type="property">${prop.data.property}</property>
                         <enableAlarmSwitch>${formData.value.enableAlarmSwitch}</enableAlarmSwitch>
                     </item>
@@ -131,7 +131,7 @@ export default defineComponent({
                     <property>${wrapEnums(['allow', 'reject', 'limited'])}</property>
                 </types>
                 <content>
-                    <name>${formData.value.groupName}</name>
+                    <name>${wrapCDATA(formData.value.groupName)}</name>
                     <property type="property">limited</property>
                 </content>
             `
