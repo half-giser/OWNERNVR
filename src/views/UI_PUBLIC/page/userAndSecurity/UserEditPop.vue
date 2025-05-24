@@ -14,7 +14,6 @@
             ref="formRef"
             v-title
             class="stripe"
-            :rules
             :model="formData"
         >
             <el-form-item :label="Translate('IDCS_ENABLE')">
@@ -92,7 +91,7 @@
             >
                 {{ Translate('IDCS_RESET_PASSWORD') }}
             </el-button>
-            <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="doEditUser">{{ Translate('IDCS_OK') }}</el-button>
             <el-button @click="goBack">{{ Translate('IDCS_CANCEL') }}</el-button>
         </div>
         <BaseScheduleManagePop

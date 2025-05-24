@@ -291,10 +291,8 @@ export const CanvasMotion = (option: CanvasMotionOption = {}) => {
      */
     const reverse = () => {
         ctx.ClearRect(0, 0, w, h)
-        netArr = []
         for (let i = 0; i < rowNum; i++) {
             const row = netArr[i]
-            netArr.push([])
             for (let j = 0; j < colNum; j++) {
                 const status = row[j]
                 netArr[i][j] = status === STATUS_ON ? STATUS_OFF : STATUS_ON
