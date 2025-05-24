@@ -44,6 +44,8 @@ export default defineComponent({
             securityCode: '',
             currentIndex: 1,
             isCheckAuthPop: false,
+            // 能力集为有NAI1.0时，%1替换成2.0（等效于1.4.9及之前版本）；能力集为无NAT1.0时，%1替换成空（等效于1.5.0版本）
+            natTips: systemCaps.needP2pVersion1 ? '2.0' : '',
         })
 
         // 定时获取NAT状态
@@ -239,7 +241,7 @@ export default defineComponent({
             if (!formData.value.natSwitch && pageData.value.cloudSwitch && systemCaps.showCloudUpgrade) {
                 openMessageBox({
                     type: 'question',
-                    message: Translate('IDCS_CLOSE_NAT2_TIP'),
+                    message: Translate('IDCS_CLOSE_NAT2_TIP').formatForLang(pageData.value.natTips),
                 })
                     .then(() => {
                         setData()
@@ -254,7 +256,7 @@ export default defineComponent({
             if (formData.value.index === 0 && formData.value.natSwitch && pageData.value.cloudSwitch && systemCaps.showCloudUpgrade) {
                 openMessageBox({
                     type: 'question',
-                    message: Translate('IDCS_NAT2_CLOSE_TIP'),
+                    message: Translate('IDCS_NAT2_CLOSE_TIP').formatForLang(pageData.value.natTips),
                 })
                     .then(() => {
                         setData()
