@@ -129,29 +129,29 @@
                                 <div class="text-ellipsis">{{ displayGender(current.info?.gender) }}</div>
                             </el-form-item>
                             <el-form-item :label="`${Translate('IDCS_NUMBER')} ：`">
-                                {{ current.info?.serial_number }}
+                                <div class="text-ellipsis">{{ current.info?.serial_number }}</div>
                             </el-form-item>
                             <el-form-item :label="`${Translate('IDCS_PHONE_NUMBER')} ：`">
-                                {{ current.info?.mobile_phone_number }}
+                                <div class="text-ellipsis">{{ current.info?.mobile_phone_number }}</div>
                             </el-form-item>
                             <el-form-item :label="`${Translate('IDCS_BIRTHDAY')} ：`">
-                                {{ displayDate(current.info?.birth_date) }}
+                                <div class="text-ellipsis">{{ displayDate(current.info?.birth_date) }}</div>
                             </el-form-item>
                             <el-form-item :label="`${Translate('IDCS_NATIVE_PLACE')} ：`">
-                                {{ current.info?.hometown }}
+                                <div class="text-ellipsis">{{ current.info?.hometown }}</div>
                             </el-form-item>
                             <el-form-item :label="`${Translate('IDCS_ADD_FACE_GROUP')} ：`">
-                                {{ current.info?.group_name }}
+                                <div class="text-ellipsis">{{ current.info?.group_name }}</div>
                             </el-form-item>
                             <div class="split-line"></div>
                             <el-form-item :label="`${Translate('IDCS_ID_TYPE')} ：`">
-                                {{ Translate('IDCS_ID_CARD') }}
+                                <div class="text-ellipsis">{{ Translate('IDCS_ID_CARD') }}</div>
                             </el-form-item>
                             <el-form-item :label="`${Translate('IDCS_ID_NUMBER')} ：`">
-                                {{ current.info?.certificate_number }}
+                                <div class="text-ellipsis">{{ current.info?.certificate_number }}</div>
                             </el-form-item>
                             <el-form-item :label="`${Translate('IDCS_REMARK')} ：`">
-                                {{ current.info?.remarks }}
+                                <div class="text-ellipsis">{{ current.info?.remarks }}</div>
                             </el-form-item>
                         </el-form>
                     </div>
@@ -191,28 +191,28 @@
 
                 <div class="plate-compare-info">
                     <el-form label-width="80px">
-                        <div class="number">{{ current.info?.plate }}</div>
+                        <div class="number text-ellipsis">{{ current.info?.plate }}</div>
                         <el-form-item :label="`${Translate('IDCS_VEHICLE_OWNER')}：`">
-                            {{ current.info?.owner }}
+                            <div class="text-ellipsis">{{ current.info?.owner }}</div>
                         </el-form-item>
                         <el-form-item :label="`${Translate('IDCS_PHONE_NUMBER')}：`">
-                            {{ current.info?.mobile_phone_number }}
+                            <div class="text-ellipsis">{{ current.info?.mobile_phone_number }}</div>
                         </el-form-item>
                         <el-form-item :label="`${Translate('IDCS_PLATE_LIBRARY_GROUP')}：`">
-                            {{ current.info?.group_name }}
+                            <div class="text-ellipsis">{{ current.info?.group_name }}</div>
                         </el-form-item>
                         <el-form-item :label="`${Translate('IDCS_PLATE_COLOR')}：`">
-                            {{ displayPlateColor(current.info?.platecolor) }}
+                            <div class="text-ellipsis">{{ displayPlateColor(current.info?.platecolor) }}</div>
                         </el-form-item>
                         <div class="split-line"></div>
                         <el-form-item :label="`${Translate('IDCS_VEHICLE_COLOR')}：`">
-                            {{ displayVehicleColor(current.info?.color) }}
+                            <div class="text-ellipsis">{{ displayVehicleColor(current.info?.color) }}</div>
                         </el-form-item>
                         <el-form-item :label="`${Translate('IDCS_VEHICLE_TYPE_ALL')}：`">
-                            {{ displayVehicleType(current.info?.type) }}
+                            <div class="text-ellipsis">{{ displayVehicleType(current.info?.type) }}</div>
                         </el-form-item>
                         <el-form-item :label="`${Translate('IDCS_VEHICLE_BRAND')}：`">
-                            {{ displayBrand(current.info?.brand_type) }}
+                            <div class="text-ellipsis">{{ displayBrand(current.info?.brand_type) }}</div>
                         </el-form-item>
                     </el-form>
                 </div>
@@ -468,7 +468,7 @@
                     .titleIcon {
                         width: 7px;
                         height: 25px;
-                        margin: 0;
+                        margin-left: -5px;
                         font-size: 20px;
                         border-left: 2px solid var(--btn-bg-disabled);
                     }

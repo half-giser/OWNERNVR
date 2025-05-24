@@ -8,6 +8,7 @@ import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
 import IntelBaseProfileSelector from './IntelBaseProfileSelector.vue'
 import IntelFaceSearchChooseFacePop from './IntelFaceSearchChooseFacePop.vue'
 import IntelBaseSnapItem from './IntelBaseSnapItem.vue'
+import { type DropdownInstance } from 'element-plus'
 
 export default defineComponent({
     components: {
@@ -21,6 +22,11 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
         const dateTime = useDateTimeStore()
+        // 三个排序下拉框的引用
+        const faceSortDropdown = ref<DropdownInstance>()
+        const bodySortDropdown = ref<DropdownInstance>()
+        const personAttributeSortDropdown = ref<DropdownInstance>()
+
         // key对应界面tab类型，value对应协议需要下发的searchType字段
         const SEARCH_TYPE_MAPPING: Record<string, string> = {
             byFace: 'byHumanFacePic',
@@ -66,6 +72,8 @@ export default defineComponent({
                     value: 'snap',
                 },
             ],
+            // 是否是以图搜图
+            isByPic: false,
             // 排序类型（按时间/按通道）
             sortType: 'time',
             // 排序选项
@@ -73,10 +81,17 @@ export default defineComponent({
                 {
                     label: Translate('IDCS_CHANNEL'),
                     value: 'chl',
+                    status: 'down',
                 },
                 {
                     label: Translate('IDCS_TIME'),
                     value: 'time',
+                    status: 'down',
+                },
+                {
+                    label: Translate('IDCS_SIMILARITY'),
+                    value: 'similarity',
+                    status: 'down',
                 },
             ],
             // 选择的日期时间范围
@@ -151,7 +166,8 @@ export default defineComponent({
         /**
          * @description 获取列表索引数据 - searchTargetIndex
          */
-        const getAllTargetIndexDatas = async () => {
+        const getAllTargetIndexDatas = async (isByPic?: boolean) => {
+            resetSortStatus()
             const currAttrObjToList: attrObjToListItem[] = getCurrAttribute()
             const currPicCacheList: (IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)[] = getCurrPicCacheList()
             const sendXml = rawXml`
@@ -282,6 +298,46 @@ export default defineComponent({
                         endTimeUTC,
                     }
                 })
+
+                if (isByPic) {
+                    targetIndexDatas.sort((a, b) => {
+                        if (a.similarity !== b.similarity) {
+                            return b.similarity - a.similarity
+                        }
+
+                        if (a.timeStamp !== b.timeStamp) {
+                            return b.timeStamp - a.timeStamp
+                        }
+
+                        if (a.timeStamp100ns !== b.timeStamp100ns) {
+                            return Number(b.timeStamp100ns) - Number(a.timeStamp100ns)
+                        }
+
+                        if (a.chlID !== b.chlID) {
+                            const chlIdA = getChlId16(a.chlID)
+                            const chlIdB = getChlId16(b.chlID)
+                            return chlIdA - chlIdB
+                        }
+                        return Number(a.targetID) - Number(b.targetID)
+                    })
+                } else {
+                    targetIndexDatas.sort((a, b) => {
+                        if (a.timeStamp !== b.timeStamp) {
+                            return b.timeStamp - a.timeStamp
+                        }
+
+                        if (a.timeStamp100ns !== b.timeStamp100ns) {
+                            return Number(b.timeStamp100ns) - Number(a.timeStamp100ns)
+                        }
+
+                        if (a.chlID !== b.chlID) {
+                            const chlIdA = getChlId16(a.chlID)
+                            const chlIdB = getChlId16(b.chlID)
+                            return chlIdA - chlIdB
+                        }
+                        return Number(a.targetID) - Number(b.targetID)
+                    })
+                }
 
                 if ($('content/IsMaxSearchResultNum').text() === 'true') {
                     openMessageBox(Translate('IDCS_SEARCH_RESULT_LIMIT_TIPS'))
@@ -671,6 +727,23 @@ export default defineComponent({
         }
 
         /**
+         * @description 获取当前界面的排序下拉框引用
+         */
+        const getCurrDropdownRef = () => {
+            switch (pageData.value.searchType) {
+                case 'byFace':
+                    return faceSortDropdown
+                case 'byBody':
+                    return bodySortDropdown
+                case 'byPersonAttribute':
+                    return personAttributeSortDropdown
+                default:
+                    // 返回空的引用
+                    return ref()
+            }
+        }
+
+        /**
          * @description 打开图片选择弹框
          */
         const openChoosePicPop = () => {
@@ -772,10 +845,251 @@ export default defineComponent({
         }
 
         /**
-         * @description 手动排序
+         * @description 重置排序状态
+         */
+        const resetSortStatus = () => {
+            pageData.value.sortOptions.forEach((item) => {
+                item.status = 'down'
+            })
+            pageData.value.sortType = 'time'
+        }
+
+        /**
+         * @description 手动排序: 时间排序、通道排序、相似度排序
          */
         const handleSort = (sortType: string) => {
-            console.log(sortType)
+            const dropdownRef = getCurrDropdownRef()
+            dropdownRef.value?.handleClose()
+            if (sortType === 'time') {
+                if (pageData.value.sortType === 'time') {
+                    // 时间排序升序降序切换
+                    if (pageData.value.sortOptions.find((item) => item.value === 'time')?.status === 'up') {
+                        pageData.value.sortOptions.find((item) => item.value === 'time')!.status = 'down'
+                    } else {
+                        pageData.value.sortOptions.find((item) => item.value === 'time')!.status = 'up'
+                    }
+                    handleSortByTime(pageData.value.sortOptions.find((item) => item.value === 'time')!.status)
+                } else if (pageData.value.sortType === 'chl') {
+                    // 切换为通道排序降序
+                    pageData.value.sortOptions.find((item) => item.value === 'chl')!.status = 'down'
+                    handleSortByChl('down')
+                } else {
+                    // 切换为相似度排序降序
+                    pageData.value.sortOptions.find((item) => item.value === 'similarity')!.status = 'down'
+                    handleSortBySimilarity('down')
+                }
+            } else if (sortType === 'chl') {
+                if (pageData.value.sortType === 'chl') {
+                    // 通道排序升序降序切换
+                    if (pageData.value.sortOptions.find((item) => item.value === 'chl')?.status === 'up') {
+                        pageData.value.sortOptions.find((item) => item.value === 'chl')!.status = 'down'
+                    } else {
+                        pageData.value.sortOptions.find((item) => item.value === 'chl')!.status = 'up'
+                    }
+                    handleSortByChl(pageData.value.sortOptions.find((item) => item.value === 'chl')!.status)
+                } else if (pageData.value.sortType === 'time') {
+                    // 切换为时间排序降序
+                    pageData.value.sortOptions.find((item) => item.value === 'time')!.status = 'down'
+                    handleSortByTime('down')
+                } else {
+                    // 切换为相似度排序降序
+                    pageData.value.sortOptions.find((item) => item.value === 'similarity')!.status = 'down'
+                    handleSortBySimilarity('down')
+                }
+            } else if (sortType === 'similarity') {
+                if (pageData.value.sortType === 'similarity') {
+                    // 相似度排序升序降序切换
+                    if (pageData.value.sortOptions.find((item) => item.value === 'similarity')?.status === 'up') {
+                        pageData.value.sortOptions.find((item) => item.value === 'similarity')!.status = 'down'
+                    } else {
+                        pageData.value.sortOptions.find((item) => item.value === 'similarity')!.status = 'up'
+                    }
+                    handleSortBySimilarity(pageData.value.sortOptions.find((item) => item.value === 'similarity')!.status)
+                } else if (pageData.value.sortType === 'time') {
+                    // 切换为时间排序降序
+                    pageData.value.sortOptions.find((item) => item.value === 'time')!.status = 'down'
+                    handleSortByTime('down')
+                } else {
+                    // 切换为通道排序降序
+                    pageData.value.sortOptions.find((item) => item.value === 'chl')!.status = 'down'
+                    handleSortByChl('down')
+                }
+            }
+            pageData.value.sortType = sortType
+        }
+
+        /**
+         * @description 时间排序
+         * @param {String} sortDirection 排序方向
+         */
+        const handleSortByTime = (sortDirection: string) => {
+            const targetIndexDatas = getCurrTargetIndexDatas()
+            if (targetIndexDatas.length === 0) {
+                return
+            }
+
+            if (sortDirection === 'up') {
+                targetIndexDatas.sort((a, b) => {
+                    if (a.timeStamp !== b.timeStamp) {
+                        return a.timeStamp - b.timeStamp
+                    }
+
+                    if (a.timeStamp100ns !== b.timeStamp100ns) {
+                        return Number(a.timeStamp100ns) - Number(b.timeStamp100ns)
+                    }
+
+                    if (a.similarity !== b.similarity) {
+                        return b.similarity - a.similarity
+                    }
+
+                    if (a.chlID !== b.chlID) {
+                        const chlIdA = getChlId16(a.chlID)
+                        const chlIdB = getChlId16(b.chlID)
+                        return chlIdA - chlIdB
+                    }
+                    return Number(a.targetID) - Number(b.targetID)
+                })
+            } else {
+                targetIndexDatas.sort((a, b) => {
+                    if (a.timeStamp !== b.timeStamp) {
+                        return b.timeStamp - a.timeStamp
+                    }
+
+                    if (a.timeStamp100ns !== b.timeStamp100ns) {
+                        return Number(b.timeStamp100ns) - Number(a.timeStamp100ns)
+                    }
+
+                    if (a.similarity !== b.similarity) {
+                        return b.similarity - a.similarity
+                    }
+
+                    if (a.chlID !== b.chlID) {
+                        const chlIdA = getChlId16(a.chlID)
+                        const chlIdB = getChlId16(b.chlID)
+                        return chlIdA - chlIdB
+                    }
+                    return Number(a.targetID) - Number(b.targetID)
+                })
+            }
+            setCurrTargetIndexDatas(targetIndexDatas)
+            const tempPageIndex = getCurrPageIndex()
+            const tempPageSize = getCurrPageSize()
+            sliceTargetIndexDatas.value = targetIndexDatas.slice((tempPageIndex - 1) * tempPageSize, tempPageIndex * tempPageSize)
+            openLoading()
+            getCurrPageTargetDatas(sliceTargetIndexDatas.value)
+        }
+
+        /**
+         * @description 通道排序
+         * @param {String} sortDirection 排序方向
+         */
+        const handleSortByChl = (sortDirection: string) => {
+            const targetIndexDatas = getCurrTargetIndexDatas()
+            if (targetIndexDatas.length === 0) {
+                return
+            }
+
+            if (sortDirection === 'up') {
+                targetIndexDatas.sort((a, b) => {
+                    if (a.chlID !== b.chlID) {
+                        const chlIdA = getChlId16(a.chlID)
+                        const chlIdB = getChlId16(b.chlID)
+                        return chlIdA - chlIdB
+                    }
+
+                    if (a.timeStamp !== b.timeStamp) {
+                        return b.timeStamp - a.timeStamp
+                    }
+
+                    if (a.timeStamp100ns !== b.timeStamp100ns) {
+                        return Number(b.timeStamp100ns) - Number(a.timeStamp100ns)
+                    }
+                    return Number(a.targetID) - Number(b.targetID)
+                })
+            } else {
+                targetIndexDatas.sort((a, b) => {
+                    if (a.chlID !== b.chlID) {
+                        const chlIdA = getChlId16(a.chlID)
+                        const chlIdB = getChlId16(b.chlID)
+                        return chlIdB - chlIdA
+                    }
+
+                    if (a.timeStamp !== b.timeStamp) {
+                        return b.timeStamp - a.timeStamp
+                    }
+
+                    if (a.timeStamp100ns !== b.timeStamp100ns) {
+                        return Number(b.timeStamp100ns) - Number(a.timeStamp100ns)
+                    }
+                    return Number(a.targetID) - Number(b.targetID)
+                })
+            }
+            setCurrTargetIndexDatas(targetIndexDatas)
+            const tempPageIndex = getCurrPageIndex()
+            const tempPageSize = getCurrPageSize()
+            sliceTargetIndexDatas.value = targetIndexDatas.slice((tempPageIndex - 1) * tempPageSize, tempPageIndex * tempPageSize)
+            openLoading()
+            getCurrPageTargetDatas(sliceTargetIndexDatas.value)
+        }
+
+        /**
+         * @description 相似度排序
+         */
+        const handleSortBySimilarity = (sortDirection: string) => {
+            const targetIndexDatas = getCurrTargetIndexDatas()
+            if (targetIndexDatas.length === 0) {
+                return
+            }
+
+            if (sortDirection === 'up') {
+                targetIndexDatas.sort((a, b) => {
+                    if (a.similarity !== b.similarity) {
+                        return a.similarity - b.similarity
+                    }
+
+                    if (a.timeStamp !== b.timeStamp) {
+                        return b.timeStamp - a.timeStamp
+                    }
+
+                    if (a.timeStamp100ns !== b.timeStamp100ns) {
+                        return Number(b.timeStamp100ns) - Number(a.timeStamp100ns)
+                    }
+
+                    if (a.chlID !== b.chlID) {
+                        const chlIdA = getChlId16(a.chlID)
+                        const chlIdB = getChlId16(b.chlID)
+                        return chlIdA - chlIdB
+                    }
+                    return Number(a.targetID) - Number(b.targetID)
+                })
+            } else {
+                targetIndexDatas.sort((a, b) => {
+                    if (a.similarity !== b.similarity) {
+                        return b.similarity - a.similarity
+                    }
+
+                    if (a.timeStamp !== b.timeStamp) {
+                        return b.timeStamp - a.timeStamp
+                    }
+
+                    if (a.timeStamp100ns !== b.timeStamp100ns) {
+                        return Number(b.timeStamp100ns) - Number(a.timeStamp100ns)
+                    }
+
+                    if (a.chlID !== b.chlID) {
+                        const chlIdA = getChlId16(a.chlID)
+                        const chlIdB = getChlId16(b.chlID)
+                        return chlIdA - chlIdB
+                    }
+                    return Number(a.targetID) - Number(b.targetID)
+                })
+            }
+            setCurrTargetIndexDatas(targetIndexDatas)
+            const tempPageIndex = getCurrPageIndex()
+            const tempPageSize = getCurrPageSize()
+            sliceTargetIndexDatas.value = targetIndexDatas.slice((tempPageIndex - 1) * tempPageSize, tempPageIndex * tempPageSize)
+            openLoading()
+            getCurrPageTargetDatas(sliceTargetIndexDatas.value)
         }
 
         /**
@@ -1037,6 +1351,9 @@ export default defineComponent({
         })
 
         return {
+            faceSortDropdown,
+            bodySortDropdown,
+            personAttributeSortDropdown,
             pageData,
             getChlIdNameMap,
             getAllTargetIndexDatas,
