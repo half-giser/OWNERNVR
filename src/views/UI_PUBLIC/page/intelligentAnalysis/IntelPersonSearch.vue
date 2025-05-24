@@ -254,7 +254,7 @@
                         :target-data="item"
                         :detail-index="pageData.openDetailIndexForFace"
                         :show-compare="showCompare"
-                        :choose-pics="pageData.picCacheListForFace"
+                        :choose-pics="pageData.choosePicsForFace"
                         search-type="byFace"
                         @detail="showDetail(item)"
                         @search="handleSearch"
@@ -272,7 +272,7 @@
                         :target-data="item"
                         :detail-index="pageData.openDetailIndexForBody"
                         :show-compare="showCompare"
-                        :choose-pics="pageData.picCacheListForBody"
+                        :choose-pics="pageData.choosePicsForBody"
                         search-type="byBody"
                         @detail="showDetail(item)"
                         @search="handleSearch"
@@ -381,38 +381,6 @@
 
 .base-intel-left {
     padding: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-
-    .el-radio-group.tab_container {
-        flex-shrink: 0;
-        width: 100%;
-        height: 50px;
-
-        .el-radio-button {
-            height: 100%;
-
-            :deep(.el-radio-button__inner) {
-                height: 100%;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                border-left: none;
-                border-right: none;
-                box-shadow: none;
-
-                &:hover {
-                    background-color: transparent !important;
-                }
-            }
-
-            :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
-                background-color: transparent !important;
-                color: var(--primary) !important;
-            }
-        }
-    }
 
     & > .base-intel-left-column {
         padding: 10px;
@@ -514,6 +482,10 @@
 
         .el-dropdown {
             margin-right: 30px;
+
+            .BaseDropdownBtn {
+                line-height: unset;
+            }
         }
     }
 

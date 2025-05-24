@@ -95,7 +95,11 @@
                     v-if="showSimilarity"
                     class="similarityValue"
                 >
-                    {{ `${targetData.similarity} %` }}
+                    <span class="value">{{ `(${targetData.similarity} %)` }}</span>
+                    <BaseImgSprite
+                        file="Rectangle"
+                        :chunk="1"
+                    />
                 </span>
             </div>
         </div>
@@ -193,7 +197,11 @@
                     v-if="showSimilarity"
                     class="similarityValue"
                 >
-                    {{ `${targetData.similarity} %` }}
+                    <span class="value">{{ `(${targetData.similarity} %)` }}</span>
+                    <BaseImgSprite
+                        file="Rectangle"
+                        :chunk="1"
+                    />
                 </span>
             </div>
             <div class="info_show_compare">
@@ -229,7 +237,7 @@
 
 .snap {
     width: calc((100% - 35px) / 6);
-    margin: 5px 0px 30px 5px;
+    margin: 5px 0 30px 5px;
     user-select: none;
 
     .pic_show_container {
@@ -247,7 +255,6 @@
             top: 0;
             left: 0;
             bottom: 0;
-            right: 0;
             margin: auto;
         }
 
@@ -259,8 +266,8 @@
                 top: 0;
                 left: 0;
                 bottom: 0;
-                right: 0;
                 margin: auto;
+                border: 1px solid var(--content-border);
 
                 .center_operate {
                     width: 100%;
@@ -272,6 +279,7 @@
                     position: absolute;
                     left: 0;
                     right: 0;
+                    z-index: 4;
                     margin: auto;
                     display: flex;
                     justify-content: flex-start;
@@ -293,14 +301,17 @@
                     }
                 }
             }
+
             &.checked {
                 .top_operate {
                     visibility: visible;
                 }
             }
+
             &.selected {
                 border: 1px solid var(--primary);
             }
+
             &:hover {
                 .top_operate,
                 .bottom_operate {
@@ -326,6 +337,7 @@
             .Sprite {
                 transform: scale(0.5);
             }
+
             .tip_text {
                 position: relative;
                 top: -15px;
@@ -343,9 +355,41 @@
             flex-direction: column;
             justify-content: flex-start;
             align-items: flex-start;
+            position: relative;
 
             > span {
                 margin-top: 4px;
+            }
+
+            .similarityValue {
+                width: 110px;
+                height: 24px;
+                position: absolute;
+                top: -25px;
+                left: 0;
+                right: 0;
+                margin: auto;
+                margin-top: 0;
+                text-align: center;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                .value {
+                    z-index: 1;
+                    font-size: 15px;
+                    color: var(--color-white);
+                }
+
+                .Sprite {
+                    width: 100%;
+                    height: 100%;
+                    position: absolute;
+                    left: 0;
+                    right: 0;
+                    margin: auto;
+                    z-index: 0;
+                }
             }
         }
     }
@@ -376,6 +420,7 @@
                 bottom: 0;
                 right: 0;
                 margin: auto;
+                border: 1px solid var(--content-border);
 
                 .center_operate {
                     width: 100%;
@@ -400,6 +445,14 @@
 
             > span {
                 margin-top: 4px;
+            }
+        }
+
+        .info_show_snap {
+            position: relative;
+
+            .similarityValue {
+                left: calc(100% - 55px);
             }
         }
     }
