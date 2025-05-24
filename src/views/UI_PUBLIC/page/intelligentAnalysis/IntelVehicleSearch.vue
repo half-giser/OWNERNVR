@@ -37,14 +37,12 @@
                         v-show="pageData.searchType === 'byCar'"
                         v-model="pageData.attributeForCar"
                         :range="['car']"
-                        @update:model-value="handleChangeAttr"
                     />
                     <!-- 属性选择 - 摩托车/单车 -->
                     <IntelBaseProfileSelector
                         v-show="pageData.searchType === 'byMotorcycle'"
                         v-model="pageData.attributeForMotorcycle"
                         :range="['motor']"
-                        @update:model-value="handleChangeAttr"
                     />
                     <!-- 车牌号填写、车牌号颜色选择 -->
                     <el-form
@@ -81,7 +79,7 @@
             }"
         >
             <!-- 抓拍图/轨迹tab、排序、全选 -->
-            <div class="base-intel-row space-between">
+            <div class="base-intel-center-top base-intel-row space-between">
                 <!-- 抓拍图、轨迹 tab -->
                 <div>
                     <el-radio-group
@@ -102,7 +100,7 @@
                 <div>
                     <!-- 汽车 - 排序、全选 -->
                     <div v-show="pageData.searchType === 'byCar'">
-                        <el-dropdown>
+                        <el-dropdown ref="carSortDropdown">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SORT') }}
                             </BaseTableDropdownLink>
@@ -111,12 +109,13 @@
                                     v-for="opt in pageData.sortOptions"
                                     :key="opt.value"
                                     class="sort_item"
+                                    @click="handleSort(opt.value)"
                                 >
-                                    <span>{{ opt.label }}</span>
+                                    <span class="sort_item_label">{{ opt.label }}</span>
                                     <BaseImgSprite
-                                        file="sortDes"
+                                        :file="opt.status === 'up' ? 'sortAsc' : 'sortDes'"
                                         :chunk="4"
-                                        class="icon_right"
+                                        :index="pageData.sortType === opt.value ? 1 : 3"
                                     />
                                 </div>
                             </template>
@@ -128,7 +127,7 @@
                     </div>
                     <!-- 摩托车/单车 - 排序、全选 -->
                     <div v-show="pageData.searchType === 'byMotorcycle'">
-                        <el-dropdown>
+                        <el-dropdown ref="motorcycleSortDropdown">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SORT') }}
                             </BaseTableDropdownLink>
@@ -137,12 +136,13 @@
                                     v-for="opt in pageData.sortOptions"
                                     :key="opt.value"
                                     class="sort_item"
+                                    @click="handleSort(opt.value)"
                                 >
-                                    <span>{{ opt.label }}</span>
+                                    <span class="sort_item_label">{{ opt.label }}</span>
                                     <BaseImgSprite
-                                        file="sortDes"
+                                        :file="opt.status === 'up' ? 'sortAsc' : 'sortDes'"
                                         :chunk="4"
-                                        class="icon_right"
+                                        :index="pageData.sortType === opt.value ? 1 : 3"
                                     />
                                 </div>
                             </template>
@@ -154,7 +154,7 @@
                     </div>
                     <!-- 车牌号 - 排序、全选 -->
                     <div v-show="pageData.searchType === 'byPlateNumber'">
-                        <el-dropdown>
+                        <el-dropdown ref="plateNumberSortDropdown">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SORT') }}
                             </BaseTableDropdownLink>
@@ -163,12 +163,13 @@
                                     v-for="opt in pageData.sortOptions"
                                     :key="opt.value"
                                     class="sort_item"
+                                    @click="handleSort(opt.value)"
                                 >
-                                    <span>{{ opt.label }}</span>
+                                    <span class="sort_item_label">{{ opt.label }}</span>
                                     <BaseImgSprite
-                                        file="sortDes"
+                                        :file="opt.status === 'up' ? 'sortAsc' : 'sortDes'"
                                         :chunk="4"
-                                        class="icon_right"
+                                        :index="pageData.sortType === opt.value ? 1 : 3"
                                     />
                                 </div>
                             </template>
@@ -181,7 +182,7 @@
                 </div>
             </div>
             <!-- 抓拍图容器 -->
-            <el-scrollbar class="base-intel-pics-box">
+            <div class="base-intel-center-center base-intel-pics-box">
                 <!-- 汽车 - 抓拍图容器 -->
                 <div
                     v-show="pageData.searchType === 'byCar'"
@@ -193,6 +194,7 @@
                         :key="item.targetID"
                         :target-data="item"
                         :detail-index="pageData.openDetailIndexForCar"
+                        :show-compare="false"
                         search-type="byCar"
                         @detail="showDetail(item)"
                     />
@@ -208,6 +210,7 @@
                         :key="item.targetID"
                         :target-data="item"
                         :detail-index="pageData.openDetailIndexForMotorcycle"
+                        :show-compare="false"
                         search-type="byMotorcycle"
                         @detail="showDetail(item)"
                     />
@@ -223,46 +226,113 @@
                         :key="item.targetID"
                         :target-data="item"
                         :detail-index="pageData.openDetailIndexForPlateNumber"
+                        :show-compare="false"
                         search-type="byPlateNumber"
                         @detail="showDetail(item)"
                     />
                 </div>
-            </el-scrollbar>
-            <!-- 分页器容器 -->
-            <div class="base-btn-box">
-                <!-- 汽车 - 分页器 -->
-                <BasePagination
-                    v-show="pageData.searchType === 'byCar'"
-                    v-model:current-page="pageData.pageIndexForCar"
-                    v-model:page-size="pageData.pageSizeForCar"
-                    :page-sizes="[pageData.pageSizeForCar]"
-                    :total="pageData.targetIndexDatasForCar.length"
-                    @current-change="handleChangePage"
-                />
-                <!-- 摩托车/单车 - 分页器 -->
-                <BasePagination
-                    v-show="pageData.searchType === 'byMotorcycle'"
-                    v-model:current-page="pageData.pageIndexForMotorcycle"
-                    v-model:page-size="pageData.pageSizeForMotorcycle"
-                    :page-sizes="[pageData.pageSizeForMotorcycle]"
-                    :total="pageData.targetIndexDatasForMotorcycle.length"
-                    @current-change="handleChangePage"
-                />
-                <!-- 车牌号 - 分页器 -->
-                <BasePagination
-                    v-show="pageData.searchType === 'byPlateNumber'"
-                    v-model:current-page="pageData.pageIndexForPlateNumber"
-                    v-model:page-size="pageData.pageSizeForPlateNumber"
-                    :page-sizes="[pageData.pageSizeForPlateNumber]"
-                    :total="pageData.targetIndexDatasForPlateNumber.length"
-                    @current-change="handleChangePage"
-                />
             </div>
-            <!-- 备份/全部备份按钮容器 -->
-            <div class="base-btn-box">
-                <el-button>
-                    {{ Translate('IDCS_BACKUP') }}
-                </el-button>
+            <!-- 分页器、备份/全部备份按钮容器 -->
+            <div class="base-intel-center-bottom">
+                <!-- 分页器 -->
+                <div class="base-btn-box">
+                    <!-- 汽车 - 分页器 -->
+                    <BasePagination
+                        v-show="pageData.searchType === 'byCar'"
+                        v-model:current-page="pageData.pageIndexForCar"
+                        v-model:page-size="pageData.pageSizeForCar"
+                        :page-sizes="[pageData.pageSizeForCar]"
+                        :total="pageData.targetIndexDatasForCar.length"
+                        @current-change="handleChangePage"
+                    />
+                    <!-- 摩托车/单车 - 分页器 -->
+                    <BasePagination
+                        v-show="pageData.searchType === 'byMotorcycle'"
+                        v-model:current-page="pageData.pageIndexForMotorcycle"
+                        v-model:page-size="pageData.pageSizeForMotorcycle"
+                        :page-sizes="[pageData.pageSizeForMotorcycle]"
+                        :total="pageData.targetIndexDatasForMotorcycle.length"
+                        @current-change="handleChangePage"
+                    />
+                    <!-- 车牌号 - 分页器 -->
+                    <BasePagination
+                        v-show="pageData.searchType === 'byPlateNumber'"
+                        v-model:current-page="pageData.pageIndexForPlateNumber"
+                        v-model:page-size="pageData.pageSizeForPlateNumber"
+                        :page-sizes="[pageData.pageSizeForPlateNumber]"
+                        :total="pageData.targetIndexDatasForPlateNumber.length"
+                        @current-change="handleChangePage"
+                    />
+                </div>
+                <!-- 备份/全部备份按钮 -->
+                <div class="base-btn-box">
+                    <!-- 汽车 -->
+                    <div v-show="pageData.searchType === 'byCar'">
+                        <el-button @click="handleBackupAll">
+                            {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
+                        </el-button>
+                        <el-dropdown placement="top-end">
+                            <el-button>
+                                {{ Translate('IDCS_BACKUP') }}
+                            </el-button>
+                            <template #dropdown>
+                                <el-dropdown-menu>
+                                    <el-dropdown-item
+                                        v-for="item in pageData.backupTypeOptions"
+                                        :key="item.value"
+                                        @click="handleBackup(item.value)"
+                                    >
+                                        {{ Translate(item.label) }}
+                                    </el-dropdown-item>
+                                </el-dropdown-menu>
+                            </template>
+                        </el-dropdown>
+                    </div>
+                    <!-- 摩托车/单车 -->
+                    <div v-show="pageData.searchType === 'byMotorcycle'">
+                        <el-button @click="handleBackupAll">
+                            {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
+                        </el-button>
+                        <el-dropdown placement="top-end">
+                            <el-button>
+                                {{ Translate('IDCS_BACKUP') }}
+                            </el-button>
+                            <template #dropdown>
+                                <el-dropdown-menu>
+                                    <el-dropdown-item
+                                        v-for="item in pageData.backupTypeOptions"
+                                        :key="item.value"
+                                        @click="handleBackup(item.value)"
+                                    >
+                                        {{ Translate(item.label) }}
+                                    </el-dropdown-item>
+                                </el-dropdown-menu>
+                            </template>
+                        </el-dropdown>
+                    </div>
+                    <!-- 车牌号 -->
+                    <div v-show="pageData.searchType === 'byPlateNumber'">
+                        <el-button @click="handleBackupAll">
+                            {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
+                        </el-button>
+                        <el-dropdown placement="top-end">
+                            <el-button>
+                                {{ Translate('IDCS_BACKUP') }}
+                            </el-button>
+                            <template #dropdown>
+                                <el-dropdown-menu>
+                                    <el-dropdown-item
+                                        v-for="item in pageData.backupTypeOptions"
+                                        :key="item.value"
+                                        @click="handleBackup(item.value)"
+                                    >
+                                        {{ Translate(item.label) }}
+                                    </el-dropdown-item>
+                                </el-dropdown-menu>
+                            </template>
+                        </el-dropdown>
+                    </div>
+                </div>
             </div>
             <!-- 打开/关闭详情按钮 -->
             <div class="resize_icon_left">
@@ -301,45 +371,13 @@
 
 .base-intel-left {
     padding: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-
-    .el-radio-group.tab_container {
-        flex-shrink: 0;
-        width: 100%;
-        height: 50px;
-
-        .el-radio-button {
-            height: 100%;
-
-            :deep(.el-radio-button__inner) {
-                height: 100%;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                border-left: none;
-                border-right: none;
-                box-shadow: none;
-
-                &:hover {
-                    background-color: transparent !important;
-                }
-            }
-
-            :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
-                background-color: transparent !important;
-                color: var(--primary) !important;
-            }
-        }
-    }
 
     & > .base-intel-left-column {
         padding: 10px;
         width: 100%;
 
         .base-intel-left-form {
-            padding: 0px;
+            padding: 0;
 
             :deep(.el-form) {
                 height: 30px;
@@ -365,7 +403,7 @@
                         }
 
                         .base-intel-placeholder {
-                            margin-bottom: 0px;
+                            margin-bottom: 0;
                         }
                     }
                 }
@@ -377,7 +415,7 @@
             margin-bottom: 10px !important;
 
             .el-form-item {
-                padding: 0px !important;
+                padding: 0 !important;
 
                 .el-input__inner {
                     height: 30px;
@@ -389,6 +427,10 @@
 
 .base-intel-center {
     position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
 
     .base-intel-row {
         .el-radio-button {
@@ -399,6 +441,10 @@
 
         .el-dropdown {
             margin-right: 30px;
+
+            .BaseDropdownBtn {
+                line-height: unset;
+            }
         }
     }
 
@@ -422,29 +468,59 @@
     }
 
     .resize_icon_right {
-        right: 0px;
+        right: 0;
     }
 
     &.detail_open {
         border-right: 1px solid var(--content-border);
 
         .resize_icon_left {
-            left: 0px;
+            left: 0;
         }
 
         .resize_icon_right {
             right: -10px;
         }
     }
+
+    .base-intel-center-top {
+        width: 100%;
+        height: 27px;
+    }
+
+    .base-intel-center-center {
+        width: calc(100% - 30px);
+        height: calc(100% - 139px);
+        position: absolute;
+        top: 52px;
+        left: 15px;
+        right: 15px;
+        overflow: auto;
+    }
+
+    .base-intel-center-bottom {
+        width: 100%;
+        height: 72px;
+    }
 }
 
 .sort_item {
     display: flex;
-    justify-content: flex-start;
+    justify-content: flex-end;
     align-items: center;
-    padding: 0px 14px;
+    max-width: 85px;
     cursor: pointer;
     font-size: 14px;
+    border: solid 1px var(--content-border);
+    background-color: var(--color-white);
+
+    &_label {
+        display: flex;
+        flex: 1;
+        padding-left: 10px;
+        justify-content: flex-end;
+        white-space: nowrap;
+    }
 
     &:hover {
         color: var(--primary);

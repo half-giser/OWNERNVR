@@ -14,7 +14,7 @@ export default defineComponent({
          * @property 播放列表
          */
         data: {
-            type: Array as PropType<IntelFaceTrackMapList[]>,
+            type: Array as PropType<string[]>,
             required: true,
         },
         /**
@@ -25,21 +25,7 @@ export default defineComponent({
             default: false,
         },
     },
-    emits: {
-        stop() {
-            return true
-        },
-        play(data: IntelFaceTrackMapList) {
-            return !!data
-        },
-        pause() {
-            return true
-        },
-        resume() {
-            return true
-        },
-    },
-    setup(prop, ctx) {
+    setup(prop) {
         const { Translate } = useLangStore()
 
         // 通道与通道名的映射
@@ -87,9 +73,9 @@ export default defineComponent({
             // 颜色选项
             colorOptions: [] as string[],
             // 画布宽度
-            width: 960,
+            width: 1248,
             // 画布高度
-            height: 500,
+            height: 610,
             // IPC列表
             points: [] as Points[],
             // 是否打开颜色弹窗
@@ -171,60 +157,6 @@ export default defineComponent({
         }
 
         /**
-         * @description 播放
-         */
-        const play = () => {
-            if (pageData.value.playStatus === 'pasue') {
-                ctx.emit('resume')
-            } else {
-                ctx.emit('play', prop.data[pageData.value.playingIndex])
-            }
-            pageData.value.playStatus = 'play'
-        }
-
-        /**
-         * @description 停止播放
-         */
-        const stop = () => {
-            pageData.value.playStatus = 'stop'
-            ctx.emit('stop')
-        }
-
-        /**
-         * @description 暂停播放
-         */
-        const pause = () => {
-            pageData.value.playStatus = 'pause'
-            ctx.emit('pause')
-        }
-
-        // 禁用上一个录像按钮
-        const prevFrameDisabled = computed(() => {
-            return pageData.value.playStatus === 'stop' || pageData.value.playingIndex === 0
-        })
-
-        // 禁用下一个录像按钮
-        const nextFrameDisabled = computed(() => {
-            return pageData.value.playStatus === 'stop' || pageData.value.playingIndex >= prop.data.length - 1
-        })
-
-        /**
-         * @description 播放上一个录像
-         */
-        const prevFrame = () => {
-            pageData.value.playingIndex--
-            play()
-        }
-
-        /**
-         * @description 播放下一个录像
-         */
-        const nextFrame = () => {
-            pageData.value.playingIndex++
-            play()
-        }
-
-        /**
          * @description 获取旋转后的坐标值
          * @param {number} x
          * @param {number} y
@@ -296,18 +228,18 @@ export default defineComponent({
             // 获取轨迹数据
             trackMap = []
             let lastChlId = ''
-            prop.data.map((item) => {
-                if (item.chlId !== lastChlId && pointsMap[item.chlId]) {
+            prop.data.map((chlId) => {
+                if (chlId !== lastChlId && pointsMap[chlId]) {
                     const lastX = lastChlId ? pointsMap[lastChlId].X : Infinity
                     const lastY = lastChlId ? pointsMap[lastChlId].Y : Infinity
-                    const X = pointsMap[item.chlId].X + 14
-                    const Y = pointsMap[item.chlId].Y + 18
-                    lastChlId = item.chlId
+                    const X = pointsMap[chlId].X + 14
+                    const Y = pointsMap[chlId].Y + 18
+                    lastChlId = chlId
                     if (lastX !== X || lastY !== Y) {
                         trackMap.push({
-                            chlId: item.chlId,
-                            X: pointsMap[item.chlId].X + 14,
-                            Y: pointsMap[item.chlId].Y + 18,
+                            chlId: chlId,
+                            X: pointsMap[chlId].X + 14,
+                            Y: pointsMap[chlId].Y + 18,
                         })
                     }
                 }
@@ -318,6 +250,10 @@ export default defineComponent({
          * @description 绘制轨迹
          */
         const paintTrack = () => {
+            if (!context) {
+                return
+            }
+
             context.clearRect(0, 0, pageData.value.width, pageData.value.height)
             for (let i = 1; i <= trackMap.length - 1; i++) {
                 const start = trackMap[i - 1]
@@ -559,20 +495,16 @@ export default defineComponent({
         watch(
             () => prop.data,
             () => {
-                if (pageData.value.playStatus === 'play' || pageData.value.playStatus === 'pause') {
-                    stop()
-                }
-
                 stopTrack()
                 pageData.value.playingIndex = 0
 
                 // 获取各通道的录像数量
                 countMap = {}
-                prop.data.forEach((item) => {
-                    if (!countMap[item.chlId]) {
-                        countMap[item.chlId] = 1
+                prop.data.forEach((chlId) => {
+                    if (!countMap[chlId]) {
+                        countMap[chlId] = 1
                     } else {
-                        countMap[item.chlId]++
+                        countMap[chlId]++
                     }
                 })
 
@@ -604,28 +536,10 @@ export default defineComponent({
             },
         )
 
-        watch(
-            () => prop.visible,
-            (visible) => {
-                if (!visible) {
-                    if (pageData.value.playStatus === 'play' || pageData.value.playStatus === 'pause') {
-                        stop()
-                    }
-                }
-            },
-        )
-
         return {
             pageData,
-            play,
-            stop,
-            pause,
-            prevFrame,
-            nextFrame,
             playTrack,
             stopTrack,
-            prevFrameDisabled,
-            nextFrameDisabled,
             changeEditMap,
             canvas,
             handleMouseDown,

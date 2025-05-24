@@ -160,6 +160,8 @@ export default defineComponent({
             const result = await editPassengerFlowStatisticsConfig(sendXml)
             const $ = queryXml(result)
 
+            closeLoading()
+
             if ($('status').text() === 'success') {
                 openMessageBox(Translate('IDCS_SAVE_DATA_SUCCESS'))
             } else {
@@ -189,6 +191,7 @@ export default defineComponent({
 
         const changeChl = (option: SelectOption<string, string>[]) => {
             formData.value.chlList = option
+            pageData.value.isPop = false
         }
 
         onMounted(async () => {

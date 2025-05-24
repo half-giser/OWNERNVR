@@ -101,6 +101,11 @@ export default defineComponent({
                     validator: (_rule, value: string, callback) => {
                         if (formData.value.switch && !formData.value.userInfoDsiabled) {
                             if (!value.trim()) {
+                                callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
+                                return
+                            }
+
+                            if (!cutStringByByte(value, formData.value.userNameMaxByteLen)) {
                                 callback(new Error(Translate('IDCS_INVALID_CHAR')))
                                 return
                             }
@@ -194,15 +199,15 @@ export default defineComponent({
             formData.value.heartbeatIntervalMin = $item('keepAliveInfo/heartbeatInterval').attr('min').num()
             formData.value.heartbeatIntervalMax = $item('keepAliveInfo/heartbeatInterval').attr('max').num()
             formData.value.heartbeatIntervalDefault = $item('keepAliveInfo/heartbeatInterval').attr('default').num()
-            if (!$('keepAliveInfo/heartbeatInterval').text()) {
+            if (!$item('keepAliveInfo/heartbeatInterval').text()) {
                 formData.value.heartbeatInterval = formData.value.heartbeatIntervalDefault
             }
 
-            if ($('enablePostTargetPic').text().bool()) {
+            if ($item('enablePostTargetPic').text().bool()) {
                 formData.value.enablePostPic.push('enablePostTargetPic')
             }
 
-            if ($('enablePostScenePic').text().bool()) {
+            if ($item('enablePostScenePic').text().bool()) {
                 formData.value.enablePostPic.push('enablePostScenePic')
             }
 

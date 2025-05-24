@@ -208,10 +208,10 @@ export default defineComponent({
          * @description 确认抓图，关闭弹窗
          */
         const confirmSnap = () => {
-            if (pageData.value.currentFaceSnap.length) {
+            if (pageData.value.openType === 'byFace') {
                 ctx.emit('chooseFaceSnap', pageData.value.currentFaceSnap)
                 close()
-            } else if (pageData.value.currentBodySnap.length) {
+            } else if (pageData.value.openType === 'byBody') {
                 ctx.emit('chooseBodySnap', pageData.value.currentBodySnap)
                 close()
             } else {

@@ -9,6 +9,7 @@
         width="950"
         @open="open"
         @opened="opened"
+        @close="close"
     >
         <div class="dialog">
             <!-- 普通页面 -->
@@ -72,6 +73,13 @@
                         </div>
                     </div>
                 </div>
+                <div class="target-search">
+                    <BaseTargetSearchPanel
+                        v-model:visible="pageData.showTargetSearch"
+                        type="image"
+                        :pic="getCurrentPano"
+                    />
+                </div>
             </div>
             <!-- 热成像可见光切换 -->
             <div
@@ -118,32 +126,32 @@
                                 <span class="similarity">{{ `${current.info?.similarity}%` }}</span>
                             </div>
                             <el-form-item :label="`${Translate('IDCS_SEX')} ：`">
-                                {{ displayGender(current.info?.gender) }}
+                                <div class="text-ellipsis">{{ displayGender(current.info?.gender) }}</div>
                             </el-form-item>
                             <el-form-item :label="`${Translate('IDCS_NUMBER')} ：`">
-                                {{ current.info?.serial_number }}
+                                <div class="text-ellipsis">{{ current.info?.serial_number }}</div>
                             </el-form-item>
                             <el-form-item :label="`${Translate('IDCS_PHONE_NUMBER')} ：`">
-                                {{ current.info?.mobile_phone_number }}
+                                <div class="text-ellipsis">{{ current.info?.mobile_phone_number }}</div>
                             </el-form-item>
                             <el-form-item :label="`${Translate('IDCS_BIRTHDAY')} ：`">
-                                {{ displayDate(current.info?.birth_date) }}
+                                <div class="text-ellipsis">{{ displayDate(current.info?.birth_date) }}</div>
                             </el-form-item>
                             <el-form-item :label="`${Translate('IDCS_NATIVE_PLACE')} ：`">
-                                {{ current.info?.hometown }}
+                                <div class="text-ellipsis">{{ current.info?.hometown }}</div>
                             </el-form-item>
                             <el-form-item :label="`${Translate('IDCS_ADD_FACE_GROUP')} ：`">
-                                {{ current.info?.group_name }}
+                                <div class="text-ellipsis">{{ current.info?.group_name }}</div>
                             </el-form-item>
                             <div class="split-line"></div>
                             <el-form-item :label="`${Translate('IDCS_ID_TYPE')} ：`">
-                                {{ Translate('IDCS_ID_CARD') }}
+                                <div class="text-ellipsis">{{ Translate('IDCS_ID_CARD') }}</div>
                             </el-form-item>
                             <el-form-item :label="`${Translate('IDCS_ID_NUMBER')} ：`">
-                                {{ current.info?.certificate_number }}
+                                <div class="text-ellipsis">{{ current.info?.certificate_number }}</div>
                             </el-form-item>
                             <el-form-item :label="`${Translate('IDCS_REMARK')} ：`">
-                                {{ current.info?.remarks }}
+                                <div class="text-ellipsis">{{ current.info?.remarks }}</div>
                             </el-form-item>
                         </el-form>
                     </div>
@@ -183,28 +191,28 @@
 
                 <div class="plate-compare-info">
                     <el-form label-width="80px">
-                        <div class="number">{{ current.info?.plate }}</div>
+                        <div class="number text-ellipsis">{{ current.info?.plate }}</div>
                         <el-form-item :label="`${Translate('IDCS_VEHICLE_OWNER')}：`">
-                            {{ current.info?.owner }}
+                            <div class="text-ellipsis">{{ current.info?.owner }}</div>
                         </el-form-item>
                         <el-form-item :label="`${Translate('IDCS_PHONE_NUMBER')}：`">
-                            {{ current.info?.mobile_phone_number }}
+                            <div class="text-ellipsis">{{ current.info?.mobile_phone_number }}</div>
                         </el-form-item>
                         <el-form-item :label="`${Translate('IDCS_PLATE_LIBRARY_GROUP')}：`">
-                            {{ current.info?.group_name }}
+                            <div class="text-ellipsis">{{ current.info?.group_name }}</div>
                         </el-form-item>
                         <el-form-item :label="`${Translate('IDCS_PLATE_COLOR')}：`">
-                            {{ displayPlateColor(current.info?.platecolor) }}
+                            <div class="text-ellipsis">{{ displayPlateColor(current.info?.platecolor) }}</div>
                         </el-form-item>
                         <div class="split-line"></div>
                         <el-form-item :label="`${Translate('IDCS_VEHICLE_COLOR')}：`">
-                            {{ displayVehicleColor(current.info?.color) }}
+                            <div class="text-ellipsis">{{ displayVehicleColor(current.info?.color) }}</div>
                         </el-form-item>
                         <el-form-item :label="`${Translate('IDCS_VEHICLE_TYPE_ALL')}：`">
-                            {{ displayVehicleType(current.info?.type) }}
+                            <div class="text-ellipsis">{{ displayVehicleType(current.info?.type) }}</div>
                         </el-form-item>
                         <el-form-item :label="`${Translate('IDCS_VEHICLE_BRAND')}：`">
-                            {{ displayBrand(current.info?.brand_type) }}
+                            <div class="text-ellipsis">{{ displayBrand(current.info?.brand_type) }}</div>
                         </el-form-item>
                     </el-form>
                 </div>
@@ -404,6 +412,15 @@
                 }
             }
         }
+
+        &-search {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 900px;
+            height: 500px;
+            z-index: 2;
+        }
     }
 
     .compare {
@@ -451,7 +468,7 @@
                     .titleIcon {
                         width: 7px;
                         height: 25px;
-                        margin: 0;
+                        margin-left: -5px;
                         font-size: 20px;
                         border-left: 2px solid var(--btn-bg-disabled);
                     }
@@ -462,13 +479,6 @@
                         font-weight: normal;
                         margin-left: 10px;
                     }
-                }
-
-                .text-ellipsis {
-                    max-width: 160px;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
                 }
             }
 
@@ -526,6 +536,7 @@
         justify-content: center;
         align-items: center;
         height: 20px;
+        margin-top: 3px;
 
         &-item {
             width: 10px;
@@ -537,11 +548,11 @@
         }
 
         &-item:nth-child(2) {
-            margin-left: 10px;
+            margin-left: 14px;
         }
 
         &-item.selected {
-            background-color: var(--primary);
+            background-color: var(--tab-active-bg);
         }
     }
 
@@ -599,7 +610,7 @@
         height: 48px;
         left: 0;
         top: 430px;
-        z-index: 1;
+        z-index: 3;
         background-color: var(--color-white);
 
         .btn {
@@ -630,52 +641,35 @@
         }
     }
 
-    ::v-deep(.top-line .el-form-item__content),
-    ::v-deep(.top-line .el-form-item__label) {
+    ::v-deep(.compare-info-form .top-line .el-form-item__content),
+    ::v-deep(.compare-info-form .top-line .el-form-item__label) {
         height: 26px;
         line-height: 26px;
         font-size: 20px;
     }
 
+    ::v-deep(.plate-compare-info .el-form-item__content),
+    ::v-deep(.plate-compare-info .el-form-item__label),
     ::v-deep(.compare-info-form .el-form-item__content),
     ::v-deep(.compare-info-form .el-form-item__label) {
         line-height: 24px;
         height: 24px;
     }
 
-    ::v-deep(.top-line .el-form-item) {
+    ::v-deep(.compare-info-form .top-line .el-form-item) {
         min-height: 26px !important;
         height: 26px;
     }
 
+    ::v-deep(.plate-compare-info .el-form-item),
     ::v-deep(.compare-info-form .el-form-item) {
         min-height: 24px !important;
         height: 24px;
     }
 
+    ::v-deep(.compare-info-form .top-line .el-form-item__content),
     ::v-deep(.compare-info-form .el-form-item__content) {
         max-width: 160px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    ::v-deep(.top-line .el-form-item__content) {
-        max-width: 160px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    ::v-deep(.plate-compare-info .el-form-item) {
-        min-height: 24px !important;
-        height: 24px;
-    }
-
-    ::v-deep(.plate-compare-info .el-form-item__content),
-    ::v-deep(.plate-compare-info .el-form-item__label) {
-        line-height: 24px;
-        height: 24px;
     }
 }
 </style>

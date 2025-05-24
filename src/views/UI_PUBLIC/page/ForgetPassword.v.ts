@@ -46,7 +46,7 @@ export default defineComponent({
             if ($('status').text() === 'success') {
                 pageData.value.pubkey = $('content/key').text()
                 pageData.value.secureEMailState = $('content/SecureEMail/secureEMailState').text().num()
-                pageData.value.email = $('content/secureEMail/email').text()
+                pageData.value.email = $('content/SecureEMail/email').text()
                 showSecureEmailPage()
             }
         }
@@ -114,7 +114,7 @@ export default defineComponent({
 
             const sendXml = rawXml`
                 <content>
-                    <email>${wrapCDATA(formData.value.email)}</email>
+                    <email>${wrapCDATA(RSA_encrypt(pageData.value.pubkey, formData.value.email) + '')}</email>
                 </content>
             `
             const result = await sendCaptchaEmail(sendXml)
@@ -189,6 +189,7 @@ export default defineComponent({
             closeLoading()
 
             if ($('status').text() === 'success') {
+                cancel()
                 localStorage.setItem('isLocking', 'false')
                 localStorage.setItem('ramainingTime', '0')
                 localStorage.setItem('loginLockTime', '0')

@@ -99,6 +99,8 @@ export default defineComponent({
             isRemarkPop: false,
             canvasWidth: 796,
             canvasHeight: 538,
+            isEnterImgLoading: false,
+            isExitImgLoading: false,
         })
 
         const formData = ref({
@@ -119,18 +121,80 @@ export default defineComponent({
             return obj.X1 || obj.X2 || obj.Y1 || obj.Y2
         }
 
-        watch(current, () => {
+        /**
+         * @description 抓拍图片
+         * @param {String} chlId
+         * @param {String} frameTime
+         * @param {number} eventType
+         * @param {String} imgId
+         */
+        const getParkImg = async (chlId: string, frameTime: string, eventType: number, imgId: string, isSnap = false) => {
+            const sendXml = rawXml`
+                <condition>
+                    <chlId>${chlId}</chlId>
+                    <frameTime>${frameTime}</frameTime>
+                    <eventType>${eventType}</eventType>
+                    <imgId>${imgId}</imgId>
+                    ${isSnap ? '' : '<isPanorama />'}
+                </condition>
+            `
+            const result = await requestSmartTargetSnapImage(sendXml)
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                const img = $('content').text()
+
+                const width = $('rect/ptWidth').text().num() || 1
+                const height = $('rect/ptHeight').text().num() || 1
+                const leftTopX = $('rect/leftTopX').text().num()
+                const leftTopY = $('rect/leftTopY').text().num()
+                const rightBottomX = $('rect/rightBottomX').text().num()
+                const rightBottomY = $('rect/rightBottomY').text().num()
+
+                return {
+                    master: $('owner').text() || '--',
+                    phoneNum: $('ownerPhone').text() || '--',
+                    img: img ? wrapBase64Img(img) : '',
+                    traceObj: {
+                        X1: leftTopX / width,
+                        Y1: leftTopY / height,
+                        X2: rightBottomX / width,
+                        Y2: rightBottomY / height,
+                    },
+                }
+            } else {
+                return {
+                    master: '--',
+                    phoneNum: '--',
+                    img: '',
+                    traceObj: {
+                        width: 1,
+                        height: 1,
+                        X1: 0,
+                        Y1: 0,
+                        X2: 0,
+                        Y2: 0,
+                    },
+                }
+            }
+        }
+
+        watch(current, async () => {
             formData.value.plateNum = current.value.plateNum
             if (current.value.isRelative && current.value.direction && !current.value.eventType) {
                 getOpenGateEvent(pageData.value.index)
             }
 
-            if (current.value.enterImg) {
-                if (!enterCanvasContext) {
-                    enterCanvasContext = CanvasBase($enterCanvas.value!)
-                }
-                enterCanvasContext.ClearRect(0, 0, pageData.value.canvasWidth, pageData.value.canvasHeight)
+            if (!enterCanvasContext) {
+                enterCanvasContext = CanvasBase($enterCanvas.value!)
+            }
+            enterCanvasContext.ClearRect(0, 0, pageData.value.canvasWidth, pageData.value.canvasHeight)
 
+            if (!exitCanvasContext) {
+                exitCanvasContext = CanvasBase($exitCanvas.value!)
+            }
+            exitCanvasContext.ClearRect(0, 0, pageData.value.canvasWidth, pageData.value.canvasHeight)
+
+            if (current.value.enterImg) {
                 if (isTraceObj(current.value.enterTraceObj)) {
                     const X1 = current.value.enterTraceObj.X1 * pageData.value.canvasWidth
                     const Y1 = current.value.enterTraceObj.Y1 * pageData.value.canvasHeight
@@ -144,11 +208,6 @@ export default defineComponent({
             }
 
             if (current.value.exitImg) {
-                if (!exitCanvasContext) {
-                    exitCanvasContext = CanvasBase($exitCanvas.value!)
-                }
-                exitCanvasContext.ClearRect(0, 0, pageData.value.canvasWidth, pageData.value.canvasHeight)
-
                 if (isTraceObj(current.value.exitTraceObj)) {
                     const X1 = current.value.exitTraceObj.X1 * pageData.value.canvasWidth
                     const Y1 = current.value.exitTraceObj.Y1 * pageData.value.canvasHeight
@@ -263,9 +322,12 @@ export default defineComponent({
          */
         const open = () => {
             pageData.value.index = prop.index
+            pageData.value.tabIndex = 0
+
             if (prop.list.length) {
                 if (!prop.list[0].isRelative) {
                     pageData.value.list = prop.list as BusinessParkingLotList[]
+                    getImgData()
                 } else {
                     pageData.value.list = (prop.list as BusinessParkingLotRelevantList[]).map((item) => {
                         listIndex++
@@ -324,7 +386,7 @@ export default defineComponent({
          * @returns {String}
          */
         const displayDateTime = (time: number | string) => {
-            if (!time) return '--'
+            if (!time || !dayjs(time).isValid()) return '--'
             return formatDate(time, dateTime.dateTimeFormat)
         }
 
@@ -343,7 +405,7 @@ export default defineComponent({
          * @returns {String}
          */
         const displayOpenGateType = (type: string) => {
-            return OPEN_GATE_MAPPING[type] || '--'
+            return OPEN_GATE_MAPPING[type] || ''
         }
 
         /**
@@ -393,6 +455,7 @@ export default defineComponent({
             if (pageData.value.index > 0) {
                 pageData.value.index--
             }
+            getImgData()
         }
 
         /**
@@ -402,24 +465,55 @@ export default defineComponent({
             if (pageData.value.index < pageData.value.list.length - 1) {
                 pageData.value.index++
             }
+            getImgData()
+        }
+
+        const getImgData = async () => {
+            const item = pageData.value.list[pageData.value.index]
+
+            if (item.isHistory) {
+                if (item.isEnter && !item.enterImg) {
+                    pageData.value.isEnterImgLoading = true
+                    const data = await getParkImg(item.enterChlId, item.enterFrameTime, item.eventType, item.enterVehicleId)
+                    item.master = data.master
+                    item.phoneNum = data.phoneNum
+                    item.enterImg = data.img
+                    item.enterTraceObj = data.traceObj
+
+                    const snapData = await getParkImg(item.enterChlId, item.enterFrameTime, item.eventType, item.enterVehicleId, true)
+                    item.enterSnapImg = snapData.img
+
+                    pageData.value.isEnterImgLoading = false
+                }
+
+                if (item.isExit && !item.exitImg) {
+                    pageData.value.isExitImgLoading = true
+                    const data = await getParkImg(item.exitChlId, item.exitFrameTime, item.eventType, item.exitVehicleId)
+                    item.master = data.master
+                    item.phoneNum = data.phoneNum
+                    item.exitImg = data.img
+                    item.exitTraceObj = data.traceObj
+
+                    const snapData = await getParkImg(item.exitChlId, item.exitFrameTime, item.eventType, item.exitVehicleId, true)
+                    item.exitSnapImg = snapData.img
+                    pageData.value.isExitImgLoading = false
+                }
+            }
         }
 
         /**
          * @description 修正提交
          */
         const commit = () => {
-            const isEnterRefuse = current.value.enterType === '0' || current.value.enterType === 'refuse'
-            if (isEnterRefuse) {
-                if (!formData.value.plateNum.trim()) {
-                    openMessageBox(Translate('IDCS_VEHICLE_NUMBER_EMPTY'))
-                    return
-                }
-                ctx.emit('updatePlate', current.value.index, formData.value.plateNum.trim())
-                if (prop.remarkSwitch) {
-                    pageData.value.isRemarkPop = true
-                } else {
-                    commitOpenGate()
-                }
+            if (!formData.value.plateNum.trim()) {
+                openMessageBox(Translate('IDCS_VEHICLE_NUMBER_EMPTY'))
+                return
+            }
+            ctx.emit('updatePlate', current.value.index, formData.value.plateNum.trim())
+            if (prop.remarkSwitch) {
+                pageData.value.isRemarkPop = true
+            } else {
+                commitOpenGate()
             }
         }
 
@@ -481,7 +575,7 @@ export default defineComponent({
         const getPlateStartTimeState = () => {
             const now = Date.now()
             if (current.value.plateStartTime && current.value.isEnter) {
-                const plateStartTimeStamp = dayjs(current.value.plateStartTime, { format: DEFAULT_DATE_FORMAT, jalali: false }).valueOf() // new Date(current.value.plateStartTime).getTime()
+                const plateStartTimeStamp = dayjs(current.value.plateStartTime.replace(/\//g, '-'), { format: DEFAULT_DATE_FORMAT, jalali: false }).valueOf() // new Date(current.value.plateStartTime).getTime()
                 return now < plateStartTimeStamp
             } else {
                 return false
@@ -491,17 +585,12 @@ export default defineComponent({
         const getPlateEndTimeState = () => {
             const now = Date.now()
             if (current.value.isExit) {
-                const plateEndTimeStamp = dayjs(current.value.plateEndTime || '2037-12-31 23:59:59', { format: DEFAULT_DATE_FORMAT, jalali: false }).valueOf()
+                const plateEndTimeStamp = dayjs(current.value.plateEndTime.replace(/\//g, '-') || '2037-12-31 23:59:59', { format: DEFAULT_DATE_FORMAT, jalali: false }).valueOf()
                 return now > plateEndTimeStamp
             } else {
                 return false
             }
         }
-
-        // const onMounted(() => {
-        //     enterCanvasContext = $enterCanvas.value!.getContext('2d')!
-        //     exitCanvasContext = $exitCanvas.value!.getContext('2d')!
-        // })
 
         return {
             current,

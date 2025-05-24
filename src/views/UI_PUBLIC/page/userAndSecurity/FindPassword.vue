@@ -11,6 +11,7 @@
         />
         <div v-show="pageData.tab === 'email'">
             <el-form
+                ref="emailFormRef"
                 class="stripe"
                 :rules="emailFormRules"
                 :model="emailFormData"

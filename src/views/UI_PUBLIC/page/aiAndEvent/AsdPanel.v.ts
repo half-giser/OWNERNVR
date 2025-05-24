@@ -8,8 +8,13 @@ import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
 import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
 import AlarmBasePresetSelector from './AlarmBasePresetSelector.vue'
 import AlarmBaseIPSpeakerSelector from './AlarmBaseIPSpeakerSelector.vue'
-import * as echarts from 'echarts'
 import { isNotSupportWebsocket } from '@/utils/tools'
+import VChart from 'vue-echarts'
+import { use } from 'echarts/core'
+import { CanvasRenderer } from 'echarts/renderers'
+import { LineChart } from 'echarts/charts'
+import { TitleComponent, TooltipComponent, GridComponent } from 'echarts/components'
+import { type EChartsOption } from 'echarts'
 
 export default defineComponent({
     components: {
@@ -18,6 +23,7 @@ export default defineComponent({
         AlarmBaseTriggerSelector,
         AlarmBasePresetSelector,
         AlarmBaseIPSpeakerSelector,
+        VChart,
     },
     props: {
         /**
@@ -78,10 +84,118 @@ export default defineComponent({
             colors: ['red', 'blue', 'green'],
         })
 
-        const asdChartRef = ref(null)
+        const options = ref<EChartsOption>({
+            title: {
+                left: 0,
+                top: '5px',
+                text: Translate('IDCS_REALTIME_VOLUMN'),
+                textStyle: {
+                    color: '#ddd',
+                    fontSize: 15,
+                    fontWeight: 'bold',
+                },
+            },
+            tooltip: {
+                trigger: 'axis',
+                formatter: function (params) {
+                    let res = ''
+                    for (let i = 0; i < params.length; i++) {
+                        if (i === 0) {
+                            const tempIndex = params[i].name < 100 ? '' : params[i].name - 99
+                            res += tempIndex + '<br />'
+                        }
+                        const seriesValue = !params[i].value[1] ? '-' : params[i].value[1]
+                        res += '<span class="asd-circle ' + pageData.value.colors[i] + '"></span>' + seriesValue + '<br />'
+                    }
+                    return res
+                    // return ''
+                },
+            },
+            grid: [
+                {
+                    top: '15%',
+                    left: '7%',
+                    right: '5%',
+                    bottom: '6%',
+                },
+            ],
+            xAxis: {
+                type: 'category',
+                axisLabel: {
+                    show: false,
+                    inside: false,
+                },
+                // splitLine: false,
+                boundaryGap: false,
+                axisLine: {
+                    show: true,
+                    lineStyle: {
+                        color: '#000',
+                    },
+                },
+            },
+            yAxis: {
+                show: true,
+                min: 0,
+                max: 100,
+                axisLine: {
+                    show: true,
+                    lineStyle: {
+                        color: '#000',
+                    },
+                },
+                axisTick: {
+                    show: true,
+                },
+                splitLine: false,
+            },
+            series: [
+                {
+                    data: pageData.value.audioStandardData,
+                    type: 'line',
+                    name: Translate('IDCS_SOUND_INTENSITY'),
+                    showSymbol: false,
+                    itemStyle: {
+                        color: '#c23531',
+                    },
+                    lineStyle: {
+                        width: 1.5,
+                    },
+                },
+                {
+                    data: pageData.value.audioBackGroundData,
+                    type: 'line',
+                    name: Translate('IDCS_BACK_GROUND_SOUND_INTENSITY'),
+                    showSymbol: false,
+                    itemStyle: {
+                        color: '#00f',
+                    },
+                    lineStyle: {
+                        width: 1.5,
+                    },
+                },
+                {
+                    data: [],
+                    type: 'line',
+                    name: Translate('IDCS_SOUND_RISE_THRESHOLD'),
+                    showSymbol: false,
+                    itemStyle: {
+                        color: '#61a0a8',
+                    },
+                    lineStyle: {
+                        width: 2,
+                    },
+                },
+            ],
+            backgroundColor: '#686e7a',
+        })
+
+        // const asdChartRef = ref(null)
         const formData = ref(new AlarmAsdDto())
         const watchEdit = useWatchEditData(formData)
         let websocket: ReturnType<typeof WebsocketSnap> | null = null
+
+        use([CanvasRenderer, LineChart, TitleComponent, TooltipComponent, GridComponent])
 
         /**
          * @description 关闭排程管理后刷新排程列表
@@ -380,7 +494,7 @@ export default defineComponent({
                 pageData.value.audioStandardData.push(tempItem)
                 pageData.value.audioBackGroundData.push(tempItem)
             }
-            pageData.value.myChart = echarts.init(asdChartRef.value)
+            // pageData.value.myChart = echarts.init(asdChartRef.value)
             renderChart()
             // if (isNotSupportWebsocket) {
             //     $('#asd_paramwrap .legend').hide()
@@ -397,111 +511,44 @@ export default defineComponent({
             const controlValueList = pageData.value.audioStandardData.map(function (item) {
                 return [item[0], controlValue]
             })
-            const option = {
-                title: {
-                    left: 0,
-                    top: '5px',
-                    text: Translate('IDCS_REALTIME_VOLUMN'),
-                    textStyle: {
-                        color: '#ddd',
-                        fontSize: 15,
-                        fontWeight: 'bold',
+            options.value.series = [
+                {
+                    data: pageData.value.audioStandardData,
+                    type: 'line',
+                    name: Translate('IDCS_SOUND_INTENSITY'),
+                    showSymbol: false,
+                    itemStyle: {
+                        color: '#c23531',
+                    },
+                    lineStyle: {
+                        width: 1.5,
                     },
                 },
-                tooltip: {
-                    trigger: 'axis',
-                    formatter: function (params: string | any[]) {
-                        let res = ''
-                        for (let i = 0; i < params.length; i++) {
-                            if (i === 0) {
-                                const tempIndex = params[i].name < 100 ? '' : params[i].name - 99
-                                res += tempIndex + '<br />'
-                            }
-                            const seriesValue = !params[i].value[1] ? '-' : params[i].value[1]
-                            res += '<span class="circle ' + pageData.value.colors[i] + '"></span>' + seriesValue + '<br />'
-                        }
-                        return res
+                {
+                    data: pageData.value.audioBackGroundData,
+                    type: 'line',
+                    name: Translate('IDCS_BACK_GROUND_SOUND_INTENSITY'),
+                    showSymbol: false,
+                    itemStyle: {
+                        color: '#00f',
+                    },
+                    lineStyle: {
+                        width: 1.5,
                     },
                 },
-                grid: [
-                    {
-                        top: '15%',
-                        left: '7%',
-                        right: '5%',
-                        bottom: '6%',
+                {
+                    data: controlValueList,
+                    type: 'line',
+                    name: Translate('IDCS_SOUND_RISE_THRESHOLD'),
+                    showSymbol: false,
+                    itemStyle: {
+                        color: '#61a0a8',
                     },
-                ],
-                xAxis: {
-                    type: 'category',
-                    axisLabel: {
-                        show: false,
-                        inside: false,
-                    },
-                    splitLine: false,
-                    boundaryGap: false,
-                    axisLine: {
-                        show: true,
-                        lineStyle: {
-                            color: '#000',
-                        },
+                    lineStyle: {
+                        width: 2,
                     },
                 },
-                yAxis: {
-                    show: true,
-                    min: 0,
-                    max: 100,
-                    axisLine: {
-                        show: true,
-                        lineStyle: {
-                            color: '#000',
-                        },
-                    },
-                    axisTick: {
-                        show: true,
-                    },
-                    splitLine: false,
-                },
-                series: [
-                    {
-                        data: pageData.value.audioStandardData,
-                        type: 'line',
-                        name: Translate('IDCS_SOUND_INTENSITY'),
-                        showSymbol: false,
-                        itemStyle: {
-                            color: '#c23531',
-                        },
-                        lineStyle: {
-                            width: 1.5,
-                        },
-                    },
-                    {
-                        data: pageData.value.audioBackGroundData,
-                        type: 'line',
-                        name: Translate('IDCS_BACK_GROUND_SOUND_INTENSITY'),
-                        showSymbol: false,
-                        itemStyle: {
-                            color: '#00f',
-                        },
-                        lineStyle: {
-                            width: 1.5,
-                        },
-                    },
-                    {
-                        data: controlValueList,
-                        type: 'line',
-                        name: Translate('IDCS_SOUND_RISE_THRESHOLD'),
-                        showSymbol: false,
-                        itemStyle: {
-                            color: '#61a0a8',
-                        },
-                        lineStyle: {
-                            width: 2,
-                        },
-                    },
-                ],
-                backgroundColor: '#686e7a',
-            }
-            pageData.value.myChart?.setOption(option)
+            ]
         }
 
         onMounted(async () => {
@@ -518,9 +565,10 @@ export default defineComponent({
             pageData,
             formData,
             watchEdit,
-            asdChartRef,
+            // asdChartRef,
             closeSchedulePop,
             applyData,
+            options,
         }
     },
 })
