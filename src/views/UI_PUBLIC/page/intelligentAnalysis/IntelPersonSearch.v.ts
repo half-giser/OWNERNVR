@@ -145,8 +145,10 @@ export default defineComponent({
             similarityForBody: 75,
             // 选择的图片列表（人脸）
             picCacheListForFace: [] as (IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)[],
+            choosePicsForFace: [] as (IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)[],
             // 选择的图片列表（人体）
             picCacheListForBody: [] as (IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)[],
+            choosePicsForBody: [] as (IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)[],
             // 是否支持备份（H5模式）
             isSupportBackUp: isBrowserSupportWasm() && !isHttpsLogin(),
         })
@@ -167,7 +169,10 @@ export default defineComponent({
          * @description 获取列表索引数据 - searchTargetIndex
          */
         const getAllTargetIndexDatas = async (isByPic?: boolean) => {
+            resetChoosePics()
             resetSortStatus()
+            setCurrTargetIndexDatas([])
+            setCurrTargetDatas([])
             const currAttrObjToList: attrObjToListItem[] = getCurrAttribute()
             const currPicCacheList: (IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)[] = getCurrPicCacheList()
             const sendXml = rawXml`
@@ -669,6 +674,22 @@ export default defineComponent({
         }
 
         /**
+         * @description 设置当前界面选择的图片信息列表（只在每次点击搜索的时候更新一次，避免修改、删除所选图片时影响抓拍列表中的对比图展示）
+         */
+        const resetChoosePics = () => {
+            switch (pageData.value.searchType) {
+                case 'byFace':
+                    pageData.value.choosePicsForFace = cloneDeep(pageData.value.picCacheListForFace)
+                    break
+                case 'byBody':
+                    pageData.value.choosePicsForBody = cloneDeep(pageData.value.picCacheListForBody)
+                    break
+                default:
+                    break
+            }
+        }
+
+        /**
          * @description 设置当前界面选择的图片信息列表
          */
         const setCurrPicCacheList = (e: (IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)[]) => {
@@ -680,8 +701,10 @@ export default defineComponent({
                         pageData.value.picCacheListForFace = pageData.value.picCacheListForFace.concat(e)
                     }
                     pageData.value.picCacheListForFace.splice(5)
-                    pageData.value.picCacheListForFace.forEach((item) => {
+                    pageData.value.picCacheListForFace.forEach((item, index) => {
                         getImageSize(item)
+                        item.libIndex = index
+                        item.picBase64 = item.pic.includes(';base64,') ? item.pic.split(',')[1] : item.pic
                     })
                     pageData.value.isChangingPic = false
                     break
@@ -692,8 +715,10 @@ export default defineComponent({
                         pageData.value.picCacheListForBody = pageData.value.picCacheListForBody.concat(e)
                     }
                     pageData.value.picCacheListForBody.splice(5)
-                    pageData.value.picCacheListForBody.forEach((item) => {
+                    pageData.value.picCacheListForBody.forEach((item, index) => {
                         getImageSize(item)
+                        item.libIndex = index
+                        item.picBase64 = item.pic.includes(';base64,') ? item.pic.split(',')[1] : item.pic
                     })
                     pageData.value.isChangingPic = false
                     break
@@ -708,18 +733,8 @@ export default defineComponent({
         const getCurrPicCacheList = () => {
             switch (pageData.value.searchType) {
                 case 'byFace':
-                    pageData.value.picCacheListForFace = pageData.value.picCacheListForFace.map((item, index) => {
-                        item.libIndex = index
-                        item.picBase64 = item.pic.includes(';base64,') ? item.pic.split(',')[1] : item.pic
-                        return item
-                    })
                     return pageData.value.picCacheListForFace
                 case 'byBody':
-                    pageData.value.picCacheListForBody = pageData.value.picCacheListForBody.map((item, index) => {
-                        item.libIndex = index
-                        item.picBase64 = item.pic.includes(';base64,') ? item.pic.split(',')[1] : item.pic
-                        return item
-                    })
                     return pageData.value.picCacheListForBody
                 default:
                     return []

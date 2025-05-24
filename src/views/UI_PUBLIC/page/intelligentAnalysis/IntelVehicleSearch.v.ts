@@ -148,6 +148,8 @@ export default defineComponent({
          */
         const getAllTargetIndexDatas = async () => {
             resetSortStatus()
+            setCurrTargetIndexDatas([])
+            setCurrTargetDatas([])
             const currAttrObjToList: attrObjToListItem[] = getCurrAttribute()
             const sendXml = rawXml`
                 <resultLimit>10000</resultLimit>
