@@ -138,15 +138,17 @@ export default defineComponent({
             watchEditRtspServerForm.reset()
             watchEditApiServerForm.reset()
 
-            await getPortData()
-            await getWirelessNetworkData()
-            await getUPnPData()
-            await getApiServerData()
-            await getRtspServerData()
+            try {
+                await getPortData()
+                await getWirelessNetworkData()
+                await getUPnPData()
+                await getApiServerData()
+                await getRtspServerData()
 
-            watchEditPortForm.listen()
-            watchEditApiServerForm.listen()
-            watchEditRtspServerForm.listen()
+                watchEditPortForm.listen()
+                watchEditApiServerForm.listen()
+                watchEditRtspServerForm.listen()
+            } catch {}
         }
 
         /**
@@ -528,6 +530,9 @@ export default defineComponent({
             changeApiServerSwitch,
             changeAnonymous,
             changeRtspServerSwitch,
+            watchEditPortForm,
+            watchEditRtspServerForm,
+            watchEditApiServerForm,
         }
     },
 })
