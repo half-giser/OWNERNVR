@@ -155,26 +155,6 @@ export default defineComponent({
             })
         }
 
-        // 分析代码后发现 本页面并没有用到此接口的数据
-        // const getChannelList = async () => {
-        //     const result = await getChlList()
-        //     commLoadResponseHandler(result, ($) => {
-        //         pageData.value.chlList = $('content/item').map((item) => {
-        //             const $item = queryXml(item.element)
-        //             return {
-        //                 id: item.attr('id'),
-        //                 addType: $item('addType').text(),
-        //                 chlType: $item('chlType').text(),
-        //                 chlIndex: $item('chlIndex').text(),
-        //                 name: $item('name').text(),
-        //                 poeIndex: $item('poeIndex').text(),
-        //                 productModel: $item('productModel').text(),
-        //                 factoryName: $item('productModel').attr('factoryName'),
-        //             }
-        //         })
-        //     })
-        // }
-
         /**
          * @description 当前码率类型是否禁用
          * @param {Number} index
@@ -304,14 +284,13 @@ export default defineComponent({
                 videoQuality = isH264 ? 8192 : isH265 ? 8192 : 0
             }
 
-            if (rowData.qualitys.length > 1) {
-                // 找一个小的最接近的区间值
-                for (let i = rowData.qualitys.length - 1; i >= 0; i--) {
-                    if (videoQuality >= rowData.qualitys[i]) {
-                        videoQuality = rowData.qualitys[i]
-                        break
-                    }
-                }
+            const qualitys = getVideoQualityOptionsByItem(rowData)
+            const find = qualitys.find((item, index) => {
+                return item.value >= videoQuality || index === qualitys.length - 1
+            })
+
+            if (find) {
+                videoQuality = find.value
             }
 
             return videoQuality
@@ -350,14 +329,19 @@ export default defineComponent({
             }
         }
 
+        const getVideoQualityOptions = (index: number) => {
+            const item = tableData.value[index]
+            return getVideoQualityOptionsByItem(item)
+        }
+
         /**
          * @description 获取码率选项
          * @param {Number} index
          */
-        const getVideoQualityOptions = (index: number) => {
-            const qualityOptions = tableData.value[index].subStreamQualityCaps
-            const enct = tableData.value[index].videoEncodeType
-            const resolution = tableData.value[index].resolution
+        const getVideoQualityOptionsByItem = (rowData: NetSubStreamList) => {
+            const qualityOptions = rowData.subStreamQualityCaps
+            const enct = rowData.videoEncodeType
+            const resolution = rowData.resolution
             let isQualityCapsMatch = false
             let isQualityCapsEmpty = true
             const options: SelectOption<number, string>[] = []
@@ -590,12 +574,14 @@ export default defineComponent({
                 pageData.value.maxQoI = Math.max.apply([], Array.from(videoQualityList))
                 pageData.value.videoEcodeTypeList = Array.from(new Set(pageData.value.videoEcodeTypeList)).toSorted()
                 pageData.value.bitTypeList = Array.from(new Set(pageData.value.bitTypeList))
-                pageData.value.videoQualityList = Array.from(videoQualityList).map((quality) => {
-                    return {
-                        label: quality + 'Kbps',
-                        value: quality,
-                    }
-                })
+                pageData.value.videoQualityList = Array.from(videoQualityList)
+                    .toSorted()
+                    .map((quality) => {
+                        return {
+                            label: quality + 'Kbps',
+                            value: quality,
+                        }
+                    })
 
                 pageData.value.maxFps = Math.max(MAIN_STREAM_LIMIT_FPS, Math.max.apply([], tableData.value.map((item) => item.subCaps.res.map((item) => item.fps)).flat()))
 

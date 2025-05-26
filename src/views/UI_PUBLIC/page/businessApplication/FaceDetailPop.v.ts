@@ -263,9 +263,9 @@ export default defineComponent({
                     tempTimes: null,
                 },
             }
+            localStorage.setItem('LiveToSearch', JSON.stringify(searchInfo))
             router.push({
-                path: '/intelligent-analysis/search/search-face',
-                state: searchInfo,
+                path: '/intelligent-analysis/search/search-person',
             })
         }
 

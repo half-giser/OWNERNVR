@@ -356,9 +356,10 @@ export default defineComponent({
 
             if (eventType === 'fire_detection') {
                 router.push({
-                    path: '/search-and-backup/by-time-slice',
+                    path: '/search-and-backup/by-event',
                     state: {
-                        data: JSON.stringify(searchInfo),
+                        eventType: 'fire_detection',
+                        chlId: data.chlId,
                     },
                 })
                 return
@@ -366,11 +367,9 @@ export default defineComponent({
 
             if (isFaceCompare) {
                 if (searchInfo.faceFeatureCache && (searchInfo.faceFeatureCache.faceFeatureId || String(searchInfo.faceFeatureCache.faceFeatureId) === '0')) {
+                    localStorage.setItem('LiveToSearch', JSON.stringify(searchInfo))
                     router.push({
-                        path: '/intelligent-analysis/search/search-face',
-                        state: {
-                            data: JSON.stringify(searchInfo),
-                        },
+                        path: '/intelligent-analysis/search/search-person',
                     })
                     return
                 }
@@ -380,11 +379,9 @@ export default defineComponent({
                     const targetData = await getDetectResultInfos(imgBase64, width, height)
                     const featureData = await extractTragetInfos(targetData)
                     searchInfo.data.searchByImageFeatureData = featureData
+                    localStorage.setItem('LiveToSearch', JSON.stringify(searchInfo))
                     router.push({
-                        path: '/intelligent-analysis/search/search-face',
-                        state: {
-                            data: JSON.stringify(searchInfo),
-                        },
+                        path: '/intelligent-analysis/search/search-person',
                     })
                     return
                 } catch {
@@ -394,22 +391,18 @@ export default defineComponent({
             }
 
             if (menuType === 'vehicle') {
+                localStorage.setItem('LiveToSearch', JSON.stringify(searchInfo))
                 router.push({
                     path: '/intelligent-analysis/search/search-vehicle',
-                    state: {
-                        data: JSON.stringify(searchInfo),
-                    },
                 })
 
                 return
             }
 
             if (menuType === 'person') {
+                localStorage.setItem('LiveToSearch', JSON.stringify(searchInfo))
                 router.push({
-                    path: '/intelligent-analysis/search/search-face',
-                    state: {
-                        data: JSON.stringify(searchInfo),
-                    },
+                    path: '/intelligent-analysis/search/search-person',
                 })
                 return
             }

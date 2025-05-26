@@ -93,6 +93,7 @@
     display: flex;
     align-items: center;
     margin-bottom: 10px;
+    font-size: 14px;
 
     &-title {
         flex-shrink: 0;
