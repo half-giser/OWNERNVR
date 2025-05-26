@@ -8,6 +8,7 @@ import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
 import IntelBaseProfileSelector from './IntelBaseProfileSelector.vue'
 import IntelBasePlateColorPop from './IntelBasePlateColorPop.vue'
 import IntelBaseSnapItem from './IntelBaseSnapItem.vue'
+import IntelSearchDetail from './IntelSearchDetail.vue'
 import { type DropdownInstance } from 'element-plus'
 
 export default defineComponent({
@@ -17,6 +18,7 @@ export default defineComponent({
         IntelBaseProfileSelector,
         IntelBasePlateColorPop,
         IntelBaseSnapItem,
+        IntelSearchDetail,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -42,6 +44,8 @@ export default defineComponent({
             attrType: string
             attrValue: string[]
         }
+
+        const detailRef = ref()
 
         // 界面数据
         const pageData = ref({
@@ -340,7 +344,7 @@ export default defineComponent({
          */
         const getCurrPageTargetDatas = async (targetIndexDatas: IntelTargetIndexItem[]) => {
             const tempTargetDatas: IntelTargetDataItem[] = []
-            targetIndexDatas.forEach(async (item) => {
+            targetIndexDatas.forEach(async (item, index) => {
                 closeLoading()
                 const sendXml = rawXml`
                     <condition>
@@ -500,7 +504,7 @@ export default defineComponent({
                     // 组装数据
                     tempTargetData.isNoData = true
                 }
-                tempTargetDatas.push(tempTargetData)
+                tempTargetDatas[index] = tempTargetData
 
                 // 设置当前界面展示的列表详情数据
                 setCurrTargetDatas(cloneDeep(tempTargetDatas))
@@ -873,6 +877,22 @@ export default defineComponent({
         const showDetail = (targetDataItem: IntelTargetDataItem) => {
             pageData.value.isDetailOpen = true
             setCurrOpenDetailIndex(targetDataItem.index)
+            // 初始化详情
+            const isTrail = false
+            const currentIndex = targetDataItem.index
+            const detailData = isTrail ? getCurrTargetIndexDatas() : getCurrTargetDatas()
+            detailRef?.value.init({
+                isTrail,
+                currentIndex,
+                detailData,
+            })
+        }
+
+        /**
+         * @description 上一个、下一个按钮切换
+         */
+        const handleChangeItem = (index: string) => {
+            setCurrOpenDetailIndex(index)
         }
 
         /**
@@ -890,6 +910,7 @@ export default defineComponent({
             motorcycleSortDropdown,
             plateNumberSortDropdown,
             pageData,
+            detailRef,
             getChlIdNameMap,
             getAllTargetIndexDatas,
             getCurrTargetDatas,
@@ -901,6 +922,7 @@ export default defineComponent({
             handleBackup,
             switchDetail,
             showDetail,
+            handleChangeItem,
             displayDateTime,
         }
     },

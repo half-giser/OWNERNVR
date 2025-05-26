@@ -12,7 +12,10 @@
                 popper-class="no-padding"
             >
                 <template #reference>
-                    <div class="alarm-chl">
+                    <div
+                        class="alarm-chl"
+                        :class="list.length === 0 ? 'disabled-popover' : ''"
+                    >
                         <div class="text-ellipsis">{{ content }}</div>
                         <BaseImgSprite
                             file="arrow"
@@ -44,6 +47,12 @@
 <script lang="ts" src="./AlarmBaseChannelSelector.v.ts"></script>
 
 <style lang="scss" scoped>
+.disabled-popover {
+    opacity: 0.5;
+    pointer-events: none; /* 阻止点击事件 */
+    background-color: var(--input-text-disabled);
+}
+
 .alarm-chl {
     width: 430px;
     height: 30px;
