@@ -30,6 +30,10 @@ export default defineComponent({
             type: Boolean,
             default: false,
         },
+        layout: {
+            type: String as PropType<'search' | 'detail'>,
+            default: 'detail',
+        },
     },
     emits: {
         prev() {
@@ -65,13 +69,62 @@ export default defineComponent({
             plateNum: '',
             isBtnVisible: false,
             canvasWidth: 796,
-            canvasHeight: 538,
+            canvasHeight: prop.layout === 'detail' ? 538 : 430,
             isEnterImgLoading: false,
             isExitImgLoading: false,
+            enterSnapPosition: 'top-right',
+            exitSnapPosition: 'top-right',
         })
 
         const isTraceObj = (obj: { X1: number; X2: number; Y1: number; Y2: number }) => {
             return obj.X1 || obj.X2 || obj.Y1 || obj.Y2
+        }
+
+        /**
+         * @description 判断两个元素是否重合(相交或覆盖)
+         * @see https://zhuanlan.zhihu.com/p/526649229
+         * @param {DOMRect} rect1
+         * @param {DOMRect} rect2
+         * @returns {boolean}
+         */
+        const isOverlap = (rect1: { X1: number; X2: number; Y1: number; Y2: number }, rect2: { X1: number; X2: number; Y1: number; Y2: number }) => {
+            const { X1: x1, Y1: y1, X2: x2, Y2: y2 } = rect1
+            const { X1: x3, Y1: y3, X2: x4, Y2: y4 } = rect2
+
+            if (Math.max(x1, x3) <= Math.min(x2, x4) && Math.max(y1, y3) <= Math.min(y2, y4)) {
+                return true
+            } else {
+                return false
+            }
+        }
+
+        const checkOverlay = (imgSource: string, trace: { X1: number; X2: number; Y1: number; Y2: number }) => {
+            return new Promise((resolve: (bool: boolean) => void) => {
+                const image = new Image()
+                image.onload = () => {
+                    setTimeout(() => {
+                        const width = pageData.value.canvasWidth * 0.3
+                        const height = (width / image.width) * image.height
+                        const overlap = isOverlap(
+                            {
+                                X1: pageData.value.canvasWidth - width,
+                                Y1: 0,
+                                X2: pageData.value.canvasWidth,
+                                Y2: height,
+                            },
+                            {
+                                X1: trace.X1 * pageData.value.canvasWidth,
+                                Y1: trace.Y1 * pageData.value.canvasHeight,
+                                X2: trace.X2 * pageData.value.canvasWidth,
+                                Y2: trace.Y2 * pageData.value.canvasHeight,
+                            },
+                        )
+                        resolve(overlap)
+                    }, 0)
+                }
+
+                image.src = imgSource
+            })
         }
 
         watch(
@@ -88,7 +141,8 @@ export default defineComponent({
                 exitCanvasContext.ClearRect(0, 0, pageData.value.canvasWidth, pageData.value.canvasHeight)
 
                 if (current.enterImg) {
-                    if (isTraceObj(current.enterTraceObj)) {
+                    const hasTrace = isTraceObj(current.enterTraceObj)
+                    if (hasTrace) {
                         const X1 = current.enterTraceObj.X1 * pageData.value.canvasWidth
                         const Y1 = current.enterTraceObj.Y1 * pageData.value.canvasHeight
                         const X2 = current.enterTraceObj.X2 * pageData.value.canvasWidth
@@ -98,10 +152,19 @@ export default defineComponent({
                             strokeStyle: '#0000ff',
                         })
                     }
+
+                    if (current.enterSnapImg && hasTrace) {
+                        checkOverlay(current.enterSnapImg, current.enterTraceObj).then((bool) => {
+                            pageData.value.enterSnapPosition = bool ? 'top-left' : 'top-right'
+                        })
+                    } else {
+                        pageData.value.enterSnapPosition = 'top-right'
+                    }
                 }
 
                 if (current.exitImg) {
-                    if (isTraceObj(current.exitTraceObj)) {
+                    const hasTrace = isTraceObj(current.exitTraceObj)
+                    if (hasTrace) {
                         const X1 = current.exitTraceObj.X1 * pageData.value.canvasWidth
                         const Y1 = current.exitTraceObj.Y1 * pageData.value.canvasHeight
                         const X2 = current.exitTraceObj.X2 * pageData.value.canvasWidth
@@ -110,6 +173,14 @@ export default defineComponent({
                             lineWidth: 2,
                             strokeStyle: '#0000ff',
                         })
+                    }
+
+                    if (current.exitSnapImg && hasTrace) {
+                        checkOverlay(current.exitSnapImg, current.exitTraceObj).then((bool) => {
+                            pageData.value.exitSnapPosition = bool ? 'top-left' : 'top-right'
+                        })
+                    } else {
+                        pageData.value.exitSnapPosition = 'top-right'
                     }
                 }
             },
@@ -128,7 +199,7 @@ export default defineComponent({
          * @description 上一条数据
          */
         const handlePrev = () => {
-            if (prop.currentIndex <= 0) {
+            if (!prop.total || prop.currentIndex <= 0) {
                 return
             }
             ctx.emit('prev')
@@ -138,7 +209,7 @@ export default defineComponent({
          * @description 下一条数据
          */
         const handleNext = () => {
-            if (prop.currentIndex >= prop.total - 1) {
+            if (!prop.total || prop.currentIndex >= prop.total - 1) {
                 return
             }
             ctx.emit('next')

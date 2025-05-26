@@ -186,7 +186,7 @@ export default defineComponent({
 
         // 是否显示车牌号（只有车牌号界面才显示）
         const showPlateNumber = computed(() => {
-            return prop.searchType === 'byPlateNumber' && prop.targetData.plateAttrInfo?.plateNumber
+            return (prop.searchType === 'byPlateNumber' || prop.searchType === 'byPassRecord') && prop.targetData.plateAttrInfo?.plateNumber
         })
 
         // 是否显示相似度
