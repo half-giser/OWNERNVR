@@ -438,9 +438,12 @@ export default defineComponent({
          * @description 获取列表详情数据 - requestTargetData
          */
         const getCurrPageTargetDatas = async (targetIndexDatas: IntelTargetIndexItem[]) => {
-            const tempTargetDatas: IntelTargetDataItem[] = []
-            targetIndexDatas.forEach(async (item, index) => {
-                openLoading()
+            setCurrTargetDatas(targetIndexDatas)
+            const currTargetDatas = getCurrTargetDatas()
+
+            openLoading()
+            let reqCount = 0
+            currTargetDatas.forEach(async (item) => {
                 const sendXml = rawXml`
                     <condition>
                         <index>${item.index}</index>
@@ -450,9 +453,7 @@ export default defineComponent({
                 `
                 const result = await requestTargetData(sendXml)
                 const $ = queryXml(result)
-                closeLoading()
 
-                const tempTargetData: IntelTargetDataItem = Object.assign({}, new IntelTargetDataItem(), cloneDeep(item))
                 if ($('status').text() === 'success') {
                     const isNoData = false
                     const isDelete = $('content/isDelete').text().bool()
@@ -573,59 +574,64 @@ export default defineComponent({
                     }
 
                     // 组装数据
-                    tempTargetData.isNoData = isNoData
-                    tempTargetData.isDelete = isDelete
-                    tempTargetData.targetID = targetID
-                    tempTargetData.featureStatus = featureStatus
-                    tempTargetData.supportRegister = supportRegister
-                    tempTargetData.targetType = targetType
-                    tempTargetData.timeStamp = timeStamp
-                    tempTargetData.timeStampLocal = timeStampLocal
-                    tempTargetData.timeStampUTC = timeStampUTC
-                    tempTargetData.startTime = startTime
-                    tempTargetData.startTimeLocal = startTimeLocal
-                    tempTargetData.startTimeUTC = startTimeUTC
-                    tempTargetData.endTime = endTime
-                    tempTargetData.endTimeLocal = endTimeLocal
-                    tempTargetData.endTimeUTC = endTimeUTC
-                    tempTargetData.objPicData = objPicData
-                    tempTargetData.backgroundPicDatas = backgroundPicDatas
-                    tempTargetData.targetTrace = targetTrace
-                    tempTargetData.ruleInfos = ruleInfos
-                    tempTargetData.humanAttrInfo = humanAttrInfo
-                    tempTargetData.vehicleAttrInfo = vehicleAttrInfo
-                    tempTargetData.nonMotorVehicleAttrInfo = nonMotorVehicleAttrInfo
-                    tempTargetData.plateAttrInfo = plateAttrInfo
+                    item.isNoData = isNoData
+                    item.isDelete = isDelete
+                    item.targetID = targetID
+                    item.featureStatus = featureStatus
+                    item.supportRegister = supportRegister
+                    item.targetType = targetType
+                    item.timeStamp = timeStamp
+                    item.timeStampLocal = timeStampLocal
+                    item.timeStampUTC = timeStampUTC
+                    item.startTime = startTime
+                    item.startTimeLocal = startTimeLocal
+                    item.startTimeUTC = startTimeUTC
+                    item.endTime = endTime
+                    item.endTimeLocal = endTimeLocal
+                    item.endTimeUTC = endTimeUTC
+                    item.objPicData = objPicData
+                    item.backgroundPicDatas = backgroundPicDatas
+                    item.targetTrace = targetTrace
+                    item.ruleInfos = ruleInfos
+                    item.humanAttrInfo = humanAttrInfo
+                    item.vehicleAttrInfo = vehicleAttrInfo
+                    item.nonMotorVehicleAttrInfo = nonMotorVehicleAttrInfo
+                    item.plateAttrInfo = plateAttrInfo
 
                     // 判断当前数据是否被选中
                     const currSelectedTargetDatas = getCurrSelectedTargetDatas()
-                    const findIndex = currSelectedTargetDatas.findIndex((item) => item.index === tempTargetData.index)
-                    if (findIndex > -1) tempTargetData.checked = true
+                    const findIndex = currSelectedTargetDatas.findIndex((item) => item.index === item.index)
+                    if (findIndex > -1) item.checked = true
                     judgeIsCheckedAll()
                 } else {
                     // 组装数据
-                    tempTargetData.isNoData = true
+                    item.isNoData = true
                 }
-                tempTargetDatas[index] = tempTargetData
 
-                // 设置当前界面展示的列表详情数据
-                setCurrTargetDatas(cloneDeep(tempTargetDatas))
+                reqCount++
+                if (reqCount >= targetIndexDatas.length) {
+                    closeLoading()
+                    // 切换分页后默认打开第一个详情
+                    if (pageData.value.isDetailOpen) {
+                        showDetail(currTargetDatas[0])
+                    }
+                }
             })
         }
 
         /**
          * @description 设置界面列表详情数据targetDatas
          */
-        const setCurrTargetDatas = (targetDatas: IntelTargetDataItem[]) => {
+        const setCurrTargetDatas = (targetIndexDatas: IntelTargetIndexItem[]) => {
             switch (pageData.value.searchType) {
                 case 'byFace':
-                    pageData.value.targetDatasForFace = targetDatas
+                    pageData.value.targetDatasForFace = targetIndexDatas.map((item) => Object.assign({}, new IntelTargetDataItem(), cloneDeep(item)))
                     break
                 case 'byBody':
-                    pageData.value.targetDatasForBody = targetDatas
+                    pageData.value.targetDatasForBody = targetIndexDatas.map((item) => Object.assign({}, new IntelTargetDataItem(), cloneDeep(item)))
                     break
                 case 'byPersonAttribute':
-                    pageData.value.targetDatasForPersonAttribute = targetDatas
+                    pageData.value.targetDatasForPersonAttribute = targetIndexDatas.map((item) => Object.assign({}, new IntelTargetDataItem(), cloneDeep(item)))
                     break
                 default:
                     break
