@@ -145,8 +145,25 @@ export default defineComponent({
             similarityForBody: 75,
             // 选择的图片列表（人脸）
             picCacheListForFace: [] as (IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)[],
+            choosePicsForFace: [] as (IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)[],
             // 选择的图片列表（人体）
             picCacheListForBody: [] as (IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)[],
+            choosePicsForBody: [] as (IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)[],
+            // 备份类型选项
+            backupTypeOptions: [
+                {
+                    label: Translate('IDCS_BACKUP_PICTURE'),
+                    value: 'pic' as 'pic' | 'video' | 'picAndVideo',
+                },
+                {
+                    label: Translate('IDCS_BACKUP_RECORD'),
+                    value: 'video' as 'pic' | 'video' | 'picAndVideo',
+                },
+                {
+                    label: Translate('IDCS_BACKUP_PICTURE_AND_RECORD'),
+                    value: 'picAndVideo' as 'pic' | 'video' | 'picAndVideo',
+                },
+            ],
             // 是否支持备份（H5模式）
             isSupportBackUp: isBrowserSupportWasm() && !isHttpsLogin(),
         })
@@ -167,7 +184,10 @@ export default defineComponent({
          * @description 获取列表索引数据 - searchTargetIndex
          */
         const getAllTargetIndexDatas = async (isByPic?: boolean) => {
+            resetChoosePics()
             resetSortStatus()
+            setCurrTargetIndexDatas([])
+            setCurrTargetDatas([])
             const currAttrObjToList: attrObjToListItem[] = getCurrAttribute()
             const currPicCacheList: (IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)[] = getCurrPicCacheList()
             const sendXml = rawXml`
@@ -669,6 +689,22 @@ export default defineComponent({
         }
 
         /**
+         * @description 设置当前界面选择的图片信息列表（只在每次点击搜索的时候更新一次，避免修改、删除所选图片时影响抓拍列表中的对比图展示）
+         */
+        const resetChoosePics = () => {
+            switch (pageData.value.searchType) {
+                case 'byFace':
+                    pageData.value.choosePicsForFace = cloneDeep(pageData.value.picCacheListForFace)
+                    break
+                case 'byBody':
+                    pageData.value.choosePicsForBody = cloneDeep(pageData.value.picCacheListForBody)
+                    break
+                default:
+                    break
+            }
+        }
+
+        /**
          * @description 设置当前界面选择的图片信息列表
          */
         const setCurrPicCacheList = (e: (IntelFaceDBSnapFaceList | IntelBodyDBSnapBodyList | IntelFaceDBFaceInfo)[]) => {
@@ -680,8 +716,10 @@ export default defineComponent({
                         pageData.value.picCacheListForFace = pageData.value.picCacheListForFace.concat(e)
                     }
                     pageData.value.picCacheListForFace.splice(5)
-                    pageData.value.picCacheListForFace.forEach((item) => {
+                    pageData.value.picCacheListForFace.forEach((item, index) => {
                         getImageSize(item)
+                        item.libIndex = index
+                        item.picBase64 = item.pic.includes(';base64,') ? item.pic.split(',')[1] : item.pic
                     })
                     pageData.value.isChangingPic = false
                     break
@@ -692,8 +730,10 @@ export default defineComponent({
                         pageData.value.picCacheListForBody = pageData.value.picCacheListForBody.concat(e)
                     }
                     pageData.value.picCacheListForBody.splice(5)
-                    pageData.value.picCacheListForBody.forEach((item) => {
+                    pageData.value.picCacheListForBody.forEach((item, index) => {
                         getImageSize(item)
+                        item.libIndex = index
+                        item.picBase64 = item.pic.includes(';base64,') ? item.pic.split(',')[1] : item.pic
                     })
                     pageData.value.isChangingPic = false
                     break
@@ -708,18 +748,8 @@ export default defineComponent({
         const getCurrPicCacheList = () => {
             switch (pageData.value.searchType) {
                 case 'byFace':
-                    pageData.value.picCacheListForFace = pageData.value.picCacheListForFace.map((item, index) => {
-                        item.libIndex = index
-                        item.picBase64 = item.pic.includes(';base64,') ? item.pic.split(',')[1] : item.pic
-                        return item
-                    })
                     return pageData.value.picCacheListForFace
                 case 'byBody':
-                    pageData.value.picCacheListForBody = pageData.value.picCacheListForBody.map((item, index) => {
-                        item.libIndex = index
-                        item.picBase64 = item.pic.includes(';base64,') ? item.pic.split(',')[1] : item.pic
-                        return item
-                    })
                     return pageData.value.picCacheListForBody
                 default:
                     return []
@@ -1093,6 +1123,20 @@ export default defineComponent({
         }
 
         /**
+         * @description 备份全部
+         */
+        const handleBackupAll = () => {
+            console.log('handleBackupAll')
+        }
+
+        /**
+         * @description 备份选中项
+         */
+        const handleBackup = (backupType: 'pic' | 'video' | 'picAndVideo') => {
+            console.log(backupType)
+        }
+
+        /**
          * @description 切换详情界面的展示与隐藏
          */
         const switchDetail = () => {
@@ -1105,6 +1149,13 @@ export default defineComponent({
         const showDetail = (targetDataItem: IntelTargetDataItem) => {
             pageData.value.isDetailOpen = true
             setCurrOpenDetailIndex(targetDataItem.index)
+        }
+
+        /**
+         * @description 关闭详情
+         */
+        const hideDetail = () => {
+            pageData.value.isDetailOpen = false
         }
 
         /**
@@ -1136,6 +1187,9 @@ export default defineComponent({
                 }
                 closeLoading()
             }
+
+            // 关闭详情
+            hideDetail()
         }
 
         /**
@@ -1367,8 +1421,11 @@ export default defineComponent({
             handleChangePage,
             handleSelectAll,
             handleSort,
+            handleBackupAll,
+            handleBackup,
             switchDetail,
             showDetail,
+            hideDetail,
             handleSearch,
             displayDateTime,
             showPicChooser,

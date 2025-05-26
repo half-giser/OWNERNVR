@@ -123,6 +123,7 @@
 
 .status {
     display: flex;
+    align-items: center;
 
     & > div {
         position: relative;
@@ -138,7 +139,7 @@
 
         span:first-child {
             position: absolute;
-            top: 3px;
+            top: 0;
             left: 0;
         }
 
@@ -147,7 +148,7 @@
             top: 0;
             left: 0;
             text-align: center;
-            line-height: 25px;
+            line-height: 20px;
             color: var(--color-white);
             display: block;
             width: 100%;

@@ -42,7 +42,10 @@
                 <div class="snap_pic">
                     <!-- 顶部操作区域（checkbox选择框） -->
                     <div class="top_operate">
-                        <el-checkbox v-model="targetData.checked" />
+                        <el-checkbox
+                            v-model="targetData.checked"
+                            @click.stop=""
+                        />
                     </div>
                     <!-- 封面图 -->
                     <img
@@ -95,7 +98,11 @@
                     v-if="showSimilarity"
                     class="similarityValue"
                 >
-                    {{ `${targetData.similarity} %` }}
+                    <span class="value">{{ `(${targetData.similarity} %)` }}</span>
+                    <BaseImgSprite
+                        file="Rectangle"
+                        :chunk="1"
+                    />
                 </span>
             </div>
         </div>
@@ -138,7 +145,10 @@
                 <div class="snap_pic">
                     <!-- 顶部操作区域（checkbox选择框） -->
                     <div class="top_operate">
-                        <el-checkbox v-model="targetData.checked" />
+                        <el-checkbox
+                            v-model="targetData.checked"
+                            @click.stop=""
+                        />
                     </div>
                     <!-- 封面图 -->
                     <img
@@ -193,7 +203,11 @@
                     v-if="showSimilarity"
                     class="similarityValue"
                 >
-                    {{ `${targetData.similarity} %` }}
+                    <span class="value">{{ `(${targetData.similarity} %)` }}</span>
+                    <BaseImgSprite
+                        file="Rectangle"
+                        :chunk="1"
+                    />
                 </span>
             </div>
             <div class="info_show_compare">
@@ -244,7 +258,9 @@
             width: 100%;
             height: 100%;
             position: absolute;
-            inset: 0;
+            top: 0;
+            left: 0;
+            bottom: 0;
             margin: auto;
         }
 
@@ -253,8 +269,11 @@
                 width: 100%;
                 height: 100%;
                 position: absolute;
-                inset: 0;
+                top: 0;
+                left: 0;
+                bottom: 0;
                 margin: auto;
+                border: 1px solid var(--content-border);
 
                 .center_operate {
                     width: 100%;
@@ -266,6 +285,7 @@
                     position: absolute;
                     left: 0;
                     right: 0;
+                    z-index: 4;
                     margin: auto;
                     display: flex;
                     justify-content: flex-start;
@@ -341,9 +361,41 @@
             flex-direction: column;
             justify-content: flex-start;
             align-items: flex-start;
+            position: relative;
 
             > span {
                 margin-top: 4px;
+            }
+
+            .similarityValue {
+                width: 110px;
+                height: 24px;
+                position: absolute;
+                top: -25px;
+                left: 0;
+                right: 0;
+                margin: auto;
+                margin-top: 0;
+                text-align: center;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                .value {
+                    z-index: 1;
+                    font-size: 15px;
+                    color: var(--color-white);
+                }
+
+                .Sprite {
+                    width: 100%;
+                    height: 100%;
+                    position: absolute;
+                    left: 0;
+                    right: 0;
+                    margin: auto;
+                    z-index: 0;
+                }
             }
         }
     }
@@ -374,6 +426,7 @@
                 bottom: 0;
                 right: 0;
                 margin: auto;
+                border: 1px solid var(--content-border);
 
                 .center_operate {
                     width: 100%;
@@ -398,6 +451,14 @@
 
             > span {
                 margin-top: 4px;
+            }
+        }
+
+        .info_show_snap {
+            position: relative;
+
+            .similarityValue {
+                left: calc(100% - 55px);
             }
         }
     }

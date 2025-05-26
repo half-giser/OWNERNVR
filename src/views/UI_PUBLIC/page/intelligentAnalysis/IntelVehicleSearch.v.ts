@@ -127,6 +127,21 @@ export default defineComponent({
             openDetailIndexForMotorcycle: '',
             // 当前打开的详情的索引index（特征值的base64）（车牌号）
             openDetailIndexForPlateNumber: '',
+            // 备份类型选项
+            backupTypeOptions: [
+                {
+                    label: Translate('IDCS_BACKUP_PICTURE'),
+                    value: 'pic' as 'pic' | 'video' | 'picAndVideo',
+                },
+                {
+                    label: Translate('IDCS_BACKUP_RECORD'),
+                    value: 'video' as 'pic' | 'video' | 'picAndVideo',
+                },
+                {
+                    label: Translate('IDCS_BACKUP_PICTURE_AND_RECORD'),
+                    value: 'picAndVideo' as 'pic' | 'video' | 'picAndVideo',
+                },
+            ],
             // 是否支持备份（H5模式）
             isSupportBackUp: isBrowserSupportWasm() && !isHttpsLogin(),
         })
@@ -148,6 +163,8 @@ export default defineComponent({
          */
         const getAllTargetIndexDatas = async () => {
             resetSortStatus()
+            setCurrTargetIndexDatas([])
+            setCurrTargetDatas([])
             const currAttrObjToList: attrObjToListItem[] = getCurrAttribute()
             const sendXml = rawXml`
                 <resultLimit>10000</resultLimit>
@@ -830,6 +847,20 @@ export default defineComponent({
         }
 
         /**
+         * @description 备份全部
+         */
+        const handleBackupAll = () => {
+            console.log('handleBackupAll')
+        }
+
+        /**
+         * @description 备份选中项
+         */
+        const handleBackup = (backupType: 'pic' | 'video' | 'picAndVideo') => {
+            console.log(backupType)
+        }
+
+        /**
          * @description 切换详情界面的展示与隐藏
          */
         const switchDetail = () => {
@@ -866,6 +897,8 @@ export default defineComponent({
             handleChangePage,
             handleSelectAll,
             handleSort,
+            handleBackupAll,
+            handleBackup,
             switchDetail,
             showDetail,
             displayDateTime,

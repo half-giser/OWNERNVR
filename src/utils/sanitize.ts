@@ -59,7 +59,7 @@ const ALLOW_TAGS = [
     'tr',
 ]
 
-const ALLOW_ATTRS = ['class', 'href', 'src', 'id', 'width', 'height', 'controls', 'preload', 'target', 'style', 'referrerpolicy', 'ref']
+const ALLOW_ATTRS = ['class', 'href', 'src', 'id', 'width', 'height', 'controls', 'preload', 'target', 'style', 'referrerpolicy', 'ref', 'download']
 
 const URI_ATTRS = ['src'] // 'href'
 

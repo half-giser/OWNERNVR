@@ -207,7 +207,7 @@
 <style lang="scss" scoped>
 .base-upgrade-tabs {
     & > :deep(.el-tabs__header) {
-        padding: 0px 15px;
+        padding: 0 15px;
     }
 }
 
@@ -217,7 +217,7 @@
 
 .base-table-box {
     box-sizing: border-box;
-    margin: 0px 15px;
+    margin: 0 15px;
     min-height: 696px;
 }
 

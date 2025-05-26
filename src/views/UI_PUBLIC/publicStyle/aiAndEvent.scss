@@ -1,7 +1,7 @@
 /*
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-29 09:12:33
- * @Description: ai与事件版块的一些公共样式，仅在需要用到的ai与事件版块下import
+ * @Description: ai与事件版块的一些公共样式，前缀必须为.base-ai-*
  */
 
 .base-ai-menu-tabs {
@@ -305,8 +305,8 @@
     flex-shrink: 0;
 }
 
-#n9web .el-form > div > .el-form-item,
-#n9web .el-form > div > div > .el-form-item {
+#n9web .base-ai-param-box-right .el-form > div > .el-form-item,
+#n9web .base-ai-param-box-right .el-form > div > div > .el-form-item {
     padding: 2px 15px;
     margin-bottom: 0;
     flex-wrap: nowrap;

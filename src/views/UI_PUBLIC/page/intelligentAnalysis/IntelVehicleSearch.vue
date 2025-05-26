@@ -79,7 +79,7 @@
             }"
         >
             <!-- 抓拍图/轨迹tab、排序、全选 -->
-            <div class="base-intel-row space-between">
+            <div class="base-intel-center-top base-intel-row space-between">
                 <!-- 抓拍图、轨迹 tab -->
                 <div>
                     <el-radio-group
@@ -182,7 +182,7 @@
                 </div>
             </div>
             <!-- 抓拍图容器 -->
-            <el-scrollbar class="base-intel-pics-box">
+            <div class="base-intel-center-center base-intel-pics-box">
                 <!-- 汽车 - 抓拍图容器 -->
                 <div
                     v-show="pageData.searchType === 'byCar'"
@@ -231,42 +231,108 @@
                         @detail="showDetail(item)"
                     />
                 </div>
-            </el-scrollbar>
-            <!-- 分页器容器 -->
-            <div class="base-btn-box">
-                <!-- 汽车 - 分页器 -->
-                <BasePagination
-                    v-show="pageData.searchType === 'byCar'"
-                    v-model:current-page="pageData.pageIndexForCar"
-                    v-model:page-size="pageData.pageSizeForCar"
-                    :page-sizes="[pageData.pageSizeForCar]"
-                    :total="pageData.targetIndexDatasForCar.length"
-                    @current-change="handleChangePage"
-                />
-                <!-- 摩托车/单车 - 分页器 -->
-                <BasePagination
-                    v-show="pageData.searchType === 'byMotorcycle'"
-                    v-model:current-page="pageData.pageIndexForMotorcycle"
-                    v-model:page-size="pageData.pageSizeForMotorcycle"
-                    :page-sizes="[pageData.pageSizeForMotorcycle]"
-                    :total="pageData.targetIndexDatasForMotorcycle.length"
-                    @current-change="handleChangePage"
-                />
-                <!-- 车牌号 - 分页器 -->
-                <BasePagination
-                    v-show="pageData.searchType === 'byPlateNumber'"
-                    v-model:current-page="pageData.pageIndexForPlateNumber"
-                    v-model:page-size="pageData.pageSizeForPlateNumber"
-                    :page-sizes="[pageData.pageSizeForPlateNumber]"
-                    :total="pageData.targetIndexDatasForPlateNumber.length"
-                    @current-change="handleChangePage"
-                />
             </div>
-            <!-- 备份/全部备份按钮容器 -->
-            <div class="base-btn-box">
-                <el-button>
-                    {{ Translate('IDCS_BACKUP') }}
-                </el-button>
+            <!-- 分页器、备份/全部备份按钮容器 -->
+            <div class="base-intel-center-bottom">
+                <!-- 分页器 -->
+                <div class="base-btn-box">
+                    <!-- 汽车 - 分页器 -->
+                    <BasePagination
+                        v-show="pageData.searchType === 'byCar'"
+                        v-model:current-page="pageData.pageIndexForCar"
+                        v-model:page-size="pageData.pageSizeForCar"
+                        :page-sizes="[pageData.pageSizeForCar]"
+                        :total="pageData.targetIndexDatasForCar.length"
+                        @current-change="handleChangePage"
+                    />
+                    <!-- 摩托车/单车 - 分页器 -->
+                    <BasePagination
+                        v-show="pageData.searchType === 'byMotorcycle'"
+                        v-model:current-page="pageData.pageIndexForMotorcycle"
+                        v-model:page-size="pageData.pageSizeForMotorcycle"
+                        :page-sizes="[pageData.pageSizeForMotorcycle]"
+                        :total="pageData.targetIndexDatasForMotorcycle.length"
+                        @current-change="handleChangePage"
+                    />
+                    <!-- 车牌号 - 分页器 -->
+                    <BasePagination
+                        v-show="pageData.searchType === 'byPlateNumber'"
+                        v-model:current-page="pageData.pageIndexForPlateNumber"
+                        v-model:page-size="pageData.pageSizeForPlateNumber"
+                        :page-sizes="[pageData.pageSizeForPlateNumber]"
+                        :total="pageData.targetIndexDatasForPlateNumber.length"
+                        @current-change="handleChangePage"
+                    />
+                </div>
+                <!-- 备份/全部备份按钮 -->
+                <div class="base-btn-box">
+                    <!-- 汽车 -->
+                    <div v-show="pageData.searchType === 'byCar'">
+                        <el-button @click="handleBackupAll">
+                            {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
+                        </el-button>
+                        <el-dropdown placement="top-end">
+                            <el-button>
+                                {{ Translate('IDCS_BACKUP') }}
+                            </el-button>
+                            <template #dropdown>
+                                <el-dropdown-menu>
+                                    <el-dropdown-item
+                                        v-for="item in pageData.backupTypeOptions"
+                                        :key="item.value"
+                                        @click="handleBackup(item.value)"
+                                    >
+                                        {{ Translate(item.label) }}
+                                    </el-dropdown-item>
+                                </el-dropdown-menu>
+                            </template>
+                        </el-dropdown>
+                    </div>
+                    <!-- 摩托车/单车 -->
+                    <div v-show="pageData.searchType === 'byMotorcycle'">
+                        <el-button @click="handleBackupAll">
+                            {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
+                        </el-button>
+                        <el-dropdown placement="top-end">
+                            <el-button>
+                                {{ Translate('IDCS_BACKUP') }}
+                            </el-button>
+                            <template #dropdown>
+                                <el-dropdown-menu>
+                                    <el-dropdown-item
+                                        v-for="item in pageData.backupTypeOptions"
+                                        :key="item.value"
+                                        @click="handleBackup(item.value)"
+                                    >
+                                        {{ Translate(item.label) }}
+                                    </el-dropdown-item>
+                                </el-dropdown-menu>
+                            </template>
+                        </el-dropdown>
+                    </div>
+                    <!-- 车牌号 -->
+                    <div v-show="pageData.searchType === 'byPlateNumber'">
+                        <el-button @click="handleBackupAll">
+                            {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
+                        </el-button>
+                        <el-dropdown placement="top-end">
+                            <el-button>
+                                {{ Translate('IDCS_BACKUP') }}
+                            </el-button>
+                            <template #dropdown>
+                                <el-dropdown-menu>
+                                    <el-dropdown-item
+                                        v-for="item in pageData.backupTypeOptions"
+                                        :key="item.value"
+                                        @click="handleBackup(item.value)"
+                                    >
+                                        {{ Translate(item.label) }}
+                                    </el-dropdown-item>
+                                </el-dropdown-menu>
+                            </template>
+                        </el-dropdown>
+                    </div>
+                </div>
             </div>
             <!-- 打开/关闭详情按钮 -->
             <div class="resize_icon_left">
@@ -305,38 +371,6 @@
 
 .base-intel-left {
     padding: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-
-    .el-radio-group.tab_container {
-        flex-shrink: 0;
-        width: 100%;
-        height: 50px;
-
-        .el-radio-button {
-            height: 100%;
-
-            :deep(.el-radio-button__inner) {
-                height: 100%;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                border-left: none;
-                border-right: none;
-                box-shadow: none;
-
-                &:hover {
-                    background-color: transparent !important;
-                }
-            }
-
-            :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
-                background-color: transparent !important;
-                color: var(--primary) !important;
-            }
-        }
-    }
 
     & > .base-intel-left-column {
         padding: 10px;
@@ -393,6 +427,10 @@
 
 .base-intel-center {
     position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
 
     .base-intel-row {
         .el-radio-button {
@@ -403,6 +441,10 @@
 
         .el-dropdown {
             margin-right: 30px;
+
+            .BaseDropdownBtn {
+                line-height: unset;
+            }
         }
     }
 
@@ -439,6 +481,26 @@
         .resize_icon_right {
             right: -10px;
         }
+    }
+
+    .base-intel-center-top {
+        width: 100%;
+        height: 27px;
+    }
+
+    .base-intel-center-center {
+        width: calc(100% - 30px);
+        height: calc(100% - 139px);
+        position: absolute;
+        top: 52px;
+        left: 15px;
+        right: 15px;
+        overflow: auto;
+    }
+
+    .base-intel-center-bottom {
+        width: 100%;
+        height: 72px;
     }
 }
 

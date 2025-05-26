@@ -15,7 +15,7 @@ export class UserAddForm {
     email = '' // 电子邮箱
     authGroup = '' // 权限组
     loginScheduleInfo = ''
-    loginScheduleInfoEnabled = ''
+    loginScheduleInfoEnabled = false
     accessCode = false
 }
 
@@ -32,7 +32,7 @@ export class UserEditForm {
     allowModifyPassword = false // 是否允许修改密码
     authEffective = false
     loginScheduleInfo = ''
-    loginScheduleInfoEnabled = ''
+    loginScheduleInfoEnabled = false
     accessCode = false
 }
 
