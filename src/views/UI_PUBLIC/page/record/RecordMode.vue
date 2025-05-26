@@ -114,14 +114,16 @@
                                 @change="changeAllSchedule($event, 'allEventRec')"
                                 @edit="openSchedulePop"
                             >
-                                <span>{{ Translate('IDCS_ALL_EVENT_RECORD') }}</span>
-                                <BaseImgSprite
-                                    file="aq"
-                                    :index="1"
-                                    :hover-index="0"
-                                    :chunk="3"
-                                    :title="allEventTips"
-                                />
+                                <div class="base-cell-box">
+                                    <span>{{ Translate('IDCS_ALL_EVENT_RECORD') }}</span>
+                                    <BaseImgSprite
+                                        file="aq"
+                                        :index="1"
+                                        :hover-index="0"
+                                        :chunk="3"
+                                        :title="allEventTips"
+                                    />
+                                </div>
                             </BaseScheduleTableDropdown>
                         </template>
                         <template #default="{ row }: TableColumn<RecordScheduleDto>">
@@ -187,19 +189,22 @@
                         :key="item.id"
                         :value="item.id"
                         :label="item.text"
+                        :class="item.id === 'ALLEVENT' ? 'allevent' : ''"
                     >
                         <div class="radio">
-                            <div class="radio-text huge">
-                                {{ item.text }}
-                                <BaseImgSprite
-                                    v-if="item.id === 'ALLEVENT'"
-                                    :key="item.id"
-                                    file="aq"
-                                    :index="1"
-                                    :hover-index="0"
-                                    :chunk="3"
-                                    :title="allEventTips"
-                                />
+                            <div class="radio-text">
+                                <div class="radio-text-label">
+                                    <span>{{ item.text }}</span>
+                                    <BaseImgSprite
+                                        v-if="item.id === 'ALLEVENT'"
+                                        :key="item.id"
+                                        file="aq"
+                                        :index="1"
+                                        :hover-index="0"
+                                        :chunk="3"
+                                        :title="allEventTips"
+                                    />
+                                </div>
                                 <div
                                     v-if="item.id === 'ALLEVENT'"
                                     class="radio-text-discribe"
@@ -259,14 +264,18 @@
 <script lang="ts" src="./RecordMode.v.ts"></script>
 
 <style lang="scss" scoped>
+.el-radio.allevent {
+    height: 46px !important;
+}
+
 .radio {
     display: flex;
     width: 100%;
-    line-height: 30px;
 
     &-text {
         width: 600px;
         flex-shrink: 0;
+        line-height: 15px;
 
         &-suffix {
             display: inline-block;
@@ -274,11 +283,12 @@
 
         &-discribe {
             font-size: 12px;
-            color: #999;
+            color: var(--main-text-light);
         }
 
-        &.huge {
-            line-height: 15px;
+        &-label {
+            display: flex;
+            align-items: center;
         }
     }
 
