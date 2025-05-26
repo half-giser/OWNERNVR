@@ -229,7 +229,7 @@
 
 .snap {
     width: calc((100% - 35px) / 6);
-    margin: 5px 0px 30px 5px;
+    margin: 5px 0 30px 5px;
     user-select: none;
 
     .pic_show_container {
@@ -244,10 +244,7 @@
             width: 100%;
             height: 100%;
             position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
+            inset: 0;
             margin: auto;
         }
 
@@ -256,10 +253,7 @@
                 width: 100%;
                 height: 100%;
                 position: absolute;
-                top: 0;
-                left: 0;
-                bottom: 0;
-                right: 0;
+                inset: 0;
                 margin: auto;
 
                 .center_operate {
@@ -293,14 +287,17 @@
                     }
                 }
             }
+
             &.checked {
                 .top_operate {
                     visibility: visible;
                 }
             }
+
             &.selected {
                 border: 1px solid var(--primary);
             }
+
             &:hover {
                 .top_operate,
                 .bottom_operate {
@@ -326,6 +323,7 @@
             .Sprite {
                 transform: scale(0.5);
             }
+
             .tip_text {
                 position: relative;
                 top: -15px;
