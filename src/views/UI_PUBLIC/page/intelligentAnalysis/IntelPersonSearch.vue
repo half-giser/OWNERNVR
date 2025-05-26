@@ -421,7 +421,10 @@
             v-show="pageData.isDetailOpen"
             class="base-intel-right"
         >
-            详情容器
+            <IntelSearchDetail
+                ref="detailRef"
+                @change-item="handleChangeItem"
+            />
         </div>
     </div>
     <!-- 人脸/人体 - 选择图片弹框 -->

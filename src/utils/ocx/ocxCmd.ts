@@ -543,7 +543,7 @@ export const OCX_XML_setTransparentArea = (points: CanvasBasePoint[], posType?: 
     return wrapXml(rawXml`
         <cmd type="SetTransparentArea">
             <points>
-                ${points.map((item) => `<item X="${item.X} Y="${item.Y}" />`).join('')}
+                ${points.map((item) => `<item X="${item.X}" Y="${item.Y}" />`).join('')}
             </points>
             ${posType ? `<posType>${posType}</posType>` : ''}
             ${highBrushMode ? `<highBrushMode>${highBrushMode}</highBrushMode>` : ''}
@@ -562,7 +562,7 @@ export const OCX_XML_RestoreTransparentArea = (points: CanvasBasePoint[], posTyp
     return wrapXml(rawXml`
         <cmd type="RestoreTransparentArea">
             <points>
-                ${points.map((item) => `<item X="${item.X} Y="${item.Y}" />`).join('')}
+                ${points.map((item) => `<item X="${item.X}" Y="${item.Y}" />`).join('')}
             </points>
             ${posType ? `<posType>${posType}</posType>` : ''}
             ${clearRegion ? `<clearRegion>${clearRegion}</clearRegion>` : ''}

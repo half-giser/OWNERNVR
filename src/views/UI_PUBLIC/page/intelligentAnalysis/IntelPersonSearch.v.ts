@@ -8,6 +8,7 @@ import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
 import IntelBaseProfileSelector from './IntelBaseProfileSelector.vue'
 import IntelFaceSearchChooseFacePop from './IntelFaceSearchChooseFacePop.vue'
 import IntelBaseSnapItem from './IntelBaseSnapItem.vue'
+import IntelSearchDetail from './IntelSearchDetail.vue'
 import { type DropdownInstance } from 'element-plus'
 
 export default defineComponent({
@@ -17,6 +18,7 @@ export default defineComponent({
         IntelBaseProfileSelector,
         IntelFaceSearchChooseFacePop,
         IntelBaseSnapItem,
+        IntelSearchDetail,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -43,6 +45,8 @@ export default defineComponent({
             attrType: string
             attrValue: string[]
         }
+
+        const detailRef = ref()
 
         // 界面数据
         const pageData = ref({
@@ -1149,6 +1153,15 @@ export default defineComponent({
         const showDetail = (targetDataItem: IntelTargetDataItem) => {
             pageData.value.isDetailOpen = true
             setCurrOpenDetailIndex(targetDataItem.index)
+            // 初始化详情
+            const isTrail = false
+            const currentIndex = targetDataItem.index
+            const detailData = isTrail ? getCurrTargetIndexDatas() : getCurrTargetDatas()
+            detailRef?.value.init({
+                isTrail,
+                currentIndex,
+                detailData,
+            })
         }
 
         /**
@@ -1156,6 +1169,13 @@ export default defineComponent({
          */
         const hideDetail = () => {
             pageData.value.isDetailOpen = false
+        }
+
+        /**
+         * @description 上一个、下一个按钮切换
+         */
+        const handleChangeItem = (index: string) => {
+            setCurrOpenDetailIndex(index)
         }
 
         /**
@@ -1409,6 +1429,7 @@ export default defineComponent({
             bodySortDropdown,
             personAttributeSortDropdown,
             pageData,
+            detailRef,
             getChlIdNameMap,
             getAllTargetIndexDatas,
             getCurrTargetDatas,
@@ -1426,6 +1447,7 @@ export default defineComponent({
             switchDetail,
             showDetail,
             hideDetail,
+            handleChangeItem,
             handleSearch,
             displayDateTime,
             showPicChooser,

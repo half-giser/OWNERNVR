@@ -643,8 +643,8 @@ export default defineComponent({
                                         .join('')}
                                     `
                                          : ''
-                                 } 
-                                    
+                                 }
+
                                 </line>
                                 <boundary type="list" count="${data.boundaryInfo.length ? data.boundaryInfo.length : 0}">
                                 ${
@@ -690,7 +690,7 @@ export default defineComponent({
                                          `
                                         : ''
                                 }
-                                    
+
                                 </boundary>
                             </rule>
                              <countPeriod>
@@ -722,7 +722,7 @@ export default defineComponent({
                                      </regionInfo>`
                                         : ''
                                 }
-                               
+
                             </calibration>
                              <countOSD>
                                 <switch>${data.countOSD.switch}</switch>
@@ -851,43 +851,51 @@ export default defineComponent({
                     if (pageData.value.detectType === 0) {
                         // 若当前选择的是警戒线，则清除警戒区域的数据
                         pageData.value.isClearArea = true
-                        formData.value.boundaryInfo = {
-                            direction: pageData.value.defaultAreaDirection,
-                            rectA: {
-                                point: {
-                                    X: 0,
-                                    Y: 0,
-                                    isClosed: false,
+                        formData.value.boundaryInfo = [
+                            {
+                                direction: pageData.value.defaultAreaDirection,
+                                rectA: {
+                                    point: [
+                                        {
+                                            X: 0,
+                                            Y: 0,
+                                            isClosed: false,
+                                        },
+                                    ],
+                                    area: 0,
+                                    LineColor: 'green',
+                                    maxCount: 6,
                                 },
-                                area: 0,
-                                LineColor: 'green',
-                                maxCount: 6,
-                            },
-                            rectB: {
-                                point: {
-                                    X: 0,
-                                    Y: 0,
-                                    isClosed: false,
+                                rectB: {
+                                    point: [
+                                        {
+                                            X: 0,
+                                            Y: 0,
+                                            isClosed: false,
+                                        },
+                                    ],
+                                    area: 0,
+                                    LineColor: 'green',
+                                    maxCount: 6,
                                 },
-                                area: 0,
-                                LineColor: 'green',
-                                maxCount: 6,
                             },
-                        }
+                        ]
                     } else if (pageData.value.detectType === 1) {
                         // 若当前选择的是警戒区域，则清除警戒线的数据
                         pageData.value.isClearLine = true
-                        formData.value.lineInfo = {
-                            direction: pageData.value.defaultLineDirection,
-                            startPoint: {
-                                X: 0,
-                                Y: 0,
+                        formData.value.lineInfo = [
+                            {
+                                direction: pageData.value.defaultLineDirection,
+                                startPoint: {
+                                    X: 0,
+                                    Y: 0,
+                                },
+                                endPoint: {
+                                    X: 0,
+                                    Y: 0,
+                                },
                             },
-                            endPoint: {
-                                X: 0,
-                                Y: 0,
-                            },
-                        }
+                        ]
                     }
                 })
             }
@@ -930,7 +938,7 @@ export default defineComponent({
                     // 切到其他AI事件页面时清除一下插件显示的（线条/点/矩形/多边形）数据
                     clearOCXData(pageData.value.noneOSD, false)
                     if (modeType === 'auto') {
-                        const sendXML1 = OCX_XML_AddPolygonArea([], '0', false)
+                        const sendXML1 = OCX_XML_AddPolygonArea([], 0, false)
                         plugin.ExecuteCmd(sendXML1)
                         const sendXML2 = OCX_XML_SetVfdAreaAction('EDIT_ON')
                         plugin.ExecuteCmd(sendXML2)
@@ -1144,7 +1152,7 @@ export default defineComponent({
                                      </regionInfo>`
                                         : ''
                                 }
-                               
+
                             </calibration>
                         </param>
                         `
@@ -1298,11 +1306,15 @@ export default defineComponent({
                         const sendClearXML = OCX_XML_DeletePolygonArea('clearAll')
                         plugin.ExecuteCmd(sendClearXML)
                         // 再绘制当前区域
-                        const polygonAreas = [cloneDeep(boundaryInfoList[curIndex])]
-                        const sendAreaXML = OCX_XML_AddPolygonArea(polygonAreas, curIndex.toString(), true)
+                        const polygonAreas = {}
+                        if (boundaryInfoList.length > 0) {
+                            polygonAreas[area] = {}
+                            polygonAreas[area][drawArea] = (boundaryInfoList[area][drawArea] && boundaryInfoList[area][drawArea].point) || []
+                        }
+                        const sendAreaXML = OCX_XML_AddPolygonArea(polygonAreas, area, false, drawArea)
                         plugin.ExecuteCmd(sendAreaXML)
                         // 然后再绘制所有区域（结合上面绘制的当前区域会让当前区域有加粗效果）
-                        const sendAllAreaXML = OCX_XML_AddPolygonArea(boundaryInfoList, curIndex.toString(), true)
+                        const sendAllAreaXML = OCX_XML_AddPolygonArea(boundaryInfo, area, true, drawArea)
                         plugin.ExecuteCmd(sendAllAreaXML)
                     }
                 }
@@ -1639,7 +1651,7 @@ export default defineComponent({
         onBeforeUnmount(() => {
             if (plugin?.IsPluginAvailable() && mode.value === 'ocx') {
                 // 切到其他AI事件页面时清除一下插件显示的（线条/点/矩形/多边形）数据
-                const sendAreaXML = OCX_XML_AddPolygonArea([], '0', false)
+                const sendAreaXML = OCX_XML_AddPolygonArea([], 0, false)
                 plugin.ExecuteCmd(sendAreaXML)
                 // 画点
                 const sendAllAreaXML = OCX_XML_DeletePolygonArea('clearAll')

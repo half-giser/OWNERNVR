@@ -776,10 +776,10 @@ export default defineComponent({
                     plugin.ExecuteCmd(sendClearXML)
                     // 再绘制当前区域
                     const polygonAreas = [cloneDeep(boundaryInfoList[curIndex])]
-                    const sendAreaXML = OCX_XML_AddPolygonArea(polygonAreas, curIndex.toString(), true)
+                    const sendAreaXML = OCX_XML_AddPolygonArea(polygonAreas, curIndex, true)
                     plugin.ExecuteCmd(sendAreaXML)
                     // 然后再绘制所有区域（结合上面绘制的当前区域会让当前区域有加粗效果）
-                    const sendAllAreaXML = OCX_XML_AddPolygonArea(boundaryInfoList, curIndex.toString(), true)
+                    const sendAllAreaXML = OCX_XML_AddPolygonArea(boundaryInfoList, curIndex, true)
                     plugin.ExecuteCmd(sendAllAreaXML)
                 }
             } else {
@@ -1050,7 +1050,7 @@ export default defineComponent({
         onBeforeUnmount(() => {
             if (plugin?.IsPluginAvailable() && mode.value === 'ocx') {
                 // 切到其他AI事件页面时清除一下插件显示的（线条/点/矩形/多边形）数据
-                const sendAreaXML = OCX_XML_AddPolygonArea([], '0', false)
+                const sendAreaXML = OCX_XML_AddPolygonArea([], 0, false)
                 plugin.ExecuteCmd(sendAreaXML)
                 // 画点
                 const sendAllAreaXML = OCX_XML_DeletePolygonArea('clearAll')
