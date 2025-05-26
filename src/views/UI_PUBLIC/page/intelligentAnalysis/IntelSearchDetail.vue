@@ -440,6 +440,12 @@
                 <div>{{ currDetailData.channelName }}</div>
             </div>
         </div>
+        <BaseTargetSearchPanel
+            v-model:visible="pageData.isDetectTarget"
+            type="image"
+            :mode="mode"
+            :pic="pageData.detectTargetImg"
+        />
     </div>
 </template>
 

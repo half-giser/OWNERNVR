@@ -7,7 +7,6 @@
 import { type XMLQuery } from '@/utils/xmlParse'
 import type { TableInstance } from 'element-plus'
 import dayjs from 'dayjs'
-import { type IntelDetailInfo } from '@/types/apiType/intelligentAnalysis'
 import { VALUE_NAME_MAPPING } from '@/utils/const/snap'
 
 export default defineComponent({
@@ -62,8 +61,6 @@ export default defineComponent({
         const pageData = ref({
             // 当前详情数据的索引
             detailIndex: 0,
-            // // 当前轨迹的索引
-            // trailIndex: 0,
             // 详情类型 （抓拍/回放）
             detailType: 'snap',
             // 列表选项
@@ -115,6 +112,9 @@ export default defineComponent({
             playStatus: 'stop',
             // 是否开启目标检索
             enableREID: false,
+            isDetectTarget: false,
+            // 目标检索的图片
+            detectTargetImg: '',
             // 是否支持音频
             supportAudio: true,
             // 是否开启声音
@@ -266,7 +266,7 @@ export default defineComponent({
             }
         }
 
-        const init = (dataObj: IntelDetailInfo) => {
+        const init = (dataObj: { isTrail: boolean; currentIndex: string; detailData: any }) => {
             isTrail.value = dataObj.isTrail
             currentIndex.value = dataObj.currentIndex
             detailData.value = cloneDeep(dataObj.detailData)
@@ -323,6 +323,7 @@ export default defineComponent({
             } else {
                 pageData.value.snapImg = (currDetailData.value as IntelTargetDataItem).objPicData.data
                 pageData.value.panoramaImg = (currDetailData.value as IntelTargetDataItem).backgroundPicDatas[0].data
+                pageData.value.detectTargetImg = (currDetailData.value as IntelTargetDataItem).backgroundPicDatas[0].data.split(',').pop()
                 getAttributeData()
                 if (pageData.value.targetMenuType === 'targetEvent') {
                     getTargetEventData()
@@ -362,7 +363,7 @@ export default defineComponent({
             // 只有视频结构化、车牌侦测才有属性信息
             let attrTextMaxWidth = 0
             let attrTextMaxHeight = 0
-            let attrObj: IntelHumanAttrInfoItem | IntelVehicleAttrInfoItem | IntelNonMotorVehicleAttrInfoItem | IntelPlateAttrInfoItem //= ref<IntelHumanAttrInfoItem | IntelVehicleAttrInfoItem | IntelNonMotorVehicleAttrInfoItem | IntelPlateAttrInfoItem>(new IntelHumanAttrInfoItem())
+            let attrObj: IntelHumanAttrInfoItem | IntelVehicleAttrInfoItem | IntelNonMotorVehicleAttrInfoItem | IntelPlateAttrInfoItem
 
             /**
              * NTA1-3770 当前只有人体、汽车、非机动车、车牌有属性信息
@@ -1143,10 +1144,29 @@ export default defineComponent({
         }
 
         /**
-         * @description 目标检测
+         * @description 点击目标检测按钮
          */
         const handleSearchTarget = () => {
-            // const enableREID = !pageData.value.enableREID
+            const enableREID = !pageData.value.enableREID
+            pageData.value.isDetectTarget = !pageData.value.enableREID
+            if (!pageData.value.isDetectTarget && enableREID) {
+                pause()
+                pageData.value.isDetectTarget = enableREID
+            } else if (pageData.value.isDetectTarget && !enableREID) {
+                if (pageData.value.playStatus === 'pause') {
+                    resume()
+                }
+                pageData.value.isDetectTarget = enableREID
+            }
+        }
+
+        const clearTargetDetect = (isResume = true) => {
+            if (pageData.value.isDetectTarget) {
+                if (isResume && pageData.value.playStatus === 'pause') {
+                    resume()
+                }
+                pageData.value.isDetectTarget = false
+            }
         }
 
         /**
@@ -1253,12 +1273,16 @@ export default defineComponent({
         /**
          * @description 导出图片
          */
-        const handleExportPic = () => {}
+        const handleExportPic = () => {
+            // setBackupData("backupPic");
+        }
 
         /**
          * @description 导出音频
          */
-        const handleExportVideo = () => {}
+        const handleExportVideo = () => {
+            // setBackupData("backupVideo");
+        }
 
         /**
          * @description 全屏显示
@@ -1281,14 +1305,18 @@ export default defineComponent({
         const handleClickTarget = async (data: IntelTargetIndexItem) => {
             pageData.value.detailType = 'record'
             changeDetailMenu()
-            player.setDetectTargetData({
-                targetId: data.targetID.num(),
-                targetType: 1,
-            })
             // 目标事件：从事件对应时间点的前两秒开始回放
             const startTimestamp = data.timeStamp - 2
             // 延时跳转播放，待播放器初始化成功之后再跳转
-            setTimeout(() => seek(startTimestamp), 300)
+            setTimeout(() => {
+                seek(startTimestamp)
+                if (mode.value === 'h5') {
+                    player.setDetectTargetData({
+                        targetId: data.targetID.num(),
+                        targetType: 1,
+                    })
+                }
+            }, 300)
         }
 
         /**
@@ -1359,7 +1387,7 @@ export default defineComponent({
                     const quality = $item('quality').text() // quality
                     const similarity = $item('similarity').text().num() // 相似度
                     const eventType = $item('eventType').text() // eventType
-                    const libIndex = $item('libIndex').text() // 以图搜索表示是哪张图地搜索结果（用于对比图的展示）
+                    const libIndex = $item('libIndex').text().num() // 以图搜索表示是哪张图地搜索结果（用于对比图的展示）
                     const startTime = $item('startTime').text().num() // 目标开始时间戳
                     const startTimeUTC = $item('startTimeUTC').text() // 目标开始时间戳 UTC
                     const endTime = $item('endTime').text().num() // 目标消失的时间戳
@@ -1566,6 +1594,7 @@ export default defineComponent({
         })
 
         return {
+            mode,
             pageData,
             tableRef,
             canvasRef,
@@ -1616,6 +1645,7 @@ export default defineComponent({
             handleExportVideo,
             handleFullScreen,
             handleClickTarget,
+            clearTargetDetect,
         }
     },
 })

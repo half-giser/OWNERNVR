@@ -159,7 +159,16 @@ export default {
     // 目标检索 1.4.13
     searchTarget: {
         path: '/intelligentAnalysis/search-target',
-        component: 'IntelligentAnalysis/SearchTarget.vue',
-        meta: {},
+        component: 'intelligentAnalysis/SearchTarget.vue',
+        meta: {
+            sort: 40,
+            lk: 'IDCS_REID',
+            icon: 'target_retrieval',
+            minWidth: 1400,
+            minHeight: 800,
+            hasCap(systemCaps) {
+                return systemCaps.supportREID
+            },
+        },
     },
 } as FeatureTree
