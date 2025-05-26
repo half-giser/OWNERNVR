@@ -673,11 +673,11 @@ export default defineComponent({
          */
         const getCurrSelectedTargetDatas = () => {
             switch (pageData.value.searchType) {
-                case 'byFace':
+                case 'byCar':
                     return pageData.value.selectedTargetDatasForCar
-                case 'byBody':
+                case 'byMotorcycle':
                     return pageData.value.selectedTargetDatasForMotorcycle
-                case 'byPersonAttribute':
+                case 'byPlateNumber':
                     return pageData.value.selectedTargetDatasForPlateNumber
                 default:
                     return []
