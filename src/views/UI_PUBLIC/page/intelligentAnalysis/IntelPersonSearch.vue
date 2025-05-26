@@ -147,6 +147,7 @@
                     >
                         <el-radio-button
                             v-for="item in pageData.listTypeOptions"
+                            v-show="item.show"
                             :key="item.value"
                             :value="item.value"
                             :label="item.label"
@@ -247,7 +248,7 @@
             <div class="base-intel-center-center base-intel-pics-box">
                 <!-- 人脸 - 抓拍图容器 -->
                 <div
-                    v-show="pageData.searchType === 'byFace'"
+                    v-show="pageData.searchType === 'byFace' && !pageData.isTrail"
                     id="byFaceSearchContentPic"
                     class="base-intel-pics-content"
                 >
@@ -263,6 +264,14 @@
                         @checked="handleChecked"
                         @search="handleSearch"
                     />
+                </div>
+                <!-- 人脸 - 轨迹容器 -->
+                <div
+                    v-show="pageData.searchType === 'byFace' && pageData.isTrail"
+                    id="byFaceSearchContentTrack"
+                    class="base-intel-pics-content"
+                >
+                    <IntelFaceSearchTrackMapPanel :data="pageData.chlIdList" />
                 </div>
                 <!-- 人体 - 抓拍图容器 -->
                 <div

@@ -23,6 +23,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const dateTime = useDateTimeStore()
+        const auth = useUserChlAuth(false)
         // 三个排序下拉框的引用
         const carSortDropdown = ref<DropdownInstance>()
         const motorcycleSortDropdown = ref<DropdownInstance>()
@@ -167,7 +168,6 @@ export default defineComponent({
         let chlIdNameMap: Record<string, string> = {}
         const getChlIdNameMap = (e: Record<string, string>) => {
             chlIdNameMap = e
-            console.log(chlIdNameMap)
         }
 
         /**
@@ -900,7 +900,8 @@ export default defineComponent({
          * @description 备份全部
          */
         const handleBackupAll = () => {
-            console.log('handleBackupAll')
+            console.log(auth)
+            console.log(chlIdNameMap)
         }
 
         /**

@@ -3,6 +3,7 @@
  * @Date: 2025-05-20 10:30:00
  * @Description: 智能分析-人（人脸、人体、人属性）
  */
+import IntelFaceSearchTrackMapPanel from './IntelFaceSearchTrackMapPanel.vue'
 import IntelBaseDateTimeSelector from './IntelBaseDateTimeSelector.vue'
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
 import IntelBaseProfileSelector from './IntelBaseProfileSelector.vue'
@@ -13,6 +14,7 @@ import { type DropdownInstance, type CheckboxValueType } from 'element-plus'
 
 export default defineComponent({
     components: {
+        IntelFaceSearchTrackMapPanel,
         IntelBaseDateTimeSelector,
         IntelBaseChannelSelector,
         IntelBaseProfileSelector,
@@ -24,6 +26,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
         const dateTime = useDateTimeStore()
+        const auth = useUserChlAuth(true)
         // 三个排序下拉框的引用
         const faceSortDropdown = ref<DropdownInstance>()
         const bodySortDropdown = ref<DropdownInstance>()
@@ -74,6 +77,12 @@ export default defineComponent({
                 {
                     label: Translate('IDCS_OPERATE_SNAPSHOT_MSPB'),
                     value: 'snap',
+                    show: true,
+                },
+                {
+                    label: Translate('IDCS_TRACK_MAP'),
+                    value: 'track',
+                    show: false,
                 },
             ],
             // 是否是以图搜图
@@ -189,7 +198,6 @@ export default defineComponent({
         let chlIdNameMap: Record<string, string> = {}
         const getChlIdNameMap = (e: Record<string, string>) => {
             chlIdNameMap = e
-            console.log(chlIdNameMap)
         }
 
         /**
@@ -1176,7 +1184,8 @@ export default defineComponent({
          * @description 备份全部
          */
         const handleBackupAll = () => {
-            console.log('handleBackupAll')
+            console.log(auth)
+            console.log(chlIdNameMap)
         }
 
         /**
@@ -1200,7 +1209,7 @@ export default defineComponent({
             pageData.value.isDetailOpen = true
             setCurrOpenDetailIndex(targetDataItem.index)
             // 初始化详情
-            const isTrail = false
+            const isTrail = pageData.value.isTrail
             const currentIndex = targetDataItem.index
             const detailData = isTrail ? getCurrTargetIndexDatas() : getCurrTargetDatas()
             detailRef?.value.init({
@@ -1491,7 +1500,7 @@ export default defineComponent({
             }
         })
 
-        // 计算出当前是否需要显示对比图
+        // 是否需要显示对比图
         const showCompare = computed(() => {
             let flag = false
             const currTargetIndexDatas = getCurrTargetIndexDatas()
@@ -1507,6 +1516,12 @@ export default defineComponent({
         const isEnableBackup = computed(() => {
             const currSelectedTargetDatas = getCurrSelectedTargetDatas()
             return currSelectedTargetDatas.length > 0
+        })
+
+        // 单张人脸才可显示轨迹
+        watchEffect(() => {
+            pageData.value.isTrail = pageData.value.listType === 'track'
+            pageData.value.listTypeOptions[1].show = pageData.value.searchType === 'byFace' && pageData.value.choosePicsForFace.length === 1
         })
 
         return {
