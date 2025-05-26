@@ -245,7 +245,10 @@
             v-model="pageData.isRemarkPop"
             @confirm="confirmRemark"
         />
-        <ParkLotSearchTargetPop v-if="pageData.isSearchPop" />
+        <ParkLotSearchTargetPop
+            v-if="pageData.isSearchPop"
+            @close="pageData.isSearchPop = false"
+        />
     </div>
 </template>
 
