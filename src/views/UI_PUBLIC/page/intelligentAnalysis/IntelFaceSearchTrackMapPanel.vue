@@ -115,9 +115,8 @@
 
 <style lang="scss" scoped>
 .track {
-    margin-top: 10px;
     width: 100%;
-    height: calc(100vh - 350px);
+    height: 100%;
     display: flex;
     flex-direction: column;
     border: 1px solid var(--content-border);
