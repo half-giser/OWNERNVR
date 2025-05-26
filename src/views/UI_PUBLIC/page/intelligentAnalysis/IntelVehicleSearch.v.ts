@@ -340,7 +340,7 @@ export default defineComponent({
          */
         const getCurrPageTargetDatas = async (targetIndexDatas: IntelTargetIndexItem[]) => {
             const tempTargetDatas: IntelTargetDataItem[] = []
-            targetIndexDatas.forEach(async (item) => {
+            targetIndexDatas.forEach(async (item, index) => {
                 closeLoading()
                 const sendXml = rawXml`
                     <condition>
@@ -500,7 +500,7 @@ export default defineComponent({
                     // 组装数据
                     tempTargetData.isNoData = true
                 }
-                tempTargetDatas.push(tempTargetData)
+                tempTargetDatas[index] = tempTargetData
 
                 // 设置当前界面展示的列表详情数据
                 setCurrTargetDatas(cloneDeep(tempTargetDatas))
