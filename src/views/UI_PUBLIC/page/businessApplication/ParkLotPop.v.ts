@@ -4,20 +4,20 @@
  * @Description: 实时过车记录 - 详情弹窗
  */
 import dayjs from 'dayjs'
-import IntelLicencePlateDBAddPlatePop from '../intelligentAnalysis/IntelLicencePlateDBAddPlatePop.vue'
 import ParkLotRemarkPop from './ParkLotRemarkPop.vue'
+import ParkLotSearchTargetPanel from './ParkLotSearchTargetPanel.vue'
 
 export default defineComponent({
     components: {
-        IntelLicencePlateDBAddPlatePop,
         ParkLotRemarkPop,
+        ParkLotSearchTargetPanel,
     },
     props: {
         /**
          * @property {Array} 实时过车记录列表
          */
         list: {
-            type: Array as PropType<BusinessParkingLotList[] | BusinessParkingLotRelevantList[]>,
+            type: Array as PropType<BusinessParkingLotList[]>,
             required: true,
         },
         /**
@@ -51,14 +51,6 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const dateTime = useDateTimeStore()
 
-        const $enterCanvas = ref<HTMLCanvasElement>()
-        const $exitCanvas = ref<HTMLCanvasElement>()
-
-        let enterCanvasContext: ReturnType<typeof CanvasBase>
-        let exitCanvasContext: ReturnType<typeof CanvasBase>
-
-        let listIndex = 0
-
         // 进出结果与文本映射
         const PARK_RESULT_MAPPING: Record<string, string> = {
             'enter-exit': Translate('IDCS_VEHICLE_IN') + '-' + Translate('IDCS_VEHICLE_HAVE_OUT'), // 进场-已出场
@@ -66,16 +58,6 @@ export default defineComponent({
             'enter-nonExit': Translate('IDCS_VEHICLE_IN') + '-' + Translate('IDCS_VEHICLE_NOT_OUT_TIPS'), // 进场-暂未出场
             'nonEnter-nonExit': Translate('IDCS_NOT_HAVE_IN'), // 未进场
             'out-nonEnter-nonExit': Translate('IDCS_VEHICLE_NOT_OUT_TIPS'), // 暂未出场
-        }
-
-        // 进场放行方式/出场放行方式与文本映射
-        const OPEN_GATE_MAPPING: Record<string | number, string> = {
-            0: '', // 拒绝放行
-            1: Translate('IDCS_AUTO_RELEASE'), // 自动放行
-            2: Translate('IDCS_MANNAL_RELEASE'), // 手动放行
-            refuse: '', // 拒绝放行
-            auto: Translate('IDCS_AUTO_RELEASE'), // 自动放行
-            manual: Translate('IDCS_MANNAL_RELEASE'), // 手动放行
         }
 
         // 方向与文本映射
@@ -89,16 +71,10 @@ export default defineComponent({
         }
 
         const pageData = ref({
-            tabIndex: 0,
             index: 0,
-            isAddPlatePop: false,
-            plateNum: '',
             list: [] as BusinessParkingLotList[],
             relativeList: [] as BusinessParkingLotRelevantList[],
-            isBtnVisible: false,
             isRemarkPop: false,
-            canvasWidth: 796,
-            canvasHeight: 538,
             isEnterImgLoading: false,
             isExitImgLoading: false,
         })
@@ -116,10 +92,6 @@ export default defineComponent({
                 return cloneData
             }
         })
-
-        const isTraceObj = (obj: { X1: number; X2: number; Y1: number; Y2: number }) => {
-            return obj.X1 || obj.X2 || obj.Y1 || obj.Y2
-        }
 
         /**
          * @description 抓拍图片
@@ -182,42 +154,6 @@ export default defineComponent({
             formData.value.plateNum = current.value.plateNum
             if (current.value.isRelative && current.value.direction && !current.value.eventType) {
                 getOpenGateEvent(pageData.value.index)
-            }
-
-            if (!enterCanvasContext) {
-                enterCanvasContext = CanvasBase($enterCanvas.value!)
-            }
-            enterCanvasContext.ClearRect(0, 0, pageData.value.canvasWidth, pageData.value.canvasHeight)
-
-            if (!exitCanvasContext) {
-                exitCanvasContext = CanvasBase($exitCanvas.value!)
-            }
-            exitCanvasContext.ClearRect(0, 0, pageData.value.canvasWidth, pageData.value.canvasHeight)
-
-            if (current.value.enterImg) {
-                if (isTraceObj(current.value.enterTraceObj)) {
-                    const X1 = current.value.enterTraceObj.X1 * pageData.value.canvasWidth
-                    const Y1 = current.value.enterTraceObj.Y1 * pageData.value.canvasHeight
-                    const X2 = current.value.enterTraceObj.X2 * pageData.value.canvasWidth
-                    const Y2 = current.value.enterTraceObj.Y2 * pageData.value.canvasHeight
-                    enterCanvasContext.Point2Rect(X1, Y1, X2, Y2, {
-                        lineWidth: 2,
-                        strokeStyle: '#0000ff',
-                    })
-                }
-            }
-
-            if (current.value.exitImg) {
-                if (isTraceObj(current.value.exitTraceObj)) {
-                    const X1 = current.value.exitTraceObj.X1 * pageData.value.canvasWidth
-                    const Y1 = current.value.exitTraceObj.Y1 * pageData.value.canvasHeight
-                    const X2 = current.value.exitTraceObj.X2 * pageData.value.canvasWidth
-                    const Y2 = current.value.exitTraceObj.Y2 * pageData.value.canvasHeight
-                    exitCanvasContext.Point2Rect(X1, Y1, X2, Y2, {
-                        lineWidth: 2,
-                        strokeStyle: '#0000ff',
-                    })
-                }
             }
         })
 
@@ -322,24 +258,23 @@ export default defineComponent({
          */
         const open = () => {
             pageData.value.index = prop.index
-            pageData.value.tabIndex = 0
 
             if (prop.list.length) {
-                if (!prop.list[0].isRelative) {
-                    pageData.value.list = prop.list as BusinessParkingLotList[]
-                    getImgData()
-                } else {
-                    pageData.value.list = (prop.list as BusinessParkingLotRelevantList[]).map((item) => {
-                        listIndex++
-                        const data = new BusinessParkingLotList()
-                        data.direction = item.direction
-                        data.plateNum = item.plateNumber
-                        data.isRelative = true
-                        data.index = listIndex
-                        return data
-                    })
-                    pageData.value.relativeList = prop.list as BusinessParkingLotRelevantList[]
-                }
+                // if (!prop.list[0].isRelative) {
+                pageData.value.list = prop.list
+                getImgData()
+                // } else {
+                //     pageData.value.list = (prop.list as BusinessParkingLotRelevantList[]).map((item) => {
+                //         listIndex++
+                //         const data = new BusinessParkingLotList()
+                //         data.direction = item.direction
+                //         data.plateNum = item.plateNumber
+                //         data.isRelative = true
+                //         data.index = listIndex
+                //         return data
+                //     })
+                //     pageData.value.relativeList = prop.list as BusinessParkingLotRelevantList[]
+                // }
             } else {
                 pageData.value.list = []
                 pageData.value.relativeList = []
@@ -397,15 +332,6 @@ export default defineComponent({
          */
         const displayDirection = (direction: string) => {
             return DIRECTION_MAPPING[direction] || '--'
-        }
-
-        /**
-         * @description 显示进场放行方式/出场放行方式
-         * @param {String} type
-         * @returns {String}
-         */
-        const displayOpenGateType = (type: string) => {
-            return OPEN_GATE_MAPPING[type] || ''
         }
 
         /**
@@ -564,14 +490,6 @@ export default defineComponent({
             }
         }
 
-        /**
-         * @description 新增车牌
-         */
-        const addPlate = () => {
-            pageData.value.plateNum = current.value.plateNum
-            pageData.value.isAddPlatePop = true
-        }
-
         const getPlateStartTimeState = () => {
             const now = Date.now()
             if (current.value.plateStartTime && current.value.isEnter) {
@@ -600,18 +518,14 @@ export default defineComponent({
             displayType,
             displayDateTime,
             displayDirection,
-            displayOpenGateType,
             commit,
             handleNext,
             handlePrev,
-            addPlate,
             close,
             open,
             getPlateStartTimeState,
             getPlateEndTimeState,
             commitOpenGate,
-            $enterCanvas,
-            $exitCanvas,
         }
     },
 })
