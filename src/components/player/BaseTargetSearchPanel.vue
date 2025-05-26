@@ -70,6 +70,7 @@ const emits = defineEmits<{
 }>()
 
 const { Translate } = useLangStore()
+const router = useRouter()
 
 type ExtraceTargetDto = {
     targetType: string
@@ -460,6 +461,10 @@ const search = async (detectImgInfo: TargetImgInfo, targetItem: TargetListDto) =
     ]
 
     emits('search', extractResultInfos)
+    localStorage.setItem('extractResultInfos', JSON.stringify(extractResultInfos))
+    router.push({
+        path: '/intelligentAnalysis/search-target',
+    })
 }
 
 const cropImage = async (detectImgInfo: TargetImgInfo, targetItem: TargetListDto) => {
