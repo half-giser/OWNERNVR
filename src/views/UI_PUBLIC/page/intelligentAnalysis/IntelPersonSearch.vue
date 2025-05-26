@@ -147,6 +147,7 @@
                     >
                         <el-radio-button
                             v-for="item in pageData.listTypeOptions"
+                            v-show="item.show"
                             :key="item.value"
                             :value="item.value"
                             :label="item.label"
@@ -179,8 +180,9 @@
                             </template>
                         </el-dropdown>
                         <el-checkbox
+                            v-model="pageData.isCheckedAll"
                             :label="Translate('IDCS_SELECT_ALL')"
-                            @update:model-value="handleSelectAll"
+                            @change="handleCheckedAll"
                         />
                     </div>
                     <!-- 人体 - 排序、全选 -->
@@ -207,8 +209,9 @@
                             </template>
                         </el-dropdown>
                         <el-checkbox
+                            v-model="pageData.isCheckedAll"
                             :label="Translate('IDCS_SELECT_ALL')"
-                            @update:model-value="handleSelectAll"
+                            @change="handleCheckedAll"
                         />
                     </div>
                     <!-- 人属性 - 排序、全选 -->
@@ -234,8 +237,9 @@
                             </template>
                         </el-dropdown>
                         <el-checkbox
+                            v-model="pageData.isCheckedAll"
                             :label="Translate('IDCS_SELECT_ALL')"
-                            @update:model-value="handleSelectAll"
+                            @change="handleCheckedAll"
                         />
                     </div>
                 </div>
@@ -244,21 +248,30 @@
             <div class="base-intel-center-center base-intel-pics-box">
                 <!-- 人脸 - 抓拍图容器 -->
                 <div
-                    v-show="pageData.searchType === 'byFace'"
+                    v-show="pageData.searchType === 'byFace' && !pageData.isTrail"
                     id="byFaceSearchContentPic"
                     class="base-intel-pics-content"
                 >
                     <IntelBaseSnapItem
-                        v-for="item in pageData.targetDatasForFace"
-                        :key="item.targetID"
+                        v-for="(item, index) in pageData.targetDatasForFace"
+                        :key="index"
                         :target-data="item"
                         :detail-index="pageData.openDetailIndexForFace"
                         :show-compare="showCompare"
                         :choose-pics="pageData.choosePicsForFace"
                         search-type="byFace"
                         @detail="showDetail(item)"
+                        @checked="handleChecked"
                         @search="handleSearch"
                     />
+                </div>
+                <!-- 人脸 - 轨迹容器 -->
+                <div
+                    v-show="pageData.searchType === 'byFace' && pageData.isTrail"
+                    id="byFaceSearchContentTrack"
+                    class="base-intel-pics-content"
+                >
+                    <IntelFaceSearchTrackMapPanel :data="pageData.chlIdList" />
                 </div>
                 <!-- 人体 - 抓拍图容器 -->
                 <div
@@ -267,14 +280,15 @@
                     class="base-intel-pics-content"
                 >
                     <IntelBaseSnapItem
-                        v-for="item in pageData.targetDatasForBody"
-                        :key="item.targetID"
+                        v-for="(item, index) in pageData.targetDatasForBody"
+                        :key="index"
                         :target-data="item"
                         :detail-index="pageData.openDetailIndexForBody"
                         :show-compare="showCompare"
                         :choose-pics="pageData.choosePicsForBody"
                         search-type="byBody"
                         @detail="showDetail(item)"
+                        @checked="handleChecked"
                         @search="handleSearch"
                     />
                 </div>
@@ -285,13 +299,14 @@
                     class="base-intel-pics-content"
                 >
                     <IntelBaseSnapItem
-                        v-for="item in pageData.targetDatasForPersonAttribute"
-                        :key="item.targetID"
+                        v-for="(item, index) in pageData.targetDatasForPersonAttribute"
+                        :key="index"
                         :target-data="item"
                         :detail-index="pageData.openDetailIndexForPersonAttribute"
                         :show-compare="false"
                         search-type="byPersonAttribute"
                         @detail="showDetail(item)"
+                        @checked="handleChecked"
                         @search="handleSearch"
                     />
                 </div>
@@ -336,7 +351,7 @@
                             {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
                         </el-button>
                         <el-dropdown placement="top-end">
-                            <el-button>
+                            <el-button :disabled="!isEnableBackup">
                                 {{ Translate('IDCS_BACKUP') }}
                             </el-button>
                             <template #dropdown>
@@ -358,7 +373,7 @@
                             {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
                         </el-button>
                         <el-dropdown placement="top-end">
-                            <el-button>
+                            <el-button :disabled="!isEnableBackup">
                                 {{ Translate('IDCS_BACKUP') }}
                             </el-button>
                             <template #dropdown>
@@ -380,7 +395,7 @@
                             {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
                         </el-button>
                         <el-dropdown placement="top-end">
-                            <el-button>
+                            <el-button :disabled="!isEnableBackup">
                                 {{ Translate('IDCS_BACKUP') }}
                             </el-button>
                             <template #dropdown>
@@ -421,7 +436,10 @@
             v-show="pageData.isDetailOpen"
             class="base-intel-right"
         >
-            详情容器
+            <IntelSearchDetail
+                ref="detailRef"
+                @change-item="handleChangeItem"
+            />
         </div>
     </div>
     <!-- 人脸/人体 - 选择图片弹框 -->

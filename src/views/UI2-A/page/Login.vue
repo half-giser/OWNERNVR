@@ -4,7 +4,10 @@
  * @Description: UI2-A客制化 登录
 -->
 <template>
-    <div class="login">
+    <div
+        class="login"
+        :style="{ opacity }"
+    >
         <div class="login-lang">
             <el-select-v2
                 v-model="pageData.langId"

@@ -4,13 +4,15 @@
  * @Description: 实时过车记录
  */
 import dayjs from 'dayjs'
-import ParkLotPop from './ParkLotPop.vue'
+import ParkLotDetailPop from './ParkLotDetailPop.vue'
 import ParkLotRemarkPop from './ParkLotRemarkPop.vue'
+import ParkLotSearchPop from './ParkLotSearchPop.vue'
 
 export default defineComponent({
     components: {
-        ParkLotPop,
+        ParkLotDetailPop,
         ParkLotRemarkPop,
+        ParkLotSearchPop,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -65,7 +67,7 @@ export default defineComponent({
             // 出场总数
             exitCount: '',
             // 详情弹窗
-            isDetailPop: true,
+            isDetailPop: false,
             // 当前详情索引
             detailIndex: 0,
             // 当前时间
@@ -146,7 +148,7 @@ export default defineComponent({
          * @returns {String}
          */
         const displayDateTime = (time: number | string) => {
-            if (!time) return '--'
+            if (!time || !dayjs(time).isValid()) return '--'
             return formatDate(time, dateTime.dateTimeFormat)
         }
 
@@ -266,7 +268,6 @@ export default defineComponent({
                     const $item = queryXml(item.element)
 
                     const direction = $item('vehicleInfo/direction').text()
-                    const openType = $item('vehicleInfo/openType').text()
 
                     const enter = direction === 'in' ? $item('vehicleInfo') : $item('relativeVehicleInfo')
                     const exit = direction === 'in' ? $item('relativeVehicleInfo') : $item('vehicleInfo')
@@ -293,10 +294,9 @@ export default defineComponent({
                         eventType: $item('eventType').text().num(),
                         master: $item('vehicleInfo/owner').text(),
                         phoneNum: $item('vehicleInfo/ownerPhone').text(),
-                        // groupName: '',
                         isEnter,
                         enterChlId: $enter ? $enter('gate').text() : '',
-                        enterChl: $enter && openType === 'refuse' ? $enter('gateName').text() : '',
+                        enterChl: $enter ? $enter('gateName').text() : '',
                         enterTime,
                         enterFrameTime,
                         enterVehicleId: $enter ? $enter('id').text() : '',
@@ -313,7 +313,7 @@ export default defineComponent({
                         exitChlId: $exit ? $exit('gate').text() : '',
                         exitChl: $exit ? $exit('gateName').text() : '',
                         exitTime,
-                        exitFrameTime: openType === 'refuse' ? '' : exitFrameTime,
+                        exitFrameTime: exitFrameTime,
                         exitVehicleId: $exit ? $exit('id').text() : '',
                         exitType,
                         exitImg: '',
@@ -356,16 +356,13 @@ export default defineComponent({
                         pageData.value.enterCount = (result[0] as WebsocketSnapOnSuccessPlate).enterNum
                         pageData.value.exitCount = (result[0] as WebsocketSnapOnSuccessPlate).exitNum
                     }
-
                     const data = (result as WebsocketSnapOnSuccessPlate[])
                         .filter((item) => {
                             return item.direction || item.isEnter || item.isExit
                         })
                         .map((item) => {
                             listIndex++
-
                             const type = getType(item.isEnter, String(item.enterType), item.isExit, String(item.exitType))
-
                             return {
                                 index: listIndex,
                                 plateNum: item.plateNum,
@@ -386,8 +383,8 @@ export default defineComponent({
                                 isExit: item.isExit,
                                 exitChlId: item.exitChlId,
                                 exitChl: item.exitChl,
-                                exitTime: type === 'out-nonEnter-nonExit' ? 0 : Number(item.exitTime),
-                                exitFrameTime: type === 'out-nonEnter-nonExit' ? '' : String(item.exitframeTime),
+                                exitTime: Number(item.exitTime),
+                                exitFrameTime: String(item.exitframeTime),
                                 exitVehicleId: item.exitVehicleId,
                                 exitType: String(item.exitType),
                                 exitImg: item.exitImg ? wrapBase64Img(item.exitImg) : '',
@@ -412,19 +409,16 @@ export default defineComponent({
          * @description 修正提交
          */
         const commit = () => {
-            const isEnterRefuse = current.value.enterType === '0' || current.value.enterType === 'refuse'
-            if (isEnterRefuse) {
-                if (!formData.value.plateNum.trim()) {
-                    openMessageBox(Translate('IDCS_VEHICLE_NUMBER_EMPTY'))
-                    return
-                }
-                tableData.value[0].plateNum = formData.value.plateNum.trim()
-                if (pageData.value.remarkSwitch) {
-                    pageData.value.isRemarkPop = true
-                    pageData.value.remarkType = 'commit'
-                } else {
-                    commitOpenGate()
-                }
+            if (!formData.value.plateNum.trim()) {
+                openMessageBox(Translate('IDCS_VEHICLE_NUMBER_EMPTY'))
+                return
+            }
+            tableData.value[0].plateNum = formData.value.plateNum.trim()
+            if (pageData.value.remarkSwitch) {
+                pageData.value.isRemarkPop = true
+                pageData.value.remarkType = 'commit'
+            } else {
+                commitOpenGate()
             }
         }
 
@@ -526,13 +520,6 @@ export default defineComponent({
          * @description 车辆进出记录搜索
          */
         const search = () => {
-            // TODO
-            // router.push({
-            //     path: '/intelligent-analysis/search/search-vehicle',
-            //     state: {
-            //         searchType: 'park',
-            //     },
-            // })
             pageData.value.isSearchPop = true
         }
 
@@ -612,12 +599,53 @@ export default defineComponent({
             pageData.value.currentTime = dateTime.getSystemTime().add(500, 'ms').format(dateTime.dateTimeFormat)
         }, 1000)
 
+        const getPlateStartTimeState = () => {
+            const now = Date.now()
+            if (current.value.plateStartTime && current.value.plateStartTime !== '--' && current.value.isEnter) {
+                const plateStartTimeStamp = dayjs(current.value.plateStartTime.replace(/\//g, '-'), { format: DEFAULT_DATE_FORMAT, jalali: false }).valueOf() // new Date(current.value.plateStartTime).getTime()
+                return now < plateStartTimeStamp
+            } else {
+                return false
+            }
+        }
+
+        const getPlateEndTimeState = () => {
+            const now = Date.now()
+            if (current.value.isExit && current.value.plateEndTime && current.value.plateEndTime !== '--') {
+                const plateEndTimeStamp = dayjs(current.value.plateEndTime.replace(/\//g, '-') || '2037-12-31 23:59:59', { format: DEFAULT_DATE_FORMAT, jalali: false }).valueOf()
+                return now > plateEndTimeStamp
+            } else {
+                return false
+            }
+        }
+
+        const getTimeoutTip = () => {
+            const now = Date.now()
+            if (current.value.isExit && current.value.exitTime && current.value.plateEndTime && current.value.plateEndTime !== '--') {
+                const plateEndTimeStamp = dayjs(current.value.plateEndTime.replace(/\//g, '-') || '2037-12-31 23:59:59', { format: DEFAULT_DATE_FORMAT, jalali: false }).valueOf()
+                if (now > plateEndTimeStamp) {
+                    const millisecond = now - plateEndTimeStamp
+                    const days = Math.floor(millisecond / (1000 * 60 * 60 * 24))
+                    const hours = Math.floor((millisecond % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+                    const minutes = Math.floor((millisecond % (1000 * 60 * 60)) / (1000 * 60))
+                    return Translate('IDCS_EXCEED_EFFECTIVE_EXITING_TIM').formatForLang(
+                        `${days}${days > 1 ? Translate('IDCS_DAY_TIMES') : Translate('IDCS_DAY_TIME')}`,
+                        `${hours}${hours > 1 ? Translate('IDCS_HOURS') : Translate('IDCS_HOUR')}`,
+                        `${minutes}${minutes > 1 ? Translate('IDCS_MINUTES') : Translate('IDCS_MINUTE')}`,
+                    )
+                }
+            }
+            return ''
+        }
+
         onMounted(async () => {
             timer.repeat(true, true)
             await getParkingLotConfig()
             await getParkSnapConfig()
             createWebsoket()
-            tableData.value.forEach(async (item) => {
+
+            if (tableData.value.length) {
+                const item = tableData.value[0]
                 if (item.isHistory) {
                     if (item.isEnter) {
                         const data = await getParkImg(item.enterChlId, item.enterFrameTime, item.eventType, item.enterVehicleId)
@@ -641,48 +669,10 @@ export default defineComponent({
                         item.exitSnapImg = snapData.img
                     }
                 }
-            })
+            }
+
+            document.title = Translate('IDCS_WEB_CLIENT')
         })
-
-        const getPlateStartTimeState = () => {
-            const now = Date.now()
-            if (current.value.plateStartTime && current.value.isEnter) {
-                const plateStartTimeStamp = dayjs(current.value.plateStartTime, { format: DEFAULT_DATE_FORMAT, jalali: false }).valueOf() // new Date(current.value.plateStartTime).getTime()
-                return now < plateStartTimeStamp
-            } else {
-                return false
-            }
-        }
-
-        const getPlateEndTimeState = () => {
-            const now = Date.now()
-            if (current.value.isExit) {
-                const plateEndTimeStamp = dayjs(current.value.plateEndTime || '2037-12-31 23:59:59', { format: DEFAULT_DATE_FORMAT, jalali: false }).valueOf()
-                return now > plateEndTimeStamp
-            } else {
-                return false
-            }
-        }
-
-        const getTimeoutTip = () => {
-            const now = Date.now()
-            if (current.value.isExit && current.value.exitTime && current.value.type === 'out-nonEnter-nonExit') {
-                const plateEndTimeStamp = dayjs(current.value.plateEndTime || '2037-12-31 23:59:59', { format: DEFAULT_DATE_FORMAT, jalali: false }).valueOf()
-                if (now > plateEndTimeStamp) {
-                    const exitTimeStamp = current.value.exitTime
-                    const millisecond = exitTimeStamp - plateEndTimeStamp
-                    const days = Math.floor(millisecond / (1000 * 60 * 60 * 24))
-                    const hours = Math.floor(millisecond % (1000 * 60 * 60 * 24))
-                    const minutes = Math.floor((millisecond % (1000 * 60 * 60)) / (1000 * 60))
-                    return Translate('IDCS_EXCEED_EFFECTIVE_EXITING_TIM').formatForLang(
-                        `${days}${days > 1 ? Translate('IDCS_DAY_TIMES') : Translate('IDCS_DAY_TIME')}`,
-                        `${hours}${hours > 1 ? Translate('IDCS_HOURS') : Translate('IDCS_HOUR')}`,
-                        `${minutes}${minutes > 1 ? Translate('IDCS_MINUTES') : Translate('IDCS_MINUTE')}`,
-                    )
-                }
-            }
-            return ''
-        }
 
         onBeforeUnmount(() => {
             websocket?.destroy()

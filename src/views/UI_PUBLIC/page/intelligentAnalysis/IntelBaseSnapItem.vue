@@ -7,6 +7,7 @@
     <div
         v-if="!showCompare"
         class="snap normal_snap"
+        :class="[searchType]"
     >
         <!-- 封面图区域 -->
         <div class="pic_show_container">
@@ -44,6 +45,7 @@
                     <div class="top_operate">
                         <el-checkbox
                             v-model="targetData.checked"
+                            @change="handleChecked"
                             @click.stop=""
                         />
                     </div>
@@ -147,6 +149,7 @@
                     <div class="top_operate">
                         <el-checkbox
                             v-model="targetData.checked"
+                            @change="handleChecked"
                             @click.stop=""
                         />
                     </div>
@@ -243,14 +246,19 @@
 
 .snap {
     width: calc((100% - 35px) / 6);
-    margin: 5px 0 30px 5px;
+    margin: 5px 0 10px 5px;
     user-select: none;
+
+    &.byPassRecord {
+        // width: 23vw;
+        width: 410px;
+    }
 
     .pic_show_container {
         width: 100%;
+        height: 260px;
         position: relative;
         border: 1px solid var(--content-border);
-        padding-top: calc(100% * 4 / 3);
 
         .normal_pic,
         .noData_pic,
@@ -278,6 +286,10 @@
                 .center_operate {
                     width: 100%;
                     height: 100%;
+
+                    &[src=''] {
+                        opacity: 0;
+                    }
                 }
 
                 .top_operate,
@@ -360,7 +372,7 @@
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
-            align-items: flex-start;
+            align-items: center;
             position: relative;
 
             > span {

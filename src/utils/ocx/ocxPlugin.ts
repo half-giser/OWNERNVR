@@ -501,7 +501,6 @@ const getSingletonPlugin = () => {
      * @param {Function} callback
      */
     const getPort = async () => {
-        // await queryNetStatus()
         let hostName = window.location.hostname
         if (hostName.indexOf('[') !== -1 || hostName.lastIndexOf(']') !== -1) {
             hostName = hostName.substring(hostName.indexOf('[') + 1, hostName.indexOf(']'))
@@ -832,19 +831,15 @@ const getSingletonPlugin = () => {
      */
     const loadVideoPlugin = async () => {
         let ver = ''
-        if (import.meta.env.PROD) {
-            if (userSession.appType === 'STANDARD') {
-                if (systemInfo.platform === 'windows') {
-                    ver = ClientPluVer
-                } else {
-                    return
-                }
+        if (userSession.appType === 'STANDARD') {
+            if (systemInfo.platform === 'windows') {
+                ver = ClientPluVer
+            }
+        } else {
+            if (systemInfo.platform === 'windows') {
+                ver = P2PClientPluVer
             } else {
-                if (systemInfo.platform === 'windows') {
-                    ver = P2PClientPluVer
-                } else {
-                    ver = MacP2PClientPluVer
-                }
+                ver = MacP2PClientPluVer
             }
         }
         let needUpate = true
@@ -854,18 +849,18 @@ const getSingletonPlugin = () => {
             const $xmlDoc = $('//response[@type="GetOcxVersion"]')
             if ($xmlDoc.length > 0) {
                 const intCurVer = $xmlDoc.text()
-                if (import.meta.env.DEV || compareOcxVersion(intCurVer, ver) >= 0) {
+                if (compareOcxVersion(intCurVer, ver) >= 0) {
                     needUpate = false
                 }
             }
 
             if (needUpate) {
                 isPluginAvailable.value = false
-                getPluginUpdateNotice()
-
                 isInstallPlugin.value = false
                 // 将showPluginNoResponse置为空，避免更新插件并安装后页面弹出：插件无响应
                 pluginStore.showPluginNoResponse = false
+                getPluginUpdateNotice()
+
                 if (userSession.appType === 'P2P') {
                     setPluginNotice('body')
                 }
@@ -1615,7 +1610,11 @@ const getSingletonPlugin = () => {
     onMounted(async () => {
         disposePlugin()
 
-        import.meta.env.PROD && (await loadScript('OCX/ClientPluVerFile.js'))
+        if (import.meta.env.DEV) {
+            await loadScript('/plugin/OCX/ClientPluVerFile.js')
+        } else {
+            await loadScript('OCX/ClientPluVerFile.js')
+        }
 
         if (userSession.appType === 'STANDARD') {
             startV2Process()

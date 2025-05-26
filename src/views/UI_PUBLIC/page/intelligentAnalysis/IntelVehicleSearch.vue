@@ -121,8 +121,9 @@
                             </template>
                         </el-dropdown>
                         <el-checkbox
+                            v-model="pageData.isCheckedAll"
                             :label="Translate('IDCS_SELECT_ALL')"
-                            @update:model-value="handleSelectAll"
+                            @change="handleCheckedAll"
                         />
                     </div>
                     <!-- 摩托车/单车 - 排序、全选 -->
@@ -148,8 +149,9 @@
                             </template>
                         </el-dropdown>
                         <el-checkbox
+                            v-model="pageData.isCheckedAll"
                             :label="Translate('IDCS_SELECT_ALL')"
-                            @update:model-value="handleSelectAll"
+                            @change="handleCheckedAll"
                         />
                     </div>
                     <!-- 车牌号 - 排序、全选 -->
@@ -175,8 +177,9 @@
                             </template>
                         </el-dropdown>
                         <el-checkbox
+                            v-model="pageData.isCheckedAll"
                             :label="Translate('IDCS_SELECT_ALL')"
-                            @update:model-value="handleSelectAll"
+                            @change="handleCheckedAll"
                         />
                     </div>
                 </div>
@@ -190,13 +193,14 @@
                     class="base-intel-pics-content"
                 >
                     <IntelBaseSnapItem
-                        v-for="item in pageData.targetDatasForCar"
-                        :key="item.targetID"
+                        v-for="(item, index) in pageData.targetDatasForCar"
+                        :key="index"
                         :target-data="item"
                         :detail-index="pageData.openDetailIndexForCar"
                         :show-compare="false"
                         search-type="byCar"
                         @detail="showDetail(item)"
+                        @checked="handleChecked"
                     />
                 </div>
                 <!-- 摩托车/单车 - 抓拍图容器 -->
@@ -206,13 +210,14 @@
                     class="base-intel-pics-content"
                 >
                     <IntelBaseSnapItem
-                        v-for="item in pageData.targetDatasForMotorcycle"
-                        :key="item.targetID"
+                        v-for="(item, index) in pageData.targetDatasForMotorcycle"
+                        :key="index"
                         :target-data="item"
                         :detail-index="pageData.openDetailIndexForMotorcycle"
                         :show-compare="false"
                         search-type="byMotorcycle"
                         @detail="showDetail(item)"
+                        @checked="handleChecked"
                     />
                 </div>
                 <!-- 车牌号 - 抓拍图容器 -->
@@ -222,13 +227,14 @@
                     class="base-intel-pics-content"
                 >
                     <IntelBaseSnapItem
-                        v-for="item in pageData.targetDatasForPlateNumber"
-                        :key="item.targetID"
+                        v-for="(item, index) in pageData.targetDatasForPlateNumber"
+                        :key="index"
                         :target-data="item"
                         :detail-index="pageData.openDetailIndexForPlateNumber"
                         :show-compare="false"
                         search-type="byPlateNumber"
                         @detail="showDetail(item)"
+                        @checked="handleChecked"
                     />
                 </div>
             </div>
@@ -272,7 +278,7 @@
                             {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
                         </el-button>
                         <el-dropdown placement="top-end">
-                            <el-button>
+                            <el-button :disabled="!isEnableBackup">
                                 {{ Translate('IDCS_BACKUP') }}
                             </el-button>
                             <template #dropdown>
@@ -294,7 +300,7 @@
                             {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
                         </el-button>
                         <el-dropdown placement="top-end">
-                            <el-button>
+                            <el-button :disabled="!isEnableBackup">
                                 {{ Translate('IDCS_BACKUP') }}
                             </el-button>
                             <template #dropdown>
@@ -316,7 +322,7 @@
                             {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
                         </el-button>
                         <el-dropdown placement="top-end">
-                            <el-button>
+                            <el-button :disabled="!isEnableBackup">
                                 {{ Translate('IDCS_BACKUP') }}
                             </el-button>
                             <template #dropdown>
@@ -357,7 +363,10 @@
             v-show="pageData.isDetailOpen"
             class="base-intel-right"
         >
-            详情容器
+            <IntelSearchDetail
+                ref="detailRef"
+                @change-item="handleChangeItem"
+            />
         </div>
     </div>
 </template>

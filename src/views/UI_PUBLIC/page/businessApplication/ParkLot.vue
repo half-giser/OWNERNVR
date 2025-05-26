@@ -115,7 +115,7 @@
                                             :key="opt.value"
                                             @click="handleManualOpen(opt.value)"
                                         >
-                                            {{ opt.label }}
+                                            <div class="btn-item">{{ opt.label }}</div>
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
@@ -135,7 +135,7 @@
                         </div>
                         <div class="data-item">
                             <label>{{ Translate('IDCS_VEHICLE_OUT_TIME') }}</label>
-                            <span>{{ current.type !== 'nonEnter-nonExit' ? displayDateTime(current.exitTime) : '--' }}</span>
+                            <span>{{ current.type !== 'out-nonEnter-nonExit' ? displayDateTime(current.exitTime) : '--' }}</span>
                         </div>
                         <div class="data-item">
                             <label>{{ Translate('IDCS_VEHICLE_PARKING_TIME') }}</label>
@@ -216,7 +216,7 @@
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_VEHICLE_OUT_TIME')">
                         <template #default="{ row }: TableColumn<BusinessParkingLotList>">
-                            {{ row.type !== 'nonEnter-nonExit' ? displayDateTime(row.exitTime) : '--' }}
+                            {{ row.type !== 'out-nonEnter-nonExit' ? displayDateTime(row.exitTime) : '--' }}
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_VEHICLE_OUT_RELEASE_METHOD')">
@@ -233,7 +233,7 @@
             </div>
         </div>
         <div class="copyright">{{ Translate('IDCS_COPYRIGHT') }}</div>
-        <ParkLotPop
+        <ParkLotDetailPop
             v-model="pageData.isDetailPop"
             :list="tableData"
             :index="pageData.detailIndex"
@@ -244,6 +244,10 @@
         <ParkLotRemarkPop
             v-model="pageData.isRemarkPop"
             @confirm="confirmRemark"
+        />
+        <ParkLotSearchPop
+            v-if="pageData.isSearchPop"
+            @close="pageData.isSearchPop = false"
         />
     </div>
 </template>
@@ -265,6 +269,10 @@
 
 .btn {
     width: 140px;
+
+    &-item {
+        width: 108px;
+    }
 }
 
 .container {
@@ -404,10 +412,7 @@
 
     &-box {
         padding: 5px 0;
-
-        &:not(:last-child) {
-            border-bottom: 1px solid var(--content-border);
-        }
+        border-top: 1px solid var(--content-border);
     }
 
     &-item {
