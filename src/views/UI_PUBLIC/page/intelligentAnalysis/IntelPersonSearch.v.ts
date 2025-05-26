@@ -3,6 +3,7 @@
  * @Date: 2025-05-20 10:30:00
  * @Description: 智能分析-人（人脸、人体、人属性）
  */
+import IntelFaceSearchTrackMapPanel from './IntelFaceSearchTrackMapPanel.vue'
 import IntelBaseDateTimeSelector from './IntelBaseDateTimeSelector.vue'
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
 import IntelBaseProfileSelector from './IntelBaseProfileSelector.vue'
@@ -13,6 +14,7 @@ import { type DropdownInstance, type CheckboxValueType } from 'element-plus'
 
 export default defineComponent({
     components: {
+        IntelFaceSearchTrackMapPanel,
         IntelBaseDateTimeSelector,
         IntelBaseChannelSelector,
         IntelBaseProfileSelector,
@@ -24,6 +26,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
         const dateTime = useDateTimeStore()
+        const auth = useUserChlAuth(true)
         // 三个排序下拉框的引用
         const faceSortDropdown = ref<DropdownInstance>()
         const bodySortDropdown = ref<DropdownInstance>()
@@ -74,6 +77,12 @@ export default defineComponent({
                 {
                     label: Translate('IDCS_OPERATE_SNAPSHOT_MSPB'),
                     value: 'snap',
+                    show: true,
+                },
+                {
+                    label: Translate('IDCS_TRACK_MAP'),
+                    value: 'track',
+                    show: false,
                 },
             ],
             // 是否是以图搜图
@@ -189,7 +198,6 @@ export default defineComponent({
         let chlIdNameMap: Record<string, string> = {}
         const getChlIdNameMap = (e: Record<string, string>) => {
             chlIdNameMap = e
-            console.log(chlIdNameMap)
         }
 
         /**
@@ -430,9 +438,12 @@ export default defineComponent({
          * @description 获取列表详情数据 - requestTargetData
          */
         const getCurrPageTargetDatas = async (targetIndexDatas: IntelTargetIndexItem[]) => {
-            const tempTargetDatas: IntelTargetDataItem[] = []
-            targetIndexDatas.forEach(async (item, index) => {
-                openLoading()
+            setCurrTargetDatas(targetIndexDatas)
+            const currTargetDatas = getCurrTargetDatas()
+
+            openLoading()
+            let reqCount = 0
+            currTargetDatas.forEach(async (item) => {
                 const sendXml = rawXml`
                     <condition>
                         <index>${item.index}</index>
@@ -442,9 +453,7 @@ export default defineComponent({
                 `
                 const result = await requestTargetData(sendXml)
                 const $ = queryXml(result)
-                closeLoading()
 
-                const tempTargetData: IntelTargetDataItem = Object.assign({}, new IntelTargetDataItem(), cloneDeep(item))
                 if ($('status').text() === 'success') {
                     const isNoData = false
                     const isDelete = $('content/isDelete').text().bool()
@@ -565,59 +574,64 @@ export default defineComponent({
                     }
 
                     // 组装数据
-                    tempTargetData.isNoData = isNoData
-                    tempTargetData.isDelete = isDelete
-                    tempTargetData.targetID = targetID
-                    tempTargetData.featureStatus = featureStatus
-                    tempTargetData.supportRegister = supportRegister
-                    tempTargetData.targetType = targetType
-                    tempTargetData.timeStamp = timeStamp
-                    tempTargetData.timeStampLocal = timeStampLocal
-                    tempTargetData.timeStampUTC = timeStampUTC
-                    tempTargetData.startTime = startTime
-                    tempTargetData.startTimeLocal = startTimeLocal
-                    tempTargetData.startTimeUTC = startTimeUTC
-                    tempTargetData.endTime = endTime
-                    tempTargetData.endTimeLocal = endTimeLocal
-                    tempTargetData.endTimeUTC = endTimeUTC
-                    tempTargetData.objPicData = objPicData
-                    tempTargetData.backgroundPicDatas = backgroundPicDatas
-                    tempTargetData.targetTrace = targetTrace
-                    tempTargetData.ruleInfos = ruleInfos
-                    tempTargetData.humanAttrInfo = humanAttrInfo
-                    tempTargetData.vehicleAttrInfo = vehicleAttrInfo
-                    tempTargetData.nonMotorVehicleAttrInfo = nonMotorVehicleAttrInfo
-                    tempTargetData.plateAttrInfo = plateAttrInfo
+                    item.isNoData = isNoData
+                    item.isDelete = isDelete
+                    item.targetID = targetID
+                    item.featureStatus = featureStatus
+                    item.supportRegister = supportRegister
+                    item.targetType = targetType
+                    item.timeStamp = timeStamp
+                    item.timeStampLocal = timeStampLocal
+                    item.timeStampUTC = timeStampUTC
+                    item.startTime = startTime
+                    item.startTimeLocal = startTimeLocal
+                    item.startTimeUTC = startTimeUTC
+                    item.endTime = endTime
+                    item.endTimeLocal = endTimeLocal
+                    item.endTimeUTC = endTimeUTC
+                    item.objPicData = objPicData
+                    item.backgroundPicDatas = backgroundPicDatas
+                    item.targetTrace = targetTrace
+                    item.ruleInfos = ruleInfos
+                    item.humanAttrInfo = humanAttrInfo
+                    item.vehicleAttrInfo = vehicleAttrInfo
+                    item.nonMotorVehicleAttrInfo = nonMotorVehicleAttrInfo
+                    item.plateAttrInfo = plateAttrInfo
 
                     // 判断当前数据是否被选中
                     const currSelectedTargetDatas = getCurrSelectedTargetDatas()
-                    const findIndex = currSelectedTargetDatas.findIndex((item) => item.index === tempTargetData.index)
-                    if (findIndex > -1) tempTargetData.checked = true
+                    const findIndex = currSelectedTargetDatas.findIndex((item) => item.index === item.index)
+                    if (findIndex > -1) item.checked = true
                     judgeIsCheckedAll()
                 } else {
                     // 组装数据
-                    tempTargetData.isNoData = true
+                    item.isNoData = true
                 }
-                tempTargetDatas[index] = tempTargetData
 
-                // 设置当前界面展示的列表详情数据
-                setCurrTargetDatas(cloneDeep(tempTargetDatas))
+                reqCount++
+                if (reqCount >= targetIndexDatas.length) {
+                    closeLoading()
+                    // 切换分页后默认打开第一个详情
+                    if (pageData.value.isDetailOpen) {
+                        showDetail(currTargetDatas[0])
+                    }
+                }
             })
         }
 
         /**
          * @description 设置界面列表详情数据targetDatas
          */
-        const setCurrTargetDatas = (targetDatas: IntelTargetDataItem[]) => {
+        const setCurrTargetDatas = (targetIndexDatas: IntelTargetIndexItem[]) => {
             switch (pageData.value.searchType) {
                 case 'byFace':
-                    pageData.value.targetDatasForFace = targetDatas
+                    pageData.value.targetDatasForFace = targetIndexDatas.map((item) => Object.assign({}, new IntelTargetDataItem(), cloneDeep(item)))
                     break
                 case 'byBody':
-                    pageData.value.targetDatasForBody = targetDatas
+                    pageData.value.targetDatasForBody = targetIndexDatas.map((item) => Object.assign({}, new IntelTargetDataItem(), cloneDeep(item)))
                     break
                 case 'byPersonAttribute':
-                    pageData.value.targetDatasForPersonAttribute = targetDatas
+                    pageData.value.targetDatasForPersonAttribute = targetIndexDatas.map((item) => Object.assign({}, new IntelTargetDataItem(), cloneDeep(item)))
                     break
                 default:
                     break
@@ -1176,7 +1190,8 @@ export default defineComponent({
          * @description 备份全部
          */
         const handleBackupAll = () => {
-            console.log('handleBackupAll')
+            console.log(auth)
+            console.log(chlIdNameMap)
         }
 
         /**
@@ -1200,7 +1215,7 @@ export default defineComponent({
             pageData.value.isDetailOpen = true
             setCurrOpenDetailIndex(targetDataItem.index)
             // 初始化详情
-            const isTrail = false
+            const isTrail = pageData.value.isTrail
             const currentIndex = targetDataItem.index
             const detailData = isTrail ? getCurrTargetIndexDatas() : getCurrTargetDatas()
             detailRef?.value.init({
@@ -1491,7 +1506,7 @@ export default defineComponent({
             }
         })
 
-        // 计算出当前是否需要显示对比图
+        // 是否需要显示对比图
         const showCompare = computed(() => {
             let flag = false
             const currTargetIndexDatas = getCurrTargetIndexDatas()
@@ -1507,6 +1522,12 @@ export default defineComponent({
         const isEnableBackup = computed(() => {
             const currSelectedTargetDatas = getCurrSelectedTargetDatas()
             return currSelectedTargetDatas.length > 0
+        })
+
+        // 单张人脸才可显示轨迹
+        watchEffect(() => {
+            pageData.value.isTrail = pageData.value.listType === 'track'
+            pageData.value.listTypeOptions[1].show = pageData.value.searchType === 'byFace' && pageData.value.choosePicsForFace.length === 1
         })
 
         return {
