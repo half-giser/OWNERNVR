@@ -442,14 +442,13 @@ export default defineComponent({
                 videoQuality = isH264 ? 8192 : isH265 ? 8192 : 0
             }
 
-            if (rowData.qualitys.length > 1) {
-                // 找一个小的最接近的区间值
-                for (let i = rowData.qualitys.length - 1; i >= 0; i--) {
-                    if (videoQuality >= rowData.qualitys[i]) {
-                        videoQuality = rowData.qualitys[i]
-                        break
-                    }
-                }
+            const qualitys = rowData.qualitys
+            const find = qualitys.find((item, index) => {
+                return item >= videoQuality || index === qualitys.length - 1
+            })
+
+            if (find) {
+                videoQuality = find
             }
 
             return videoQuality

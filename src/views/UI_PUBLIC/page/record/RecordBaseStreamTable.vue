@@ -267,6 +267,13 @@
                     </template>
                     <template #default="{ row }: TableColumn<number>">
                         <el-select-v2
+                            v-if="tableData[row].videoQuality === 0"
+                            disabled
+                            model-value=""
+                            :options="[]"
+                        />
+                        <el-select-v2
+                            v-else
                             v-model="tableData[row].videoQuality"
                             :disabled="isVideoQualityDisabled(row)"
                             :options="getQualityList(tableData[row])"
@@ -315,40 +322,6 @@
                         />
                     </template>
                 </el-table-column>
-                <!-- 原代码中写死了不显示 recordStream -->
-                <!-- <el-table-column
-                    v-if="pageData.recordStreamVisible"
-                    :label="Translate('IDCS_RECORD_CODE_STREAM')"
-                    min-width="9%"
-                >
-                    <template #header>
-                        <el-dropdown >
-                            <BaseTableDropdownLink>
-                                {{ Translate('IDCS_RECORD_CODE_STREAM') }}
-                            </BaseTableDropdownLink>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <el-dropdown-item
-                                        v-for="item in recordStreams"
-                                        :key="item.value"
-                                        @click="handleRecordStreamChangeAll(item.value)"
-                                    >
-                                        {{ item.label }}
-                                    </el-dropdown-item>
-                                </el-dropdown-menu>
-                            </template>
-                        </el-dropdown>
-                    </template>
-                    <template #default="{ row }: TableColumn<number>">
-                        <el-select-v2
-                            v-model="tableData[row].recordStream"
-                            placeholder="主码流"
-                            :disabled="tableData[row].recordStreamDisable"
-                            :options="recordStreams"
-                            @change="handleRecordStreamChange(tableData[row])"
-                        />
-                    </template>
-                </el-table-column> -->
                 <!-- GOP -->
                 <el-table-column
                     :label="Translate('IDCS_GOP')"

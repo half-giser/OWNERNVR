@@ -175,7 +175,7 @@ export default defineComponent({
         })
 
         /**
-         * @description 每次打开事件筛选框都会调用open方法
+         * @description 开启弹窗时
          */
         const open = async () => {
             pageData.value.selectedRecTypeList = [...prop.modelValue]
@@ -226,15 +226,14 @@ export default defineComponent({
          */
         const confirm = () => {
             pageData.value.isPop = false
-            ctx.emit('update:modelValue', pageData.value.selectedRecTypeList)
+            ctx.emit(
+                'update:modelValue',
+                pageData.value.selectedRecTypeList.filter((item) => pageData.value.recTypeList.includes(item)),
+            )
         }
 
         onMounted(() => {
             getRecTypeList()
-        })
-
-        ctx.expose({
-            open,
         })
 
         return {

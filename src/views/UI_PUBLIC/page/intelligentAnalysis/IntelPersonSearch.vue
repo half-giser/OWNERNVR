@@ -454,6 +454,7 @@
         @choose-body-snap="chooseBodySnap"
         @choose-face="chooseFace"
     />
+    <IntelSearchBackupPop ref="IntelSearchBackupPopRef"/>
 </template>
 
 <script lang="ts" src="./IntelPersonSearch.v.ts"></script>

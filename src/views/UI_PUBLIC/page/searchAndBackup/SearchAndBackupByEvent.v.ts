@@ -406,12 +406,32 @@ export default defineComponent({
             pageData.value.allEventList = events
         }
 
-        onMounted(() => {
-            getChlsList()
+        onMounted(async () => {
+            await getChlsList()
 
             const date = new Date()
             formData.value.startTime = dayjs(date).hour(0).minute(0).second(0).calendar('gregory').format(DEFAULT_DATE_FORMAT)
             formData.value.endTime = dayjs(date).hour(23).minute(59).second(59).calendar('gregory').format(DEFAULT_DATE_FORMAT)
+
+            if (history.state.eventType || history.state.chlId) {
+                if (history.state.eventType) {
+                    switch (history.state.eventType) {
+                        case 'fire_detection':
+                            formData.value.events = ['firePoint']
+                            break
+                        default:
+                            break
+                    }
+                    delete history.state.eventType
+                }
+
+                if (history.state.chlId) {
+                    formData.value.chls = [history.state.chlId]
+                    delete history.state.chlId
+                }
+
+                search()
+            }
         })
 
         return {
