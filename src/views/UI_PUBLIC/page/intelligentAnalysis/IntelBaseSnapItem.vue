@@ -44,6 +44,7 @@
                     <div class="top_operate">
                         <el-checkbox
                             v-model="targetData.checked"
+                            @change="handleChecked"
                             @click.stop=""
                         />
                     </div>
@@ -147,6 +148,7 @@
                     <div class="top_operate">
                         <el-checkbox
                             v-model="targetData.checked"
+                            @change="handleChecked"
                             @click.stop=""
                         />
                     </div>
