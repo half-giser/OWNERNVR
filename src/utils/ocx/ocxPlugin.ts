@@ -501,7 +501,6 @@ const getSingletonPlugin = () => {
      * @param {Function} callback
      */
     const getPort = async () => {
-        // await queryNetStatus()
         let hostName = window.location.hostname
         if (hostName.indexOf('[') !== -1 || hostName.lastIndexOf(']') !== -1) {
             hostName = hostName.substring(hostName.indexOf('[') + 1, hostName.indexOf(']'))
