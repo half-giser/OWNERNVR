@@ -16,8 +16,10 @@ export class UserChlAuth {
     spr: Record<string, boolean> = {}
     // 预览
     lp: Record<string, boolean> = {}
-
+    // 备份
     bk: Record<string, boolean> = {}
+    // 通道权限映射
+    chlAuthMapping: Record<string, Record<string, boolean>> = {}
 
     update: () => Promise<void> = () => Promise.resolve()
 }
@@ -58,6 +60,11 @@ export const useUserChlAuth = (immediate = true) => {
             auth.value.spr[id] = text.includes('@spr')
             auth.value.bk[id] = text.includes('@bk')
             auth.value.lp[id] = text.includes('@lp')
+            auth.value.chlAuthMapping[id.toUpperCase()] = {
+                '@ad': auth.value.audio[id],
+                '@spr': auth.value.spr[id],
+                '@bk': auth.value.bk[id],
+            }
         })
         auth.value.accessControl = $('content/systemAuth/AccessControlMgr').text().bool()
     }

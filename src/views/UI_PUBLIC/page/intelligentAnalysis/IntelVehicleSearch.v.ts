@@ -9,7 +9,7 @@ import IntelBaseProfileSelector from './IntelBaseProfileSelector.vue'
 import IntelBasePlateColorPop from './IntelBasePlateColorPop.vue'
 import IntelBaseSnapItem from './IntelBaseSnapItem.vue'
 import IntelSearchDetail from './IntelSearchDetail.vue'
-import { type DropdownInstance } from 'element-plus'
+import { type DropdownInstance, type CheckboxValueType } from 'element-plus'
 
 export default defineComponent({
     components: {
@@ -23,6 +23,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const dateTime = useDateTimeStore()
+        const auth = useUserChlAuth(false)
         // 三个排序下拉框的引用
         const carSortDropdown = ref<DropdownInstance>()
         const motorcycleSortDropdown = ref<DropdownInstance>()
@@ -146,6 +147,14 @@ export default defineComponent({
                     value: 'picAndVideo' as 'pic' | 'video' | 'picAndVideo',
                 },
             ],
+            // 选中的详情数据（汽车）
+            selectedTargetDatasForCar: [] as IntelTargetDataItem[],
+            // 选中的详情数据（摩托车/单车）
+            selectedTargetDatasForMotorcycle: [] as IntelTargetDataItem[],
+            // 选中的详情数据（车牌号）
+            selectedTargetDatasForPlateNumber: [] as IntelTargetDataItem[],
+            // 是否全选
+            isCheckedAll: false,
             // 是否支持备份（H5模式）
             isSupportBackUp: isBrowserSupportWasm() && !isHttpsLogin(),
         })
@@ -159,7 +168,6 @@ export default defineComponent({
         let chlIdNameMap: Record<string, string> = {}
         const getChlIdNameMap = (e: Record<string, string>) => {
             chlIdNameMap = e
-            console.log(chlIdNameMap)
         }
 
         /**
@@ -167,6 +175,7 @@ export default defineComponent({
          */
         const getAllTargetIndexDatas = async () => {
             resetSortStatus()
+            resetCurrSelectedTargetDatas()
             setCurrTargetIndexDatas([])
             setCurrTargetDatas([])
             const currAttrObjToList: attrObjToListItem[] = getCurrAttribute()
@@ -234,6 +243,7 @@ export default defineComponent({
             if ($('status').text() === 'success') {
                 const targetIndexDatas: IntelTargetIndexItem[] = $('content/results/item').map((item) => {
                     const $item = queryXml(item.element)
+                    const checked = false
                     const index = $item('index').text() // 索引信息,客户端原封不动返回取图
                     const targetID = $item('targetID').text()
                     const targetType = $item('targetType').text()
@@ -251,6 +261,7 @@ export default defineComponent({
                     const endTime = $item('endTime').text().num() // 目标消失的时间戳
                     const endTimeUTC = $item('endTimeUTC').text() // 目标消失的时间戳 UTC
                     return {
+                        checked,
                         index,
                         targetID,
                         targetType,
@@ -343,9 +354,12 @@ export default defineComponent({
          * @description 获取列表详情数据 - requestTargetData
          */
         const getCurrPageTargetDatas = async (targetIndexDatas: IntelTargetIndexItem[]) => {
-            const tempTargetDatas: IntelTargetDataItem[] = []
-            targetIndexDatas.forEach(async (item, index) => {
-                closeLoading()
+            setCurrTargetDatas(targetIndexDatas)
+            const currTargetDatas = getCurrTargetDatas()
+
+            openLoading()
+            let reqCount = 0
+            currTargetDatas.forEach(async (item) => {
                 const sendXml = rawXml`
                     <condition>
                         <index>${item.index}</index>
@@ -355,9 +369,7 @@ export default defineComponent({
                 `
                 const result = await requestTargetData(sendXml)
                 const $ = queryXml(result)
-                closeLoading()
 
-                const tempTargetData: IntelTargetDataItem = Object.assign({}, new IntelTargetDataItem(), cloneDeep(item))
                 if ($('status').text() === 'success') {
                     const isNoData = false
                     const isDelete = $('content/isDelete').text().bool()
@@ -476,54 +488,66 @@ export default defineComponent({
                         vehicleType: $('content/plateAttrInfo/vehicleType').text(),
                         nonMotorizedVehicleType: $('content/plateAttrInfo/nonMotorizedVehicleType').text(),
                     }
+
                     // 组装数据
-                    tempTargetData.isNoData = isNoData
-                    tempTargetData.isDelete = isDelete
-                    tempTargetData.targetID = targetID
-                    tempTargetData.featureStatus = featureStatus
-                    tempTargetData.supportRegister = supportRegister
-                    tempTargetData.targetType = targetType
-                    tempTargetData.timeStamp = timeStamp
-                    tempTargetData.timeStampLocal = timeStampLocal
-                    tempTargetData.timeStampUTC = timeStampUTC
-                    tempTargetData.startTime = startTime
-                    tempTargetData.startTimeLocal = startTimeLocal
-                    tempTargetData.startTimeUTC = startTimeUTC
-                    tempTargetData.endTime = endTime
-                    tempTargetData.endTimeLocal = endTimeLocal
-                    tempTargetData.endTimeUTC = endTimeUTC
-                    tempTargetData.objPicData = objPicData
-                    tempTargetData.backgroundPicDatas = backgroundPicDatas
-                    tempTargetData.targetTrace = targetTrace
-                    tempTargetData.ruleInfos = ruleInfos
-                    tempTargetData.humanAttrInfo = humanAttrInfo
-                    tempTargetData.vehicleAttrInfo = vehicleAttrInfo
-                    tempTargetData.nonMotorVehicleAttrInfo = nonMotorVehicleAttrInfo
-                    tempTargetData.plateAttrInfo = plateAttrInfo
+                    item.isNoData = isNoData
+                    item.isDelete = isDelete
+                    item.targetID = targetID
+                    item.featureStatus = featureStatus
+                    item.supportRegister = supportRegister
+                    item.targetType = targetType
+                    item.timeStamp = timeStamp
+                    item.timeStampLocal = timeStampLocal
+                    item.timeStampUTC = timeStampUTC
+                    item.startTime = startTime
+                    item.startTimeLocal = startTimeLocal
+                    item.startTimeUTC = startTimeUTC
+                    item.endTime = endTime
+                    item.endTimeLocal = endTimeLocal
+                    item.endTimeUTC = endTimeUTC
+                    item.objPicData = objPicData
+                    item.backgroundPicDatas = backgroundPicDatas
+                    item.targetTrace = targetTrace
+                    item.ruleInfos = ruleInfos
+                    item.humanAttrInfo = humanAttrInfo
+                    item.vehicleAttrInfo = vehicleAttrInfo
+                    item.nonMotorVehicleAttrInfo = nonMotorVehicleAttrInfo
+                    item.plateAttrInfo = plateAttrInfo
+
+                    // 判断当前数据是否被选中
+                    const currSelectedTargetDatas = getCurrSelectedTargetDatas()
+                    const findIndex = currSelectedTargetDatas.findIndex((item) => item.index === item.index)
+                    if (findIndex > -1) item.checked = true
+                    judgeIsCheckedAll()
                 } else {
                     // 组装数据
-                    tempTargetData.isNoData = true
+                    item.isNoData = true
                 }
-                tempTargetDatas[index] = tempTargetData
 
-                // 设置当前界面展示的列表详情数据
-                setCurrTargetDatas(cloneDeep(tempTargetDatas))
+                reqCount++
+                if (reqCount >= targetIndexDatas.length) {
+                    closeLoading()
+                    // 切换分页后默认打开第一个详情
+                    if (pageData.value.isDetailOpen) {
+                        showDetail(currTargetDatas[0])
+                    }
+                }
             })
         }
 
         /**
          * @description 设置界面列表详情数据targetDatas
          */
-        const setCurrTargetDatas = (targetDatas: IntelTargetDataItem[]) => {
+        const setCurrTargetDatas = (targetIndexDatas: IntelTargetIndexItem[]) => {
             switch (pageData.value.searchType) {
                 case 'byCar':
-                    pageData.value.targetDatasForCar = targetDatas
+                    pageData.value.targetDatasForCar = targetIndexDatas.map((item) => Object.assign({}, new IntelTargetDataItem(), cloneDeep(item)))
                     break
                 case 'byMotorcycle':
-                    pageData.value.targetDatasForMotorcycle = targetDatas
+                    pageData.value.targetDatasForMotorcycle = targetIndexDatas.map((item) => Object.assign({}, new IntelTargetDataItem(), cloneDeep(item)))
                     break
                 case 'byPlateNumber':
-                    pageData.value.targetDatasForPlateNumber = targetDatas
+                    pageData.value.targetDatasForPlateNumber = targetIndexDatas.map((item) => Object.assign({}, new IntelTargetDataItem(), cloneDeep(item)))
                     break
                 default:
                     break
@@ -652,6 +676,41 @@ export default defineComponent({
         }
 
         /**
+         * @description 获取当前选中的详情数据
+         */
+        const getCurrSelectedTargetDatas = () => {
+            switch (pageData.value.searchType) {
+                case 'byCar':
+                    return pageData.value.selectedTargetDatasForCar
+                case 'byMotorcycle':
+                    return pageData.value.selectedTargetDatasForMotorcycle
+                case 'byPlateNumber':
+                    return pageData.value.selectedTargetDatasForPlateNumber
+                default:
+                    return []
+            }
+        }
+
+        /**
+         * @description 重置当前选中的详情数据
+         */
+        const resetCurrSelectedTargetDatas = () => {
+            switch (pageData.value.searchType) {
+                case 'byCar':
+                    pageData.value.selectedTargetDatasForCar = []
+                    break
+                case 'byMotorcycle':
+                    pageData.value.selectedTargetDatasForMotorcycle = []
+                    break
+                case 'byPlateNumber':
+                    pageData.value.selectedTargetDatasForPlateNumber = []
+                    break
+                default:
+                    break
+            }
+        }
+
+        /**
          * @description 获取当前页面的下拉框引用
          */
         const getCurrDropdownRef = () => {
@@ -686,13 +745,6 @@ export default defineComponent({
             const tempTargetIndexDatas = getCurrTargetIndexDatas()
             sliceTargetIndexDatas.value = tempTargetIndexDatas.slice((tempPageIndex - 1) * tempPageSize, tempPageIndex * tempPageSize)
             getCurrPageTargetDatas(sliceTargetIndexDatas.value)
-        }
-
-        /**
-         * @description 全选
-         */
-        const handleSelectAll = () => {
-            console.log('handleSelectAll')
         }
 
         /**
@@ -854,7 +906,8 @@ export default defineComponent({
          * @description 备份全部
          */
         const handleBackupAll = () => {
-            console.log('handleBackupAll')
+            console.log(auth)
+            console.log(chlIdNameMap)
         }
 
         /**
@@ -896,6 +949,39 @@ export default defineComponent({
         }
 
         /**
+         * @description 勾选/取消勾选
+         */
+        const handleChecked = (targetDataItem: IntelTargetDataItem) => {
+            const currSelectedTargetDatas = getCurrSelectedTargetDatas()
+            const findIndex = currSelectedTargetDatas.findIndex((item) => item.index === targetDataItem.index)
+            if (targetDataItem.checked) {
+                if (findIndex === -1) currSelectedTargetDatas.push(targetDataItem)
+            } else {
+                if (findIndex > -1) currSelectedTargetDatas.splice(findIndex, 1)
+            }
+            judgeIsCheckedAll()
+        }
+
+        /**
+         * @description 勾选/取消勾选 - 全选
+         */
+        const handleCheckedAll = (checked: CheckboxValueType) => {
+            const currTargetDatas = getCurrTargetDatas()
+            currTargetDatas.forEach((item) => {
+                item.checked = checked as boolean
+                handleChecked(item)
+            })
+        }
+
+        /**
+         * @description 判断是否全选
+         */
+        const judgeIsCheckedAll = () => {
+            const currTargetDatas = getCurrTargetDatas()
+            pageData.value.isCheckedAll = currTargetDatas.every((item) => item?.checked)
+        }
+
+        /**
          * @description 日期时间格式化
          * @param {number} timestamp 毫秒
          * @returns {String}
@@ -904,6 +990,12 @@ export default defineComponent({
             if (timestamp === 0) return ''
             return formatDate(timestamp, dateTime.dateTimeFormat)
         }
+
+        // 备份按钮置灰/可用状态
+        const isEnableBackup = computed(() => {
+            const currSelectedTargetDatas = getCurrSelectedTargetDatas()
+            return currSelectedTargetDatas.length > 0
+        })
 
         return {
             carSortDropdown,
@@ -916,14 +1008,16 @@ export default defineComponent({
             getCurrTargetDatas,
             handleChangePlateColor,
             handleChangePage,
-            handleSelectAll,
+            handleCheckedAll,
             handleSort,
             handleBackupAll,
             handleBackup,
             switchDetail,
             showDetail,
             handleChangeItem,
+            handleChecked,
             displayDateTime,
+            isEnableBackup,
         }
     },
 })

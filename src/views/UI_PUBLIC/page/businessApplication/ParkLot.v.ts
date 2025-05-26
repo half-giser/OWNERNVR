@@ -4,13 +4,15 @@
  * @Description: 实时过车记录
  */
 import dayjs from 'dayjs'
-import ParkLotPop from './ParkLotPop.vue'
+import ParkLotDetailPop from './ParkLotDetailPop.vue'
 import ParkLotRemarkPop from './ParkLotRemarkPop.vue'
+import ParkLotSearchPop from './ParkLotSearchPop.vue'
 
 export default defineComponent({
     components: {
-        ParkLotPop,
+        ParkLotDetailPop,
         ParkLotRemarkPop,
+        ParkLotSearchPop,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -292,7 +294,6 @@ export default defineComponent({
                         eventType: $item('eventType').text().num(),
                         master: $item('vehicleInfo/owner').text(),
                         phoneNum: $item('vehicleInfo/ownerPhone').text(),
-                        // groupName: '',
                         isEnter,
                         enterChlId: $enter ? $enter('gate').text() : '',
                         enterChl: $enter ? $enter('gateName').text() : '',
@@ -519,13 +520,6 @@ export default defineComponent({
          * @description 车辆进出记录搜索
          */
         const search = () => {
-            // TODO
-            // router.push({
-            //     path: '/intelligent-analysis/search/search-vehicle',
-            //     state: {
-            //         searchType: 'park',
-            //     },
-            // })
             pageData.value.isSearchPop = true
         }
 

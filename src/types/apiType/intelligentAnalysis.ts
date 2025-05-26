@@ -370,6 +370,9 @@ export class IntelSnapImgDto {
 export class IntelSnapVehicleImgDto extends IntelSnapImgDto {
     owner = ''
     ownerPhone = ''
+    plateStartTime = ''
+    plateEndTime = ''
+    remark = ''
 }
 
 /**
@@ -398,6 +401,9 @@ export class IntelSearchVehicleList extends IntelSearchList {
     isRelative = false
     owner = ''
     ownerPhone = ''
+    plateStartTime = ''
+    plateEndTime = ''
+    remark = ''
 }
 
 /**
@@ -578,6 +584,7 @@ export class IntelFaceTrackMapList {
  * @description 智能搜索 - 索引数据列表项
  */
 export class IntelTargetIndexItem {
+    checked? = false // 界面中使用的变量，标识是否选中头部的checkbox选择框
     index = ''
     targetID = ''
     targetType = ''
@@ -600,7 +607,6 @@ export class IntelTargetIndexItem {
  * @description 智能搜索 - 详情数据
  */
 export class IntelTargetDataItem extends IntelTargetIndexItem {
-    checked? = false // 界面中使用的变量，标识是否选中头部的checkbox选择框
     isFaceFeature = false // 是否是人脸库图片
     isNoData = true
     isDelete = true
@@ -617,15 +623,15 @@ export class IntelTargetDataItem extends IntelTargetIndexItem {
     endTime = 0 // 目标消失的时间戳
     endTimeLocal = '' // 目标消失的本地时间戳文字表达
     endTimeUTC = '' // 目标消失的UTC时间戳文字表达
-    objPicData = {} as IntelObjPicDataItem // 抓拍图信息
-    personInfoData = {} as IntelDetailPersonInfo // 人脸库图片信息
+    objPicData = new IntelObjPicDataItem() as IntelObjPicDataItem // 抓拍图信息
+    personInfoData = new IntelDetailPersonInfo() as IntelDetailPersonInfo // 人脸库图片信息
     backgroundPicDatas = [] as IntelBackgroundPicDataList[] // 原图信息（多目ipc会有多张图）
-    targetTrace = {} as IntelTargetTraceItem // 目标框 rect
+    targetTrace = new IntelTargetTraceItem() as IntelTargetTraceItem // 目标框 rect
     ruleInfos = [] as IntelRuleInfoList[] // 触发了告警的规则信息
-    humanAttrInfo = {} as IntelHumanAttrInfoItem // 人员属性信息
-    vehicleAttrInfo = {} as IntelVehicleAttrInfoItem // 汽车属性信息
-    nonMotorVehicleAttrInfo = {} as IntelNonMotorVehicleAttrInfoItem // 非机动车属性信息
-    plateAttrInfo = {} as IntelPlateAttrInfoItem // 车牌号信息
+    humanAttrInfo = new IntelHumanAttrInfoItem() as IntelHumanAttrInfoItem // 人员属性信息
+    vehicleAttrInfo = new IntelVehicleAttrInfoItem() as IntelVehicleAttrInfoItem // 汽车属性信息
+    nonMotorVehicleAttrInfo = new IntelNonMotorVehicleAttrInfoItem() as IntelNonMotorVehicleAttrInfoItem // 非机动车属性信息
+    plateAttrInfo = new IntelPlateAttrInfoItem() as IntelPlateAttrInfoItem // 车牌号信息
 }
 
 /**

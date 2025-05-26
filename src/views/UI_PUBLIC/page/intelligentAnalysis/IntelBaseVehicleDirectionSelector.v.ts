@@ -75,6 +75,7 @@ export default defineComponent({
             } else {
                 ctx.emit('update:modelValue', selected.value)
             }
+            pageData.value.isPop = false
         }
 
         // 选项框打开时 更新选项框勾选项

@@ -4,7 +4,10 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
 -->
 <template>
-    <div class="box">
+    <div
+        class="box"
+        :class="{ 'search-box': layout === 'search' }"
+    >
         <div class="tab">
             <div
                 class="tab-item"
@@ -49,6 +52,7 @@
                     v-show="pageData.isBtnVisible && current.enterSnapImg"
                     :src="current.enterSnapImg"
                     class="snap-img"
+                    :class="pageData.enterSnapPosition"
                 />
                 <div
                     v-show="!(current.isEnter && current.enterImg) && current.type === 'nonEnter-exit'"
@@ -80,6 +84,7 @@
                     v-show="pageData.isBtnVisible && current.exitSnapImg"
                     :src="current.exitSnapImg"
                     class="snap-img"
+                    :class="pageData.exitSnapPosition"
                 />
                 <div
                     v-show="!(current.isExit && current.exitImg) && current.type === 'enter-nonExit'"
@@ -95,7 +100,7 @@
                 <div
                     class="btn"
                     :class="{
-                        disabled: currentIndex === 0,
+                        disabled: !total || currentIndex === 0,
                     }"
                     @click="handlePrev"
                 >
@@ -104,7 +109,7 @@
                 <div
                     class="btn"
                     :class="{
-                        disabled: currentIndex === total - 1,
+                        disabled: !total || currentIndex === total - 1,
                     }"
                     @click="handleNext"
                 >
@@ -114,14 +119,14 @@
         </div>
         <div class="base-btn-box space-between">
             <div
-                v-show="pageData.tabIndex === 0"
+                v-if="pageData.tabIndex === 0"
                 class="bottom-info"
             >
                 <div>{{ current.enterChl }}</div>
                 <div>{{ displayOpenGateType(current.enterType) }}</div>
             </div>
             <div
-                v-show="pageData.tabIndex === 1"
+                v-if="pageData.tabIndex === 1"
                 class="bottom-info"
             >
                 <div>{{ current.exitChl }}</div>
@@ -147,7 +152,7 @@
     </div>
 </template>
 
-<script lang="ts" src="./ParkLotSearchTargetPanel.v.ts"></script>
+<script lang="ts" src="./ParkLotSnapPanel.v.ts"></script>
 
 <style lang="scss" scoped>
 .box {
@@ -157,7 +162,6 @@
 .tab {
     display: flex;
     height: 32px;
-    margin-bottom: 5px;
 
     &-item {
         min-width: 130px;
@@ -227,11 +231,19 @@
     .snap-img {
         position: absolute;
         width: 30%;
-        right: 0;
-        top: 0;
 
         &[src=''] {
             opacity: 0;
+        }
+
+        &.top-right {
+            right: 0;
+            top: 0;
+        }
+
+        &.top-left {
+            left: 0;
+            top: 0;
         }
     }
 
@@ -241,6 +253,10 @@
         left: 0;
         width: 100%;
         height: 100%;
+    }
+
+    .search-box & {
+        height: 430px;
     }
 }
 
@@ -273,8 +289,12 @@
 
 .bottom-info {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between !important;
     font-size: 20px;
     width: 60%;
+
+    .search-box & {
+        font-weight: bolder;
+    }
 }
 </style>

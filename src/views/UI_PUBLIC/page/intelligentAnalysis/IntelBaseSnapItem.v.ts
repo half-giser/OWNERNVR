@@ -52,6 +52,9 @@ export default defineComponent({
         detail() {
             return true
         },
+        checked(targetData: IntelTargetDataItem) {
+            return !!targetData
+        },
         search(targetData: IntelTargetDataItem) {
             return !!targetData
         },
@@ -71,6 +74,13 @@ export default defineComponent({
          */
         const handleClickCover = () => {
             ctx.emit('detail')
+        }
+
+        /**
+         * @description 勾选/取消勾选
+         */
+        const handleChecked = () => {
+            ctx.emit('checked', prop.targetData)
         }
 
         /**
@@ -176,7 +186,7 @@ export default defineComponent({
 
         // 是否显示车牌号（只有车牌号界面才显示）
         const showPlateNumber = computed(() => {
-            return prop.searchType === 'byPlateNumber' && prop.targetData.plateAttrInfo?.plateNumber
+            return (prop.searchType === 'byPlateNumber' || prop.searchType === 'byPassRecord') && prop.targetData.plateAttrInfo?.plateNumber
         })
 
         // 是否显示相似度
@@ -193,6 +203,7 @@ export default defineComponent({
             pageData,
             Translate,
             handleClickCover,
+            handleChecked,
             handleSearch,
             handleExport,
             handleRegister,
