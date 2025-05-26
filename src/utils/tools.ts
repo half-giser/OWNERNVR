@@ -1017,7 +1017,7 @@ export const displaySecondWithUnit = (value: number) => {
 
 export const displayMinuteWithUnit = (value: number) => {
     const Translate = useLangStore().Translate
-    return value + value > 1 ? Translate('IDCS_MINUTES') : Translate('IDCS_MINUTE')
+    return value + ' ' + (value > 1 ? Translate('IDCS_MINUTES') : Translate('IDCS_MINUTE'))
 }
 
 /**
@@ -1585,7 +1585,7 @@ const getDetectTargetData = (nodeType: String, objectMode: String, $itemNodeObj:
             value: $itemNode(`${nodeType}/stayAlarmThreshold`).text() === '' ? defaultValue : $itemNode(`${nodeType}/stayAlarmThreshold`).text().num(),
             min: $itemNode(`${nodeType}/stayAlarmThreshold`).attr('min').num(),
             max: $itemNode(`${nodeType}/stayAlarmThreshold`).attr('max').num(),
-            defaultValue: defaultValue,
+            default: defaultValue,
         }
     }
     // 默认值
@@ -1643,7 +1643,7 @@ export const setObjectFilterXmlData = (objectFilterData: AlarmObjectFilterCfgDto
                         </person>`
                     : ''
             }
-           
+
              ${
                  objectFilterData.supportCar
                      ? ` <car>

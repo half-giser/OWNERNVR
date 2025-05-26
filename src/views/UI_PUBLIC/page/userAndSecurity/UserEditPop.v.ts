@@ -4,7 +4,6 @@
  * @Description: 编辑用户信息弹窗
  */
 import { type UserCheckAuthForm } from '@/types/apiType/user'
-import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -44,21 +43,6 @@ export default defineComponent({
             isCheckAuthPop: false,
         })
 
-        const rules = ref<FormRules>({
-            email: [
-                {
-                    validator: (_rule, value: string, callback) => {
-                        if (!!value && !checkEmail(value)) {
-                            callback(new Error(Translate('IDCS_PROMPT_INVALID_EMAIL')))
-                            return
-                        }
-                        callback()
-                    },
-                    trigger: 'manual',
-                },
-            ],
-        })
-
         const authGroupOptions = ref<SelectOption<string, string>[]>([])
 
         /**
@@ -81,6 +65,9 @@ export default defineComponent({
                 formData.value.authGroup = $('content/authGroup').attr('id')
                 formData.value.allowModifyPassword = $('content/modifyPassword').text().bool()
                 formData.value.authEffective = !$('content/authEffective').text().bool()
+                formData.value.accessCode = $('content/accessCode').text().bool()
+                formData.value.loginScheduleInfoEnabled = $('content/loginScheduleInfo').attr('enable').bool()
+                formData.value.loginScheduleInfo = $('content/loginScheduleInfo').attr('scheduleId')
 
                 const currentUserName = userSession.userName
                 const editUserName = formData.value.userName
@@ -117,17 +104,6 @@ export default defineComponent({
          */
         const changePassword = () => {
             ctx.emit('resetPassword')
-        }
-
-        /**
-         * @description 表单验证
-         */
-        const verify = () => {
-            formRef.value!.validate((valid) => {
-                if (valid) {
-                    doEditUser()
-                }
-            })
         }
 
         /**
@@ -171,7 +147,7 @@ export default defineComponent({
                     <email>${wrapCDATA(formData.value.email)}</email>
                     <enabled>${formData.value.enabled}</enabled>
                     ${pageData.value.isAdmin ? `<accessCode>${formData.value.accessCode}</accessCode>` : ''}
-                    ${!pageData.value.isEditAdmin && !pageData.value.isEditDebug ? `<loginScheduleInfo enable="${formData.value.loginScheduleInfoEnabled}">${formData.value.loginScheduleInfo}</loginScheduleInfo>` : ''}
+                    ${!pageData.value.isEditAdmin && !pageData.value.isEditDebug ? `<loginScheduleInfo enable="${formData.value.loginScheduleInfoEnabled}" scheduleId="${formData.value.loginScheduleInfo}"></loginScheduleInfo>` : ''}
                     <authEffective>${!formData.value.authEffective}</authEffective>
                 </content>
                 <auth>
@@ -185,6 +161,7 @@ export default defineComponent({
             closeLoading()
 
             if ($('status').text() === 'success') {
+                pageData.value.isCheckAuthPop = false
                 ctx.emit('confirm')
             } else {
                 const errorCode = $('errorCode').text().num()
@@ -243,8 +220,7 @@ export default defineComponent({
             authGroupOptions,
             open,
             changePassword,
-            verify,
-            rules,
+            doEditUser,
             goBack,
             closeSchedulePop,
             confirmEditUser,

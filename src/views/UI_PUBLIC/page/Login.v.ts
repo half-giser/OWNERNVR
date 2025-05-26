@@ -113,6 +113,10 @@ export default defineComponent({
             return pageData.value.btnDisabled || (errorLockChecker.getLock() && pageData.value.isLogin)
         })
 
+        const opacity = computed(() => {
+            return Translate('IDCS_INFO_TIP') === 'IDCS_INFO_TIP' ? 0 : 1
+        })
+
         const handleLogin = () => {
             formRef.value!.validate(async (valid) => {
                 if (valid) {
@@ -301,6 +305,7 @@ export default defineComponent({
          * @description 切换语言
          */
         const changeLang = async () => {
+            openLoading()
             langStore.updateLangId(pageData.value.langId)
             const langType = LANG_TYPE_MAPPING[pageData.value.langId]
             if (langType) {
@@ -309,6 +314,7 @@ export default defineComponent({
             await langStore.getLangItems(true)
             updateCalendar()
             updateTitle()
+            closeLoading()
         }
 
         /**
@@ -366,6 +372,7 @@ export default defineComponent({
             qualityOptions,
             handleDualAuthLogin,
             forgetPassword,
+            opacity,
         }
     },
 })
