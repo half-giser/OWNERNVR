@@ -252,8 +252,8 @@
                     class="base-intel-pics-content"
                 >
                     <IntelBaseSnapItem
-                        v-for="item in pageData.targetDatasForFace"
-                        :key="item.targetID"
+                        v-for="(item, index) in pageData.targetDatasForFace"
+                        :key="index"
                         :target-data="item"
                         :detail-index="pageData.openDetailIndexForFace"
                         :show-compare="showCompare"
@@ -271,8 +271,8 @@
                     class="base-intel-pics-content"
                 >
                     <IntelBaseSnapItem
-                        v-for="item in pageData.targetDatasForBody"
-                        :key="item.targetID"
+                        v-for="(item, index) in pageData.targetDatasForBody"
+                        :key="index"
                         :target-data="item"
                         :detail-index="pageData.openDetailIndexForBody"
                         :show-compare="showCompare"
@@ -290,8 +290,8 @@
                     class="base-intel-pics-content"
                 >
                     <IntelBaseSnapItem
-                        v-for="item in pageData.targetDatasForPersonAttribute"
-                        :key="item.targetID"
+                        v-for="(item, index) in pageData.targetDatasForPersonAttribute"
+                        :key="index"
                         :target-data="item"
                         :detail-index="pageData.openDetailIndexForPersonAttribute"
                         :show-compare="false"

@@ -193,8 +193,8 @@
                     class="base-intel-pics-content"
                 >
                     <IntelBaseSnapItem
-                        v-for="item in pageData.targetDatasForCar"
-                        :key="item.targetID"
+                        v-for="(item, index) in pageData.targetDatasForCar"
+                        :key="index"
                         :target-data="item"
                         :detail-index="pageData.openDetailIndexForCar"
                         :show-compare="false"
@@ -210,8 +210,8 @@
                     class="base-intel-pics-content"
                 >
                     <IntelBaseSnapItem
-                        v-for="item in pageData.targetDatasForMotorcycle"
-                        :key="item.targetID"
+                        v-for="(item, index) in pageData.targetDatasForMotorcycle"
+                        :key="index"
                         :target-data="item"
                         :detail-index="pageData.openDetailIndexForMotorcycle"
                         :show-compare="false"
@@ -227,8 +227,8 @@
                     class="base-intel-pics-content"
                 >
                     <IntelBaseSnapItem
-                        v-for="item in pageData.targetDatasForPlateNumber"
-                        :key="item.targetID"
+                        v-for="(item, index) in pageData.targetDatasForPlateNumber"
+                        :key="index"
                         :target-data="item"
                         :detail-index="pageData.openDetailIndexForPlateNumber"
                         :show-compare="false"

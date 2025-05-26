@@ -198,6 +198,7 @@ export default defineComponent({
         const getAllTargetIndexDatas = async (isByPic?: boolean) => {
             resetChoosePics()
             resetSortStatus()
+            resetCurrSelectedTargetDatas()
             setCurrTargetIndexDatas([])
             setCurrTargetDatas([])
             const currAttrObjToList: attrObjToListItem[] = getCurrAttribute()
@@ -430,8 +431,8 @@ export default defineComponent({
          */
         const getCurrPageTargetDatas = async (targetIndexDatas: IntelTargetIndexItem[]) => {
             const tempTargetDatas: IntelTargetDataItem[] = []
-            closeLoading()
             targetIndexDatas.forEach(async (item, index) => {
+                openLoading()
                 const sendXml = rawXml`
                     <condition>
                         <index>${item.index}</index>
@@ -441,6 +442,7 @@ export default defineComponent({
                 `
                 const result = await requestTargetData(sendXml)
                 const $ = queryXml(result)
+                closeLoading()
 
                 const tempTargetData: IntelTargetDataItem = Object.assign({}, new IntelTargetDataItem(), cloneDeep(item))
                 if ($('status').text() === 'success') {
@@ -601,7 +603,6 @@ export default defineComponent({
                 // 设置当前界面展示的列表详情数据
                 setCurrTargetDatas(cloneDeep(tempTargetDatas))
             })
-            closeLoading()
         }
 
         /**
@@ -814,6 +815,25 @@ export default defineComponent({
                     return pageData.value.selectedTargetDatasForPersonAttribute
                 default:
                     return []
+            }
+        }
+
+        /**
+         * @description 重置当前选中的详情数据
+         */
+        const resetCurrSelectedTargetDatas = () => {
+            switch (pageData.value.searchType) {
+                case 'byFace':
+                    pageData.value.selectedTargetDatasForFace = []
+                    break
+                case 'byBody':
+                    pageData.value.selectedTargetDatasForBody = []
+                    break
+                case 'byPersonAttribute':
+                    pageData.value.selectedTargetDatasForPersonAttribute = []
+                    break
+                default:
+                    break
             }
         }
 

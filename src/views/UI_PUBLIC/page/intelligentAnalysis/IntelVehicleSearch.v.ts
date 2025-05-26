@@ -175,6 +175,7 @@ export default defineComponent({
          */
         const getAllTargetIndexDatas = async () => {
             resetSortStatus()
+            resetCurrSelectedTargetDatas()
             setCurrTargetIndexDatas([])
             setCurrTargetDatas([])
             const currAttrObjToList: attrObjToListItem[] = getCurrAttribute()
@@ -355,7 +356,7 @@ export default defineComponent({
         const getCurrPageTargetDatas = async (targetIndexDatas: IntelTargetIndexItem[]) => {
             const tempTargetDatas: IntelTargetDataItem[] = []
             targetIndexDatas.forEach(async (item, index) => {
-                closeLoading()
+                openLoading()
                 const sendXml = rawXml`
                     <condition>
                         <index>${item.index}</index>
@@ -681,6 +682,25 @@ export default defineComponent({
                     return pageData.value.selectedTargetDatasForPlateNumber
                 default:
                     return []
+            }
+        }
+
+        /**
+         * @description 重置当前选中的详情数据
+         */
+        const resetCurrSelectedTargetDatas = () => {
+            switch (pageData.value.searchType) {
+                case 'byCar':
+                    pageData.value.selectedTargetDatasForCar = []
+                    break
+                case 'byMotorcycle':
+                    pageData.value.selectedTargetDatasForMotorcycle = []
+                    break
+                case 'byPlateNumber':
+                    pageData.value.selectedTargetDatasForPlateNumber = []
+                    break
+                default:
+                    break
             }
         }
 
