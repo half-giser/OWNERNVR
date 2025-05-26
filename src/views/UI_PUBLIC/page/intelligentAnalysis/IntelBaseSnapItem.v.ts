@@ -52,6 +52,9 @@ export default defineComponent({
         detail() {
             return true
         },
+        checked(targetData: IntelTargetDataItem) {
+            return !!targetData
+        },
         search(targetData: IntelTargetDataItem) {
             return !!targetData
         },
@@ -71,6 +74,13 @@ export default defineComponent({
          */
         const handleClickCover = () => {
             ctx.emit('detail')
+        }
+
+        /**
+         * @description 勾选/取消勾选
+         */
+        const handleChecked = () => {
+            ctx.emit('checked', prop.targetData)
         }
 
         /**
@@ -193,6 +203,7 @@ export default defineComponent({
             pageData,
             Translate,
             handleClickCover,
+            handleChecked,
             handleSearch,
             handleExport,
             handleRegister,

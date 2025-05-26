@@ -179,8 +179,9 @@
                             </template>
                         </el-dropdown>
                         <el-checkbox
+                            v-model="pageData.isCheckedAll"
                             :label="Translate('IDCS_SELECT_ALL')"
-                            @update:model-value="handleSelectAll"
+                            @change="handleCheckedAll"
                         />
                     </div>
                     <!-- 人体 - 排序、全选 -->
@@ -207,8 +208,9 @@
                             </template>
                         </el-dropdown>
                         <el-checkbox
+                            v-model="pageData.isCheckedAll"
                             :label="Translate('IDCS_SELECT_ALL')"
-                            @update:model-value="handleSelectAll"
+                            @change="handleCheckedAll"
                         />
                     </div>
                     <!-- 人属性 - 排序、全选 -->
@@ -234,8 +236,9 @@
                             </template>
                         </el-dropdown>
                         <el-checkbox
+                            v-model="pageData.isCheckedAll"
                             :label="Translate('IDCS_SELECT_ALL')"
-                            @update:model-value="handleSelectAll"
+                            @change="handleCheckedAll"
                         />
                     </div>
                 </div>
@@ -249,14 +252,15 @@
                     class="base-intel-pics-content"
                 >
                     <IntelBaseSnapItem
-                        v-for="item in pageData.targetDatasForFace"
-                        :key="item.targetID"
+                        v-for="(item, index) in pageData.targetDatasForFace"
+                        :key="index"
                         :target-data="item"
                         :detail-index="pageData.openDetailIndexForFace"
                         :show-compare="showCompare"
                         :choose-pics="pageData.choosePicsForFace"
                         search-type="byFace"
                         @detail="showDetail(item)"
+                        @checked="handleChecked"
                         @search="handleSearch"
                     />
                 </div>
@@ -267,14 +271,15 @@
                     class="base-intel-pics-content"
                 >
                     <IntelBaseSnapItem
-                        v-for="item in pageData.targetDatasForBody"
-                        :key="item.targetID"
+                        v-for="(item, index) in pageData.targetDatasForBody"
+                        :key="index"
                         :target-data="item"
                         :detail-index="pageData.openDetailIndexForBody"
                         :show-compare="showCompare"
                         :choose-pics="pageData.choosePicsForBody"
                         search-type="byBody"
                         @detail="showDetail(item)"
+                        @checked="handleChecked"
                         @search="handleSearch"
                     />
                 </div>
@@ -285,13 +290,14 @@
                     class="base-intel-pics-content"
                 >
                     <IntelBaseSnapItem
-                        v-for="item in pageData.targetDatasForPersonAttribute"
-                        :key="item.targetID"
+                        v-for="(item, index) in pageData.targetDatasForPersonAttribute"
+                        :key="index"
                         :target-data="item"
                         :detail-index="pageData.openDetailIndexForPersonAttribute"
                         :show-compare="false"
                         search-type="byPersonAttribute"
                         @detail="showDetail(item)"
+                        @checked="handleChecked"
                         @search="handleSearch"
                     />
                 </div>
@@ -336,7 +342,7 @@
                             {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
                         </el-button>
                         <el-dropdown placement="top-end">
-                            <el-button>
+                            <el-button :disabled="!isEnableBackup">
                                 {{ Translate('IDCS_BACKUP') }}
                             </el-button>
                             <template #dropdown>
@@ -358,7 +364,7 @@
                             {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
                         </el-button>
                         <el-dropdown placement="top-end">
-                            <el-button>
+                            <el-button :disabled="!isEnableBackup">
                                 {{ Translate('IDCS_BACKUP') }}
                             </el-button>
                             <template #dropdown>
@@ -380,7 +386,7 @@
                             {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
                         </el-button>
                         <el-dropdown placement="top-end">
-                            <el-button>
+                            <el-button :disabled="!isEnableBackup">
                                 {{ Translate('IDCS_BACKUP') }}
                             </el-button>
                             <template #dropdown>
