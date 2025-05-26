@@ -9,7 +9,7 @@ import IntelBaseProfileSelector from './IntelBaseProfileSelector.vue'
 import IntelFaceSearchChooseFacePop from './IntelFaceSearchChooseFacePop.vue'
 import IntelBaseSnapItem from './IntelBaseSnapItem.vue'
 import IntelSearchDetail from './IntelSearchDetail.vue'
-import { type DropdownInstance } from 'element-plus'
+import { type DropdownInstance, type CheckboxValueType } from 'element-plus'
 
 export default defineComponent({
     components: {
@@ -168,6 +168,14 @@ export default defineComponent({
                     value: 'picAndVideo' as 'pic' | 'video' | 'picAndVideo',
                 },
             ],
+            // 选中的详情数据（人脸）
+            selectedTargetDatasForFace: [] as IntelTargetDataItem[],
+            // 选中的详情数据（人体）
+            selectedTargetDatasForBody: [] as IntelTargetDataItem[],
+            // 选中的详情数据（人属性）
+            selectedTargetDatasForPersonAttribute: [] as IntelTargetDataItem[],
+            // 是否全选
+            isCheckedAll: false,
             // 是否支持备份（H5模式）
             isSupportBackUp: isBrowserSupportWasm() && !isHttpsLogin(),
         })
@@ -287,6 +295,7 @@ export default defineComponent({
             if ($('status').text() === 'success') {
                 const targetIndexDatas: IntelTargetIndexItem[] = $('content/results/item').map((item) => {
                     const $item = queryXml(item.element)
+                    const checked = false
                     const index = $item('index').text() // 索引信息,客户端原封不动返回取图
                     const targetID = $item('targetID').text()
                     const targetType = $item('targetType').text()
@@ -304,6 +313,7 @@ export default defineComponent({
                     const endTime = $item('endTime').text().num() // 目标消失的时间戳
                     const endTimeUTC = $item('endTimeUTC').text() // 目标消失的时间戳 UTC
                     return {
+                        checked,
                         index,
                         targetID,
                         targetType,
@@ -551,6 +561,7 @@ export default defineComponent({
                         vehicleType: $('content/plateAttrInfo/vehicleType').text(),
                         nonMotorizedVehicleType: $('content/plateAttrInfo/nonMotorizedVehicleType').text(),
                     }
+
                     // 组装数据
                     tempTargetData.isNoData = isNoData
                     tempTargetData.isDelete = isDelete
@@ -575,6 +586,12 @@ export default defineComponent({
                     tempTargetData.vehicleAttrInfo = vehicleAttrInfo
                     tempTargetData.nonMotorVehicleAttrInfo = nonMotorVehicleAttrInfo
                     tempTargetData.plateAttrInfo = plateAttrInfo
+
+                    // 判断当前数据是否被选中
+                    const currSelectedTargetDatas = getCurrSelectedTargetDatas()
+                    const findIndex = currSelectedTargetDatas.findIndex((item) => item.index === tempTargetData.index)
+                    if (findIndex > -1) tempTargetData.checked = true
+                    judgeIsCheckedAll()
                 } else {
                     // 组装数据
                     tempTargetData.isNoData = true
@@ -761,6 +778,46 @@ export default defineComponent({
         }
 
         /**
+         * @description 获取当前属性数据
+         */
+        const getCurrAttribute = () => {
+            let attrType = ''
+            let attrObj = {} as Record<string, string[]>
+            let attrObjToList = [] as attrObjToListItem[]
+            switch (pageData.value.searchType) {
+                case 'byPersonAttribute':
+                    attrType = ATTRIBUTE_TYPE_MAPPING[pageData.value.searchType]
+                    attrObj = pageData.value.attributeForPersonAttribute[attrType]
+                    attrObjToList = []
+                    Object.keys(attrObj).forEach((key) => {
+                        attrObjToList.push({
+                            attrType: key,
+                            attrValue: attrObj[key],
+                        })
+                    })
+                    return attrObjToList
+                default:
+                    return []
+            }
+        }
+
+        /**
+         * @description 获取当前选中的详情数据
+         */
+        const getCurrSelectedTargetDatas = () => {
+            switch (pageData.value.searchType) {
+                case 'byFace':
+                    return pageData.value.selectedTargetDatasForFace
+                case 'byBody':
+                    return pageData.value.selectedTargetDatasForBody
+                case 'byPersonAttribute':
+                    return pageData.value.selectedTargetDatasForPersonAttribute
+                default:
+                    return []
+            }
+        }
+
+        /**
          * @description 获取当前界面的排序下拉框引用
          */
         const getCurrDropdownRef = () => {
@@ -834,30 +891,6 @@ export default defineComponent({
         }
 
         /**
-         * @description 获取当前属性数据
-         */
-        const getCurrAttribute = () => {
-            let attrType = ''
-            let attrObj = {} as Record<string, string[]>
-            let attrObjToList = [] as attrObjToListItem[]
-            switch (pageData.value.searchType) {
-                case 'byPersonAttribute':
-                    attrType = ATTRIBUTE_TYPE_MAPPING[pageData.value.searchType]
-                    attrObj = pageData.value.attributeForPersonAttribute[attrType]
-                    attrObjToList = []
-                    Object.keys(attrObj).forEach((key) => {
-                        attrObjToList.push({
-                            attrType: key,
-                            attrValue: attrObj[key],
-                        })
-                    })
-                    return attrObjToList
-                default:
-                    return []
-            }
-        }
-
-        /**
          * @description 切换分页页码
          */
         const handleChangePage = (pageIndex: number) => {
@@ -869,13 +902,6 @@ export default defineComponent({
             const tempTargetIndexDatas = getCurrTargetIndexDatas()
             sliceTargetIndexDatas.value = tempTargetIndexDatas.slice((tempPageIndex - 1) * tempPageSize, tempPageIndex * tempPageSize)
             getCurrPageTargetDatas(sliceTargetIndexDatas.value)
-        }
-
-        /**
-         * @description 全选
-         */
-        const handleSelectAll = () => {
-            console.log('handleSelectAll')
         }
 
         /**
@@ -1179,6 +1205,39 @@ export default defineComponent({
         }
 
         /**
+         * @description 勾选/取消勾选
+         */
+        const handleChecked = (targetDataItem: IntelTargetDataItem) => {
+            const currSelectedTargetDatas = getCurrSelectedTargetDatas()
+            const findIndex = currSelectedTargetDatas.findIndex((item) => item.index === targetDataItem.index)
+            if (targetDataItem.checked) {
+                if (findIndex === -1) currSelectedTargetDatas.push(targetDataItem)
+            } else {
+                if (findIndex > -1) currSelectedTargetDatas.splice(findIndex, 1)
+            }
+            judgeIsCheckedAll()
+        }
+
+        /**
+         * @description 勾选/取消勾选 - 全选
+         */
+        const handleCheckedAll = (checked: CheckboxValueType) => {
+            const currTargetDatas = getCurrTargetDatas()
+            currTargetDatas.forEach((item) => {
+                item.checked = checked as boolean
+                handleChecked(item)
+            })
+        }
+
+        /**
+         * @description 判断是否全选
+         */
+        const judgeIsCheckedAll = () => {
+            const currTargetDatas = getCurrTargetDatas()
+            pageData.value.isCheckedAll = currTargetDatas.every((item) => item?.checked)
+        }
+
+        /**
          * @description 以图搜图
          */
         const handleSearch = async (targetDataItem: IntelTargetDataItem) => {
@@ -1424,6 +1483,12 @@ export default defineComponent({
             return flag
         })
 
+        // 备份按钮置灰/可用状态
+        const isEnableBackup = computed(() => {
+            const currSelectedTargetDatas = getCurrSelectedTargetDatas()
+            return currSelectedTargetDatas.length > 0
+        })
+
         return {
             faceSortDropdown,
             bodySortDropdown,
@@ -1440,7 +1505,7 @@ export default defineComponent({
             handleChangePic,
             handleDeletePic,
             handleChangePage,
-            handleSelectAll,
+            handleCheckedAll,
             handleSort,
             handleBackupAll,
             handleBackup,
@@ -1448,10 +1513,12 @@ export default defineComponent({
             showDetail,
             hideDetail,
             handleChangeItem,
+            handleChecked,
             handleSearch,
             displayDateTime,
             showPicChooser,
             showCompare,
+            isEnableBackup,
         }
     },
 })

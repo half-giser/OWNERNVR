@@ -578,6 +578,7 @@ export class IntelFaceTrackMapList {
  * @description 智能搜索 - 索引数据列表项
  */
 export class IntelTargetIndexItem {
+    checked? = false // 界面中使用的变量，标识是否选中头部的checkbox选择框
     index = ''
     targetID = ''
     targetType = ''
@@ -600,7 +601,6 @@ export class IntelTargetIndexItem {
  * @description 智能搜索 - 详情数据
  */
 export class IntelTargetDataItem extends IntelTargetIndexItem {
-    checked? = false // 界面中使用的变量，标识是否选中头部的checkbox选择框
     isFaceFeature = false // 是否是人脸库图片
     isNoData = true
     isDelete = true

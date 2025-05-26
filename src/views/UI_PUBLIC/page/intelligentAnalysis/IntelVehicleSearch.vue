@@ -121,8 +121,9 @@
                             </template>
                         </el-dropdown>
                         <el-checkbox
+                            v-model="pageData.isCheckedAll"
                             :label="Translate('IDCS_SELECT_ALL')"
-                            @update:model-value="handleSelectAll"
+                            @change="handleCheckedAll"
                         />
                     </div>
                     <!-- 摩托车/单车 - 排序、全选 -->
@@ -148,8 +149,9 @@
                             </template>
                         </el-dropdown>
                         <el-checkbox
+                            v-model="pageData.isCheckedAll"
                             :label="Translate('IDCS_SELECT_ALL')"
-                            @update:model-value="handleSelectAll"
+                            @change="handleCheckedAll"
                         />
                     </div>
                     <!-- 车牌号 - 排序、全选 -->
@@ -175,8 +177,9 @@
                             </template>
                         </el-dropdown>
                         <el-checkbox
+                            v-model="pageData.isCheckedAll"
                             :label="Translate('IDCS_SELECT_ALL')"
-                            @update:model-value="handleSelectAll"
+                            @change="handleCheckedAll"
                         />
                     </div>
                 </div>
@@ -197,6 +200,7 @@
                         :show-compare="false"
                         search-type="byCar"
                         @detail="showDetail(item)"
+                        @checked="handleChecked"
                     />
                 </div>
                 <!-- 摩托车/单车 - 抓拍图容器 -->
@@ -213,6 +217,7 @@
                         :show-compare="false"
                         search-type="byMotorcycle"
                         @detail="showDetail(item)"
+                        @checked="handleChecked"
                     />
                 </div>
                 <!-- 车牌号 - 抓拍图容器 -->
@@ -229,6 +234,7 @@
                         :show-compare="false"
                         search-type="byPlateNumber"
                         @detail="showDetail(item)"
+                        @checked="handleChecked"
                     />
                 </div>
             </div>
@@ -272,7 +278,7 @@
                             {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
                         </el-button>
                         <el-dropdown placement="top-end">
-                            <el-button>
+                            <el-button :disabled="!isEnableBackup">
                                 {{ Translate('IDCS_BACKUP') }}
                             </el-button>
                             <template #dropdown>
@@ -294,7 +300,7 @@
                             {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
                         </el-button>
                         <el-dropdown placement="top-end">
-                            <el-button>
+                            <el-button :disabled="!isEnableBackup">
                                 {{ Translate('IDCS_BACKUP') }}
                             </el-button>
                             <template #dropdown>
@@ -316,7 +322,7 @@
                             {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
                         </el-button>
                         <el-dropdown placement="top-end">
-                            <el-button>
+                            <el-button :disabled="!isEnableBackup">
                                 {{ Translate('IDCS_BACKUP') }}
                             </el-button>
                             <template #dropdown>
