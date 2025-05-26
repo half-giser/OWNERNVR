@@ -370,6 +370,9 @@ export class IntelSnapImgDto {
 export class IntelSnapVehicleImgDto extends IntelSnapImgDto {
     owner = ''
     ownerPhone = ''
+    plateStartTime = ''
+    plateEndTime = ''
+    remark = ''
 }
 
 /**
@@ -398,6 +401,9 @@ export class IntelSearchVehicleList extends IntelSearchList {
     isRelative = false
     owner = ''
     ownerPhone = ''
+    plateStartTime = ''
+    plateEndTime = ''
+    remark = ''
 }
 
 /**

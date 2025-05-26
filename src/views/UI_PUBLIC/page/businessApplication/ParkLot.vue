@@ -233,7 +233,7 @@
             </div>
         </div>
         <div class="copyright">{{ Translate('IDCS_COPYRIGHT') }}</div>
-        <ParkLotPop
+        <ParkLotDetailPop
             v-model="pageData.isDetailPop"
             :list="tableData"
             :index="pageData.detailIndex"
@@ -245,7 +245,7 @@
             v-model="pageData.isRemarkPop"
             @confirm="confirmRemark"
         />
-        <ParkLotSearchTargetPop
+        <ParkLotSearchPop
             v-if="pageData.isSearchPop"
             @close="pageData.isSearchPop = false"
         />
