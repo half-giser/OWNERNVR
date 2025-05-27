@@ -23,7 +23,6 @@ export default defineComponent({
         const tableRef = ref<TableInstance>()
 
         const tableData = ref<SelectOption<string, string>[]>([])
-        const selected = ref<SelectOption<string, string>[]>([])
 
         const pageData = ref({
             // 日期范围类型
@@ -119,6 +118,8 @@ export default defineComponent({
                     }
                 })
                 .filter((item) => item !== null) // NTA1-1294 不显示已删除通道
+
+            tableRef.value!.toggleAllSelection()
         }
 
         /**
@@ -149,16 +150,7 @@ export default defineComponent({
          * @param {SelectOption<string, string>[]} row
          */
         const handleCurrentChange = (row: SelectOption<string, string>[]) => {
-            selected.value = row
-        }
-
-        /**
-         * @description 点击行 仅选中该行
-         * @param {SelectOption<string, string>} row
-         */
-        const handleRowClick = (row: SelectOption<string, string>) => {
-            tableRef.value!.clearSelection()
-            tableRef.value!.toggleRowSelection(row, true)
+            pageData.value.chlIdList = row.map((item) => item.value)
         }
 
         /**
@@ -926,7 +918,6 @@ export default defineComponent({
             handleExit,
             changeDateRange,
             handleCurrentChange,
-            handleRowClick,
             getAllTargetIndexDatas,
             handleChangePage,
             handleCheckedAll,
