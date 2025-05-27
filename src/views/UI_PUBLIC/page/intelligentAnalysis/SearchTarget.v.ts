@@ -171,11 +171,11 @@ export default defineComponent({
                     <byFeatureParams>
                         <featureInfos type="list">
                             <item>
-                                    <index>${pageData.value.targetFeatureIndex}</index>
-                                    <feature>${pageData.value.targetFeatureData}</feature>
+                                <index>${pageData.value.targetFeatureIndex}</index>
+                                <feature>${pageData.value.targetFeatureData}</feature>
                             </item>
                         </featureInfos>
-                        <targetType>humanBody</targetType>
+                        <targetType>${pageData.value.targetType}</targetType>
                         <similarity>${pageData.value.similarity}</similarity>
                         <onlyREIDResult>true</onlyREIDResult>
                     </byFeatureParams>
