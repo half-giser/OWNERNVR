@@ -8,8 +8,7 @@ import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
 import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
 import AlarmBasePresetSelector from './AlarmBasePresetSelector.vue'
-import Heatmap from './Heatmap.vue'
-import { dayjs } from 'element-plus'
+import dayjs from 'dayjs'
 
 export default defineComponent({
     components: {
@@ -17,7 +16,6 @@ export default defineComponent({
         AlarmBaseAlarmOutSelector,
         AlarmBaseTriggerSelector,
         AlarmBasePresetSelector,
-        Heatmap,
     },
     props: {
         /**
@@ -103,21 +101,19 @@ export default defineComponent({
             endTime: '',
             // 检索目标
             searchTarget: 'person',
-            // 绘制热力图相关
-            hasNoChartData: true,
             renderImageW: 700,
             renderImageH: 450,
             // 热力图渲染值
             renderLevel: 100,
             imgOrigBase64: '',
             heatMapChartData: [] as AlarmHeatMapChartDto[],
-            legendMin: 0,
-            legendMax: 0,
-            legendSrc: '',
+            legendGradient: 'linear-gradient(90deg, rgb(0,0,255) 25%, rgb(0,255,0) 55%, yellow 85%,  rgb(255,0,0) 100%) no-repeat',
         })
 
         const formData = ref(new AlarmHeatMapDto())
         const watchEdit = useWatchEditData(formData)
+
+        const heatMapRef = ref<HeatMapInstance>()
 
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
@@ -427,7 +423,7 @@ export default defineComponent({
                                                 </point>
                                                     ${setItemObjectFilterData(element)}
                                             </item>
-                                            `
+                                        `
                                     })
                                     .join('')}
                             </boundary>
@@ -436,9 +432,9 @@ export default defineComponent({
                             ${
                                 data.pictureAvailable
                                     ? rawXml`
-                                    <saveSourcePicture>${data.saveSourcePicture}</saveSourcePicture>
-                                    <saveTargetPicture>${data.saveTargetPicture}</saveTargetPicture>
-                                `
+                                        <saveSourcePicture>${data.saveSourcePicture}</saveSourcePicture>
+                                        <saveTargetPicture>${data.saveTargetPicture}</saveTargetPicture>
+                                    `
                                     : ''
                             }
                             ${data.hasAutoTrack ? `<autoTrack>${data.autoTrack}</autoTrack>` : ''}
@@ -917,110 +913,58 @@ export default defineComponent({
             closeLoading()
             const $ = queryXml(res)
             if ($('status').text() === 'success') {
-                pageData.value.hasNoChartData = false
                 const $ = queryXml(res)
                 const jpgData = $('content/imageDataBase64').text()
                 pageData.value.imgOrigBase64 = 'data:image/jpeg;base64,' + jpgData
-                const itemType = pageData.value.searchTarget
-                const points: AlarmHeatMapChartDto[] = []
-                $('content/statistics/item').forEach((element) => {
-                    const $item = queryXml(element.element)
-                    const point_data = {
-                        x: Math.floor(($item('targetX').text().num() / 10000) * pageData.value.renderImageW),
-                        y: Math.floor(($item('targetY').text().num() / 10000) * pageData.value.renderImageH),
-                        value: $(itemType).text(),
-                    }
-                    if (point_data.value !== '0') {
-                        points.push(point_data)
-                    }
-                })
-                drawImgCanvas()
-                pageData.value.heatMapChartData = cloneDeep(points)
+                pageData.value.heatMapChartData = $('content/statistics/item')
+                    .map((element) => {
+                        const $item = queryXml(element.element)
+
+                        return {
+                            x: Math.floor(($item('targetX').text().num() / 10000) * pageData.value.renderImageW),
+                            y: Math.floor(($item('targetY').text().num() / 10000) * pageData.value.renderImageH),
+                            value: $(`content/${pageData.value.searchTarget}`).text().num(),
+                        }
+                    })
+                    .filter((item) => item.value)
             } else {
-                pageData.value.hasNoChartData = true
+                pageData.value.imgOrigBase64 = ''
             }
         }
 
-        const drawImgCanvas = () => {
-            const $canvas = document.getElementById('originCanvas')
-            const heatMapImg = $canvas.toDataURL() // 获取热力图的base64
-            // 需要频繁读取图像数据的场景，可设置willReadFrequently属性为true，加快多个getImageData读取操作的速度
-            $canvas.willReadFrequently = true // 设置
-            // 获取Canvas的2D绘图上下文
-            const ctx = $canvas.getContext('2d')
-            // 先清除当前的canvas效果再绘制
-            ctx.clearRect(0, 0, pageData.value.renderImageW, pageData.value.renderImageH)
-            // 在一个cavans里面绘制原图和热力图，方便后续导出
-            const imgOrigain = new Image()
-            imgOrigain.src = pageData.value.imgOrigBase64 // 原图
-            const imgHeatmap = new Image()
-            imgHeatmap.src = heatMapImg // 热力图
-            imgOrigain.onload = function () {
-                ctx.drawImage(imgOrigain, 0, 0, pageData.value.renderImageW, pageData.value.renderImageH) // 绘制原图
-                // 原图比热力图大，在此添加延时任务，预期原图绘制成功之后再绘制热力图
-                setTimeout(
-                    (imgHeatmap.onload = function () {
-                        ctx.drawImage(imgHeatmap, 0, 0, pageData.value.renderImageW, pageData.value.renderImageH)
-                    }),
-                    100,
-                )
-            }
-        }
+        const renderImage = () => {
+            return new Promise((resolve: (base64: string) => void) => {
+                const canvas = document.createElement('canvas')
+                canvas.width = pageData.value.renderImageW
+                canvas.height = pageData.value.renderImageH
 
-        const updateLegend = (data) => {
-            const legendCanvas = document.createElement('canvas')
-            legendCanvas.width = 100
-            legendCanvas.height = 10
-            const legendCtx = legendCanvas.getContext('2d')
-            let gradientCfg = {}
-            if (data.gradient !== gradientCfg) {
-                gradientCfg = data.gradient
-                const gradient = legendCtx.createLinearGradient(0, 0, 100, 1)
-                for (const key in gradientCfg) {
-                    gradient.addColorStop(key, gradientCfg[key])
+                const context = canvas.getContext('2d')!
+
+                const img = new Image()
+                img.onload = async () => {
+                    await nextTick()
+                    context.drawImage(img, 0, 0, img.width, img.height, 0, 0, canvas.width, canvas.height)
+
+                    const heatmap = heatMapRef.value!.toDataURL()
+                    const heatmapImg = new Image()
+                    heatmapImg.onload = async () => {
+                        await nextTick()
+                        context.drawImage(heatmapImg, 0, 0)
+                        resolve(canvas.toDataURL())
+                    }
+                    heatmapImg.src = heatmap
                 }
-                legendCtx.fillStyle = gradient
-                legendCtx.fillRect(0, 0, 100, 10)
-                pageData.value.legendMin = data.min
-                pageData.value.legendMax = data.max || 10000
-                pageData.value.legendSrc = legendCanvas.toDataURL()
-            }
+                img.src = pageData.value.imgOrigBase64
+            })
         }
 
         /**
          * @description 导出热力图统计数据
          */
         const handleExport = async () => {
+            const dataURL = await renderImage()
             const fileName = props.chlData.name + '_' + formatDate(new Date(), 'YYYYMMDDHHmmss') + '.jpg'
-            const dataURL = document.getElementById('originCanvas').toDataURL()
-
-            const link = document.createElement('a')
-            if (window.navigator.msSaveOrOpenBlob) {
-                // 兼容IE
-                const bstr = window.atob(dataURL.split(',')[1])
-                let n = bstr.length
-                const u8arr = new Uint8Array(n)
-                while (n--) {
-                    u8arr[n] = bstr.charCodeAt(n)
-                }
-                const blob = new Blob([u8arr])
-                window.navigator.msSaveOrOpenBlob(blob, fileName)
-            } else {
-                // 谷歌 火狐
-                link.setAttribute('href', dataURL)
-                link.setAttribute('download', fileName)
-                link.style.display = 'none'
-                document.body.appendChild(link)
-                try {
-                    link.click()
-                } catch (e) {
-                    openMessageBox('Your browser does not support downloading pictures')
-                }
-            }
-
-            setTimeout(() => {
-                document.body.removeChild(link)
-            }, 1000)
+            downloadFromBase64(dataURL, fileName)
         }
 
         /**
@@ -1169,7 +1113,7 @@ export default defineComponent({
             handleExport,
             clearArea,
             clearAllArea,
-            updateLegend,
+            heatMapRef,
         }
     },
 })

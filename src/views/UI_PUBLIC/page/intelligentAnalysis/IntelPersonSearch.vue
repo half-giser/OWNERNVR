@@ -558,6 +558,7 @@
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
+    flex: 1;
 
     .base-intel-row {
         .el-radio-button {
@@ -631,6 +632,11 @@
     }
 }
 
+.base-intel-right {
+    padding: 10px;
+    flex: 1;
+}
+
 .sort_item {
     display: flex;
     justify-content: flex-end;
@@ -656,9 +662,5 @@
     .Sprite {
         transform: scale(0.7);
     }
-}
-
-.base-intel-right {
-    padding: 10px;
 }
 </style>

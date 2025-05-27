@@ -926,7 +926,7 @@ export class AlarmHeatMapDto {
 export class AlarmHeatMapChartDto {
     x = 0
     y = 0
-    value = ''
+    value = 0
 }
 
 /**
