@@ -10,6 +10,7 @@ import IntelBasePlateColorPop from './IntelBasePlateColorPop.vue'
 import IntelBaseSnapItem from './IntelBaseSnapItem.vue'
 import IntelSearchDetail from './IntelSearchDetail.vue'
 import { type DropdownInstance, type CheckboxValueType } from 'element-plus'
+import IntelSearchBackupPop from './IntelSearchBackupPop.vue'
 
 export default defineComponent({
     components: {
@@ -19,6 +20,7 @@ export default defineComponent({
         IntelBasePlateColorPop,
         IntelBaseSnapItem,
         IntelSearchDetail,
+        IntelSearchBackupPop
     },
     setup() {
         const { Translate } = useLangStore()
@@ -28,6 +30,7 @@ export default defineComponent({
         const carSortDropdown = ref<DropdownInstance>()
         const motorcycleSortDropdown = ref<DropdownInstance>()
         const plateNumberSortDropdown = ref<DropdownInstance>()
+        const IntelSearchBackupPopRef = ref()
 
         // key对应界面tab类型，value对应协议需要下发的searchType字段
         const SEARCH_TYPE_MAPPING: Record<string, string> = {
@@ -676,6 +679,22 @@ export default defineComponent({
         }
 
         /**
+         * @description 获取索引数据
+         */
+        const getIndexTargetDatas = () => {
+            switch (pageData.value.searchType) {
+                case 'byCar':
+                    return pageData.value.targetIndexDatasForCar
+                case 'byMotorcycle':
+                    return pageData.value.targetIndexDatasForMotorcycle
+                case 'byPlateNumber':
+                    return pageData.value.targetIndexDatasForPlateNumber
+                default:
+                    return []
+            }
+        }
+
+        /**
          * @description 获取当前选中的详情数据
          */
         const getCurrSelectedTargetDatas = () => {
@@ -906,15 +925,26 @@ export default defineComponent({
          * @description 备份全部
          */
         const handleBackupAll = () => {
-            console.log(auth)
-            console.log(chlIdNameMap)
+            IntelSearchBackupPopRef.value.startBackup({
+                isBackupPic: true,
+                isBackupVideo: false,
+                indexData: getIndexTargetDatas(),
+                allChlAuth: auth,
+                chlAuthMapping: []
+            })
         }
 
         /**
          * @description 备份选中项
          */
         const handleBackup = (backupType: 'pic' | 'video' | 'picAndVideo') => {
-            console.log(backupType)
+            IntelSearchBackupPopRef.value.startBackup({
+                isBackupPic: backupType === 'pic' || backupType === 'picAndVideo',
+                isBackupVideo: backupType === 'video' || backupType === 'picAndVideo',
+                indexData: getCurrSelectedTargetDatas(),
+                allChlAuth: auth,
+                chlAuthMapping: []
+            })
         }
 
         /**
@@ -1018,6 +1048,7 @@ export default defineComponent({
             handleChecked,
             displayDateTime,
             isEnableBackup,
+            IntelSearchBackupPopRef
         }
     },
 })

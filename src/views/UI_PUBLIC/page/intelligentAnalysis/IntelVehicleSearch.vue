@@ -369,6 +369,7 @@
             />
         </div>
     </div>
+    <IntelSearchBackupPop ref="IntelSearchBackupPopRef"/>
 </template>
 
 <script lang="ts" src="./IntelVehicleSearch.v.ts"></script>
