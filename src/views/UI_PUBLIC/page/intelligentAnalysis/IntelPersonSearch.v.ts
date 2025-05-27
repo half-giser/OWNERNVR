@@ -10,6 +10,7 @@ import IntelBaseProfileSelector from './IntelBaseProfileSelector.vue'
 import IntelFaceSearchChooseFacePop from './IntelFaceSearchChooseFacePop.vue'
 import IntelBaseSnapItem from './IntelBaseSnapItem.vue'
 import IntelSearchDetail from './IntelSearchDetail.vue'
+import IntelSearchBackupPop from './IntelSearchBackupPop.vue'
 import { type DropdownInstance, type CheckboxValueType } from 'element-plus'
 
 export default defineComponent({
@@ -21,6 +22,7 @@ export default defineComponent({
         IntelFaceSearchChooseFacePop,
         IntelBaseSnapItem,
         IntelSearchDetail,
+        IntelSearchBackupPop,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -31,6 +33,8 @@ export default defineComponent({
         const faceSortDropdown = ref<DropdownInstance>()
         const bodySortDropdown = ref<DropdownInstance>()
         const personAttributeSortDropdown = ref<DropdownInstance>()
+        const IntelSearchBackupPopRef = ref()
+        const detailRef = ref()
 
         // key对应界面tab类型，value对应协议需要下发的searchType字段
         const SEARCH_TYPE_MAPPING: Record<string, string> = {
@@ -48,8 +52,6 @@ export default defineComponent({
             attrType: string
             attrValue: string[]
         }
-
-        const detailRef = ref()
 
         // 界面数据
         const pageData = ref({
@@ -190,15 +192,6 @@ export default defineComponent({
         })
         // 列表索引数据（根据分页索引pageIndex和分页大小pageSize从总数据targetIndexDatas中截取的当页列表数据）
         const sliceTargetIndexDatas = ref<IntelTargetIndexItem[]>([])
-
-        /**
-         * @description 获取通道ID与通道名称的映射
-         * @param {Record<string, string>} e
-         */
-        let chlIdNameMap: Record<string, string> = {}
-        const getChlIdNameMap = (e: Record<string, string>) => {
-            chlIdNameMap = e
-        }
 
         /**
          * @description 获取列表索引数据 - searchTargetIndex
@@ -600,7 +593,7 @@ export default defineComponent({
 
                     // 判断当前数据是否被选中
                     const currSelectedTargetDatas = getCurrSelectedTargetDatas()
-                    const findIndex = currSelectedTargetDatas.findIndex((item) => item.index === item.index)
+                    const findIndex = currSelectedTargetDatas.findIndex((selectedItem) => selectedItem.index === item.index)
                     if (findIndex > -1) item.checked = true
                     judgeIsCheckedAll()
                 } else {
@@ -1190,15 +1183,26 @@ export default defineComponent({
          * @description 备份全部
          */
         const handleBackupAll = () => {
-            console.log(auth)
-            console.log(chlIdNameMap)
+            IntelSearchBackupPopRef.value.startBackup({
+                isBackupPic: true,
+                isBackupVideo: false,
+                indexData: getCurrTargetIndexDatas(),
+                allChlAuth: auth,
+                chlAuthMapping: [],
+            })
         }
 
         /**
          * @description 备份选中项
          */
         const handleBackup = (backupType: 'pic' | 'video' | 'picAndVideo') => {
-            console.log(backupType)
+            IntelSearchBackupPopRef.value.startBackup({
+                isBackupPic: backupType === 'pic' || backupType === 'picAndVideo',
+                isBackupVideo: backupType === 'video' || backupType === 'picAndVideo',
+                indexData: getCurrSelectedTargetDatas(),
+                allChlAuth: auth,
+                chlAuthMapping: [],
+            })
         }
 
         /**
@@ -1536,9 +1540,7 @@ export default defineComponent({
             personAttributeSortDropdown,
             pageData,
             detailRef,
-            getChlIdNameMap,
             getAllTargetIndexDatas,
-            getCurrTargetDatas,
             openChoosePicPop,
             chooseFaceSnap,
             chooseBodySnap,
@@ -1560,6 +1562,7 @@ export default defineComponent({
             showPicChooser,
             showCompare,
             isEnableBackup,
+            IntelSearchBackupPopRef,
         }
     },
 })

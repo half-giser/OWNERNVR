@@ -163,6 +163,7 @@ export class RecordStreamInfoDto extends TableRowStatus {
     recordStream = ''
     GOP: number | undefined = undefined
     chlType = ''
+    isRTSPChl = false
     mainCaps = {
         // 可选的编码类型
         supEnct: [] as SelectOption<string, string>[],

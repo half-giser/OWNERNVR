@@ -247,49 +247,55 @@
                     >
                         <div class="base-ai-param-box">
                             <div class="heatMapChart_left">
-                                <div class="heatMapContent">
-                                    <div v-if="pageData.hasNoChartData">
+                                <div class="heatMapArea">
+                                    <div
+                                        v-if="!pageData.imgOrigBase64"
+                                        class="heatMapArea-nodata"
+                                    >
                                         <BaseImgSprite
                                             file="heatMap_chart"
                                             :index="0"
                                             :chunk="1"
                                         />
                                     </div>
-                                    <div
-                                        v-else
-                                        class="heatMapArea"
-                                    >
-                                        <canvas
-                                            id="originCanvas"
-                                            width="700"
-                                            height="450"
-                                        >
-                                        </canvas>
-                                        <Heatmap
+                                    <div v-else>
+                                        <img
+                                            :src="pageData.imgOrigBase64"
+                                            class=""
+                                        />
+                                        <BaseHeatMapChart
+                                            ref="heatMapRef"
                                             :data="pageData.heatMapChartData"
-                                            @update-legend="updateLegend"
+                                            :min="0"
+                                            :max="pageData.renderLevel"
                                         />
                                     </div>
                                 </div>
-                                <div class="heatMap_legendArea">
-                                    <div id="heatMap_slideRange">
+                                <div
+                                    v-show="pageData.imgOrigBase64"
+                                    class="legend"
+                                >
+                                    <div class="legend-item">
+                                        <div class="legend-left"></div>
                                         <BaseSliderInput
                                             v-model="pageData.renderLevel"
                                             :min="1"
                                             :max="10000"
                                         />
                                     </div>
-                                    <div class="heatMap_legend_container">
-                                        <span id="heatMap_min">{{ pageData.legendMin }}</span>
-                                        <img
-                                            id="heatMap_gradient"
-                                            :src="pageData.legendSrc"
-                                        />
-                                        <span id="heatMap_max">{{ pageData.legendMax }}</span>
+                                    <div class="legend-item">
+                                        <span class="legend-left">0</span>
+                                        <div
+                                            class="legend-gradient"
+                                            :style="{
+                                                background: pageData.legendGradient,
+                                            }"
+                                        ></div>
+                                        <span class="legend-right">{{ pageData.renderLevel }}</span>
                                     </div>
                                 </div>
                             </div>
-                            <div class="heatMapChart_right">
+                            <el-form>
                                 <!-- 搜索条件 -->
                                 <div class="base-ai-subheading">{{ Translate('IDCS_SEARCH') }}</div>
                                 <el-form-item :label="Translate('IDCS_START_TIME')">
@@ -328,7 +334,7 @@
                                         />
                                     </el-radio-group>
                                 </el-form-item>
-                                <el-form-item>
+                                <div class="base-btn-box">
                                     <el-button @click="handleStatics">{{ Translate('IDCS_STATISTICS') }}</el-button>
                                     <el-button
                                         :disabled="!pageData.imgOrigBase64"
@@ -336,8 +342,8 @@
                                     >
                                         {{ Translate('IDCS_EXPORT') }}
                                     </el-button>
-                                </el-form-item>
-                            </div>
+                                </div>
+                            </el-form>
                         </div>
                     </el-tab-pane>
                 </el-tabs>
@@ -404,28 +410,66 @@
 <style lang="scss" scoped>
 .heatMapChart_left {
     width: 700px;
-    padding: 0 100px 10px 20px;
+    padding: 0 30px 10px 20px;
+}
 
-    .heatMapContent {
+.heatMapArea {
+    width: 700px;
+    height: 450px;
+    position: relative;
+    border: 1px solid var(--content-border);
+    overflow: hidden;
+
+    img {
+        width: 700px;
         height: 450px;
+        object-fit: fill;
+
+        &[src=''] {
+            opacity: 0;
+        }
+    }
+
+    &-nodata {
+        position: absolute;
         display: flex;
         justify-content: center;
         align-items: center;
-        border: 1px solid var(--content-border);
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background-color: var(--main-bg);
+    }
+}
+
+.legend {
+    width: 223px;
+    height: auto;
+    padding: 10px;
+    border: 1px solid var(--content-border);
+    margin-top: 30px;
+    font-size: 14px;
+
+    &-left {
+        width: 10px;
+        flex-shrink: 0;
     }
 
-    .heatMap_legendArea {
-        width: 223px;
-        height: auto;
-        padding: 10px;
-        outline: 2px solid var(--upload-bg);
-        margin-top: 30px;
+    &-right {
+        width: 50px;
+        flex-shrink: 0;
+        text-align: right;
+    }
 
-        .heatMap_legend_container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    &-item {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    &-gradient {
+        width: 100%;
+        height: 15px;
     }
 }
 </style>

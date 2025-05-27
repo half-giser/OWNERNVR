@@ -426,7 +426,6 @@ export class NetSubStreamListBitRange {
  * @description 网络子码流列表项
  */
 export class NetSubStreamList extends TableRowStatus {
-    [key: string]: any
     id = ''
     name = ''
     chlType = ''
@@ -444,8 +443,6 @@ export class NetSubStreamList extends TableRowStatus {
     bitType = ''
     level = ''
     videoQuality = 0
-    // bitRange: null | NetSubStreamListBitRange = null
-    // audio = ''
 }
 
 /**
