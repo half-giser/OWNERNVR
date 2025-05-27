@@ -235,7 +235,6 @@
         @confirm="pageData.isRegisterPlatePop = false"
         @close="pageData.isRegisterPlatePop = false"
     />
-    <IntelSearchBackupPop ref="IntelSearchBackupPopRef" />
 </template>
 
 <script lang="ts" src="./IntelBaseSnapItem.v.ts"></script>

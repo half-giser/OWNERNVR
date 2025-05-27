@@ -90,6 +90,10 @@
             }"
             @close="pageData.isAddPlatePop = false"
         />
+        <IntelSearchBackupPop
+            ref="backupPopRef"
+            :auth="auth"
+        />
     </div>
 </template>
 

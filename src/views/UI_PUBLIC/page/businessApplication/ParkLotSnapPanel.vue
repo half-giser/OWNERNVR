@@ -280,6 +280,11 @@
             background-color: var(--primary-light);
         }
 
+        &:active:not(.disabled) {
+            background-color: var(--primary);
+            color: var(--main-text-active);
+        }
+
         &.disabled {
             color: var(--main-text-light);
             cursor: not-allowed;

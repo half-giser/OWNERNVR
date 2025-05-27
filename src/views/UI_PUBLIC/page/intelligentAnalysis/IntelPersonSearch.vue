@@ -260,6 +260,7 @@
                         @detail="showDetail(item)"
                         @checked="handleChecked"
                         @search="handleSearch"
+                        @backup="handleBackupCurrentTarget"
                     />
                 </div>
                 <!-- 人脸 - 轨迹容器 -->
@@ -287,6 +288,7 @@
                         @detail="showDetail(item)"
                         @checked="handleChecked"
                         @search="handleSearch"
+                        @backup="handleBackupCurrentTarget"
                     />
                 </div>
                 <!-- 人属性 - 抓拍图容器 -->
@@ -305,6 +307,7 @@
                         @detail="showDetail(item)"
                         @checked="handleChecked"
                         @search="handleSearch"
+                        @backup="handleBackupCurrentTarget"
                     />
                 </div>
             </div>
@@ -412,17 +415,15 @@
             </div>
             <!-- 打开/关闭详情按钮 -->
             <div class="resize_icon_left">
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     :file="pageData.isDetailOpen ? 'right_close' : 'left_open'"
-                    :chunk="4"
                     class="icon_left"
                     @click="switchDetail"
                 />
             </div>
             <div class="resize_icon_right">
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     :file="pageData.isDetailOpen ? 'right_close' : 'left_open'"
-                    :chunk="4"
                     class="icon_right"
                     @click="switchDetail"
                 />
@@ -451,7 +452,10 @@
         @choose-body-snap="chooseBodySnap"
         @choose-face="chooseFace"
     />
-    <IntelSearchBackupPop ref="IntelSearchBackupPopRef" />
+    <IntelSearchBackupPop
+        ref="backupPopRef"
+        :auth="auth"
+    />
 </template>
 
 <script lang="ts" src="./IntelPersonSearch.v.ts"></script>
@@ -585,10 +589,6 @@
         margin: auto;
         width: 10px;
         height: 60px;
-
-        &:hover {
-            opacity: 0.8;
-        }
     }
 
     .resize_icon_left {

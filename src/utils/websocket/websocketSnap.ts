@@ -223,7 +223,18 @@ export type WebsocketSnapOnSuccessPlate = {
     exitTraceObj: { X1: number; Y1: number; X2: number; Y2: number }
 }
 
-export type WebsocketSnapOnSuccessParam = WebsocketSnapOnSuccessSnap | WebsocketSnapOnSuccessPlate
+export type WebsocketSnapOnSuccessAudio = {
+    type: number
+    chlId: string
+    chlName: string
+    detect_time: number
+    frame_time: string
+    isAlarm: boolean
+    soundLevel: number
+    backgroundLevel: number
+}
+
+export type WebsocketSnapOnSuccessParam = WebsocketSnapOnSuccessSnap | WebsocketSnapOnSuccessPlate | WebsocketSnapOnSuccessAudio
 
 const PIC_KEY_MAP: Record<string, Record<string, string>> = {
     fire_detect: {
