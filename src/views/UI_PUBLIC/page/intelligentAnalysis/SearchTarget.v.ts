@@ -122,6 +122,14 @@ export default defineComponent({
         }
 
         /**
+         * @description 返回
+         */
+        const handleExit = () => {
+            localStorage.setItem('extractResultInfos', '')
+            router.back()
+        }
+
+        /**
          * @description 更改时间范围类型
          * @param {Array} value 时间戳 ms
          * @param {String} type
@@ -886,14 +894,6 @@ export default defineComponent({
             pageData.value.isCheckedAll = currTargetDatas.every((item) => item?.checked)
         }
 
-        /**
-         * @description 返回
-         */
-        const hanbleExit = () => {
-            localStorage.setItem('extractResultInfos', '')
-            router.back()
-        }
-
         // 备份按钮置灰/可用状态
         const isEnableBackup = computed(() => {
             const currSelectedTargetDatas = getCurrSelectedTargetDatas()
@@ -923,11 +923,11 @@ export default defineComponent({
             tableRef,
             detailRef,
             searchTargetDropdown,
-            getAllTargetIndexDatas,
-            hanbleExit,
+            handleExit,
             changeDateRange,
             handleCurrentChange,
             handleRowClick,
+            getAllTargetIndexDatas,
             handleChangePage,
             handleCheckedAll,
             handleSort,

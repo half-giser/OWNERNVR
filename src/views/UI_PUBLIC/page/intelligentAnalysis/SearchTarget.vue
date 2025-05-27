@@ -15,11 +15,11 @@
                 <BaseImgSpriteBtn
                     class="btn"
                     file="exit"
-                    @click="hanbleExit"
+                    @click="handleExit"
                 />
                 <div
                     class="top-left-label"
-                    @click="hanbleExit"
+                    @click="handleExit"
                 >
                     {{ Translate('IDCS_EXIT') }}
                 </div>

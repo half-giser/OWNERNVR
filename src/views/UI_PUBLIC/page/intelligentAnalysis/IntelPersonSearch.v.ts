@@ -1541,7 +1541,6 @@ export default defineComponent({
             pageData,
             detailRef,
             getAllTargetIndexDatas,
-            getCurrTargetDatas,
             openChoosePicPop,
             chooseFaceSnap,
             chooseBodySnap,

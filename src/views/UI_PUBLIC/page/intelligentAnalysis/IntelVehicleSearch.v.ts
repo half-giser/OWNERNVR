@@ -1008,7 +1008,6 @@ export default defineComponent({
             pageData,
             detailRef,
             getAllTargetIndexDatas,
-            getCurrTargetDatas,
             handleChangePlateColor,
             handleChangePage,
             handleCheckedAll,
