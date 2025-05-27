@@ -1,5 +1,6 @@
 {
   "files": [],
+  // 项目引用列表: 设置需要引用的底层项目
   "references": [
     { "path": "./tsconfig.node.json" },
     { "path": "./tsconfig.web.json" }
