@@ -157,6 +157,7 @@
                                 search-type="bySearchTarget"
                                 @detail="showDetail(item)"
                                 @checked="handleChecked"
+                                @backup="handleBackupCurrentTarget"
                             />
                         </div>
                     </div>
@@ -199,17 +200,15 @@
                     </div>
                     <!-- 打开/关闭详情按钮 -->
                     <div class="resize_icon_left">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             :file="pageData.isDetailOpen ? 'right_close' : 'left_open'"
-                            :chunk="4"
                             class="icon_left"
                             @click="switchDetail"
                         />
                     </div>
                     <div class="resize_icon_right">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             :file="pageData.isDetailOpen ? 'right_close' : 'left_open'"
-                            :chunk="4"
                             class="icon_right"
                             @click="switchDetail"
                         />
@@ -229,7 +228,10 @@
         </div>
         <div class="copyright">{{ Translate('IDCS_COPYRIGHT') }}</div>
     </div>
-    <IntelSearchBackupPop ref="IntelSearchBackupPopRef" />
+    <IntelSearchBackupPop
+        ref="backupPopRef"
+        :auth="auth"
+    />
 </template>
 
 <script lang="ts" src="./SearchTarget.v.ts"></script>
@@ -370,10 +372,6 @@
             margin: auto;
             width: 10px;
             height: 60px;
-
-            &:hover {
-                opacity: 0.8;
-            }
         }
 
         .resize_icon_left {

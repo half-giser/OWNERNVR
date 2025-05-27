@@ -679,7 +679,7 @@ export default defineComponent({
          */
         const changeArea = (points: CanvasBaseArea | CanvasBasePoint[]) => {
             const area = pageData.value.warnAreaIndex
-            formData.value.boundaryInfo[area].point = points
+            formData.value.boundaryInfo[area].point = points as CanvasBasePoint[]
             if (pageData.value.isShowAllArea) {
                 showAllArea(true)
             }
@@ -720,9 +720,10 @@ export default defineComponent({
                     const sendClearXML = OCX_XML_DeletePolygonArea('clearAll')
                     plugin.ExecuteCmd(sendClearXML)
                     // 再绘制当前区域
-                    const polygonAreas = [cloneDeep(boundaryInfoList[curIndex])]
+                    const polygonAreas = [boundaryInfoList[curIndex]]
                     const sendAreaXML = OCX_XML_AddPolygonArea(polygonAreas, curIndex, true)
                     plugin.ExecuteCmd(sendAreaXML)
+
                     // 然后再绘制所有区域（结合上面绘制的当前区域会让当前区域有加粗效果）
                     const sendAllAreaXML = OCX_XML_AddPolygonArea(boundaryInfoList, curIndex, true)
                     plugin.ExecuteCmd(sendAllAreaXML)
@@ -750,10 +751,8 @@ export default defineComponent({
                 const minPercentH = minRegionInfo.height
                 const maxPercentW = maxRegionInfo.width
                 const maxPercentH = maxRegionInfo.height
-                minRegionInfo.region = []
-                maxRegionInfo.region = []
-                minRegionInfo.region.push(calcRegionInfo(minPercentW, minPercentH))
-                maxRegionInfo.region.push(calcRegionInfo(maxPercentW, maxPercentH))
+                minRegionInfo.region = [calcRegionInfo(minPercentW, minPercentH)]
+                maxRegionInfo.region = [calcRegionInfo(maxPercentW, maxPercentH)]
 
                 if (mode.value === 'h5') {
                     drawer.setRangeMin(minRegionInfo.region[0])
@@ -766,17 +765,21 @@ export default defineComponent({
                     const areaList = [1, 2]
                     const sendXMLClear = OCX_XML_DeleteRectangleArea(areaList)
                     plugin.ExecuteCmd(sendXMLClear)
-                    const minRegionForPlugin = cloneDeep(minRegionInfo.region[0])
-                    minRegionForPlugin.ID = 1
-                    minRegionForPlugin.text = 'Min'
-                    minRegionForPlugin.LineColor = 'yellow'
-                    const maxRegionForPlugin = cloneDeep(maxRegionInfo.region[0])
-                    maxRegionForPlugin.ID = 2
-                    maxRegionForPlugin.text = 'Max'
-                    maxRegionForPlugin.LineColor = 'yellow'
-                    const rectangles = []
-                    rectangles.push(minRegionForPlugin)
-                    rectangles.push(maxRegionForPlugin)
+
+                    const rectangles = [
+                        {
+                            ...minRegionInfo.region[0],
+                            ID: 1,
+                            text: 'Min',
+                            LineColor: 'yellow',
+                        },
+                        {
+                            ...maxRegionInfo.region[0],
+                            ID: 2,
+                            text: 'Max',
+                            LineColor: 'yellow',
+                        },
+                    ]
                     const sendXML = OCX_XML_AddRectangleArea(rectangles)
                     plugin.ExecuteCmd(sendXML)
                 }
@@ -828,7 +831,8 @@ export default defineComponent({
                 if (mode.value === 'ocx') {
                     const sendClearXML = OCX_XML_DeletePolygonArea('clearAll')
                     plugin.ExecuteCmd(sendClearXML)
-                    const sendXML = OCX_XML_AddPolygonArea(boundaryInfo[area], area, false)
+
+                    const sendXML = OCX_XML_AddPolygonArea([boundaryInfo[area]], area, false)
                     plugin.ExecuteCmd(sendXML)
                 }
             }
@@ -991,7 +995,6 @@ export default defineComponent({
                     showAllArea(true)
                 }
             })
-            // }
         }
 
         /**

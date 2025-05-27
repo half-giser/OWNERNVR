@@ -6,7 +6,7 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_DETAIL')"
-        width="950"
+        width="942"
         @open="open"
         @opened="opened"
         @close="close"
@@ -255,7 +255,6 @@
                     {{ Translate('IDCS_PREVIOUS') }}
                 </div>
                 <div
-                    id="next"
                     class="btn"
                     :disabled="pageData.index === listData.length - 1"
                     :class="{
@@ -601,43 +600,42 @@
             align-items: center;
             justify-content: flex-end;
             width: 100%;
+
+            .Sprite {
+                margin-left: 3px;
+            }
         }
     }
 
     .btns {
+        display: flex;
         position: absolute;
-        width: 136px;
-        height: 48px;
         left: 0;
-        top: 430px;
-        z-index: 3;
-        background-color: var(--color-white);
+        bottom: 60px;
+        z-index: 5;
 
         .btn {
-            background-color: var(--color-white);
-            color: var(--tooltip-text);
-            border: 0;
-            position: absolute;
-            width: 55px;
-            height: 22px;
-            padding: 13px 5px;
-            cursor: pointer;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            min-width: 65px;
+            height: 48px;
+            line-height: 48px;
             text-align: center;
-
-            &.disabled {
-                cursor: default;
-                color: var(--btn-bg-disabled);
-            }
+            cursor: pointer;
+            background-color: var(--color-white);
+            user-select: none;
 
             &:hover:not(.disabled) {
-                background-color: var(--preNext-btn-bg-active);
+                background-color: var(--primary-light);
             }
-        }
 
-        #next {
-            right: 0;
+            &:active:not(.disabled) {
+                background-color: var(--primary);
+                color: var(--main-text-active);
+            }
+
+            &.disabled {
+                color: var(--main-text-light);
+                cursor: not-allowed;
+            }
         }
     }
 

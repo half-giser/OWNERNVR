@@ -98,6 +98,7 @@
                                 :detail-index="`${pageData.detailIndex}`"
                                 search-type="byPassRecord"
                                 @detail="showDetail(index)"
+                                @backup="backUpItem(index)"
                             />
                         </div>
                     </div>
@@ -173,6 +174,10 @@
             </div>
         </div>
         <div class="copyright">{{ Translate('IDCS_COPYRIGHT') }}</div>
+        <IntelSearchBackupPop
+            ref="backupPopRef"
+            :auth="auth"
+        />
     </div>
 </template>
 
