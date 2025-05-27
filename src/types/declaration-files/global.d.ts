@@ -12,6 +12,7 @@ import type { ScheduleLineReturnsType } from '@/components/BaseScheduleLine.vue'
 import type { ScheduleWeekReturnsType } from '@/components/BaseScheduleWeek.vue'
 import type { TimelineReturnsType } from '@/components/player/BaseTimeline.vue'
 import type { LivePopReturnsType } from '@/components/player/BaseLivePop.vue'
+import type { HeatMapReturnsType } from '@/components/chart/BaseHeatMapChart.vue'
 
 export {}
 
@@ -170,6 +171,8 @@ declare global {
     type ScheduleWeekInstance = ScheduleWeekReturnsType
 
     type ScheduleLineInstance = ScheduleLineReturnsType
+
+    type HeatMapInstance = HeatMapReturnsType
 
     type UserChlAuth = _UserChlAuth
 
