@@ -32,11 +32,11 @@
                 <!--抓拍图+原图模块 -->
                 <div
                     v-show="pageData.detailType === 'snap'"
-                    class="target"
+                    class="pic"
                 >
                     <!-- 原图 -->
                     <img
-                        class="target-pano"
+                        class="pic-pano"
                         :src="pageData.panoramaImg"
                     />
                     <!-- 抓拍图 -->
@@ -44,13 +44,13 @@
                         v-show="pageData.isShowSnap"
                         ref="snapImg"
                         :src="pageData.snapImg"
-                        :class="isCoverTargetBoxTopRight ? 'target-snap-left' : 'target-snap-right'"
+                        :class="isCoverTargetBoxTopRight ? 'pic-snap-left' : 'pic-snap-right'"
                         @load="loadImg"
                     />
-                    <div class="target-wrap">
+                    <div class="pic-wrap">
                         <div
-                            id="target-wrap-box"
-                            class="target-wrap-box"
+                            id="pic-wrap-box"
+                            class="pic-wrap-box"
                         >
                             <canvas
                                 ref="canvasRef"
@@ -58,7 +58,7 @@
                                 :height="pageData.canvasHeight"
                             ></canvas>
                         </div>
-                        <div class="target-wrap-text">
+                        <div class="pic-wrap-text">
                             <div
                                 v-show="pageData.isShowTargetBoxTitle"
                                 v-title
@@ -68,7 +68,7 @@
                                     width: `${pageData.attributeTitleWidth}px`,
                                     height: `${pageData.attributeTitleHeight}px`,
                                 }"
-                                class="target-wrap-text-title"
+                                class="pic-wrap-text-title"
                             >
                                 {{ pageData.targetTypeTxt }}
                             </div>
@@ -79,13 +79,13 @@
                                     top: `${pageData.attributeRectTop}px`,
                                     maxHeight: `${pageData.canvasHeight}px`,
                                 }"
-                                class="target-wrap-text-attribute"
+                                class="pic-wrap-text-attribute"
                             >
                                 <div
                                     v-for="(item, index) in attributeData"
                                     :key="index"
                                     v-title
-                                    class="target-wrap-text-attribute-item"
+                                    class="pic-wrap-text-attribute-item"
                                 >
                                     {{ item.value }}
                                 </div>
@@ -109,6 +109,12 @@
                         @success="handlePlayerSuccess"
                         @play-complete="handlePlayComplete"
                         @error="handlePlayerError"
+                    />
+                    <BaseTargetSearchPanel
+                        v-model:visible="pageData.isDetectTarget"
+                        type="image"
+                        :mode="mode"
+                        :pic="pageData.detectTargetImg"
                     />
                 </div>
                 <!--叠加在图片上的上一个、下一个按钮 -->
@@ -261,6 +267,7 @@
                             v-show="systemCaps.supportREID"
                             class="btn"
                             file="target_retrieval"
+                            :title="Translate('IDCS_REID')"
                             :active="pageData.enableREID"
                             :disabled="pageData.iconDisabled"
                             @click="handleSearchTarget"
@@ -440,12 +447,6 @@
                 <div>{{ currDetailData.channelName }}</div>
             </div>
         </div>
-        <BaseTargetSearchPanel
-            v-model:visible="pageData.isDetectTarget"
-            type="image"
-            :mode="mode"
-            :pic="pageData.detectTargetImg"
-        />
     </div>
 </template>
 
@@ -472,7 +473,7 @@
             height: calc(100% - 90px);
             position: relative;
 
-            .target {
+            .pic {
                 float: left;
                 position: relative;
                 width: 100%;

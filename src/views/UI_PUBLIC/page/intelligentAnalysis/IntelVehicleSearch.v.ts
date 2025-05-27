@@ -9,8 +9,8 @@ import IntelBaseProfileSelector from './IntelBaseProfileSelector.vue'
 import IntelBasePlateColorPop from './IntelBasePlateColorPop.vue'
 import IntelBaseSnapItem from './IntelBaseSnapItem.vue'
 import IntelSearchDetail from './IntelSearchDetail.vue'
-import { type DropdownInstance, type CheckboxValueType } from 'element-plus'
 import IntelSearchBackupPop from './IntelSearchBackupPop.vue'
+import { type DropdownInstance, type CheckboxValueType } from 'element-plus'
 
 export default defineComponent({
     components: {
@@ -20,7 +20,7 @@ export default defineComponent({
         IntelBasePlateColorPop,
         IntelBaseSnapItem,
         IntelSearchDetail,
-        IntelSearchBackupPop
+        IntelSearchBackupPop,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -31,6 +31,7 @@ export default defineComponent({
         const motorcycleSortDropdown = ref<DropdownInstance>()
         const plateNumberSortDropdown = ref<DropdownInstance>()
         const IntelSearchBackupPopRef = ref()
+        const detailRef = ref()
 
         // key对应界面tab类型，value对应协议需要下发的searchType字段
         const SEARCH_TYPE_MAPPING: Record<string, string> = {
@@ -48,8 +49,6 @@ export default defineComponent({
             attrType: string
             attrValue: string[]
         }
-
-        const detailRef = ref()
 
         // 界面数据
         const pageData = ref({
@@ -163,15 +162,6 @@ export default defineComponent({
         })
         // 列表索引数据（根据分页索引pageIndex和分页大小pageSize从总数据targetIndexDatas中截取的当页列表数据）
         const sliceTargetIndexDatas = ref<IntelTargetIndexItem[]>([])
-
-        /**
-         * @description 获取通道ID与通道名称的映射
-         * @param {Record<string, string>} e
-         */
-        let chlIdNameMap: Record<string, string> = {}
-        const getChlIdNameMap = (e: Record<string, string>) => {
-            chlIdNameMap = e
-        }
 
         /**
          * @description 获取列表索引数据 - searchTargetIndex
@@ -519,7 +509,7 @@ export default defineComponent({
 
                     // 判断当前数据是否被选中
                     const currSelectedTargetDatas = getCurrSelectedTargetDatas()
-                    const findIndex = currSelectedTargetDatas.findIndex((item) => item.index === item.index)
+                    const findIndex = currSelectedTargetDatas.findIndex((selectedItem) => selectedItem.index === item.index)
                     if (findIndex > -1) item.checked = true
                     judgeIsCheckedAll()
                 } else {
@@ -673,22 +663,6 @@ export default defineComponent({
                         })
                     })
                     return attrObjToList
-                default:
-                    return []
-            }
-        }
-
-        /**
-         * @description 获取索引数据
-         */
-        const getIndexTargetDatas = () => {
-            switch (pageData.value.searchType) {
-                case 'byCar':
-                    return pageData.value.targetIndexDatasForCar
-                case 'byMotorcycle':
-                    return pageData.value.targetIndexDatasForMotorcycle
-                case 'byPlateNumber':
-                    return pageData.value.targetIndexDatasForPlateNumber
                 default:
                     return []
             }
@@ -928,9 +902,9 @@ export default defineComponent({
             IntelSearchBackupPopRef.value.startBackup({
                 isBackupPic: true,
                 isBackupVideo: false,
-                indexData: getIndexTargetDatas(),
+                indexData: getCurrTargetIndexDatas(),
                 allChlAuth: auth,
-                chlAuthMapping: []
+                chlAuthMapping: [],
             })
         }
 
@@ -943,7 +917,7 @@ export default defineComponent({
                 isBackupVideo: backupType === 'video' || backupType === 'picAndVideo',
                 indexData: getCurrSelectedTargetDatas(),
                 allChlAuth: auth,
-                chlAuthMapping: []
+                chlAuthMapping: [],
             })
         }
 
@@ -1033,9 +1007,7 @@ export default defineComponent({
             plateNumberSortDropdown,
             pageData,
             detailRef,
-            getChlIdNameMap,
             getAllTargetIndexDatas,
-            getCurrTargetDatas,
             handleChangePlateColor,
             handleChangePage,
             handleCheckedAll,
@@ -1048,7 +1020,7 @@ export default defineComponent({
             handleChecked,
             displayDateTime,
             isEnableBackup,
-            IntelSearchBackupPopRef
+            IntelSearchBackupPopRef,
         }
     },
 })

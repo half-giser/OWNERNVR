@@ -28,10 +28,7 @@
                     <!-- 时间选择 -->
                     <IntelBaseDateTimeSelector v-model="pageData.dateRange" />
                     <!-- 通道选择 -->
-                    <IntelBaseChannelSelector
-                        v-model="pageData.chlIdList"
-                        @ready="getChlIdNameMap"
-                    />
+                    <IntelBaseChannelSelector v-model="pageData.chlIdList" />
                     <!-- 属性选择 - 人属性 -->
                     <IntelBaseProfileSelector
                         v-show="pageData.searchType === 'byPersonAttribute'"
@@ -454,7 +451,7 @@
         @choose-body-snap="chooseBodySnap"
         @choose-face="chooseFace"
     />
-    <IntelSearchBackupPop ref="IntelSearchBackupPopRef"/>
+    <IntelSearchBackupPop ref="IntelSearchBackupPopRef" />
 </template>
 
 <script lang="ts" src="./IntelPersonSearch.v.ts"></script>

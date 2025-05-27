@@ -883,6 +883,7 @@ export default defineComponent({
             } else {
                 pageData.value.iconDisabled = false
             }
+            clearTargetDetect()
         }
 
         /**

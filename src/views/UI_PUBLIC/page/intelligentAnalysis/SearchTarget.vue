@@ -15,11 +15,11 @@
                 <BaseImgSpriteBtn
                     class="btn"
                     file="exit"
-                    @click="hanbleExit"
+                    @click="handleExit"
                 />
                 <div
                     class="top-left-label"
-                    @click="hanbleExit"
+                    @click="handleExit"
                 >
                     {{ Translate('IDCS_EXIT') }}
                 </div>
@@ -129,6 +129,7 @@
                                 </template>
                             </el-dropdown>
                             <el-checkbox
+                                v-model="pageData.isCheckedAll"
                                 :label="Translate('IDCS_SELECT_ALL')"
                                 @change="handleCheckedAll"
                             />
@@ -142,15 +143,14 @@
                             class="base-intel-pics-content"
                         >
                             <IntelBaseSnapItem
-                                v-for="item in pageData.targetDatasForSearchTarget"
-                                :key="item.targetID"
+                                v-for="(item, index) in pageData.targetDatasForSearchTarget"
+                                :key="index"
                                 :target-data="item"
                                 :detail-index="pageData.openDetailIndexForSearchTarget"
                                 :show-compare="false"
                                 search-type="bySearchTarget"
                                 @detail="showDetail(item)"
                                 @checked="handleChecked"
-                                @search="getAllTargetIndexDatas"
                             />
                         </div>
                     </div>
