@@ -476,4 +476,14 @@
         }
     }
 }
+
+.detail_open {
+    .snap {
+        width: calc((100% - 25px) / 4);
+    }
+
+    .compare_snap {
+        width: calc((100% - 60px) / 2);
+    }
+}
 </style>
