@@ -1,6 +1,6 @@
 <template>
     <div class="lot">
-        <!-- 头部提示 -->
+        <!-- 头部操作区域 -->
         <div class="top">
             <div class="top-left">
                 <el-tooltip :content="Translate('IDCS_REID')">
@@ -33,7 +33,7 @@
                     class="base-intel-left"
                 >
                     <!-- 时间选择 -->
-                    <div>{{ Translate('IDCS_TIME') }}</div>
+                    <div class="label label1">{{ Translate('IDCS_TIME') }}</div>
                     <div class="base-intel-row">
                         <BaseDateTab
                             :model-value="pageData.dateRange"
@@ -51,7 +51,7 @@
                         />
                     </div>
                     <!-- 通道选择 -->
-                    <div>{{ Translate('IDCS_CHANNEL') }}</div>
+                    <div class="label label2">{{ Translate('IDCS_CHANNEL') }}</div>
                     <div class="base-intel-row">
                         <el-table
                             ref="tableRef"
@@ -75,7 +75,7 @@
                         </el-table>
                     </div>
                     <!-- 图片选择 -->
-                    <div>{{ Translate('IDCS_OPERATE_SNAPSHOT_MSPB') }}</div>
+                    <div class="label label3">{{ Translate('IDCS_OPERATE_SNAPSHOT_MSPB') }}</div>
                     <!-- 图片 -->
                     <div class="pic_container">
                         <img
@@ -90,12 +90,12 @@
                             v-model="pageData.similarity"
                             :min="1"
                             :max="100"
-                            @change="getData"
+                            @change="getAllTargetIndexDatas"
                         />
                     </div>
                     <!-- 搜索按钮 -->
                     <div class="base-intel-row">
-                        <el-button @click="getData">{{ Translate('IDCS_SEARCH') }}</el-button>
+                        <el-button @click="getAllTargetIndexDatas">{{ Translate('IDCS_SEARCH') }}</el-button>
                     </div>
                 </div>
                 <div
@@ -130,27 +130,27 @@
                             </el-dropdown>
                             <el-checkbox
                                 :label="Translate('IDCS_SELECT_ALL')"
-                                @update:model-value="handleSelectAll"
+                                @change="handleCheckedAll"
                             />
                         </div>
                     </div>
                     <!-- 抓拍图容器 -->
                     <div class="base-intel-center-center base-intel-pics-box">
-                        <!-- 人脸 - 抓拍图容器 -->
+                        <!-- 目标检索 - 抓拍图容器 -->
                         <div
-                            id="byFaceSearchContentPic"
+                            id="bySearchTargetSearchContentPic"
                             class="base-intel-pics-content"
                         >
                             <IntelBaseSnapItem
-                                v-for="item in pageData.targetDatasForFace"
+                                v-for="item in pageData.targetDatasForSearchTarget"
                                 :key="item.targetID"
                                 :target-data="item"
-                                :detail-index="pageData.openDetailIndexForFace"
-                                :show-compare="showCompare"
-                                :choose-pics="pageData.choosePicsForFace"
-                                search-type="byFace"
+                                :detail-index="pageData.openDetailIndexForSearchTarget"
+                                :show-compare="false"
+                                search-type="bySearchTarget"
                                 @detail="showDetail(item)"
-                                @search="getData"
+                                @checked="handleChecked"
+                                @search="getAllTargetIndexDatas"
                             />
                         </div>
                     </div>
@@ -158,23 +158,23 @@
                     <div class="base-intel-center-bottom">
                         <!-- 分页器 -->
                         <div class="base-btn-box">
-                            <!-- 人脸 - 分页器 -->
+                            <!-- 目标检索 - 分页器 -->
                             <BasePagination
-                                v-model:current-page="pageData.pageIndexForFace"
-                                v-model:page-size="pageData.pageSizeForFace"
-                                :page-sizes="[pageData.pageSizeForFace]"
-                                :total="pageData.targetIndexDatasForFace.length"
+                                v-model:current-page="pageData.pageIndexForSearchTarget"
+                                v-model:page-size="pageData.pageSizeForSearchTarget"
+                                :page-sizes="[pageData.pageSizeForSearchTarget]"
+                                :total="pageData.targetIndexDatasForSearchTarget.length"
                                 @current-change="handleChangePage"
                             />
                         </div>
                         <!-- 备份/全部备份按钮 -->
                         <div class="base-btn-box">
-                            <!-- 人脸 -->
+                            <!-- 目标检索 -->
                             <el-button @click="handleBackupAll">
                                 {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
                             </el-button>
                             <el-dropdown placement="top-end">
-                                <el-button>
+                                <el-button :disabled="!isEnableBackup">
                                     {{ Translate('IDCS_BACKUP') }}
                                 </el-button>
                                 <template #dropdown>
@@ -191,23 +191,23 @@
                             </el-dropdown>
                         </div>
                     </div>
-                </div>
-                <!-- 打开/关闭详情按钮 -->
-                <div class="resize_icon_left">
-                    <BaseImgSprite
-                        :file="pageData.isDetailOpen ? 'right_close' : 'left_open'"
-                        :chunk="4"
-                        class="icon_left"
-                        @click="switchDetail"
-                    />
-                </div>
-                <div class="resize_icon_right">
-                    <BaseImgSprite
-                        :file="pageData.isDetailOpen ? 'right_close' : 'left_open'"
-                        :chunk="4"
-                        class="icon_right"
-                        @click="switchDetail"
-                    />
+                    <!-- 打开/关闭详情按钮 -->
+                    <div class="resize_icon_left">
+                        <BaseImgSprite
+                            :file="pageData.isDetailOpen ? 'right_close' : 'left_open'"
+                            :chunk="4"
+                            class="icon_left"
+                            @click="switchDetail"
+                        />
+                    </div>
+                    <div class="resize_icon_right">
+                        <BaseImgSprite
+                            :file="pageData.isDetailOpen ? 'right_close' : 'left_open'"
+                            :chunk="4"
+                            class="icon_right"
+                            @click="switchDetail"
+                        />
+                    </div>
                 </div>
             </div>
             <!-- 详情容器 -->
@@ -252,66 +252,28 @@
     width: 100%;
     height: 60px;
     display: flex;
+    justify-content: space-between;
     align-items: center;
     background-color: var(--parklog-bg);
     box-sizing: border-box;
     padding: 5px 20px;
-    margin-bottom: 3px;
     position: relative;
+    border-bottom: 1px solid var(--content-border);
 
-    &-left {
-        width: 300px;
-        position: absolute;
-        top: 0;
-        left: 5px;
-        bottom: 0;
-        margin: auto;
-
-        > span,
-        > div {
-            display: inline-block;
-            position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            margin: auto;
-        }
+    &-left,
+    &-right {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
 
         &-label {
-            left: 44px !important;
-            height: 22px;
+            margin-left: 4px;
         }
     }
 
     &-right {
-        width: 130px;
-        height: 47px;
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        margin: auto;
-        display: inline-block;
-
-        .btn {
-            width: 30px;
-            height: 30px;
-            cursor: pointer;
-            background-size: auto 100%;
-        }
-
-        > span,
-        > div {
-            position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            margin: auto;
-        }
-
-        &-label {
-            left: 44px !important;
-            height: 22px;
+        .Sprite {
+            transform: scale(0.5);
         }
     }
 }
@@ -331,7 +293,19 @@
     position: relative;
     box-sizing: border-box;
     display: flex;
-    padding: 0 10px;
+
+    .base-intel-left {
+        padding: 14px;
+
+        .label {
+            margin-bottom: 4px;
+        }
+
+        .label2,
+        .label3 {
+            margin-top: 24px;
+        }
+    }
 
     .pic_container {
         display: flex;
@@ -350,7 +324,7 @@
     .similarity_container {
         width: 100%;
         padding: 0 44px;
-        margin-top: 24px;
+        margin: 24px 0;
         display: flex;
         justify-content: center;
         align-items: center;

@@ -103,7 +103,7 @@ export default defineComponent({
          * @description 导出选中项数据（单个数据）
          */
         const handleExport = () => {
-            let indexDataItem = {
+            const indexDataItem = {
                 chlId: prop.targetData.chlID,
                 chlName: prop.targetData.channelName,
                 frameTime: prop.targetData.timeStamp * 1000,
@@ -112,17 +112,17 @@ export default defineComponent({
                 targetID: prop.targetData.targetID,
                 isThermal: prop.targetData.backgroundPicDatas.length > 1,
                 originContent: prop.targetData.backgroundPicDatas.length > 1 ? prop.targetData.backgroundPicDatas[1].data : prop.targetData.backgroundPicDatas[0].data,
-                eventContent: prop.targetData.backgroundPicDatas.length > 1 ? prop.targetData.backgroundPicDatas[0].data : "",
-                dataBaseContent: prop.targetData.isFaceFeature ? prop.targetData.personInfoData : "",
-                faceDataBaseInfo: prop.targetData.isFaceFeature ? prop.targetData.humanAttrInfo : "",
-                plateNumber: prop.targetData.plateAttrInfo.plateNumber
+                eventContent: prop.targetData.backgroundPicDatas.length > 1 ? prop.targetData.backgroundPicDatas[0].data : '',
+                dataBaseContent: prop.targetData.isFaceFeature ? prop.targetData.personInfoData : '',
+                faceDataBaseInfo: prop.targetData.isFaceFeature ? prop.targetData.humanAttrInfo : '',
+                plateNumber: prop.targetData.plateAttrInfo.plateNumber,
             }
             IntelSearchBackupPopRef.value.startBackup({
                 isBackupPic: true,
                 isBackupVideo: false,
                 indexData: [indexDataItem],
                 allChlAuth: true,
-                chlAuthMapping: []
+                chlAuthMapping: [],
             })
         }
 
@@ -214,7 +214,7 @@ export default defineComponent({
 
         // 是否显示相似度
         const showSimilarity = computed(() => {
-            return prop.showCompare && !!prop.targetData.similarity
+            return !!prop.targetData.similarity
         })
 
         // 当前目标数据对应的对比图
