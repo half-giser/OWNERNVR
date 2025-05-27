@@ -19,6 +19,7 @@
                 :key="targetItem.targetId"
                 class="target-box"
                 :style="getStyle(targetItem)"
+                :class="[targetItem.targetType]"
             >
                 <BaseImgSprite
                     file="target_retrieval"
@@ -548,6 +549,29 @@ watch(
             .target-btn {
                 visibility: visible;
                 pointer-events: auto;
+            }
+        }
+
+        &.humanFace {
+            background:
+                linear-gradient(to left, red, red) left top no-repeat,
+                linear-gradient(to bottom, red, red) left top no-repeat,
+                linear-gradient(to left, red, red) right top no-repeat,
+                linear-gradient(to bottom, red, red) right top no-repeat,
+                linear-gradient(to left, red, red) left bottom no-repeat,
+                linear-gradient(to bottom, red, red) left bottom no-repeat,
+                linear-gradient(to left, red, red) right bottom no-repeat,
+                linear-gradient(to left, red, red) right bottom no-repeat;
+            background-size:
+                1px 20%,
+                20% 1px,
+                1px 20%,
+                20% 1px;
+
+            &:hover {
+                border: 1px solid red;
+                box-shadow: 0 0 1px 1px red;
+                background: none;
             }
         }
     }
