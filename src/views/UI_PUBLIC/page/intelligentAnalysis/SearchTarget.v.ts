@@ -15,13 +15,15 @@ export default defineComponent({
         const auth = useUserChlAuth(true)
         const router = useRouter()
 
-        const tableRef = ref<TableInstance>()
         // 排序下拉框的引用
         const searchTargetDropdown = ref<DropdownInstance>()
-        const tableData = ref<SelectOption<string, string>[]>([])
-        const selected = ref<SelectOption<string, string>[]>([])
+        const IntelSearchBackupPopRef = ref()
         // 详情弹框
         const detailRef = ref()
+        const tableRef = ref<TableInstance>()
+
+        const tableData = ref<SelectOption<string, string>[]>([])
+        const selected = ref<SelectOption<string, string>[]>([])
 
         const pageData = ref({
             // 日期范围类型
@@ -37,22 +39,17 @@ export default defineComponent({
             // 是否打开详情
             isDetailOpen: false,
             // 排序类型（按时间/按通道）
-            sortType: 'time',
+            sortType: 'similarity',
             // 排序选项
             sortOptions: [
                 {
-                    label: Translate('IDCS_CHANNEL'),
-                    value: 'chl',
+                    label: Translate('IDCS_SIMILARITY'),
+                    value: 'similarity',
                     status: 'down',
                 },
                 {
                     label: Translate('IDCS_TIME'),
                     value: 'time',
-                    status: 'down',
-                },
-                {
-                    label: Translate('IDCS_SIMILARITY'),
-                    value: 'similarity',
                     status: 'down',
                 },
             ],
@@ -188,9 +185,11 @@ export default defineComponent({
             const result = await searchTargetIndex(sendXml)
             const $ = queryXml(result)
             closeLoading()
+
             if ($('status').text() === 'success') {
                 const targetIndexDatas: IntelTargetIndexItem[] = $('content/results/item').map((item) => {
                     const $item = queryXml(item.element)
+                    const checked = false
                     const index = $item('index').text() // 索引信息,客户端原封不动返回取图
                     const targetID = $item('targetID').text()
                     const targetType = $item('targetType').text()
@@ -208,6 +207,7 @@ export default defineComponent({
                     const endTime = $item('endTime').text().num() // 目标消失的时间戳
                     const endTimeUTC = $item('endTimeUTC').text() // 目标消失的时间戳 UTC
                     return {
+                        checked,
                         index,
                         targetID,
                         targetType,
@@ -226,6 +226,7 @@ export default defineComponent({
                         endTimeUTC,
                     }
                 })
+
                 targetIndexDatas.sort((a, b) => {
                     if (a.similarity !== b.similarity) {
                         return b.similarity - a.similarity
@@ -246,6 +247,7 @@ export default defineComponent({
                     }
                     return Number(a.targetID) - Number(b.targetID)
                 })
+
                 if ($('content/IsMaxSearchResultNum').text() === 'true') {
                     openMessageBox(Translate('IDCS_SEARCH_RESULT_LIMIT_TIPS'))
                 }
@@ -443,7 +445,7 @@ export default defineComponent({
 
                     // 判断当前数据是否被选中
                     const currSelectedTargetDatas = getCurrSelectedTargetDatas()
-                    const findIndex = currSelectedTargetDatas.findIndex((item) => item.index === item.index)
+                    const findIndex = currSelectedTargetDatas.findIndex((selectedItem) => selectedItem.index === item.index)
                     if (findIndex > -1) item.checked = true
                     judgeIsCheckedAll()
                 } else {
@@ -546,7 +548,7 @@ export default defineComponent({
             pageData.value.sortOptions.forEach((item) => {
                 item.status = 'down'
             })
-            pageData.value.sortType = 'time'
+            pageData.value.sortType = 'similarity'
         }
 
         /**
@@ -791,15 +793,26 @@ export default defineComponent({
          * @description 备份全部
          */
         const handleBackupAll = () => {
-            console.log(auth)
-            console.log(chlIdNameMap)
+            IntelSearchBackupPopRef.value.startBackup({
+                isBackupPic: true,
+                isBackupVideo: false,
+                indexData: getCurrTargetIndexDatas(),
+                allChlAuth: auth,
+                chlAuthMapping: [],
+            })
         }
 
         /**
          * @description 备份选中项
          */
         const handleBackup = (backupType: 'pic' | 'video' | 'picAndVideo') => {
-            console.log(backupType)
+            IntelSearchBackupPopRef.value.startBackup({
+                isBackupPic: backupType === 'pic' || backupType === 'picAndVideo',
+                isBackupVideo: backupType === 'video' || backupType === 'picAndVideo',
+                indexData: getCurrSelectedTargetDatas(),
+                allChlAuth: auth,
+                chlAuthMapping: [],
+            })
         }
 
         /**
@@ -816,7 +829,7 @@ export default defineComponent({
             pageData.value.isDetailOpen = true
             setCurrOpenDetailIndex(targetDataItem.index)
             // 初始化详情
-            const isTrail = false
+            const isTrail = pageData.value.isTrail
             const currentIndex = targetDataItem.index
             const detailData = pageData.value.targetDatasForSearchTarget
             detailRef?.value.init({
@@ -898,8 +911,6 @@ export default defineComponent({
             }
 
             getChlData()
-
-            await getAllTargetIndexDatas()
         })
 
         onBeforeUnmount(() => {
