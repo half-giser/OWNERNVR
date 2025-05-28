@@ -2,12 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-08 18:01:02
  * @Description: 物理磁盘
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 16:09:42
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import { type UserCheckAuthForm } from '@/types/apiType/userAndSecurity'
-import { type DiskPhysicalList } from '@/types/apiType/disk'
 import PhysicalDiskCreateRaidPop from './PhysicalDiskCreateRaidPop.vue'
 
 export default defineComponent({
@@ -17,8 +13,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
 
         // 类型与文本的映射
         const TYPE_MAPPING: Record<string, string> = {
@@ -54,7 +48,7 @@ export default defineComponent({
             const result = await queryPhysicalDiskInfo()
             const $ = queryXml(result)
 
-            pageData.value.raidType = $('/response/types/raidType/enum').map((item) => {
+            pageData.value.raidType = $('types/raidType/enum').map((item) => {
                 const text = item.text()
                 return {
                     value: item.text(),
@@ -62,12 +56,12 @@ export default defineComponent({
                 }
             })
 
-            tableData.value = $('/response/content/physicalDisk/item').map((item) => {
+            tableData.value = $('content/physicalDisk/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
-                    id: item.attr('id')!,
+                    id: item.attr('id'),
                     slotIndex: $item('slotIndex').text(),
-                    capacity: Math.floor(Number($item('capacity').text())),
+                    capacity: Math.floor($item('capacity').text().num() / 1024),
                     raid: $item('raid').text(),
                     type: $item('type').text(),
                     state: STATE_MAPPING[$item('state').text()],
@@ -92,12 +86,8 @@ export default defineComponent({
          * @param {number} index
          */
         const transformDisk = (row: DiskPhysicalList, index: number) => {
-            if (row.type === 'array') {
-                return
-            }
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: row.type === 'normal' ? Translate('IDCS_NOTE_SET_TO_SPARE') : Translate('IDCS_NOTE_SET_TO_FREE'),
             }).then(() => {
                 pageData.value.isCheckAuth = true
@@ -110,7 +100,7 @@ export default defineComponent({
          * @param {UserCheckAuthForm} e
          */
         const confirmTransformDisk = async (e: UserCheckAuthForm) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const item = tableData.value[pageData.value.activeIndex]
             const sendXml = rawXml`
@@ -134,13 +124,13 @@ export default defineComponent({
             }
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
-            if ($('/response/status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 pageData.value.isCheckAuth = false
                 getData()
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:
@@ -153,11 +143,7 @@ export default defineComponent({
                     default:
                         errorInfo = item.type === 'normal' ? Translate('IDCS_CONFIG_HOT_DISK_ERROR') : Translate('IDCS_CONFIG_NORMAL_DISK_ERROR')
                 }
-                openMessageTipBox({
-                    type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 
@@ -188,8 +174,6 @@ export default defineComponent({
             createRaid,
             confirmCreateRaid,
             confirmTransformDisk,
-            BaseCheckAuthPop,
-            PhysicalDiskCreateRaidPop,
         }
     },
 })

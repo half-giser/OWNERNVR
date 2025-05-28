@@ -2,10 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-29 15:38:29
  * @Description: 现场预览-鱼眼视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 14:30:49
  */
-import { type LiveSharedWinData } from '@/types/apiType/live'
 
 export interface FishEyePanelExpose {
     exitAdjust: (chlId: string) => void
@@ -28,10 +25,12 @@ export default defineComponent({
         fishEyeMode(type: string, mode: string) {
             return typeof type === 'string' && typeof mode === 'string'
         },
+        trigger() {
+            return true
+        },
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
         const systemCaps = useCababilityStore()
 
         const pageData = ref({
@@ -62,7 +61,7 @@ export default defineComponent({
                             value: '2x180',
                         },
                         {
-                            label: Translate('IDCS_FISH_ADJUST_3PTZ'),
+                            label: Translate('IDCS_FISH_3PTZ'),
                             file: 'fishEye_3PZ',
                             cmd: '',
                             value: 'FISH_3PTZ',
@@ -150,7 +149,7 @@ export default defineComponent({
                             value: '2x180',
                         },
                         {
-                            label: Translate('IDCS_FISH_ADJUST_3PTZ'),
+                            label: Translate('IDCS_FISH_3PTZ'),
                             file: 'fishEye_3PZ',
                             cmd: '',
                             value: 'FISH_3PTZ',
@@ -218,11 +217,11 @@ export default defineComponent({
                 `
                 const result = await queryIPChlORChlFishEye(sendXml)
                 const $ = queryXml(result)
-                const supportMode = $('/response/content/chl').attr('supportMode')
+                const supportMode = $('content/chl').attr('supportMode')
 
                 fishEyeMap.value[chlId] = {
                     supportMode: supportMode === 'support' || supportMode === 'manualSupport',
-                    installType: $('/response/content/chl/installType').text() || 'Top',
+                    installType: $('content/chl/installType').text() || 'Top',
                     fishEyeMode: NO_ADJUST_VALUE,
                 }
             }
@@ -233,6 +232,7 @@ export default defineComponent({
                 //处于校正状态并且当前通道id为正处于校正的通道id 选中校正中的安装模式和显示模式
                 pageData.value.installType = fishEyeMap.value[chlId].installType
                 pageData.value.fishEyeMode = fishEyeMap.value[chlId].fishEyeMode
+                ctx.emit('fishEyeMode', pageData.value.installType, pageData.value.fishEyeMode)
             }
         }
 
@@ -253,7 +253,7 @@ export default defineComponent({
          * @param {string} installType
          */
         const changeInstallType = (installType: string) => {
-            if (!supportFishEye.value || pageData.value.installType === installType) {
+            if (pageData.value.installType === installType) {
                 return
             }
             pageData.value.installType = installType
@@ -263,6 +263,7 @@ export default defineComponent({
                 installType,
                 fishEyeMode: NO_ADJUST_VALUE,
             }
+            ctx.emit('trigger')
             ctx.emit('fishEyeMode', installType, NO_ADJUST_VALUE)
             pageData.value.fishEyeingId = ''
         }
@@ -272,17 +273,16 @@ export default defineComponent({
          * @param {string} fishEyeMode
          */
         const changeFishEyeMode = (fishEyeMode: string) => {
-            if (!supportFishEye.value || pageData.value.fishEyeMode === fishEyeMode) {
+            if (pageData.value.fishEyeMode === fishEyeMode) {
                 return
             }
+
             if (pageData.value.fishEyeingId && prop.winData.chlID !== pageData.value.fishEyeingId) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_SUPPORT_ONE_FISHEYE'),
-                })
+                openMessageBox(Translate('IDCS_SUPPORT_ONE_FISHEYE'))
                 return
             }
             pageData.value.fishEyeMode = fishEyeMode
+            ctx.emit('trigger')
             ctx.emit('fishEyeMode', pageData.value.installType, fishEyeMode)
 
             fishEyeMap.value[prop.winData.chlID] = {
@@ -305,14 +305,7 @@ export default defineComponent({
                 pageData.value.fishEyeingId = ''
             }
 
-            if (fishEyeMap.value[prop.winData.chlID]) {
-                fishEyeMap.value[prop.winData.chlID] = {
-                    ...fishEyeMap.value[prop.winData.chlID],
-                    installType: 'TOP',
-                    fishEyeMode: NO_ADJUST_VALUE,
-                }
-            }
-
+            ctx.emit('trigger')
             ctx.emit('fishEyeMode', 'TOP', NO_ADJUST_VALUE)
         }
 

@@ -2,23 +2,18 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-30 10:36:16
  * @Description: 回放-底部控制视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-07 10:02:55
 -->
 <template>
     <div class="ctrl">
         <div class="ctrl-left">
             <!-- 分屏切换按钮 -->
             <template v-if="mode === 'h5'">
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     v-for="seg in pageData.wasmSeg"
                     :key="`${seg.type}_${seg.split}`"
                     :file="`seg_${seg.split}`"
-                    :index="seg.split === split ? 2 : 0"
-                    :hover-index="1"
-                    :disabled-index="2"
-                    :chunk="4"
-                    @click="$emit('update:split', seg.split, seg.type)"
+                    :active="seg.split === split"
+                    @click="$emit('update:split', seg.split, seg.type), $emit('trigger', true)"
                 />
             </template>
             <template v-else-if="mode === 'ocx'">
@@ -27,356 +22,261 @@
                     trigger="hover"
                     :width="pageData.ocxSeg.length * 45 + 22"
                     :disabled="winData.isDwellPlay"
-                    popper-class="popper"
                 >
                     <template #reference>
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="seg_selector"
-                            :index="0"
-                            :hover-index="1"
-                            :disabled-index="2"
                             :disabled="winData.isDwellPlay"
-                            :chunk="4"
                         />
                     </template>
                     <div class="segs">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             v-for="seg in pageData.ocxSeg"
                             :key="`${seg.type}_${seg.split}`"
                             :file="`seg_${seg.split}`"
-                            :index="seg.split === split ? 2 : 0"
-                            :hover-index="1"
-                            :disabled-index="2"
-                            :chunk="4"
-                            @click="$emit('update:split', seg.split, seg.type)"
+                            :active="seg.split === split"
+                            @click="$emit('update:split', seg.split, seg.type), $emit('trigger', true)"
                         />
                     </div>
                 </el-popover>
             </template>
             <!-- OSD按钮 -->
-            <el-tooltip
-                :content="osd ? Translate('IDCS_OSD_CLOSE') : Translate('IDCS_OSD_OPEN')"
-                :show-after="500"
-                placement="bottom"
-            >
-                <BaseImgSprite
-                    file="OSD"
-                    :index="osd ? 2 : 0"
-                    :hover-index="1"
-                    :chunk="4"
-                    @click="$emit('update:osd', !osd)"
-                />
-            </el-tooltip>
+            <BaseImgSpriteBtn
+                file="OSD"
+                :title="osd ? Translate('IDCS_OSD_CLOSE') : Translate('IDCS_OSD_OPEN')"
+                :active="osd"
+                @click="$emit('update:osd', !osd), $emit('trigger', true)"
+            />
             <!-- 全屏按钮 -->
-            <el-tooltip
-                :content="Translate('IDCS_FULLSCREEN')"
-                :show-after="500"
-                placement="bottom"
-            >
-                <BaseImgSprite
-                    file="full_screen"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
-                    @click="$emit('fullscreen')"
-                />
-            </el-tooltip>
+            <BaseImgSpriteBtn
+                file="full_screen"
+                :title="Translate('IDCS_FULLSCREEN')"
+                @click="$emit('fullscreen'), $emit('trigger', true)"
+            />
         </div>
         <div class="ctrl-center">
             <!-- 停止播放 -->
-            <el-tooltip
-                :content="Translate('IDCS_STOP')"
-                :show-after="500"
-                placement="bottom"
-            >
-                <BaseImgSprite
-                    file="stop (3)"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled
-                    @click="stop"
-                />
-            </el-tooltip>
+            <BaseImgSpriteBtn
+                file="stop_rec"
+                :title="Translate('IDCS_STOP')"
+                :disabled
+                @click="$emit('stop'), $emit('trigger', false)"
+            />
             <!-- 倒放 -->
-            <template v-if="mode === 'ocx'">
-                <el-tooltip
-                    :content="Translate('IDCS_PLAY_FORWARD')"
-                    :show-after="500"
-                    placement="bottom"
-                >
-                    <BaseImgSprite
-                        v-show="['stop', 'pause', 'play'].includes(playStatus)"
-                        file="bkPlay"
-                        :index="0"
-                        :hover-index="1"
-                        :disabled-index="3"
-                        :chunk="4"
-                        :disabled
-                        @click="backwards"
-                    />
-                </el-tooltip>
-            </template>
+            <BaseImgSpriteBtn
+                v-if="mode === 'ocx'"
+                v-show="['stop', 'pause', 'play'].includes(playStatus)"
+                file="bkPlay"
+                :title="Translate('IDCS_PLAY_FORWARD')"
+                :disabled
+                @click="$emit('backwards'), $emit('trigger', false)"
+            />
             <!-- 暂停播放 -->
-            <el-tooltip
-                :content="Translate('IDCS_PAUSE')"
-                :show-after="500"
-                placement="bottom"
-            >
-                <BaseImgSprite
-                    v-show="playStatus === 'play' || playStatus === 'backwards'"
-                    file="pause"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled
-                    @click="pause"
-                />
-            </el-tooltip>
+            <BaseImgSpriteBtn
+                v-show="playStatus === 'play' || playStatus === 'backwards'"
+                file="pause"
+                :title="Translate('IDCS_PAUSE')"
+                :disabled
+                @click="pause"
+            />
             <!-- 播放 -->
-            <el-tooltip
-                :content="Translate('IDCS_PLAY_FORWARD')"
-                :show-after="500"
-                placement="bottom"
-            >
-                <BaseImgSprite
-                    v-show="['stop', 'pause', 'backwards'].includes(playStatus)"
-                    file="fwPlay"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled
-                    @click="resume"
-                />
-            </el-tooltip>
+            <BaseImgSpriteBtn
+                v-show="['stop', 'pause', 'backwards'].includes(playStatus)"
+                file="fwPlay"
+                :title="Translate('IDCS_PLAY_FORWARD')"
+                :disabled
+                @click="$emit('resume'), $emit('trigger', false)"
+            />
             <!-- 慢进 -->
-            <el-tooltip
-                :content="Translate('IDCS_PLAY_FAST_REWIND')"
-                :show-after="500"
-                placement="bottom"
-            >
-                <BaseImgSprite
-                    file="bkSpeed"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled="rewindDisabled"
-                    @click="rewind"
-                />
-            </el-tooltip>
-            <!-- 快进 -->
-            <el-tooltip
-                :content="Translate('IDCS_PLAY_FAST_FORWARD')"
-                :show-after="500"
-                placement="bottom"
-            >
-                <BaseImgSprite
-                    file="fwSpeed"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled="forwardDisabled"
-                    @click="forward"
-                />
-            </el-tooltip>
+            <BaseImgSpriteBtn
+                file="bkSpeed"
+                :title="Translate('IDCS_PLAY_FAST_REWIND')"
+                :disabled="rewindDisabled"
+                @click="rewind"
+            />
             <!-- 1倍速 -->
-            <el-tooltip
-                :content="Translate('IDCS_NORMAL_SPEED')"
-                :show-after="500"
-                placement="bottom"
-            >
-                <BaseImgSprite
-                    file="playOriginIcon"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled="resetSpeedDisabled"
-                    @click="resetSpeed"
-                />
-            </el-tooltip>
+            <BaseImgSpriteBtn
+                file="playOriginIcon"
+                :title="Translate('IDCS_NORMAL_SPEED')"
+                :disabled="resetSpeedDisabled"
+                @click="resetSpeed"
+            />
+            <!-- 快进 -->
+            <BaseImgSpriteBtn
+                file="fwSpeed"
+                :title="Translate('IDCS_PLAY_FAST_FORWARD')"
+                :disabled="forwardDisabled"
+                @click="forward"
+            />
             <!-- 上一帧 -->
-            <template v-if="mode === 'ocx'">
-                <el-tooltip
-                    :content="Translate('IDCS_PLAY_PREVIOUS_FRAME')"
-                    :show-after="500"
-                    placement="bottom"
-                >
-                    <BaseImgSprite
-                        file="preFrame"
-                        :index="0"
-                        :hover-index="1"
-                        :disabled-index="3"
-                        :chunk="4"
-                        :disabled="nextFrameDisabled"
-                        @click="prevFrame"
-                    />
-                </el-tooltip>
-            </template>
+            <BaseImgSpriteBtn
+                v-if="mode === 'ocx'"
+                file="preFrame"
+                :title="Translate('IDCS_PLAY_PREVIOUS_FRAME')"
+                :disabled="nextFrameDisabled"
+                @click="$emit('prevFrame'), $emit('trigger', false)"
+            />
             <!-- 下一帧 -->
-            <el-tooltip
-                :content="Translate('IDCS_PLAY_NEXT_FRAME')"
-                :show-after="500"
-                placement="bottom"
-            >
-                <BaseImgSprite
-                    file="nextFrame"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled="nextFrameDisabled"
-                    @click="nextFrame"
-                />
-            </el-tooltip>
+            <BaseImgSpriteBtn
+                file="nextFrame"
+                :title="Translate('IDCS_PLAY_NEXT_FRAME')"
+                :disabled="nextFrameDisabled"
+                @click="$emit('nextFrame'), $emit('trigger', false)"
+            />
             <!-- 跳转播放 -->
-            <div class="seek">
-                <BaseImgSprite
-                    file="30s_bk"
-                    :index="0"
-                    :disabled-index="1"
-                    :disabled
-                    :chunk="2"
-                />
-                <div>
-                    <el-tooltip
-                        :content="Translate('IDCS_PLAY_DEC_30_SECONDS')"
-                        :show-after="500"
-                    >
-                        <BaseImgSprite
-                            file="bk30s"
-                            :index="0"
-                            :hover-index="1"
-                            :disabled-index="3"
-                            :chunk="4"
-                            :disabled
-                            @click="jump(-30)"
-                        />
-                    </el-tooltip>
-                    <el-tooltip
-                        :content="Translate('IDCS_PLAY_INC_30_SECONDS')"
-                        :show-after="500"
-                    >
-                        <BaseImgSprite
-                            file="fw30s"
-                            :index="0"
-                            :hover-index="1"
-                            :disabled-index="3"
-                            :chunk="4"
-                            :disabled
-                            @click="jump(30)"
-                        />
-                    </el-tooltip>
-                </div>
-            </div>
+            <el-select-v2
+                v-model="pageData.forwardValue"
+                class="fw-select"
+                :options="pageData.forwardOptions"
+                :disabled
+                @visible-change="$emit('trigger', true)"
+            />
             <BaseImgSprite
+                file="bk30s"
+                :index="0"
+                :hover-index="0"
+                :disabled-index="3"
+                :disabled
+                :chunk="4"
+                class="fw-btn"
+                @click="$emit('jump', -pageData.forwardValue), $emit('trigger', false)"
+            />
+            <BaseImgSprite
+                file="fw30s"
+                :index="0"
+                :hover-index="0"
+                :disabled-index="3"
+                :disabled
+                :chunk="4"
+                class="fw-btn"
+                @click="$emit('jump', pageData.forwardValue), $emit('trigger', false)"
+            />
+            <BaseImgSpriteBtn
                 v-show="playStatus === 'backwards'"
                 file="bkPlay"
                 :class="{ hide: disabled }"
-                :index="2"
-                :disabled-index="3"
-                :chunk="4"
+                active
             />
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 v-show="playStatus !== 'play' && playStatus !== 'backwards'"
                 file="pause"
                 :class="{ hide: disabled }"
-                :index="2"
-                :disabled-index="3"
-                :chunk="4"
+                active
             />
-            <BaseImgSprite
-                v-show="playStatus === 'play'"
+            <BaseImgSpriteBtn
+                v-show="playStatus === 'play' || playStatus === 'stop'"
                 file="fwPlay"
-                :class="{ hide: disabled }"
-                :index="2"
-                :disabled-index="3"
-                :chunk="4"
+                active
             />
-            <p :class="{ hide: disabled }">{{ displaySpeed }}</p>
+            <p>{{ displaySpeed }}</p>
         </div>
         <div class="ctrl-right">
             <!-- POS按钮 -->
-            <el-tooltip
-                :content="pos ? Translate('IDCS_CANCEL_POS') : Translate('IDCS_VIEW_POS')"
-                :show-after="500"
-            >
-                <BaseImgSprite
-                    file="POS"
-                    :index="pos ? 2 : 0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled="posDisabled"
-                    @click="togglePos(!pos)"
-                />
-            </el-tooltip>
-            <!-- 水印按钮 -->
-            <el-tooltip
-                :content="watermark ? Translate('IDCS_CANCEL_WATER_MARK') : Translate('IDCS_VIEW_WATER_MARK')"
-                :show-after="500"
-            >
-                <BaseImgSprite
-                    file="backupWaterMark"
-                    :index="watermark ? 2 : 0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled
-                    @click="$emit('update:watermark', !watermark)"
-                />
-            </el-tooltip>
+            <!-- <BaseImgSpriteBtn
+                v-show="pageData.isPosBtn"
+                file="POS"
+                :title="pos ? Translate('IDCS_CANCEL_POS') : Translate('IDCS_VIEW_POS')"
+                :active="pos"
+                :disabled="posDisabled"
+                @click="$emit('update:pos', !pos)"
+            /> -->
+            <BaseImgSpriteBtn
+                v-if="systemCaps.supportREID"
+                file="target_retrieval"
+                :title="Translate('IDCS_REID')"
+                :active="detectTarget"
+                :disabled="detectTargetDisabled"
+                @click="$emit('update:detectTarget', !detectTarget)"
+            />
             <!-- 开始裁切 -->
-            <el-tooltip
-                :content="Translate('IDCS_BACKUP_START_TIME')"
-                :show-after="500"
-            >
-                <BaseImgSprite
-                    file="backupStart"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled
-                    @click="setClipStart"
-                />
-            </el-tooltip>
+            <BaseImgSpriteBtn
+                file="backupStart"
+                :title="Translate('IDCS_BACKUP_START_TIME')"
+                :disabled
+                @click="$emit('clipStart'), $emit('trigger', true)"
+            />
             <!-- 结束裁切 -->
-            <el-tooltip
-                :content="Translate('IDCS_BACKUP_END_TIME')"
-                :show-after="500"
-            >
-                <BaseImgSprite
-                    file="backupEnd"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled
-                    @click="setClipEnd"
-                />
-            </el-tooltip>
+            <BaseImgSpriteBtn
+                file="backupEnd"
+                :title="Translate('IDCS_BACKUP_END_TIME')"
+                :disabled
+                @click="$emit('clipEnd'), $emit('trigger', true)"
+            />
             <!-- 备份 -->
-            <el-tooltip
-                :content="Translate('IDCS_BACKUP')"
-                :show-after="500"
+            <BaseImgSpriteBtn
+                file="backup"
+                :title="Translate('IDCS_BACKUP')"
+                :disabled="backUpDisabled"
+                @click="backUp"
+            />
+            <BaseImgSpriteBtn
+                file="playStrategy"
+                :title="Translate('IDCS_PLAY_STRATEGY')"
+                @click="openStrategyPop"
+            />
+            <el-popover
+                trigger="hover"
+                popper-class="no-padding"
             >
-                <BaseImgSprite
-                    file="backup"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled="backUpDisabled"
-                    @click="backUp"
-                />
-            </el-tooltip>
+                <template #reference>
+                    <BaseImgSpriteBtn
+                        file="more"
+                        :title="Translate('IDCS_MORE')"
+                    />
+                </template>
+                <div class="detail-btns">
+                    <!-- 水印按钮 -->
+                    <div @click="$emit('update:watermark', !watermark), $emit('trigger', true)">
+                        <BaseImgSpriteBtn
+                            file="backupWaterMark"
+                            :active="watermark"
+                        />
+                        <span class="detail-btns-text">{{ Translate('IDCS_WATER_MARK') }}</span>
+                    </div>
+                    <!-- POS按钮 -->
+                    <div
+                        v-show="systemCaps.supportPOS"
+                        @click="$emit('update:pos', !pos), $emit('trigger', true)"
+                    >
+                        <BaseImgSpriteBtn
+                            file="POS_rec"
+                            :active="pos"
+                            :disabled="!hasPosEvent"
+                        />
+                        <span class="detail-btns-text">{{ Translate('IDCS_POS') }}</span>
+                    </div>
+                    <!-- 备份状态 -->
+                    <div @click="$emit('showBackUp'), $emit('trigger', true)">
+                        <BaseImgSpriteBtn
+                            file="backUpTask"
+                            :active="isBackUpList"
+                        />
+                        <span class="detail-btns-text">{{ Translate('IDCS_BACKUP_STATE') }}</span>
+                    </div>
+                </div>
+            </el-popover>
         </div>
+        <el-dialog
+            v-model="pageData.isStrategyPop"
+            :title="Translate('IDCS_PLAY_STRATEGY')"
+            width="500"
+        >
+            <el-form>
+                <el-form-item>
+                    <el-checkbox
+                        v-model="pageData.strategy"
+                        :label="Translate('IDCS_SKID_ORDINARY_RECORD')"
+                    />
+                </el-form-item>
+                <el-form-item>
+                    {{ Translate('IDCS_SKIP_NORMAL_TIP') }}
+                </el-form-item>
+            </el-form>
+            <div class="base-btn-box">
+                <el-button @click="confirmStrategy">{{ Translate('IDCS_OK') }}</el-button>
+                <el-button @click="pageData.isStrategyPop = false">{{ Translate('IDCS_CANCEL') }}</el-button>
+            </div>
+        </el-dialog>
     </div>
 </template>
 
@@ -398,7 +298,7 @@
         height: 100%;
 
         & > span {
-            margin: 0 5px;
+            margin: 0 3px;
             flex-shrink: 0;
         }
     }
@@ -416,12 +316,14 @@
 
         p {
             font-size: 22px;
-            color: var(--primary--04);
+            color: var(--primary);
             margin: 0;
+            width: 65px;
         }
 
         .hide {
-            visibility: hidden;
+            display: none;
+            // visibility: hidden;
         }
     }
 
@@ -431,8 +333,27 @@
         align-items: center;
 
         & > span {
-            margin: 0 5px;
+            margin: 0 3px;
         }
+    }
+}
+
+.fw-select {
+    width: 70px;
+    margin: 0 3px;
+}
+
+.fw-btn {
+    border: 1px solid var(--panel-btn-bg);
+    border-radius: 2px;
+
+    &.disabled {
+        border-color: var(--panel-btn-bg-disabled);
+    }
+
+    &:hover(:not(.disabled)) {
+        border-color: var(--primary);
+        // opacity: 0.6;
     }
 }
 
@@ -448,9 +369,11 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+
         span:first-child {
             margin-left: 2px;
         }
+
         span:last-child {
             margin-right: 2px;
         }
@@ -463,6 +386,36 @@
 
     & > span {
         margin: 0 5px;
+    }
+}
+
+.detail-btns {
+    & > div {
+        padding: 5px;
+        display: flex;
+        align-items: center;
+        box-sizing: border-box;
+        position: relative;
+        cursor: pointer;
+
+        &:not(:last-child) {
+            border-bottom: 1px solid var(--content-border);
+        }
+
+        .Sprite {
+            &::before {
+                position: absolute;
+                top: -5px;
+                left: -5px;
+                width: 200px;
+                height: 100%;
+                content: '';
+            }
+        }
+    }
+
+    &-text {
+        margin-left: 5px;
     }
 }
 </style>

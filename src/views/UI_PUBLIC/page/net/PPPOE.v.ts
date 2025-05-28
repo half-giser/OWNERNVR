@@ -2,18 +2,12 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-10 09:12:25
  * @Description: PPPoE
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-10 10:28:54
  */
-import { NetPPPoEForm } from '@/types/apiType/net'
-import { type FormInstance, type FormRules } from 'element-plus'
-import { formatInputUserName } from '@/utils/tools'
-import { nameByteMaxLen } from '@/utils/constants'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
 
         const pageData = ref({
             // 是否显示启用密码复选框
@@ -23,13 +17,13 @@ export default defineComponent({
             // 是否启用无线
             wirelessSwitch: false,
         })
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new NetPPPoEForm())
         const formRule = ref<FormRules>({
             userName: [
                 {
-                    validator(rule, value: string, callback) {
-                        if (formData.value.switch && !value.length) {
+                    validator(_rule, value: string, callback) {
+                        if (formData.value.switch && !value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
                         }
@@ -40,7 +34,7 @@ export default defineComponent({
             ],
             password: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (formData.value.switch && pageData.value.passwordSwitch && !value.length) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
@@ -58,8 +52,9 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryPPPoECfg()
             commLoadResponseHandler(result, ($) => {
-                formData.value.switch = $('/response/content/switch').text().toBoolean()
-                formData.value.userName = $('/response/content/userName').text().trim()
+                formData.value.switch = $('content/switch').text().bool()
+                formData.value.userNameMaxByteLen = $('content/userName').attr('maxByteLen').num() || nameByteMaxLen
+                formData.value.userName = $('content/userName').text().trim()
 
                 if (!formData.value.userName) {
                     pageData.value.passwordSwitch = true
@@ -77,19 +72,19 @@ export default defineComponent({
                     return
                 }
 
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
 
                 const sendXml = rawXml`
                     <content>
-                        <switch>${String(formData.value.switch)}</switch>
-                        ${formData.value.switch ? `<userName>${wrapCDATA(formData.value.userName)}</userName>` : ''}
+                        <switch>${formData.value.switch}</switch>
+                        ${formData.value.switch ? `<userName maxByteLen="63">${wrapCDATA(formData.value.userName)}</userName>` : ''}
                         ${formData.value.switch && formData.value.password ? `<password ${getSecurityVer()}>${wrapCDATA(formData.value.password)}</password>` : ''}
                     </content>
                 `
                 const result = await editPPPoECfg(sendXml)
 
-                closeLoading(LoadingTarget.FullScreen)
-                commSaveResponseHadler(result)
+                closeLoading()
+                commSaveResponseHandler(result)
             })
         }
 
@@ -99,16 +94,16 @@ export default defineComponent({
         const getWirelessNetworkData = async () => {
             const result = await queryWirelessNetworkCfg()
             const $ = queryXml(result)
-            pageData.value.wirelessSwitch = $('/response/content/switch').text().toBoolean()
+            pageData.value.wirelessSwitch = $('content/switch').text().bool()
         }
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             await getData()
             await getWirelessNetworkData()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         return {
@@ -117,8 +112,6 @@ export default defineComponent({
             formRule,
             pageData,
             setData,
-            formatInputUserName,
-            nameByteMaxLen,
         }
     },
 })

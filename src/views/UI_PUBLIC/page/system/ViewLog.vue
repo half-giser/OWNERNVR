@@ -2,60 +2,65 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-01 11:01:04
  * @Description: 查看日志
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 17:58:14
 -->
 <template>
-    <div class="ViewLog base-flex-box">
-        <div class="form">
-            <div class="form-item">
-                <label>{{ Translate('IDCS_MAIN_TYPE') }}</label>
-                <div>
-                    <el-button
-                        v-for="item in pageData.typeOptions"
-                        :key="item.value"
-                        :type="formData.type === item.value ? 'primary' : 'default'"
-                        link
-                        @click="changeMainType(item.value)"
-                    >
-                        {{ item.label }}
-                    </el-button>
+    <div class="base-flex-box">
+        <el-form
+            class="stripe"
+            :style="{
+                '--form-input-width': '250px',
+            }"
+        >
+            <el-form-item>
+                <div class="form-item">
+                    <label>{{ Translate('IDCS_MAIN_TYPE') }}</label>
+                    <div>
+                        <el-button
+                            v-for="item in pageData.typeOptions"
+                            :key="item.value"
+                            :type="formData.type === item.value ? 'primary' : 'default'"
+                            link
+                            @click="changeMainType(item.value)"
+                        >
+                            {{ item.label }}
+                        </el-button>
+                    </div>
                 </div>
-            </div>
-            <div class="form-item">
-                <label>{{ Translate('IDCS_START_TIME') }}</label>
-                <el-date-picker
-                    v-model="pageData.startTime"
-                    :value-format="dateTime.dateTimeFormat.value"
-                    :format="dateTime.dateTimeFormat.value"
-                    :cell-class-name="dateTime.highlightWeekend"
-                    clear-icon=""
-                    type="datetime"
-                    @change="changeStartTime"
-                ></el-date-picker>
-                <label>{{ Translate('IDCS_END_TIME') }}</label>
-                <el-date-picker
-                    v-model="pageData.endTime"
-                    :value-format="dateTime.dateTimeFormat.value"
-                    :format="dateTime.dateTimeFormat.value"
-                    :cell-class-name="dateTime.highlightWeekend"
-                    clear-icon=""
-                    type="datetime"
-                    @change="changeEndTime"
-                ></el-date-picker>
-                <el-button @click="search">{{ Translate('IDCS_SEARCH') }}</el-button>
-                <el-button @click="handleExport">{{ Translate('IDCS_EXPORT') }}</el-button>
-            </div>
-        </div>
+            </el-form-item>
+            <el-form-item>
+                <div class="form-item">
+                    <label>{{ Translate('IDCS_START_TIME') }}</label>
+                    <BaseDatePicker
+                        v-model="pageData.startTime"
+                        type="datetime"
+                        @change="changeStartTime"
+                    />
+                    <label>{{ Translate('IDCS_END_TIME') }}</label>
+                    <BaseDatePicker
+                        v-model="pageData.endTime"
+                        type="datetime"
+                        @change="changeEndTime"
+                    />
+                    <label></label>
+                    <el-button @click="search">{{ Translate('IDCS_SEARCH') }}</el-button>
+                    <el-button @click="handleExport">{{ Translate('IDCS_EXPORT') }}</el-button>
+                </div>
+            </el-form-item>
+        </el-form>
         <div class="base-table-box">
             <el-table
-                stripe
-                border
+                ref="tableRef"
+                v-title
+                highlight-current-row
+                show-overflow-tooltip
                 :data="tableList"
-                :current-row-key="pageData.activeTableIndex"
-                :row-class-name="(item) => (item.rowIndex === pageData.activeTableIndex ? 'active' : '')"
                 @cell-click="handleChangeRow"
             >
+                <el-table-column
+                    :label="Translate('IDCS_SERIAL_NUMBER')"
+                    width="70"
+                    prop="index"
+                />
                 <el-table-column
                     :label="Translate('IDCS_MAIN_TYPE')"
                     prop="mainType"
@@ -63,82 +68,76 @@
                 <el-table-column
                     :label="Translate('IDCS_LOG_TIME')"
                     prop="time"
-                />
-                <el-table-column :label="Translate('IDCS_CONTENT')">
+                >
+                    <template #default="{ row }: TableColumn<SystemLogList>">
+                        {{ displayTime(row.time) }}
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    :label="Translate('IDCS_CONTENT')"
+                    prop="subType"
+                >
                     <template #header>
                         <el-popover
-                            trigger="click"
-                            popper-class="popper"
+                            popper-class="no-padding"
                             width="fit-content"
                         >
                             <template #reference>
-                                <span class="el-dropdown-link">
+                                <BaseTableDropdownLink>
                                     {{ Translate('IDCS_CONTENT') }}
-                                    <BaseImgSprite
-                                        class="ddn"
-                                        file="ddn"
-                                    />
-                                </span>
+                                </BaseTableDropdownLink>
                             </template>
-                            <div class="sub-types">
+                            <el-scrollbar max-height="300">
                                 <el-checkbox-group
                                     v-model="formData.subType"
+                                    class="line-break inline"
                                     @change="changeSubType"
                                 >
                                     <el-checkbox
                                         v-for="item in subTypeOptions"
                                         :key="item.value"
                                         :value="item.value"
-                                    >
-                                        {{ item.name }}
-                                    </el-checkbox>
+                                        :label="item.name"
+                                    />
                                 </el-checkbox-group>
-                            </div>
+                            </el-scrollbar>
                         </el-popover>
                     </template>
-                    <template #default="scope">
-                        <el-text>{{ scope.row.subType }}</el-text>
-                    </template>
                 </el-table-column>
-                <el-table-column :label="Translate('IDCS_DETAIL_INFO')">
-                    <template #default="scope">
+                <el-table-column
+                    width="425"
+                    :label="Translate('IDCS_DETAIL_INFO')"
+                >
+                    <template #default="{ row, $index }: TableColumn<SystemLogList>">
                         <div class="detail-info">
-                            <div>{{ scope.row.content }}</div>
-                            <BaseImgSprite
+                            <div>{{ row.content }}</div>
+                            <BaseImgSpriteBtn
                                 file="detail"
-                                :index="0"
-                                :hover-index="1"
-                                :chunk="4"
-                                @click="showLogDetail(scope.row)"
+                                :stop-propagation="false"
+                                @click="showLogDetail($index)"
                             />
                         </div>
                     </template>
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_PLAY')"
-                    width="60px"
+                    width="60"
                 >
-                    <template #default="scope">
-                        <BaseImgSprite
-                            v-show="displayPlayIcon(scope.row)"
-                            file="play (3)"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click="playRec(scope.row)"
+                    <template #default="{ row }: TableColumn<SystemLogList>">
+                        <BaseImgSpriteBtn
+                            v-show="displayPlayIcon(row)"
+                            file="preview"
+                            @click="playRec(row)"
                         />
                     </template>
                 </el-table-column>
             </el-table>
         </div>
-        <div class="base-btn-box">
-            <el-pagination
+        <div class="base-pagination-box">
+            <BasePagination
                 v-model:current-page="formData.currentPage"
                 v-model:page-size="formData.pageSize"
-                :page-sizes="pageData.pageSizes"
-                layout="prev, pager, next, sizes, total, jumper"
                 :total="pageData.totalCount"
-                size="small"
                 @size-change="changePaginationSize"
                 @current-change="changePagination"
             />
@@ -152,7 +151,7 @@
             @close="closeLogDetail"
         />
         <!-- 回放弹窗 -->
-        <RecPop
+        <BasePlaybackPop
             v-model="pageData.isRecord"
             :play-list="pageData.recordPlayList"
             @close="pageData.isRecord = false"
@@ -163,98 +162,40 @@
 <script lang="ts" src="./ViewLog.v.ts"></script>
 
 <style lang="scss" scoped>
-.ViewLog {
-    :deep(.el-button) {
-        &.is-link {
-            color: var(--text-primary);
+.form-item {
+    display: flex;
+    align-items: center;
 
-            &.el-button--primary {
-                color: var(--primary--04);
-            }
-
-            &:hover {
-                text-decoration: underline;
-            }
-        }
-    }
-
-    .form {
+    label {
+        padding-right: 20px;
+        font-size: 13px;
         flex-shrink: 0;
-    }
 
-    .form-item {
-        display: flex;
-        align-items: center;
-        margin-bottom: 10px;
-
-        label {
-            padding-right: 20px;
-            font-size: 13px;
-
-            &:not(:first-child) {
-                padding-left: 20px;
-            }
-        }
-
-        .el-button {
-            margin-left: 5px;
+        &:not(:first-child) {
+            padding-left: 20px;
         }
     }
 
-    .detail-info {
-        width: 100%;
-        display: flex;
-
-        div {
-            width: 100%;
-            height: 23px;
-            // max-width: 135px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            text-align: left;
-        }
-
-        span {
-            flex-shrink: 0;
-        }
+    .el-button {
+        margin-left: 5px;
     }
 }
 
-.popper {
-    width: fit-content;
+.detail-info {
+    width: 100%;
+    display: flex;
 
-    .sub-types {
-        width: fit-content;
-        background-color: white;
-        max-height: 50vh;
-        overflow: auto;
-        padding-right: 20px;
+    div {
+        width: 100%;
+        height: 23px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        text-align: left;
+    }
 
-        :deep(.el-checkbox) {
-            padding-right: 0;
-            margin-right: 0;
-            display: block;
-            display: flex;
-            align-items: center;
-        }
-
-        &::-webkit-scrollbar {
-            width: 2px;
-            background-color: #f5f5f5;
-        }
-
-        &::-webkit-scrollbar-track {
-            -webkit-box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.3);
-            border-radius: 10px;
-            background-color: #f5f5f5;
-        }
-
-        &::-webkit-scrollbar-thumb {
-            border-radius: 10px;
-            -webkit-box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.3);
-            background-color: #999;
-        }
+    span {
+        flex-shrink: 0;
     }
 }
 </style>

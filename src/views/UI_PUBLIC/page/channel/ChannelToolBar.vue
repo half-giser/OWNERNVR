@@ -1,36 +1,50 @@
 <!--
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-05-05 09:57:16
- * @Description:
+ * @Description: 通道板块右上方工具栏
 -->
 <template>
     <el-input
         v-model="msg"
-        class="toolBarText"
+        class="base-toolbar-input"
         :placeholder="Translate('IDCS_SEARCH_CHANNEL')"
-        @keydown.enter="search"
+        @keyup.enter="search"
     />
     <BaseImgSprite
         file="toolbar_search"
-        class="toolBarBtn"
+        class="base-toolbar-btn"
+        :title="Translate('IDCS_SEARCH_CHANNEL')"
         @click="search"
     />
     <el-button
-        id="btnAddChl"
+        v-if="isAddGroupBtn"
         @click="addChl"
-        >{{ Translate('IDCS_ADD_CHANNEL') }}</el-button
     >
+        {{ Translate('IDCS_ADD_CHANNEL') }}
+    </el-button>
+    <BaseImgSprite
+        v-else
+        file="toolbar_add"
+        class="base-toolbar-btn"
+        :title="Translate('IDCS_ADD_CHANNEL')"
+        @click="addChl"
+    />
 </template>
 
 <script lang="ts">
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
-
 export default defineComponent({
-    components: { BaseImgSprite },
-    emits: ['toolBarEvent'],
+    emits: {
+        toolBarEvent(data: ConfigToolBarEvent<SearchToolBarEvent | undefined>) {
+            return !!data
+        },
+    },
+
     setup(_props, ctx) {
         const msg = ref('')
-        const search = function () {
+
+        const isAddGroupBtn = import.meta.env.VITE_UI_TYPE !== 'UI2-A'
+
+        const search = () => {
             ctx.emit('toolBarEvent', {
                 type: 'search',
                 data: {
@@ -38,29 +52,20 @@ export default defineComponent({
                 },
             })
         }
-        const addChl = function () {
+
+        const addChl = () => {
             ctx.emit('toolBarEvent', {
                 type: 'addChl',
+                data: undefined,
             })
         }
-        return { msg, search, addChl }
+
+        return {
+            msg,
+            search,
+            addChl,
+            isAddGroupBtn,
+        }
     },
 })
 </script>
-
-<style lang="scss" scoped>
-#btnAddChl {
-    margin-left: 20px;
-    height: 25px;
-}
-
-.toolBarBtn {
-    background-color: var(--bg-color2);
-    margin-left: 5px;
-    cursor: pointer;
-
-    &:hover {
-        background-color: var(--bg-color3);
-    }
-}
-</style>

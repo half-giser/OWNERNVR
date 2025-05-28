@@ -2,32 +2,22 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-28 11:45:28
  * @Description: 报警状态
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 20:05:37
  */
-import { type XmlResult } from '@/utils/xmlParse'
-import type { SystemAlarmStatusListData, SystemAlarmStatusList } from '@/types/apiType/system'
+import { type XMLQuery } from '@/utils/xmlParse'
 import dayjs from 'dayjs'
-// import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
-import RecPop from '../rec/RecPop.vue'
 import type { TableInstance } from 'element-plus'
-import { type RecPlayList } from '@/types/apiType/playback'
 
 export default defineComponent({
-    components: {
-        // BaseImgSprite,
-        RecPop,
-    },
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const systemCaps = useCababilityStore()
-        const userSession = useUserSessionStore()
-        const dateTime = useDateTime()
+        const dateTime = useDateTimeStore()
+
+        const NONE = Translate('IDCS_NULL')
 
         const NAME_MAPPING: Record<number, string> = {
-            1: Translate('IDCS_WHITE_LIST') + '1',
-            2: Translate('IDCS_WHITE_LIST') + '2',
+            1: Translate('IDCS_WHITE_LIST') + 1,
+            2: Translate('IDCS_WHITE_LIST') + 2,
             3: Translate('IDCS_BLACK_LIST'),
             9: Translate('IDCS_GROUP_STRANGER'),
         }
@@ -54,17 +44,26 @@ export default defineComponent({
             hddPullOut: 'IDCS_HDD_PULL_OUT',
             alarmServerOffline: 'IDCS_ALARM_SERVER_OFFLINE',
         }
+
         const INTELLIGENCE_TYPE_MAPPING: Record<string, string> = {
             osc: 'IDCS_WATCH_DETECTION',
             avd: 'IDCS_ABNORMAL_DETECTION',
             tripwire: 'IDCS_BEYOND_DETECTION',
             pea: 'IDCS_INVADE_DETECTION',
+            san: 'IDCS_SMART_AOI_ENTRY_DETECTION',
+            sal: 'IDCS_SMART_AOI_LEAVE_DETECTION',
             vfd: 'IDCS_FACE_DETECTION',
             cdd: 'IDCS_CROWD_DENSITY_DETECTION',
             ipd: 'IDCS_PEOPLE_INSTRUSION_DETECTION',
             cpc: 'IDCS_PEOPLE_COUNT_DETECTION',
             temperatureAlarm: 'IDCS_TEMPERATURE_DETECTION',
             smartFirePoint: 'IDCS_FIRE_POINT_DETECTION',
+            asd: 'IDCS_AUDIO_EXCEPTION_DETECTION',
+            pvd: 'IDCS_PARKING_DETECTION',
+            loitering: 'IDCS_LOITERING_DETECTION',
+            LineStatistics: 'IDCS_PASS_LINE_COUNT_DETECTION',
+            crowdGather: 'IDCS_CROWD_GATHERING',
+            regionStatistics: 'IDCS_REGION_STATISTICS',
         }
 
         const SWITCH_MAPPING: Record<string, string> = {
@@ -84,27 +83,19 @@ export default defineComponent({
         // 回放视频长度（毫秒）
         const recDuration = 5 * 60 * 1000
         // 定时器，每隔一段时间自动刷新状态
-        let getAlarmStatusTimer: NodeJS.Timeout | number = 0
+        const getAlarmStatusTimer = useRefreshTimer(async () => {
+            await getAlarmStatus()
+            updatePagination()
+        }, refreshInterval)
 
         const pageData = ref({
-            isInw48: false,
+            isInw48: systemCaps.CustomerID === 100,
             activeIndex: -1,
             activeRow: [] as string[],
             // 是否打开回放弹窗
             isRecord: false,
-            recordPlayList: [] as RecPlayList[],
+            recordPlayList: [] as PlaybackPopList[],
         })
-
-        /**
-         * @description 获取基础配置信息
-         */
-        const getBasicCfg = async () => {
-            const result = await queryBasicCfg(getXmlWrapData(''))
-            const $ = queryXml(result)
-
-            const CustomerID = $('/response/content/CustomerID').text()
-            pageData.value.isInw48 = CustomerID === '100'
-        }
 
         /**
          * @description 获取Face Feature Groups Name
@@ -113,14 +104,15 @@ export default defineComponent({
             const result = await queryFacePersonnalInfoGroupList()
             const $ = queryXml(result)
             // const data: Record<number, string> = {}
-            $('/response/content/item').forEach((item) => {
+            $('content/item').forEach((item) => {
                 const $item = queryXml(item.element)
-                const groupId = Number($item('groupId').text())
+                const groupId = $item('groupId').text().num()
                 const name = $item('name').text()
                 if ([1, 2, 3].includes(groupId) && name) {
                     NAME_MAPPING[groupId] = name
                     return
                 }
+
                 if (groupId !== 9) {
                     NAME_MAPPING[groupId] = name
                     return
@@ -135,10 +127,10 @@ export default defineComponent({
             const result = await queryPlateLibrary()
             const $ = queryXml(result)
 
-            if ($('/response/status').text() === 'success') {
-                $('/response/content/group/item').forEach((item) => {
+            if ($('status').text() === 'success') {
+                $('content/group/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    PLATE_LIBRARY_NAME[item.attr('id')!] = $item('name').text()
+                    PLATE_LIBRARY_NAME[item.attr('id')] = $item('name').text()
                 })
             }
         }
@@ -195,7 +187,7 @@ export default defineComponent({
                     index: 1,
                 },
             )
-            if (systemCaps.supportFaceMatch) {
+            if (systemCaps.supportFaceMatch && !systemCaps.IntelAndFaceConfigHide) {
                 // 人脸比对报警
                 rowData.push({
                     id: 'faceMatchAlarms',
@@ -204,7 +196,8 @@ export default defineComponent({
                     index: 1,
                 })
             }
-            if (systemCaps.supportPlateMatch) {
+
+            if (systemCaps.supportPlateMatch && !systemCaps.IntelAndFaceConfigHide) {
                 // 车辆比对报警
                 rowData.push({
                     id: 'vehiclePlateMatchAlarms',
@@ -223,15 +216,18 @@ export default defineComponent({
          * @returns
          */
         const getAlarmClassName = (row: SystemAlarmStatusList, index: number) => {
-            if (row.data.length === 0) {
+            if (!row.data.length) {
                 return 1
             }
+
             if (index === pageData.value.activeIndex) {
                 return 4
             }
+
             if (row.id === 'motion') {
                 return 2
             }
+
             if (row.id === 'intelligents') {
                 return 3
             }
@@ -245,9 +241,10 @@ export default defineComponent({
          * @returns
          */
         const getAlarmStatusActive = (row: SystemAlarmStatusList, index: number) => {
-            if (row.data.length === 0) {
+            if (!row.data.length) {
                 return false
             }
+
             if (index === pageData.value.activeIndex) {
                 return true
             }
@@ -259,6 +256,7 @@ export default defineComponent({
          */
         const getAlarmStatus = async () => {
             const result = await queryAlarmStatus()
+
             commLoadResponseHandler(result, ($) => {
                 const types = tableList.value.map((item) => item.id)
 
@@ -271,18 +269,17 @@ export default defineComponent({
                 if (types.indexOf('intelligents') > -1) {
                     getIntelligentsData($, types.indexOf('intelligents'))
                 }
+
                 if (types.indexOf('faceMatchAlarms') > -1) {
                     getFaceMatchAlaramsData($, types.indexOf('faceMatchAlarms'))
                 }
+
                 if (types.indexOf('vehiclePlateMatchAlarms') > -1) {
                     getVehiclePlateMatchAlarmsData($, types.indexOf('vehiclePlateMatchAlarms'))
                 }
             })
 
-            getAlarmStatusTimer = setTimeout(() => {
-                getAlarmStatus()
-                updatePagination()
-            }, refreshInterval)
+            getAlarmStatusTimer.repeat()
         }
 
         /**
@@ -290,7 +287,7 @@ export default defineComponent({
          */
         const updatePagination = () => {
             tableList.value.forEach((item) => {
-                if (item.index > item.data.length) {
+                if (item.index > item.data.length || item.index === 0) {
                     item.index = item.data.length
                 }
             })
@@ -301,23 +298,23 @@ export default defineComponent({
          * @param {Function} $
          * @param {number} index
          */
-        const getAlaramInData = ($: (path: string) => XmlResult, index: number) => {
-            const alarmInData = $('/response/content/alarmIns/item').map((item) => {
+        const getAlaramInData = ($: XMLQuery, index: number) => {
+            const alarmInData = $('content/alarmIns/item').map((item) => {
                 const $item = queryXml(item.element)
-                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat.value)
+                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
                 const rec = $item('triggerRecChls/item').map((chl) => ({
-                    id: chl.attr('id')!,
+                    id: chl.attr('id'),
                     text: chl.text(),
                 }))
                 const triggerRecChlNames = rec.map((item) => item.text).join(', ')
                 return {
-                    id: $item('sourceAlarmIn').attr('id')!,
+                    id: $item('sourceAlarmIn').attr('id'),
                     rec,
                     alarmTime,
                     data: [
                         {
                             key: 'IDCS_ALARM_SOURCE',
-                            value: replaceWithEntity($item('sourceAlarmIn').text()),
+                            value: $item('sourceAlarmIn').text(),
                             span: 2,
                         },
                         {
@@ -327,24 +324,24 @@ export default defineComponent({
                         },
                         {
                             key: 'IDCS_TRIGGER_RECORD_CHANNEL',
-                            value: triggerRecChlNames || Translate('IDCS_NULL'),
+                            value: triggerRecChlNames || NONE,
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_OUT',
-                            value: $item('triggerAlarmOutNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerAlarmOutNames').text() || NONE,
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_PRESET',
-                            value: $item('triggerPresetNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerPresetNames').text() || NONE,
                             span: 2,
                         },
                         {
                             key: '',
                             value: '',
                             span: 2,
-                            hidden: true,
+                            hide: true,
                         },
                         {
                             key: 'IDCS_SNAP',
@@ -382,18 +379,18 @@ export default defineComponent({
          * @param {Function} $
          * @param {number} index
          */
-        const getAlarmOutData = ($: (path: string) => XmlResult, index: number) => {
-            const alarmOutData = $('/response/content/alarmOuts/item').map((item) => {
+        const getAlarmOutData = ($: XMLQuery, index: number) => {
+            const alarmOutData = $('content/alarmOuts/item').map((item) => {
                 const $item = queryXml(item.element)
-                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat.value)
+                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
                 return {
-                    id: $item('alarmOut').attr('id')!,
+                    id: $item('alarmOut').attr('id'),
                     rec: [],
                     alarmTime,
                     data: [
                         {
                             key: 'IDCS_ALARM_SOURCE',
-                            value: replaceWithEntity($item('alarmOut').text()),
+                            value: $item('alarmOut').text(),
                             span: 2,
                         },
                         {
@@ -412,24 +409,24 @@ export default defineComponent({
          * @param {Function} $
          * @param {number} index
          */
-        const getMotionData = ($: (path: string) => XmlResult, index: number) => {
-            const motionData = $('/response/content/motions/item').map((item) => {
+        const getMotionData = ($: XMLQuery, index: number) => {
+            const motionData = $('content/motions/item').map((item) => {
                 const $item = queryXml(item.element)
-                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat.value)
+                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
                 const rec = $item('triggerRecChls/item').map((chl) => ({
-                    id: chl.attr('id')!,
+                    id: chl.attr('id'),
                     text: chl.text(),
                 }))
                 const triggerRecChlNames = rec.map((item) => item.text).join(', ')
 
                 return {
-                    id: $item('sourceChl').attr('id')!,
+                    id: $item('sourceChl').attr('id'),
                     alarmTime,
                     rec,
                     data: [
                         {
                             key: 'IDCS_ALARM_SOURCE',
-                            value: replaceWithEntity($item('sourceChl').text()),
+                            value: $item('sourceChl').text(),
                             span: 2,
                         },
                         {
@@ -439,24 +436,24 @@ export default defineComponent({
                         },
                         {
                             key: 'IDCS_TRIGGER_RECORD_CHANNEL',
-                            value: triggerRecChlNames || Translate('IDCS_NULL'),
+                            value: triggerRecChlNames || NONE,
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_OUT',
-                            value: $item('triggerAlarmOutNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerAlarmOutNames').text() || NONE,
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_PRESET',
-                            value: $item('triggerPresetNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerPresetNames').text() || NONE,
                             span: 2,
                         },
                         {
                             key: '',
                             value: '',
                             span: 2,
-                            hidden: true,
+                            hide: true,
                         },
                         {
                             key: 'IDCS_SNAP',
@@ -474,15 +471,20 @@ export default defineComponent({
                             span: 1,
                         },
                         {
-                            key: 'IDCS_TARGET_DETECTION',
-                            value: TARGET_TYPE_MAPPING[Number($item('targetType').text())] || '',
+                            key: 'IDCS_TRIGGER_ALARM_OPEN_MESSAGE',
+                            value: SWITCH_MAPPING[$item('popMsgSwitch').text()],
                             span: 1,
-                            hide: !(TARGET_TYPE_MAPPING[Number($item('targetType').text())] || ''),
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_SEND_EMAIL',
                             value: SWITCH_MAPPING[$item('emailSwitch').text()],
-                            span: 2,
+                            span: 1,
+                        },
+                        {
+                            key: 'IDCS_TARGET_DETECTION',
+                            value: TARGET_TYPE_MAPPING[$item('targetType').text().num()] || '',
+                            span: 1,
+                            hide: !(TARGET_TYPE_MAPPING[$item('targetType').text().num()] || ''),
                         },
                     ],
                 }
@@ -495,24 +497,24 @@ export default defineComponent({
          * @param {Function} $
          * @param {number} index
          */
-        const getIntelligentsData = ($: (path: string) => XmlResult, index: number) => {
-            const intelligentsData = $('/response/content/intelligents/item').map((item) => {
+        const getIntelligentsData = ($: XMLQuery, index: number) => {
+            const intelligentsData = $('content/intelligents/item').map((item) => {
                 const $item = queryXml(item.element)
-                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat.value)
+                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
                 const rec = $item('triggerRecChls/item').map((chl) => ({
-                    id: chl.attr('id')!,
+                    id: chl.attr('id'),
                     text: chl.text(),
                 }))
                 const triggerRecChlNames = rec.map((item) => item.text).join(', ')
 
                 return {
-                    id: $item('sourceChl').attr('id')!,
+                    id: $item('sourceChl').attr('id'),
                     alarmTime,
                     rec,
                     data: [
                         {
                             key: 'IDCS_ALARM_SOURCE',
-                            value: replaceWithEntity($item('sourceChl').text()),
+                            value: $item('sourceChl').text(),
                             span: 1,
                         },
                         {
@@ -527,24 +529,24 @@ export default defineComponent({
                         },
                         {
                             key: 'IDCS_TRIGGER_RECORD_CHANNEL',
-                            value: triggerRecChlNames || Translate('IDCS_NULL'),
+                            value: triggerRecChlNames || NONE,
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_OUT',
-                            value: $item('triggerAlarmOutNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerAlarmOutNames').text() || NONE,
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_PRESET',
-                            value: $item('triggerPresetNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerPresetNames').text() || NONE,
                             span: 2,
                         },
                         {
                             key: '',
                             value: '',
                             span: 2,
-                            hidden: true,
+                            hide: true,
                         },
                         {
                             key: 'IDCS_SNAP',
@@ -563,7 +565,7 @@ export default defineComponent({
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_SEND_EMAIL',
-                            value: SWITCH_MAPPING[$item('popMsgSwitch').text()],
+                            value: SWITCH_MAPPING[$item('emailSwitch').text()],
                             span: 2,
                         },
                     ],
@@ -577,18 +579,18 @@ export default defineComponent({
          * @param {Function} $
          * @param {number} index
          */
-        const getAbnormalData = ($: (path: string) => XmlResult, index: number) => {
+        const getAbnormalData = ($: XMLQuery, index: number) => {
             const data: SystemAlarmStatusListData[] = []
 
-            const abnormalData = $('/response/content/abnormals/item').map((item) => {
+            const abnormalData = $('content/abnormals/item').map((item) => {
                 const $item = queryXml(item.element)
 
-                const abnormalType = $item('abnormalType').text() || ''
-                const diskType = Number($item('alarmNode').attr('diskType')!)
-                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat.value)
-                const serialNO = $item('alarmNode').attr('serialNO')!
-                const nic = $item('alarmNode').attr('nic')!
-                const ip = $item('alarmNode').attr('ip')!
+                const abnormalType = $item('abnormalType').text()
+                const diskType = $item('alarmNode').attr('diskType').num()
+                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
+                const serialNO = $item('alarmNode').attr('serialNO')
+                const nic = $item('alarmNode').attr('nic')
+                const ip = $item('alarmNode').attr('ip')
 
                 let abnormalTypeText = ''
                 let abnormalInfo = ''
@@ -610,22 +612,18 @@ export default defineComponent({
                     case 'noDisk':
                     case 'signalShelter':
                     case 'alarmServerOffline':
-                        abnormalInfo = replaceWithEntity($item('alarmNode').text())
+                        abnormalInfo = $item('alarmNode').text()
                         break
                     default:
                         break
                 }
+
                 switch (abnormalType) {
                     case 'diskRWError':
-                        const text1 = Translate(ABNORMAL_TYPE_MAPPING[abnormalType])
-                        const text2 = serialNO ? '--' + Translate('IDCS_DISK_IO_ERROR_D_D').formatForLang($item('alarmNode').text() || '', serialNO) : ''
-                        abnormalTypeText = text1 + text2
+                        abnormalTypeText = Translate(ABNORMAL_TYPE_MAPPING[abnormalType]) + '--' + Translate('IDCS_DISK_IO_ERROR_D_D').formatForLang($item('alarmNode').text() || '', serialNO || '')
                         break
                     case 'networkBreak':
-                        abnormalTypeText = '%1%2'.formatForLang(
-                            Translate(ABNORMAL_TYPE_MAPPING[abnormalType]),
-                            nic ? '(%1)'.formatForLang(Translate(nic == 'eth0' ? 'IDCS_ETH0_NAME' : nic == 'eth1' ? 'IDCS_ETH1_NAME' : nic)) : '',
-                        )
+                        abnormalTypeText = `${Translate(ABNORMAL_TYPE_MAPPING[abnormalType])}${nic ? `(${Translate(nic === 'eth0' ? 'IDCS_ETH0_NAME' : nic === 'eth1' ? 'IDCS_ETH1_NAME' : nic)})` : ''}`
                         break
                     case 'ipConflict':
                         const ipTips = ip ? `:${ip}` : ''
@@ -636,7 +634,7 @@ export default defineComponent({
                         break
                 }
                 return {
-                    id: $item('alarmNode').attr('id')!,
+                    id: $item('alarmNode').attr('id'),
                     alarmTime,
                     rec: [],
                     data: [
@@ -657,14 +655,14 @@ export default defineComponent({
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_OUT',
-                            value: $item('triggerAlarmOutNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerAlarmOutNames').text() || NONE,
                             span: 2,
                         },
                         {
                             key: '',
                             value: '',
                             span: 2,
-                            hidden: true,
+                            hide: true,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_BUZZER',
@@ -684,19 +682,31 @@ export default defineComponent({
                     ],
                 }
             })
-            const frontEndOfflineData = $('/response/content/frontEndOffline/item').map((item) => {
+            const frontEndOfflineData = $('content/frontEndOffline/item').map((item) => {
                 const $item = queryXml(item.element)
-                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat.value)
-                const ip = $item('alarmNode').attr('ip')!
+                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
+                const ip = $item('alarmNode').attr('ip')
 
                 let errorNote = ''
-                const errorCode = Number($item('errorCode').text())
+                const errorCode = $item('errorCode').text().num()
                 switch (errorCode) {
-                    case 536870948:
+                    case ErrorCode.USER_ERROR_PWD_ERR:
                         errorNote = `(${Translate('IDCS_DEVICE_PWD_ERROR')})`
                         break
-                    case 536870935:
+                    case ErrorCode.USER_ERROR_NODE_NET_OFFLINE:
                         errorNote = `(${Translate('IDCS_NODE_NOT_ONLINE')})`
+                        break
+                    case ErrorCode.HTTPS_PKCS12_CREATE_FAILED:
+                        errorNote = `(${Translate('IDCS_REMOTE_CHL_ID_ERR')})`
+                        break
+                    case ErrorCode.USER_ERROR_USER_LIMITED:
+                        errorNote = `(${Translate('IDCS_CONNECT_LIMIT')})`
+                        break
+                    case ErrorCode.USER_ERROR_USER_LOCKED:
+                        errorNote = `(${Translate('IDCS_DEVICE_LOCKE_TIP')})`
+                        break
+                    case ErrorCode.USER_ERROR_NOSUPPORT_DEV_VERSION:
+                        errorNote = `(${Translate('IDCS_NOSUPPORT_DEV_VERSION')})`
                         break
                     default:
                         break
@@ -704,13 +714,13 @@ export default defineComponent({
                 const ipTips = ip ? ` ${Translate('IDCS_IP_ADDRESS')}:${ip}` : ''
 
                 return {
-                    id: $item('sourceChl').attr('id')!,
+                    id: $item('sourceChl').attr('id'),
                     alarmTime,
                     rec: [],
                     data: [
                         {
                             key: 'IDCS_ALARM_SOURCE',
-                            value: replaceWithEntity($item('sourceChl').text()),
+                            value: $item('sourceChl').text(),
                             span: 2,
                         },
                         {
@@ -720,24 +730,24 @@ export default defineComponent({
                         },
                         {
                             key: 'IDCS_STATE',
-                            value: Translate(ABNORMAL_TYPE_MAPPING['frontEndOffline']) + errorNote + ipTips,
+                            value: Translate(ABNORMAL_TYPE_MAPPING.frontEndOffline) + errorNote + ipTips,
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_OUT',
-                            value: $item('triggerAlarmOutNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerAlarmOutNames').text() || NONE,
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_PRESET',
-                            value: $item('triggerPresetNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerPresetNames').text() || NONE,
                             span: 2,
                         },
                         {
                             key: '',
                             value: '',
                             span: 2,
-                            hidden: true,
+                            hide: true,
                         },
                         {
                             key: 'IDCS_SNAP',
@@ -767,18 +777,18 @@ export default defineComponent({
                     ],
                 }
             })
-            const videoLossData = $('/response/content/videoLoss/item').map((item) => {
+            const videoLossData = $('content/videoLoss/item').map((item) => {
                 const $item = queryXml(item.element)
-                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat.value)
+                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
 
                 return {
-                    id: $item('sourceChl').attr('id')!,
+                    id: $item('sourceChl').attr('id'),
                     alarmTime,
                     rec: [],
                     data: [
                         {
                             key: 'IDCS_ALARM_SOURCE',
-                            value: replaceWithEntity($item('sourceChl').text()),
+                            value: $item('sourceChl').text(),
                             span: 2,
                         },
                         {
@@ -788,24 +798,24 @@ export default defineComponent({
                         },
                         {
                             key: 'IDCS_STATE',
-                            value: Translate(ABNORMAL_TYPE_MAPPING['videoLoss']),
+                            value: Translate(ABNORMAL_TYPE_MAPPING.videoLoss),
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_OUT',
-                            value: $item('triggerAlarmOutNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerAlarmOutNames').text() || NONE,
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_PRESET',
-                            value: $item('triggerPresetNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerPresetNames').text() || NONE,
                             span: 2,
                         },
                         {
                             key: '',
                             value: '',
                             span: 2,
-                            hidden: true,
+                            hide: true,
                         },
                         {
                             key: 'IDCS_SNAP',
@@ -837,7 +847,7 @@ export default defineComponent({
             })
             data.push(...abnormalData, ...frontEndOfflineData, ...videoLossData)
             data.sort((a, b) => {
-                return dayjs(a.alarmTime, dateTime.dateTimeFormat.value).valueOf() - dayjs(b.alarmTime, dateTime.dateTimeFormat.value).valueOf()
+                return dayjs(a.alarmTime, dateTime.dateTimeFormat).valueOf() - dayjs(b.alarmTime, dateTime.dateTimeFormat).valueOf()
             })
             tableList.value[index].data = data
         }
@@ -847,30 +857,30 @@ export default defineComponent({
          * @param {Function} $
          * @param {number} index
          */
-        const getFaceMatchAlaramsData = ($: (path: string) => XmlResult, index: number) => {
-            const faceMatchAlarmsData = $('/response/content/faceMatchAlarms/item').map((item) => {
+        const getFaceMatchAlaramsData = ($: XMLQuery, index: number) => {
+            const faceMatchAlarmsData = $('content/faceMatchAlarms/item').map((item) => {
                 const $item = queryXml(item.element)
-                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat.value)
+                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
                 const rec = $item('triggerRecChls/item').map((chl) => ({
-                    id: chl.attr('id')!,
+                    id: chl.attr('id'),
                     text: chl.text(),
                 }))
                 const triggerRecChlNames = rec.map((item) => item.text).join(', ')
 
                 return {
-                    id: $item('sourceFacePersonnalInfoGroup').attr('id')!,
+                    id: $item('sourceFacePersonnalInfoGroup').attr('id'),
                     alarmTime,
                     rec: [],
-                    img: 'data:image/png;base64,' + $item('faceImgData').text(),
+                    img: wrapBase64Img($item('faceImgData').text()),
                     data: [
                         {
                             key: '',
-                            value: $item('eventHint').text() || '',
+                            value: $item('eventHint').text(),
                             span: 2,
                         },
                         {
                             key: 'IDCS_ALARM_SOURCE',
-                            value: $item('sourceChl').text() || '',
+                            value: $item('sourceChl').text(),
                             span: 2,
                         },
                         {
@@ -890,17 +900,17 @@ export default defineComponent({
                         },
                         {
                             key: 'IDCS_TRIGGER_RECORD_CHANNEL',
-                            value: triggerRecChlNames || Translate('IDCS_NULL'),
+                            value: triggerRecChlNames || NONE,
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_OUT',
-                            value: $item('triggerAlarmOutNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerAlarmOutNames').text() || NONE,
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_PRESET',
-                            value: $item('triggerPresetNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerPresetNames').text() || NONE,
                             span: 2,
                         },
                         {
@@ -939,18 +949,18 @@ export default defineComponent({
          * @param {Function} $
          * @param {number} index
          */
-        const getCombinedAlarmsData = ($: (path: string) => XmlResult, index: number) => {
-            const combinedAlarmsData = $('/response/content/combinedAlarms/item').map((item) => {
+        const getCombinedAlarmsData = ($: XMLQuery, index: number) => {
+            const combinedAlarmsData = $('content/combinedAlarms/item').map((item) => {
                 const $item = queryXml(item.element)
-                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat.value)
+                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
                 const rec = $item('triggerRecChls/item').map((chl) => ({
-                    id: chl.attr('id')!,
+                    id: chl.attr('id'),
                     text: chl.text(),
                 }))
                 const triggerRecChlNames = rec.map((item) => item.text).join(', ')
 
                 return {
-                    id: $item('sourceAlarmIn').attr('id')!,
+                    id: $item('sourceAlarmIn').attr('id'),
                     rec,
                     alarmTime,
                     data: [
@@ -966,24 +976,24 @@ export default defineComponent({
                         },
                         {
                             key: 'IDCS_TRIGGER_RECORD_CHANNEL',
-                            value: triggerRecChlNames || Translate('IDCS_NULL'),
+                            value: triggerRecChlNames || NONE,
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_OUT',
-                            value: $item('triggerAlarmOutNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerAlarmOutNames').text() || NONE,
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_PRESET',
-                            value: $item('triggerPresetNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerPresetNames').text() || NONE,
                             span: 2,
                         },
                         {
                             key: '',
                             value: '',
                             span: 2,
-                            hidden: true,
+                            hide: true,
                         },
                         {
                             key: 'IDCS_SNAP',
@@ -1016,30 +1026,30 @@ export default defineComponent({
          * @param {Function} $
          * @param {number} index
          */
-        const getVehiclePlateMatchAlarmsData = ($: (path: string) => XmlResult, index: number) => {
-            const vehiclePlateMatchAlarmsData = $('/response/content/vehiclePlateMatchAlarms/item').map((item) => {
+        const getVehiclePlateMatchAlarmsData = ($: XMLQuery, index: number) => {
+            const vehiclePlateMatchAlarmsData = $('content/vehiclePlateMatchAlarms/item').map((item) => {
                 const $item = queryXml(item.element)
-                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat.value)
+                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
                 const rec = $item('triggerRecChls/item').map((chl) => ({
-                    id: chl.attr('id')!,
+                    id: chl.attr('id'),
                     text: chl.text(),
                 }))
                 const triggerRecChlNames = rec.map((item) => item.text).join(', ')
 
                 return {
-                    id: $item('sourcePlateGroup').attr('id')!,
+                    id: $item('sourcePlateGroup').attr('id'),
                     alarmTime,
                     rec: [],
-                    img: 'data:image/png;base64,' + $item('plateImgData').text(),
+                    img: wrapBase64Img($item('plateImgData').text()),
                     data: [
                         {
                             key: '',
-                            value: $item('eventHint').text() || '',
+                            value: $item('eventHint').text(),
                             span: 2,
                         },
                         {
                             key: 'IDCS_ALARM_SOURCE',
-                            value: $item('sourceChl').text() || '',
+                            value: $item('sourceChl').text(),
                             span: 2,
                         },
                         {
@@ -1049,7 +1059,7 @@ export default defineComponent({
                         },
                         {
                             key: 'IDCS_GROUP_NAME',
-                            value: PLATE_LIBRARY_NAME[Number($item('sourcePlateGroup').attr('id')!)],
+                            value: PLATE_LIBRARY_NAME[$item('sourcePlateGroup').attr('id').num()],
                             span: 2,
                         },
                         {
@@ -1059,12 +1069,12 @@ export default defineComponent({
                         },
                         {
                             key: 'IDCS_TRIGGER_RECORD_CHANNEL',
-                            value: triggerRecChlNames || Translate('IDCS_NULL'),
+                            value: triggerRecChlNames || NONE,
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_OUT',
-                            value: $item('triggerAlarmOutNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerAlarmOutNames').text() || NONE,
                             span: 2,
                         },
                         {
@@ -1105,6 +1115,22 @@ export default defineComponent({
          */
         const handleChangeRow = (row: SystemAlarmStatusList) => {
             pageData.value.activeIndex = tableList.value.findIndex((item) => row.id === item.id)!
+            setTimeout(() => {
+                tableRef.value!.setCurrentRow(row)
+            }, 10)
+        }
+
+        /**
+         * @description 当前行展开后收起
+         * @param {SystemAlarmStatusList} row
+         * @param {SystemAlarmStatusList[]} rows
+         */
+        const handleExpandChange = (row: SystemAlarmStatusList, rows: SystemAlarmStatusList[]) => {
+            pageData.value.activeIndex = tableList.value.findIndex((item) => row.id === item.id)!
+            pageData.value.activeRow = rows.map((item) => item.id)
+            setTimeout(() => {
+                tableRef.value!.setCurrentRow(row)
+            }, 10)
         }
 
         /**
@@ -1112,16 +1138,10 @@ export default defineComponent({
          * @param {SystemAlarmStatusListData} row
          */
         const playRec = (row: SystemAlarmStatusListData) => {
-            let alarmTime = row.alarmTime
-            if (userSession.calendarType === 'Persian') {
-                alarmTime = persianToGregory(alarmTime, dateTime.dateTimeFormat.value)
-            }
-            const startTime = dayjs(alarmTime, { format: dateTime.dateTimeFormat.value, jalali: false }).subtract(preTime, 'millisecond').calendar('gregory').format('YYYY-MM-DD HH:mm:ss')
-            const endTime = dayjs(alarmTime, { format: dateTime.dateTimeFormat.value, jalali: false })
-                .add(recDuration, 'millisecond')
-                .subtract(preTime, 'millisecond')
-                .calendar('gregory')
-                .format('YYYY-MM-DD HH:mm:ss')
+            const alarmTime = row.alarmTime
+            const startTime = dayjs(alarmTime, dateTime.dateTimeFormat).subtract(preTime, 'millisecond').valueOf()
+            const endTime = dayjs(alarmTime, dateTime.dateTimeFormat).add(recDuration, 'millisecond').subtract(preTime, 'millisecond').valueOf()
+
             const playList = row.rec.map((item) => {
                 return {
                     chlId: item.id,
@@ -1135,21 +1155,18 @@ export default defineComponent({
             pageData.value.isRecord = true
         }
 
+        const getRowKey = (item: SystemAlarmStatusList) => {
+            return item.id
+        }
+
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
-            await getBasicCfg()
-            await systemCaps.updateCabability()
+            openLoading()
             await getFaceFeatureGroupsName()
             await getPlateLibrary()
 
             renderTable()
-            await dateTime.getTimeConfig()
             await getAlarmStatus()
-            closeLoading(LoadingTarget.FullScreen)
-        })
-
-        onBeforeUnmount(() => {
-            clearTimeout(getAlarmStatusTimer)
+            closeLoading()
         })
 
         return {
@@ -1159,9 +1176,9 @@ export default defineComponent({
             getAlarmClassName,
             getAlarmStatusActive,
             handleChangeRow,
+            handleExpandChange,
             playRec,
-            // BaseImgSprite,
-            RecPop,
+            getRowKey,
         }
     },
 })

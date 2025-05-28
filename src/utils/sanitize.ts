@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-13 13:41:01
  * @Description: 防XSS攻击html过滤器
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-13 13:42:41
  */
 
 const parser = new DOMParser()
@@ -61,7 +59,7 @@ const ALLOW_TAGS = [
     'tr',
 ]
 
-const ALLOW_ATTRS = ['class', 'href', 'src', 'id', 'width', 'height', 'controls', 'preload', 'target', 'style', 'referrerpolicy', 'ref']
+const ALLOW_ATTRS = ['class', 'href', 'src', 'id', 'width', 'height', 'controls', 'preload', 'target', 'style', 'referrerpolicy', 'ref', 'download']
 
 const URI_ATTRS = ['src'] // 'href'
 
@@ -69,7 +67,7 @@ const IS_ALLOWED_URI = /^(?:(?:https?|mailto|tel|callto|sms|xmpp):|[^a-z]|[a-z+.
 
 const CLOBBERED_ATTRS = ['id']
 
-const IS_ALLOWED_ID = /^_ca_[0-9]/
+const IS_ALLOWED_ID = /^_n9_[0-9]/
 
 const cleanAttributes = (element: Element) => {
     const attributes = element.attributes

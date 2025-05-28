@@ -7,6 +7,9 @@
     <div
         class="border"
         :style="{ width: `${width}px` }"
+        @mousemove="selecting"
+        @mouseup="selectEnd"
+        @mouseleave="selectEnd"
     >
         <div class="timeline-border">
             <canvas
@@ -18,10 +21,9 @@
             <canvas
                 v-if="readonly"
                 ref="timeSelectorRef"
-                class="time-selector, readonly"
+                class="time-selector readonly"
                 :width="canvasWidth"
                 height="20"
-                :style="{ backgroundColor: `${timeSpanBgColor}` }"
             ></canvas>
             <canvas
                 v-else
@@ -29,17 +31,13 @@
                 class="time-selector"
                 :width="canvasWidth"
                 height="20"
-                :style="{ backgroundColor: `${timeSpanBgColor}` }"
                 @mousedown="selectStart"
-                @mousemove="selecting"
-                @mouseup="selectEnd"
-                @mouseleave="selectEnd"
             ></canvas>
         </div>
         <div class="toolbar-border">
             <div
+                v-title
                 class="valueShowText"
-                :title="valueShowText"
                 v-text="valueShowText"
             ></div>
             <div
@@ -52,10 +50,31 @@
                 class="btn-panel"
             >
                 <slot name="customerControlPanel"></slot>
-                <a
-                    @click="manualTimeInputOpen"
-                    v-text="Translate('IDCS_MANUAL_INPUT')"
-                ></a>
+                <el-popover
+                    v-model:visible="manualTimeInputShow"
+                    width="300"
+                    :teleported="false"
+                >
+                    <template #reference>
+                        <a>{{ Translate('IDCS_MANUAL_INPUT') }}</a>
+                    </template>
+                    <div class="menaulTimeInputPL">
+                        <BaseTimePicker
+                            v-model="manualTimeSpan[0]"
+                            :range="[null, `${manualTimeSpan[1]}:00`]"
+                            :teleported="false"
+                            unit="minute"
+                        />
+                        <span class="splitter">--</span>
+                        <BaseTimePicker
+                            v-model="manualTimeSpan[1]"
+                            :range="[`${manualTimeSpan[0]}:00`, null]"
+                            :teleported="false"
+                            unit="minute"
+                        />
+                        <el-button @click="manualTimeInputOk">{{ Translate('IDCS_OK') }}</el-button>
+                    </div>
+                </el-popover>
                 <a
                     @click="resetValue([['00:00', '23:59']])"
                     v-text="Translate('IDCS_SELECT_ALL')"
@@ -68,53 +87,33 @@
                     @click="resetValue([])"
                     v-text="Translate('IDCS_CLEAR')"
                 ></a>
-                <div
-                    v-show="manualTimeInputShow"
-                    class="menaulTimeInputPL"
-                    @click.stop
-                >
-                    <el-time-picker
-                        v-model="manualTimeSpan"
-                        is-range
-                        range-separator="-"
-                        :clearable="false"
-                        format="HH:mm"
-                    />
-                    <el-button @click="manualTimeInputOk">{{ Translate('IDCS_OK') }}</el-button>
-                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script lang="ts" setup>
-import CanvasBase from '@/utils/canvas/canvasBase'
-import { ref } from 'vue'
+import dayjs from 'dayjs'
+
 export interface Props {
     width: number
-    timeMode?: number
-    scaleColor?: string
-    scaleFont?: string
-    timeSpanColor?: string
-    timeSpanSelectingColor?: string
-    timeSpanBgColor?: string
     readonly?: boolean
     dragAction?: 'add' | 'del'
 }
 
 const props = withDefaults(defineProps<Props>(), {
     width: 300,
-    timeMode: 24,
-    scaleColor: '#000',
-    scaleFont: '11px Arial',
-    timeSpanColor: '#18C0DD',
-    timeSpanSelectingColor: '#89E9F9',
-    timeSpanBgColor: '#F2F2F3',
     readonly: false,
     dragAction: 'add',
 })
 
-const { Translate } = inject('appGlobalProp') as appGlobalProp
+const scaleFont = '11px Arial'
+let scaleColor = '#000'
+let timeSpanColor = '#18C0DD'
+let timeSpanSelectingColor = '#89E9F9'
+
+const { Translate } = useLangStore()
+const dateTime = useDateTimeStore()
 
 //时间段显示风格符号，精度到分钟，如 02:30-05:10
 const timeSpanSplit = '-'
@@ -122,7 +121,8 @@ const timeSpanSplit = '-'
 const maxTimeNum = 24 * 60 - 1
 const scaleRef = ref<HTMLCanvasElement>()
 const timeSelectorRef = ref<HTMLCanvasElement>()
-let scaleCanvasBase: CanvasBase, timeSelectorCanvasBase: CanvasBase
+let scaleCanvasBase: ReturnType<typeof CanvasBase>
+let timeSelectorCanvasBase: ReturnType<typeof CanvasBase>
 
 //时间条控件中画布的宽度和高度
 const canvasWidth = props.width - 2 //减去左右border的宽度
@@ -148,16 +148,26 @@ let selectEndX = -1
 //鼠标拖选时实时显示选择时间段的TIP
 const selectTip = ref('')
 //手动选择时间段
-const manualTimeSpan = ref<[Date, Date]>([new Date(2016, 9, 10, 0, 0), new Date(2016, 9, 10, 23, 59)])
+const manualTimeSpan = ref<[string, string]>(['00:00', '23:59']) // ref<[Date, Date]>([new Date(2016, 9, 10, 0, 0), new Date(2016, 9, 10, 23, 59)])
 //手动选择时间段面板显示状态
 const manualTimeInputShow = ref(false)
+
+/**
+ * @description 初始化样式值
+ */
+const initStyle = () => {
+    const style = getComputedStyle(scaleRef.value!)
+    scaleColor = style.getPropertyValue('--schedule-scale')
+    timeSpanColor = style.getPropertyValue('--schedule-time-span-bg-active')
+    timeSpanSelectingColor = style.getPropertyValue('--schedule-time-span-bg-selection')
+}
 
 /**
  * 挂载完成后设置基础元素和属性
  */
 const setBasicProp = () => {
-    scaleCanvasBase = new CanvasBase(scaleRef.value as HTMLCanvasElement)
-    timeSelectorCanvasBase = new CanvasBase(timeSelectorRef.value as HTMLCanvasElement)
+    scaleCanvasBase = CanvasBase(scaleRef.value as HTMLCanvasElement)
+    timeSelectorCanvasBase = CanvasBase(timeSelectorRef.value as HTMLCanvasElement)
     canvasHeight = timeSelectorRef.value?.height as number
     //Canvas的X轴两边留白的空间，为了让收个刻度上的文字可以显示在刻度线中间
     headSpace = (() => {
@@ -172,6 +182,8 @@ const setBasicProp = () => {
 }
 
 onMounted(() => {
+    // 从CSS中获取样式
+    initStyle()
     //挂载完成后设置基础元素和属性
     setBasicProp()
     //画刻度
@@ -195,13 +207,13 @@ const valueShowText = computed(() => {
  * @returns
  */
 const timeNumArrSortedAndMerge = (timeNumArr: Array<[number, number]>) => {
-    if (!timeNumArr || timeNumArr.length === 0) return timeNumArr
+    if (!timeNumArr || !timeNumArr.length) return timeNumArr
     //按开始时间排序
     timeNumArr.sort((a, b) => {
         return a[0] - b[0]
     })
 
-    function getMax(a: number, b: number) {
+    const getMax = (a: number, b: number) => {
         return a > b ? a : b
     }
 
@@ -225,7 +237,7 @@ const timeNumArrSortedAndMerge = (timeNumArr: Array<[number, number]>) => {
 
 const checkAndInsertTimeNumSpan = (timeSpan: [number, number]) => {
     if (timeSpan[0] > timeSpan[1]) {
-        throw `checkAndInsertTimeNumSpan: start time > end time`
+        throw 'checkAndInsertTimeNumSpan: start time > end time'
     }
     selectedTimeSpans.value.push([timeSpan[0], timeSpan[1]])
 }
@@ -236,7 +248,7 @@ const checkAndInsertTimeNumSpan = (timeSpan: [number, number]) => {
  */
 const delTimeNumSpan = (timeSpan: [number, number]) => {
     if (timeSpan[0] > timeSpan[1]) {
-        throw `checkAndInsertTimeNumSpan: start time > end time`
+        throw 'checkAndInsertTimeNumSpan: start time > end time'
     }
 
     const timeNumArr = selectedTimeSpans.value
@@ -273,7 +285,7 @@ const checkAndInsertTimeSpan = (timeSpan: [string, string]) => {
  */
 const resetValue = (newValue: Array<[string, string]> | Array<[number, number]>) => {
     selectedTimeSpans.value.length = 0
-    if (newValue && newValue.length > 0) {
+    if (newValue && newValue.length) {
         if (typeof newValue[0][0] === 'number') {
             newValue.forEach((item) => {
                 checkAndInsertTimeNumSpan(item as [number, number])
@@ -299,18 +311,19 @@ const invert = () => {
         }
         num1 = item[1]
     })
-    if (selectedTimeSpans.value[selectedTimeSpans.value.length - 1][1] < maxTimeNum) {
-        reuslt.push([selectedTimeSpans.value[selectedTimeSpans.value.length - 1][1], maxTimeNum])
+    if (selectedTimeSpans.value.at(-1)![1] < maxTimeNum) {
+        reuslt.push([selectedTimeSpans.value.at(-1)![1], maxTimeNum])
     }
     resetValue(reuslt as Array<[number, number]>)
 }
 
-const dateToTimeNum = (time: Date) => {
-    return time.getHours() * 60 + time.getMinutes()
+const dateToTimeNum = (time: string) => {
+    const date = time.split(':').map((item) => Number(item))
+    return date[0] * 60 + date[1]
 }
 
 const manualTimeInputClose = (event?: Event) => {
-    if (event == null || (event.target != manualTimeInputTarget && !(event.target as HTMLElement).closest('.el-popper'))) {
+    if (!event || (event.target !== manualTimeInputTarget && !(event.target as HTMLElement).closest('.el-popper'))) {
         manualTimeInputShow.value = false
         document.removeEventListener('click', manualTimeInputClose)
     }
@@ -320,14 +333,6 @@ const manualTimeInputClose = (event?: Event) => {
  * 记录当前打开手动输入的按钮（在周排程时，打开一个手动输入/复制到，需要关闭其他天的手动输入/复制到，不能阻止冒泡，导致document点击时间不触发）
  */
 let manualTimeInputTarget: EventTarget | null = null
-/**
- * 手动设置时间段面板打开
- */
-const manualTimeInputOpen = (event: Event) => {
-    manualTimeInputTarget = event.target
-    manualTimeInputShow.value = true
-    document.addEventListener('click', manualTimeInputClose)
-}
 
 /**
  * 手动设置时间段确定事件
@@ -360,9 +365,8 @@ const addTimeSpan = (timeSpan: [string, string] | [number, number]) => {
  * @returns 示例：[['00:30','02:00'],['05:18','18:30']]
  */
 const getValue: () => [string, string][] = () => {
-    const result = [] as [string, string][]
-    selectedTimeSpans.value.forEach((item) => {
-        result.push([numToTimeStr(item[0]), numToTimeStr(item[1])])
+    const result = selectedTimeSpans.value.map((item) => {
+        return [numToTimeStr(item[0]), numToTimeStr(item[1])] as [string, string]
     })
     return result
 }
@@ -391,7 +395,7 @@ const timeStrToNum = (timeStr: string) => {
  * @returns
  */
 const timeStrSpanShowText = (timeStrSpan: Array<string>) => {
-    return timeStrSpan.join(timeSpanSplit)
+    return timeStrSpan.map((item) => dayjs(item, 'HH:mm').format(dateTime.hourMinuteFormat)).join(timeSpanSplit)
 }
 
 /**
@@ -403,9 +407,11 @@ const numToTimeStr = (timeNum: number) => {
     if (timeNum === null || timeNum === undefined) {
         throw 'timeNum can not be empty: ' + timeNum
     }
+
     if (timeNum < 0 || timeNum > maxTimeNum) {
         throw `timeNum should in [0-${maxTimeNum}]: ${timeNum}`
     }
+
     const hour = Math.floor(timeNum / 60)
     const min = timeNum % 60
     if (hour === 23 && min === 59) {
@@ -442,8 +448,8 @@ const scaleTextArr24 = scaleArr24.map((o) => o.toString())
 const scaleTextArr12 = (() => {
     const arr = [] as string[]
     scaleArr24.forEach((item) => {
-        if (item == 0 || item == 24) arr.push('12A')
-        else if (item == 12) arr.push('12P')
+        if (item === 0 || item === 24) arr.push('12A')
+        else if (item === 12) arr.push('12P')
         else if (item < 12) arr.push(item.toString())
         else arr.push((item - 12).toString())
     })
@@ -457,10 +463,10 @@ const drawScale = () => {
     const ctx = scaleCanvasBase.getContext()
     const lineStyle = {
         lineWidth: 1,
-        strokeStyle: props.scaleColor,
+        strokeStyle: scaleColor,
     }
 
-    const scaleTextArr = props.timeMode === 12 ? scaleTextArr12 : scaleTextArr24
+    const scaleTextArr = dateTime.timeMode === 12 ? scaleTextArr12 : scaleTextArr24
 
     scaleCanvasBase.Line(0, 19.5, canvasWidth, 19.5, lineStyle)
     for (let i = 0; i < 25; i++) {
@@ -471,8 +477,8 @@ const drawScale = () => {
                 text: scaleTextArr[i],
                 startX: x - ctx.measureText(scaleTextArr[i]).width / 2,
                 startY: 2,
-                fillStyle: props.scaleColor,
-                font: props.scaleFont,
+                fillStyle: scaleColor,
+                font: scaleFont,
             })
             scaleCanvasBase.Line(x, 13, x, canvasHeight, lineStyle)
         } else {
@@ -489,7 +495,7 @@ const drawTimeSpan = () => {
     selectedTimeSpans.value.forEach((item) => {
         const x1 = timeToX(item[0])
         const x2 = timeToX(item[1]) - x1
-        timeSelectorCanvasBase.FillRect(x1, 0, x2, canvasHeight, props.timeSpanColor)
+        timeSelectorCanvasBase.FillRect(x1, 0, x2, canvasHeight, timeSpanColor)
     })
 }
 
@@ -517,7 +523,7 @@ const selecting = (event: MouseEvent) => {
     const timeNum2 = xToTime(selectEndX)
     selectTip.value = timeStrSpanShowText(timeNum1 > timeNum2 ? [numToTimeStr(timeNum2), numToTimeStr(timeNum1)] : [numToTimeStr(timeNum1), numToTimeStr(timeNum2)])
     drawTimeSpan()
-    timeSelectorCanvasBase.FillRect(selectStartX, 0, selectEndX - selectStartX, canvasHeight, props.timeSpanSelectingColor)
+    timeSelectorCanvasBase.FillRect(selectStartX, 0, selectEndX - selectStartX, canvasHeight, timeSpanSelectingColor)
 }
 
 const selectEnd = (event: MouseEvent) => {
@@ -536,17 +542,25 @@ const selectEnd = (event: MouseEvent) => {
     }
 }
 
-defineExpose({
+const expose = {
     getValue,
     resetValue,
     addTimeSpan,
     invert,
-})
+}
+
+export type ScheduleLineReturnsType = typeof expose
+
+defineExpose(expose)
 </script>
 
 <style lang="scss" scoped>
+.border {
+    user-select: none;
+}
+
 .timeline-border {
-    border: solid 1px var(--border-color1);
+    border: solid 1px var(--main-border);
 
     canvas {
         display: block;
@@ -554,6 +568,7 @@ defineExpose({
 
     .time-selector {
         cursor: text;
+        background-color: var(--schedule-time-span-bg);
 
         &.readonly {
             cursor: default;
@@ -565,11 +580,10 @@ defineExpose({
     display: flex;
     height: 22px;
     line-height: 22px;
-    // background-color: aquamarine;
 
     .valueShowText {
         font-size: 12px;
-        color: var(--text-primary);
+        color: var(--main-text);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -579,9 +593,10 @@ defineExpose({
     .selectTip {
         flex: 0 0 auto;
         font-size: 12px;
-        padding: 0px 2px;
-        height: 16px;
-        background-color: var(--primary--01);
+        padding: 0 2px;
+        height: 22px;
+        line-height: 22px;
+        background-color: var(--primary-light);
     }
 
     .btn-panel {
@@ -593,16 +608,16 @@ defineExpose({
             margin-left: 15px;
             text-decoration: none;
             cursor: pointer;
-            color: var(--text-timeline-button);
+            color: var(--schedule-btn);
 
             &:hover {
                 text-decoration: underline;
-                color: var(--primary--04);
+                color: var(--primary);
             }
 
             &.disabled {
                 cursor: default;
-                color: var(--text-disabled);
+                color: var(--input-text-disabled);
                 text-decoration: none;
             }
         }
@@ -611,14 +626,15 @@ defineExpose({
 
 .menaulTimeInputPL {
     display: flex;
-    position: absolute;
-    width: 230px;
-    top: 20px;
-    right: 0px;
-    padding: 2px;
-    border-radius: 5px;
-    border: solid 1px var(--border-color1);
-    background-color: var(--bg-color5);
-    z-index: 1000;
+    align-items: center;
+
+    .el-button {
+        margin-left: 5px;
+    }
+
+    .splitter {
+        margin: 0 8px;
+        flex-shrink: 0;
+    }
 }
 </style>

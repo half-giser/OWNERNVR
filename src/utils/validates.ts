@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-09 18:39:25
  * @Description: 格式校验工具
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-10 16:27:06
  */
 
 /**
@@ -87,7 +85,7 @@ export const checkInt = (str: string) => {
  */
 export const checkPort = (str: string) => {
     if (checkInt(str)) {
-        const port = parseInt(str)
+        const port = Number(str)
         return port >= 10 && port <= 65535
     }
     return false
@@ -104,7 +102,7 @@ export const checkRtspUrl = (str: string) => {
      */
     const rtspReg = /^rtsp:\/\/((?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d|[1-9])(?:\.(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}):(\d{1,5})\/([^&$|\\'<>]+)$/
     const result = str.match(rtspReg)
-    return result != null
+    return result !== null
 }
 
 /**
@@ -119,17 +117,31 @@ export const checkStmpServer = (str: string) => {
 }
 
 /**
+ * @description 设备名称的限制规则(DEVICE_LIMIT_CHAR)
+ */
+export const checkDevName = (str: string) => {
+    const reg = /[/\\]/g // 特殊字符限制与设备端保持一致（不可输入 /\ 这两个特殊字符）
+    return !reg.test(str)
+}
+
+/**
  * @description 通道名
  * @param strChlName
  * @returns {boolean}
  */
 export const checkChlName = (strChlName: string) => {
-    const name = strChlName.replace(' ', '')
-    // 前端过滤XML中不允许字符：<>&'\"\x00-\x08\x0b-\x0c\x0e-\x1f]以及键盘上看到的特殊字符：!@#$%^*()-+=:;,./?\\|
-    // var reg = /[!@#$%^*()-+=:;,./?\\|<>&'\"\x00-\x08\x0b-\x0c\x0e-\x1f]/g;
-    const reg = /[&$|;`\\/:*?\"<>]/g
-    if (!reg.test(name)) return true
-    else return false
+    const reg = /[/\\]/g // 特殊字符限制与设备端保持一致（不可输入 /\ 这两个特殊字符）
+    return !reg.test(strChlName)
+}
+
+/**
+ * @description 预置点名称的限制规则(PRESET_LIMIT_CHAR)
+ * @param strChlName
+ * @returns {boolean}
+ */
+export const checkPresetName = (strPresetName: string) => {
+    const reg = /[<>&]/g // 特殊字符限制与设备端保持一致（不可输入 <>& 这三个特殊字符）
+    return !reg.test(strPresetName)
 }
 
 /**
@@ -148,29 +160,64 @@ export const checkEmail = (strEmail: string) => {
 }
 
 /**
+ * @description 检测字符串是否包含键盘上可见的符号
+ * @param str
+ * @returns {boolean}
+ */
+export const checkIllegalChar = (str: string) => {
+    // 键盘上的可见符号
+    const reg = /[`~!@#$%^&*()\-+=<>?:"{}|,.\/;'\\[\]·~！@#￥%……&*（）——\-+={}|《》？：“”【】、；‘'，。、]/g
+    if (reg.test(str)) {
+        return false
+    }
+    return true
+}
+
+/**
  * @description 获取密码强度值
  * @param {string} value
  * @return {number}
  */
 export const getPwdSaftyStrength = (value: string) => {
-    const reg1 = /([a-z])+/
-    const reg2 = /([A-Z])+/
-    const reg3 = /([0-9])+/
-    const reg4 = /([|!@#$%^&*(){}\|:"<>?~_\\'./\-\s\[\];,=+])+/
+    const reg = /^(.){8,}$/
+    // const reg0 = /^(.){0}$/
+    const reg1 = /([a-z]){1,}/
+    const reg2 = /([A-Z]){1,}/
+    const reg3 = /([0-9]){1,}/
+    const reg4 = /([|!@#$%^&*(){}\|:"<>?~_\\'./\-\s\[\];,=+]){1,}/
+    const reg5 = /^(.){9,}$/
+
     let sum = 0
+
+    if (!value) {
+        return 0
+    }
+
+    if (!reg.test(value)) {
+        return 1
+    }
 
     if (reg1.test(value)) {
         sum += 1
     }
+
     if (reg2.test(value)) {
         sum += 1
     }
+
     if (reg3.test(value)) {
         sum += 1
     }
+
     if (reg4.test(value)) {
         sum += 1
     }
+
+    // 没有满足9位数，无法为超强，降一级
+    if (!reg5.test(value) && sum === 4) {
+        sum -= 1
+    }
+
     return sum
 }
 
@@ -190,8 +237,8 @@ export const checkPwdSaftyStrength = (value: string) => {
  * 当表格大于1行时，最后一行为空行，不保存，不需要检验（如果改了空行的值，会在后面自动产生一个新的空行）
  * @return {boolean} true:需要验证，false：不需要验证
  */
-export const isTableRowNotValidate = (rule: any, tableDataLen: number) => {
-    const rowIndex = parseInt(rule.field.split('.')[1])
-    if (tableDataLen > 1 && rowIndex === tableDataLen - 1) return false
-    return true
-}
+// export const isTableRowNotValidate = (rule: any, tableDataLen: number) => {
+//     const rowIndex = parseInt(rule.field.split('.')[1])
+//     if (tableDataLen > 1 && rowIndex === tableDataLen - 1) return false
+//     return true
+// }

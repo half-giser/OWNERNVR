@@ -1,50 +1,42 @@
-import { ChannelInfoDto, ChlGroup } from '@/types/apiType/channel'
-import { cloneDeep } from 'lodash'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
-import BaseLivePop from '@/views/UI_PUBLIC/components/BaseLivePop.vue'
-
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-06-18 18:07:21
- * @Description:
+ * @Description: 通道组 - 新增通道弹窗
  */
+import { type TableInstance } from 'element-plus'
+
 export default defineComponent({
-    components: {
-        BaseImgSprite,
-        BaseLivePop,
-    },
     props: {
-        popVisiable: Boolean,
-        editItem: ChlGroup,
-        close: {
-            type: Function,
-            require: true,
-            default: () => {},
+        editItem: {
+            type: Object as PropType<ChannelGroupDto>,
+            required: true,
         },
     },
-    setup(props: any) {
+    emits: {
+        close(isRefresh = false) {
+            return typeof isRefresh === 'boolean'
+        },
+    },
+    setup(props, { emit }) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
 
-        let tmpEditItem: ChlGroup
-        const tableRef = ref()
+        let tmpEditItem: ChannelGroupDto
+        const tableRef = ref<TableInstance>()
         const tableData = ref<ChannelInfoDto[]>([])
-        const baseLivePopRef = ref()
+        const baseLivePopRef = ref<LivePopInstance>()
         const selNum = ref(0)
-        const total = ref(0)
 
-        const handleRowClick = function (rowData: ChannelInfoDto) {
-            tableRef.value.clearSelection()
-            tableRef.value.toggleRowSelection(rowData, true)
+        const handleRowClick = (rowData: ChannelInfoDto) => {
+            tableRef.value!.clearSelection()
+            tableRef.value!.toggleRowSelection(rowData, true)
         }
 
         const handleSelectionChange = () => {
-            selNum.value = tableRef.value.getSelectionRows().length
+            selNum.value = tableRef.value!.getSelectionRows().length
         }
 
         const handlePreview = (rowData: ChannelInfoDto) => {
-            baseLivePopRef.value.openLiveWin(rowData.id, rowData.name, rowData.chlIndex, rowData.chlType)
+            baseLivePopRef.value!.openLiveWin(rowData.id, rowData.name)
         }
 
         const opened = () => {
@@ -53,50 +45,44 @@ export default defineComponent({
         }
 
         const getData = () => {
-            const data = `
+            const data = rawXml`
                 <requireField>
                     <name/>
                     <ip/>
                     <chlIndex/>
                     <chlType/>
                 </requireField>`
-            openLoading(LoadingTarget.FullScreen)
-            queryDevList(getXmlWrapData(data)).then((res: any) => {
-                closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
+            openLoading()
+            queryDevList(data).then((res) => {
+                closeLoading()
+                const $ = queryXml(res)
+                if ($('status').text() === 'success') {
                     const chlList: ChannelInfoDto[] = []
-                    const addedChlList: string[] = tmpEditItem.chls.map((ele: Record<string, string | boolean>) => {
-                        return ele['value'] as string
+                    const addedChlList: string[] = tmpEditItem.chls.map((ele) => {
+                        return ele.value as string
                     })
-                    res('//content/item').forEach((ele: any) => {
-                        const eleXml = queryXml(ele.element)
+                    $('content/item').forEach((ele) => {
+                        const $item = queryXml(ele.element)
                         const id = ele.attr('id')
                         if (!addedChlList.includes(id)) {
                             const newData = new ChannelInfoDto()
                             newData.id = id
-                            newData.chlIndex = eleXml('chlIndex').text()
-                            newData.chlType = eleXml('chlType').text()
-                            newData.name = eleXml('name').text()
-                            newData.ip = eleXml('ip').text()
-                            newData.addType = eleXml('addType').text()
+                            newData.chlIndex = $item('chlIndex').text()
+                            newData.chlType = $item('chlType').text()
+                            newData.name = $item('name').text()
+                            newData.ip = $item('ip').text()
+                            newData.addType = $item('addType').text()
                             chlList.push(newData)
                         }
                     })
                     tableData.value = chlList
-                    total.value = chlList.length
                 }
             })
         }
 
         const verification = () => {
             if (!selNum.value) {
-                openMessageTipBox({
-                    type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
-                    message: Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'),
-                    showCancelButton: false,
-                })
+                openMessageBox(Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'))
                 return false
             }
             return true
@@ -104,7 +90,8 @@ export default defineComponent({
 
         const save = () => {
             if (!verification()) return
-            let data = `
+            const selection = tableRef.value!.getSelectionRows() as ChannelInfoDto[]
+            const sendXml = rawXml`
                 <types>
                     <actionType>
                         <enum>add</enum>
@@ -115,43 +102,33 @@ export default defineComponent({
                     <chlGroup>
                         <action type='actionType'>add</action>
                         <id>${tmpEditItem.id}</id>
-                        <chls type='list'>`
-            tableRef.value.getSelectionRows().forEach((ele: ChannelInfoDto) => {
-                data += `<item id='${ele.id}'></item>`
-            })
-            data += `
+                        <chls type='list'>
+                            ${selection.map((ele) => `<item id='${ele.id}'></item>`).join('')}
                         </chls>
                     </chlGroup>
                 </content>`
-            openLoading(LoadingTarget.FullScreen)
-            editSetAndElementRelation(getXmlWrapData(data)).then((res: any) => {
-                closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
-                    tableRef.value.getSelectionRows().forEach((ele: ChannelInfoDto) => {
+            openLoading()
+            editSetAndElementRelation(sendXml).then((res) => {
+                closeLoading()
+                const $ = queryXml(res)
+                if ($('status').text() === 'success') {
+                    tableRef.value!.getSelectionRows().forEach((ele: ChannelInfoDto) => {
                         tmpEditItem.chls.push({
                             value: ele.id,
                             text: ele.name,
                             showDelIcon: false,
                         })
                     })
-                    props.close(true)
+                    emit('close', true)
                 } else {
-                    const errorCdoe = res('errorCode').text()
-                    if (Number(errorCdoe) == errorCodeMap.outOfRange) {
-                        openMessageTipBox({
-                            type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
-                            message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
-                            showCancelButton: false,
-                        })
-                    } else {
-                        openMessageTipBox({
-                            type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
-                            message: Translate('IDCS_SAVE_DATA_FAIL'),
-                            showCancelButton: false,
-                        })
+                    const errorCode = $('errorCode').text().num()
+                    switch (errorCode) {
+                        case ErrorCode.USER_ERROR_OVER_LIMIT:
+                            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
+                            break
+                        default:
+                            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
+                            break
                     }
                 }
             })
@@ -161,7 +138,6 @@ export default defineComponent({
             tableRef,
             tableData,
             selNum,
-            total,
             baseLivePopRef,
             opened,
             handleRowClick,

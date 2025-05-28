@@ -2,13 +2,9 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-05 13:42:37
  * @Description: 磁盘管理
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 16:06:11
  */
-import { type DiskManagememtList } from '@/types/apiType/disk'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import BaseInputEncryptPwdPop from '../../components/auth/BaseInputEncryptPwdPop.vue'
-import { type UserCheckAuthForm, type UserInputEncryptPwdForm } from '@/types/apiType/userAndSecurity'
 
 export default defineComponent({
     components: {
@@ -17,16 +13,13 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
-        const dateTime = useDateTime()
+        const dateTime = useDateTimeStore()
 
         // 磁盘名字与显示文本的映射
         const DISK_TYPE_MAPPING: Record<string, string> = {
             hotplug: Translate('IDCS_DISK'),
             esata: Translate('IDCS_ESATA'),
             sata: Translate('IDCS_DISK'),
-            sas: Translate('IDCS_SAS'),
             removable: 'UDisk-',
         }
 
@@ -35,7 +28,6 @@ export default defineComponent({
             hotplug: Translate('IDCS_NORMAL_DISK'),
             esata: Translate('IDCS_NORMAL_DISK'),
             sata: Translate('IDCS_NORMAL_DISK'),
-            sas: Translate('IDCS_NORMAL_DISK'),
             raid: Translate('IDCS_ARRAY'),
             removable: 'UDISK',
         }
@@ -69,7 +61,7 @@ export default defineComponent({
 
         const pageData = ref({
             // 解锁按钮是否置灰
-            unlockDisabled: false,
+            unlockDisabled: true,
             // 鉴权弹窗是否打开
             isCheckAuth: false,
             // 需要格式化的磁盘索引. -1为全部
@@ -85,29 +77,29 @@ export default defineComponent({
          */
         const getData = async () => {
             const storage = await queryStorageDevInfo()
-            const $storage = queryXml(queryXml(storage)('/response/content')[0].element)
+            const $storage = queryXml(queryXml(storage)('content')[0].element)
 
             const result = await queryDiskStatus()
             const $ = queryXml(result)
 
             const rowData: DiskManagememtList[] = []
-            const raidSwitch = $storage('storageSysInfo/raidSwitch').text().toBoolean()
+            const raidSwitch = $storage('storageSysInfo/raidSwitch').text().bool()
             const cycleRecord = $storage('cycleRecord').text()
 
             $storage('diskList/item').forEach((item) => {
                 const $item = queryXml(item.element)
                 const diskInterfaceType = $item('diskInterfaceType').text()
                 // 开启raid后只显示U盘和esata盘，miniSAS看做e-sata，不管是否开启raid，都会显示miniSAS
-                const showRaidType = ['removable', 'esata', 'sas'] // NRKH-101
+                const showRaidType = ['removable', 'esata'] // NRKH-101
                 if (raidSwitch && !showRaidType.includes(diskInterfaceType)) {
                     return
                 }
 
-                const id = item.attr('id')!
-                const diskStatus = $(`/response/content/item[@id="${id}"]/diskStatus`).text()
-                const diskEncryptStatus = $(`/response/content/item[@id="${id}"]/diskEncryptStatus`).text()
-                const recStartDate = formatDate($item('recStartDate').text(), dateTime.dateFormat.value, 'YYYY-MM-DD')
-                const recEndDate = formatDate($item('recEndDate').text(), dateTime.dateFormat.value, 'YYYY-MM-DD')
+                const id = item.attr('id')
+                const diskStatus = $(`content/item[@id="${id}"]/diskStatus`).text()
+                const diskEncryptStatus = $(`content/item[@id="${id}"]/diskEncryptStatus`).text()
+                const recStartDate = formatDate($item('recStartDate').text(), dateTime.dateFormat, DEFAULT_YMD_FORMAT)
+                const recEndDate = formatDate($item('recEndDate').text(), dateTime.dateFormat, DEFAULT_YMD_FORMAT)
 
                 let combinedStatus = ''
                 switch (diskEncryptStatus) {
@@ -124,8 +116,8 @@ export default defineComponent({
                 }
 
                 const isUDisk = diskInterfaceType === 'removable'
-                const size = String(Math.floor(Number($item('size').text()) / 1024))
-                const freeSpace = Number($item('freeSpace').text()) / 1024
+                const size = String(Math.floor($item('size').text().num() / 1024))
+                const freeSpace = $item('freeSpace').text().num() / 1024
 
                 rowData.push({
                     id: id,
@@ -139,19 +131,19 @@ export default defineComponent({
                     model: $item('model').text(),
                     raidType: 'normal',
                     recTime: recStartDate === recEndDate ? recStartDate : recStartDate + '~' + recEndDate,
-                    sizeAndFreeSpace: isUDisk ? size : `${freeSpace === 0 ? freeSpace : freeSpace.toFixed(2)}/${size}`,
+                    sizeAndFreeSpace: isUDisk ? size : `${freeSpace === 0 ? freeSpace : freeSpace.toFixed(2)}/${size}`, // U盘不需要显示空闲空间
                 })
             })
 
             if (raidSwitch) {
                 $storage('raidList/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    const logicDiskId = $item('logicDiskId').text()
+                    const logicDiskId = item.attr('logicDiskId')
 
-                    const diskStatus = $(`/response/content/item[@id="${logicDiskId}"/diskStatus`).text()
-                    const diskEncryptStatus = $(`/response/content/item[@id="${logicDiskId}"]/diskEncryptStatus`).text()
-                    const recStartDate = formatDate($item('recStartDate').text(), dateTime.dateFormat.value, 'YYYY-MM-DD')
-                    const recEndDate = formatDate($item('recEndDate').text(), dateTime.dateFormat.value, 'YYYY-MM-DD')
+                    const diskStatus = $(`content/item[@id="${logicDiskId}"]/diskStatus`).text()
+                    const diskEncryptStatus = $(`content/item[@id="${logicDiskId}"]/diskEncryptStatus`).text()
+                    const recStartDate = formatDate($item('recStartDate').text(), dateTime.dateFormat, DEFAULT_YMD_FORMAT)
+                    const recEndDate = formatDate($item('recEndDate').text(), dateTime.dateFormat, DEFAULT_YMD_FORMAT)
 
                     let combinedStatus = ''
                     switch (diskEncryptStatus) {
@@ -167,13 +159,13 @@ export default defineComponent({
                             break
                     }
 
-                    const size = String(Math.floor(Number($item('size').text()) / 1024))
-                    const freeSpace = Number($item('freeSpace').text()) / 1024
+                    const size = String(Math.floor($item('realSize').text().num() / 1024))
+                    const freeSpace = $item('freeSpace').text().num() / 1024
 
                     rowData.push({
                         id: logicDiskId,
                         cycleRecord: CYCLE_RECORD_MAPPING[cycleRecord] || '',
-                        type: TYPE_MAPPING['raid'],
+                        type: TYPE_MAPPING.raid,
                         diskNum: $item('name').text(),
                         serialNum: '--',
                         combinedStatus,
@@ -196,10 +188,11 @@ export default defineComponent({
          */
         const formatCurrentDisk = (index: number) => {
             pageData.value.formatDiskIndex = index
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 title: Translate('IDCS_QUESTION_MSG'),
                 message: `${Translate('IDCS_FORMAT_MP_DISK_S')}<br><span style="color:red;">${Translate('IDCS_FORMAT_MP_DISK_RESULT')}</span>`.formatForLang(tableData.value[index].diskNum),
+                dangerouslyUseHTMLString: true,
             }).then(() => {
                 pageData.value.isCheckAuth = true
             })
@@ -210,10 +203,11 @@ export default defineComponent({
          */
         const formatAllDisk = () => {
             pageData.value.formatDiskIndex = -1
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 title: Translate('IDCS_QUESTION_MSG'),
-                message: `${Translate('IDCS_FORMAT_ALL_DISKS')}<br><span style="color:red;">${Translate('IDCS_FORMAT_MP_DISK_RESULT')}</span>`,
+                message: `${Translate('IDCS_FORMAT_ALL_DISKS')}<br><span style="color:var(--color-error);">${Translate('IDCS_FORMAT_MP_DISK_RESULT')}</span>`,
+                dangerouslyUseHTMLString: true,
             }).then(() => {
                 pageData.value.isCheckAuth = true
             })
@@ -229,45 +223,53 @@ export default defineComponent({
             const ids = pageData.value.formatDiskIndex === -1 ? tableData.value.map((item) => item.id) : [tableData.value[pageData.value.formatDiskIndex].id]
             const sendXml = rawXml`
                 <condition>
-                    <diskIds type="list">${ids.map((id) => `<item id="${id}">磁盘1</item>`).join('')}</diskIds>
+                    <diskIds type="list">${ids.map((id) => `<item id="${id}"></item>`).join('')}</diskIds>
                 </condition>
                 <auth>
                     <userName>${e.userName}</userName>
                     <password>${e.hexHash}</password>
                 </auth>
             `
-            const result = await formatDisk(sendXml)
-            const $ = queryXml(result)
+            try {
+                const result = await formatDisk(sendXml)
+                const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
 
-            if ($('/response/status').text() === 'success') {
-                pageData.value.isCheckAuth = false
-                getData()
-            } else {
-                const errorCode = Number($('/response/errorCode').text())
-                let errorInfo = ''
+                if ($('status').text() === 'success') {
+                    pageData.value.isCheckAuth = false
+                    getData()
+                } else {
+                    const errorCode = $('errorCode').text().num()
+                    let errorInfo = ''
 
-                switch (errorCode) {
-                    case ErrorCode.USER_ERROR_PWD_ERR:
-                        errorInfo = Translate('IDCS_USER_OR_PASSWORD_ERROR')
-                        break
-                    case ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR:
-                        errorInfo = Translate('IDCS_USER_OR_PASSWORD_ERROR')
-                        break
-                    case ErrorCode.USER_ERROR_NO_AUTH:
-                        errorInfo = Translate('IDCS_NO_AUTH')
-                        break
-                    default:
-                        errorInfo = Translate('IDCS_USER_OR_PASSWORD_ERROR')
-                        break
+                    switch (errorCode) {
+                        case ErrorCode.USER_ERROR_PWD_ERR:
+                            errorInfo = Translate('IDCS_USER_OR_PASSWORD_ERROR')
+                            break
+                        case ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR:
+                            errorInfo = Translate('IDCS_USER_OR_PASSWORD_ERROR')
+                            break
+                        case ErrorCode.USER_ERROR_NO_AUTH:
+                            errorInfo = Translate('IDCS_NO_AUTH')
+                            break
+                        case ErrorCode.USER_ERROR_FAIL:
+                            const ids = $('content/diskIds/item').map((item) => item.text())
+                            const names = tableData.value
+                                .filter((item) => ids.includes(item.id))
+                                .map((item) => item.diskNum)
+                                .join(', ')
+                            errorInfo = Translate('IDCS_DISK_FORMAT_FAIL').formatForLang(names)
+                            break
+                        default:
+                            errorInfo = Translate('IDCS_USER_OR_PASSWORD_ERROR')
+                            break
+                    }
+
+                    openMessageBox(errorInfo)
                 }
-
-                openMessageTipBox({
-                    type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
-                    message: errorInfo,
-                })
+            } catch {
+                closeLoading()
             }
         }
 
@@ -283,7 +285,7 @@ export default defineComponent({
          * @param {UserInputEncryptPwdForm} e
          */
         const confirmUnlockDisk = async (e: UserInputEncryptPwdForm) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <condition>
@@ -293,27 +295,22 @@ export default defineComponent({
             const result = await unlockDisk(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
-            if ($('/response/status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 pageData.value.isInputEncryptPwd = false
                 getData()
             } else {
-                openMessageTipBox({
-                    type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
-                    message: Translate('IDCS_UNLOCK_DISK_FAIL'),
-                })
+                openMessageBox(Translate('IDCS_UNLOCK_DISK_FAIL'))
             }
         }
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
-            await dateTime.getTimeConfig()
             await getData()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         return {
@@ -324,8 +321,6 @@ export default defineComponent({
             confirmFormatDisk,
             handleUnlockDisk,
             confirmUnlockDisk,
-            BaseCheckAuthPop,
-            BaseInputEncryptPwdPop,
         }
     },
 })

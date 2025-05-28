@@ -34,5 +34,10 @@ auto-import.d.ts
 # vscode本地配置文件
 .vscode
 
-# 第三方依赖license列表文件
-licenses.csv
+# 临时文件目录
+.temp
+
+# 雪碧图自动生成文件
+src/components/sprite/sprites.png
+src/components/sprite/sprites.ts
+src/components/sprite/sprites.scss

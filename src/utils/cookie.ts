@@ -1,10 +1,14 @@
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2023-05-24 01:35:38
- * @Description:
+ * @Description: Cookie操作
  */
 
-// 获取cookie
+/**
+ * @description 获取cookie
+ * @param {string} name
+ * @returns {string | null}
+ */
 export const getCookie = (name: string) => {
     let arr
     const reg = new RegExp('(^| )' + name + '=([^;]*)(;|$)')
@@ -12,7 +16,12 @@ export const getCookie = (name: string) => {
     else return null
 }
 
-// 设置cookie,增加到vue实例方便全局调用
+/**
+ * @description 设置cookie,增加到vue实例方便全局调用
+ * @param {string} c_name
+ * @param {string | number} value
+ * @param {number} expiredays
+ */
 export const setCookie = (c_name: string, value: string | number, expiredays?: number) => {
     let exp = ''
     if (expiredays) {
@@ -23,24 +32,23 @@ export const setCookie = (c_name: string, value: string | number, expiredays?: n
     document.cookie = c_name + '=' + value + ';path=/' + exp
 }
 
-// 删除cookie
+/**
+ * @description 删除cookie
+ * @param {string} name
+ */
 export const delCookie = (name: string) => {
-    const exp = new Date()
-    exp.setTime(exp.getTime() - 1)
-    const cval = getCookie(name)
-    if (cval != null) {
-        document.cookie = name + '=' + cval + ';path=/' + ';expires=' + exp.toUTCString()
-    }
+    const exp = new Date(0).toUTCString()
+    document.cookie = name + '=;path=/;expires=' + exp
 }
 
-// 清除全部
+/**
+ * @description 清除全部
+ */
 export const clearCookie = () => {
     const keys = document.cookie.match(/[^ =;]+(?=\=)/g)
     if (keys) {
         for (let i = keys.length; i--; ) {
-            document.cookie = keys[i] + '=0;path=/;expires=' + new Date(0).toUTCString()
-            document.cookie = keys[i] + '=0;path=/;domain=' + document.domain + ';expires=' + new Date(0).toUTCString()
-            document.cookie = keys[i] + '=0;path=/;domain=kevis.com;expires=' + new Date(0).toUTCString()
+            delCookie(keys[i])
         }
     }
 }

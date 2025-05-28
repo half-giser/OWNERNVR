@@ -2,87 +2,45 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-30 10:36:43
  * @Description: 回放-操作视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 09:09:49
 -->
 <template>
     <div class="ctrl">
         <div class="ctrl-btns">
             <!-- 抓拍 -->
-            <el-tooltip
-                :content="Translate('IDCS_SNAP')"
-                :show-after="500"
-            >
-                <BaseImgSprite
-                    file="capture"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled="disabled"
-                    @click="snap"
-                />
-            </el-tooltip>
+            <BaseImgSpriteBtn
+                file="capture"
+                :title="Translate('IDCS_SNAP')"
+                :disabled="disabled"
+                @click="$emit('snap'), $emit('trigger', true)"
+            />
             <!-- 关闭图像 -->
-            <el-tooltip
-                :content="Translate('IDCS_CLOSE_IMAGE')"
-                :show-after="500"
-            >
-                <BaseImgSprite
-                    file="close_chl"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled="disabled"
-                    @click="closeImg"
-                />
-            </el-tooltip>
+            <BaseImgSpriteBtn
+                file="close_chl"
+                :title="Translate('IDCS_CLOSE_IMAGE')"
+                :disabled="disabled"
+                @click="$emit('closeImg'), $emit('trigger', true)"
+            />
             <!-- 放大 -->
-            <el-tooltip
-                :content="Translate('IDCS_ZOOM_IN')"
-                :show-after="500"
-            >
-                <BaseImgSprite
-                    file="magnify"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :disabled
-                    :chunk="4"
-                    @click="zoomIn"
-                />
-            </el-tooltip>
+            <BaseImgSpriteBtn
+                file="magnify"
+                :title="Translate('IDCS_ZOOM_IN')"
+                :disabled
+                @click="$emit('zoomIn'), $emit('trigger', true)"
+            />
             <!-- 缩小 -->
-            <el-tooltip
-                :content="Translate('IDCS_ZOOM_OUT')"
-                :show-after="500"
-            >
-                <BaseImgSprite
-                    file="minify"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :disabled
-                    :chunk="4"
-                    @click="zoomOut"
-                />
-            </el-tooltip>
+            <BaseImgSpriteBtn
+                file="minify"
+                :title="Translate('IDCS_ZOOM_OUT')"
+                :disabled
+                @click="$emit('zoomOut'), $emit('trigger', true)"
+            />
             <!-- 原始比例 -->
-            <el-tooltip
-                :content="Translate('IDCS_ORIGINAL_DISPLAY')"
-                :show-after="500"
-            >
-                <BaseImgSprite
-                    :file="winData.original ? 'originalDisplaying' : 'originalDisplay'"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled="originalDisplayDisabled"
-                    @click="originalDisplay"
-                />
-            </el-tooltip>
+            <BaseImgSpriteBtn
+                :file="winData.original ? 'originalDisplaying' : 'originalDisplay'"
+                :title="Translate('IDCS_ORIGINAL_DISPLAY')"
+                :disabled="originalDisplayDisabled"
+                @click="$emit('originalDisplay', !winData.original), $emit('trigger', true)"
+            />
         </div>
         <!-- 音量控制 -->
         <div class="voice">
@@ -96,17 +54,19 @@
         </div>
         <!-- 码流控制 -->
         <div class="stream-menu">
-            <div
-                v-for="item in pageData.streamMenuOptions"
-                :key="item.value"
-                :class="{
-                    active: winData.streamType === item.value,
-                    disabled: streamTypeDisabled,
-                }"
-                @click="changeStreamType(item.value)"
+            <el-radio-group
+                :model-value="winData.streamType"
+                :disabled="streamTypeDisabled"
+                class="nowrap"
+                @update:model-value="changeStreamType"
             >
-                {{ item.label }}
-            </div>
+                <el-radio-button
+                    v-for="item in pageData.streamMenuOptions"
+                    :key="item.value"
+                    :value="item.value"
+                    :label="item.label"
+                />
+            </el-radio-group>
         </div>
     </div>
 </template>
@@ -145,30 +105,6 @@
         display: flex;
         justify-content: center;
         margin: 10px auto;
-        cursor: pointer;
-
-        & > div {
-            border: 1px solid var(--border-color4);
-            color: var(--text-nav);
-            width: 100px;
-            height: 33px;
-            line-height: 33px;
-            text-align: center;
-
-            &.active {
-                color: var(--text-active);
-                background: var(--primary--04);
-            }
-
-            &:not(:first-child) {
-                border-left: none;
-            }
-
-            &.disabled:first-child {
-                background: var(--bg-color-disabled);
-                color: var(--text-disabled);
-            }
-        }
     }
 }
 </style>

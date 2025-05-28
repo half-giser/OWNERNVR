@@ -2,32 +2,29 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-03 15:01:51
  * @Description: POS显示设置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-05 18:25:11
  */
-import { cloneDeep } from 'lodash'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
-import BaseVideoPlayer from '../../components/player/BaseVideoPlayer.vue'
-import { SystemPosDisplaySetting, SystemPosDisplayPosition, type SystemPosListStartEndChar, SystemPostDisplaySet, type SystemPostColorData } from '@/types/apiType/system'
-import CanvasPos from '@/utils/canvas/canvasPos'
-
 export default defineComponent({
-    components: {
-        BaseImgSprite,
-        BaseVideoPlayer,
-    },
     props: {
+        /**
+         * @property POS显示设置数据
+         */
         data: {
             type: Object as PropType<SystemPosDisplaySetting>,
             default: () => new SystemPosDisplaySetting(),
         },
+        /**
+         * @property Display Set设置数据
+         */
         limit: {
             type: Object as PropType<SystemPostDisplaySet>,
-            default: () => new SystemPostDisplaySet(),
+            required: true,
         },
+        /**
+         * @property 颜色设置数据
+         */
         colorData: {
             type: Array as PropType<SystemPostColorData[]>,
-            default: () => [],
+            required: true,
         },
     },
     emits: {
@@ -40,7 +37,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
 
         const pageData = ref({
             // TAB
@@ -50,11 +46,11 @@ export default defineComponent({
             // 打印方式选项
             printOption: [
                 {
-                    name: Translate('IDCS_TURN_PAGE'),
+                    label: Translate('IDCS_TURN_PAGE'),
                     value: 'page',
                 },
                 {
-                    name: Translate('IDCS_SCROLL'),
+                    label: Translate('IDCS_SCROLL'),
                     value: 'scroll',
                 },
             ],
@@ -164,9 +160,6 @@ export default defineComponent({
          * @param {number} index
          */
         const deleteStartEndChar = (index: number) => {
-            if (startEndCharTableList.value.length === 1) {
-                return
-            }
             startEndCharTableList.value.splice(index, 1)
         }
 
@@ -188,9 +181,6 @@ export default defineComponent({
          * @param {number} index
          */
         const deleteLineBreak = (index: number) => {
-            if (lineBreakTableList.value.length === 1) {
-                return
-            }
             lineBreakTableList.value.splice(index, 1)
         }
 
@@ -212,9 +202,6 @@ export default defineComponent({
          * @param {number} index
          */
         const deleteIgnoreChar = (index: number) => {
-            if (ignoreChareTableList.value.length === 1) {
-                return
-            }
             ignoreChareTableList.value.splice(index, 1)
         }
 
@@ -223,7 +210,7 @@ export default defineComponent({
          * @param {string} value
          */
         const formatChar = (value: string) => {
-            return value.replace(/[^A-z|\d!@#$%^&*(){}\|:"`<>?~_\\'./\-\s\[\];,=+]/g, '')
+            return value.replace(/[^\u4E00-\u9FA5A-Za-z0-9~!@#%^*()\-+=?:"\/{}\\,.·￥%……（）\-+={}：“”【】、；‘'，。、]/g, '')
         }
 
         const div = ref<HTMLDivElement>()
@@ -258,8 +245,8 @@ export default defineComponent({
         const handleCanvasMouseMove = (event: MouseEvent) => {
             if (isCanvasMoving) {
                 event.preventDefault()
-                const currentX = Math.min(Math.max(0, Math.ceil(event.clientX) - rectX), rectWidth)
-                const currentY = Math.min(Math.max(0, Math.ceil(event.clientY) - rectY), rectHeight)
+                const currentX = clamp(Math.ceil(event.clientX) - rectX, 0, rectWidth)
+                const currentY = clamp(Math.ceil(event.clientY) - rectY, 0, rectHeight)
                 drawingPosition.value.X = Math.min(currentX, originX)
                 drawingPosition.value.Y = Math.min(currentY, originY)
                 drawingPosition.value.width = Math.abs(currentX - originX)
@@ -274,11 +261,7 @@ export default defineComponent({
         const handleCanvasMouseUp = () => {
             if (isCanvasMoving) {
                 if (drawingPosition.value.width < prop.limit.wmin || drawingPosition.value.height < prop.limit.hmin) {
-                    openMessageTipBox({
-                        type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
-                        message: Translate('IDCS_DISPLAY_SIZE_INVALID'),
-                    }).finally(() => {
+                    openMessageBox(Translate('IDCS_DISPLAY_SIZE_INVALID')).finally(() => {
                         drawingPosition.value = { ...displayPosition.value }
                     })
                 } else {
@@ -291,22 +274,40 @@ export default defineComponent({
         useEventListener(document.body, 'mousemove', handleCanvasMouseMove, false)
         useEventListener(document.body, 'mouseup', handleCanvasMouseUp, false)
 
-        // pos绘制的Canvas
-        let posDrawer: CanvasPos
+        let player: PlayerInstance['player']
+        let plugin: PlayerInstance['plugin']
+        let drawer = CanvasPos()
+
+        const ready = computed(() => {
+            return playerRef.value?.ready || false
+        })
+
+        // 播放模式
+        const mode = computed(() => {
+            if (!ready.value) {
+                return ''
+            }
+            return playerRef.value!.mode
+        })
+
         /**
          * @description 视频插件ready回调
          */
         const handlePlayerReady = () => {
-            if (playerRef.value?.mode === 'ocx') {
-                const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                playerRef.value.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-            }
-            if (playerRef.value?.mode === 'h5') {
-                const canvas = playerRef.value.player.getDrawbordCanvas(0)
-                posDrawer = new CanvasPos({
-                    el: canvas,
+            player = playerRef.value!.player
+            plugin = playerRef.value!.plugin
+
+            if (mode.value === 'h5') {
+                drawer = CanvasPos({
+                    el: player.getDrawbordCanvas(),
                 })
             }
+
+            if (mode.value === 'ocx') {
+                const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
+                plugin.ExecuteCmd(sendXML)
+            }
+
             play()
             drawPos()
         }
@@ -317,20 +318,21 @@ export default defineComponent({
         const play = () => {
             const data = colorTableList.value[pageData.value.colorTableIndex]
 
-            if (playerRef.value?.mode === 'h5') {
-                playerRef.value.player.play({
+            if (mode.value === 'h5') {
+                player.play({
                     chlID: data.chlId,
                     streamType: 2,
                 })
             }
-            if (playerRef.value?.mode === 'ocx') {
-                playerRef.value.plugin.RetryStartChlView(data.chlId, data.name)
+
+            if (mode.value === 'ocx') {
+                plugin.RetryStartChlView(data.chlId, data.name)
             }
         }
 
         const toggleOCX = (bool: boolean) => {
-            if (playerRef.value?.mode === 'ocx') {
-                playerRef.value.plugin.DisplayOCX(!bool)
+            if (mode.value === 'ocx') {
+                plugin.DisplayOCX(!bool)
             }
         }
 
@@ -358,12 +360,14 @@ export default defineComponent({
                     RGB: colorTableList.value[pageData.value.colorTableIndex].colorList[index % colorTableList.value[pageData.value.colorTableIndex].colorList.length].replace(/RGB/, ''),
                 }
             })
-            if (playerRef.value?.mode === 'h5') {
-                posDrawer.setPosList(ocxData)
+
+            if (mode.value === 'h5') {
+                drawer.setPosList(ocxData)
             }
-            if (playerRef.value?.mode === 'ocx') {
+
+            if (mode.value === 'ocx') {
                 const sendXml = OCX_XML_SETPosColor(ocxData)
-                playerRef.value.plugin.GetVideoPlugin().ExecuteCmd(sendXml)
+                plugin.ExecuteCmd(sendXml)
             }
         }
 
@@ -378,11 +382,7 @@ export default defineComponent({
                 return true
             })
             if (!matchStartEndChar) {
-                openMessageTipBox({
-                    type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
-                    message: Translate('IDCS_START_END_NOT_MATCH'),
-                })
+                openMessageBox(Translate('IDCS_START_END_NOT_MATCH'))
                 return
             }
             const setting: SystemPosDisplaySetting = {
@@ -424,7 +424,7 @@ export default defineComponent({
                     endChar: '',
                 })
             } else {
-                const lastStartEndCharItem = startEndCharTableList.value[startEndCharTableList.value.length - 1]
+                const lastStartEndCharItem = startEndCharTableList.value.at(-1)!
                 if (lastStartEndCharItem.startChar || lastStartEndCharItem.endChar) {
                     startEndCharTableList.value.push({
                         startChar: '',
@@ -435,7 +435,7 @@ export default defineComponent({
 
             lineBreakTableList.value = [...prop.data.common.lineBreak.map((value: string) => ({ value }))]
             // 插入空行
-            if (!lineBreakTableList.value.length || lineBreakTableList.value[lineBreakTableList.value.length - 1].value) {
+            if (!lineBreakTableList.value.length || lineBreakTableList.value.at(-1)?.value) {
                 lineBreakTableList.value.push({
                     value: '',
                 })
@@ -443,7 +443,7 @@ export default defineComponent({
 
             ignoreChareTableList.value = [...prop.data.common.ignoreChar.map((value: string) => ({ value }))]
             // 插入空行
-            if (!ignoreChareTableList.value.length || ignoreChareTableList.value[ignoreChareTableList.value.length - 1].value) {
+            if (!ignoreChareTableList.value.length || ignoreChareTableList.value.at(-1)?.value) {
                 ignoreChareTableList.value.push({
                     value: '',
                 })
@@ -451,8 +451,9 @@ export default defineComponent({
 
             displayPosition.value = { ...prop.data.displayPosition }
             drawingPosition.value = { ...prop.data.displayPosition }
-            colorTableList.value = (prop.colorData as SystemPostColorData[]).map((item) => {
+            colorTableList.value = prop.colorData.map((item, index) => {
                 return {
+                    index,
                     chlId: item.chlId,
                     name: item.name,
                     colorList: [...item.colorList],
@@ -483,16 +484,12 @@ export default defineComponent({
             changeColor,
             formatChar,
             handleCanvasMouseDown,
-            handleCanvasMouseMove,
-            handleCanvasMouseUp,
             verify,
             close,
             play,
             playerRef,
             div,
             toggleOCX,
-            BaseImgSprite,
-            BaseVideoPlayer,
         }
     },
 })

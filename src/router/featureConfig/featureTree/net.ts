@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 11:47:13
  * @Description: 功能面板-网络
  */
-export default {
+const netRoutes: FeatureItem = {
     component: 'layout/L2T1Layout.vue',
     path: 'net',
     meta: {
@@ -11,6 +11,7 @@ export default {
         lk: 'IDCS_NETWORK',
         plClass: 'md3',
         icon: 'net',
+        auth: 'net',
         groups: {
             //网络
             network: {
@@ -39,8 +40,8 @@ export default {
         },
     },
     children: {
+        // TCP/IP
         tcpIp: {
-            //TCP/IP
             path: 'tcp_ip',
             component: 'net/TcpIp.vue',
             meta: {
@@ -48,12 +49,15 @@ export default {
                 lk: 'IDCS_TCP_IPV4',
                 group: 'network',
                 default: true,
+                homeDefault: true,
                 inHome: 'self',
                 homeSort: 10,
+                minWidth: 1300,
+                minHeight: 850,
             },
         },
+        // 端口
         port: {
-            //端口
             path: 'port',
             component: 'net/Port.vue',
             meta: {
@@ -64,8 +68,8 @@ export default {
                 homeSort: 20,
             },
         },
+        // PPPoE
         pppoe: {
-            //PPPoE
             path: 'pppoe',
             component: 'net/PPPOE.vue',
             meta: {
@@ -74,8 +78,8 @@ export default {
                 group: 'network',
             },
         },
+        // DDNS
         ddns: {
-            //DDNS
             path: 'ddns',
             component: 'net/DDNS.vue',
             meta: {
@@ -84,8 +88,8 @@ export default {
                 group: 'network',
             },
         },
+        // EMail
         emailSender: {
-            //EMail
             path: 'email',
             component: 'net/EmailSender.vue',
             meta: {
@@ -96,8 +100,8 @@ export default {
                 homeSort: 30,
             },
         },
+        // UPnP
         upnp: {
-            //UPnP
             path: 'upnp',
             component: 'net/UPnP.vue',
             meta: {
@@ -106,8 +110,8 @@ export default {
                 group: 'network',
             },
         },
+        // 8021.x
         p8021x: {
-            //8021.x
             path: '802',
             component: 'net/P8021x.vue',
             meta: {
@@ -116,58 +120,75 @@ export default {
                 group: 'network',
             },
         },
+        // NAT
         nat: {
-            //NAT
             path: 'nat',
             component: 'net/Nat.vue',
             meta: {
                 sort: 80,
                 lk: 'IDCS_NAT',
                 group: 'network',
+                hasCap(systemCaps) {
+                    return systemCaps.showNat
+                },
             },
         },
+        // HTTPS
         https: {
-            //HTTPS
             path: 'https',
             component: 'net/Https.vue',
             meta: {
                 sort: 90,
                 lk: 'IDCS_HTTPS',
                 group: 'network',
+                hasCap(systemCaps) {
+                    return systemCaps.supportHttpsConfig
+                },
             },
         },
+        // FTP
         ftp: {
-            //FTP
             path: 'ftp',
             component: 'net/FTP.vue',
             meta: {
                 sort: 100,
                 lk: 'FTP',
                 group: 'network',
+                minWidth: 1400,
+                minHeight: 800,
+                hasCap(systemCaps) {
+                    return systemCaps.supportFTP
+                },
             },
         },
+        // SNMP
         snmp: {
-            //SNMP
             path: 'snmp',
             component: 'net/SNMP.vue',
             meta: {
                 sort: 110,
                 lk: 'IDCS_SNMP',
                 group: 'network',
+                hasCap(systemCaps) {
+                    return systemCaps.supportSnmp
+                },
             },
         },
+        // 云升级
         cloudUpgrade: {
-            //云升级
             path: 'upgradeOnline',
             component: 'net/CloudUpgrade.vue',
             meta: {
                 sort: 120,
                 lk: 'IDCS_ONLINE_UPGRADE',
                 group: 'network',
+                hasCap(systemCaps) {
+                    return systemCaps.showCloudUpgrade
+                },
             },
         },
+        // 网络码流设置
         networkStream: {
-            //网络码流设置
             path: 'stream/sub',
             component: 'net/NetworkStream.vue',
             meta: {
@@ -177,8 +198,8 @@ export default {
                 default: true,
             },
         },
+        // ONVIF
         onvif: {
-            //ONVIF
             path: 'ONVIF',
             component: 'net/ONVIF.vue',
             meta: {
@@ -188,18 +209,21 @@ export default {
                 default: true,
             },
         },
+        // 平台接入
         platformAccess: {
-            //平台接入
             path: 'platform',
             component: 'net/PlatformAccess.vue',
             meta: {
                 sort: 20,
                 lk: 'IDCS_PLATFORM_ACCESS',
                 group: 'integration',
+                hasCap(systemCaps) {
+                    return systemCaps.supportPlatform
+                },
             },
         },
+        // UPnP上报
         upnpReport: {
-            //UPnP上报
             path: 'upnpReport',
             component: 'net/UpnpReport.vue',
             meta: {
@@ -208,14 +232,26 @@ export default {
                 group: 'integration',
             },
         },
+        // HTTP Post 1.4.13
+        httpPost: {
+            path: 'httpPost',
+            component: 'net/HttpPost.vue',
+            meta: {
+                sort: 40,
+                lk: 'IDCS_HTTP_POST',
+                group: 'integration',
+                hasCap(systemCaps) {
+                    return systemCaps.supportHttpPost
+                },
+            },
+        },
+        // 网络状态
         netStatus: {
-            //网络状态
             path: 'status',
             components: {
                 toolBar: 'system/SystemToolBar.vue',
                 default: 'system/NetworkStatus.vue',
             },
-            // component: 'net/NetworkStatus.vue',
             meta: {
                 sort: 10,
                 lk: 'IDCS_NETWORK_STATE',
@@ -225,5 +261,17 @@ export default {
                 homeSort: 40,
             },
         },
+        // 网络状态检测 1.4.13
+        netDetection: {
+            path: 'detection',
+            component: 'net/NetworkDetection.vue',
+            meta: {
+                sort: 20,
+                lk: 'IDCS_NETWORK_STATE_DETECTION',
+                group: 'netStatus',
+            },
+        },
     },
-} as FeatureItem
+}
+
+export default netRoutes

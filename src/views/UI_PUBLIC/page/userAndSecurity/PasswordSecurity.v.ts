@@ -2,16 +2,10 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-18 18:40:47
  * @Description: 密码安全
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 20:34:42
  */
-import { UserPasswordSecurityForm } from '@/types/apiType/userAndSecurity'
-
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { closeLoading, LoadingTarget, openLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
 
         const formData = ref(new UserPasswordSecurityForm())
 
@@ -42,18 +36,18 @@ export default defineComponent({
          * @description 获取数据
          */
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await queryPasswordSecurity()
 
             const $ = queryXml(result)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
-            if ($('/response/status').text() === 'success') {
-                formData.value.passwordStrength = $('/response/content/pwdSecureSetting/pwdSecLevel').text()
-                formData.value.expirationTime = $('/response/content/pwdSecureSetting/expiration').text()
+            if ($('status').text() === 'success') {
+                formData.value.passwordStrength = $('content/pwdSecureSetting/pwdSecLevel').text()
+                formData.value.expirationTime = $('content/pwdSecureSetting/expiration').text()
 
-                pageData.value.passwordStrengthOptions = $('/response/types/userPasswordAllowLevel/enum').map((item) => {
+                pageData.value.passwordStrengthOptions = $('types/userPasswordAllowLevel/enum').map((item) => {
                     const text = item.text()
                     return {
                         value: text,
@@ -61,7 +55,7 @@ export default defineComponent({
                     }
                 })
 
-                pageData.value.expirationTimeOptions = $('/response/types/userPasswordExpirationTime/enum').map((item) => {
+                pageData.value.expirationTimeOptions = $('types/userPasswordExpirationTime/enum').map((item) => {
                     const text = item.text()
                     return {
                         value: text,
@@ -75,7 +69,7 @@ export default defineComponent({
          * @description 保存数据
          */
         const updateData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <content>
@@ -86,17 +80,9 @@ export default defineComponent({
                 </content>
             `
             const result = await editPasswordSecurity(sendXml)
-            const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
-
-            if ($('/response/status').text() === 'success') {
-                openMessageTipBox({
-                    type: 'success',
-                    title: Translate('IDCS_SUCCESS_TIP'),
-                    message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                })
-            }
+            closeLoading()
+            commSaveResponseHandler(result)
         }
 
         onMounted(() => {

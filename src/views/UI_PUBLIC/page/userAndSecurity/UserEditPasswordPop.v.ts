@@ -2,24 +2,25 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-17 17:21:34
  * @Description: 更改其他用户密码的弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 20:43:01
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import { UserEditPasswordForm, type UserCheckAuthForm } from '@/types/apiType/userAndSecurity'
-import { type FormInstance, type FormRules } from 'element-plus'
-import BasePasswordStrength from '../../components/form/BasePasswordStrength.vue'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     components: {
         BaseCheckAuthPop,
-        BasePasswordStrength,
     },
     props: {
+        /**
+         * @property 用户ID
+         */
         userId: {
             type: String,
             required: true,
         },
+        /**
+         * @property 用户名
+         */
         userName: {
             type: String,
             required: true,
@@ -33,31 +34,56 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const userSession = useUserSessionStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { closeLoading, LoadingTarget, openLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
-        const noticeMsg = ref('')
-        const formRef = ref<FormInstance>()
+        const pageData = ref({
+            isEditSelf: false,
+            passwordErrorMessage: '',
+            isCheckAuthPop: false,
+        })
+
+        const formRef = useFormRef()
         const formData = ref(new UserEditPasswordForm())
         // 要求的密码强度
         const passwordStrength = ref<keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING>('weak')
         // 当前密码强度
         const strength = computed(() => getPwdSaftyStrength(formData.value.newPassword))
-        const isAuthDialog = ref(false)
 
         const rules = ref<FormRules>({
+            currentPassword: [
+                {
+                    validator: (_rule, value: string, callback) => {
+                        if (pageData.value.isEditSelf) {
+                            if (!value.length) {
+                                callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
+                                return
+                            }
+
+                            if (pageData.value.passwordErrorMessage) {
+                                callback(new Error(pageData.value.passwordErrorMessage))
+                                pageData.value.passwordErrorMessage = ''
+                                return
+                            }
+                        }
+
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
             newPassword: [
                 {
-                    validator: (rule, value: string, callback) => {
-                        if (value.length === 0) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
+
                         if (strength.value < DEFAULT_PASSWORD_STREMGTH_MAPPING[passwordStrength.value as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING]) {
                             callback(new Error(Translate('IDCS_PWD_STRONG_ERROR')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -65,15 +91,17 @@ export default defineComponent({
             ],
             confirmNewPassword: [
                 {
-                    validator: (rule, value: string, callback) => {
-                        if (value.length === 0) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
+
                         if (value !== formData.value.newPassword) {
                             callback(new Error(Translate('IDCS_PWD_MISMATCH_TIPS')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -86,12 +114,11 @@ export default defineComponent({
          */
         const getPasswordSecurityStrength = async () => {
             let strength: keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING = 'weak'
-            const isInw48 = systemCaps.supportPwdSecurityConfig // TODO: 原项目是这个值
             const result = await queryPasswordSecurity()
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                strength = ($('/response/content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
-                if (isInw48) {
+            if ($('status').text() === 'success') {
+                strength = ($('content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
+                if (!systemCaps.supportPwdSecurityConfig) {
                     strength = 'strong'
                 }
             }
@@ -102,32 +129,67 @@ export default defineComponent({
         /**
          * @description 显示左下方的提示信息
          */
-        const getNoticeMsg = () => {
-            switch (passwordStrength.value) {
-                case 'medium':
-                    noticeMsg.value = Translate('IDCS_PASSWORD_STRONG_MIDDLE').formatForLang(8, 16)
-                    break
-                case 'strong':
-                    noticeMsg.value = Translate('IDCS_PASSWORD_STRONG_HEIGHT').formatForLang(8, 16)
-                    break
-                case 'stronger':
-                    noticeMsg.value = Translate('IDCS_PASSWORD_STRONG_HEIGHEST').formatForLang(8, 16)
-                    break
-                default:
-                    break
-            }
-        }
+        const noticeMsg = computed(() => {
+            return getTranslateForPasswordStrength(passwordStrength.value)
+        })
 
         /**
          * @description 表单验证
          */
         const verify = () => {
-            formRef.value!.validate(async (valid: boolean) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
-                    isAuthDialog.value = true
-                    // doUpdateUserPassword()
+                    if (pageData.value.isEditSelf) {
+                        updateCurrentUserPassword()
+                    } else {
+                        pageData.value.isCheckAuthPop = true
+                    }
                 }
             })
+        }
+
+        const updateCurrentUserPassword = async () => {
+            const oldPassword = AES_encrypt(base64Encode(MD5_encrypt(formData.value.currentPassword)), userSession.sesionKey)
+            const password = AES_encrypt(base64Encode(MD5_encrypt(formData.value.newPassword)), userSession.sesionKey)
+            const xml = rawXml`
+                <content>
+                    <oldPassword ${getSecurityVer()}>${wrapCDATA(oldPassword)}</oldPassword>
+                    <password ${getSecurityVer()}>${wrapCDATA(password)}</password>
+                </content>
+            `
+            const result = await editUserPassword(xml)
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                userSession.defaultPwd = false
+                userSession.isChangedPwd = true
+                userSession.pwdExpired = false
+                openMessageBox({
+                    type: 'success',
+                    message: Translate('IDCS_SAVE_DATA_SUCCESS'),
+                }).then(() => {
+                    ctx.emit('close')
+                    Logout()
+                })
+            } else {
+                const errorCode = $('errorCode').text().num()
+                switch (errorCode) {
+                    case ErrorCode.USER_ERROR_PWD_ERR:
+                        pageData.value.passwordErrorMessage = Translate('IDCS_PASSWORD_NOT_CORRENT')
+                        formRef.value!.validate()
+                        break
+                    case ErrorCode.USER_ERROR_NO_AUTH:
+                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_NO_PERMISSION'))
+                        break
+                    case ErrorCode.USER_ERROR_NO_USER:
+                        openMessageBox(Translate('IDCS_DEVICE_USER_NOTEXIST')).then(() => {
+                            Logout()
+                        })
+                        break
+                    default:
+                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
+                        break
+                }
+            }
         }
 
         /**
@@ -135,14 +197,14 @@ export default defineComponent({
          * @param {UserCheckAuthForm} e
          */
         const doUpdateUserPassword = async (e: UserCheckAuthForm) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const password = AES_encrypt(MD5_encrypt(formData.value.newPassword), userSession.sesionKey)
             const xml = rawXml`
                 <content>
                     <userId>${prop.userId}</userId>
                     <userName>${wrapCDATA(prop.userName)}</userName>
-                    <password ${getSecurityVer()}>${wrapCDATA(password)}</password>
+                    <password maxLen='16' ${getSecurityVer()}>${wrapCDATA(password)}</password>
                 </content>
                 <auth>
                     <userName>${e.userName}</userName>
@@ -152,13 +214,13 @@ export default defineComponent({
             const result = await editOtherUserPassword(xml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
-            if ($('/response/status').text() === 'success') {
-                isAuthDialog.value = false
+            if ($('status').text() === 'success') {
+                pageData.value.isCheckAuthPop = false
                 ctx.emit('close')
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 let errorText = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:
@@ -172,20 +234,8 @@ export default defineComponent({
                         errorText = Translate('IDCS_SAVE_DATA_FAIL')
                         break
                 }
-                openMessageTipBox({
-                    type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
-                    message: errorText,
-                })
+                openMessageBox(errorText)
             }
-        }
-
-        /**
-         * @description 打开弹窗时清空信息
-         */
-        const opened = () => {
-            formData.value = new UserEditPasswordForm()
-            formRef.value?.clearValidate()
         }
 
         /**
@@ -195,24 +245,22 @@ export default defineComponent({
             ctx.emit('close')
         }
 
-        onMounted(async () => {
-            await getPasswordSecurityStrength()
-            getNoticeMsg()
-        })
+        const open = () => {
+            pageData.value.isEditSelf = userSession.userName === prop.userName
+            getPasswordSecurityStrength()
+        }
 
         return {
             formRef,
             formData,
             noticeMsg,
             strength,
+            pageData,
+            open,
             close,
             rules,
-            opened,
             verify,
-            isAuthDialog,
             doUpdateUserPassword,
-            BaseCheckAuthPop,
-            BasePasswordStrength,
         }
     },
 })

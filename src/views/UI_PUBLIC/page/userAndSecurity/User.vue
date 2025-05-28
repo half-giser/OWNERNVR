@@ -2,33 +2,32 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-05-04 12:58:39
  * @Description: 查看或更改用户
- * @LastEditors: tengxiang tengxiang@tvt.net.cn
- * @LastEditTime: 2024-08-08 15:39:47
 -->
 <template>
-    <div class="User">
-        <div class="User-left">
-            <div class="base-subheading-box">{{ Translate('IDCS_USER') }}: {{ userName }}</div>
+    <div class="base-user-box">
+        <div class="base-user-box-left">
+            <div class="base-head-box text-ellipsis">{{ Translate('IDCS_USER') }}: {{ userName }}</div>
             <div
                 v-show="!authEffective"
-                class="no-auth"
+                class="base-user-auth-none"
             >
                 {{ Translate('IDCS_CLOSE_PERMISSION_CONTROL') }}
             </div>
             <div
                 v-show="authEffective"
-                class="system"
+                class="base-user-auth"
             >
                 <template
                     v-for="auth in systemAuthList"
                     :key="auth.key"
                 >
-                    <div class="title">
-                        {{ Translate(auth.key) }}
+                    <div class="base-user-auth-title">
+                        {{ auth.label }}
                     </div>
-                    <ul class="list">
+                    <ul class="base-user-auth-list">
                         <li
                             v-for="authItem in auth.value"
+                            v-show="!authItem.hidden"
                             :key="authItem.key"
                         >
                             <BaseImgSprite
@@ -37,80 +36,72 @@
                                     visibility: authItem.value ? 'visible' : 'hidden',
                                 }"
                             />
-                            <span>{{ Translate(authItem.key) }}</span>
+                            <span>{{ authItem.label }}</span>
                         </li>
                     </ul>
                 </template>
             </div>
             <div
                 v-show="authEffective"
-                class="channel"
+                class="base-user-chl"
             >
                 <ul>
-                    <li
-                        v-for="key in pageData.channelTabs"
-                        :key
-                        :class="{ active: key === pageData.activeChannelTab }"
-                        @click="pageData.activeChannelTab = key"
-                    >
-                        {{ Translate(key) }}
-                    </li>
+                    <el-radio-group v-model="pageData.activeChannelTab">
+                        <el-radio-button
+                            v-for="key in pageData.channelTabs"
+                            :key
+                            :value="key"
+                            :label="Translate(key)"
+                        />
+                    </el-radio-group>
                 </ul>
-                <div class="base-table-box">
-                    <div v-show="pageData.activeChannelTab === 'IDCS_LOCAL_RIGHT'">
+                <div class="base-user-chl-list">
+                    <div
+                        :class="{ active: pageData.activeChannelTab === 'IDCS_LOCAL_RIGHT' }"
+                        class="base-table-box"
+                    >
                         <el-table
+                            v-title
                             :data="channelAuthList"
-                            border
-                            stripe
-                            scrollbar-always-on
                             class="fill"
                         >
                             <el-table-column
                                 prop="name"
                                 :label="Translate('IDCS_CHANNEL')"
-                            >
-                                <template #default="scope">
-                                    <el-tooltip :content="scope.row.name">
-                                        <div class="ellipsis">{{ scope.row.name }}</div>
-                                    </el-tooltip>
-                                </template>
-                            </el-table-column>
+                                show-overflow-tooltip
+                            />
                             <el-table-column
                                 v-for="(item, key) in pageData.localChannelIds"
                                 :key
-                                :label="Translate(item.label)"
+                                :label="item.label"
                             >
                                 <template #default="{ $index }">
-                                    <el-text>{{ displayChannelAuth(channelAuthList[$index][item.value]) }}</el-text>
+                                    {{ displayChannelAuth(channelAuthList[$index][item.value]) }}
                                 </template>
                             </el-table-column>
                         </el-table>
                     </div>
-                    <div v-show="pageData.activeChannelTab === 'IDCS_REMOTE_RIGHT'">
+                    <div
+                        :class="{ active: pageData.activeChannelTab === 'IDCS_REMOTE_RIGHT' }"
+                        class="base-table-box"
+                    >
                         <el-table
+                            v-title
                             :data="channelAuthList"
-                            border
-                            stripe
-                            scrollbar-always-on
                             class="fill"
                         >
                             <el-table-column
                                 prop="name"
                                 :label="Translate('IDCS_CHANNEL')"
-                            >
-                                <template #default="scope">
-                                    <el-tooltip :content="scope.row.name">
-                                        <div class="ellipsis">{{ scope.row.name }}</div>
-                                    </el-tooltip>
-                                </template>
-                            </el-table-column>
+                                show-overflow-tooltip
+                            />
                             <el-table-column
                                 v-for="(item, key) in pageData.remoteChannelIds"
                                 :key
-                                :label="Translate(item.label)"
+                                :label="item.label"
                             >
                                 <template #default="{ $index }">
-                                    <el-text>{{ displayChannelAuth(channelAuthList[$index][item.value]) }}</el-text>
+                                    {{ displayChannelAuth(channelAuthList[$index][item.value]) }}
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -118,57 +109,49 @@
                 </div>
             </div>
         </div>
-        <div class="User-right">
+        <div class="base-user-box-right">
             <el-table
+                ref="tableRef"
+                v-title
                 :data="userList"
                 width="100%"
                 height="100%"
-                border
-                stripe
-                :current-row-key="pageData.activeUser"
                 flexible
-                :row-class-name="(item) => (item.rowIndex === pageData.activeUser ? 'active' : '')"
-                @cell-click="handleChangeUser"
-                @cell-dblclick="handleEditUser"
+                highlight-current-row
+                show-overflow-tooltip
+                @cell-click="changeUser"
+                @cell-dblclick="openEditUserPop"
             >
                 <el-table-column
                     prop="userName"
                     :label="Translate('IDCS_USERNAME')"
-                >
-                </el-table-column>
+                    min-width="150"
+                />
                 <el-table-column
-                    prop="authGroupName"
                     :label="Translate('IDCS_RIGHT_GROUP')"
-                    :formatter="(row, column, value) => displayAuthGroup(value)"
+                    min-width="150"
                 >
+                    <template #default="{ row }: TableColumn<UserList>">
+                        {{ displayAuthGroup(row.authGroupName) }}
+                    </template>
                 </el-table-column>
-                <el-table-column
-                    :label="Translate('IDCS_EDIT')"
-                    prop="edit"
-                >
-                    <template #default="scope">
-                        <BaseImgSprite
-                            v-show="scope.row.edit"
-                            file="edit (2)"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click.stop="handleEditUser(scope.row)"
+                <el-table-column :label="Translate('IDCS_EDIT')">
+                    <template #default="{ row }: TableColumn<UserList>">
+                        <BaseImgSpriteBtn
+                            v-show="row.edit"
+                            file="edit2"
+                            :stop-propagation="false"
+                            @click="openEditUserPop(row)"
                         />
                     </template>
                 </el-table-column>
-                <el-table-column
-                    prop="del"
-                    :label="Translate('IDCS_DELETE')"
-                >
-                    <template #default="scope">
-                        <BaseImgSprite
-                            v-show="scope.row.del"
+                <el-table-column :label="Translate('IDCS_DELETE')">
+                    <template #default="{ row }: TableColumn<UserList>">
+                        <BaseImgSpriteBtn
+                            v-show="row.del"
                             file="del"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click.stop="handleDeleteUser(scope.row)"
+                            :stop-propagation="false"
+                            @click="deleteUser(row)"
                         />
                     </template>
                 </el-table-column>
@@ -177,141 +160,23 @@
         <UserEditPop
             v-model="pageData.isEditUser"
             :user-id="pageData.editUserId"
-            @close="handleCloseEditUser"
-            @reset-password="handleEditUserPassword"
+            @confirm="confirmEditUser"
+            @close="pageData.isEditUser = false"
+            @reset-password="openEditUserPasswordPop"
         />
         <UserEditPasswordPop
             v-model="pageData.isEditUserPassword"
             :user-id="pageData.editUserId"
             :user-name="pageData.editUserName"
-            @close="handleCloseEditUserPassword"
+            @close="pageData.isEditUserPassword = false"
+        />
+        <BaseCheckAuthPop
+            v-model="pageData.isCheckAuthPop"
+            title="IDCS_CERTIFICATION_RIGHT"
+            @confirm="confirmDeleteUser"
+            @close="pageData.isCheckAuthPop = false"
         />
     </div>
 </template>
 
 <script lang="ts" src="./User.v.ts"></script>
-
-<style lang="scss" scoped>
-.User {
-    width: 100%;
-    height: var(--content-height);
-    display: flex;
-
-    &-left {
-        width: 550px;
-        height: 100%;
-        flex-shrink: 0;
-        display: flex;
-        flex-direction: column;
-        margin-right: 5px;
-        overflow: hidden;
-    }
-
-    .ellipsis {
-        width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .system {
-        width: 100%;
-        flex-shrink: 0;
-        margin-top: 12px;
-
-        .title {
-            border-left: 3px solid var(--border-color2);
-            height: 30px;
-            line-height: 30px;
-            padding-left: 15px;
-            margin-left: 15px;
-        }
-
-        .list {
-            width: 100%;
-            display: flex;
-            flex-wrap: wrap;
-            margin: 0;
-
-            li {
-                width: 50%;
-                height: 35px;
-                line-height: 35px;
-                display: flex;
-                align-items: center;
-                // padding-left: 20px;
-                box-sizing: border-box;
-            }
-        }
-    }
-
-    .channel {
-        height: 100%;
-        margin-top: 10px;
-        display: flex;
-        flex-direction: column;
-
-        ul {
-            display: flex;
-            justify-content: center;
-            border: 1px solid var(--border-color6);
-            margin: 0;
-            padding: 5px;
-            flex-shrink: 0;
-
-            li {
-                list-style: none;
-                cursor: pointer;
-                border: 1px solid var(--border-color7);
-                line-height: 20px;
-                font-size: 14px;
-                padding: 4px 15px;
-
-                &:hover {
-                    background-color: var(--primary--01);
-                }
-
-                &.active {
-                    background-color: var(--primary--04);
-                    color: #fff;
-                }
-
-                & + li {
-                    border-left: none;
-                }
-            }
-        }
-
-        .list {
-            height: 100%;
-            position: relative;
-        }
-
-        :deep(.el-table) {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-        }
-    }
-
-    .no-auth {
-        font-size: 30px;
-        font-weight: bold;
-        padding-top: 50px;
-        text-align: center;
-    }
-
-    &-right {
-        width: 100%;
-
-        :deep(.el-table) {
-            width: 100%;
-            height: var(--content-height);
-
-            tbody {
-                cursor: pointer;
-            }
-        }
-    }
-}
-</style>

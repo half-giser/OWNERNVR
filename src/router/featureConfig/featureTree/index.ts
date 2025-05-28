@@ -10,7 +10,6 @@
  *
  */
 
-import topFeature from './topFeature'
 import channel from './channel'
 import record from './record'
 import aiAndEvent from './aiAndEvent'
@@ -18,22 +17,98 @@ import disk from './disk'
 import net from './net'
 import userAndSecurity from './userAndSecurity'
 import system from './system'
+import searchAndBackup from './searchAndBackup'
+import intelligentAnalysis from './intelligentAnalysis'
+import businessApplication from './businessApplication'
 
 export default {
+    // 登录
     login: {
-        //登录
         path: '/login',
         component: 'Login.vue',
-        meta: {},
+        meta: {
+            noToken: true,
+        },
+    },
+    // URL自动登录
+    urlLogin: {
+        path: '/urllogin',
+        component: 'URLLogin.vue',
+        meta: {
+            noToken: true,
+        },
+    },
+    // 授权码登录
+    authCodeLogin: {
+        path: '/authCodeLogin',
+        component: 'AuthCodeLogin.vue',
+        meta: {
+            noToken: true,
+        },
+    },
+    // 忘记密码 1.4.13
+    forgetPassword: {
+        path: '/forgetPassword',
+        component: 'ForgetPassword.vue',
+        meta: {
+            noToken: true,
+        },
+    },
+    // 开机向导
+    guide: {
+        path: '/guide',
+        component: 'Guide.vue',
+        meta: {
+            noToken: true,
+        },
     },
     root: {
         path: '',
         component: 'layout/MainLayout.vue',
         meta: {},
         children: {
-            ...topFeature,
+            // 现场预览
+            live: {
+                component: 'topFeature/Live.vue',
+                meta: {
+                    minWidth: 1260,
+                    minHeight: 850,
+                    sort: 10,
+                    lk: 'IDCS_LIVE_PREVIEW',
+                    icon: 'live_menu',
+                },
+            },
+            // 回放
+            playback: {
+                component: 'topFeature/Playback.vue',
+                meta: {
+                    sort: 20,
+                    lk: 'IDCS_REPLAY',
+                    icon: 'rec_menu',
+                    minWidth: 1580,
+                    minHeight: 850,
+                },
+            },
+            // 功能面板
+            functionPanel: {
+                component: 'topFeature/FunctionPanel.vue',
+                meta: {
+                    sort: 50,
+                    lk: 'IDCS_FUNCTION_PANEL',
+                    icon: 'cfgHome_menu',
+                },
+            },
+            // 搜索与备份
+            searchAndBackup,
+            //智能分析
+            intelligentAnalysis,
+            //业务应用
+            businessApplication,
+            // 配置
             config: {
-                meta: { noMenu: true },
+                meta: {
+                    noMenu: true,
+                },
                 children: {
                     channel,
                     record,
@@ -42,14 +117,58 @@ export default {
                     net,
                     userAndSecurity,
                     system,
+                    // 本地配置
+                    localConfig: {
+                        path: 'local',
+                        component: 'LocalConfig.vue',
+                        meta: {},
+                    },
                 },
             },
         },
     },
+    //停车场
     parkLot: {
-        //停车场
         path: '/business-application/park-lot-manage/park-lot',
-        component: 'businessApplication/PkMgrParkLog.vue',
-        meta: { sort: 40, lk: 'IDCS_PARKING_LOT', icon: 'park' },
+        component: 'businessApplication/ParkLot.vue',
+        meta: {
+            sort: 40,
+            lk: 'IDCS_PARKING_LOT',
+            icon: 'park',
+            minWidth: 1400,
+            minHeight: 800,
+            hasCap(systemCaps) {
+                return !systemCaps.IntelAndFaceConfigHide
+            },
+            auth: 'parkingLotMgr',
+        },
+        beforeEnter(from, _to, next) {
+            const userSession = useUserSessionStore()
+            if (!userSession.hasAuth('businessMgr')) {
+                openMessageBox('IDCS_NO_PERMISSION')
+                if (from.fullPath.includes('parkLotManage')) {
+                    next('/live')
+                } else {
+                    next(from)
+                }
+            } else {
+                next()
+            }
+        },
+    },
+    // 目标检索 1.4.13
+    searchTarget: {
+        path: '/intelligentAnalysis/search-target',
+        component: 'intelligentAnalysis/SearchTarget.vue',
+        meta: {
+            sort: 40,
+            lk: 'IDCS_REID',
+            icon: 'target_retrieval',
+            minWidth: 1400,
+            minHeight: 800,
+            hasCap(systemCaps) {
+                return systemCaps.supportREID
+            },
+        },
     },
 } as FeatureTree

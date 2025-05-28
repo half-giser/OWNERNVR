@@ -2,105 +2,85 @@
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2023-05-10 09:30:08
  * @Description: 登录页
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-28 09:04:16
 -->
 <template>
-    <div class="login">
-        <el-select
-            v-model="langId"
-            class="langSel"
-        >
-            <el-option
-                v-for="(value, key) in langTypes"
-                :key="key"
-                :label="value"
-                :value="key"
+    <div
+        class="login"
+        :style="{ opacity }"
+    >
+        <div class="login-lang">
+            <el-select-v2
+                v-model="pageData.langId"
+                :options="pageData.langTypes"
+                @change="changeLang"
             />
-        </el-select>
-        <div id="content">
+            <el-select-v2
+                v-show="pageData.calendarOptions.length"
+                v-model="formData.calendarType"
+                :options="pageData.calendarOptions"
+            />
+        </div>
+        <div class="login-content">
             <el-form
-                ref="loginFormRef"
+                ref="formRef"
                 label-position="top"
                 :rules="rules"
-                :model="pageData"
-                :hide-required-asterisk="true"
+                :model="formData"
             >
                 <el-form-item prop="userName">
                     <el-input
-                        v-model="pageData.userName"
+                        v-model="formData.userName"
                         :placeholder="Translate('IDCS_USERNAME_TIP')"
                         type="text"
                         tabindex="1"
-                        size="large"
                     />
                 </el-form-item>
-                <el-form-item prop="password">
-                    <el-input
-                        ref="pwdRef"
-                        v-model="pageData.password"
+                <el-form-item
+                    prop="password"
+                    class="no-padding"
+                >
+                    <BasePasswordInput
+                        v-model="formData.password"
                         :placeholder="Translate('IDCS_PASSWORD_TIP')"
-                        type="password"
                         tabindex="2"
-                        size="large"
-                        show-password
-                        @paste.capture.prevent=""
-                        @copy.capture.prevent=""
-                    >
-                    </el-input>
+                        @keyup.enter="keyUp"
+                    />
                 </el-form-item>
-                <el-button
-                    class="btnLogin"
-                    size="large"
-                    :disabled="loginBtnDisabled"
-                    @click="handleLogin(loginFormRef)"
-                    @keyup.enter="keyUp"
-                >
-                    {{ Translate('IDCS_LOGIN_NBSP') }}
-                </el-button>
-            </el-form>
-            <div
-                id="loginErrorMsg"
-                v-text="loginErrorMessage"
-            ></div>
-        </div>
-        <BasePluginDownload />
-        <el-dialog
-            v-model="isPrivacy"
-            width="800"
-            align-center
-            draggable
-            :title="Translate('IDCS_PRIVACY')"
-            :show-close="false"
-            :modal="true"
-            :close-on-click-modal="false"
-        >
-            <div>
-                <textarea
-                    class="privacyContent"
-                    :readonly="true"
-                    :value="Translate('IDCS_PRIVACY_TEXT')"
-                >
-                </textarea>
-                <el-checkbox v-model="isAllowPrivacy">
-                    {{ Translate('IDCS_PRIVACY_ALLOW') }}
-                </el-checkbox>
-            </div>
-            <template #footer>
-                <el-row>
-                    <el-col
-                        :span="24"
-                        class="el-col-flex-end"
+                <div class="base-btn-box collapse">
+                    <el-button
+                        link
+                        @click="forgetPassword"
                     >
-                        <el-button
-                            :disabled="!isAllowPrivacy"
-                            @click="closePrivacy()"
-                            >{{ Translate('IDCS_OK') }}</el-button
-                        >
-                    </el-col>
-                </el-row>
-            </template>
-        </el-dialog>
+                        {{ Translate('IDCS_FORGOT_PASSWORD') }}
+                    </el-button>
+                </div>
+                <el-form-item>
+                    <el-button
+                        class="login-submit"
+                        :disabled="btnDisabled"
+                        @click="handleLogin"
+                        @keyup.enter="keyUp"
+                    >
+                        <span v-clean-html="Translate('IDCS_LOGIN_NBSP')"></span>
+                    </el-button>
+                </el-form-item>
+                <div
+                    class="login-error"
+                    v-text="errorMsg"
+                ></div>
+            </el-form>
+        </div>
+        <LoginPrivacyPop
+            v-model="pageData.isPrivacy"
+            @close="closePrivacy"
+        />
+        <LoginDualAuthPop
+            v-model="pageData.isDualAuthPop"
+            :err-msg="pageData.dualAuthErrMsg"
+            @confirm="handleDualAuthLogin"
+            @close="pageData.isDualAuthPop = false"
+        />
+        <BasePluginDownload />
     </div>
 </template>
 
@@ -113,75 +93,113 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color: var(--login-bg, var(--main-bg));
 }
 
-#content {
+.login-content {
     position: relative;
-    width: 693px;
+    width: 713px;
     height: 296px;
-    // margin: 280px auto 0px auto;
-    background: no-repeat var(--login-content);
+    background-image: var(--img-login-content);
+    background-color: var(--login-content-bg, var(--main-bg));
+    background-position: center top;
+    background-repeat: no-repeat;
+    padding-inline: 10px;
 
-    :deep(.el-form) {
-        margin-top: -18px;
+    #n9web & {
+        :deep(.el-form) {
+            margin-top: 13px;
+            position: relative;
+        }
+
+        .el-input {
+            width: 264px;
+            height: 50px;
+        }
+
+        :deep(.el-input__wrapper) {
+            box-shadow: none;
+            border-radius: 0;
+            background-color: var(--login-input-bg);
+            padding-inline: 10px;
+        }
+
+        :deep(.el-input__inner) {
+            color: var(--login-input-text);
+            font-size: 16px;
+        }
+
+        :deep(.el-form-item) {
+            margin: 0 0 0 438px;
+            font-size: 16px;
+            padding: 0 0 28px;
+
+            &.no-padding {
+                padding-bottom: 0;
+            }
+
+            &:last-child {
+                padding-bottom: 0;
+            }
+        }
+
+        .login-submit {
+            --el-button-border-color: transparent;
+            --el-button-hover-border-color: transparent;
+            --el-button-active-border-color: transparent;
+            --el-button-text-color: var(--login-btn-text);
+            --el-button-hover-text-color: var(--login-btn-text);
+
+            width: 314px;
+            height: 50px;
+            font-size: 18px;
+            margin-left: -50px;
+            background: var(--img-login-btn);
+            transition: none;
+
+            &:hover {
+                background-position: 0 -50px;
+            }
+
+            &.is-disabled {
+                background-position: 0 -150px;
+            }
+        }
     }
 
-    .el-input {
-        width: 253px;
+    .base-btn-box.collapse {
+        padding: 5px 0;
+        width: calc(100% - 10px);
+
+        #n9web & .el-button {
+            padding: 0;
+            text-decoration: underline;
+            min-width: unset;
+        }
     }
 
-    :deep(.el-input__wrapper) {
-        box-shadow: none;
-    }
-
-    :deep(.el-form-item) {
-        margin: 19px 0px 0px 430px;
-        font-size: 16px;
-        padding: 18px 0px 0px 0px;
-    }
-    :deep(.el-form-item__error) {
-        margin: 8px 0px 0px 0px;
-    }
-
-    .btnLogin {
-        --el-button-border-color: var(--primary--04);
-        --el-button-bg-color: var(--primary--03);
-        --el-button-text-color: var(--page-bg);
-        --el-button-hover-text-color: var(--page-bg);
-        --el-button-hover-bg-color: var(--primary--02);
-        --el-button-hover-border-color: var(--primary--03);
-        --el-button-active-text-color: var(--page-bg);
-        --el-button-active-border-color: var(--primary--05);
-        --el-button-active-bg-color: var(--primary--04);
-
-        width: 314px;
-        height: 50px;
-        font-size: 18px;
-        margin: 33px 0px 0px 378px;
+    @if $GLOBAL_UI_TYPE == UI1-E {
+        height: 236px;
     }
 }
 
-.langSel {
+.login-lang {
     position: absolute;
-    top: 20px;
-    right: 30px;
+    top: 10px;
+    right: 15px;
     width: 180px;
-    // float: right;
-    // margin: 20px 30px;
+
+    .el-select {
+        margin-bottom: 10px;
+    }
 }
 
-#loginErrorMsg {
-    position: relative;
-    margin: 30px 0px 0px 10px;
-    color: var(--error--01);
-}
-
-.privacyContent {
-    height: 350px;
-    overflow: auto;
-    width: 754px;
-    resize: none;
-    box-sizing: border-box;
-    padding: 10px;
+.login-error {
+    position: absolute;
+    top: 100%;
+    left: 390px;
+    color: var(--color-error);
+    font-size: 18px;
+    width: 570px;
 }
 </style>

@@ -2,62 +2,49 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-20 17:25:13
  * @Description: 自动维护
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 13:35:28
 -->
 <template>
     <div>
         <el-form
             ref="formRef"
+            v-title
             class="stripe"
-            label-position="left"
-            hide-required-asterisk
-            inline-message
             :rules
             :model="formData"
-            :style="{
-                '--form-input-width': '220px',
-                '--form-label-width': '100px',
-            }"
         >
             <el-form-item>
-                <el-checkbox v-model="formData.switch">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
+                <el-checkbox
+                    v-model="formData.switch"
+                    :label="Translate('IDCS_ENABLE')"
+                />
             </el-form-item>
             <el-form-item
                 :label="Translate('IDCS_INTERVAL_DAYS')"
                 prop="interval"
             >
-                <el-input
+                <BaseNumberInput
                     v-model="formData.interval"
-                    type="number"
-                    :placeholder="Translate('IDCS_INTERVAL_DAYS')"
+                    :disabled="!formData.switch"
+                    :min="1"
+                    :max="365"
                 />
-                <span class="date_span">{{ Translate('IDCS_DAYS') }}</span>
+                <span>{{ Translate('IDCS_DAYS') }}</span>
             </el-form-item>
             <el-form-item
                 :label="Translate('IDCS_POINT_TIME')"
                 prop="time"
             >
-                <el-time-picker
+                <BaseTimePicker
                     v-model="formData.time"
-                    format="HH:mm"
-                    editable
-                    prefix-icon=""
-                    :placeholder="Translate('IDCS_POINT_TIME')"
+                    unit="minute"
+                    :disabled="!formData.switch"
                 />
             </el-form-item>
-            <p
-                v-show="pageData.isAutoResttartTip"
-                class="tip"
-            >
+            <el-form-item v-show="pageData.autoRestartTip">
                 {{ pageData.autoRestartTip }}
-            </p>
+            </el-form-item>
             <div class="base-btn-box">
-                <el-button
-                    class="btn-ok"
-                    @click="verify"
-                    >{{ Translate('IDCS_APPLY') }}</el-button
-                >
+                <el-button @click="verify">{{ Translate('IDCS_APPLY') }}</el-button>
             </div>
         </el-form>
     </div>

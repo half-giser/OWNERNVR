@@ -2,84 +2,169 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-12 18:21:09
  * @Description: SNMP配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-16 20:05:10
  */
-import { NetSNMPForm } from '@/types/apiType/net'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const userSession = useUserSessionStore()
 
-        const formRef = ref<FormInstance>()
+        const pageData = ref({
+            securityLevelOptions: [
+                {
+                    label: Translate('IDCS_NO_AUTH_NO_PRIV'),
+                    value: 0,
+                },
+                {
+                    label: Translate('IDCS_AUTH_NO_PRIV'),
+                    value: 1,
+                },
+                {
+                    label: Translate('IDCS_AUTH_PRIV'),
+                    value: 2,
+                },
+            ],
+            authTypeOptions: [
+                {
+                    label: 'MD5',
+                    value: 0,
+                },
+                {
+                    label: 'SHA',
+                    value: 1,
+                },
+            ],
+            privTypeOptions: [
+                {
+                    label: 'AES',
+                    value: 0,
+                },
+                {
+                    label: 'DES',
+                    value: 1,
+                },
+            ],
+            authPassword: false,
+            privPassword: false,
+        })
+
+        const formRef = useFormRef()
         const formData = ref(new NetSNMPForm())
         const formRule = ref<FormRules>({
             snmpPort: [
                 {
-                    validator(rule, value, callback) {
-                        if (!disabled.value && !value) {
-                            callback(new Error(Translate('IDCS_PROMPT_SNMP_PORT_EMPTY')))
-                            return
+                    validator(_rule, value: number, callback) {
+                        if (formData.value.snmpv1Switch || formData.value.snmpv2Switch || formData.value.snmpv3Switch) {
+                            if (!value) {
+                                callback(new Error(Translate('IDCS_PROMPT_SNMP_PORT_EMPTY')))
+                                return
+                            }
                         }
+
                         callback()
                     },
-                    trigger: 'change',
+                    trigger: 'manual',
                 },
             ],
             readCommunity: [
                 {
-                    validator(rule, value, callback) {
-                        if (!disabled.value && !value.length) {
-                            callback(new Error(Translate('IDCS_PROMPT_READ_COMMUNITY_EMPTY')))
-                            return
+                    validator(_rule, value: string, callback) {
+                        if (formData.value.snmpv1Switch || formData.value.snmpv2Switch) {
+                            if (!value.trim()) {
+                                callback(new Error(Translate('IDCS_PROMPT_READ_COMMUNITY_EMPTY')))
+                                return
+                            }
                         }
+
                         callback()
                     },
-                    trigger: 'change',
+                    trigger: 'manual',
                 },
             ],
             writeCommunity: [
                 {
-                    validator(rule, value, callback) {
-                        if (!disabled.value && !value.length) {
-                            callback(new Error(Translate('IDCS_PROMPT_WRITE_COMMUNITY_EMPTY')))
-                            return
+                    validator(_rule, value: string, callback) {
+                        if (formData.value.snmpv1Switch || formData.value.snmpv2Switch) {
+                            if (!value.trim()) {
+                                callback(new Error(Translate('IDCS_PROMPT_WRITE_COMMUNITY_EMPTY')))
+                                return
+                            }
                         }
+
                         callback()
                     },
-                    trigger: 'change',
+                    trigger: 'manual',
                 },
             ],
             trapAddress: [
                 {
-                    validator(rule, value, callback) {
-                        if (!disabled.value) {
-                            if (!value.length) {
+                    validator(_rule, value: string, callback) {
+                        if (formData.value.snmpv1Switch || formData.value.snmpv2Switch || formData.value.snmpv3Switch) {
+                            if (!value) {
                                 callback(new Error(Translate('IDCS_PROMPT_TRAP_ADDRESS_EMPTY')))
                                 return
                             }
-                            if (value === '0.0.0.0' || !checkIpV4(value)) {
+
+                            if (value === DEFAULT_EMPTY_IP || !checkIpV4(value)) {
                                 callback(new Error(Translate('IDCS_PROMPT_TRAP_ADDRESS_INVALID')))
                                 return
                             }
                         }
                         callback()
                     },
-                    trigger: 'change',
+                    trigger: 'manual',
                 },
             ],
             trapPort: [
                 {
-                    validator(rule, value, callback) {
-                        if (!value) {
-                            callback(new Error(Translate('IDCS_PROMPT_TRAP_PORT_EMPTY')))
-                            return
+                    validator(_rule, value: number, callback) {
+                        if (formData.value.snmpv1Switch || formData.value.snmpv2Switch || formData.value.snmpv3Switch) {
+                            if (!value) {
+                                callback(new Error(Translate('IDCS_PROMPT_TRAP_PORT_EMPTY')))
+                                return
+                            }
                         }
+
                         callback()
                     },
-                    trigger: 'change',
+                    trigger: 'manual',
+                },
+            ],
+            authPassword: [
+                {
+                    validator(_rule, value: string, callback) {
+                        if (formData.value.snmpv3Switch && pageData.value.authPassword && formData.value.securityLevel !== 0) {
+                            if (!value.trim()) {
+                                callback(new Error(Translate('IDCS_PROMPT_AUTH_PASSWD_EMPTY')))
+                                return
+                            }
+
+                            if (value.trim().length < 8) {
+                                callback(new Error(Translate('IDCS_PROMPT_AUTH_LEN_TOO_SHORT')))
+                                return
+                            }
+                        }
+                    },
+                    trigger: 'manual',
+                },
+            ],
+            privPassword: [
+                {
+                    validator(_rule, value: string, callback) {
+                        if (formData.value.snmpv3Switch && pageData.value.privPassword && formData.value.securityLevel === 2) {
+                            if (!value.trim()) {
+                                callback(new Error(Translate('IDCS_PROMPT_PRIVACY_PASSWD_EMPTY')))
+                                return
+                            }
+
+                            if (value.trim().length < 8) {
+                                callback(new Error(Translate('IDCS_PROMPT_PRIVACY_LEN_TOO_SHORT')))
+                                return
+                            }
+                        }
+                    },
+                    trigger: 'manual',
                 },
             ],
         })
@@ -90,14 +175,18 @@ export default defineComponent({
         const getData = async () => {
             const result = await querySNMPCfg()
             commLoadResponseHandler(result, ($) => {
-                const $content = queryXml($('/response/content')[0].element)
-                formData.value.snmpv1Switch = $content('snmpv1Switch').text().toBoolean()
-                formData.value.snmpv2Switch = $content('snmpv2Switch').text().toBoolean()
-                formData.value.snmpPort = Number($content('snmpPort').text())
-                formData.value.readCommunity = $content('readCommunity').text()
-                formData.value.writeCommunity = $content('writeCommunity').text()
-                formData.value.trapPort = Number($content('trapPort').text())
-                formData.value.trapAddress = $content('trapAddress').text()
+                formData.value.snmpv1Switch = $('content/snmpv1Switch').text().bool()
+                formData.value.snmpv2Switch = $('content/snmpv2Switch').text().bool()
+                formData.value.snmpv3Switch = $('content/snmpv3Switch').text().bool()
+                formData.value.snmpPort = $('content/snmpPort').text().num()
+                formData.value.readCommunity = $('content/readCommunity').text()
+                formData.value.writeCommunity = $('content/writeCommunity').text()
+                formData.value.trapPort = $('content/trapPort').text().num()
+                formData.value.trapAddress = $('content/trapAddress').text()
+                formData.value.username = $('content/UserName').text()
+                formData.value.securityLevel = $('content/SecurityLevel').text().num()
+                formData.value.authType = $('content/AuthType').text().num()
+                formData.value.privType = $('content/PrivType').text().num()
             })
         }
 
@@ -105,51 +194,129 @@ export default defineComponent({
          * @description 更新表单数据
          */
         const setData = () => {
-            // TODO: 未启用情况下 如果一些表单项为空，提交会报错. 原项目也是如此
             formRef.value!.validate(async (valid) => {
                 if (!valid) {
                     return
                 }
 
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
 
                 const sendXml = rawXml`
                     <content>
-                        <snmpv1Switch>${formData.value.snmpv1Switch.toString()}</snmpv1Switch>
-                        <snmpv2Switch>${formData.value.snmpv2Switch.toString()}</snmpv2Switch>
-                        <snmpPort>${formData.value.snmpPort.toString()}</snmpPort>
-                        <readCommunity>${formData.value.readCommunity}</readCommunity>
-                        <writeCommunity>${formData.value.writeCommunity}</writeCommunity>
-                        <trapAddress>${formData.value.trapAddress}</trapAddress>
-                        <trapPort>${formData.value.trapPort.toString()}</trapPort>
+                        <snmpv1Switch>${formData.value.snmpv1Switch}</snmpv1Switch>
+                        <snmpv2Switch>${formData.value.snmpv2Switch}</snmpv2Switch>
+                        <snmpv3Switch>${formData.value.snmpv3Switch}</snmpv3Switch>
+                        ${formData.value.snmpPort ? `<snmpPort>${formData.value.snmpPort}</snmpPort>` : ''}
+                        ${formData.value.readCommunity ? `<readCommunity>${formData.value.readCommunity}</readCommunity>` : ''}
+                        ${formData.value.writeCommunity ? `<writeCommunity>${formData.value.writeCommunity}</writeCommunity>` : ''}
+                        ${formData.value.trapAddress && formData.value.trapAddress !== DEFAULT_EMPTY_IP && formData.value.trapAddress !== '' ? `<trapAddress>${formData.value.trapAddress}</trapAddress>` : ''}
+                        ${formData.value.trapPort ? `<trapPort>${formData.value.trapPort}</trapPort>` : ''}
+                        ${formData.value.username ? `<UserName>${wrapCDATA(formData.value.username)}</UserName>` : ''}
+                        <SecurityLevel>${formData.value.securityLevel}</SecurityLevel>
+                        <AuthType>${formData.value.authType}</AuthType>
+                        <PrivType>${formData.value.privType}</PrivType>
+                        ${formData.value.authPassword ? `<AuthPasswd ${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.authPassword, userSession.sesionKey))}</AuthPasswd>` : ''}
+                        ${formData.value.privPassword ? `<PrivPasswd ${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.privPassword, userSession.sesionKey))}</PrivPasswd>` : ''}
                     </content>
                 `
                 const result = await editSNMPCfg(sendXml)
-                commSaveResponseHadler(result)
+                commSaveResponseHandler(result)
 
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
             })
         }
 
-        // 是否禁用表单项
-        const disabled = computed(() => {
-            return !formData.value.snmpv1Switch && !formData.value.snmpv2Switch
-        })
+        /**
+         * @description 约束readCommunity和writeCommunity的输入
+         * @param {string} value
+         * @returns {string}
+         */
+        const formatCommunity = (value: string) => {
+            return value.replace(/[^A-z|\d!@#$%^&*(){}\|:"`<>?~_\\'./\-\s\[\];,=+]/g, '')
+        }
 
-        watch(disabled, () => {
-            formRef.value?.clearValidate()
-        })
+        const formatUserName = (value: string) => {
+            return value.replace(/[\u4e00-\u9fa5]/g, '')
+        }
+
+        const changeSNMPV1Switch = () => {
+            if (formData.value.snmpv1Switch) {
+                openMessageBox({
+                    type: 'question',
+                    message: Translate('IDCS_SECURITY_RISK_AND_KEEP').formatForLang(Translate('IDCS_ENABLE_SNMP_V1')),
+                }).catch(() => {
+                    formData.value.snmpv1Switch = false
+                })
+            }
+        }
+
+        const changeSNMPV2Switch = () => {
+            if (formData.value.snmpv2Switch) {
+                openMessageBox({
+                    type: 'question',
+                    message: Translate('IDCS_SECURITY_RISK_AND_KEEP').formatForLang(Translate('IDCS_ENABLE_SNMP_V2')),
+                }).catch(() => {
+                    formData.value.snmpv2Switch = false
+                })
+            }
+        }
+
+        const changeSNMPV3Switch = () => {
+            if (formData.value.snmpv3Switch) {
+                formData.value.snmpv1Switch = false
+                formData.value.snmpv2Switch = false
+            }
+        }
+
+        const changeSecurityLevel = () => {
+            // NTA1-4178：网络安全问题单-提示
+            if (formData.value.securityLevel === 0) {
+                openMessageBox(Translate('IDCS_SECURITY_RISK_AND_RECOMMEND').formatForLang(Translate('IDCS_NO_AUTH_NO_PRIV'), Translate('IDCS_AUTH_PRIV')))
+                return
+            }
+
+            if (formData.value.securityLevel === 1) {
+                openMessageBox(Translate('IDCS_SECURITY_RISK_AND_RECOMMEND').formatForLang(Translate('IDCS_AUTH_NO_PRIV'), Translate('IDCS_AUTH_PRIV')))
+                formData.value.authPassword = ''
+                return
+            }
+
+            if (formData.value.securityLevel === 2) {
+                formData.value.authPassword = ''
+                formData.value.privPassword = ''
+            }
+        }
+
+        const changeAuthPasswordSwitch = () => {
+            if (!pageData.value.authPassword) {
+                formData.value.authPassword = ''
+            }
+        }
+
+        const changePrivPasswordSwitch = () => {
+            if (!pageData.value.privPassword) {
+                formData.value.privPassword = ''
+            }
+        }
 
         onMounted(() => {
             getData()
         })
 
         return {
+            pageData,
             formRef,
             formData,
             formRule,
-            disabled,
             setData,
+            formatCommunity,
+            formatUserName,
+            changeSNMPV3Switch,
+            changeSNMPV1Switch,
+            changeSNMPV2Switch,
+            changeSecurityLevel,
+            changeAuthPasswordSwitch,
+            changePrivPasswordSwitch,
         }
     },
 })

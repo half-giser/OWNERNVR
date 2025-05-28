@@ -2,51 +2,37 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-01 11:01:12
  * @Description: 查看日志
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-30 14:54:41
  */
-import { SystemLogForm, type SystemLogList } from '@/types/apiType/system'
 import dayjs from 'dayjs'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import ViewLogDetailPop from './ViewLogDetailPop.vue'
-import RecPop from '../rec/RecPop.vue'
-import { type RecPlayList } from '@/types/apiType/playback'
+import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
     components: {
-        BaseImgSprite,
         ViewLogDetailPop,
-        RecPop,
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const systemCaps = useCababilityStore()
-        const userSession = useUserSessionStore()
         const lang = useLangStore()
-        const dateTime = useDateTime()
+        const dateTime = useDateTimeStore()
+
+        const operate_record_spb = Translate('IDCS_SEARCH') + '/' + Translate('IDCS_REPLAY') + '/' + Translate('IDCS_BACKUP') + (systemCaps.supportRecDelete ? '/' + Translate('IDCS_DELETE') : '')
+        const exception_unlawful_access = Translate('IDCS_XXX_ABNORMAL').formatForLang(Translate('IDCS_SYSTEM'))
 
         // 类型和语言资源映射
         const TRANS_MAPPING: Record<string, string> = {
             LOG_ALL: 'IDCS_ALL_TYPE',
             LOG_ALARM_ALL: 'IDCS_ALARM_LOG',
             LOG_ALARM_MOTION: 'IDCS_MOTION_DETECT_ALARM',
+            LOG_ALARM_INTELLIGENT: 'IDCS_AI_ALARM',
+            LOG_ALARM_COMBINATION: 'IDCS_COMBINATION_ALARM',
             LOG_ALARM_SENSOR: 'IDCS_SENSOR_ALARM',
             LOG_ALARM_ALARMOUTPUT: 'IDCS_ALARM_OUT',
-            LOG_ALARM_OSC: 'IDCS_OSC_ALARM',
-            LOG_ALARM_AVD: 'IDCS_AVD_ALARM',
-            LOG_ALARM_PEA_TRIPWIRE: 'IDCS_TRIPWIRE_ALARM',
-            LOG_ALARM_PEA_PERIMETER: 'IDCS_PERIMETER_ALARM',
-            LOG_ALARM_VFD: 'IDCS_VFD_ALARM',
-            LOG_ALARM_CDD: 'IDCS_CDD_ALARM',
-            LOG_ALARM_FIRE_POINT: 'IDCS_FIRE_POINT_ALARM',
-            LOG_ALARM_TEMPERATURE: 'IDCS_TEMPERATURE_ALARM',
-            LOG_ALARM_COMBINED: 'IDCS_COMBINATION_ALARM',
             LOG_OPERATE_ALL: 'IDCS_OPERATION_LOG',
-            LOG_OPERATE_RECORD_SPB: Translate('IDCS_SEARCH') + '/' + Translate('IDCS_REPLAY') + '/' + Translate('IDCS_BACKUP') + systemCaps.supportRecDelete ? '/' + Translate('IDCS_DELETE') : '',
-            LOG_OPERATE_MANUAL_RECORD: 'IDCS_MANUAL_RECORD',
-            LOG_OPERATE_MANUAL_ALARM: 'IDCS_MANUAL_ALARM',
+            LOG_OPERATE_RECORD_SPB: operate_record_spb,
+            LOG_OPERATE_MANUAL_RECORD: 'IDCS_MANUAL',
+            LOG_OPERATE_MANUAL_ALARM: 'IDCS_MANUAL',
             LOG_OPERATE_SYSTEM_MAINTENANCE: 'IDCS_SYSTEM_MAINTENANCE',
             LOG_OPERATE_PTZ_CONTROL: 'IDCS_PTZ_CONTROL',
             LOG_OPERATE_AUDIO_TALK: 'IDCS_AUDIO_TALK',
@@ -54,25 +40,25 @@ export default defineComponent({
             LOG_OPERATE_LOGIN_LOGOUT: 'IDCS_OPERATE_LOGIN_LOGOUT',
             LOG_OPERATE_SNAPSHOT_MSPB: 'IDCS_OPERATE_SNAPSHOT_MSPB',
             LOG_OPERATE_FORMAT_HD: 'IDCS_OPERATE_FORMAT_HD',
-            LOG_OPERATE_ACCESS_CONTROL: 'IDCS_ACCESS_CONTROL_CONFIG',
-            LOG_OPERATE_PARKINGLOT_CONFIG: 'IDCS_PARKING_LOT_CONFIG',
-            LOG_OPERATE_CHANNEL: 'IDCS_CHANNEL_PARAMS',
-            LOG_OPERATE_RECORD: 'IDCS_RECORD_PARAMS',
-            LOG_OPERATE_ALARM: 'IDCS_ALARM_PARAMS',
-            LOG_OPERATE_DISK: 'IDCS_DISK_PARAMS',
-            LOG_OPERATE_NETWORK: 'IDCS_NETWORK_PARAMS',
-            LOG_OPERATE_SCHEDULE: 'IDCS_SCHEDULA_PARAMS',
-            LOG_OPERATE_USER: 'IDCS_USER_PARAMS',
-            LOG_OPERATE_BASIC: 'IDCS_BASIC_PARAMS',
-            // LOG_OPERATE_RECORD: 'IDCS_RECORD_PARAMS',
+            LOG_CONFIG_ALL: 'IDCS_CONFIG_LOG',
+            LOG_CONFIG_CHANNEL: 'IDCS_CHANNEL_PARAMS',
+            LOG_CONFIG_RECORD: 'IDCS_RECORD_PARAMS',
+            LOG_CONFIG_ALARM: 'IDCS_ALARM_PARAMS',
+            LOG_CONFIG_DISK: 'IDCS_DISK_PARAMS',
+            LOG_CONFIG_NETWORK: 'IDCS_NETWORK_PARAMS',
+            LOG_CONFIG_SCHEDULE: 'IDCS_SCHEDULA_PARAMS',
+            LOG_CONFIG_USER: 'IDCS_USER_PARAMS',
+            LOG_CONFIG_BASIC: 'IDCS_BASIC_PARAMS',
             LOG_EXCEPTION_ALL: 'IDCS_EXCEPTION_LOG',
-            LOG_EXCEPTION_UNLAWFUL_ACCESS: 'IDCS_UNLAWFUL_ACCESS',
+            LOG_EXCEPTION_UNLAWFUL_ACCESS: exception_unlawful_access,
             LOG_EXCEPTION_DISK_FULL: 'IDCS_DISK_FULL',
             LOG_EXCEPTION_DISK_IO_ERROR: 'IDCS_DISK_IO_ERROR',
             LOG_EXCEPTION_NO_DISK: 'IDCS_NO_DISK',
+            LOG_EXCEPTION_RAID_SUBHEALTH: 'IDCS_RAID_SUBHEALTH',
+            LOG_EXCEPTION_RAID_UNAVAILABLE: 'IDCS_RAID_UNAVAILABLE',
             LOG_EXCEPTION_IP_COLLISION: 'IDCS_IP_CONFLICT',
             LOG_EXCEPTION_INTERNET_DISCONNECT: 'IDCS_NETWORK_DISCONNECT',
-            LOG_EXCEPTION_IPC_DISCONNECT: 'IDCS_FRONT_OFFLINE',
+            LOG_EXCEPTION_IPC_DISCONNECT: 'IDCS_DEVICE_OFFLINE',
             LOG_EXCEPTION_ABNORMAL_SHUTDOWN: 'IDCS_SYSTEM_ABNORMAL_SHUTDOWN',
             LOG_EXCEPTION_VIDEO_LOSS: 'IDCS_VIDEO_LOSS',
             LOG_EXCEPTION_SIGNAL_SHELTER: 'IDCS_SIGNAL_SHELTER',
@@ -81,8 +67,6 @@ export default defineComponent({
             LOG_INFOR_SYSTEM_RUN: 'IDCS_SYSTEM_RUNNINGINFOR',
             LOG_EXCEPTION_HDD_PULL_OUT: 'IDCS_HDD_PULL_OUT',
             LOG_EXCEPTION_DISK_FAILURE: 'IDCS_DISK_FAILURE',
-            LOG_EXCEPTION_ABNORMAL_RAID_SUBHEALTH: 'IDCS_RAID_SUBHEALTH',
-            LOG_EXCEPTION_ABNORMAL_RAID_UNAVAILABLE: 'IDCS_RAID_UNAVAILABLE',
             LOG_OPERATE_HDD_INSERT: 'IDCS_OPERATE_HDD_INSERT',
             LOG_OPERATE_FEATURELIBRARY: 'IDCS_FEATURE_LIBRARY',
             LOG_EXCEPTION_NAT_TRAVERSAL_ABNORMAL: 'IDCS_NAT_TRAVESAL_ABNORMAL',
@@ -93,32 +77,14 @@ export default defineComponent({
             LOG_ALARM_RTC: 'IDCS_RTC_ABNORMAL',
             LOG_OPERATE_PLATELIBRARY: 'IDCS_VEHICLE_DATABASE', //车牌库
             LOG_EXCEPTION_UPGRADE_ERROR: 'IDCS_CLOUD_UPGRADE_FAIED',
+            LOG_OPERATE_NAT_INFO: 'IDCS_NAT',
             LOG_OPERATE_INTELLIGENT_ANALYSIS_INFO: 'IDCS_BUSINESS_APPLICATION', // 业务应用
             LOG_EXCEPTION_ABNORMAL_RAID_HOT_EXCEPTION: 'IDCS_RAID_HOT_EXCEPTION',
-            LOG_INFORMATION_NAT: 'IDCS_NAT',
         }
 
         // 主类型对应子类型列表
         const LOG_TYPE_MAPPING: Record<string, string[]> = {
-            LOG_ALARM_ALL: [
-                'LOG_ALARM_MOTION',
-                'LOG_ALARM_SENSOR',
-                'LOG_ALARM_OSC',
-                'LOG_ALARM_AVD',
-                'LOG_ALARM_PEA_TRIPWIRE',
-                'LOG_ALARM_PEA_PERIMETER',
-                // "LOG_ALARM_SMART_AOI_ENTRY", // NT2-3265 统一为区域入侵报警
-                // "LOG_ALARM_SMART_AOI_LEAVE",
-                'LOG_ALARM_VFD',
-                'LOG_ALARM_CDD',
-                'LOG_ALARM_FIRE_POINT',
-                'LOG_ALARM_TEMPERATURE',
-                'LOG_ALARM_FACE_MATCH',
-                'LOG_ALARM_VEHICLE_PLATE_MATCH',
-                'LOG_ALARM_ALARMOUTPUT',
-                'LOG_ALARM_COMBINED',
-                'LOG_ALARM_RTC',
-            ],
+            LOG_ALARM_ALL: ['LOG_ALARM_MOTION', 'LOG_ALARM_INTELLIGENT', 'LOG_ALARM_COMBINATION', 'LOG_ALARM_SENSOR', 'LOG_ALARM_ALARMOUTPUT', 'LOG_ALARM_FACE_MATCH', 'LOG_ALARM_VEHICLE_PLATE_MATCH'],
             LOG_OPERATE_ALL: [
                 'LOG_OPERATE_RECORD_SPB',
                 'LOG_OPERATE_MANUAL_RECORD',
@@ -131,41 +97,45 @@ export default defineComponent({
                 'LOG_OPERATE_SNAPSHOT_MSPB',
                 'LOG_OPERATE_FORMAT_HD',
                 'LOG_OPERATE_HDD_INSERT',
-                'LOG_OPERATE_PLATELIBRARY',
                 'LOG_OPERATE_FEATURELIBRARY',
-                'LOG_OPERATE_PARKINGLOT_CONFIG',
-                // "LOG_OPERATE_PARKINGLOT_OPENGATE",// 归类到停车场配置
-                'LOG_OPERATE_ACCESS_CONTROL',
-                'LOG_OPERATE_CHANNEL',
-                'LOG_OPERATE_RECORD',
-                'LOG_OPERATE_ALARM',
-                'LOG_OPERATE_DISK',
-                'LOG_OPERATE_NETWORK',
-                'LOG_OPERATE_SCHEDULE',
-                'LOG_OPERATE_USER',
-                'LOG_OPERATE_BASIC',
+                'LOG_OPERATE_PLATELIBRARY',
+                'LOG_OPERATE_NAT_INFO',
+                'LOG_OPERATE_INTELLIGENT_ANALYSIS_INFO',
             ],
-            LOG_INFOR_ALL: ['LOG_INFORMATION_NAT'],
+            LOG_CONFIG_ALL: ['LOG_CONFIG_CHANNEL', 'LOG_CONFIG_RECORD', 'LOG_CONFIG_ALARM', 'LOG_CONFIG_DISK', 'LOG_CONFIG_NETWORK', 'LOG_CONFIG_SCHEDULE', 'LOG_CONFIG_USER', 'LOG_CONFIG_BASIC'],
             LOG_EXCEPTION_ALL: [
                 'LOG_EXCEPTION_UNLAWFUL_ACCESS',
                 'LOG_EXCEPTION_DISK_FULL',
                 'LOG_EXCEPTION_DISK_IO_ERROR',
                 'LOG_EXCEPTION_NO_DISK',
-                'LOG_EXCEPTION_ABNORMAL_RAID_SUBHEALTH',
-                'LOG_EXCEPTION_ABNORMAL_RAID_UNAVAILABLE',
-                'LOG_EXCEPTION_ABNORMAL_RAID_HOT_EXCEPTION',
+                'LOG_EXCEPTION_RAID_SUBHEALTH',
+                'LOG_EXCEPTION_RAID_UNAVAILABLE',
                 'LOG_EXCEPTION_IP_COLLISION',
                 'LOG_EXCEPTION_INTERNET_DISCONNECT',
                 'LOG_EXCEPTION_IPC_DISCONNECT',
                 'LOG_EXCEPTION_ABNORMAL_SHUTDOWN',
                 'LOG_EXCEPTION_VIDEO_LOSS',
+                'LOG_EXCEPTION_SIGNAL_SHELTER',
                 'LOG_EXCEPTION_HDD_PULL_OUT',
                 'LOG_EXCEPTION_DISK_FAILURE',
-                // "LOG_EXCEPTION_SIGNAL_SHELTER", // 暂时屏蔽信号遮挡功能
+                'LOG_ALARM_RTC',
                 'LOG_EXCEPTION_NAT_TRAVERSAL_ABNORMAL',
+                'LOG_EXCEPTION_DISCARD_EXTRACT_TASK',
                 'LOG_EXCEPTION_ALARM_SERVER_OFFLINE',
                 'LOG_EXCEPTION_UPGRADE_ERROR',
+                'LOG_EXCEPTION_ABNORMAL_RAID_HOT_EXCEPTION',
             ],
+            // LOG_INFOR_ALL: [
+            //     'LOG_INFOR_SCHEDULE_RECORD',
+            //     'LOG_INFOR_SCHEDULE_SNAP',
+            //     'LOG_INFOR_DISK',
+            //     'LOG_INFOR_NETWORK',
+            //     'LOG_INFOR_SYSTEM_BASE',
+            //     'LOG_INFOR_SYSTEM_RUN',
+            //     'LOG_INFOR_CHANNEL_STATE',
+            //     'LOG_INFOR_ALARM_STATE',
+            //     'LOG_INFOR_RECORD_STATE',
+            // ],
         }
 
         // 子类型和主类型映射
@@ -176,19 +146,58 @@ export default defineComponent({
         )
 
         // 有录像回放的12个日志子类型
-        const REC_LOG_TYPES: string[] = [
+        const REC_LOG_TYPES: string[] = ['LOG_ALARM_MOTION', 'LOG_ALARM_INTELLIGENT', 'LOG_OPERATE_MANUAL_RECORD', 'LOG_INFOR_SCHEDULE_RECORD', 'LOG_INFOR_SCHEDULE_SNAP']
+
+        const LOG_ENUMS = [
+            'LOG_ALL',
+            'LOG_ALARM_ALL',
             'LOG_ALARM_MOTION',
             'LOG_ALARM_SENSOR',
+            'LOG_ALARM_INTELLIGENT',
+            'LOG_ALARM_FACE_MATCH',
+            'LOG_ALARM_VEHICLE_PLATE_MATCH',
+            'LOG_ALARM_ALARMOUTPUT',
+            'LOG_ALARM_OCCLUSION',
+            'LOG_OPERATE_ALL',
+            'LOG_OPERATE_RECORD_SPB',
             'LOG_OPERATE_MANUAL_RECORD',
-            'LOG_ALARM_OSC',
-            'LOG_ALARM_AVD',
-            'LOG_ALARM_PEA_TRIPWIRE',
-            'LOG_ALARM_PEA_PERIMETER',
-            'LOG_ALARM_VFD',
-            'LOG_ALARM_CDD',
-            'LOG_ALARM_FIRE_POINT',
-            'IDCS_TEMPERATURE_ALARM',
-            'LOG_ALARM_COMBINED',
+            'LOG_OPERATE_MANUAL_ALARM',
+            'LOG_OPERATE_SYSTEM_MAINTENANCE',
+            'LOG_OPERATE_PTZ_CONTROL',
+            'LOG_OPERATE_AUDIO_TALK',
+            'LOG_OPERATE_SYSTEM_SCR',
+            'LOG_OPERATE_LOGIN_LOGOUT',
+            'LOG_OPERATE_SNAPSHOT_MSPB',
+            'LOG_OPERATE_FORMAT_HD',
+            'LOG_OPERATE_FEATURELIBRARY',
+            'LOG_CONFIG_ALL',
+            'LOG_CONFIG_CHANNEL',
+            'LOG_CONFIG_RECORD',
+            'LOG_CONFIG_ALARM',
+            'LOG_CONFIG_DISK',
+            'LOG_CONFIG_NETWORK',
+            'LOG_CONFIG_SCHEDULE',
+            'LOG_CONFIG_USER',
+            'LOG_CONFIG_BASIC',
+            'LOG_EXCEPTION_ALL',
+            'LOG_EXCEPTION_UNLAWFUL_ACCESS',
+            'LOG_EXCEPTION_DISK_FULL',
+            'LOG_EXCEPTION_DISK_IO_ERROR',
+            'LOG_EXCEPTION_IP_COLLISION',
+            'LOG_EXCEPTION_INTERNET_DISCONNECT',
+            'LOG_EXCEPTION_IPC_DISCONNECT',
+            'LOG_EXCEPTION_ABNORMAL_SHUTDOWN',
+            'LOG_EXCEPTION_NO_DISK',
+            'LOG_EXCEPTION_DISK_FAILURE',
+            'LOG_INFOR_ALL',
+            'LOG_INFOR_SCHEDULE_RECORD',
+            'LOG_INFOR_SCHEDULE_SNAP',
+            'LOG_INFOR_NETWORK',
+            'LOG_INFOR_SYSTEM_BASE',
+            'LOG_INFOR_SYSTEM_RUN',
+            'LOG_INFOR_CHANNEL_STATE',
+            'LOG_INFOR_ALARM_STATE',
+            'LOG_INFOR_RECORD_STATE',
         ]
 
         // 导出最大间隔时间（单位：天）
@@ -201,16 +210,12 @@ export default defineComponent({
         // const totalCount = 0
         // 导出的最大条数
         const exportMaxCount = 2000
-        // const lang = $.webSession("lang_type");// 语言类型
-
-        // 日期格式
-        // const dateTimeFormat = ref('YYYY-MM-dd HH:mm:ss')
-        // 时间格式
-        // const timeFormat = ref('HH:mm:ss')
 
         const formData = ref(new SystemLogForm())
 
         const tableList = ref<SystemLogList[]>([])
+
+        const tableRef = ref<TableInstance>()
 
         const pageData = ref({
             // 日志主类型选项
@@ -218,8 +223,6 @@ export default defineComponent({
                 label: Translate(TRANS_MAPPING[item]),
                 value: item,
             })),
-            // 每页显示条数选项
-            pageSizes: [10, 20, 30],
             // 当前的日志总条数
             totalCount: 0,
             // 页面中的开始时间，校验无误再写进formData
@@ -234,11 +237,12 @@ export default defineComponent({
             isDetail: false,
             // 是否打开回放弹窗
             isRecord: false,
-            recordPlayList: [] as RecPlayList[],
+            recordPlayList: [] as PlaybackPopList[],
         })
 
         // 日志子类型选项
         const subTypeOptions = computed(() => {
+            console.log(LOG_TYPE_MAPPING)
             if (formData.value.type === 'LOG_ALL') {
                 return Object.values(LOG_TYPE_MAPPING)
                     .flat()
@@ -246,12 +250,15 @@ export default defineComponent({
                         name: Translate(TRANS_MAPPING[item]),
                         value: item,
                     }))
+                    .filter((item) => item.value !== 'LOG_OPERATE_MANUAL_ALARM') // NTA1-4404 手动报警、手动录像合并为手动，这里手动使用的id是手动录像，所以勾选手动时，还需加上“手动报警”
             }
             if (!LOG_TYPE_MAPPING[formData.value.type]) return []
-            return LOG_TYPE_MAPPING[formData.value.type].map((item) => ({
-                name: Translate(TRANS_MAPPING[item]),
-                value: item,
-            }))
+            return LOG_TYPE_MAPPING[formData.value.type]
+                .map((item) => ({
+                    name: Translate(TRANS_MAPPING[item]),
+                    value: item,
+                }))
+                .filter((item) => item.value !== 'LOG_OPERATE_MANUAL_ALARM') // NTA1-4404 手动报警、手动录像合并为手动，这里手动使用的id是手动录像，所以勾选手动时，还需加上“手动报警”
         })
 
         /**
@@ -285,15 +292,13 @@ export default defineComponent({
         /**
          * @description 获取时间格式化配置
          */
-        const getTimeConfig = async () => {
-            await dateTime.getTimeConfig()
-
+        const getTimeConfig = () => {
             formData.value.startTime = dayjs(new Date().setHours(-48, 0, 0, 0))
                 .calendar('gregory')
-                .format(dateTime.dateTimeFormat.value)
+                .format(DEFAULT_DATE_FORMAT)
             formData.value.endTime = dayjs(new Date().setHours(23, 59, 59, 0))
                 .calendar('gregory')
-                .format(dateTime.dateTimeFormat.value)
+                .format(DEFAULT_DATE_FORMAT)
 
             pageData.value.startTime = formData.value.startTime
             pageData.value.endTime = formData.value.endTime
@@ -305,93 +310,24 @@ export default defineComponent({
          */
         const getQueryXML = (isExport = false) => {
             const mainType = `<item>${wrapCDATA(formData.value.type)}</item>`
+            const subTypeOptions = [...formData.value.subType]
+            if (formData.value.subType.includes('LOG_OPERATE_MANUAL_RECORD')) {
+                subTypeOptions.push('LOG_OPERATE_MANUAL_ALARM')
+            }
             const subType = formData.value.subType.map((item) => `<item>${wrapCDATA(item)}</item>`).join('')
             const sendXML = rawXml`
-                ${!isExport ? `<pageIndex>${String(formData.value.currentPage)}</pageIndex>` : ''}
-                ${!isExport ? `<pageSize>${String(formData.value.pageSize)}</pageSize>` : ''}
+                ${!isExport ? `<pageIndex>${formData.value.currentPage}</pageIndex>` : ''}
+                ${!isExport ? `<pageSize>${formData.value.pageSize}</pageSize>` : ''}
                 <types>
-                    <logType>
-                        <enum>LOG_ALL</enum>
-                        <enum>LOG_ALARM_ALL</enum>
-                        <enum>LOG_ALARM_MOTION</enum>
-                        <enum>LOG_ALARM_SENSOR</enum>
-                        <enum>LOG_ALARM_FACE_MATCH</enum>
-                        <enum>LOG_ALARM_VEHICLE_PLATE_MATCH</enum>
-                        <enum>LOG_ALARM_ALARMOUTPUT</enum>
-                        <enum>LOG_ALARM_OSC</enum>
-                        <enum>LOG_ALARM_AVD</enum>
-                        <enum>LOG_ALARM_PEA_TRIPWIRE</enum>
-                        <enum>LOG_ALARM_PEA_PERIMETER</enum>
-                        <enum>LOG_ALARM_VFD</enum>
-                        <enum>LOG_ALARM_CDD</enum>
-                        <enum>LOG_ALARM_FIRE_POINT</enum>
-                        <enum>LOG_ALARM_TEMPERATURE</enum>
-                        <enum>LOG_ALARM_COMBINED</enum>
-                        <enum>LOG_ALARM_RTC</enum>
-                        <enum>LOG_OPERATE_ALL</enum>
-                        <enum>LOG_OPERATE_RECORD_SPB</enum>
-                        <enum>LOG_OPERATE_MANUAL_RECORD</enum>
-                        <enum>LOG_OPERATE_MANUAL_ALARM</enum>
-                        <enum>LOG_OPERATE_SYSTEM_MAINTENANCE</enum>
-                        <enum>LOG_OPERATE_PTZ_CONTROL</enum>
-                        <enum>LOG_OPERATE_AUDIO_TALK</enum>
-                        <enum>LOG_OPERATE_SYSTEM_SCR</enum>
-                        <enum>LOG_OPERATE_LOGIN_LOGOUT</enum>
-                        <enum>LOG_OPERATE_SNAPSHOT_MSPB</enum>
-                        <enum>LOG_OPERATE_FORMAT_HD</enum>
-                        <enum>LOG_OPERATE_FEATURELIBRARY</enum>
-                        <enum>LOG_OPERATE_PLATELIBRARY</enum>
-                        <enum>LOG_OPERATE_CHANNEL</enum>
-                        <enum>LOG_OPERATE_RECORD</enum>
-                        <enum>LOG_OPERATE_ALARM</enum>
-                        <enum>LOG_OPERATE_DISK</enum>
-                        <enum>LOG_OPERATE_NETWORK</enum>
-                        <enum>LOG_OPERATE_SCHEDULE</enum>
-                        <enum>LOG_OPERATE_USER</enum>
-                        <enum>LOG_OPERATE_BASIC</enum>
-                        <enum>LOG_OPERATE_ACCESS_CONTROL</enum>
-                        <enum>LOG_OPERATE_PARKINGLOT_CONFIG</enum>
-                        <enum>LOG_OPERATE_RECORD</enum>
-                        <enum>LOG_EXCEPTION_ALL</enum>
-                        <enum>LOG_EXCEPTION_UNLAWFUL_ACCESS</enum>
-                        <enum>LOG_EXCEPTION_DISK_FULL</enum>
-                        <enum>LOG_EXCEPTION_DISK_IO_ERROR</enum>
-                        <enum>LOG_EXCEPTION_IP_COLLISION</enum>
-                        <enum>LOG_EXCEPTION_INTERNET_DISCONNECT</enum>
-                        <enum>LOG_EXCEPTION_IPC_DISCONNECT</enum>
-                        <enum>LOG_EXCEPTION_ABNORMAL_SHUTDOWN</enum>
-                        <enum>LOG_EXCEPTION_NO_DISK</enum>
-                        <enum>LOG_EXCEPTION_HDD_PULL_OUT</enum>
-                        <enum>LOG_EXCEPTION_DISK_FAILURE</enum>
-                        <enum>LOG_EXCEPTION_ABNORMAL_RAID_SUBHEALTH</enum>
-                        <enum>LOG_EXCEPTION_ABNORMAL_RAID_UNAVAILABLE</enum>
-                        <enum>LOG_EXCEPTION_VIDEO_LOSS</enum>
-                        <enum>LOG_EXCEPTION_ABNORMAL_RAID_HOT_EXCEPTION</enum>
-                        <enum>LOG_EXCEPTION_NAT_TRAVERSAL_ABNORMAL</enum>
-                        <enum>LOG_EXCEPTION_ALARM_SERVER_OFFLINE</enum>
-                        <enum>LOG_EXCEPTION_SIGNAL_SHELTER</enum>
-                        <enum>LOG_EXCEPTION_DISCARD_EXTRACT_TASK</enum>
-                        <enum>LOG_EXCEPTION_UPGRADE_ERROR</enum>
-                        <enum>LOG_INFOR_ALL</enum>
-                        <enum>LOG_INFOR_SCHEDULE_RECORD</enum>
-                        <enum>LOG_INFOR_SCHEDULE_SNAP</enum>
-                        <enum>LOG_INFOR_DISK</enum>
-                        <enum>LOG_INFOR_NETWORK</enum>
-                        <enum>LOG_INFOR_SYSTEM_BASE</enum>
-                        <enum>LOG_INFOR_SYSTEM_RUN</enum>
-                        <enum>LOG_INFOR_CHANNEL_STATE</enum>
-                        <enum>LOG_INFOR_ALARM_STATE</enum>
-                        <enum>LOG_INFOR_RECORD_STATE</enum>
-                        <enum>LOG_INFORMATION_NAT</enum>
-                    </logType>
+                    <logType>${wrapEnums(LOG_ENUMS)}</logType>
                 </types>
                 <condition>
                     <logType type="list">
                         <itemType type="logType" />
                         ${formData.value.subType.length ? subType : mainType}
                     </logType>
-                    <startTime>${wrapCDATA(localToUtc(formData.value.startTime, dateTime.dateTimeFormat.value))}</startTime>
-                    <endTime>${wrapCDATA(localToUtc(formData.value.endTime, dateTime.dateTimeFormat.value))}</endTime>
+                    <startTime>${wrapCDATA(localToUtc(formData.value.startTime))}</startTime>
+                    <endTime>${wrapCDATA(localToUtc(formData.value.endTime))}</endTime>
                     <langId>${wrapCDATA(lang.langId)}</langId>
                     ${isExport ? `<exportMaxCount>${exportMaxCount}</exportMaxCount>` : ''}
                 </condition>
@@ -403,7 +339,7 @@ export default defineComponent({
          * @description 获取表格数据
          */
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             // 不是翻页时，才根据新的起始时间查询，确保不发生查询之后又修改起始时间导致的翻页问题和导出与查询结果不一致的问题
             if (!pageData.value.isUpadtePagination) {
@@ -412,41 +348,49 @@ export default defineComponent({
             }
 
             const result = await queryLog(getQueryXML(false))
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             commLoadResponseHandler(result, ($) => {
-                pageData.value.totalCount = Number($('/response/content').attr('total'))
+                pageData.value.totalCount = $('content').attr('total').num()
 
-                const data = $('/response/content/item').map((item, index) => {
+                tableList.value = $('content/item').map((item, index) => {
                     const $item = queryXml(item.element)
                     const clientType = $item('clientType').text()
                     const logType = $item('logType').text()
                     return {
-                        index: formData.value.pageSize * formData.value.currentPage + (index + 1),
+                        index: formData.value.pageSize * (formData.value.currentPage - 1) + (index + 1),
                         logType,
                         clientType,
-                        time: utcToLocal($item('time').text(), dateTime.dateTimeFormat.value),
+                        time: $item('time').text(), // ,
                         userName: $item('userName').text(),
                         subType: clientType + Translate(TRANS_MAPPING[logType]),
                         mainType: Translate(TRANS_MAPPING[SUB_MAIN_TYPE_MAPPING[logType]]),
                         content: $item('content').text(),
                         chl: {
-                            id: $item('chl').attr('id')!,
+                            id: $item('chl').attr('id'),
                             text: $item('chl').text(),
                         },
                         triggerRecChls: $('triggerRecChls/item').map((chl) => {
                             return {
-                                id: chl.attr('id')!,
+                                id: chl.attr('id'),
                                 text: chl.text(),
                             }
                         }),
+                        detailsExtra: $item('detailsExtra').text(),
+                        combFaceID: $item('combFaceID').text(),
+                        combTime: $item('combTime').text(),
+                        combFaceName: $item('combFaceName').text(),
+                        combChl: $item('combChl').text(),
                     }
                 })
-                tableList.value = data
                 if (pageData.value.activeTableIndex > tableList.value.length - 1) {
                     pageData.value.activeTableIndex = tableList.value.length - 1
                 }
             })
+        }
+
+        const displayTime = (time: string) => {
+            return utcToLocal(time, dateTime.dateTimeFormat)
         }
 
         /**
@@ -484,12 +428,8 @@ export default defineComponent({
          * @param {string} value
          */
         const changeStartTime = (value: string) => {
-            if (dayjs(value, dateTime.dateTimeFormat.value).isAfter(dayjs(pageData.value.endTime, dateTime.dateTimeFormat.value))) {
-                openMessageTipBox({
-                    type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
-                    message: Translate('IDCS_END_TIME_GREATER_THAN_START'),
-                })
+            if (dayjs(value, DEFAULT_DATE_FORMAT).isAfter(dayjs(pageData.value.endTime, DEFAULT_DATE_FORMAT))) {
+                openMessageBox(Translate('IDCS_END_TIME_GREATER_THAN_START'))
                 pageData.value.startTime = formData.value.startTime
                 return
             }
@@ -502,12 +442,8 @@ export default defineComponent({
          * @param {string} value
          */
         const changeEndTime = (value: string) => {
-            if (dayjs(value, dateTime.dateTimeFormat.value).isBefore(dayjs(pageData.value.startTime, dateTime.dateTimeFormat.value))) {
-                openMessageTipBox({
-                    type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
-                    message: Translate('IDCS_END_TIME_GREATER_THAN_START'),
-                })
+            if (dayjs(value, DEFAULT_DATE_FORMAT).isBefore(dayjs(pageData.value.startTime, DEFAULT_DATE_FORMAT))) {
+                openMessageBox(Translate('IDCS_END_TIME_GREATER_THAN_START'))
                 pageData.value.endTime = formData.value.endTime
                 return
             }
@@ -516,31 +452,12 @@ export default defineComponent({
         }
 
         /**
-         * @description 日历周末高亮
-         * @param {Date} date
-         */
-        const handleCalendarCellHighLight = (date: Date) => {
-            if (userSession.calendarType === 'Persian') {
-                return ''
-            }
-            const day = dayjs(date).day()
-            if (day === 0 || day === 6) {
-                return 'highlight'
-            }
-            return ''
-        }
-
-        /**
          * @description 导出数据
          */
         const handleExport = async () => {
-            // TODO 从导出逻辑上看，此处导出是用浏览器原生实现，与插件无关，不明白为何插件未安装或不可用时禁止导出
+            // 从导出逻辑上看，此处导出是用浏览器原生实现，与插件无关，不明白为何插件未安装或不可用时禁止导出
             // if (!Plugin.IsSupportH5() && !Plugin.IsInstallPlugin()) {
-            //     openMessageTipBox({
-            //         type: 'info',
-            //         title: Translate('IDCS_INFO_TIP'),
-            //         message: Plugin.pluginNoticeHtml.value,
-            //     })
+            //     openMessageBox(Plugin.pluginNoticeHtml.value)
             //     return
             // }
             // if (!Plugin.IsSupportH5() && !Plugin.IsPluginAvailable()) {
@@ -552,22 +469,17 @@ export default defineComponent({
             try {
                 const result = await exportLog(sendXML)
                 const $ = queryXml(result)
-                const content = $('/response/content').text()
+                const content = $('content').text()
 
                 download(new Blob([content]), 'log_' + dayjs(new Date()).format('YYYYMMDDHHmmss') + '.txt')
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
 
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_EXPORT_SUCCESS') + `(${Translate('IDCS_EXPORT_LOG_OVER_LIMIT_TIP')})`,
                 })
             } catch (e) {
-                openMessageTipBox({
-                    type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
-                    message: Translate('IDCS_EXPORT_FAIL'),
-                })
+                openMessageBox(Translate('IDCS_EXPORT_FAIL'))
             }
         }
 
@@ -587,6 +499,7 @@ export default defineComponent({
          */
         const changeLogDetail = (index: number) => {
             pageData.value.activeTableIndex = index
+            tableRef.value!.setCurrentRow(tableList.value[index])
         }
 
         /**
@@ -601,30 +514,15 @@ export default defineComponent({
          */
         const playRec = (row: SystemLogList) => {
             const eventList = ['MOTION', 'SCHEDULE', 'SENSOR', 'MANUAL', 'INTELLIGENT']
-            let time = row.time
-            if (userSession.calendarType === 'Persian') {
-                time = persianToGregory(time, dateTime.dateTimeFormat.value)
-            }
-            const startTime = dayjs(time, {
-                jalali: false,
-                format: dateTime.dateTimeFormat.value,
-            })
-                .subtract(preStartTime, 'millisecond')
-                .calendar('gregory')
-                .format('YYYY-MM-DD HH:mm:ss')
-            const endTime = dayjs(time, {
-                jalali: false,
-                format: dateTime.dateTimeFormat.value,
-            })
-                .add(recDuration, 'millisecond')
-                .subtract(preStartTime, 'millisecond')
-                .calendar('gregory')
-                .format('YYYY-MM-DD HH:mm:ss')
+            const time = row.time
 
-            let playList: RecPlayList[] = []
-            if (row.logType === 'LOG_ALARM_SENSOR' || row.logType === 'LOG_ALARM_COMBINED') {
+            const startTime = dayjs(time, DEFAULT_DATE_FORMAT).subtract(preStartTime, 'millisecond').valueOf()
+            const endTime = dayjs(time, DEFAULT_DATE_FORMAT).add(recDuration, 'millisecond').subtract(preStartTime, 'millisecond').valueOf()
+
+            let playList: PlaybackPopList[] = []
+            if (row.logType === 'LOG_ALARM_SENSOR' || row.logType === 'LOG_ALARM_COMBINATION') {
                 playList = row.triggerRecChls
-                    .filter((item) => item.id !== '{00000000-0000-0000-0000-000000000000}')
+                    .filter((item) => item.id !== DEFAULT_EMPTY_ID)
                     .map((item) => ({
                         chlId: item.id,
                         chlName: item.text,
@@ -633,7 +531,7 @@ export default defineComponent({
                         endTime,
                     }))
             } else {
-                if (row.chl.id !== '{00000000-0000-0000-0000-000000000000}') {
+                if (row.chl.id !== DEFAULT_EMPTY_ID) {
                     playList.push({
                         chlId: row.chl.id,
                         chlName: row.chl.text,
@@ -643,12 +541,9 @@ export default defineComponent({
                     })
                 }
             }
+
             if (!playList.length) {
-                openMessageTipBox({
-                    type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
-                    message: Translate('IDCS_NO_ASSOCIATE_CHANNEL_RECORD'),
-                })
+                openMessageBox(Translate('IDCS_CHANNEL_NOTEXIST'))
                 return
             }
 
@@ -671,32 +566,50 @@ export default defineComponent({
             if (REC_LOG_TYPES.includes(row.logType)) {
                 return true
             }
+
             if (row.triggerRecChls.length) {
                 return true
             }
             return false
         }
 
-        onMounted(async () => {
-            await systemCaps.updateCabability()
-            await getTimeConfig()
+        onMounted(() => {
+            getTimeConfig()
 
             if (!systemCaps.supportFaceMatch) {
                 filterLogType('LOG_ALARM_FACE_MATCH')
                 filterLogType('LOG_OPERATE_FEATURELIBRARY')
             }
+
             if (!systemCaps.supportPlateMatch) {
                 filterLogType('LOG_ALARM_VEHICLE_PLATE_MATCH')
                 filterLogType('LOG_OPERATE_PLATELIBRARY')
             }
+
             if (!systemCaps.supportAlarmServerConfig) {
                 filterLogType('LOG_EXCEPTION_ALARM_SERVER_OFFLINE')
             }
+
             if (systemCaps.ipChlMaxCount <= 0) {
                 filterLogType('LOG_EXCEPTION_IPC_DISCONNECT')
+                filterLogType('LOG_ALARM_INTELLIGENT')
+                filterLogType('LOG_EXCEPTION_VIDEO_LOSS')
             }
+
             if (systemCaps.analogChlCount <= 0) {
                 filterLogType('LOG_EXCEPTION_VIDEO_LOSS')
+            }
+
+            // NTA1-616 SSR产品不支持硬盘健康检测功能，隐藏磁盘故障
+            if (!systemCaps.supportHDHealth) {
+                filterLogType('LOG_EXCEPTION_DISK_FAILURE')
+            }
+
+            // NTA1-4021 非RAID机型，隐藏【阵列降级】、【阵列不可用】、【热备异常】
+            if (!systemCaps.supportRaid) {
+                filterLogType('LOG_EXCEPTION_RAID_SUBHEALTH')
+                filterLogType('LOG_EXCEPTION_RAID_UNAVAILABLE')
+                filterLogType('LOG_EXCEPTION_ABNORMAL_RAID_HOT_EXCEPTION')
             }
 
             formData.value.type = 'LOG_ALL'
@@ -704,8 +617,8 @@ export default defineComponent({
         })
 
         return {
-            dateTime,
             formData,
+            tableRef,
             tableList,
             pageData,
             subTypeOptions,
@@ -716,7 +629,6 @@ export default defineComponent({
             changePagination,
             changePaginationSize,
             handleExport,
-            handleCalendarCellHighLight,
             changeStartTime,
             changeEndTime,
             playRec,
@@ -724,9 +636,7 @@ export default defineComponent({
             handleChangeRow,
             changeLogDetail,
             closeLogDetail,
-            BaseImgSprite,
-            ViewLogDetailPop,
-            RecPop,
+            displayTime,
         }
     },
 })

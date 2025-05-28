@@ -2,25 +2,22 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-26 17:03:07
  * @Description: 现场预览-通道视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-30 10:29:57
  */
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
-import ChannelGroupAdd from '../channel/ChannelGroupAdd.vue'
-import { type LiveChannelList, type LiveChannelGroupList, type LiveChlOfChannelGroupList, type LiveCustomViewList, type LiveCustomViewChlList } from '@/types/apiType/live'
-import { ChlGroup } from '@/types/apiType/channel'
+import ChannelGroupAddPop from '../channel/ChannelGroupAddPop.vue'
 
 export interface ChannelPanelExpose {
     getOnlineChlList: () => string[]
     getOfflineChlList: () => string[]
     setOnlineChlList: (chls: string[]) => void
     getChlMap: () => Record<string, LiveChannelList>
+    switchChl: (split: number) => void
 }
 
 export default defineComponent({
     components: {
         ChannelGroupEditPop,
-        ChannelGroupAdd,
+        ChannelGroupAddPop,
     },
     props: {
         /**
@@ -29,14 +26,12 @@ export default defineComponent({
         mode: {
             type: String,
             required: true,
-            default: '',
         },
         /**
          * @property 播放类型
          */
         type: {
             type: String as PropType<'live' | 'record'>,
-            required: false,
             default: 'live',
         },
         /**
@@ -45,7 +40,6 @@ export default defineComponent({
         playingList: {
             type: Array as PropType<string[]>,
             required: true,
-            default: () => [],
         },
     },
     emits: {
@@ -64,11 +58,13 @@ export default defineComponent({
         custom(arr: LiveCustomViewChlList[], segNum: number) {
             return (arr.length || !arr.length) && !isNaN(segNum)
         },
+        trigger() {
+            return true
+        },
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const systemCaps = useCababilityStore()
 
         const pageData = ref({
             // 通道列表是否初始化完毕
@@ -97,7 +93,6 @@ export default defineComponent({
             cacheChlList: [] as LiveChannelList[],
             // 在线通道列表
             onlineChlList: [] as string[],
-            // chlList: [] as LiveChannelList[],
             // 输入的关键词
             chlKeyword: '',
             // 已确认，可用于过滤的关键词
@@ -115,13 +110,13 @@ export default defineComponent({
             // 自定义视图列表
             customViewList: [] as LiveCustomViewList[],
             // 当前hover的自定义视图
-            activeCustomView: 0,
+            activeCustomView: -1,
             // 打开新增通道组弹窗
             isAddChlGroup: false,
             // 打开编辑通道组弹窗
             isEditChlGroup: false,
             // 编辑数据
-            editChlGroup: new ChlGroup(),
+            editChlGroup: new ChannelGroupDto(),
             // 通道视图是否显示
             isOpen: true,
         })
@@ -147,6 +142,7 @@ export default defineComponent({
          */
         const changeChlMenu = (index: number) => {
             pageData.value.activeChlMenu = index
+            pageData.value.activeCustomView = -1
             if (index === 1 && !pageData.value.chlGroupList.length) {
                 getChlGroupList()
             } else if (index === 2 && !pageData.value.customViewList.length) {
@@ -159,27 +155,58 @@ export default defineComponent({
          */
         const getChlsList = async () => {
             const result = await getChlList({
-                nodeType: 'chls',
-                requireField: ['name', 'chlType', 'protocolType', 'supportPtz', 'supportPTZGroupTraceTask', 'supportAccessControl', 'supportTalkback'],
+                requireField: ['protocolType', 'supportPtz', 'supportIntegratedPtz', 'supportAZ', 'supportIris', 'supportPTZGroupTraceTask', 'supportAccessControl', 'supportWiper'],
             })
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                pageData.value.cacheChlList = $('/response/content/item').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.cacheChlList = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     const result = {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         value: $item('name').text(),
                         chlType: $item('chlType').text(),
                         protocolType: $item('chlType').text(),
-                        supportPtz: $item('supportPtz').text().toBoolean(),
-                        supportPTZGroupTraceTask: $item('supportPTZGroupTraceTask').text().toBoolean(),
-                        supportAccessControl: $item('supportAccessControl').text().toBoolean(),
-                        supportTalkback: $item('supportTalkback').text().toBoolean(),
+                        supportPtz: $item('supportPtz').text().bool(),
+                        supportPTZGroupTraceTask: $item('supportPTZGroupTraceTask').text().bool(),
+                        supportAccessControl: $item('supportAccessControl').text().bool(),
+                        supportTalkback: false, // $item('supportTalkback').text().bool(),
+                        supportAZ: $item('supportAZ').text().bool(),
+                        supportIris: $item('supportIris').text().bool(),
+                        // supportPtz: $("supportPtz").text().bool(),
+                        MinPtzCtrlSpeed: $item('supportPtz').attr('MinPtzCtrlSpeed').num(),
+                        MaxPtzCtrlSpeed: $item('supportPtz').attr('MaxPtzCtrlSpeed').num(),
+                        supportIntegratedPtz: $item('supportIntegratedPtz').text().bool(),
+                        supportWiper: $item('supportWiper').text().bool(),
+                        chlIp: '',
+                        poeSwitch: false,
                     }
                     if (item.attr('id')) {
-                        chlMap[item.attr('id')!] = result
+                        chlMap[item.attr('id')] = result
                     }
                     return result
+                })
+            }
+        }
+
+        /**
+         * @description 获取支持对讲的通道列表，并更新至通道列表
+         */
+        const getSupportTalkbackChlList = async () => {
+            const indexes = pageData.value.cacheChlList.map((item) => item.id)
+            const result = await getChlList({
+                isSupportTalkback: true,
+            })
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                $('content/item').forEach((item) => {
+                    const $item = queryXml(item.element)
+                    const id = item.attr('id')
+                    const chlType = $item('productModel').attr('factoryName')
+                    const index = indexes.indexOf(id)
+                    if (index > -1 && chlType !== 'Recorder') {
+                        pageData.value.cacheChlList[index].supportTalkback = true
+                        chlMap[id].supportTalkback = true
+                    }
                 })
             }
         }
@@ -198,10 +225,10 @@ export default defineComponent({
             const result = await queryOnlineChlList()
             const $ = queryXml(result)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 // 查询出所有在线的通道
-                pageData.value.onlineChlList = $('/response/content/item').map((item) => {
-                    return item.attr('id')!
+                pageData.value.onlineChlList = $('content/item').map((item) => {
+                    return item.attr('id')
                 })
             }
         }
@@ -210,9 +237,11 @@ export default defineComponent({
             if (prop.playingList.includes(id)) {
                 return 2
             }
+
             if (!pageData.value.onlineChlList.includes(id)) {
                 return 3
             }
+
             if (pageData.value.activeChl === id) {
                 return 1
             }
@@ -250,20 +279,24 @@ export default defineComponent({
             }
             pageData.value.chlConfirmKeyword = pageData.value.chlKeyword
             getChlTreeStatus()
+            ctx.emit('trigger')
         }
 
         /**
          * @description 刷新通道列表
          */
         const refreshChl = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             pageData.value.chlKeyword = ''
             await getChlsList()
+            await getSupportTalkbackChlList()
             await getChlTreeStatus()
             ctx.emit('refresh', chlMap)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
+
+            ctx.emit('trigger')
         }
 
         /**
@@ -275,23 +308,21 @@ export default defineComponent({
                     <name/>
                 </requireField>
             `
-            const result = await queryChlGroupList(getXmlWrapData(sendXml))
+            const result = await queryChlGroupList(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                pageData.value.chlGroupList = $('/response/content/item').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.chlGroupList = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         value: $item('name').text(),
-                        dwellTime: Number($item('dwellTime').text()),
+                        nameMaxByteLen: $('content/itemType/name').attr('maxByteLen').num() || nameByteMaxLen,
+                        dwellTime: $item('dwellTime').text().num(),
                     }
                 })
             } else {
-                if (Number($('/response/errorCode').text()) === ErrorCode.USER_ERROR_NO_AUTH) {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_NO_PERMISSION'),
-                    })
+                if ($('errorCode').text().num() === ErrorCode.USER_ERROR_NO_AUTH) {
+                    openMessageBox(Translate('IDCS_NO_PERMISSION'))
                 }
             }
         }
@@ -308,13 +339,13 @@ export default defineComponent({
                     <chlGroupId>${id}</chlGroupId>
                 </condition>
             `
-            const result = await queryChlGroup(getXmlWrapData(sendXml))
+            const result = await queryChlGroup(sendXml)
             const $ = queryXml(result)
 
-            if ($('/response/status').text() === 'success') {
-                pageData.value.chlListOfGroup = $('/response/content/chlList/item').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.chlListOfGroup = $('content/chlList/item').map((item) => {
                     return {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         value: item.text(),
                     }
                 })
@@ -329,6 +360,7 @@ export default defineComponent({
             if (!pageData.value.onlineChlList.includes(id)) {
                 return
             }
+            ctx.emit('trigger')
             ctx.emit('play', id)
         }
 
@@ -339,6 +371,7 @@ export default defineComponent({
          */
         const setWinFromChlGroup = async (id: string, dwellTime: number) => {
             await getChlListOfGroup(id)
+            ctx.emit('trigger')
             if (pageData.value.chlListOfGroup.length > 1) {
                 ctx.emit('polling', pageData.value.chlListOfGroup, id, dwellTime)
             } else {
@@ -351,6 +384,7 @@ export default defineComponent({
          * @param {string} id
          */
         const setWinFormChlOfGroup = (id: string) => {
+            ctx.emit('trigger')
             ctx.emit('play', id)
         }
 
@@ -377,6 +411,7 @@ export default defineComponent({
                 pageData.value.editChlGroup.id = find.id
                 pageData.value.editChlGroup.name = find.value
                 pageData.value.editChlGroup.dwellTime = find.dwellTime
+                pageData.value.editChlGroup.nameMaxByteLen = find.nameMaxByteLen
 
                 pageData.value.isEditChlGroup = true
             }
@@ -396,12 +431,11 @@ export default defineComponent({
             const id = pageData.value.activeChlGroup
             const findItem = pageData.value.chlGroupList.find((item) => item.id === id)
             if (findItem) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'question',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_DELETE_MP_GROUP_S').formatForLang(getShortString(findItem.value, 10)),
                 }).then(async () => {
-                    openLoading(LoadingTarget.FullScreen)
+                    openLoading()
                     const sendXml = rawXml`
                         <condition>
                             <chlGroupIds type="list">
@@ -409,19 +443,12 @@ export default defineComponent({
                             </chlGroupIds>
                         </condition>
                     `
-                    const result = await delChlGroup(getXmlWrapData(sendXml))
-                    const $ = queryXml(result)
-                    closeLoading(LoadingTarget.FullScreen)
-                    if ($('/response/status').text() === 'success') {
-                        openMessageTipBox({
-                            type: 'success',
-                            title: Translate('IDCS_SUCCESS_TIP'),
-                            message: Translate('IDCS_DELETE_SUCCESS'),
-                        }).then(() => {
-                            getChlGroupList()
-                            pageData.value.chlListOfGroup = []
-                        })
-                    }
+                    const result = await delChlGroup(sendXml)
+                    closeLoading()
+                    commDelResponseHandler(result, () => {
+                        getChlGroupList()
+                        pageData.value.chlListOfGroup = []
+                    })
                 })
             }
         }
@@ -439,7 +466,7 @@ export default defineComponent({
         const mousemoveChlGroupPosition = (event: MouseEvent) => {
             if (mousedown) {
                 const rect = chlGroupElement.value!.getBoundingClientRect()
-                const position = Math.max(20, Math.min(80, ((event.clientY - rect.top) / rect.height) * 100))
+                const position = clamp(((event.clientY - rect.top) / rect.height) * 100, 20, 80)
                 pageData.value.chlGroupHeight = `${position}%`
             }
         }
@@ -461,16 +488,16 @@ export default defineComponent({
             const result = await queryCustomerView()
             const $ = queryXml(result)
 
-            if ($('/response/status').text() === 'success') {
-                pageData.value.customViewList = $('/response/content/item').map((item, index) => {
+            if ($('status').text() === 'success') {
+                pageData.value.customViewList = $('content/item').map((item, index) => {
                     const $item = queryXml(item.element)
                     return {
                         chlArr: $item('chls/item').map((chl) => ({
-                            chlId: chl.attr('id')!,
-                            chlIndex: Number(chl.text()),
+                            chlId: chl.attr('id'),
+                            chlIndex: chl.text().num(),
                         })),
                         historyPlay: $item('historyPlay').text(),
-                        segNum: Number($item('segNum').text()),
+                        segNum: $item('segNum').text().num(),
                         value: $item('name').text(),
                         id: index,
                     }
@@ -485,13 +512,54 @@ export default defineComponent({
         const setWinFormCustomView = (item: LiveCustomViewList) => {
             pageData.value.activeCustomView = item.id
 
-            if (item.segNum > 4) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_SUPPORT_SEGMENTATION').formatForLang(item.segNum),
-                })
+            if ((prop.mode === 'h5' && item.segNum > 4) || (prop.mode === 'ocx' && item.segNum > systemCaps.previewMaxWin)) {
+                openMessageBox(Translate('IDCS_NO_SUPPORT_SEGMENTATION').formatForLang(item.segNum))
+                return
             }
+
             ctx.emit('custom', item.chlArr, item.segNum)
+        }
+
+        /**
+         * @description 获取设备IP和POE开关
+         */
+        const getDeviceList = async () => {
+            const sendXml = rawXml`
+                <requireField>
+                    <name/>
+                    <ip/>
+                </requireField>
+            `
+            const result = await queryDevList(sendXml)
+            const $ = queryXml(result)
+            $('content/item').forEach((item) => {
+                const $item = queryXml(item.element)
+                const id = item.attr('id')
+                if (chlMap[id]) {
+                    chlMap[id].poeSwitch = $item('addType').text() === 'poe'
+                    chlMap[id].chlIp = $item('ip').text()
+                }
+            })
+        }
+
+        /**
+         * @description 切换通道
+         * @param split
+         */
+        const switchChl = (split: number) => {
+            const onlineChl = chlList.value.filter((chl) => pageData.value.onlineChlList.includes(chl.id))
+            let lastIndex = Math.max(...prop.playingList.map((chlId) => onlineChl.findIndex((chl) => chl.id === chlId)))
+            if (lastIndex === onlineChl.length - 1) {
+                lastIndex = -1
+            }
+            ctx.emit(
+                'custom',
+                onlineChl.splice(lastIndex + 1, split).map((item, index) => ({
+                    chlId: item.id,
+                    chlIndex: index,
+                })),
+                split,
+            )
         }
 
         // const stopRefreshChlStatus = () => {
@@ -519,6 +587,10 @@ export default defineComponent({
 
         onMounted(async () => {
             await getChlsList()
+            await getSupportTalkbackChlList()
+            if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
+                await getDeviceList()
+            }
             await getChlTreeStatus()
             nextTick(() => {
                 pageData.value.ready = true
@@ -535,6 +607,7 @@ export default defineComponent({
             setOnlineChlList,
             getOfflineChlList,
             getChlMap,
+            switchChl,
         })
 
         return {
@@ -557,8 +630,6 @@ export default defineComponent({
             getChlIconStatus,
             chlGroupElement,
             mousedownChlGroupPosition,
-            ChannelGroupEditPop,
-            ChannelGroupAdd,
         }
     },
 })

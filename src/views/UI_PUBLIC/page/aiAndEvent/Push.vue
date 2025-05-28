@@ -1,65 +1,44 @@
 <!--
- * @Description: AI/事件——事件通知——推送
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-12 15:28:05
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-12 17:10:18
+ * @Description: AI/事件——事件通知——推送
 -->
 <template>
     <el-form
         ref="pushRef"
-        :model="pushFormData"
+        v-title
         class="stripe"
-        :style="{
-            '--form-input-width': '215px',
-        }"
-        label-position="left"
-        inline-message
     >
-        <div class="base-subheading-box">{{ Translate('IDCS_PUSH_MESSAGE') }}</div>
+        <div class="base-head-box">{{ Translate('IDCS_PUSH_MESSAGE') }}</div>
         <el-form-item>
-            <el-checkbox v-model="pushFormData.chkEnable">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
+            <el-checkbox
+                v-model="formData.chkEnable"
+                :label="Translate('IDCS_ENABLE')"
+            />
         </el-form-item>
-        <el-form-item
-            prop="popVideoDuration"
-            :label="Translate('IDCS_PUSH_SCHEDULE')"
-        >
-            <el-select
-                v-model="pushFormData.pushSchedule"
-                :disabled="!pushFormData.chkEnable"
-            >
-                <el-option
-                    v-for="item in pageData.scheduleOption"
-                    :key="item.value"
-                    :value="item.value"
-                    :label="item.label"
-                >
-                </el-option>
-            </el-select>
+        <el-form-item :label="Translate('IDCS_PUSH_SCHEDULE')">
+            <BaseScheduleSelect
+                v-model="formData.pushSchedule"
+                :options="pageData.scheduleOption"
+                :disabled="!formData.chkEnable"
+                @edit="pageData.isSchedulePop = true"
+            />
         </el-form-item>
         <div class="base-btn-box">
             <el-button
-                :disabled="!pushFormData.chkEnable"
-                @click="testMobile"
-                >{{ Translate('IDCS_TEST') }}</el-button
+                :disabled="!formData.chkEnable"
+                @click="testData"
             >
-            <el-button @click="pageData.scheduleManagPopOpen = true">{{ Translate('IDCS_SCHEDULE_MANAGE') }}</el-button>
+                {{ Translate('IDCS_TEST') }}
+            </el-button>
             <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
         </div>
     </el-form>
     <!-- 排程管理弹窗 -->
-    <ScheduleManagPop
-        v-model="pageData.scheduleManagPopOpen"
-        @close="pageData.scheduleManagPopOpen = false"
-    >
-    </ScheduleManagPop>
+    <BaseScheduleManagePop
+        v-model="pageData.isSchedulePop"
+        @close="closeSchedulePop"
+    />
 </template>
 
 <script lang="ts" src="./Push.v.ts"></script>
-
-<style scoped>
-.msgbox {
-    margin-top: 50px;
-    --form-input-width: 215px;
-}
-</style>

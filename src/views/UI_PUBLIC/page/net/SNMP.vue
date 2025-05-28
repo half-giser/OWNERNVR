@@ -2,39 +2,48 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-12 18:21:02
  * @Description: SNMP配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-16 19:46:22
 -->
 <template>
     <div>
         <el-form
             ref="formRef"
-            :style="{
-                '--form-input-width': '340px',
-            }"
-            inline-message
+            v-title
             class="stripe"
             :rules="formRule"
             :model="formData"
-            label-position="left"
         >
             <el-form-item>
-                <el-checkbox v-model="formData.snmpv1Switch">{{ Translate('IDCS_ENABLE_SNMP_V1') }}</el-checkbox>
+                <el-checkbox
+                    v-model="formData.snmpv1Switch"
+                    :label="Translate('IDCS_ENABLE_GROUP').formatForLang('SNMPv1')"
+                    :disabled="formData.snmpv3Switch"
+                    @change="changeSNMPV1Switch"
+                />
             </el-form-item>
             <el-form-item>
-                <el-checkbox v-model="formData.snmpv2Switch">{{ Translate('IDCS_ENABLE_SNMP_V2') }}</el-checkbox>
+                <el-checkbox
+                    v-model="formData.snmpv2Switch"
+                    :label="Translate('IDCS_ENABLE_GROUP').formatForLang('SNMPv2')"
+                    :disabled="formData.snmpv3Switch"
+                    @change="changeSNMPV2Switch"
+                />
+            </el-form-item>
+            <el-form-item>
+                <el-checkbox
+                    v-model="formData.snmpv3Switch"
+                    :label="Translate('IDCS_ENABLE_GROUP').formatForLang('SNMPv3')"
+                    @change="changeSNMPV3Switch"
+                />
             </el-form-item>
             <el-form-item
                 :label="Translate('IDCS_SNMP_PORT')"
                 prop="snmpPort"
             >
-                <el-input-number
+                <BaseNumberInput
                     v-model="formData.snmpPort"
-                    :disabled
-                    :controls="false"
+                    :disabled="!formData.snmpv1Switch && !formData.snmpv2Switch && !formData.snmpv3Switch"
                     :min="10"
                     :max="65535"
-                    value-on-clear="min"
                 />
             </el-form-item>
             <el-form-item
@@ -43,8 +52,10 @@
             >
                 <el-input
                     v-model="formData.readCommunity"
-                    :disabled
+                    :disabled="!formData.snmpv1Switch && !formData.snmpv2Switch"
                     maxlength="32"
+                    :formatter="formatCommunity"
+                    :parser="formatCommunity"
                 />
             </el-form-item>
             <el-form-item
@@ -53,8 +64,10 @@
             >
                 <el-input
                     v-model="formData.writeCommunity"
-                    :disabled
+                    :disabled="!formData.snmpv1Switch && !formData.snmpv2Switch"
                     maxlength="32"
+                    :formatter="formatCommunity"
+                    :parser="formatCommunity"
                 />
             </el-form-item>
             <el-form-item
@@ -62,8 +75,8 @@
                 prop="trapAddress"
             >
                 <BaseIpInput
-                    v-model:value="formData.trapAddress"
-                    :disable="disabled"
+                    v-model="formData.trapAddress"
+                    :disabled="!formData.snmpv1Switch && !formData.snmpv2Switch && !formData.snmpv3Switch"
                     invalidate-mode="REPLACE"
                     @change="formRef?.validateField('trapAddress')"
                 />
@@ -72,13 +85,79 @@
                 :label="Translate('IDCS_TRAP_PORT')"
                 prop="trapPort"
             >
-                <el-input-number
+                <BaseNumberInput
                     v-model="formData.trapPort"
-                    :disabled
-                    :controls="false"
+                    :disabled="!formData.snmpv1Switch && !formData.snmpv2Switch && !formData.snmpv3Switch"
                     :min="10"
                     :max="65535"
-                    value-on-clear="min"
+                />
+            </el-form-item>
+            <el-form-item
+                :label="Translate('IDCS_USERNAME')"
+                prop="username"
+            >
+                <el-input
+                    v-model="formData.username"
+                    maxlength="32"
+                    :disabled="!formData.snmpv3Switch"
+                    :formatter="formatUserName"
+                    :parser="formatUserName"
+                />
+            </el-form-item>
+            <el-form-item :label="Translate('IDCS_SECURITY_LEVEL')">
+                <el-select-v2
+                    v-model="formData.securityLevel"
+                    :options="pageData.securityLevelOptions"
+                    :disabled="!formData.snmpv3Switch"
+                    @change="changeSecurityLevel"
+                />
+            </el-form-item>
+            <el-form-item :label="Translate('IDCS_AUTH_TYPE')">
+                <el-select-v2
+                    v-model="formData.authType"
+                    :options="pageData.authTypeOptions"
+                    :disabled="!formData.snmpv3Switch || formData.securityLevel === 0"
+                />
+            </el-form-item>
+            <el-form-item>
+                <template #label>
+                    <div class="base-label-box">
+                        <div>{{ Translate('IDCS_AUTH_PASSWD') }}</div>
+                        <el-checkbox
+                            v-model="pageData.authPassword"
+                            :disabled="!formData.snmpv3Switch || formData.securityLevel === 0"
+                            @change="changeAuthPasswordSwitch"
+                        />
+                    </div>
+                </template>
+                <BasePasswordInput
+                    v-model="formData.authPassword"
+                    maxlength="32"
+                    :disabled="!formData.snmpv3Switch || !pageData.authPassword || formData.securityLevel === 0"
+                />
+            </el-form-item>
+            <el-form-item :label="Translate('IDCS_PRIVACY_TYPE')">
+                <el-select-v2
+                    v-model="formData.privType"
+                    :options="pageData.privTypeOptions"
+                    :disabled="!formData.snmpv3Switch || formData.securityLevel !== 2"
+                />
+            </el-form-item>
+            <el-form-item>
+                <template #label>
+                    <div class="base-label-box">
+                        <span>{{ Translate('IDCS_PRIVACY_PASSWD') }}</span>
+                        <el-checkbox
+                            v-model="pageData.privPassword"
+                            :disabled="!formData.snmpv3Switch || formData.securityLevel !== 2"
+                            @change="changePrivPasswordSwitch"
+                        />
+                    </div>
+                </template>
+                <BasePasswordInput
+                    v-model="formData.privPassword"
+                    maxlength="32"
+                    :disabled="!formData.snmpv3Switch || !pageData.privPassword || formData.securityLevel !== 2"
                 />
             </el-form-item>
             <div class="base-btn-box">

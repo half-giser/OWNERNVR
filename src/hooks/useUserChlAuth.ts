@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-07 09:15:58
  * @Description: 用户通道权限
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-07 09:21:19
  */
 export class UserChlAuth {
     // 是否拥有全部权限
@@ -11,18 +9,22 @@ export class UserChlAuth {
     // 通道能力和权限的映射，每种能力下的数据格式：key-通道ID, value-布尔值
     accessControl = false
     // 云台
-    ptz = {} as Record<string, boolean>
+    ptz: Record<string, boolean> = {}
     // 音频
-    audio = {} as Record<string, boolean>
+    audio: Record<string, boolean> = {}
     // 搜索和回放
-    spr = {} as Record<string, boolean>
+    spr: Record<string, boolean> = {}
     // 预览
-    lp = {} as Record<string, boolean>
+    lp: Record<string, boolean> = {}
+    // 备份
+    bk: Record<string, boolean> = {}
+    // 通道权限映射
+    chlAuthMapping: Record<string, Record<string, boolean>> = {}
 
-    bk = {} as Record<string, boolean>
+    update: () => Promise<void> = () => Promise.resolve()
 }
 
-export const useUserChlAuth = () => {
+export const useUserChlAuth = (immediate = true) => {
     const auth = ref(new UserChlAuth())
     const userSession = useUserSessionStore()
 
@@ -33,36 +35,46 @@ export const useUserChlAuth = () => {
         if (!userSession.authEffective) {
             auth.value.hasAll = true
         }
+
         if (!userSession.authGroupId) {
             auth.value.hasAll = true
             return
         }
+
         const sendXml = rawXml`
-            <condition>
-                <authGroupId>${userSession.authGroupId}</authGroupId>
-            </condition>
+            <authGroupId>${userSession.authGroupId}</authGroupId>
             <requireField>
                 <chlAuth/>
                 <systemAuth/>
             </requireField>
         `
-        const result = await queryAuthGroup(sendXml)
+        const result = await queryMyAuth(sendXml)
         const $ = queryXml(result)
 
-        $('/response/content/chlAuth/item').forEach((item) => {
+        $('content/chlAuth/item').forEach((item) => {
             const $item = queryXml(item.element)
-            const id = item.attr('id')!
-            auth.value.ptz[id] = $item('auth').text().includes('@ptz')
-            auth.value.audio[id] = $item('auth').text().includes('@ad')
-            auth.value.spr[id] = $item('auth').text().includes('@spr')
-            auth.value.bk[id] = $item('auth').text().includes('@bk')
-            auth.value.lp[id] = $item('auth').text().includes('@lp')
+            const id = item.attr('id')
+            const text = $item('auth').text()
+            auth.value.ptz[id] = text.includes('@ptz')
+            auth.value.audio[id] = text.includes('@ad')
+            auth.value.spr[id] = text.includes('@spr')
+            auth.value.bk[id] = text.includes('@bk')
+            auth.value.lp[id] = text.includes('@lp')
+            auth.value.chlAuthMapping[id.toUpperCase()] = {
+                '@ad': auth.value.audio[id],
+                '@spr': auth.value.spr[id],
+                '@bk': auth.value.bk[id],
+            }
         })
-        auth.value.accessControl = $('/response/content/systemAuth/AccessControlMgr').text().toBoolean()
+        auth.value.accessControl = $('content/systemAuth/AccessControlMgr').text().bool()
     }
 
+    auth.value.update = getAuth
+
     onMounted(() => {
-        getAuth()
+        if (immediate) {
+            getAuth()
+        }
     })
 
     return auth

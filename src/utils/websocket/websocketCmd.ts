@@ -2,45 +2,18 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-30 10:25:04
  * @Description: websocket命令生成工具
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-06 16:56:44
  */
-import { ENV_MODE, APP_SERVER_IP } from '../constants'
-import { useUserSessionStore } from '@/stores/userSession'
-import { getNonce } from '../encrypt'
 
 /**
- * 获取websocket握手url
+ * @description 获取websocket握手url
  */
 export const getWebsocketOpenUrl = () => {
-    const host = window.location.host
-    const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
     const userSession = useUserSessionStore()
-    console.log(ENV_MODE === 'production')
-    if (ENV_MODE === 'production') {
-        // 正式环境
-        return `${wsProtocol}://${host}/requestWebsocketConnection?sessionID=${userSession.sessionId}`
-    } else {
-        // 调试模式
-        return `ws://${APP_SERVER_IP}/requestWebsocketConnection?sessionID=${userSession.sessionId}`
-    }
-}
-
-/**
- * 生成16进制字符随机guid, 格式: {00000000-0000-0000-0000-000000000000}
- */
-export const getRandomGUID = () => {
-    const str = '0123456789abcdef'
-    const temp = '00000000-0000-0000-0000-000000000000'
-    let ret = ''
-    for (let i = 0; i < temp.length; i++) {
-        if (temp[i] === '-') {
-            ret += '-'
-            continue
-        }
-        ret += str[Math.floor(Math.random() * str.length)]
-    }
-    return `{${ret}}`
+    const localHost = window.location.host + import.meta.env.VITE_BASE_URL // import.meta.env.PROD ? window.location.host : import.meta.env.VITE_APP_IP
+    const host = userSession.appType === 'STANDARD' ? localHost : 'virtualWebsocket'
+    const protocol = window.location.protocol
+    const wsProtocol = protocol === 'http:' ? 'ws' : 'wss'
+    return wsProtocol + '://' + host + 'requestWebsocketConnection'
 }
 
 // 回放事件类型全集
@@ -66,42 +39,47 @@ export const REC_EVENT_TYPES = [
     'ipd',
     'smart_aoi_entry',
     'smart_aoi_leave',
-    'smart_pass_line',
+    'threshold',
     'smart_plate_verity',
     'smart_fire_point',
     'smart_temperature',
+    'asd',
+    'pvd',
     'SMDHuman',
     'SMDVehicle',
+    'crowd_gather',
+    'loitering',
+    'reid',
+    'target_human',
+    'target_vehicle',
+    'target_non_motor_vehicle',
 ]
 
 /**
- * 生成basic数据
+ * @description 生成basic数据
  */
 export const getBasic = () => {
-    // TODO 原项目中 id = $.webSession('requestBasicId') * 1
-    const id = 0
+    const requestBasicId = sessionStorage.getItem(LocalCacheKey.KEY_REQUEST_BASIC_ID)
+    const id = requestBasicId ? Number(requestBasicId) : 0
     const newId = id && id < Number.MAX_SAFE_INTEGER ? id + 1 : 1
     return {
         ver: '1.0',
-        time: new Date().getTime(),
+        time: Date.now(),
         id: newId,
         nonce: getNonce(),
     }
 }
 
-/**
- * 启动现场预览
- * @param {CmdPreviewOption} option
- * @property {String} chlID 通道id
- * @property {Number} streamType 码流类型 1主码流 2辅码流 3子码流
- * @property {Boolean} audio 是否携带音频
- */
 export interface CmdPreviewOption {
-    chlID: string
-    streamType: number
-    audio: boolean
+    chlID: string // 通道id
+    streamType: number // 码流类型 1主码流 2辅码流 3子码流
+    audio: boolean // 是否携带音频
 }
 
+/**
+ * @description 启动现场预览
+ * @param {CmdPreviewOption} option
+ */
 export const CMD_PREVIEW = (option: CmdPreviewOption) => ({
     url: '/device/preview/open',
     basic: getBasic(),
@@ -114,7 +92,7 @@ export const CMD_PREVIEW = (option: CmdPreviewOption) => ({
 })
 
 /**
- * 关闭现场预览
+ * @description 关闭现场预览
  * @param {String} task_id 对应预览下发的guid
  */
 export const CMD_STOP_PREVIEW = (task_id: string) => ({
@@ -126,7 +104,7 @@ export const CMD_STOP_PREVIEW = (task_id: string) => ({
 })
 
 /**
- * 现场预览打开音频
+ * @description 现场预览打开音频
  * @param {String} task_id 对应预览下发的guid
  */
 export const CMD_PREVIEW_AUDIO_OPEN = (task_id: string) => ({
@@ -138,7 +116,7 @@ export const CMD_PREVIEW_AUDIO_OPEN = (task_id: string) => ({
 })
 
 /**
- * 现场预览关闭音频
+ * @description 现场预览关闭音频
  * @param {String} task_id 对应预览下发的guid
  */
 export const CMD_PREVIEW_AUDIO_CLOSE = (task_id: string) => ({
@@ -149,27 +127,20 @@ export const CMD_PREVIEW_AUDIO_CLOSE = (task_id: string) => ({
     },
 })
 
-/**
- * 启动回放
- * @param {Object} option
- *      @property {String} chlID 通道id
- *      @property {Number} startTime 回放开始时间戳（秒）
- *      @property {Number} endTime 回放结束时间戳（秒）
- *      @property {Number} streamType 码流类型 0主码流 1子码流
- *      @property {Array} typeMask 录像事件类型
- *      @property {Boolean} backupVideo 是否为备份视频，默认否
- *      @property {Boolean} backupAudio 是否为备份音频，默认否
- */
 export interface CmdPlaybackOpenOption {
-    chlID: string
-    startTime: number
-    endTime: number
-    streamType: number
-    typeMask?: string[]
-    backupVideo: boolean
-    backupAudio: boolean
+    chlID: string // 通道id
+    startTime: number // 回放开始时间戳（秒）
+    endTime: number // 回放结束时间戳（秒）
+    streamType: number // 码流类型 0主码流 1子码流
+    typeMask?: string[] // 录像事件类型
+    backupVideo: boolean // 是否为备份视频，默认否
+    backupAudio: boolean // 是否为备份音频，默认否
 }
 
+/**
+ * @description 启动回放
+ * @param {CmdPlaybackOpenOption} option
+ */
 export const CMD_PLAYBACK_OPEN = (option: CmdPlaybackOpenOption) => ({
     url: '/device/playback/open',
     basic: getBasic(),
@@ -186,7 +157,7 @@ export const CMD_PLAYBACK_OPEN = (option: CmdPlaybackOpenOption) => ({
 })
 
 /**
- * 刷新回放帧索引
+ * @description 刷新回放帧索引
  * @param {String} task_id 对应启动回放时下发的guid
  * @param {Number} play_frame_index 帧索引
  */
@@ -200,7 +171,7 @@ export const CMD_PLAYBACK_REFRESH_FRAME_INDEX = (task_id: string, play_frame_ind
 })
 
 /**
- * seek跳转回放
+ * @description seek跳转回放
  * @param {String} task_id 对应启动回放时下发的guid
  * @param {String} frame_time 跳转的目标时间点：毫秒时间戳
  */
@@ -214,7 +185,7 @@ export const CMD_PLAYBACK_SEEK = (task_id: string, frame_time: string) => ({
 })
 
 /**
- * 启用关键帧回放
+ * @description 启用关键帧回放
  * @param {String} task_id 对应启动回放时下发的guid
  * @param {String} frame_time 启用时间点：毫秒时间戳
  */
@@ -228,7 +199,7 @@ export const CMD_PLAYBACK_KEY_FRAME = (task_id: string, frame_time: string) => (
 })
 
 /**
- * 恢复全帧回放
+ * @description 恢复全帧回放
  * @param {String} guid 对应启动回放时下发的guid
  * @param {String} frameTime 启用时间点：毫秒时间戳
  */
@@ -242,7 +213,7 @@ export const CMD_PLAYBACK_ALL_FRAME = (task_id: string, frame_time: string) => (
 })
 
 /**
- * 回放打开音频
+ * @description 回放打开音频
  * @param {String} task_id 对应预览下发的guid
  */
 export const CMD_PLAYBACK_AUDIO_OPEN = (task_id: string) => ({
@@ -254,7 +225,7 @@ export const CMD_PLAYBACK_AUDIO_OPEN = (task_id: string) => ({
 })
 
 /**
- * 回放关闭音频
+ * @description 回放关闭音频
  * @param {String} guid 对应预览下发的guid
  */
 export const CMD_PLAYBACK_AUDIO_CLOSE = (task_id: string) => ({
@@ -266,7 +237,7 @@ export const CMD_PLAYBACK_AUDIO_CLOSE = (task_id: string) => ({
 })
 
 /**
- * 关闭回放
+ * @description 关闭回放
  * @param {String} guid 对应启动回放时下发的guid
  */
 export const CMD_PLAYBACK_CLOSE = (task_id: string) => ({
@@ -277,27 +248,16 @@ export const CMD_PLAYBACK_CLOSE = (task_id: string) => ({
     },
 })
 
-/**
- * 上传文件请求
- * @param {Object} config
- *      @param {String} file_id 文件类型 config_file/cert_file/upgrade_file
- *      @param {Number} size 文件字节长度
- *      @param {String} sign_method 签名方法 SHA256/MD5
- *      @param {Object} param 配置参数
- *          @param {String} user_name 用户名 (file_id为cert_file不需要)
- *          @param {String} token token (file_id为cert_file不需要)
- *          @param {String} upgrade_head_info 升级文件前4096个字节的base64  (仅file_id为upgrade_file时需要)
- */
 export interface CmdUploadFileOpenOption {
-    file_id: string
-    size: number
-    sign_method: string
+    file_id: string // 文件类型 config_file/cert_file/upgrade_file
+    size: number // 文件字节长度
+    sign_method: string // 签名方法 SHA256/MD5
     param: {
-        user_name?: string
+        user_name?: string // 用户名 (file_id为cert_file不需要
         password?: string
         secPassword?: string
-        token?: string
-        upgrade_head_info?: string
+        token?: string // token (file_id为cert_file不需要)
+        upgrade_head_info?: string // 升级文件前4096个字节的base64  (仅file_id为upgrade_file时需要)
         ipc_ids?: string[]
         security_ver?: number
         phrase?: string
@@ -305,6 +265,10 @@ export interface CmdUploadFileOpenOption {
     checkversion?: boolean
 }
 
+/**
+ * @description 上传文件请求
+ * @param {CmdUploadFileOpenOption} config
+ */
 export const CMD_UPLOAD_FILE_OPEN = (data: CmdUploadFileOpenOption) => ({
     url: '/device/file/upload/start',
     basic: getBasic(),
@@ -312,7 +276,7 @@ export const CMD_UPLOAD_FILE_OPEN = (data: CmdUploadFileOpenOption) => ({
 })
 
 /**
- * 上传文件数据
+ * @description 上传文件数据
  * @param {Number} index 文件下标
  * @param {Object} str 文件buffer
  */
@@ -325,29 +289,24 @@ export const CMD_UPLOAD_FILE_HEADER = (index: number, upload_file_data: string) 
     },
 })
 
-/**
- * 停止上传文件
- * @param {String} reason 结束上传的原因:
- * @param {String} sign 文件签名 (可选参数 文件上传完成时带上)
- *      finished:上传完成，开始执行对应上传文件类型的后续操作
- *      break:直接结束上传任务
- */
 interface CmdUploadFileCloseOption {
     reason: string
     sign?: string
 }
 
+/**
+ * @description 停止上传文件
+ * @param {String} reason 结束上传的原因:
+ * @param {String} sign 文件签名 (可选参数 文件上传完成时带上)
+ *      finished:上传完成，开始执行对应上传文件类型的后续操作
+ *      break:直接结束上传任务
+ */
 export const CMD_UPLOAD_FILE_CLOSE = (data: CmdUploadFileCloseOption) => ({
     url: '/device/file/upload/stop',
     basic: getBasic(),
     data,
 })
 
-/**
- * 下载文件请求
- * @param {Object} option
- *      @param {String} config 下载配置参数
- */
 export interface CmdDownloadFileOpenOption {
     config?: string
     file_id?: string
@@ -359,6 +318,10 @@ export interface CmdDownloadFileOpenOption {
     }
 }
 
+/**
+ * @description 下载文件请求
+ * @param {CmdDownloadFileOpenOption} data
+ */
 export const CMD_DOWNLOAD_FILE_OPEN = (data: CmdDownloadFileOpenOption) => ({
     url: '/device/file/download/start',
     basic: getBasic(),
@@ -366,7 +329,7 @@ export const CMD_DOWNLOAD_FILE_OPEN = (data: CmdDownloadFileOpenOption) => ({
 })
 
 /**
- * 停止下载文件
+ * @description 停止下载文件
  */
 export const CMD_DOWNLOAD_FILE_CLOSE = () => ({
     url: '/device/file/download/stop',
@@ -375,7 +338,7 @@ export const CMD_DOWNLOAD_FILE_CLOSE = () => ({
 })
 
 /**
- * 确认下载帧
+ * @description 确认下载帧
  */
 export const CMD_DOWNLOAD_CONFIRM_STEP = (index: number) => ({
     url: '/device/file/download/step#response',
@@ -386,7 +349,7 @@ export const CMD_DOWNLOAD_CONFIRM_STEP = (index: number) => ({
 })
 
 /**
- * 智能图片流订阅
+ * @description 智能图片流订阅
  */
 export const CMD_REALTIME_SNAP_SUBSCRIBE = (config: any) => ({
     url: '/device/real_image/subscribe',
@@ -395,7 +358,7 @@ export const CMD_REALTIME_SNAP_SUBSCRIBE = (config: any) => ({
 })
 
 /**
- * 取消智能图片流订阅
+ * @description 取消智能图片流订阅
  */
 export const CMD_REALTIME_SNAP_UNSUBSCRIBE = () => ({
     url: '/device/real_image/unsubscribe',
@@ -404,9 +367,8 @@ export const CMD_REALTIME_SNAP_UNSUBSCRIBE = () => ({
 })
 
 /**
- * 状态信息订阅
+ * @description 状态信息订阅
  */
-// TODO 参数类型待确认
 export interface CmdStateInfoSubscribeOption {
     channel_state_info?: boolean
     alarm_state_info?: boolean
@@ -420,7 +382,7 @@ export const CMD_STATE_INFO_SUBSCRIBE = (data: CmdStateInfoSubscribeOption) => (
 })
 
 /**
- * 取消状态信息订阅
+ * @description 取消状态信息订阅
  */
 export const CMD_STATE_INFO_UNSUBSCRIBE = () => ({
     url: '/device/state_info/unsubscribe',
@@ -429,7 +391,7 @@ export const CMD_STATE_INFO_UNSUBSCRIBE = () => ({
 })
 
 /**
- * 启动样本库-人脸库导出
+ * @description 启动样本库-人脸库导出
  */
 export const CMD_FACELIB_EXPORT_START = (group_ids: string[] = []) => ({
     url: '/device/facelib/export/start',
@@ -441,7 +403,8 @@ export const CMD_FACELIB_EXPORT_START = (group_ids: string[] = []) => ({
 })
 
 /**
- * 停止样本库-人脸库导出
+ * @description 停止样本库-人脸库导出
+ * @param {string} task_id
  */
 export const CMD_FACELIB_EXPORT_STOP = (task_id: string) => ({
     url: '/device/facelib/export/stop',
@@ -452,7 +415,9 @@ export const CMD_FACELIB_EXPORT_STOP = (task_id: string) => ({
 })
 
 /**
- * 刷新样本库-人脸库数据索引
+ * @description 刷新样本库-人脸库数据索引
+ * @param {number} index
+ * @param {string} task_id
  */
 export const CMD_FACELIB_EXPORT_REFRESH_INDEX = (index: number, task_id: string) => ({
     url: '/device/facelib/export/refresh_index',
@@ -464,7 +429,8 @@ export const CMD_FACELIB_EXPORT_REFRESH_INDEX = (index: number, task_id: string)
 })
 
 /**
- * 启动样本库-车牌库导出
+ * @description 启动样本库-车牌库导出
+ * @param {string[]} group_ids
  */
 export const CMD_PLATELIB_EXPORT_START = (group_ids: string[] = []) => ({
     url: '/device/platelib/export/start',
@@ -476,7 +442,8 @@ export const CMD_PLATELIB_EXPORT_START = (group_ids: string[] = []) => ({
 })
 
 /**
- * 停止样本库-车牌库导出
+ * @description 停止样本库-车牌库导出
+ * @param {string} task_id
  */
 export const CMD_PLATELIB_EXPORT_STOP = (task_id: string) => ({
     url: '/device/platelib/export/stop',
@@ -487,7 +454,8 @@ export const CMD_PLATELIB_EXPORT_STOP = (task_id: string) => ({
 })
 
 /**
- * 样本库导出-回复确认
+ * @description 样本库导出-回复确认
+ * @param {string} task_id
  */
 export const CMD_PLATELIB_EXPORT_CONFIRM_STEP = (task_id: string) => ({
     url: '/device/platelib/export/data#response',
@@ -498,21 +466,31 @@ export const CMD_PLATELIB_EXPORT_CONFIRM_STEP = (task_id: string) => ({
 })
 
 /**
- * 启动样本库-车牌库导入
+ * @description 启动样本库-车牌库导入
  */
-export const CMD_PLATELIB_IMPORT_START = () => ({
+export const CMD_PLATELIB_IMPORT_START = (totalNum: number) => ({
     url: '/device/platelib/import/start',
     basic: getBasic(),
     data: {
         task_id: getRandomGUID(),
+        task_total: totalNum,
     },
 })
 
+export interface CmdPlateLibImportDataList {
+    vehicle_plate_group_id: string
+    plate_number: string
+    owner: string
+    owner_phone: string
+    vehicle_type: string
+}
+
 /**
- * 启动样本库-车牌库导入数据
+ * @description 启动样本库-车牌库导入数据
+ * @param {string} task_id
+ * @param {string[]} plate_data
  */
-// TODO: plate_data类型待确认
-export const CMD_PLATELIB_IMPORT_DATA = (task_id: string, plate_data: string[]) => ({
+export const CMD_PLATELIB_IMPORT_DATA = (task_id: string, plate_data: CmdPlateLibImportDataList[]) => ({
     url: '/device/platelib/import/data',
     basic: getBasic(),
     data: {
@@ -522,7 +500,7 @@ export const CMD_PLATELIB_IMPORT_DATA = (task_id: string, plate_data: string[]) 
 })
 
 /**
- * 停止样本库-车牌库导入
+ * @description 停止样本库-车牌库导入
  */
 export const CMD_PLATELIB_IMPORT_STOP = (task_id: string) => ({
     url: '/device/platelib/import/stop',
@@ -532,21 +510,17 @@ export const CMD_PLATELIB_IMPORT_STOP = (task_id: string) => ({
     },
 })
 
-/**
- * 请求通道关键帧
- * @param {Object} option
- *  @property {String} chlId: 通道id
- *  @property {Number} startTime: 开始时间戳（秒）
- *  @property {Number} endTime: 结束时间戳（秒）
- *  @property {Number} frameNum: 切片数量
- */
 export interface CmdKeyframeStartOption {
-    chlId: string
-    startTime: number
-    endTime: number
-    frameNum: number
+    chlId: string // 通道id
+    startTime: number // 开始时间戳（秒）
+    endTime: number // 结束时间戳（秒）
+    frameNum: number // 切片数量
 }
 
+/**
+ * @description 请求通道关键帧
+ * @param {CmdKeyframeStartOption} option
+ */
 export const CMD_KEYFRAME_START = (option: CmdKeyframeStartOption) => ({
     url: '/device/search/key/frame/start',
     basic: getBasic(),
@@ -560,7 +534,8 @@ export const CMD_KEYFRAME_START = (option: CmdKeyframeStartOption) => ({
 })
 
 /**
- * 停止请求通道关键帧任务
+ * @description 停止请求通道关键帧任务
+ * @param {string} task_id
  */
 export const CMD_KEYFRAME_STOP = (task_id: string) => ({
     url: '/device/search/key/frame/stop',

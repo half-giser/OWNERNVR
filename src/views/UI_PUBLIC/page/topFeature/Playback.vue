@@ -2,20 +2,20 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-09 18:39:25
  * @Description: 回放
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 15:29:05
 -->
 <template>
     <div class="playback">
         <PlaybackChannelPanel
+            ref="chlRef"
             :mode="mode"
             @search="handleChlSearch"
             @change="handleChlChange"
             @play="handleChlPlay"
+            @trigger="clearTargetDetect"
         >
             <PlaybackEventPanel
-                :smd-rec-log-play="pageData.smdRecLogPlay"
                 @change="changeEvent"
+                @ready="getAllEventList"
             />
         </PlaybackChannelPanel>
         <div class="center">
@@ -24,16 +24,28 @@
                     ref="playerRef"
                     :split="pageData.split"
                     :enable-pos="systemCaps.supportPOS"
+                    :enable-draw="false"
                     type="record"
-                    @onready="handlePlayerReady"
-                    @ontime="handlePlayerTimeUpdate"
-                    @onselect="handlePlayerSelect"
-                    @onsuccess="handlePlayerSuccess"
-                    @onstop="handlePlayerStop"
-                    @onplay-status="handlePlayerStatus"
-                    @onerror="handlePlayerError"
-                    @ondblclickchange="handlePlayerDblclickChange"
-                    @onwinexchange="updateTimeline"
+                    @ready="handlePlayerReady"
+                    @time="handlePlayerTimeUpdate"
+                    @select="handlePlayerSelect"
+                    @success="handlePlayerSuccess"
+                    @stop="handlePlayerStop"
+                    @play-status="handlePlayerStatus"
+                    @error="handlePlayerError"
+                    @dblclickchange="handlePlayerDblclickChange"
+                    @winexchange="updateTimeline"
+                    @message="notify"
+                    @audioerror="handlePlayerAudioError"
+                />
+                <BaseTargetSearchPanel
+                    v-model:visible="pageData.isDetectTarget"
+                    type="record"
+                    :mode="mode"
+                    :start-time="pageData.detectTargetTime"
+                    :end-time="pageData.detectTargetTime + 60 * 1000"
+                    :win-index="pageData.winData.winIndex"
+                    :chl-id="pageData.winData.chlID"
                 />
             </div>
             <div class="center-ctrl">
@@ -47,8 +59,14 @@
                     :watermark="pageData.watermark"
                     :playing-list="playingListNum"
                     :clip-range="pageData.timelineClipRange"
+                    :has-pos-event="pageData.hasPosEvent"
+                    :strategy="pageData.strategy"
+                    :is-back-up-list="pageData.isBackUpList"
+                    :detect-target="pageData.isDetectTarget"
+                    :rec-list="pageData.recLogList"
+                    @update:detect-target="changeDetectTarget"
                     @fullscreen="fullScreen"
-                    @update:split="setSplit"
+                    @update:split="changeSplit"
                     @update:osd="toggleOSD"
                     @update:watermark="toggleWatermark"
                     @update:pos="togglePos"
@@ -64,56 +82,27 @@
                     @clip-start="clipStart"
                     @clip-end="clipEnd"
                     @back-up="backUp"
+                    @show-back-up="pageData.isBackUpList = true"
+                    @update:strategy="changeStrategy"
+                    @trigger="clearTargetDetect"
                 />
                 <PlaybackBackUpPanel
                     ref="backUpRef"
                     v-model:visible="pageData.isBackUpList"
                     :mode
                 />
-                <PlaybackRecLogPanel
-                    :start-time="startTimeStamp"
-                    :end-time="endTimeStamp"
-                    :event-list="pageData.eventList"
-                    :mode-type="pageData.eventModeType"
-                    :date-time-format="dateTime.dateTimeFormat.value"
-                    :chl="pageData.winData.chlID"
-                    :play-status="pageData.playStatus"
-                    :chls="pageData.chls"
-                    @callback="handleRecLogCallback"
-                    @play="handleRecLogPlay"
-                    @download="handleRecLogDownload"
-                    @error="handleRecLogError"
-                />
             </div>
             <div class="bottom">
-                <el-calendar v-model="calendar.date.value">
-                    <template #header="scope">
-                        <div class="calendar-header">
-                            <span @click="calendar.prevMonth">&lt;</span>
-                            <span>{{ scope.date }}</span>
-                            <span @click="calendar.nextMonth">&gt;</span>
-                        </div>
-                    </template>
-                    <template #date-cell="scope">
-                        <div
-                            :class="{
-                                active: calendar.current.value.getTime() === scope.data.date.getTime(),
-                                badge: calendar.highlight(pageData.recTimeList, scope.data.date),
-                            }"
-                            @click="calendar.change(scope.data.date)"
-                        >
-                            {{ scope.data.day.split('-')[2] }}
-                        </div>
-                    </template>
-                </el-calendar>
+                <BaseCalendar
+                    v-model="pageData.calendarDate"
+                    :badge="pageData.recTimeList"
+                />
                 <div class="timeline">
                     <div class="timeline-view">
                         <BaseTimeline
                             ref="timelineRef"
-                            :date-time-format="dateTime.dateTimeFormat.value"
-                            :time-format="dateTime.timeFormat.value"
                             :colors-map="pageData.legend"
-                            @seek="seek"
+                            @seek="handleTimelineSeek"
                             @set-offset-x="pageData.timelineOffsetX = $event"
                             @set-max-coordinate-x="pageData.timelineMaxCoordinateX = $event"
                             @set-current-pointer-time="pageData.timelineCurrentPointerTime = $event"
@@ -122,7 +111,8 @@
                     </div>
                     <div class="legend">
                         <div
-                            v-for="item in pageData.legend"
+                            v-for="item in pageData.legend.toReversed()"
+                            v-show="item.value !== 'otherType'"
                             :key="item.value"
                         >
                             <span :style="{ backgroundColor: item.color }"></span>
@@ -137,9 +127,9 @@
             :support-fish-eye="!!pageData.fishEye"
             :win-data="pageData.winData"
         >
-            <template #default="scope">
+            <template #default="{ index }">
                 <PlaybackControlPanel
-                    v-show="scope.index === 0"
+                    v-show="index === 0"
                     :mode="mode"
                     :win-data="pageData.winData"
                     :volume="pageData.volume"
@@ -152,31 +142,32 @@
                     @stream-type="changeStreamType"
                     @volume="setVolume"
                     @audio="setAudio"
+                    @trigger="clearTargetDetect"
                 />
                 <PlaybackFisheyePanel
                     v-if="isFishEyePanel"
-                    v-show="scope.index === 1"
+                    v-show="index === 1"
                     ref="fisheyeRef"
                     :win-data="pageData.winData"
                     :install-type="pageData.fishEye"
                     @fish-eye-mode="changeFishEyeMode"
+                    @trigger="clearTargetDetect"
                 />
             </template>
         </PlaybackAsidePanel>
-        <PlaybackBackUpPop
+        <BackupPop
             v-model="pageData.isBackUpPop"
             :mode
             :backup-list="pageData.backupRecList"
             @confirm="confirmBackUp"
             @close="pageData.isBackUpPop = false"
         />
-        <PlaybackBackUpLocalPop
+        <BackupLocalPop
             v-model="pageData.isLocalBackUpPop"
             :auth="userAuth"
             :backup-list="pageData.backupRecList"
             @close="pageData.isLocalBackUpPop = false"
         />
-        <BaseNotification v-model:notifications="pageData.notification" />
     </div>
 </template>
 
@@ -185,26 +176,28 @@
 <style lang="scss" scoped>
 .playback {
     width: 100%;
-    height: calc(var(--content-height) + 70px);
-    border: 1px solid var(--border-color7);
+    height: 100%;
+    min-height: calc(var(--main-min-height) - 150px);
+    border: 1px solid var(--live-border);
     display: flex;
     font-size: 14px;
-    min-width: 1400px;
 }
 
 .center {
     width: 100%;
     height: 100%;
-    border-left: 1px solid var(--border-color7);
-    border-right: 1px solid var(--border-color7);
+    border-left: 1px solid var(--live-border);
+    border-right: 1px solid var(--live-border);
+    background-color: var(--main-bg);
 
     &-player {
         width: 100%;
         height: calc(100% - 222px);
+        position: relative;
     }
 
     &-ctrl {
-        padding: 0 10px;
+        padding: 0 0 0 5px;
         height: 50px;
         display: flex;
         align-items: center;
@@ -214,29 +207,6 @@
 .bottom {
     height: 170px;
     display: flex;
-
-    .el-calendar {
-        width: 250px;
-        height: 170px;
-        flex-shrink: 0;
-    }
-}
-
-.calendar-header {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: var(--text-menu-04);
-    font-weight: bolder;
-    background-color: var(---bg-table);
-
-    span:first-child,
-    span:last-child {
-        font-size: 24px;
-        font-weight: normal;
-        cursor: pointer;
-    }
 }
 
 .timeline {
@@ -249,8 +219,8 @@
 }
 
 .legend {
-    background-color: var(--timeline-legend-bg-color);
-    color: var(--timeline-scale-text-color);
+    background-color: var(--timeline-legend-bg);
+    color: var(--timeline-scale-text-01);
     height: 20px;
     width: 100%;
     display: flex;

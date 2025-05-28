@@ -2,11 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-06 20:38:08
  * @Description: 回放-底部控制视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-07 14:16:09
  */
-import { LiveSharedWinData } from '@/types/apiType/live'
-
 export default defineComponent({
     props: {
         /**
@@ -15,7 +11,6 @@ export default defineComponent({
         winData: {
             type: Object as PropType<LiveSharedWinData>,
             required: true,
-            default: () => new LiveSharedWinData(),
         },
         /**
          * @property 播放模式
@@ -23,7 +18,6 @@ export default defineComponent({
         mode: {
             type: String,
             required: true,
-            default: '',
         },
         /**
          * @property 当前分屏数
@@ -31,7 +25,6 @@ export default defineComponent({
         split: {
             type: Number,
             required: true,
-            default: 0,
         },
         /**
          * @property 是否开启OSD状态
@@ -39,7 +32,6 @@ export default defineComponent({
         osd: {
             type: Boolean,
             required: true,
-            default: false,
         },
         /**
          * @property 是否开启POS状态
@@ -47,7 +39,6 @@ export default defineComponent({
         pos: {
             type: Boolean,
             required: true,
-            default: false,
         },
         /**
          * @property 是否开启水印状态
@@ -55,7 +46,6 @@ export default defineComponent({
         watermark: {
             type: Boolean,
             required: true,
-            default: false,
         },
         /**
          * @property 剪切范围
@@ -63,7 +53,6 @@ export default defineComponent({
         clipRange: {
             type: Array as PropType<number[]>,
             required: true,
-            default: () => [],
         },
         /**
          * @property 播放通道列表
@@ -71,7 +60,6 @@ export default defineComponent({
         playingList: {
             type: Number,
             required: true,
-            default: 0,
         },
         /**
          * @property 播放状态
@@ -79,7 +67,29 @@ export default defineComponent({
         playStatus: {
             type: String,
             required: true,
-            default: 'stop',
+        },
+        /**
+         * @property 是否有POS事件
+         */
+        hasPosEvent: {
+            type: Boolean,
+            required: true,
+        },
+        strategy: {
+            type: Boolean,
+            required: true,
+        },
+        isBackUpList: {
+            type: Boolean,
+            required: true,
+        },
+        detectTarget: {
+            type: Boolean,
+            required: true,
+        },
+        recList: {
+            type: Array as PropType<PlaybackRecList[]>,
+            required: true,
         },
     },
     emits: {
@@ -93,6 +103,9 @@ export default defineComponent({
             return typeof bool === 'boolean'
         },
         'update:watermark': (bool: boolean) => {
+            return typeof bool === 'boolean'
+        },
+        'update:detectTarget': (bool: boolean) => {
             return typeof bool === 'boolean'
         },
         fullscreen() {
@@ -137,6 +150,15 @@ export default defineComponent({
         backUp() {
             return true
         },
+        'update:strategy'(bool: boolean) {
+            return typeof bool === 'boolean'
+        },
+        showBackUp() {
+            return true
+        },
+        trigger(bool: boolean) {
+            return typeof bool === 'boolean'
+        },
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
@@ -165,6 +187,15 @@ export default defineComponent({
             speedList: [1 / 32, 1 / 16, 1 / 8, 1 / 4, 1 / 2, 1, 2, 4, 8, 16, 32],
             // 速度值索引
             speedIndex: 5,
+            forwardValue: 30,
+            forwardOptions: [5, 10, 15, 20, 30].map((item) => {
+                return {
+                    value: item,
+                    label: displaySecondWithUnit(item),
+                }
+            }),
+            strategy: false,
+            isStrategyPop: false,
         })
 
         // 没有播放视图时，禁用操作按钮
@@ -176,44 +207,12 @@ export default defineComponent({
          * @description 暂停播放
          */
         const pause = () => {
-            if (disabled.value) {
-                return
-            }
             if (prop.playStatus === 'backwards') {
                 ctx.emit('pauseBackwards')
             } else {
                 ctx.emit('pause')
             }
-        }
-
-        /**
-         * @description 停止播放
-         */
-        const stop = () => {
-            if (disabled.value) {
-                return
-            }
-            ctx.emit('stop')
-        }
-
-        /**
-         * @description 恢复播放
-         */
-        const resume = () => {
-            if (disabled.value) {
-                return
-            }
-            ctx.emit('resume')
-        }
-
-        /**
-         * @description 倒放
-         */
-        const backwards = () => {
-            if (disabled.value) {
-                return
-            }
-            ctx.emit('backwards')
+            ctx.emit('trigger', false)
         }
 
         // 当前速度值
@@ -245,11 +244,9 @@ export default defineComponent({
          * @description 慢速
          */
         const rewind = () => {
-            if (rewindDisabled.value) {
-                return
-            }
             pageData.value.speedIndex--
             setSpeed()
+            ctx.emit('trigger', true)
         }
 
         // 禁用倍速
@@ -261,11 +258,9 @@ export default defineComponent({
          * @description 倍速
          */
         const forward = () => {
-            if (forwardDisabled.value) {
-                return
-            }
             pageData.value.speedIndex++
             setSpeed()
+            ctx.emit('trigger', true)
         }
 
         // 禁用重置倍速播放
@@ -277,11 +272,9 @@ export default defineComponent({
          * @description 重置倍速播放
          */
         const resetSpeed = () => {
-            if (resetSpeedDisabled.value) {
-                return
-            }
             pageData.value.speedIndex = pageData.value.speedList.findIndex((index) => index === 1)
             setSpeed()
+            ctx.emit('trigger', true)
         }
 
         // 显示播放速度
@@ -298,82 +291,31 @@ export default defineComponent({
             },
         )
 
-        /**
-         * @description 跳转播放
-         * @param {number} seconds 单位：秒
-         */
-        const jump = (seconds: number) => {
-            if (disabled.value) {
-                return
-            }
-            ctx.emit('jump', seconds)
-        }
-
         // description 是否禁用切换帧
         const nextFrameDisabled = computed(() => {
             return disabled.value || prop.playStatus !== 'pause'
         })
 
-        /**
-         * @description 下一帧
-         */
-        const nextFrame = () => {
-            if (nextFrameDisabled.value) {
-                return
-            }
-            ctx.emit('nextFrame')
-        }
-
-        /**
-         * @description 上一帧
-         */
-        const prevFrame = () => {
-            if (nextFrameDisabled.value) {
-                return
-            }
-            ctx.emit('prevFrame')
-        }
-
         // 是否禁用POS
         const posDisabled = computed(() => {
-            return !systemCaps.supportPOS || disabled.value
+            return !prop.hasPosEvent || disabled.value
         })
-
-        /**
-         * @description 开启/关闭POS
-         * @param {Boolean} bool
-         */
-        const togglePos = (bool: boolean) => {
-            if (posDisabled.value) {
-                return
-            }
-            ctx.emit('update:pos', bool)
-        }
-
-        /**
-         * @description 设置备份开始点
-         */
-        const setClipStart = () => {
-            if (disabled.value) {
-                return
-            }
-            ctx.emit('clipStart')
-        }
-
-        /**
-         * @description 设置备份结束点
-         */
-        const setClipEnd = () => {
-            if (disabled.value) {
-                return
-            }
-            ctx.emit('clipEnd')
-        }
 
         // 禁用备份按钮
         const backUpDisabled = computed(() => {
-            return disabled.value || prop.clipRange.length !== 2 || prop.clipRange[0] === prop.clipRange[1]
+            return disabled.value || prop.clipRange.length !== 2 || prop.clipRange[0] >= prop.clipRange[1]
         })
+
+        const openStrategyPop = () => {
+            pageData.value.strategy = prop.strategy
+            pageData.value.isStrategyPop = true
+            ctx.emit('trigger', true)
+        }
+
+        const confirmStrategy = () => {
+            ctx.emit('update:strategy', pageData.value.strategy)
+            pageData.value.isStrategyPop = false
+        }
 
         /**
          * @description 备份
@@ -382,20 +324,29 @@ export default defineComponent({
             if (disabled.value) {
                 return
             }
+
             if (backUpDisabled.value) {
-                ElMessage.info(Translate('IDCS_SELECT_BACKUP_START_END_TIME'))
+                openNotify(Translate('IDCS_SELECT_BACKUP_START_END_TIME'), true)
                 return
             }
+
             ctx.emit('backUp')
+            ctx.emit('trigger', true)
         }
+
+        const detectTargetDisabled = computed(() => {
+            if (!prop.winData.chlID) return true
+            const find = prop.recList.find((item) => item.chlId === prop.winData.chlID)
+            if (!find) {
+                return true
+            }
+            return !find.records.length
+        })
 
         return {
             speed,
             pageData,
             disabled,
-            stop,
-            resume,
-            backwards,
             pause,
             forward,
             rewind,
@@ -403,17 +354,15 @@ export default defineComponent({
             resetSpeedDisabled,
             forwardDisabled,
             rewindDisabled,
-            jump,
             nextFrameDisabled,
-            nextFrame,
-            prevFrame,
             posDisabled,
-            togglePos,
             displaySpeed,
-            setClipStart,
-            setClipEnd,
             backUpDisabled,
             backUp,
+            openStrategyPop,
+            confirmStrategy,
+            systemCaps,
+            detectTargetDisabled,
         }
     },
 })

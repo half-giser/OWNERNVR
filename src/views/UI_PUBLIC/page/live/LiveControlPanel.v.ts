@@ -2,11 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-26 17:04:12
  * @Description: 现场预览-操作视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 14:30:33
  */
-import { type LiveChannelList, type LiveResolutionOptions, type LiveQualityOptions, LiveStreamForm, type LiveSharedWinData } from '@/types/apiType/live'
-
 export default defineComponent({
     props: {
         /**
@@ -50,7 +46,6 @@ export default defineComponent({
         split: {
             type: Number,
             required: true,
-            default: 1,
         },
         /**
          * @property 音量
@@ -58,7 +53,6 @@ export default defineComponent({
         volume: {
             type: Number,
             required: true,
-            default: 50,
         },
     },
     emits: {
@@ -98,11 +92,12 @@ export default defineComponent({
         talk(bool: boolean) {
             return typeof bool === 'boolean'
         },
+        trigger() {
+            return true
+        },
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        // const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const systemCaps = useCababilityStore()
         const userSession = useUserSessionStore()
 
@@ -124,6 +119,7 @@ export default defineComponent({
             QoI: '',
             //
             chlType: '',
+            onlyRead: false,
             // 是否RTSP
             isRTSP: false,
             // 分辨率选项列表
@@ -150,12 +146,15 @@ export default defineComponent({
             if (!chlID.value) {
                 return true
             }
+
             if (prop.winData.PLAY_STATUS === 'stop' || (!prop.auth.hasAll && !prop.auth.lp[chlID.value])) {
                 return true
             }
+
             if (prop.winData.isPolling) {
                 return true
             }
+
             if (prop.winData.PLAY_STATUS === 'play') {
                 return false
             }
@@ -167,9 +166,11 @@ export default defineComponent({
             if (!chlID.value) {
                 return true
             }
+
             if (prop.winData.PLAY_STATUS === 'stop' || (!prop.auth.hasAll && !prop.auth.lp[chlID.value])) {
                 return true
             }
+
             if (prop.winData.PLAY_STATUS === 'play') {
                 if (prop.winData.isDwellPlay) {
                     return true
@@ -180,30 +181,10 @@ export default defineComponent({
             return false
         })
 
-        /**
-         * @description 抓图
-         */
-        const snap = () => {
-            if (snapDisabled.value) {
-                return
-            }
-            ctx.emit('snap')
-        }
-
         // 是否禁用关闭图像
         const closeImgDisabled = computed(() => {
             return snapDisabled.value
         })
-
-        /**
-         * @description 关闭图像
-         */
-        const closeImg = () => {
-            if (closeImgDisabled.value) {
-                return
-            }
-            ctx.emit('closeImg')
-        }
 
         // 是否禁用3D放大
         const zoom3DDisabled = computed(() => {
@@ -213,50 +194,10 @@ export default defineComponent({
             return !enableMagnify3D
         })
 
-        /**
-         * @description 3D放大
-         */
-        const zoom3D = () => {
-            if (zoom3DDisabled.value) {
-                return
-            }
-            ctx.emit('zoom', !prop.winData.magnify3D)
-        }
-
-        /**
-         * @description 放大
-         */
-        const zoomIn = () => {
-            if (disabled.value) {
-                return
-            }
-            ctx.emit('zoomIn')
-        }
-
-        /**
-         * @description 缩小
-         */
-        const zoomOut = () => {
-            if (disabled.value) {
-                return
-            }
-            ctx.emit('zoomOut')
-        }
-
         // 是否禁用原始比例
         const originalDisplayDisabled = computed(() => {
             return !systemCaps.supportOriginalDisplay || disabled.value
         })
-
-        /**
-         * @description 原始比例
-         */
-        const originalDisplay = () => {
-            if (originalDisplayDisabled.value) {
-                return
-            }
-            ctx.emit('originalDisplay', !prop.winData.original)
-        }
 
         // 是否禁用手动开门
         const openDoorDisabled = computed(() => {
@@ -269,9 +210,6 @@ export default defineComponent({
          * @description 手动开门
          */
         const openDoor = async () => {
-            if (openDoorDisabled.value) {
-                return
-            }
             const sendXml = rawXml`
                 <content>
                     <chl id="${chlID.value}"></chl>
@@ -280,16 +218,13 @@ export default defineComponent({
             const result = await manualUnlocking(sendXml)
             const $ = queryXml(result)
 
-            if ($('/response/status').text() !== 'success') {
-                const errorCode = Number($('/response/errorCode').text())
+            if ($('status').text() !== 'success') {
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                 if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                     errorInfo = Translate('IDCS_NO_PERMISSION')
                 }
-                openMessageTipBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 
@@ -303,9 +238,7 @@ export default defineComponent({
          * @param {Boolean} bool
          */
         const localRecord = (bool: boolean) => {
-            if (localRecordDisabled.value) {
-                return
-            }
+            ctx.emit('trigger')
             ctx.emit('localRecord', bool)
         }
 
@@ -319,16 +252,14 @@ export default defineComponent({
          * @param {Boolean} bool
          */
         const remoteRecord = async (bool: boolean) => {
-            if (remoteRecordDisabled.value) {
-                return
-            }
             const sendXml = rawXml`
                 <content>
                     <chlId>${chlID.value}</chlId>
-                    <switch>${bool.toString()}</switch>
+                    <switch>${bool}</switch>
                 </content>
             `
             await editManualRecord(sendXml)
+            ctx.emit('trigger')
             ctx.emit('remoteRecord', bool)
         }
 
@@ -346,8 +277,8 @@ export default defineComponent({
             `
             const result = await queryManualRecord(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                ctx.emit('remoteRecord', $('/response/content/switch').text().toBoolean())
+            if ($('status').text() === 'success') {
+                ctx.emit('remoteRecord', $('content/switch').text().bool())
             }
         }
 
@@ -356,16 +287,27 @@ export default defineComponent({
 
         // 是否禁用码流类型
         const streamTypeDisabled = computed(() => {
-            return prop.split === 4
+            if (prop.mode === 'h5') {
+                return prop.split > 1
+            }
+
+            if (prop.mode === 'ocx') {
+                return prop.split > 4
+            }
+
+            return true
         })
 
         // 是否禁用子码流选项
         const streamOptionDisabled = computed(() => {
-            return pageData.value.isRTSP || !pageData.value.resolutionOptions.length || pageData.value.chlType === 'recorder'
+            return pageData.value.isRTSP || !pageData.value.resolutionOptions.length || pageData.value.chlType === 'recorder' || pageData.value.onlyRead
         })
 
         // 是否禁用码率选项
         const streamQualityDisabled = computed(() => {
+            if (import.meta.env.VITE_UI_TYPE === 'UI1-E' && prop.mode === 'ocx') {
+                return false
+            }
             return pageData.value.enct === 'h265p'
         })
 
@@ -395,7 +337,7 @@ export default defineComponent({
                 const res = streamFormData.value.resolution.split('x')
                 pageData.value.qualityOptions.forEach((item) => {
                     const curRes = item.res.split('x')
-                    if (item.enct === pageData.value.enct && (Number(curRes[0]) < Number(res[0]) || (curRes[0] == res[0] && Number(curRes[1]) < Number(res[1])))) {
+                    if (item.enct === pageData.value.enct && (Number(curRes[0]) < Number(res[0]) || (curRes[0] === res[0] && Number(curRes[1]) < Number(res[1])))) {
                         if (item.value) {
                             isQualityCapsEmpty = false
                             const qualitys = item.value.split(',')
@@ -435,28 +377,98 @@ export default defineComponent({
             } else {
                 streamFormData.value.quality = value[0]
             }
+
             if (pageData.value.bitType === 'CBR') {
-                const find = pageData.value.qualityOptions.find((item) => {
-                    return item.res === streamFormData.value.resolution && item.enct === pageData.value.enct
-                })
-                if (find) {
-                    streamFormData.value.quality = find.chlType + 'Default'
-                }
+                const qualitys = pageData.value.qualityOptions
+                    .find((item) => item.value)!
+                    .value.split(',')
+                    .map((item) => Number(item))
+
+                streamFormData.value.quality =
+                    getVideoQuality({
+                        videoEncodeType: pageData.value.enct,
+                        resolution: streamFormData.value.resolution,
+                        qualitys: qualitys,
+                    }) + ''
             }
         })
+
+        const getVideoQuality = (rowData: { videoEncodeType: string; resolution: string; qualitys: number[] }) => {
+            const videoEncodeType = rowData.videoEncodeType // h264、h265
+            const resolution = rowData.resolution // 2MP
+            const split = resolution.split('x')
+            if (!videoEncodeType || !split || split.length === 0) {
+                return 0
+            }
+
+            const row = Number(split[0])
+            const column = Number(split[1])
+            const isH264 = videoEncodeType.indexOf('h264') > -1
+            const isH265 = videoEncodeType.indexOf('h265') > -1
+            const product = row * column
+
+            let videoQuality = 0
+
+            // D1及以下
+            if (product <= 5e5) {
+                videoQuality = isH264 ? 768 : isH265 ? 512 : 0
+            }
+            // (D1, 720p]
+            else if (product > 5e5 && product <= 1e6) {
+                videoQuality = isH264 ? 1536 : isH265 ? 1024 : 0
+            }
+            // (720p, 2MP]
+            else if (product > 1e6 && product <= 2e6) {
+                videoQuality = isH264 ? 3072 : isH265 ? 2048 : 0
+            }
+            // (2MP, 3MP]
+            else if (product > 2e6 && product <= 3e6) {
+                videoQuality = isH264 ? 4096 : isH265 ? 3072 : 0
+            }
+            // (3MP, 4MP]
+            else if (product > 3e6 && product <= 4e6) {
+                videoQuality = isH264 ? 5120 : isH265 ? 4096 : 0
+            }
+            // (4MP, 6MP]
+            else if (product > 4e6 && product <= 6e6) {
+                videoQuality = isH264 ? 6144 : isH265 ? 5120 : 0
+            }
+            // (6MP, 12MP]
+            else if (product > 6e6 && product <= 12e6) {
+                videoQuality = isH264 ? 8192 : isH265 ? 6144 : 0
+            }
+            // 12MP以上
+            else if (product > 12e6) {
+                videoQuality = isH264 ? 8192 : isH265 ? 8192 : 0
+            }
+
+            const qualitys = rowData.qualitys
+            const find = qualitys.find((item, index) => {
+                return item >= videoQuality || index === qualitys.length - 1
+            })
+
+            if (find) {
+                videoQuality = find
+            }
+
+            return videoQuality
+        }
 
         /**
          * @description 更新码流
          * @param {number} type
          */
-        const changeStreamType = (type: number) => {
+        const changeStreamType = (type: string | number | boolean | undefined) => {
             if (prop.winData.streamType === type) {
                 return
             }
+
             if (streamTypeDisabled.value && pageData.value.isRTSP && type === 1) {
                 return
             }
-            ctx.emit('streamType', type)
+
+            ctx.emit('trigger')
+            ctx.emit('streamType', type as number)
         }
 
         /**
@@ -476,49 +488,51 @@ export default defineComponent({
             `
             const result = await queryNodeEncodeInfo(sendXml)
             const $ = queryXml(result)
-            const content = $('/response/content/item')
+            const content = $('content/item')
             if (content.length) {
                 const $item = queryXml(content[0].element)
-                pageData.value.GOP = $item('sub').attr('GOP')!
+                pageData.value.GOP = $item('sub').attr('GOP')
                 pageData.value.chlType = $item('chlType').text()
+                pageData.value.onlyRead = $item('sub').attr('OnlyRead').bool()
             } else {
                 // rtsp通道无子码流
                 pageData.value.isRTSP = true
             }
 
-            if ($('/response/status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 // 多分割时会遍历窗口触发请求，异步请求返回值通过通道id来确定最后一次的数据正确
-                const chl = $(`/response/content/item[@id="${chlID.value}"]`)
-                if (chl.length === 0) {
+                const chl = $(`content/item[@id="${chlID.value}"]`)
+                if (!chl.length) {
                     return
                 }
                 const $chl = queryXml(chl[0].element)
 
-                pageData.value.maxFps = 25
-                pageData.value.enct = $chl('sub').attr('enct')!
-                pageData.value.bitType = $chl('sub').attr('bitType')!
-                pageData.value.QoI = $chl('sub').attr('QoI')!
+                pageData.value.enct = $chl('sub').attr('enct')
+                pageData.value.bitType = $chl('sub').attr('bitType')
+                pageData.value.QoI = $chl('sub').attr('QoI')
 
-                streamFormData.value.frameRate = Number($chl('sub').attr('fps'))
-                streamFormData.value.resolution = $chl('sub').attr('res')!
-                streamFormData.value.quality = $chl('sub').attr('QoI')!
+                streamFormData.value.frameRate = $chl('sub').attr('fps').num()
+                streamFormData.value.resolution = $chl('sub').attr('res')
+                streamFormData.value.quality = $chl('sub').attr('QoI')
 
                 pageData.value.resolutionOptions = $chl('subCaps/res').map((item) => {
                     return {
                         label: item.text(),
                         value: item.text(),
-                        maxFps: Number(item.attr('fps')),
+                        maxFps: item.attr('fps').num(),
                     }
                 })
 
                 pageData.value.qualityOptions = $chl('subStreamQualityCaps/item').map((item) => {
                     return {
-                        enct: item.attr('enct')!,
-                        res: item.attr('res')!,
+                        enct: item.attr('enct'),
+                        res: item.attr('res'),
                         value: item.text(),
-                        chlType: item.attr('chlType')!,
+                        chlType: item.attr('chlType'),
                     }
                 })
+
+                changeResolution()
             }
         }
 
@@ -542,35 +556,31 @@ export default defineComponent({
             if (!chlID.value) {
                 return
             }
+            const res = streamFormData.value.resolution
+            const fps = streamFormData.value.frameRate
+            const qoi = streamFormData.value.quality
+            const gop = pageData.value.GOP || streamFormData.value.frameRate * 4
             const sendXml = rawXml`
                 <content type="list" total="1">
                     <item id="${chlID.value}">
-                        <sub 
-                            res="${streamFormData.value.resolution}"
-                            fps="${streamFormData.value.frameRate.toString()}"
-                            QoI="${streamFormData.value.quality}"
-                            GOP="${pageData.value.GOP || Number(streamFormData.value.frameRate * 4).toString()}"
-                        />
+                        <sub res="${res}" fps="${fps}" QoI="${qoi}" GOP="${gop}" />
                     </item>
                 </content>
             `
             const result = await editNodeEncodeInfo(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                openMessageTipBox({
+            if ($('status').text() === 'success') {
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                 if (errorCode === ErrorCode.USER_ERROR_UNSUPPORTED_FUNC) {
                     errorInfo = Translate('IDCS_NOT_SUPPORTFUNC')
                 }
-                openMessageTipBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 
@@ -589,6 +599,8 @@ export default defineComponent({
             if (audioDisabled.value) {
                 return
             }
+
+            ctx.emit('trigger')
             ctx.emit('volume', num)
         }
 
@@ -600,6 +612,8 @@ export default defineComponent({
             if (audioDisabled.value) {
                 return
             }
+
+            ctx.emit('trigger')
             ctx.emit('audio', !bool)
         }
 
@@ -609,16 +623,52 @@ export default defineComponent({
             return !enableTalked
         })
 
-        /**
-         * @description 开启/关闭对讲
-         * @param {Boolean} bool
-         */
-        const talk = (bool: boolean) => {
-            if (talkDisabled.value) {
-                return
-            }
-            ctx.emit('talk', !bool)
+        const wiperDisabled = computed(() => {
+            const endableWiper = prop.chl[chlID.value]?.supportWiper && !disabled.value
+            return !endableWiper
+        })
+
+        const runWiper = () => {
+            ctx.emit('trigger')
+            setWiper('WiperOn')
         }
+
+        const stopWiper = () => {
+            ctx.emit('trigger')
+            setWiper('WiperOff')
+        }
+
+        const setWiper = async (actionType: string) => {
+            const sendXML = rawXml`
+                <content>
+                    <chlId>${chlID.value}</chlId>
+                    <actionType>${actionType}</actionType>
+                </content>
+            `
+            const result = await ptzMoveCall(sendXML)
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+            } else {
+                const errorCode = $('errorCode').text().num()
+                let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
+                if (errorCode === 536870953) {
+                    errorInfo = Translate('IDCS_NO_PERMISSION')
+                }
+                openMessageBox(errorInfo)
+            }
+        }
+
+        const fpsOptions = computed(() => {
+            return Array(pageData.value.maxFps)
+                .fill(1)
+                .map((item, index) => {
+                    const value = item + index
+                    return {
+                        label: value,
+                        value,
+                    }
+                })
+        })
 
         watch(
             () => prop.winData.chlID,
@@ -636,16 +686,10 @@ export default defineComponent({
         return {
             pageData,
             disabled,
-            snap,
             snapDisabled,
             closeImgDisabled,
-            closeImg,
             zoom3DDisabled,
-            zoom3D,
-            zoomIn,
-            zoomOut,
             originalDisplayDisabled,
-            originalDisplay,
             openDoorDisabled,
             openDoor,
             localRecordDisabled,
@@ -663,8 +707,11 @@ export default defineComponent({
             changeResolution,
             displayQualityOptions,
             audioDisabled,
-            talk,
             talkDisabled,
+            fpsOptions,
+            wiperDisabled,
+            runWiper,
+            stopWiper,
         }
     },
 })

@@ -2,73 +2,70 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-18 18:41:44
  * @Description: 网络安全
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 18:05:45
 -->
 <template>
     <div class="base-flex-box">
         <div class="base-table-box">
             <el-table
-                stripe
-                border
+                v-title
                 :data="tableData"
+                show-overflow-tooltip
             >
                 <el-table-column :label="Translate('IDCS_NETWORK_CARD')">
-                    <template #default="scope">
-                        {{ formatNetworkCardName(scope.row.id) }}
+                    <template #default="{ row }: TableColumn<UserNetworkSecurityForm>">
+                        {{ formatNetworkCardName(row.id) }}
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_ARP_GUARD')">
-                    <template #default="scope">
-                        <el-checkbox v-model="tableData[scope.$index].arpSwitch"></el-checkbox>
+                    <template #default="{ row }: TableColumn<UserNetworkSecurityForm>">
+                        <el-checkbox v-model="row.arpSwitch" />
                     </template>
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_GATEWAY')"
                     prop="gateway"
-                ></el-table-column>
+                />
                 <el-table-column
                     :label="Translate('IDCS_AUTO_GATEWAY_MAC')"
-                    width="250px"
+                    width="250"
                 >
-                    <template #default="scope">
+                    <template #default="{ row }: TableColumn<UserNetworkSecurityForm>">
                         <el-checkbox
-                            v-model="tableData[scope.$index].autoGetGatewayMac"
-                            :disabled="!tableData[scope.$index].arpSwitch"
-                            @change="handleChangeAutoGetGatewayMac(scope.row, scope.$index)"
-                        >
-                        </el-checkbox>
+                            v-model="row.autoGetGatewayMac"
+                            :disabled="!row.arpSwitch"
+                            @change="changeAutoGetGatewayMac(row)"
+                        />
                     </template>
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_GATEWAY_MAC')"
-                    width="250px"
+                    width="250"
                 >
-                    <template #default="scope">
+                    <template #default="{ row }: TableColumn<UserNetworkSecurityForm>">
                         <BaseMacInput
-                            v-model:value="tableData[scope.$index].getGatewayMac"
-                            :disable="!tableData[scope.$index].arpSwitch || tableData[scope.$index].autoGetGatewayMac"
-                            @change="handleChangeMannualGatewayMac(scope.row, scope.$index)"
+                            v-model="row.getGatewayMac"
+                            :disabled="!row.arpSwitch || row.autoGetGatewayMac"
+                            @change="changeMannualGatewayMac(row)"
                         />
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_DETECTION_DEFENSE')">
-                    <template #default="scope">
+                    <template #default="{ row }: TableColumn<UserNetworkSecurityForm>">
                         <el-checkbox
-                            v-model="tableData[scope.$index].preventDetection"
-                            :disabled="!tableData[scope.$index].arpSwitch"
-                        >
-                        </el-checkbox>
+                            v-model="row.preventDetection"
+                            :disabled="!row.arpSwitch"
+                        />
                     </template>
                 </el-table-column>
             </el-table>
         </div>
         <div class="base-btn-box">
             <el-button
-                :disabled="pageData.submitDisabled"
+                :disabled="watchEdit.disabled.value"
                 @click="setData"
-                >{{ Translate('IDCS_APPLY') }}</el-button
             >
+                {{ Translate('IDCS_APPLY') }}
+            </el-button>
         </div>
     </div>
 </template>

@@ -7,10 +7,23 @@
 
 declare module '*.vue' {
     import { type DefineComponent } from 'vue'
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/ban-types
     const component: DefineComponent<{}, {}, any>
     export default component
 }
 
-declare const __TRUE__: boolean
-declare const __UI__: string
+interface ImportMetaEnv {
+    readonly VITE_UI_TYPE: string
+    readonly VITE_BASE_URL: string
+    readonly VITE_APP_IP: string
+    readonly VITE_PACKAGE_VER: string
+    readonly VITE_P2P_IS_TEST: string
+    readonly VITE_P2P_BASE_URL: string
+    readonly VITE_P2P_VISIT: string
+    readonly VITE_P2P_SN: string
+    readonly VITE_P2P_ADMIN: string
+    readonly VITE_P2P_PASSWORD: string
+}
+
+interface ImportMeta {
+    readonly env: ImportMetaEnv
+}

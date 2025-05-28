@@ -2,59 +2,51 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-21 15:12:48
  * @Description: 录像状态
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-21 18:40:51
  */
-import { queryRecStatus } from '@/api/system'
-import { type SystemRecordStatusList } from '@/types/apiType/system'
-
 export default defineComponent({
-    setup() {
+    setup(_prop, ctx) {
         const { Translate } = useLangStore()
 
         // 录像状态与显示文案的映射
         const DEFAULT_REC_STATUS_MAPPING: Record<string, string> = {
-            on: 'IDCS_RECORD_ING',
-            off: 'IDCS_NO_RECORD_NOW',
-            abnormal: 'IDCS_RECORD_EXCEPTION',
+            on: Translate('IDCS_RECORD_ING'),
+            off: Translate('IDCS_NO_RECORD_NOW'),
+            abnormal: Translate('IDCS_RECORD_EXCEPTION'),
         }
 
         // 录像类型与显示文案的映射
         const DEFAULT_REC_TYPE_MAPPING: Record<string, string> = {
-            manual: 'IDCS_MANUAL',
-            motion: 'IDCS_MOTION_DETECTION',
-            schedule: 'IDCS_SCHEDULE',
-            sensor: 'IDCS_SENSOR',
-            pos: 'IDCS_POS',
-            vfd: 'IDCS_FACE_DISPOSE_WAY',
-            faceMatc: 'IDCS_FACE_MATCH',
-            osc: 'IDCS_WATCH_DETECTION',
-            avd: 'IDCS_ABNORMAL_DETECTION',
-            tripwire: 'IDCS_BEYOND_DETECTION',
-            pea: 'IDCS_INVADE_DETECTION',
-            cpc: 'IDCS_PEOPLE_COUNT_DETECTION',
-            ipd: 'IDCS_PEOPLE_INSTRUSION_DETECTION',
-            cdd: 'IDCS_CROWD_DENSITY_DETECTION',
-            vehicle: 'IDCS_PLATE_MATCH',
-            fire_point: 'IDCS_FIRE_POINT_DETECTION',
-            temperature: 'IDCS_TEMPERATURE_DETECTION',
+            manual: Translate('IDCS_MANUAL'),
+            motion: Translate('IDCS_MOTION_DETECTION'),
+            schedule: Translate('IDCS_SCHEDULE'),
+            sensor: Translate('IDCS_SENSOR'),
+            pos: Translate('IDCS_POS'),
+            vfd: Translate('IDCS_FACE_DISPOSE_WAY'),
+            faceMatc: Translate('IDCS_FACE_MATCH'),
+            osc: Translate('IDCS_WATCH_DETECTION'),
+            avd: Translate('IDCS_ABNORMAL_DETECTION'),
+            tripwire: Translate('IDCS_BEYOND_DETECTION'),
+            pea: Translate('IDCS_INVADE_DETECTION'),
+            san: Translate('IDCS_SMART_AOI_ENTRY_DETECTION'),
+            sal: Translate('IDCS_SMART_AOI_LEAVE_DETECTION'),
+            cpc: Translate('IDCS_PEOPLE_COUNT_DETECTION'),
+            ipd: Translate('IDCS_PEOPLE_INSTRUSION_DETECTION'),
+            cdd: Translate('IDCS_CROWD_DENSITY_DETECTION'),
+            vehicle: Translate('IDCS_PLATE_MATCH'),
+            fire_point: Translate('IDCS_FIRE_POINT_DETECTION'),
+            temperature: Translate('IDCS_TEMPERATURE_DETECTION'),
+            loitering: Translate('IDCS_LOITERING_DETECTION'),
+            pvd: Translate('IDCS_PARKING_DETECTION'),
+            asd: Translate('IDCS_AUDIO_EXCEPTION_DETECTION'),
+            crowd_gather: Translate('IDCS_CROWD_GATHERING'),
+            threshold: Translate('IDCS_SMART_STATISTIC_THRESHOLD_ALARM'),
         }
 
         // 图像质量与显示文案的映射
-        const DEFAULT_IMAGE_LEVEL_MAPPING: Record<string, string> = {
-            highest: 'IDCS_HIGHEST',
-            higher: 'IDCS_HIGHER',
-            medium: 'IDCS_MEDIUM',
-            low: 'IDCS_LOW',
-            lower: 'IDCS_LOWER',
-            lowest: 'IDCS_LOWEST',
-        }
+        const IMAGE_LEVEL_MAPPING = getTranslateMapping(DEFAULT_IMAGE_LEVEL_MAPPING)
 
         // 码流类型与显示文案的映射
-        const DEFAULT_STREAM_TYPE_MAPPING: Record<string, string> = {
-            main: 'IDCS_MAIN_STREAM',
-            sub: 'IDCS_SUB_STREAM',
-        }
+        const STREAM_TYPE_MAPPING = getTranslateMapping(DEFAULT_STREAM_TYPE_MAPPING)
 
         const tableData = ref<SystemRecordStatusList[]>([])
 
@@ -64,25 +56,24 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryRecStatus()
             commLoadResponseHandler(result, ($) => {
-                tableData.value = []
-                $('/response/content/item').forEach((item) => {
+                tableData.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     const recType: string[] = []
                     $item('recTypes/item').forEach((recTypeItem) => {
                         const text = recTypeItem.text()
                         if (text) recType.push(text.trim())
                     })
-                    tableData.value.push({
+                    return {
                         name: $item('chl').text(),
                         resolution: $item('resolution').text(),
-                        frameRate: $item('frameRate').text(),
-                        quality: $item('quality').text(),
+                        frameRate: $item('frameRate').text().num(),
+                        quality: $item('quality').text().num(),
                         bitType: $item('bitType').text(),
                         level: $item('level').text(),
                         recStatus: $item('recStatus').text(),
                         streamType: $item('streamType').text(),
                         recTypes: recType,
-                    })
+                    }
                 })
             })
         }
@@ -93,8 +84,9 @@ export default defineComponent({
          */
         const formatRecordType = (row: SystemRecordStatusList) => {
             const recTypes = row.recTypes
-            if (!recTypes.length) return '--'
-            return recTypes
+            let showPerson = false
+            let showVehicle = false
+            const result = recTypes
                 .sort((a, b) => {
                     const getOrderIndex = (x: string) => {
                         switch (x) {
@@ -108,14 +100,43 @@ export default defineComponent({
                                 return 3
                             case 'pos':
                                 return 4
-                            default:
+                            case 'target_human':
                                 return 5
+                            case 'target_vehicle':
+                                return 6
+                            case 'target_non_motor_vehicle':
+                                return 7
+                            default:
+                                return 8
                         }
                     }
                     return getOrderIndex(a) - getOrderIndex(b)
                 })
-                .map((item) => Translate(DEFAULT_REC_TYPE_MAPPING[item]))
-                .join('/')
+                .map((item) => {
+                    if (item === 'target_human') {
+                        showPerson = true
+                        return ''
+                    } else if (item === 'target_vehicle' || item === 'target_non_motor_vehicle') {
+                        showVehicle = true
+                        return ''
+                    } else {
+                        return DEFAULT_REC_TYPE_MAPPING[item] ? Translate(DEFAULT_REC_TYPE_MAPPING[item]) : ''
+                    }
+                })
+                .filter((item) => !!item)
+
+            if (showPerson && showVehicle) {
+                result.push(`${Translate('IDCS_TARGET')}(${Translate('IDCS_DETECTION_PERSON')}/${Translate('IDCS_VEHICLE')})`)
+            } else if (showPerson && !showVehicle) {
+                result.push(`${Translate('IDCS_TARGET')}(${Translate('IDCS_DETECTION_PERSON')}})`)
+            } else if (showVehicle && !showPerson) {
+                result.push(`${Translate('IDCS_TARGET')}(${Translate('IDCS_VEHICLE')})`)
+            }
+
+            if (!result.length) {
+                return '--'
+            }
+            return result.join('/')
         }
 
         /**
@@ -123,24 +144,54 @@ export default defineComponent({
          * @param event
          * @returns
          */
-        const handleToolBarEvent = (event: ConfigToolBarEvent<ChannelToolBarEvent>) => {
+        const handleToolBarEvent = (event: ConfigToolBarEvent<SearchToolBarEvent>) => {
             if (event.type === 'refresh') {
                 getData()
                 return
             }
         }
 
+        /**
+         * @description 录像状态文本
+         * @param {SystemRecordStatusList} row
+         * @returns {string}
+         */
+        const displayRecStatus = (row: SystemRecordStatusList) => {
+            return DEFAULT_REC_STATUS_MAPPING[row.recStatus]
+        }
+
+        /**
+         * @description 码率类型文本
+         * @param {SystemRecordStatusList} row
+         * @returns {string}
+         */
+        const displayStreamType = (row: SystemRecordStatusList) => {
+            return row.streamType ? STREAM_TYPE_MAPPING[row.streamType] : '--'
+        }
+
+        /**
+         * @description 图片质量文本
+         * @param {SystemRecordStatusList} row
+         * @returns {string}
+         */
+        const displayLevel = (row: SystemRecordStatusList) => {
+            return row.level && row.bitType === 'VBR' ? IMAGE_LEVEL_MAPPING[row.level] : '--'
+        }
+
         onMounted(() => {
             getData()
         })
 
-        return {
+        ctx.expose({
             handleToolBarEvent,
+        })
+
+        return {
             tableData,
             formatRecordType,
-            DEFAULT_REC_STATUS_MAPPING,
-            DEFAULT_STREAM_TYPE_MAPPING,
-            DEFAULT_IMAGE_LEVEL_MAPPING,
+            displayRecStatus,
+            displayStreamType,
+            displayLevel,
         }
     },
 })

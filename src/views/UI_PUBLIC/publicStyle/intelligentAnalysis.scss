@@ -1,0 +1,232 @@
+/*
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-09-06 10:32:09
+ * @Description: 智能分析版块的一些公共样式，仅在需要用到的智能分析版块下import
+ */
+.base-intel-placeholder {
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    display: flex;
+    margin-bottom: 10px;
+    align-items: center;
+    border: 1px solid var(--input-border);
+    font-size: 12px;
+    box-sizing: border-box;
+    padding: 0 5px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    user-select: none;
+
+    div {
+        width: 100%;
+    }
+
+    span {
+        flex-shrink: 0;
+    }
+
+    &:hover {
+        border-color: var(--primary);
+    }
+}
+
+.base-intel-checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+
+    .el-checkbox {
+        --el-checkbox-font-size: 12px;
+
+        width: 100%;
+        margin-left: 0 !important;
+        height: 30px;
+    }
+}
+
+.base-intel-radio-group {
+    display: flex;
+
+    .el-radio {
+        width: 100%;
+    }
+}
+
+.base-intel-box {
+    width: 100%;
+    height: 100%;
+    min-width: 1200px;
+    display: flex;
+}
+
+.base-intel-left {
+    width: 430px;
+    height: 100%;
+    border-right: 1px solid var(--content-border);
+    box-sizing: border-box;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+
+    .el-radio-group.tab_container {
+        flex-shrink: 0;
+        width: 100%;
+        height: 50px;
+
+        .el-radio-button {
+            height: 100%;
+
+            .el-radio-button__inner {
+                height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                border-left: none;
+                border-right: none;
+                box-shadow: none !important;
+
+                &:hover {
+                    background-color: transparent !important;
+                }
+            }
+
+            .el-radio-button__original-radio:checked + .el-radio-button__inner {
+                background-color: transparent !important;
+                color: var(--primary) !important;
+            }
+        }
+    }
+}
+
+.base-intel-left-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px;
+}
+
+.base-intel-left-form {
+    padding: 0;
+}
+
+.base-intel-center,
+.base-intel-right {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.base-intel-row {
+    width: 100%;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+
+    &.space-between {
+        justify-content: space-between;
+
+        & > div {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+
+            &:first-child {
+                justify-content: flex-start;
+                flex: 2;
+            }
+
+            &:last-child {
+                justify-content: flex-end;
+                align-items: center;
+            }
+        }
+    }
+
+    &.flex-start {
+        justify-content: flex-start;
+    }
+
+    &.flex-end {
+        justify-content: flex-end;
+    }
+}
+
+.base-intel-chart-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 900px;
+    height: 100%;
+    align-items: center;
+    margin: 0 auto;
+
+    .base-only-child-checkbox {
+        align-self: flex-start;
+        margin-left: 100px;
+    }
+}
+
+.base-intel-playback-box {
+    width: 410px;
+    margin: 0 auto;
+
+    h3 {
+        font-size: 14px;
+        padding-bottom: 10px;
+        margin: 0;
+    }
+
+    .player {
+        width: 410px;
+        height: 160px;
+    }
+
+    .control-bar {
+        margin-top: 10px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        height: 22px;
+    }
+
+    .start-time,
+    .end-time {
+        padding: 5px 0;
+        font-size: 12px;
+        width: 90px;
+        flex-shrink: 0;
+        text-align: left;
+        line-height: 1;
+    }
+
+    .end-time {
+        text-align: right;
+    }
+
+    .current-time {
+        width: 100%;
+        margin-top: 10px;
+        height: 40px;
+        text-align: center;
+    }
+}
+
+.base-intel-pics-box {
+    height: 100%;
+    width: 100%;
+    border: 1px solid var(--content-border);
+}
+
+.base-intel-pics-content {
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    box-sizing: border-box;
+}

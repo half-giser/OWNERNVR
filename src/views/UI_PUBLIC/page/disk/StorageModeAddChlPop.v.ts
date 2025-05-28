@@ -2,17 +2,9 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-08 18:01:51
  * @Description: 存储模式新增通道弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 16:14:05
  */
-import { type PropType } from 'vue'
-import BaseLivePop from '../../components/BaseLivePop.vue'
-import { StorageModeDiskGroupList, type StorageModeChlList } from '@/types/apiType/disk'
 
 export default defineComponent({
-    components: {
-        BaseLivePop,
-    },
     props: {
         /**
          * @property 当前磁盘组
@@ -41,8 +33,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
 
         const tableData = ref<StorageModeChlList[]>([])
         const pageData = ref({
@@ -63,17 +53,17 @@ export default defineComponent({
                     <chlType/>
                 </requireField>
             `
-            const result = await queryDevList(getXmlWrapData(sendXml))
+            const result = await queryDevList(sendXml)
             const $ = queryXml(result)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 const chlList = prop.current.chlList.map((item) => item.id)
-                tableData.value = $('/response/content/item')
-                    .filter((item) => !chlList.includes(item.attr('id')!))
+                tableData.value = $('content/item')
+                    .filter((item) => !chlList.includes(item.attr('id')))
                     .map((item) => {
                         const $item = queryXml(item.element)
                         return {
-                            id: item.attr('id')!,
+                            id: item.attr('id'),
                             name: $item('name').text(),
                             chlIndex: $item('chlIndex').text(),
                             chlType: $item('chlType').text(),
@@ -88,7 +78,7 @@ export default defineComponent({
          * @param {StorageModeChlList} rowData
          */
         const preview = (rowData: StorageModeChlList) => {
-            liveRef.value?.openLiveWin(rowData.id, rowData.name, rowData.chlIndex, rowData.chlType, true)
+            liveRef.value?.openLiveWin(rowData.id, rowData.name, true)
         }
 
         /**
@@ -103,15 +93,11 @@ export default defineComponent({
          */
         const confirm = async () => {
             if (!pageData.value.selection.length) {
-                openMessageTipBox({
-                    type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
-                    message: Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'),
-                })
+                openMessageBox(Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'))
                 return
             }
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const selections = pageData.value.selection.map((item) => item.id)
             const needRemovechlsAndGroup: string[] = []
@@ -148,14 +134,14 @@ export default defineComponent({
                     </diskGroup>
                 </content>
             `
-            const result = await editSetAndElementRelation(getXmlWrapData(sendXml))
+            const result = await editSetAndElementRelation(sendXml)
             const $ = queryXml(result)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 ctx.emit('confirm')
             }
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
@@ -182,7 +168,6 @@ export default defineComponent({
             confirm,
             close,
             changeSelection,
-            BaseLivePop,
         }
     },
 })

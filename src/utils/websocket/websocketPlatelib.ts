@@ -2,13 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-30 18:48:05
  * @Description: websocket导出车牌库
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-11 09:39:31
  */
-import { ErrorCode } from '../constants'
-import WebsocketBase from './websocketBase'
-import { Uint8ArrayToStr } from '../tools'
-import { CMD_PLATELIB_EXPORT_START, CMD_PLATELIB_EXPORT_STOP, CMD_PLATELIB_EXPORT_CONFIRM_STEP } from './websocketCmd'
 
 export interface WebsocketPlateLibOption {
     onsuccess?: (param: WebsocketPlateLibOnSuccessParam[] | number) => void
@@ -23,6 +17,8 @@ interface PlateDataDatum {
     vehicle_type: string
     owner: string
     owner_phone: string
+    start_time: string
+    end_time: string
 }
 
 export interface WebsocketPlateLibOnSuccessParam {
@@ -32,69 +28,63 @@ export interface WebsocketPlateLibOnSuccessParam {
     vehicleType: string
     ownerValue: string
     phoneValue: string
+    startTime: string
+    endTime: string
 }
 
-export default class WebsocketPlateLib {
-    private ws: WebsocketBase | null = null
-    private taskId?: string
-    private readonly onsuccess: WebsocketPlateLibOption['onsuccess']
-    private readonly onerror: WebsocketPlateLibOption['onerror']
-    private readonly onclose: WebsocketPlateLibOption['onclose']
+export const WebsocketPlateLib = (option: WebsocketPlateLibOption) => {
+    let taskId: string | null = null
 
-    constructor(option: WebsocketPlateLibOption) {
-        this.onsuccess = option.onsuccess
-        this.onerror = option.onerror
-        this.onclose = option.onclose
-        this.init()
-    }
+    const onsuccess = option.onsuccess
+    const onerror = option.onerror
+    const onclose = option.onclose
 
-    init() {
-        this.ws = new WebsocketBase({
-            onopen: () => {
-                this.start()
-            },
-            onmessage: (data: string | ArrayBuffer) => {
-                if (data instanceof ArrayBuffer) {
-                    const dataView = new DataView(data)
-                    const encryptType = dataView.getUint32(0, true)
-                    const jsonOffset = encryptType === 0 ? 8 : 16
-                    const jsonLen = dataView.getUint32(4, true)
-                    const jsonEndPosition = jsonLen + jsonOffset
-                    const jsonBuf = data.slice(jsonOffset, jsonEndPosition)
-                    try {
-                        const jsonStr = Uint8ArrayToStr(new Uint8Array(jsonBuf))
-                        const json = JSON.parse(jsonStr)
-                        const plateDataList = this.getPlateData(json.plate_data)
-                        this.onsuccess && this.onsuccess(plateDataList)
-                    } catch (e) {
-                        this.destroy()
-                        this.onerror && this.onerror()
-                        return
-                    }
-                } else {
-                    const res = JSON.parse(data)
-                    const code = Number(res.basic.code)
-                    if (res.url === '/device/platelib/export/start#response' && code === 0) {
-                        // 开始导出
-                        console.log('open the task of exporting sample library')
-                    } else if (res.url === '/device/platelib/export/start#response' && code !== 0) {
-                        // 导出有误
-                        this.onerror && this.onerror(code)
-                    } else if (res.url === '/device/platelib/export/data' && code !== 0) {
-                        // 数据发送完毕
-                        if (code == ErrorCode.USER_ERROR_FILE_STREAM_COMPLETED) {
-                            this.onsuccess && this.onsuccess(code)
-                        }
+    const ws = WebsocketBase({
+        onopen: () => {
+            start()
+        },
+        onmessage: (data: string | ArrayBuffer) => {
+            if (typeof data !== 'string') {
+                const dataView = new DataView(data)
+                const encryptType = dataView.getUint32(0, true)
+                const jsonOffset = encryptType === 0 ? 8 : 16
+                const jsonLen = dataView.getUint32(4, true)
+                const jsonEndPosition = jsonLen + jsonOffset
+                const jsonBuf = data.slice(jsonOffset, jsonEndPosition)
+                try {
+                    const jsonStr = Uint8ArrayToStr(new Uint8Array(jsonBuf))
+                    const json = JSON.parse(jsonStr)
+                    const plateDataList = getPlateData(json.plate_data)
+                    onsuccess && onsuccess(plateDataList)
+                } catch (e) {
+                    destroy()
+                    onerror && onerror()
+                    return
+                }
+            } else {
+                const res = JSON.parse(data)
+                const code = Number(res.basic.code)
+                if (res.url === '/device/platelib/export/start#response' && code === 0) {
+                    // 开始导出
+                    console.log('open the task of exporting sample library')
+                } else if (res.url === '/device/platelib/export/start#response' && code !== 0) {
+                    // 导出有误
+                    onerror && onerror(code)
+                } else if (res.url === '/device/platelib/export/data' && code !== 0) {
+                    // 数据发送完毕
+                    if (code === ErrorCode.USER_ERROR_FILE_STREAM_COMPLETED) {
+                        onsuccess && onsuccess(code)
                     }
                 }
-            },
-            onerror: this.onerror,
-            onclose: this.onclose,
-        })
-    }
+            }
+        },
+        onerror: onerror,
+        onclose: onclose,
+    })
 
     /**
-     * 从响应json报文的data字段信息中读取车牌库数据
+     * @description 从响应json报文的data字段信息中读取车牌库数据
+     * @param {PlateDataDatum[]} data
      * @return {Array} plateDataList
      * plateDataList: [
      *  {
@@ -109,7 +99,7 @@ export default class WebsocketPlateLib {
      *  ...
      * ]
      */
-    getPlateData(data: PlateDataDatum[]) {
+    const getPlateData = (data: PlateDataDatum[]) => {
         try {
             const plateDataList = data.map((item) => ({
                 '@id': item.vehicle_plate_id,
@@ -118,32 +108,40 @@ export default class WebsocketPlateLib {
                 vehicleType: item.vehicle_type,
                 ownerValue: item.owner,
                 phoneValue: item.owner_phone,
+                startTime: item.start_time,
+                endTime: item.end_time,
             }))
-            this.confirmStep()
+            confirmStep()
             return plateDataList
         } catch (e) {
             return []
         }
     }
 
-    start() {
+    const start = () => {
         const cmd = CMD_PLATELIB_EXPORT_START()
-        this.taskId = cmd.data.task_id
-        this.ws!.send(JSON.stringify(cmd))
+        taskId = cmd.data.task_id
+        ws.send(JSON.stringify(cmd))
     }
 
-    stop() {
-        const cmd = CMD_PLATELIB_EXPORT_STOP(this.taskId as string)
-        this.ws!.send(JSON.stringify(cmd))
+    const stop = () => {
+        const cmd = CMD_PLATELIB_EXPORT_STOP(taskId as string)
+        ws.send(JSON.stringify(cmd))
     }
 
-    confirmStep() {
-        const cmd = CMD_PLATELIB_EXPORT_CONFIRM_STEP(this.taskId as string)
-        this.ws!.send(JSON.stringify(cmd))
+    const confirmStep = () => {
+        const cmd = CMD_PLATELIB_EXPORT_CONFIRM_STEP(taskId as string)
+        ws.send(JSON.stringify(cmd))
     }
 
-    destroy() {
-        this.stop()
-        this.ws!.close()
+    const destroy = () => {
+        stop()
+        ws.close()
+    }
+
+    return {
+        start,
+        stop,
+        destroy,
     }
 }

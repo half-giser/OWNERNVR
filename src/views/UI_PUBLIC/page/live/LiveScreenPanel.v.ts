@@ -2,15 +2,14 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-29 16:08:14
  * @Description: 现场预览-底部菜单栏视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 14:32:44
  */
-import LiveScreenAlarmOut from './LiveScreenAlarmOut.vue'
-import { type LiveSharedWinData } from '@/types/apiType/live'
+import LiveScreenAlarmOutPop from './LiveScreenAlarmOutPop.vue'
+import LiveScreenRS485Pop from './LiveScreenRS485Pop.vue'
 
 export default defineComponent({
     components: {
-        LiveScreenAlarmOut,
+        LiveScreenAlarmOutPop,
+        LiveScreenRS485Pop,
     },
     props: {
         /**
@@ -26,7 +25,6 @@ export default defineComponent({
         mode: {
             type: String,
             required: true,
-            default: '',
         },
         /**
          * @property 当前分屏数
@@ -34,7 +32,6 @@ export default defineComponent({
         split: {
             type: Number,
             required: true,
-            default: 0,
         },
         /**
          * @property 是否开启OSD状态
@@ -42,7 +39,6 @@ export default defineComponent({
         osd: {
             type: Boolean,
             required: true,
-            default: false,
         },
         /**
          * @property 本地录像按钮状态
@@ -50,7 +46,6 @@ export default defineComponent({
         clientRecord: {
             type: Boolean,
             required: true,
-            default: false,
         },
         /**
          * @property 远程录像按钮状态
@@ -58,7 +53,6 @@ export default defineComponent({
         remoteRecord: {
             type: Boolean,
             required: true,
-            default: false,
         },
         /**
          * @property 预览按钮状态
@@ -66,7 +60,10 @@ export default defineComponent({
         preview: {
             type: Boolean,
             required: true,
-            default: true,
+        },
+        detectTarget: {
+            type: Boolean,
+            required: true,
         },
         /**
          * @property 对讲按钮状态
@@ -74,7 +71,6 @@ export default defineComponent({
         talk: {
             type: Boolean,
             required: true,
-            default: false,
         },
     },
     emits: {
@@ -96,10 +92,16 @@ export default defineComponent({
         'update:talk': (bool: boolean) => {
             return typeof bool === 'boolean'
         },
+        'update:detectTarget': (bool: boolean) => {
+            return typeof bool === 'boolean'
+        },
         streamType(type: number) {
             return !isNaN(type)
         },
         fullscreen() {
+            return true
+        },
+        trigger() {
             return true
         },
     },
@@ -108,34 +110,29 @@ export default defineComponent({
         const userSession = useUserSessionStore()
         const systemCaps = useCababilityStore()
 
-        const WASM_SEG = [1, 4].map((split) => ({
-            split,
-            type: 1,
-        }))
-
-        // 支持旋转分屏
-        const ROTATE_SEG = [3, 5, 7, 10]
-            .filter((split) => systemCaps.supportImageRotate && systemCaps.previewMaxWin >= split)
-            .map((split) => ({
-                split,
-                type: split === 10 ? 2 : 1,
-                file: split === 10 ? 'hallway_seg_10' : 'seg_' + split,
-            }))
-
-        const OCX_SEG = [1, 4, 8, 9, 10, 16, 25, 36]
-            .filter((split) => systemCaps.previewMaxWin >= split)
-            .map((split) => ({
-                split,
-                type: 1,
-                file: 'seg_' + split,
-            }))
-            .concat(ROTATE_SEG)
-
         const pageData = ref({
             // H5模式分屏
-            wasmSeg: WASM_SEG,
+            wasmSeg: [1, 4].map((split) => ({
+                split,
+                type: 1,
+            })),
             // OCX模式分屏
-            ocxSeg: OCX_SEG,
+            ocxSeg: [1, 4, 8, 9, 10, 16, 25, 36]
+                .filter((split) => systemCaps.previewMaxWin >= split)
+                .map((split) => ({
+                    split,
+                    type: 1,
+                    file: 'seg_' + split,
+                })),
+            // 支持旋转分屏
+            ocxRotateSeg: [3, 5, 7, 10]
+                .filter((split) => systemCaps.supportImageRotate && systemCaps.previewMaxWin >= split)
+                .map((split) => ({
+                    split,
+                    type: split === 10 ? 2 : 1,
+                    file: split === 10 ? 'hallway_seg_10' : 'seg_' + split,
+                })),
+            splitType: 1,
             // 码流类型1：主码流，2：子码流
             streamMenuOptions: [
                 {
@@ -164,16 +161,14 @@ export default defineComponent({
          * @param {Boolean} bool
          */
         const recordRemote = async (bool: boolean) => {
-            if (remoteRecordDisabled.value) {
-                return
-            }
             const sendXml = rawXml`
                 <content>
-                    <switch>${bool.toString()}</switch>
+                    <switch>${bool}</switch>
                 </content>
             `
             await editManualRecord(sendXml)
 
+            ctx.emit('trigger')
             // 设置完全部录像的时候按通道查询不一定会更新到，延迟一下
             ctx.emit('update:remoteRecord', bool)
         }
@@ -185,9 +180,9 @@ export default defineComponent({
             const result = await queryRecStatus()
             const $ = queryXml(result)
 
-            let remoteRecord = !!$('/response/content/item').length
+            let remoteRecord = !!$('content/item').length
 
-            $('/response/content/item').forEach((item) => {
+            $('content/item').forEach((item) => {
                 const $item = queryXml(item.element)
                 // 查看当前通道录像类型是否有手动录像
                 const recType = $item('recTypes/item').some((rec) => rec.text() === 'manual')
@@ -199,6 +194,21 @@ export default defineComponent({
             ctx.emit('update:remoteRecord', remoteRecord)
         }
 
+        const changeSplit = (split: number, type: number) => {
+            pageData.value.splitType = type
+            ctx.emit('trigger')
+            ctx.emit('update:split', split, type)
+        }
+
+        const changeStreamType = (value: string | number | boolean | undefined) => {
+            ctx.emit('trigger')
+            ctx.emit('streamType', value as number)
+        }
+
+        const mainStreamDisabled = computed(() => {
+            return prop.split > 4
+        })
+
         onMounted(() => {
             getRecStatus()
         })
@@ -208,7 +218,10 @@ export default defineComponent({
             recordRemote,
             remoteRecordDisabled,
             isTalk,
-            LiveScreenAlarmOut,
+            changeStreamType,
+            mainStreamDisabled,
+            changeSplit,
+            systemCaps,
         }
     },
 })

@@ -12,8 +12,8 @@
             :style="{ width: `${width}px` }"
         >
             <div
+                v-title
                 class="day-name"
-                :title="Translate(item)"
                 v-text="Translate(item)"
             ></div>
             <div class="day-schedule">
@@ -24,33 +24,37 @@
                     :width="width - 90"
                 >
                     <template #customerControlPanel>
-                        <a
-                            @click="copyToOpen(index, $event)"
-                            v-text="Translate('IDCS_COPY_TO')"
-                        ></a>
-                        <div
-                            v-show="curCopyToPlIndex === index"
-                            class="copyToPL"
-                            @click.stop
+                        <el-popover
+                            :visible="curCopyToPlIndex === index"
+                            width="260"
+                            @update:visible="
+                                ($event) => {
+                                    curCopyToPlIndex = $event ? index : -1
+                                }
+                            "
+                            @before-enter="copyToOpen(index)"
                         >
-                            <div class="copyToDayList">
-                                <el-checkbox-group v-model="copyToCheckedDay">
-                                    <template v-for="(cpItem, cpIndex) in weekdayLang">
-                                        <el-checkbox
-                                            v-if="cpIndex !== index"
-                                            :key="cpIndex"
-                                            class="copyToDayItem"
-                                            :label="Translate(cpItem)"
-                                            :value="cpIndex"
-                                        />
-                                    </template>
-                                </el-checkbox-group>
-                            </div>
-                            <div class="copyToFooter">
+                            <template #reference>
+                                <a href="javascript:;">{{ Translate('IDCS_COPY_TO') }}</a>
+                            </template>
+                            <el-checkbox-group
+                                v-model="copyToCheckedDay"
+                                class="inline"
+                            >
+                                <template v-for="(cpItem, cpIndex) in weekdayLang">
+                                    <el-checkbox
+                                        v-if="cpIndex !== index"
+                                        :key="cpIndex"
+                                        :label="Translate(cpItem)"
+                                        :value="cpIndex"
+                                    />
+                                </template>
+                            </el-checkbox-group>
+                            <div class="base-btn-box">
                                 <el-button @click="copyToOk(index)">{{ Translate('IDCS_OK') }}</el-button>
                                 <el-button @click="copyToClose">{{ Translate('IDCS_CANCEL') }}</el-button>
                             </div>
-                        </div>
+                        </el-popover>
                     </template>
                 </BaseScheduleLine>
             </div>
@@ -70,7 +74,7 @@ withDefaults(
     },
 )
 
-const weekdayLang = ['IDCS_SUNDAY', 'IDCS_MONDAY', 'IDCS_TUESDAY', 'IDCS_WEDNESDAY', 'IDCS_THURSDAY', 'IDCS_FRIDAY', 'IDCS_SATURDAY']
+const weekdayLang = Object.values(DEFAULT_WEEK_MAPPING2)
 const scheduleLines: Ref<InstanceType<typeof BaseScheduleLine>[] | null> = ref(null)
 const copyToCheckedDay: Ref<number[]> = ref([])
 
@@ -80,32 +84,21 @@ onMounted(() => {})
 const curCopyToPlIndex = ref(-1)
 
 /**
- * 记录当前打开复制到的按钮（在周排程时，打开一个手动输入/复制到，需要关闭其他天的手动输入/复制到，不能阻止冒泡，导致document点击时间不触发）
- */
-let copyToATarget: EventTarget | null = null
-
-/**
  * 关闭复制到弹框
  */
-const copyToClose = (event: Event | null) => {
-    if (event == null || event.target != copyToATarget) {
-        curCopyToPlIndex.value = -1
-        document.removeEventListener('click', copyToClose)
-    }
+const copyToClose = () => {
+    curCopyToPlIndex.value = -1
 }
 
 /**
  * 打开复制到弹框
  * @param index
  */
-const copyToOpen = (index: number, event: Event) => {
-    copyToATarget = event.target
+const copyToOpen = (index: number) => {
     curCopyToPlIndex.value = index
     const arrDay = [...new Array(7).keys()]
     arrDay.splice(index, 1)
     copyToCheckedDay.value = arrDay
-    console.log(copyToCheckedDay.value)
-    document.addEventListener('click', copyToClose)
 }
 
 /**
@@ -114,21 +107,20 @@ const copyToOpen = (index: number, event: Event) => {
  * @returns
  */
 const copyToOk = (index: number) => {
-    // console.log(copyToCheckedDay.value)
-    if (copyToCheckedDay.value.length === 0) return
+    if (!copyToCheckedDay.value.length) return
 
     const selectLines = scheduleLines.value?.filter((item: InstanceType<typeof BaseScheduleLine>) => {
-        return copyToCheckedDay.value.indexOf(Number((item.$attrs['id'] as string).substring(5))) !== -1
+        return copyToCheckedDay.value.indexOf(Number((item.$attrs.id as string).substring(5))) !== -1
     })
     const curLine = scheduleLines.value?.find((item) => {
-        return item.$attrs['id'] === `line-${index}`
+        return item.$attrs.id === `line-${index}`
     })
 
     const curValue = (curLine as any as InstanceType<typeof BaseScheduleLine>).getValue()
     selectLines?.forEach((item) => {
         item.resetValue(curValue)
     })
-    copyToClose(null)
+    copyToClose()
 }
 
 /**
@@ -161,6 +153,7 @@ const resetSameValue = (value: [string, string][]) => {
         scheduleLines.value![i].resetValue(value)
     }
 }
+
 /**
  * @description: 给每天手动添加相同的时间段，支持  ['00:30','02:00'] 或 [30,120] 格式
  * @return {*}
@@ -181,14 +174,18 @@ const invert = () => {
     })
 }
 
-defineExpose({
+const expose = {
     weekdayLang,
     getValue,
     resetValue,
     resetSameValue,
     addTimeSpan,
     invert,
-})
+}
+
+export type ScheduleWeekReturnsType = typeof expose
+
+defineExpose(expose)
 </script>
 
 <style lang="scss" scoped>
@@ -198,7 +195,7 @@ defineExpose({
 
 .day-name {
     flex: 0 0 auto;
-    padding: 3px 0px 0px 0px;
+    padding: 3px 0 0;
     width: 90px;
     font-size: 14px;
     max-height: 60px;
@@ -209,38 +206,5 @@ defineExpose({
 
 .day-schedule {
     flex: 0 0 auto;
-}
-
-.copyToPL {
-    position: absolute;
-    z-index: 100;
-    width: 205px;
-    top: 20px;
-    left: 0px;
-    border: solid 1px var(--border-color1);
-    background-color: var(--bg-color5);
-    padding: 5px;
-    border-radius: 5px;
-
-    .copyToDayList {
-        display: flex;
-        flex-wrap: wrap;
-
-        .copyToDayItem {
-            flex: 0 0 60px;
-            font-size: 13px;
-            margin: 2px;
-            height: 20px;
-        }
-    }
-
-    .copyToFooter {
-        display: flex;
-        margin-top: 10px;
-
-        button {
-            flex: 1 1 auto;
-        }
-    }
 }
 </style>

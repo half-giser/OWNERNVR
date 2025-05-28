@@ -2,11 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-06 20:37:40
  * @Description: 回放-鱼眼视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 11:10:34
  */
-import { LiveSharedWinData } from '@/types/apiType/live'
-
 export interface FishEyePanelExpose {
     exitAdjust: (chlId: string) => void
 }
@@ -19,7 +15,6 @@ export default defineComponent({
         winData: {
             type: Object as PropType<LiveSharedWinData>,
             required: true,
-            default: () => new LiveSharedWinData(),
         },
         /**
          * @property 安装类型
@@ -27,17 +22,18 @@ export default defineComponent({
         installType: {
             type: String,
             required: true,
-            default: '',
         },
     },
     emits: {
         fishEyeMode(type: string, mode: string) {
             return typeof type === 'string' && typeof mode === 'string'
         },
+        trigger() {
+            return true
+        },
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
         const systemCaps = useCababilityStore()
 
         const pageData = ref({
@@ -192,6 +188,8 @@ export default defineComponent({
             supportMenu: [] as string[],
         })
 
+        const chlMap: Record<string, { installType: string; fishEyeMode: string }> = {}
+
         const NO_ADJUST_VALUE = 'FISHEYE_ORIGNAL'
 
         // @description 是否支持鱼眼
@@ -222,7 +220,15 @@ export default defineComponent({
             pageData.value.installType = installType
             pageData.value.fishEyeMode = NO_ADJUST_VALUE
 
+            if (prop.winData.chlID) {
+                chlMap[prop.winData.chlID] = {
+                    installType: installType,
+                    fishEyeMode: NO_ADJUST_VALUE,
+                }
+            }
+
             ctx.emit('fishEyeMode', installType, NO_ADJUST_VALUE)
+            ctx.emit('trigger')
             pageData.value.fishEyeingId = ''
         }
 
@@ -234,15 +240,22 @@ export default defineComponent({
             if (!supportFishEye.value || pageData.value.fishEyeMode === fishEyeMode) {
                 return
             }
+
             if (pageData.value.fishEyeingId && prop.winData.chlID !== pageData.value.fishEyeingId) {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_SUPPORT_ONE_FISHEYE'),
-                })
+                openMessageBox(Translate('IDCS_SUPPORT_ONE_FISHEYE'))
                 return
             }
             pageData.value.fishEyeMode = fishEyeMode
+
+            if (prop.winData.chlID) {
+                chlMap[prop.winData.chlID] = {
+                    installType: pageData.value.installType,
+                    fishEyeMode: fishEyeMode,
+                }
+            }
+
             ctx.emit('fishEyeMode', pageData.value.installType, fishEyeMode)
+            ctx.emit('trigger')
 
             if (fishEyeMode === NO_ADJUST_VALUE) {
                 pageData.value.fishEyeingId = ''
@@ -255,7 +268,13 @@ export default defineComponent({
          * @description 退出校正
          * @param {string} chlId
          */
-        const exitAdjust = () => {
+        const exitAdjust = (chlId: string) => {
+            if (chlId) {
+                chlMap[chlId] = {
+                    installType: pageData.value.installType,
+                    fishEyeMode: pageData.value.fishEyeMode,
+                }
+            }
             changeInstallType(prop.installType)
         }
 
@@ -266,8 +285,31 @@ export default defineComponent({
         watch(
             () => prop.installType,
             (newVal) => {
-                pageData.value.installType = newVal
-                pageData.value.fishEyeMode = NO_ADJUST_VALUE
+                if (prop.winData.chlID) {
+                    if (!chlMap[prop.winData.chlID]) {
+                        chlMap[prop.winData.chlID] = {
+                            installType: newVal,
+                            fishEyeMode: NO_ADJUST_VALUE,
+                        }
+                    }
+                    pageData.value.installType = chlMap[prop.winData.chlID].installType
+                    pageData.value.fishEyeMode = chlMap[prop.winData.chlID].fishEyeMode
+                    ctx.emit('fishEyeMode', pageData.value.installType, pageData.value.fishEyeMode)
+                } else {
+                    pageData.value.installType = newVal
+                    pageData.value.fishEyeMode = NO_ADJUST_VALUE
+                }
+            },
+        )
+
+        watch(
+            () => prop.winData.chlID,
+            (newVal) => {
+                if (newVal && prop.winData.PLAY_STATUS === 'play') {
+                    if (chlMap[prop.winData.chlID]) {
+                        ctx.emit('fishEyeMode', pageData.value.installType, pageData.value.fishEyeMode)
+                    }
+                }
             },
         )
 

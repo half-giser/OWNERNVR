@@ -2,202 +2,195 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2023-05-04 22:08:40
  * @Description: HTTP请求工具类
- * @LastEditors: tengxiang tengxiang@tvt.net.cn
- * @LastEditTime: 2024-07-29 19:54:53
  */
-
-/* axios配置入口文件 */
-// import axios from 'axios'
 import axios, { type AxiosRequestConfig } from 'axios'
-import { ElMessage } from 'element-plus'
-import dayjs from 'dayjs'
-import { getXmlDoc, compressXml, queryXml, rawXml } from '@/utils/xmlParse'
-import { ApiStatus, ErrorCode, ErrorCodeMapping } from '@/utils/constants'
-import { Logout } from '@/api/user'
-import useMessageBox from '@/hooks/useMessageBox'
-import useLoading from '@/hooks/useLoading'
-import { useUserSessionStore } from '@/stores/userSession'
-import { useLangStore } from '@/stores/lang'
+
+const BASE_URL = import.meta.env.VITE_BASE_URL
+const BASE_CONFIG: AxiosRequestConfig = {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+    },
+    responseType: 'document',
+    timeout: 20 * 1000,
+}
 
 export const xmlHeader = '<?xml version="1.0" encoding="UTF-8" ?>'
-//公共错误上次处理时间
-let commonErrorLastTime = dayjs().valueOf()
-let userSessionStore: ReturnType<typeof useUserSessionStore>
-let isErrorMessageBox = false
-
 export type ApiResult = Element | XMLDocument
 
+// 公共错误弹窗是否已打开
+let isErrorMessageBox = false
+
 /**
- * @description: 添加xml外层公共包装
+ * @description 添加xml外层公共包装
  * @param {string} data
  * @param {string} url
  * @param {boolean} refresh
- * @return {string}
+ * @returns {string}
  */
-export const getXmlWrapData = (data: string, url = '', refresh = false) => {
-    if (!userSessionStore) {
-        userSessionStore = useUserSessionStore()
-    }
+const getXmlWrapData = (data: string, url = '', refresh = false) => {
+    const userSessionStore = useUserSessionStore()
+
     let tokenXml = ''
     if (userSessionStore.token) {
         tokenXml = `<token>${userSessionStore.token}</token>`
+    } else {
+        tokenXml = '<token>null</token>'
     }
-    if (import.meta.env.VITE_APP_TYPE === 'P2P') {
-        // TODO: CMD_QUEUE.viewFlag
-        return rawXml`${xmlHeader}
-            <cmd type="NVMS_NAT_CMD">
-                <request version="1.0" systemType="NVMS-9000" clientType="WEB-NAT" url="${url}" flag="CMD_QUEUE.viewFlag" ${refresh ? `refresh="true"` : ''}>
+
+    if (userSessionStore.appType === 'P2P') {
+        return (
+            xmlHeader +
+            checkXml(rawXml`
+                <cmd type="NVMS_NAT_CMD">
+                    <request version="1.0" systemType="NVMS-9000" clientType="WEB-NAT" url="${url}" flag="1" ${refresh ? ' refresh="true"' : ''}>
+                        ${tokenXml}
+                        ${data}
+                    </request>
+                </cmd>
+            `)
+        )
+    } else {
+        return (
+            xmlHeader +
+            checkXml(rawXml`
+                <request version="1.0" systemType="NVMS-9000" clientType="WEB" ${refresh ? ' refresh="true"' : ''}>
                     ${tokenXml}
                     ${data}
                 </request>
-            </cmd>
-        `
-    } else {
-        return rawXml`${xmlHeader}
-            <request version="1.0" systemType="NVMS-9000" clientType="WEB" ${refresh ? `refresh="true"` : ''}>
-                ${tokenXml}
-                ${data}
-            </request>`
-    }
-}
-
-const handleUserErrorRedirectToLogin = (param: { title: string; message: string }) => {
-    const { openMessageTipBox } = useMessageBox()
-    const layoutStore = useLayoutStore()
-    if (!layoutStore.isInitial) {
-        isErrorMessageBox = false
-        Logout(true)
-    } else {
-        if (!isErrorMessageBox) {
-            isErrorMessageBox = true
-            openMessageTipBox({
-                type: 'error',
-                title: param.title,
-                message: param.message,
-                showCancelButton: false,
-            }).then(() => {
-                isErrorMessageBox = false
-                Logout(true)
-            })
-        }
+            `)
+        )
     }
 }
 
 /**
- * @description: HTTP请求工具类
- * @return {*}
+ * @description 错误信息处理，返回登录页
+ * @param {string} message
  */
-class Request {
-    BASE_URL: string
-    config: object
+const handleUserErrorRedirectToLogin = (message: string) => {
+    closeAllLoading()
 
-    constructor() {
-        this.BASE_URL = import.meta.env.VITE_BASE_URL
-        this.config = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
-            responseType: 'document',
-            timeout: 20 * 1000,
-        }
+    if (!isErrorMessageBox) {
+        isErrorMessageBox = true
+        openMessageBox(message).then(() => {
+            Logout()
+            isErrorMessageBox = false
+        })
+    }
+}
+
+/**
+ * @description 处理公共错误
+ * @param {errorCode} number
+ * @returns {boolean} true：停止继续处理，一般为流程中断了，比如退出登录，false：需要继续处理
+ */
+const handelCommonError = (errorCode: number) => {
+    let isStopHandle = true
+    const { Translate } = useLangStore()
+    const layoutStore = useLayoutStore()
+
+    if (!layoutStore.isInitial) {
+        closeAllLoading()
+        Logout()
+        return
     }
 
-    fetch(url: string, data: string, config?: AxiosRequestConfig, checkCommonErrorSwitch = true) {
-        return new Promise((resolve: (data: ApiResult) => void, reject: (error: any) => void) => {
+    switch (errorCode) {
+        case ErrorCode.USER_ERROR_NO_USER:
+        case ErrorCode.USER_ERROR_PWD_ERR:
+            if (!layoutStore.isAuth) {
+                handleUserErrorRedirectToLogin(Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR'))
+            } else {
+                isStopHandle = false
+            }
+            break
+        case ErrorCode.USER_ERROR_SERVER_NO_EXISTS:
+            handleUserErrorRedirectToLogin(Translate('IDCS_LOGIN_OVERTIME'))
+            break
+        case ErrorCode.USER_ERROR_USER_LOCKED:
+            if (!layoutStore.isAuth) {
+                handleUserErrorRedirectToLogin(Translate('IDCS_LOGIN_FAIL_USER_LOCKED'))
+            } else {
+                isStopHandle = false
+            }
+            break
+        case ErrorCode.USER_ERROR_INVALID_PARAM:
+            closeAllLoading()
+            openMessageBox(Translate('IDCS_USER_ERROR_INVALID_PARAM'))
+            break
+        default:
+            isStopHandle = false
+            break
+    }
+
+    return isStopHandle
+}
+
+/**
+ * @description HTTP请求工具类
+ * @returns
+ */
+const fetch = (url: string, data: string, config?: AxiosRequestConfig, checkCommonErrorSwitch = true) => {
+    return new Promise((resolve: (data: ApiResult) => void, reject: (error: any) => void) => {
+        const appType = useUserSessionStore().appType
+        if (appType === 'STANDARD') {
             return axios({
-                ...this.config,
+                ...BASE_CONFIG,
                 ...config,
                 url,
-                data: compressXml(data),
-                baseURL: this.BASE_URL,
+                data: getXmlWrapData(data),
+                baseURL: BASE_URL,
             }).then(
                 (response) => {
                     const xmlDoc = getXmlDoc(response.data)
                     if (xmlDoc) {
-                        const xml = queryXml(xmlDoc)
-                        if (xml('/response/status').text() === ApiStatus.fail) {
-                            const errorCode = Number(queryXml(xmlDoc)('//response/errorCode').text())
-                            if (checkCommonErrorSwitch && this.handelCommonError(errorCode)) {
+                        const $ = queryXml(xmlDoc)
+                        if ($('//status').text() === ApiStatus.fail) {
+                            const errorCode = queryXml(xmlDoc)('//errorCode').text().num()
+                            if (checkCommonErrorSwitch && handelCommonError(errorCode)) {
                                 reject(errorCode)
                                 return
                             }
                         }
-                        resolve(xml('/response')[0].element)
+                        resolve($('/response')[0].element)
                     } else {
-                        console.log('error = xmlDoc is null')
+                        console.trace('error = xmlDoc is null')
                         reject('xmlDoc_is_null')
                     }
                 },
                 (error) => {
-                    console.log('error =', error)
+                    console.trace('error =', error)
                     reject(error)
                 },
             )
-        })
-    }
-
-    /**
-     * @description: 处理公共错误
-     * @param {errorCode} number
-     * @return {*} true：停止继续处理，一般为流程中断了，比如退出登录，false：需要继续处理
-     */
-    handelCommonError(errorCode: number) {
-        const { Translate } = useLangStore()
-        const { closeAllLoading } = useLoading()
-        let isStopHandle = true
-        switch (errorCode) {
-            case ErrorCode.USER_ERROR_NO_USER:
-            case ErrorCode.USER_ERROR_PWD_ERR:
-                handleUserErrorRedirectToLogin({
-                    title: Translate('IDCS_INFO_TIP'),
-                    message: Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR'),
-                })
-                break
-            case ErrorCode.USER_ERROR_SERVER_NO_EXISTS:
-                handleUserErrorRedirectToLogin({
-                    title: Translate('IDCS_INFO_TIP'),
-                    message: Translate('IDCS_LOGIN_OVERTIME'),
-                })
-                break
-            case ErrorCode.USER_ERROR_USER_LOCKED:
-                handleUserErrorRedirectToLogin({
-                    title: Translate('IDCS_INFO_TIP'),
-                    message: Translate('IDCS_LOGIN_FAIL_USER_LOCKED'),
-                })
-                break
-            case ErrorCode.USER_ERROR_INVALID_PARAM:
-                handleUserErrorRedirectToLogin({
-                    title: Translate('IDCS_INFO_TIP'),
-                    message: Translate('IDCS_USER_ERROR_INVALID_PARAM'),
-                })
-                break
-            case ErrorCode.USER_ERROR_FAIL:
-                //Session无效相关错误处理，2秒内不重复处理，防止多个API并发调用时，弹出多次会话超时提示
-                if (dayjs().valueOf() - commonErrorLastTime > 2000) {
-                    ElMessage.error(Translate(ErrorCodeMapping[errorCode]))
-                    Logout(true)
-                    commonErrorLastTime = dayjs().valueOf()
-                }
-                break
-            case ErrorCode.USER_SESSION_TIMEOUT:
-            case ErrorCode.USER_SESSION_NOTFOUND:
-                //Session无效相关错误处理，2秒内不重复处理，防止多个API并发调用时，弹出多次会话超时提示
-                if (dayjs().valueOf() - commonErrorLastTime > 2000) {
-                    ElMessage.error(Translate(ErrorCodeMapping[errorCode]))
-                    // Logout(true)
-                    commonErrorLastTime = dayjs().valueOf()
-                }
-                break
-            default:
-                isStopHandle = false
-                break
+        } else {
+            const plugin = usePlugin()
+            const p2pTransport = useP2PTransport()
+            p2pTransport.HttpRequest({
+                url: url,
+                data: getXmlWrapData(data, url),
+                callback: (buffer) => {
+                    plugin.P2pCmdSender.add({
+                        cmd: buffer,
+                        resolve: (xmlDoc: ApiResult) => {
+                            const $ = queryXml(xmlDoc)
+                            if ($('//status').text() === ApiStatus.fail) {
+                                const errorCode = queryXml(xmlDoc)('//errorCode').text().num()
+                                if (checkCommonErrorSwitch && handelCommonError(errorCode)) {
+                                    reject(errorCode)
+                                    return
+                                }
+                            }
+                            resolve(xmlDoc as ApiResult)
+                        },
+                        reject: (e) => {
+                            reject(e)
+                        },
+                    })
+                },
+            })
         }
-        closeAllLoading()
-        return isStopHandle
-    }
+    })
 }
 
-const http = new Request()
-
-export default http
-
-export { Request }
+export default fetch

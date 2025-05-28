@@ -2,54 +2,40 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-14 09:47:42
  * @Description: 新增用户
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 20:42:28
  */
-import BaseSensitiveEmailInput from '../../components/form/BaseSensitiveEmailInput.vue'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import BasePasswordStrength from '../../components/form/BasePasswordStrength.vue'
-import { UserAddForm, type UserCheckAuthForm, type UserAuthGroupOption } from '@/types/apiType/userAndSecurity'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     components: {
-        BaseSensitiveEmailInput,
-        BasePasswordStrength,
         BaseCheckAuthPop,
     },
     setup() {
         const { Translate } = useLangStore()
-        const { closeLoading, LoadingTarget, openLoading } = useLoading()
         const systemCaps = useCababilityStore()
         const userSession = useUserSessionStore()
         const router = useRouter()
 
-        const formRef = ref<FormInstance>()
+        const pageData = ref({
+            isCheckAuthPop: false,
+            isSchedulePop: false,
+            scheduleList: [] as SelectOption<string, string>[],
+            isAdmin: userSession.userType === USER_TYPE_DEFAULT_ADMIN,
+        })
+
         const formData = ref(new UserAddForm())
+        const formRef = useFormRef()
 
         // 要求的密码强度
         const passwordStrength = ref<keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING>('weak')
         // 当前密码强度
         const strength = computed(() => getPwdSaftyStrength(formData.value.password))
 
-        // 显示隐藏权限弹窗
-        const isAuthDialog = ref(false)
-
-        const authGroupOptions = ref<UserAuthGroupOption[]>([])
-        const { openMessageTipBox } = useMessageBox()
+        const authGroupOptions = ref<SelectOption<string, string>[]>([])
 
         // 密码强度提示信息
         const noticeMsg = computed(() => {
-            switch (passwordStrength.value) {
-                case 'medium':
-                    return Translate('IDCS_PASSWORD_STRONG_MIDDLE').formatForLang(8, 16)
-                case 'strong':
-                    return Translate('IDCS_PASSWORD_STRONG_HEIGHT').formatForLang(8, 16)
-                case 'stronger':
-                    return Translate('IDCS_PASSWORD_STRONG_HEIGHEST').formatForLang(8, 16)
-                default:
-                    return ''
-            }
+            return getTranslateForPasswordStrength(passwordStrength.value)
         })
 
         /**
@@ -57,12 +43,11 @@ export default defineComponent({
          */
         const getPasswordSecurityStrength = async () => {
             let strength: keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING = 'weak'
-            const isInw48 = systemCaps.supportPwdSecurityConfig // TODO: 原项目是这个值
             const result = await queryPasswordSecurity()
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                strength = ($('/response/content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
-                if (isInw48) {
+            if ($('status').text() === 'success') {
+                strength = ($('content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
+                if (!systemCaps.supportPwdSecurityConfig) {
                     strength = 'strong'
                 }
             }
@@ -73,24 +58,26 @@ export default defineComponent({
         /**
          * @description 获取权限组
          */
-        const getAuthGroup = () => {
+        const getAuthGroup = async () => {
             const sendXml = rawXml`
-                <requireField>
-                    <name/>
-                </requireField>
+                <name/>
             `
-            queryAuthGroupList(sendXml).then((result) => {
-                commLoadResponseHandler(result, ($) => {
-                    $('/response/content/item').forEach((element) => {
-                        const $element = queryXml(element.element)
-                        const item = {
-                            id: element.attr('id') as string,
-                            name: $element('name').text(),
-                        }
-                        authGroupOptions.value.push(item)
-                        formData.value.authGroup = item.id
+            const result = await queryAuthGroupList(sendXml)
+            commLoadResponseHandler(result, ($) => {
+                $('content/item').forEach((item) => {
+                    const $item = queryXml(item.element)
+                    // TSSR-2195 添加用户/编辑用户时，权限组列表不显示调试组；
+                    if ($item('groupType').text() === 'debug') {
+                        return
+                    }
+                    authGroupOptions.value.push({
+                        value: item.attr('id'),
+                        label: displayAuthGroup($item('name').text()),
                     })
                 })
+                if (authGroupOptions.value.length) {
+                    formData.value.authGroup = authGroupOptions.value[0].value
+                }
             })
         }
 
@@ -108,15 +95,17 @@ export default defineComponent({
         const rules = ref<FormRules>({
             userName: [
                 {
-                    validator: (rule, value: string, callback) => {
-                        if (!value.length) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
                         }
+
                         if (/\W/.test(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -124,15 +113,17 @@ export default defineComponent({
             ],
             password: [
                 {
-                    validator: (rule, value: string, callback) => {
-                        if (value.length === 0) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
+
                         if (strength.value < DEFAULT_PASSWORD_STREMGTH_MAPPING[passwordStrength.value as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING]) {
                             callback(new Error(Translate('IDCS_PWD_STRONG_ERROR')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -140,32 +131,35 @@ export default defineComponent({
             ],
             confirmPassword: [
                 {
-                    validator: (rule, value: string, callback) => {
-                        if (value.length === 0) {
-                            callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
-                            return
-                        }
+                    validator: (_rule, value: string, callback) => {
+                        // if (!value) {
+                        //     callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
+                        //     return
+                        // }
+
                         if (value !== formData.value.password) {
                             callback(new Error(Translate('IDCS_PWD_MISMATCH_TIPS')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
                 },
             ],
-            email: [
-                {
-                    validator: (rule, value: string, callback) => {
-                        if (value.length && !checkEmail(value)) {
-                            callback(new Error(Translate('IDCS_PROMPT_INVALID_EMAIL')))
-                            return
-                        }
-                        callback()
-                    },
-                    trigger: 'manual',
-                },
-            ],
+            // email: [
+            //     {
+            //         validator: (_rule, value: string, callback) => {
+            //             if (!!value && !checkEmail(value)) {
+            //                 callback(new Error(Translate('IDCS_PROMPT_INVALID_EMAIL')))
+            //                 return
+            //             }
+
+            //             callback()
+            //         },
+            //         trigger: 'manual',
+            //     },
+            // ],
         })
 
         /**
@@ -174,7 +168,7 @@ export default defineComponent({
         const verify = () => {
             formRef.value!.validate((valid) => {
                 if (valid) {
-                    isAuthDialog.value = true
+                    pageData.value.isCheckAuthPop = true
                 }
             })
         }
@@ -184,20 +178,21 @@ export default defineComponent({
          * @param e
          */
         const doCreateUser = async (e: UserCheckAuthForm) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
-            // TODO 原项目中bindMacSwitch和mac的输入框是隐藏的
             const sendXml = rawXml`
                 <content>
-                    <userName>${wrapCDATA(formData.value.userName)}</userName>
+                    <userName maxByteLen="63">${wrapCDATA(formData.value.userName)}</userName>
                     <password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(MD5_encrypt(formData.value.password), userSession.sesionKey))}</password>
                     <email>${wrapCDATA(formData.value.email)}</email>
-                    <modifyPassword>${String(formData.value.allowModifyPassword)}</modifyPassword>
-                    <authGroupId>${formData.value.authGroup}</authGroupId>
+                    <modifyPassword>${formData.value.allowModifyPassword}</modifyPassword>
+                    ${pageData.value.isAdmin ? `<accessCode>${formData.value.accessCode}</accessCode>` : ''}
+                    <authGroupId>${wrapCDATA(formData.value.authGroup)}</authGroupId>
                     <bindMacSwitch>false</bindMacSwitch>
-                    <mac>${wrapCDATA('00:00:00:00:00:00')}</mac>
+                    <mac>${wrapCDATA(DEFAULT_EMPTY_MAC)}</mac>
                     <enabled>true</enabled>
                     <authEffective>true</authEffective>
+                    <loginScheduleInfo enable="${formData.value.loginScheduleInfoEnabled}" scheduleId="${formData.value.loginScheduleInfo}"></loginScheduleInfo>
                 </content>
                 <auth>
                     <userName>${e.userName}</userName>
@@ -207,14 +202,14 @@ export default defineComponent({
             const result = await createUser(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
-            if ($('/response/status').text() === 'success') {
-                isAuthDialog.value = false
+            if ($('status').text() === 'success') {
+                pageData.value.isCheckAuthPop = false
                 goBack()
             } else {
                 let errorInfo = ''
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NAME_EXISTED:
                         errorInfo = Translate('IDCS_USER_EXISTED_TIPS')
@@ -222,10 +217,12 @@ export default defineComponent({
                     case ErrorCode.USER_ERROR_OVER_LIMIT:
                         errorInfo = Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT')
                         break
+                    // 密码错误
                     case ErrorCode.USER_ERROR_NO_USER:
                     case ErrorCode.USER_ERROR_PWD_ERR:
                         errorInfo = Translate('IDCS_DEVICE_PWD_ERROR')
                         break
+                    // 鉴权账号无相关权限
                     case ErrorCode.USER_ERROR_NO_AUTH:
                         errorInfo = Translate('IDCS_NO_AUTH')
                         break
@@ -233,9 +230,8 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                         break
                 }
-                openMessageTipBox({
+                openMessageBox({
                     type: 'error',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: errorInfo,
                 })
             }
@@ -248,9 +244,23 @@ export default defineComponent({
             router.push('/config/security/user/list')
         }
 
-        onMounted(() => {
-            getPasswordSecurityStrength()
-            getAuthGroup()
+        const getScheduleList = async () => {
+            pageData.value.scheduleList = await buildScheduleList()
+        }
+
+        const closeSchedulePop = async () => {
+            pageData.value.isSchedulePop = false
+            await getScheduleList()
+            formData.value.loginScheduleInfo = getScheduleId(pageData.value.scheduleList, formData.value.loginScheduleInfo)
+        }
+
+        onMounted(async () => {
+            openLoading()
+            await getScheduleList()
+            await getPasswordSecurityStrength()
+            await getAuthGroup()
+            formData.value.loginScheduleInfo = pageData.value.scheduleList[0].value
+            closeLoading()
         })
 
         return {
@@ -259,18 +269,12 @@ export default defineComponent({
             rules,
             authGroupOptions,
             strength,
-            isAuthDialog,
-            nameByteMaxLen,
+            pageData,
             doCreateUser,
             verify,
             goBack,
             noticeMsg,
-            formatInputMaxLength,
-            formatInputUserName,
-            displayAuthGroup,
-            BaseSensitiveEmailInput,
-            BasePasswordStrength,
-            BaseCheckAuthPop,
+            closeSchedulePop,
         }
     },
 })

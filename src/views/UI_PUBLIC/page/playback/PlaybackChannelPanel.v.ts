@@ -2,18 +2,19 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-06 20:36:58
  * @Description: 回放-通道视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 10:54:52
  */
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
-import ChannelGroupAdd from '../channel/ChannelGroupAdd.vue'
-import { ChlGroup } from '@/types/apiType/channel'
-import { type PlaybackChlList, type PlaybackChannelGroupList } from '@/types/apiType/playback'
+import ChannelGroupAddPop from '../channel/ChannelGroupAddPop.vue'
+
+export interface ChannelPanelExpose {
+    removeChls(chl: string[]): void
+    setChls(chl: string[]): void
+}
 
 export default defineComponent({
     components: {
         ChannelGroupEditPop,
-        ChannelGroupAdd,
+        ChannelGroupAddPop,
     },
     props: {
         /**
@@ -22,14 +23,12 @@ export default defineComponent({
         mode: {
             type: String,
             required: true,
-            default: '',
         },
         /**
          * @property 播放类型
          */
         type: {
             type: String as PropType<'live' | 'record'>,
-            required: false,
             default: 'record',
         },
     },
@@ -46,11 +45,13 @@ export default defineComponent({
         search(chls: PlaybackChlList[]) {
             return Array.isArray(chls)
         },
+        trigger(bool: boolean) {
+            return typeof bool === 'boolean'
+        },
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const systemCaps = useCababilityStore()
 
         // 通道ID与通道名称的映射
         const chlMap = ref<Record<string, string>>({})
@@ -94,17 +95,16 @@ export default defineComponent({
             // 打开编辑通道组弹窗
             isEditChlGroup: false,
             // 编辑数据
-            editChlGroup: new ChlGroup(),
+            editChlGroup: new ChannelGroupDto(),
             // 通道视图是否显示
             isOpen: true,
-            maxChl: 4,
         })
 
         const chlGroupElement = ref<HTMLDivElement>()
 
         // 最大通道数
         const maxChl = computed(() => {
-            return Math.min(pageData.value.cacheChlList.length, pageData.value.maxChl)
+            return Math.min(pageData.value.cacheChlList.length, prop.mode === 'ocx' ? systemCaps.playbackMaxWin : 4)
         })
 
         // 通道全选
@@ -121,9 +121,9 @@ export default defineComponent({
 
             chlMap.value = {}
 
-            if ($('/response/status').text() === 'success') {
-                pageData.value.cacheChlList = $('/response/content/item').map((item) => {
-                    const id = item.attr('id')!
+            if ($('status').text() === 'success') {
+                pageData.value.cacheChlList = $('content/item').map((item) => {
+                    const id = item.attr('id')
 
                     // 新获取的通道列表若没有已选中的通道，移除该选中的通道
                     const index = pageData.value.selectedChl.indexOf('id')
@@ -166,12 +166,12 @@ export default defineComponent({
          * @description 刷新通道列表
          */
         const refreshChl = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             pageData.value.chlKeyword = ''
             await getChlsList()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
@@ -181,6 +181,7 @@ export default defineComponent({
             if (!pageData.value.selectedChl.length) {
                 return
             }
+            ctx.emit('trigger', true)
             ctx.emit('search', sortedSelectedChlList.value)
         }
 
@@ -188,6 +189,7 @@ export default defineComponent({
          * @description 触发左下角播放选中的通道
          */
         const play = () => {
+            ctx.emit('trigger', false)
             ctx.emit('play', sortedSelectedChlList.value)
         }
 
@@ -202,6 +204,7 @@ export default defineComponent({
                 if (pageData.value.selectedChl.length >= maxChl.value) {
                     return
                 }
+
                 for (const index in chlList.value) {
                     if (!pageData.value.selectedChl.includes(chlList.value[index])) {
                         pageData.value.selectedChl.push(chlList.value[index])
@@ -222,23 +225,21 @@ export default defineComponent({
                     <name/>
                 </requireField>
             `
-            const result = await queryChlGroupList(getXmlWrapData(sendXml))
+            const result = await queryChlGroupList(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                pageData.value.chlGroupList = $('/response/content/item').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.chlGroupList = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         value: $item('name').text(),
-                        dwellTime: Number($item('dwellTime').text()),
+                        dwellTime: $item('dwellTime').text().num(),
+                        nameMaxByteLen: $('content/itemType/name').attr('maxByteLen').num() || nameByteMaxLen,
                     }
                 })
             } else {
-                if (Number($('/response/errorCode').text()) === ErrorCode.USER_ERROR_NO_AUTH) {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_NO_PERMISSION'),
-                    })
+                if ($('errorCode').text().num() === ErrorCode.USER_ERROR_NO_AUTH) {
+                    openMessageBox(Translate('IDCS_NO_PERMISSION'))
                 }
             }
         }
@@ -251,7 +252,9 @@ export default defineComponent({
         const setWinFromChlGroup = async (id: string) => {
             await getChlListOfGroup(id)
             if (pageData.value.chlListOfGroup.length) {
-                ctx.emit('play', pageData.value.chlListOfGroup.slice(0, pageData.value.maxChl))
+                const slice = pageData.value.chlListOfGroup.slice(0, prop.mode === 'ocx' ? systemCaps.playbackMaxWin : 4)
+                ctx.emit('play', slice)
+                pageData.value.selectedChl = slice.map((item) => item.id)
             }
         }
 
@@ -267,13 +270,13 @@ export default defineComponent({
                     <chlGroupId>${id}</chlGroupId>
                 </condition>
             `
-            const result = await queryChlGroup(getXmlWrapData(sendXml))
+            const result = await queryChlGroup(sendXml)
             const $ = queryXml(result)
 
-            if ($('/response/status').text() === 'success') {
-                pageData.value.chlListOfGroup = $('/response/content/chlList/item').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.chlListOfGroup = $('content/chlList/item').map((item) => {
                     return {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         value: item.text(),
                     }
                 })
@@ -303,6 +306,7 @@ export default defineComponent({
                 pageData.value.editChlGroup.id = find.id
                 pageData.value.editChlGroup.name = find.value
                 pageData.value.editChlGroup.dwellTime = find.dwellTime
+                pageData.value.editChlGroup.nameMaxByteLen = find.nameMaxByteLen
 
                 pageData.value.isEditChlGroup = true
             }
@@ -322,12 +326,11 @@ export default defineComponent({
             const id = pageData.value.activeChlGroup
             const findItem = pageData.value.chlGroupList.find((item) => item.id === id)
             if (findItem) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'question',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_DELETE_MP_GROUP_S').formatForLang(getShortString(findItem.value, 10)),
                 }).then(async () => {
-                    openLoading(LoadingTarget.FullScreen)
+                    openLoading()
                     const sendXml = rawXml`
                         <condition>
                             <chlGroupIds type="list">
@@ -335,19 +338,13 @@ export default defineComponent({
                             </chlGroupIds>
                         </condition>
                     `
-                    const result = await delChlGroup(getXmlWrapData(sendXml))
-                    const $ = queryXml(result)
-                    closeLoading(LoadingTarget.FullScreen)
-                    if ($('/response/status').text() === 'success') {
-                        openMessageTipBox({
-                            type: 'success',
-                            title: Translate('IDCS_SUCCESS_TIP'),
-                            message: Translate('IDCS_DELETE_SUCCESS'),
-                        }).then(() => {
-                            getChlGroupList()
-                            pageData.value.chlListOfGroup = []
-                        })
-                    }
+                    const result = await delChlGroup(sendXml)
+
+                    closeLoading()
+                    commDelResponseHandler(result, () => {
+                        getChlGroupList()
+                        pageData.value.chlListOfGroup = []
+                    })
                 })
             }
         }
@@ -365,7 +362,7 @@ export default defineComponent({
         const mousemoveChlGroupPosition = (event: MouseEvent) => {
             if (mousedown) {
                 const rect = chlGroupElement.value!.getBoundingClientRect()
-                const position = Math.max(20, Math.min(80, ((event.clientY - rect.top) / rect.height) * 100))
+                const position = clamp(((event.clientY - rect.top) / rect.height) * 100, 20, 80)
                 pageData.value.chlGroupHeight = `${position}%`
             }
         }
@@ -396,23 +393,40 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 移除选中的通道
+         * @param {string[]} chls
+         */
+        const removeChls = (chls: string[]) => {
+            const selectedChl = pageData.value.selectedChl.filter((item) => {
+                return !chls.includes(item)
+            })
+            pageData.value.selectedChl = selectedChl
+        }
+
+        const setChls = (chls: string[]) => {
+            pageData.value.selectedChl = chls
+        }
+
         watch(
             () => pageData.value.selectedChl,
             () => {
+                ctx.emit('trigger', false)
                 ctx.emit('change', sortedSelectedChlList.value)
             },
         )
 
         onMounted(async () => {
             await getChlsList()
-            if (history.state && history.state.chlId) {
-                if (Object.keys(chlMap.value).includes(history.state.chlId as string)) {
-                    pageData.value.selectedChl.push(history.state.chlId as string)
-                }
-            }
+
             nextTick(() => {
                 ctx.emit('ready')
             })
+        })
+
+        ctx.expose({
+            removeChls,
+            setChls,
         })
 
         return {
@@ -435,8 +449,6 @@ export default defineComponent({
             setWinFromChlGroup,
             search,
             play,
-            ChannelGroupEditPop,
-            ChannelGroupAdd,
         }
     },
 })

@@ -2,11 +2,9 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-04 16:47:04
  * @Description: 健康状态检测
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 17:26:50
 -->
 <template>
-    <div class="HealthStatusCheck">
+    <div>
         <div
             v-show="!pageData.isDetail"
             class="main"
@@ -17,7 +15,10 @@
                     v-for="(item, key) in pageData.diskList"
                     :key="item.id"
                     class="diskcard"
-                    :class="{ warning: item.healthStatusValue === 'warning' }"
+                    :class="{
+                        warning: item.healthStatusValue === 'warning',
+                    }"
+                    :title="displayDiskName(key)"
                     @click="changeDiskCard(key)"
                 >
                     <div>
@@ -42,8 +43,10 @@
                 <span
                     class="detail-back"
                     @click="goBack"
-                    >&lt; {{ Translate('IDCS_BACK') }}</span
                 >
+                    <i></i>
+                    {{ Translate('IDCS_BACK') }}
+                </span>
                 <div class="detail-logo">
                     <BaseImgSprite
                         file="disk_logo"
@@ -53,37 +56,57 @@
                 </div>
             </div>
             <div class="detail-info">
-                <span class="detail-num">{{ diskNum }}</span>
                 <span class="detail-sn">{{ diskName }}</span>
                 <span class="detail-status">{{ healthStatus }}</span>
+                <div class="detail-left">
+                    <div
+                        v-for="(item, key) in pageData.diskList"
+                        :key="item.id"
+                        class="detail-num"
+                        :class="{
+                            active: pageData.diskIndex === key,
+                            'text-error': item.healthStatusValue === 'warning',
+                        }"
+                        :title="displayDiskName(key)"
+                        @click="changeDiskCard(key)"
+                    >
+                        {{ item.name }}
+                    </div>
+                </div>
             </div>
             <div class="detail-table">
                 <div class="base-table-box">
                     <el-table
+                        v-title
                         :data="tableData"
-                        stripe
-                        border
+                        show-overflow-tooltip
+                        highlight-current-row
                     >
+                        <el-table-column
+                            :label="Translate('IDCS_SERIAL_NUMBER')"
+                            type="index"
+                            width="70"
+                        />
                         <el-table-column
                             :label="Translate('IDCS_ALARM_NAME')"
                             prop="name"
-                        >
-                        </el-table-column>
+                            min-width="245"
+                        />
                         <el-table-column
                             :label="Translate('IDCS_STATE')"
                             prop="status"
-                        >
-                        </el-table-column>
+                            width="145"
+                        />
                         <el-table-column
                             :label="Translate('IDCS_DISK_SMART_VALUE')"
                             prop="value"
-                        >
-                        </el-table-column>
+                            width="145"
+                        />
                         <el-table-column
                             :label="Translate('IDCS_SUGGESTION')"
                             prop="suggest"
-                        >
-                        </el-table-column>
+                            min-width="492"
+                        />
                     </el-table>
                 </div>
             </div>
@@ -94,136 +117,181 @@
 <script lang="ts" src="./HealthStatusCheck.v.ts"></script>
 
 <style lang="scss" scoped>
-.HealthStatusCheck {
-    .top {
-        padding: 20px 44px;
-        font-size: 20px;
-        font-weight: bold;
-    }
+.top {
+    padding: 20px 44px;
+    font-size: 20px;
+    font-weight: bold;
+}
 
-    .list {
+.list {
+    display: flex;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    padding: 0 44px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.diskcard {
+    width: 45%;
+    border: 1px solid var(--content-border);
+    border-radius: 6px;
+    box-sizing: border-box;
+    padding: 15px;
+    font-size: 14px;
+    color: var(--main-text);
+    height: 200px;
+    cursor: pointer;
+    margin-right: 40px;
+    margin-bottom: 40px;
+    overflow: hidden;
+
+    & > div {
         display: flex;
-        justify-content: flex-start;
-        flex-wrap: wrap;
-        padding: 0 44px;
-        width: 100%;
-        box-sizing: border-box;
+        height: 75px;
     }
 
-    .diskcard {
-        width: 450px;
-        border: 1px solid var(--border-color2);
-        border-radius: 6px;
-        box-sizing: border-box;
-        padding: 15px;
-        font-size: 14px;
-        color: var(--text-menu-01);
-        height: 200px;
+    &-logo {
+        display: flex;
+    }
+
+    &-name {
+        width: 50%;
+        margin-right: 20px;
+    }
+
+    &-img {
+        flex-shrink: 0;
+        margin-right: 10px;
+    }
+
+    &-status {
+        font-size: 20px;
+        text-align: center;
+        font-weight: bold;
+        color: var(--breadcrumb-text);
+        margin: 0;
+        line-height: 1;
+    }
+
+    &:hover {
+        background-color: var(--primary);
+        color: white;
+
+        .diskcard-status {
+            color: white;
+        }
+    }
+
+    &.warning &-status {
+        color: var(--color-error);
+    }
+}
+
+.detail {
+    &-top {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        flex-shrink: 0;
+    }
+
+    &-back {
+        font-size: 16px;
         cursor: pointer;
-        margin-right: 40px;
-        margin-bottom: 40px;
-
-        & > div {
-            display: flex;
-            height: 75px;
-        }
-
-        &-logo {
-            display: flex;
-        }
-
-        &-name {
-            width: 50%;
-            margin-right: 20px;
-        }
-
-        &-img {
-            flex-shrink: 0;
-            margin-right: 10px;
-        }
-
-        &-status {
-            font-size: 20px;
-            text-align: center;
-            font-weight: bold;
-            color: var(--text-nav);
-            margin: 0;
-            line-height: 1;
-        }
+        display: inline-flex;
+        align-items: center;
 
         &:hover {
-            background-color: var(--primary--04);
-            color: white;
+            color: var(--primary);
 
-            .diskcard-status {
-                color: white;
+            i {
+                border-top-color: var(--primary);
+                border-left-color: var(--primary);
             }
         }
 
-        &.warning &-status {
-            color: var(--error--01);
+        i {
+            border-right: 2px solid transparent;
+            border-top: 2px solid var(--main-text);
+            border-bottom: 2px solid transparent;
+            border-left: 2px solid var(--main-text);
+            width: 8px;
+            height: 8px;
+            transform: rotate(-45deg);
         }
     }
 
-    .detail {
-        &-top {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            flex-shrink: 0;
+    &-right {
+        width: 100%;
+    }
+
+    &-logo {
+        display: flex;
+        width: 200px;
+        font-size: 14px;
+        color: var(--main-text);
+    }
+
+    &-info {
+        display: flex;
+        height: 36px;
+        line-height: 36px;
+        margin-bottom: 10px;
+        flex-shrink: 0;
+        position: relative;
+    }
+
+    &-num {
+        width: 36px;
+        height: 36px;
+        line-height: 36px;
+        flex-shrink: 0;
+        text-align: center;
+        font-size: 16px;
+        margin-right: 20px;
+        border-radius: 100%;
+        margin-left: 20px;
+        border: 1px solid var(--btn-border);
+        margin-bottom: 18px;
+        cursor: pointer;
+
+        &:hover {
+            color: var(--primary);
+            border-color: var(--primary);
         }
 
-        &-back {
-            font-size: 16px;
-            cursor: pointer;
-
-            &:hover {
-                color: var(--primary--04);
-            }
+        &.active {
+            color: var(--main-text-active);
+            background-color: var(--primary);
+            border-color: var(--primary);
         }
+    }
 
-        &-logo {
-            display: flex;
-            width: 200px;
-            font-size: 14px;
-            color: var(--text-menu-01);
-        }
+    &-left {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 76px;
+        // flex-shrink: 0;
+    }
 
-        &-info {
-            display: flex;
-            height: 36px;
-            line-height: 36px;
-            margin-bottom: 10px;
-            flex-shrink: 0;
-        }
+    &-sn {
+        padding-left: 76px;
+    }
 
-        &-num {
-            width: 36px;
-            height: 36px;
-            line-height: 36px;
-            flex-shrink: 0;
-            background-color: var(--primary--04);
-            text-align: center;
-            color: #fff;
-            font-size: 16px;
-            margin-right: 20px;
-            border-radius: 100%;
-            margin-left: 20px;
-        }
+    &-status {
+        font-size: 20px;
+        font-weight: bold;
+        margin-left: 20px;
+    }
 
-        &-status {
-            font-size: 20px;
-            font-weight: bold;
-            margin-left: 20px;
-        }
-
-        &-table {
-            width: 100%;
-            box-sizing: border-box;
-            padding-left: 76px;
-            height: 100%;
-        }
+    &-table {
+        width: 100%;
+        box-sizing: border-box;
+        padding-left: 76px;
+        height: 100%;
     }
 }
 </style>

@@ -1,0 +1,199 @@
+/*
+ * @Date: 2025-01-14 16:14:15
+ * @Description: 预览和回放的一些公共样式
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ */
+.base-home-panel {
+    height: 100%;
+    flex-shrink: 0;
+    background-color: var(--panel-bg);
+
+    &-content {
+        width: 260px;
+        height: 100%;
+    }
+
+    &-hide {
+        width: 16px;
+        height: 100%;
+
+        .base-home-panel-top {
+            border-bottom: none;
+        }
+    }
+
+    &-bottom {
+        height: calc(100% - 100px);
+    }
+
+    &-top {
+        display: flex;
+        width: 100%;
+        height: 50px;
+        align-items: center;
+        color: var(--panel-header-text);
+        background-color: var(--panel-header-bg);
+
+        .left & {
+            justify-content: space-between;
+
+            & > div {
+                margin-left: 10px;
+            }
+
+            &:hover .base-home-panel-arrow {
+                border-right-color: var(--primary);
+            }
+        }
+
+        .right & {
+            justify-content: flex-start;
+
+            & > div {
+                margin-right: 10px;
+            }
+
+            &:hover .base-home-panel-arrow {
+                border-left-color: var(--primary);
+            }
+        }
+    }
+
+    &-arrow {
+        border: 8px solid transparent;
+        font-size: 0;
+        width: 0;
+        height: 0;
+        line-height: 0;
+        cursor: pointer;
+        position: relative;
+
+        &::after {
+            content: '';
+            border: 4px solid transparent;
+            position: absolute;
+            width: 0;
+            height: 0;
+            top: -4px;
+        }
+
+        .left & {
+            border-right: 8px solid var(--panel-header-text);
+            margin-right: 10px;
+
+            &::after {
+                left: 0;
+                border-right: 4px solid var(--panel-header-bg);
+            }
+
+            &.hide {
+                transform: rotate(180deg);
+                left: -5px;
+            }
+        }
+
+        .right & {
+            border-left: 8px solid var(--panel-header-text);
+            margin-left: 10px;
+
+            &::after {
+                right: 0;
+                border-left: 4px solid var(--panel-header-bg);
+            }
+
+            &.hide {
+                transform: rotate(180deg);
+                margin-left: -5px;
+            }
+        }
+    }
+
+    &-menu {
+        height: 50px;
+        background-color: var(--panel-menu-bg);
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        flex-shrink: 0;
+
+        &-item {
+            background-color: transparent;
+            width: 42px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 13px 2px;
+
+            &.stroke {
+                border-top: 3px solid transparent;
+
+                &.active {
+                    border-top-color: var(--primary);
+                }
+            }
+
+            &.narrow {
+                margin: 0 4px 2px;
+            }
+
+            &.active {
+                background-color: var(--panel-menu-bg-active);
+            }
+        }
+    }
+}
+
+.base-home-ptz {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 5px;
+
+    .BaseListBox {
+        height: 100%;
+        padding: 0 14px;
+        box-sizing: border-box;
+
+        li {
+            height: 20px;
+            line-height: 20px;
+            border-bottom: 1px solid var(--panel-ptz-border);
+            border-inline: 1px solid transparent;
+
+            &:not(.active):hover {
+                border-top-color: transparent;
+                border-bottom-color: var(--panel-ptz-border);
+                background-color: var(--primary-light);
+            }
+        }
+    }
+
+    &-btns {
+        display: flex;
+        justify-content: flex-end;
+        flex-shrink: 0;
+        width: 90%;
+        margin: 0 5%;
+        padding-top: 5px;
+        border-top: 1px solid var(--btn-border);
+
+        span {
+            margin-left: 5px;
+        }
+
+        &.space-between {
+            justify-content: space-between;
+        }
+    }
+
+    &-text {
+        width: 100%;
+        height: 100%;
+    }
+
+    &-seconds {
+        color: var(--primary);
+    }
+}

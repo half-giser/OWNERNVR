@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 11:47:13
  * @Description: 功能面板-AI/事件
  */
-export default {
+const aiAndEventRoutes: FeatureItem = {
     path: 'alarm',
     component: 'layout/L2T1Layout.vue',
     meta: {
@@ -11,6 +11,7 @@ export default {
         lk: 'IDCS_AI_AND_EVENT',
         plClass: 'md2',
         icon: 'alarm',
+        auth: 'alarmMgr',
         groups: {
             //事件通知
             eventNotify: {
@@ -24,35 +25,35 @@ export default {
                 lk: 'IDCS_AI_EVENT',
                 icon: 'intelligentAlarm_s',
             },
-            //
-            database: {
+            // 智能配置 1.4.13
+            target: {
                 sort: 30,
-                lk: 'IDCS_FACE_LIBRARY_SELECT',
-                icon: 'database_s',
+                lk: 'IDCS_INTELLIGENT_CONFIG',
+                icon: 'config_intelligent',
             },
             //普通事件
             generalEvent: {
-                sort: 30,
+                sort: 50,
                 lk: 'IDCS_GENERAL_EVENT',
                 icon: 'motionAlarm_s',
             },
             //系统撤防
             systemDisarm: {
-                sort: 40,
+                sort: 80,
                 lk: 'IDCS_SYSTEM_ARM',
                 icon: 'systemDisarm',
             },
             //报警状态
             alarmStatus: {
-                sort: 50,
+                sort: 90,
                 lk: 'IDCS_ALARM_STATE',
                 icon: 'alarmStatus_s',
             },
         },
     },
     children: {
+        // 报警输出
         alarmOut: {
-            //报警输出
             path: 'alarm_out',
             component: 'aiAndEvent/AlarmOut.vue',
             meta: {
@@ -62,10 +63,11 @@ export default {
                 default: true,
                 inHome: 'self',
                 homeSort: 50,
+                homeDefault: true,
             },
         },
+        // E-Mail
         alarmEmailReceiver: {
-            //E-Mail
             path: 'email',
             component: 'aiAndEvent/EmailReceiver.vue',
             meta: {
@@ -74,8 +76,8 @@ export default {
                 group: 'eventNotify',
             },
         },
+        // 显示
         alarmDisplay: {
-            //显示
             path: 'display',
             component: 'aiAndEvent/Display.vue',
             meta: {
@@ -84,8 +86,8 @@ export default {
                 group: 'eventNotify',
             },
         },
+        // 蜂鸣器
         alarmBuzzer: {
-            //蜂鸣器
             path: 'beeper',
             component: 'aiAndEvent/Buzzer.vue',
             meta: {
@@ -94,8 +96,8 @@ export default {
                 group: 'eventNotify',
             },
         },
+        // 推送
         alarmPush: {
-            //推送
             path: 'push',
             component: 'aiAndEvent/Push.vue',
             meta: {
@@ -104,18 +106,19 @@ export default {
                 group: 'eventNotify',
             },
         },
+        // 声音
         alarmAudio: {
-            //声音
             path: 'audioAlarmOut',
             component: 'aiAndEvent/Audio.vue',
             meta: {
                 sort: 60,
                 lk: 'IDCS_AUDIO',
                 group: 'eventNotify',
+                minHeight: 800,
             },
         },
+        // 闪动
         alarmLight: {
-            //闪动
             path: 'whiteLightAlarmOut',
             component: 'aiAndEvent/Light.vue',
             meta: {
@@ -124,85 +127,192 @@ export default {
                 group: 'eventNotify',
             },
         },
+        // 报警服务器
         alarmServer: {
-            //报警服务器
             path: 'server',
             component: 'aiAndEvent/AlarmServer.vue',
             meta: {
                 sort: 80,
                 lk: 'IDCS_ALARM_SERVER',
                 group: 'eventNotify',
+                minHeight: 800,
+                hasCap(systemCaps) {
+                    return systemCaps.supportAlarmServerConfig
+                },
             },
         },
-        alaramScheduleAdd: {
-            //
-            path: 'schedule/add',
-            component: 'aiAndEvent/ScheduleAdd.vue',
-            meta: {
-                sort: 90,
-                lk: 'IDCS_ADD_SCHEDULE',
-                group: 'eventNotify',
-            },
-        },
-        alaramScheduleManage: {
-            //
-            path: 'schedule/manager',
-            component: 'aiAndEvent/ScheduleManage.vue',
-            meta: {
-                sort: 100,
-                lk: 'IDCS_SCHEDULE_MANAGE',
-                group: 'eventNotify',
-            },
-        },
-        perimeterDetection: {
-            //周界防范
-            path: 'alarm/boundary',
-            component: 'aiAndEvent/PerimeterDetection.vue',
+        // 事件启用 1.4.13
+        intelligentMode: {
+            path: 'intelligentMode',
+            component: 'aiAndEvent/IntelligentMode.vue',
             meta: {
                 sort: 10,
+                lk: 'IDCS_EVENT_ENABLEMENT',
+                group: 'aiEvent',
+            },
+        },
+        // 周界防范
+        perimeterDetection: {
+            path: 'boundary',
+            component: 'aiAndEvent/PerimeterDetection.vue',
+            meta: {
+                sort: 20,
                 lk: 'IDCS_HUMAN_CAR_OTHER_BOUNDARY',
                 group: 'aiEvent',
                 default: true,
                 inHome: 'self',
                 homeSort: 10,
+                minWidth: 1560,
+                minHeight: 850,
+                hasCap(systemCaps) {
+                    return !systemCaps.IntelAndFaceConfigHide
+                },
+            },
+            async beforeEnter(to, from, next) {
+                const { Translate } = useLangStore()
+                const flag = await checkChlListCaps('boundary')
+                if (flag) {
+                    next()
+                } else {
+                    openMessageBox(Translate('IDCS_ADD_INTEL_CHANNEL_TIP').formatForLang(Translate('IDCS_HUMAN_CAR_OTHER_BOUNDARY')))
+                    if (from.fullPath === to.fullPath) {
+                        next('/live')
+                    } else {
+                        next(from)
+                    }
+                }
             },
         },
+        // 人脸识别
         faceRecognition: {
-            //人脸识别
             path: 'faceRecognition',
             component: 'aiAndEvent/FaceRecognition.vue',
             meta: {
-                sort: 20,
+                sort: 30,
                 lk: 'IDCS_FACE_RECOGNITION',
                 group: 'aiEvent',
                 inHome: 'self',
                 homeSort: 20,
+                minWidth: 1560,
+                minHeight: 850,
+                hasCap(systemCaps) {
+                    return !systemCaps.IntelAndFaceConfigHide
+                },
+            },
+            async beforeEnter(to, from, next) {
+                const { Translate } = useLangStore()
+                const flag = await checkChlListCaps('faceRecognition')
+                if (flag) {
+                    next()
+                } else {
+                    openMessageBox(Translate('IDCS_ADD_INTEL_CHANNEL_TIP').formatForLang(Translate('IDCS_FACE_RECOGNITION')))
+                    if (from.fullPath === to.fullPath) {
+                        next('/live')
+                    } else {
+                        next(from)
+                    }
+                }
             },
         },
+        // 车牌识别
         lrp: {
-            //车牌识别
             path: 'vehicleRecognition',
             component: 'aiAndEvent/LPR.vue',
             meta: {
-                sort: 30,
+                sort: 40,
                 lk: 'IDCS_VEHICLE_DETECTION',
                 group: 'aiEvent',
                 inHome: 'self',
                 homeSort: 30,
+                minWidth: 1560,
+                minHeight: 850,
+                hasCap(systemCaps) {
+                    return !systemCaps.IntelAndFaceConfigHide
+                },
+            },
+            async beforeEnter(to, from, next) {
+                const { Translate } = useLangStore()
+                const flag = await checkChlListCaps('vehicleRecognition')
+                if (flag) {
+                    next()
+                } else {
+                    openMessageBox(Translate('IDCS_ADD_INTEL_CHANNEL_TIP').formatForLang(Translate('IDCS_VEHICLE_DETECTION')))
+                    if (from.fullPath === to.fullPath) {
+                        next('/live')
+                    } else {
+                        next(from)
+                    }
+                }
+            },
+            alias: '/intelligent-analysis/sample-data-base/sample-data-base-licence-plate',
+        },
+        // 视频结构化 1.4.13
+        videoStructure: {
+            path: 'videoStructure',
+            component: 'aiAndEvent/VideoStructure.vue',
+            meta: {
+                sort: 50,
+                lk: 'IDCS_VSD_DETECTION',
+                group: 'aiEvent',
+                minWidth: 1560,
+                minHeight: 850,
+            },
+            async beforeEnter(to, from, next) {
+                const { Translate } = useLangStore()
+                const flag = await checkChlListCaps('videoStructure')
+                if (flag) {
+                    next()
+                } else {
+                    openMessageBox(Translate('IDCS_ADD_INTEL_CHANNEL_TIP').formatForLang(Translate('IDCS_VEHICLE_DETECTION')))
+                    if (from.fullPath === to.fullPath) {
+                        next('/live')
+                    } else {
+                        next(from)
+                    }
+                }
             },
         },
+        // 更多
         aiEventMore: {
-            //更多
             path: 'more',
             component: 'aiAndEvent/More.vue',
             meta: {
-                sort: 40,
+                sort: 60,
                 lk: 'IDCS_MORE',
                 group: 'aiEvent',
+                minWidth: 1560,
+                minHeight: 850,
+                hasCap(systemCaps) {
+                    return !systemCaps.IntelAndFaceConfigHide
+                },
+            },
+            async beforeEnter(to, from, next) {
+                const { Translate } = useLangStore()
+                const flag = await checkChlListCaps('more')
+                if (flag) {
+                    next()
+                } else {
+                    openMessageBox(Translate('IDCS_ADD_INTEL_CHANNEL_TIP').formatForLang(Translate('IDCS_INTELLIGENT')))
+                    if (from.fullPath === to.fullPath) {
+                        next('/live')
+                    } else {
+                        next(from)
+                    }
+                }
             },
         },
+        // 目标侦测 1.4.13
+        detectTarget: {
+            path: 'detectTarget',
+            component: 'aiAndEvent/DetectTarget.vue',
+            meta: {
+                sort: 10,
+                lk: 'IDCS_PICTURE_COMPARSION',
+                group: 'target',
+            },
+        },
+        // 移动侦测
         motionEventConfig: {
-            //移动侦测
             path: 'motion',
             component: 'aiAndEvent/MotionEventConfig.vue',
             meta: {
@@ -214,8 +324,8 @@ export default {
                 homeSort: 60,
             },
         },
+        // 传感器
         sensorEventConfig: {
-            //传感器
             path: 'sensor',
             component: 'aiAndEvent/SensorEventConfig.vue',
             meta: {
@@ -226,8 +336,8 @@ export default {
                 homeSort: 40,
             },
         },
+        // 组合报警
         combinationAlarm: {
-            //组合报警
             path: 'combined',
             component: 'aiAndEvent/CombinationAlarm.vue',
             meta: {
@@ -236,38 +346,47 @@ export default {
                 group: 'generalEvent',
             },
         },
+        // 前端掉线
         ipcOffline: {
-            //前端掉线
             path: 'offline',
             component: 'aiAndEvent/IpcOffline.vue',
             meta: {
                 sort: 40,
                 lk: 'IDCS_FRONT_OFFLINE',
                 group: 'generalEvent',
+                hasCap(systemCaps) {
+                    return !!systemCaps.ipChlMaxCount
+                },
             },
         },
+        // 异常报警
         exceptionAlarm: {
-            //异常报警
             path: 'abnormal',
             component: 'aiAndEvent/ExceptionAlarm.vue',
             meta: {
                 sort: 170,
                 lk: 'IDCS_ABNORMAL_ALARM',
                 group: 'generalEvent',
+                hasCap(systemCaps) {
+                    return !!systemCaps.ipChlMaxCount
+                },
             },
         },
+        // 视频丢失
         alarmVideoLoss: {
-            //
             path: 'video/loss',
             component: 'aiAndEvent/VideoLoss.vue',
             meta: {
                 sort: 180,
                 lk: 'IDCS_VIDEO_LOSE_SET',
                 group: 'generalEvent',
+                hasCap(systemCaps) {
+                    return !!systemCaps.analogChlCount
+                },
             },
         },
+        // 系统撤防
         systemDisarm: {
-            //系统撤防
             path: 'systemDisarm',
             component: 'aiAndEvent/SystemDisarm.vue',
             meta: {
@@ -276,11 +395,28 @@ export default {
                 group: 'systemDisarm',
                 default: true,
             },
+            // 撤防布防界面，若没有开启远程权限，提示开启权限，页面不跳转
+            async beforeEnter(to, from, next) {
+                const { Translate } = useLangStore()
+                const result = await querySystemDisArmParam()
+                const $ = queryXml(result)
+                const remoteSwitch = $('content/remoteSwitch').text().bool()
+                if (remoteSwitch) {
+                    next()
+                } else {
+                    openMessageBox(Translate('IDCS_DISARM_AUTH_TIP'))
+                    if (from.fullPath === to.fullPath) {
+                        next('/live')
+                    } else {
+                        next(from)
+                    }
+                }
+            },
         },
+        // 报警状态
         alarmsStatus: {
-            //报警状态
             path: 'status',
-            component: 'aiAndEvent/AlarmStatus.vue',
+            component: 'system/AlarmStatus.vue',
             meta: {
                 sort: 10,
                 lk: 'IDCS_ALARM_STATE',
@@ -288,26 +424,7 @@ export default {
                 default: true,
             },
         },
-        faceFeatureLibrary: {
-            //
-            path: 'faceFeature',
-            component: 'aiAndEvent/FaceFeature.vue',
-            meta: {
-                sort: 10,
-                lk: 'IDCS_FEATURE_LIBRARY',
-                group: 'database',
-                default: true,
-            },
-        },
-        vehicleDatabase: {
-            //
-            path: 'vehicleDatabase',
-            component: 'aiAndEvent/FaceFeature.vue',
-            meta: {
-                sort: 10,
-                lk: 'IDCS_VEHICLE_DATABASE',
-                group: 'database',
-            },
-        },
     },
-} as FeatureItem
+}
+
+export default aiAndEventRoutes

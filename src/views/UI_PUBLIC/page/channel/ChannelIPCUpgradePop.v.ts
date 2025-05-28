@@ -1,30 +1,16 @@
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-06-13 16:05:05
- * @Description:
+ * @Description: 通道 - IPC升级弹窗
  */
-import { type ChannelInfoDto } from '@/types/apiType/channel'
-import WebsocketState from '@/utils/websocket/websocketState'
-import WebsocketUpload from '@/utils/websocket/websocketUpload'
-import { type UploadFile, type UploadRawFile, genFileId } from 'element-plus'
-import { OCX_XML_FileNetTransport, OCX_XML_OpenFileBrowser } from '@/utils/ocx/ocxCmd'
-import { OCX_XML_OpenFileBrowser_getpath } from '@/utils/ocx/ocxUtil'
-import { trim } from 'lodash'
-import { getRandomGUID } from '@/utils/websocket/websocketCmd'
-import type WebsocketPlugin from '@/utils/websocket/websocketPlugin'
-import { type XmlResult } from '@/utils/xmlParse'
-
 export default defineComponent({
-    setup() {
-        const { openMessageTipBox } = useMessageBox()
+    setup(_prop, { expose }) {
         const { Translate } = useLangStore()
-        const Plugin = inject('Plugin') as PluginType
-        const isSupportH5 = Plugin.IsSupportH5()
+
         const ipcUpgradePopVisiable = ref(false)
-        const productModelOptionList = ref([] as string[])
+        const productModelOptionList = ref<SelectOption<string, string>[]>([])
         const selectedProductModel = ref('')
         const type = ref<'single' | 'multiple'>('single') // 单个：single, 批量：multiple
-        const upload = ref()
         const fileName = ref('')
         const btnOKDisabled = ref(true)
 
@@ -35,21 +21,54 @@ export default defineComponent({
             4: 'success', // 升级成功
             5: 'error', // 校验头文件失败
         }
-        let wsState: WebsocketState | null
-        let wsUpload: WebsocketUpload | null
+        let wsState: ReturnType<typeof WebsocketState> | null
+        let wsUpload: ReturnType<typeof WebsocketUpload> | null
 
         let chlData: ChannelInfoDto[] = [] // 所有通道
         let tempData: ChannelInfoDto[] = [] // 临时存储选中通道数据
         let contextMap: Record<string, ChannelInfoDto> = {}
         let uploadData: ChannelInfoDto[] = [] // 选中升级的通道
         let handleIndex = 0 // 已升级成功（失败）个数
-        let file: UploadRawFile | undefined = undefined
-        const taskGUIDMap = {} as Record<string, ChannelInfoDto[]> // 插件上传IPC升级包任务ID-上传通道数组
+        let file: File | undefined = undefined
+        const taskGUIDMap: Record<string, ChannelInfoDto[]> = {} // 插件上传IPC升级包任务ID-上传通道数组
+
+        const plugin = usePlugin({
+            onMessage: ($, stateType) => {
+                //升级进度
+                if (stateType === 'FileNetTransportProgress') {
+                    const taskGUID = $('statenotify/taskGUID').text().toLowerCase()
+                    if (taskGUIDMap[taskGUID]) {
+                        const progress = Number($('statenotify/progress').text().replace('%', ''))
+                        taskGUIDMap[taskGUID].forEach((ele) => {
+                            changeStatus(ele, 'progress', progress)
+                        })
+                        if (progress === 100) {
+                            openMessageBox(Translate('IDCS_UPGRADE_IPC_NOTE'))
+                        }
+                    }
+                }
+
+                //连接成功
+                // if (stateType === 'connectstate') {
+                //     const status = $("statenotify").text()
+                // }
+
+                // 网络断开
+                if (stateType === 'FileNetTransport') {
+                    if ($('statenotify/errorCode').length) {
+                        const taskGUID = $('statenotify/taskGUID').text().toLowerCase()
+                        const errorCode = $('statenotify/errorCode').text().num()
+                        if (taskGUIDMap[taskGUID]) handleError(errorCode)
+                    }
+                }
+            },
+        })
+
+        const isSupportH5 = computed(() => {
+            return plugin.IsSupportH5()
+        })
 
         const init = (_type: 'single' | 'multiple', data: ChannelInfoDto[]) => {
-            if (!isSupportH5) {
-                Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
-            }
             destory()
             type.value = _type
             tempData = data
@@ -57,21 +76,23 @@ export default defineComponent({
         }
 
         const opened = () => {
-            upload.value?.clearFiles()
             file = undefined
             fileName.value = ''
             btnOKDisabled.value = true
-            if (type.value == 'multiple') {
+            if (type.value === 'multiple') {
                 const tmpList: string[] = []
-                chlData.forEach((ele: ChannelInfoDto) => {
-                    if (ele.protocolType == 'TVT_IPCAMERA' && ele.productModel && ele.productModel.innerText) {
+                chlData.forEach((ele) => {
+                    if (ele.protocolType === 'TVT_IPCAMERA' && ele.productModel && ele.productModel.innerText) {
                         const value = ele.productModel.innerText
-                        if (tmpList.indexOf(value) == -1) tmpList.push(value)
+                        if (tmpList.indexOf(value) === -1) tmpList.push(value)
                     }
                 })
-                productModelOptionList.value = tmpList
+                productModelOptionList.value = arrayToOptions(tmpList)
             }
-            selectedProductModel.value = productModelOptionList.value[0]
+
+            if (productModelOptionList.value.length) {
+                selectedProductModel.value = productModelOptionList.value[0].value
+            }
         }
 
         // websocket监听升级状态
@@ -79,21 +100,21 @@ export default defineComponent({
             destroyWsState()
             chlData = list
             contextMap = {}
-            chlData.forEach((ele: ChannelInfoDto) => {
+            chlData.forEach((ele) => {
                 contextMap[ele.id] = ele
             })
-            if (isSupportH5) {
+            if (isSupportH5.value) {
                 // 监听升级进度
-                wsState = new WebsocketState({
+                wsState = WebsocketState({
                     config: {
                         ipc_upgrade_state_info: true,
                     },
-                    onmessage: (data: any) => {
-                        if (data && data['ipc_upgrade_state_info']) {
-                            data['ipc_upgrade_state_info'].forEach((ele: any) => {
-                                const chlId = ele['node_id']
-                                const status = ele['chl_upgrade_status']
-                                const progress = ele['pack_upload_precent']
+                    onmessage: (data) => {
+                        if (data.ipc_upgrade_state_info) {
+                            data.ipc_upgrade_state_info.forEach((ele) => {
+                                const chlId = ele.node_id
+                                const status = ele.chl_upgrade_status
+                                const progress = Number(ele.pack_upload_precent)
                                 changeStatus(contextMap[chlId], statusMap[status], progress)
                             })
                         }
@@ -103,19 +124,19 @@ export default defineComponent({
         }
 
         // 更新IPC升级状态
-        const changeStatus = (rowData: ChannelInfoDto, status: string, progress: string) => {
-            if (status == 'progress') {
+        const changeStatus = (rowData: ChannelInfoDto, status: string, progress: number) => {
+            if (status === 'progress') {
                 rowData.upgradeStatus = status
                 rowData.upgradeProgressText = progress + '%'
-            } else if (status == 'error' || status == 'success') {
+            } else if (status === 'error' || status === 'success') {
                 rowData.upgradeStatus = status
                 handleIndex++
-                if (handleIndex == uploadData.length) destory()
+                if (handleIndex === uploadData.length) destory()
             }
         }
 
         // 断开websocket状态信息订阅链接
-        function destroyWsState() {
+        const destroyWsState = () => {
             if (wsState) {
                 wsState.destroy()
                 wsState = null
@@ -132,87 +153,39 @@ export default defineComponent({
             wsUpload = null
         }
 
-        const LiveNotify2Js = ($: (path: string) => XmlResult) => {
-            //升级进度
-            if ($("statenotify[@type='FileNetTransportProgress']").length > 0) {
-                const taskGUID = $("statenotify[@type='FileNetTransportProgress']/taskGUID").text().toLowerCase()
-                if (taskGUIDMap[taskGUID]) {
-                    const progress = $("statenotify[@type='FileNetTransportProgress']/progress").text().replace('%', '')
-                    taskGUIDMap[taskGUID].forEach((ele: ChannelInfoDto) => {
-                        changeStatus(ele, 'progress', progress)
-                    })
-                    if (progress == '100') {
-                        openMessageTipBox({
-                            type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
-                            message: Translate('IDCS_UPGRADE_IPC_NOTE'),
-                            showCancelButton: false,
-                        })
-                    }
-                }
-            }
-
-            //连接成功
-            // else if ($("statenotify[@type='connectstate']").length > 0) {
-            //     const status = $("statenotify[@type='connectstate']").text()
-            // }
-            // 网络断开
-            else if ($("statenotify[@type='FileNetTransport']").length > 0) {
-                if ($("statenotify[@type='FileNetTransport']/errorCode").length > 0) {
-                    const taskGUID = $("statenotify[@type='FileNetTransport']/taskGUID").text().toLowerCase()
-                    const errorCode = $("statenotify[@type='FileNetTransport']/errorCode").text()
-                    if (taskGUIDMap[taskGUID]) handleError(errorCode)
-                }
-            }
-        }
-
-        const handleError = (errorCode: string) => {
+        const handleError = (errorCode: number) => {
             // 恢复为默认状态
-            tempData.forEach((ele: ChannelInfoDto) => {
+            tempData.forEach((ele) => {
                 ele.upgradeStatus = 'normal'
             })
-            if (errorCode == '536870945') {
+            if (errorCode === ErrorCode.USER_ERROR_DEVICE_BUSY) {
                 // 设备忙
-                openMessageTipBox({
-                    type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
-                    message: Translate('IDCS_DEVICE_BUSY'),
-                    showCancelButton: false,
-                })
-            } else if (errorCode == '536871030') {
+                openMessageBox(Translate('IDCS_DEVICE_BUSY'))
+            } else if (errorCode === ErrorCode.USER_ERROR_FILE_MISMATCHING) {
                 // 无磁盘
-                openMessageTipBox({
-                    type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
-                    message: Translate('IDCS_NO_DISK'),
-                    showCancelButton: false,
-                })
+                openMessageBox(Translate('IDCS_NO_DISK'))
             } else {
                 // 提示错误图标
-                tempData.forEach((ele: ChannelInfoDto) => {
+                tempData.forEach((ele) => {
                     ele.upgradeStatus = 'error'
                 })
             }
-            destroy()
+            destory()
         }
 
-        const handleChange = (uploadFile: UploadFile) => {
-            file = uploadFile.raw
-            fileName.value = file!.name
-            btnOKDisabled.value = false
+        const handleH5Upload = (e: Event) => {
+            const files = (e.target as HTMLInputElement).files
+            if (files && files.length) {
+                file = files[0]
+                fileName.value = file.name
+                btnOKDisabled.value = false
+            }
         }
 
-        const handleExceed = (files: Array<File>) => {
-            upload.value!.clearFiles()
-            const file = files[0] as UploadRawFile
-            file.uid = genFileId()
-            upload.value!.handleStart(file)
-        }
-
-        const handleOcxBtnClick = () => {
+        const handleOCXUpload = () => {
             const sendXML = OCX_XML_OpenFileBrowser('OPEN_FILE')
-            Plugin.AsynQueryInfo(Plugin.GetVideoPlugin() as WebsocketPlugin, sendXML, (result: string) => {
-                const path = trim(OCX_XML_OpenFileBrowser_getpath(result))
+            plugin.AsynQueryInfo(sendXML, (result) => {
+                const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     fileName.value = path
                     btnOKDisabled.value = false
@@ -223,21 +196,21 @@ export default defineComponent({
         const save = () => {
             uploadData = tempData
             const ids: string[] = []
-            if (type.value == 'multiple') {
+            if (type.value === 'multiple') {
                 uploadData = []
-                chlData.forEach((ele: ChannelInfoDto) => {
+                chlData.forEach((ele) => {
                     if (ele.productModel && ele.productModel.innerText) {
-                        if (selectedProductModel.value == ele.productModel.innerText) uploadData.push(ele)
+                        if (selectedProductModel.value === ele.productModel.innerText) uploadData.push(ele)
                     }
                 })
             }
-            uploadData.forEach((ele: ChannelInfoDto) => {
+            uploadData.forEach((ele) => {
                 ids.push(ele.id)
                 ele.upgradeStatus = 'progress'
                 ele.upgradeProgressText = '0%'
             })
-            if (isSupportH5) {
-                wsUpload = new WebsocketUpload({
+            if (isSupportH5.value) {
+                wsUpload = WebsocketUpload({
                     file: file as Blob,
                     config: {
                         file_id: 'ipc_upgrade_file',
@@ -247,11 +220,9 @@ export default defineComponent({
                             ipc_ids: ids,
                         },
                     },
-                    error: (errorCode: number) => {
-                        handleError(String(errorCode))
+                    error: (errorCode) => {
+                        handleError(errorCode)
                     },
-                    success: () => {},
-                    progress: () => {},
                 })
             } else {
                 const taskGUID = getRandomGUID()
@@ -264,27 +235,28 @@ export default defineComponent({
                     taskGUID: taskGUID,
                 }
                 const sendXML = OCX_XML_FileNetTransport('UpgradeIPC', param)
-                Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
             ipcUpgradePopVisiable.value = false
         }
 
-        return {
+        expose({
             init,
-            opened,
             initWsState,
+        })
+
+        return {
+            opened,
             productModelOptionList,
             selectedProductModel,
             ipcUpgradePopVisiable,
             type,
-            upload,
             file,
             fileName,
-            handleChange,
-            handleExceed,
+            handleH5Upload,
             btnOKDisabled,
             isSupportH5,
-            handleOcxBtnClick,
+            handleOCXUpload,
             save,
         }
     },

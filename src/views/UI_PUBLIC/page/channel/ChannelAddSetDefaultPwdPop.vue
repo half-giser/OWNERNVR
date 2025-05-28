@@ -1,101 +1,73 @@
 <!--
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-05-24 14:21:16
- * @Description:
+ * @Description: 添加通道 - 设置通道默认密码弹窗
 -->
 <template>
     <el-dialog
-        :title="Translate('IDCS_SET_DEV_DEFAULT_PWD')"
-        width="600"
-        align-center
+        :title="Translate('IDCS_CONFIGURATION_XXX').formatForLang(Translate('IDCS_DEV_DEFAULT_PWD'))"
+        width="700"
         @opened="opened"
     >
-        <el-form
-            ref="formRef"
-            :model="formData"
-            class="setDevDefaultPwdForm"
+        <el-table
+            v-title
+            :data="tableData"
+            height="300"
+            flexible
         >
-            <el-table
-                ref="tableRef"
-                class="ruleTable"
-                border
-                stripe
-                :data="formData.params"
-                table-layout="fixed"
+            <el-table-column
+                prop="displayName"
+                :label="Translate('IDCS_PROTOCOL')"
+                width="130"
                 show-overflow-tooltip
-                empty-text=" "
+            />
+            <el-table-column
+                :label="Translate('IDCS_USERNAME')"
+                min-width="240"
+                class-name="cell-with-form-rule"
             >
-                <el-table-column
-                    prop="displayName"
-                    :label="Translate('IDCS_PROTOCOL')"
-                    width="130px"
-                />
-                <el-table-column
-                    :label="Translate('IDCS_USERNAME')"
-                    min-width="240px"
-                >
-                    <template #default="scope">
-                        <el-form-item
-                            :prop="`params.${scope.$index}.userName`"
-                            :rules="rules.userName"
-                        >
-                            <el-input
-                                v-model="scope.row.userName"
-                                :validate-event="false"
-                                maxlength="63"
-                                @keydown.enter="handleKeydownEnter($event)"
-                            />
-                        </el-form-item>
-                    </template>
-                </el-table-column>
-                <el-table-column
-                    prop="password"
-                    :label="Translate('IDCS_USERNAME')"
-                    width="170px"
-                >
-                    <template #default="scope">
-                        <span
-                            v-show="!scope.row.showInput"
-                            @click="handlePwdViewChange(scope.$index, scope.row)"
-                            >{{ scope.row.password ? scope.row.password : '******' }}</span
-                        >
-                        <el-input
-                            v-show="scope.row.showInput"
-                            :ref="(ref) => (passwordInputRef[scope.$index] = ref)"
-                            v-model="scope.row.password"
-                            @blur="handlePwdViewChange(scope.$index, scope.row)"
-                        />
-                    </template>
-                </el-table-column>
-            </el-table>
-        </el-form>
+                <template #default="{ row }: TableColumn<ChannelDefaultPwdDto>">
+                    <el-input
+                        v-model="row.userName"
+                        :validate-event="false"
+                        :formatter="formatInputMaxLength"
+                        :parser="formatInputMaxLength"
+                        @keyup.enter="blurInput"
+                    />
+                </template>
+            </el-table-column>
+            <el-table-column
+                :label="Translate('IDCS_PASSWORD')"
+                width="240"
+            >
+                <template #default="{ row, $index }: TableColumn<ChannelDefaultPwdDto>">
+                    <span
+                        v-show="!row.showInput"
+                        @click="togglePwd($index, row)"
+                        >{{ row.password ? Array(row.password.length).fill('*').join('') : '******' }}</span
+                    >
+                    <BasePasswordInput
+                        v-show="row.showInput"
+                        :ref="(ref) => (passwordInputRef[$index] = ref)"
+                        v-model="row.password"
+                        :maxlength="row.protocolType === 'TVT_IPCAMERA' ? 16 : 64"
+                        :formatter="formatPassword"
+                        :parser="formatPassword"
+                        @blur="togglePwd($index, row)"
+                    />
+                </template>
+            </el-table-column>
+        </el-table>
         <BaseCheckAuthPop
-            v-model="baseCheckAuthPopVisiable"
-            :close="handleBaseCheckAuthPopClose"
-            :call-back="setData"
-        ></BaseCheckAuthPop>
-        <template #footer>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
-                >
-                    <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
-        </template>
+            v-model="isCheckAuthPop"
+            @confirm="setData"
+            @close="isCheckAuthPop = false"
+        />
+        <div class="base-btn-box">
+            <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 
 <script lang="ts" src="./ChannelAddSetDefaultPwdPop.v.ts"></script>
-
-<style lang="scss" scoped>
-.setDevDefaultPwdForm {
-    height: 300px;
-
-    .ruleTable {
-        height: 100%;
-    }
-}
-</style>

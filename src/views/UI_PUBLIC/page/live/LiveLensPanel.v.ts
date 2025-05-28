@@ -2,11 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-29 15:43:32
  * @Description: 现场预览-镜头控制视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 14:31:49
  */
-import { LiveLensForm, type LiveSharedWinData } from '@/types/apiType/live'
-
 export default defineComponent({
     props: {
         /**
@@ -21,6 +17,9 @@ export default defineComponent({
         updateSupportAz(bool: boolean) {
             return typeof bool === 'boolean'
         },
+        trigger() {
+            return true
+        },
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
@@ -30,51 +29,33 @@ export default defineComponent({
             focusOptions: [] as SelectOption<string, string>[],
             // 时间间隔选项
             timeIntervalOptions: [] as SelectOption<number, string>[],
+            errorMessage: '',
+            errorMessageType: 'ok',
         })
 
         const formData = ref(new LiveLensForm())
 
-        const cmdQueue: string[] = []
-        let cmdLock = false // 锁定标识：当前命令没有返回时，不能发送新的命令
+        const cmdQueue = useCmdQueue()
 
         /**
          * @description 新增命令到命令队列
          * @param {string} cmd
          */
         const addCmd = (cmd: string) => {
-            if (!prop.winData.chlID) {
-                return
-            }
-            if (cmdQueue.length > 1000) {
-                return
-            }
-            cmdQueue.push(cmd)
-            if (cmdQueue.length && !cmdLock) {
-                executeCmd()
-            }
-        }
+            ctx.emit('trigger')
 
-        /**
-         * @description 执行命令
-         */
-        const executeCmd = () => {
             if (!prop.winData.chlID) {
                 return
             }
-            if (!cmdQueue.length || cmdLock) {
-                return
-            }
-            cmdLock = true
-            const cmdItem = cmdQueue.shift()!
-            const sendXml = rawXml`
-                <content>
-                    <chlId>${prop.winData.chlID}</chlId>
-                    <actionType>${cmdItem}</actionType>
-                </content>
-            `
-            cameraLensCtrlCall(sendXml).finally(() => {
-                cmdLock = false
-                executeCmd()
+
+            cmdQueue.add(async () => {
+                const sendXml = rawXml`
+                    <content>
+                        <chlId>${prop.winData.chlID}</chlId>
+                        <actionType>${cmd}</actionType>
+                    </content>
+                `
+                await cameraLensCtrlCall(sendXml)
             })
         }
 
@@ -90,6 +71,7 @@ export default defineComponent({
                     value: 'manual',
                 })
             }
+
             if (/(auto){1}/g.test(focusType)) {
                 pageData.value.focusOptions.push({
                     label: Translate('IDCS_AUTO_FOCUS'),
@@ -107,43 +89,32 @@ export default defineComponent({
             if (value === 0) {
                 return Translate('IDCS_ALWAYS_KEEP')
             }
-            if (value < 60) {
-                return `${value} ${Translate('IDCS_SECONDS')}`
-            }
-            if (value === 60) {
-                return `1 ${Translate('IDCS_MINUTE')}`
-            }
-            return `${value / 60} ${Translate('IDCS_MINUTES')}`
+            return getTranslateForSecond(value)
         }
 
         /**
          * @description 获取当前通道是否支持镜头控制
          */
         const getSupportAz = async () => {
-            if (prop.winData.isPolling) {
-                ctx.emit('updateSupportAz', false)
-                return
-            }
-
             const chlID = prop.winData.chlID
             const sendXml = rawXml`
                 <condition>
                     <chlId>${chlID}</chlId>
                 </condition>
             `
-            const result = await queryCameraLensCtrlParam(getXmlWrapData(sendXml))
+            const result = await queryCameraLensCtrlParam(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'fail' || !$('/response/content/chl').length) {
+            if ($('status').text() === 'fail' || !$('content/chl').length) {
                 ctx.emit('updateSupportAz', false)
             } else {
                 ctx.emit('updateSupportAz', true)
 
-                const focusType = $('/response/types/focusType').text()
+                const focusType = $('types/focusType').text()
                 renderFocusTypeOptions(focusType)
 
-                pageData.value.timeIntervalOptions = $('/response/content/chl/timeIntervalNote')
+                pageData.value.timeIntervalOptions = $('content/chl/timeIntervalNote')
                     .text()
-                    .split(',')
+                    .array()
                     .map((item) => {
                         const value = Number(item)
                         return {
@@ -152,12 +123,17 @@ export default defineComponent({
                         }
                     })
 
-                formData.value.focusType = $('/response/content/focusType').text() !== 'auto' ? 'manual' : 'auto'
+                formData.value.focusType = $('content/focusType').text() !== 'auto' ? 'manual' : 'auto'
                 if (formData.value.focusType === 'auto') {
-                    formData.value.focusTime = Number($('/response/content/timeInterval').text())
+                    formData.value.focusTime = $('content/timeInterval').text().num()
                 }
-                formData.value.irchangeFocus = $('/response/content/IrchangeFocus').text().toBoolean()
+                formData.value.irchangeFocus = $('content/chl/IrchangeFocus').text().bool()
             }
+        }
+
+        const showErrorMessage = (type: string, message: string) => {
+            pageData.value.errorMessageType = type
+            pageData.value.errorMessage = message
         }
 
         /**
@@ -167,27 +143,28 @@ export default defineComponent({
             if (!prop.winData.chlID) {
                 return
             }
+
             try {
                 const sendXml = rawXml`
                     <content>
                         <chl id="${prop.winData.chlID}">
                             <focusType type="focusType">${formData.value.focusType}</focusType>
-                            <IrchangeFocus>${formData.value.irchangeFocus.toString()}</IrchangeFocus>
-                            <timeInterval>${formData.value.focusType === 'manual' ? '0' : formData.value.focusTime.toString()}</timeInterval>
+                            <IrchangeFocus>${formData.value.irchangeFocus}</IrchangeFocus>
+                            <timeInterval>${formData.value.focusType === 'manual' ? 0 : formData.value.focusTime}</timeInterval>
                         </chl>
                     </content>
                 `
                 const result = await editCameraLensCtrlParam(sendXml)
                 const $ = queryXml(result)
-                if ($('/response/status').text() === 'success') {
-                    ElMessage.success(Translate('IDCS_SAVE_DATA_SUCCESS'))
-                } else if ($('/response/errorCode').text() === '0') {
-                    ElMessage.success(Translate('IDCS_SAVE_DATA_SUCCESS'))
+                if ($('status').text() === 'success') {
+                    showErrorMessage('ok', Translate('IDCS_SAVE_DATA_SUCCESS'))
+                } else if ($('errorCode').text().num() === 0) {
+                    showErrorMessage('ok', Translate('IDCS_SAVE_DATA_SUCCESS'))
                 } else {
-                    ElMessage.error(Translate('IDCS_SAVE_DATA_FAIL'))
+                    showErrorMessage('error', Translate('IDCS_SAVE_DATA_FAIL'))
                 }
             } catch (e) {
-                ElMessage.error(Translate('IDCS_SAVE_DATA_FAIL'))
+                showErrorMessage('error', Translate('IDCS_SAVE_DATA_FAIL'))
             }
         }
 
@@ -196,7 +173,7 @@ export default defineComponent({
             (newVal) => {
                 if (newVal) {
                     getSupportAz()
-                    cmdQueue.splice(0, cmdQueue.length)
+                    cmdQueue.clean()
                 }
             },
             {

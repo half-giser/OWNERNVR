@@ -2,27 +2,16 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-05 10:10:29
  * @Description: 存储模式配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 09:13:54
 -->
 <template>
-    <div class="StorageMode">
-        <el-form
-            label-position="left"
-            :style="{
-                '--form-input-width': '340px',
-            }"
-        >
+    <div>
+        <el-form v-title>
             <el-form-item :label="Translate('IDCS_STORAGE_MODE')">
-                <el-select
+                <el-select-v2
                     disabled
-                    model-value="1"
-                >
-                    <el-option
-                        value="1"
-                        :label="Translate('IDCS_REEL_GROUP')"
-                    />
-                </el-select>
+                    :model-value="Translate('IDCS_REEL_GROUP')"
+                    :options="[]"
+                />
             </el-form-item>
         </el-form>
         <div class="group">
@@ -36,6 +25,7 @@
                         disabled: !item.diskList.length && !item.chlList.length && key >= pageData.diskTotalNum,
                         active: key === pageData.activeIndex,
                     }"
+                    @click="changeDiskGroup(item, key)"
                 >
                     <p>{{ key + 1 }}</p>
                     <div>
@@ -57,55 +47,59 @@
                 </div>
             </div>
             <div class="right">
-                <div class="disk-list">
-                    <p
-                        v-for="item in currentItem.diskList"
-                        :key="item.id"
-                    >
-                        <span>{{ item.text }}</span>
+                <el-scrollbar class="disk-list">
+                    <div class="wrapper">
+                        <p
+                            v-for="item in currentItem.diskList"
+                            :key="item.id"
+                        >
+                            <span>{{ item.text }}</span>
+                            <BaseImgSprite
+                                v-show="pageData.activeIndex !== 0"
+                                class="del"
+                                :hover-index="0"
+                                file="delItem"
+                                @click="deleteDisk(item.id)"
+                            />
+                        </p>
                         <BaseImgSprite
-                            v-show="pageData.activeIndex !== 0"
-                            class="del"
-                            file="delItem"
-                            @click="deleteDisk(item.id)"
+                            class="add"
+                            file="addItem"
+                            :hover-index="0"
+                            :chunk="2"
+                            @click="addDisk"
                         />
-                    </p>
-                    <BaseImgSprite
-                        class="add"
-                        file="addItem"
-                        :index="0"
-                        :hover-index="0"
-                        :chunk="2"
-                        @click="addDisk"
-                    />
-                </div>
-                <div
+                    </div>
+                </el-scrollbar>
+                <el-scrollbar
                     class="chl-list"
                     :style="{ '--h': pageData.diskGroupList.length - 1 }"
                 >
-                    <p
-                        v-for="item in currentItem.chlList"
-                        :key="item.id"
-                    >
-                        <span>{{ item.text }}</span>
+                    <div class="wrapper">
+                        <p
+                            v-for="item in currentItem.chlList"
+                            :key="item.id"
+                        >
+                            <span>{{ item.text }}</span>
+                            <BaseImgSprite
+                                v-show="pageData.activeIndex !== 0"
+                                class="del"
+                                :hover-index="0"
+                                file="delItem"
+                                @click="deleteChl(item.id)"
+                            />
+                        </p>
                         <BaseImgSprite
-                            v-show="pageData.activeIndex !== 0"
-                            class="del"
-                            file="delItem"
-                            @click="deleteChl(item.id)"
+                            class="add"
+                            file="addItem"
+                            :hover-index="0"
+                            :disabled-index="1"
+                            :disabled="!currentItem.diskList.length"
+                            :chunk="2"
+                            @click="addChl"
                         />
-                    </p>
-                    <BaseImgSprite
-                        class="add"
-                        file="addItem"
-                        :index="0"
-                        :hover-index="0"
-                        :disabled-index="1"
-                        :disabled="!currentItem.diskList.length"
-                        :chunk="2"
-                        @click="addChl"
-                    />
-                </div>
+                    </div>
+                </el-scrollbar>
             </div>
         </div>
         <StorageModeAddDiskPop
@@ -128,141 +122,133 @@
 <script lang="ts" src="./StorageMode.v.ts"></script>
 
 <style lang="scss" scoped>
-.StorageMode {
-    :deep(.el-form-item) {
-        margin-bottom: 10px;
-        padding: 10px 0 10px 15px;
-        background-color: var(--bg-color4);
+:deep(.el-form-item) {
+    background-color: var(--subheading-bg);
+}
+
+.group {
+    display: flex;
+    border: 1px solid var(--content-border);
+}
+
+.left {
+    width: 20%;
+    border-right: 1px solid var(--content-border);
+
+    .title {
+        border-bottom: 1px solid var(--content-border);
+        height: 30px;
+        line-height: 30px;
+        font-size: 18px;
+        text-align: center;
+    }
+}
+
+.group-item {
+    width: 100%;
+    height: 107px;
+    color: var(--main-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    & > p {
+        font-size: 30px;
     }
 
-    .el-select {
-        width: 340px;
-    }
-
-    .group {
-        display: flex;
-        border: 1px solid var(--border-color2);
-    }
-
-    .left {
-        width: 20%;
-        border-right: 1px solid var(--border-color2);
-
-        .title {
-            border-bottom: 1px solid var(--border-color2);
-            height: 30px;
-            line-height: 30px;
-            font-size: 18px;
-            text-align: center;
-        }
-
-        .group-item {
-            width: 100%;
-            height: 107px;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-
-            & > p {
-                font-size: 30px;
-            }
-
-            & > div {
-                margin-left: 20px;
-                font-size: 18px;
-
-                p {
-                    margin: 0;
-                }
-            }
-
-            &:not(:last-child) {
-                border-bottom: 1px solid var(--border-color2);
-            }
-
-            &.disabled {
-                color: var(--text-disabled);
-                cursor: unset;
-            }
-
-            &.active {
-                background-color: var(--primary--01);
-            }
-        }
-    }
-
-    .center {
-        width: 15%;
-        border-right: 1px solid var(--border-color2);
-    }
-
-    .right {
-        width: 65%;
-    }
-
-    .disk-list,
-    .disk-title {
-        height: 138px;
-        border-bottom: 1px solid var(--border-color2);
-    }
-
-    .disk-title {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
+    & > div {
+        margin-left: 20px;
         font-size: 18px;
 
-        div:last-child {
-            font-size: 14px;
-            margin-top: 5px;
+        p {
+            margin: 0;
         }
     }
 
-    .chl-list,
-    .chl-title {
-        --h: 1;
-        height: calc(var(--h) * 107px);
-        min-height: 107px;
+    &:not(:last-child) {
+        border-bottom: 1px solid var(--content-border);
     }
 
-    .chl-title {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        font-size: 18px;
+    &.disabled {
+        color: var(--main-text-light);
+        cursor: unset;
     }
 
-    .disk-list,
-    .chl-list {
-        box-sizing: border-box;
-        padding: 10px;
-        display: flex;
-        flex-wrap: wrap;
-        overflow-y: auto;
-
-        & > p {
-            width: 150px;
-            font-size: 15px;
-            margin: 5px 10px;
-            height: 20px;
-            line-height: 20px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            text-wrap: nowrap;
-        }
+    &.active {
+        background-color: var(--disk-group-bg-active);
+        color: var(--disk-group-text-active);
     }
+}
 
-    .del {
-        margin-left: 5px;
-        cursor: pointer;
-    }
+.center {
+    width: 15%;
+    border-right: 1px solid var(--content-border);
+}
 
-    .add {
+.right {
+    width: 65%;
+}
+
+.disk-list,
+.disk-title {
+    height: 138px;
+    border-bottom: 1px solid var(--content-border);
+}
+
+.disk-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    font-size: 18px;
+
+    div:last-child {
+        font-size: 14px;
         margin-top: 5px;
     }
+}
+
+.chl-list,
+.chl-title {
+    --h: 1;
+
+    height: calc(var(--h) * 107px);
+    min-height: 107px;
+}
+
+.chl-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    font-size: 18px;
+}
+
+.wrapper {
+    box-sizing: border-box;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+
+    p {
+        width: 150px;
+        font-size: 15px;
+        margin: 5px 10px;
+        height: 20px;
+        line-height: 20px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-wrap: nowrap;
+    }
+}
+
+.del {
+    margin-left: 5px;
+}
+
+.add {
+    margin-top: 5px;
 }
 </style>

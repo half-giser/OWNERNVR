@@ -2,36 +2,46 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-20 17:25:20
  * @Description: 自动维护
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-08 20:19:45
  */
-import { type FormInstance, type FormRules } from 'element-plus'
-import { SystemAutoMaintenanceForm } from '@/types/apiType/system'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
-        const dateTime = useDateTime()
+        const dateTime = useDateTimeStore()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const pageData = ref({
-            // 是否显示自动重启的提示
-            isAutoResttartTip: false,
             // 自动重启的文案
             autoRestartTip: '',
         })
+
         const formData = ref(new SystemAutoMaintenanceForm())
         const rules = ref<FormRules>({
             interval: [
                 {
-                    validator: (rule, value, callback) => {
-                        if (formData.value.switch && !value) {
+                    validator: (_rule, value: number | null | undefined, callback) => {
+                        if (formData.value.switch && typeof value !== 'number') {
                             callback(new Error(Translate('IDCS_INTERVAL_DAYS_EMPTY')))
                             return
                         }
+
                         callback()
                     },
+                    trigger: 'manual',
+                },
+            ],
+            time: [
+                {
+                    validator: (_rule, value: Date, callback) => {
+                        if (formData.value.switch && !value) {
+                            callback(new Error(Translate('IDCS_POINT_TIME_EMPTY')))
+                            return
+                        }
+
+                        callback()
+                    },
+                    trigger: 'manual',
                 },
             ],
         })
@@ -41,21 +51,20 @@ export default defineComponent({
          */
         const getData = async () => {
             const result = await queryAutoMaintenance()
-            commLoadResponseHandler(result, async ($) => {
-                formData.value.switch = $('/response/content/autoMaintenanceCfg/switch').text().toBoolean()
-                formData.value.interval = $('/response/content/autoMaintenanceCfg/interval').text()
-                const timeValue = $('/response/content/autoMaintenanceCfg/time').text().trim().split(':')
-                formData.value.time = new Date(2000, 1, 1, Number(timeValue[0]), Number(timeValue[1]))
-
-                await dateTime.getTimeConfig()
+            commLoadResponseHandler(result, ($) => {
+                formData.value.switch = $('content/autoMaintenanceCfg/switch').text().bool()
+                const interval = $('content/autoMaintenanceCfg/interval').text()
+                if (interval !== '') {
+                    formData.value.interval = interval.num()
+                }
+                formData.value.time = $('content/autoMaintenanceCfg/time').text()
 
                 if (formData.value.switch) {
-                    const spanTimeFormat = $('/response/content/autoMaintenanceNote').text().trim() + ':00'
-                    const currentTime = formatDate(spanTimeFormat, dateTime.dateTimeFormat.value)
+                    const spanTimeFormat = $('content/autoMaintenanceNote').text().trim() + ':00'
+                    const currentTime = formatDate(spanTimeFormat, dateTime.dateTimeFormat)
                     pageData.value.autoRestartTip = Translate('IDCS_REBOOT_TIP').formatForLang(currentTime)
-                    pageData.value.isAutoResttartTip = true
                 } else {
-                    pageData.value.isAutoResttartTip = false
+                    pageData.value.autoRestartTip = ''
                 }
             })
         }
@@ -64,7 +73,7 @@ export default defineComponent({
          * @description 表单验证
          */
         const verify = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     setData()
                 }
@@ -75,21 +84,21 @@ export default defineComponent({
          * @description 提交数据
          */
         const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const sendXml = rawXml`
                 <content>
                     <autoMaintenanceCfg>
-                        <switch>${String(formData.value.switch)}</switch>
-                        <interval>${formData.value.interval}</interval>
-                        <time>${String(formData.value.time.getHours())}:${String(formData.value.time.getMinutes())}</time>
+                        <switch>${formData.value.switch}</switch>
+                        <interval>${formData.value.interval || ''}</interval>
+                        <time>${formData.value.time}</time>
                     </autoMaintenanceCfg>
                 </content>
             `
             const result = await editAutoMaintenance(sendXml)
-            commSaveResponseHadler(result, () => {
+            commSaveResponseHandler(result, () => {
                 getData()
             })
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         onMounted(() => {

@@ -2,12 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-30 14:08:47
  * @Description: websocket 导入车牌库
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-11 09:39:06
  */
-import WebsocketBase from './websocketBase'
-import { CMD_PLATELIB_IMPORT_START, CMD_PLATELIB_IMPORT_STOP, CMD_PLATELIB_IMPORT_DATA } from './websocketCmd'
-import { appendBuffer, dataToBuffer, buildHeader } from '../tools'
 
 export interface WebsocketImportPlateLibOption {
     // onopen?: () => void
@@ -15,112 +10,117 @@ export interface WebsocketImportPlateLibOption {
     onprogress?: (param: number) => void
     onerror?: (param?: number) => void
     onclose?: () => void
-    plateDataList: string[]
-    limitNum: number
+    plateDataList: CmdPlateLibImportDataList[]
+    limitNum?: number
 }
 
-export default class WebsocketImportPlateLib {
-    private ws: WebsocketBase | null = null
-    private plateDataList: string[] = []
-    private totalNum = 0
-    private limitNum = 300
-    private importIdx = 0
-    private taskId: string | null = null
-    // private readonly onopen: WebsocketImportPlateLibOption['onopen']
-    private readonly onsuccess: WebsocketImportPlateLibOption['onsuccess']
-    private readonly onprogress: WebsocketImportPlateLibOption['onprogress']
-    private readonly onerror: WebsocketImportPlateLibOption['onerror']
-    private readonly onclose: WebsocketImportPlateLibOption['onclose']
+export const WebsocketImportPlateLib = (option: WebsocketImportPlateLibOption) => {
+    let importIdx = 0
+    let taskId: string | null = null
 
-    constructor(option: WebsocketImportPlateLibOption) {
-        // this.onopen = option.onopen
-        this.onsuccess = option.onsuccess
-        this.onprogress = option.onprogress
-        this.onerror = option.onerror
-        this.onclose = option.onclose
-        this.plateDataList = option.plateDataList
-        this.totalNum = option.plateDataList.length
-        this.limitNum = option.limitNum || 300
-        this.init()
-    }
+    const onsuccess = option.onsuccess
+    const onprogress = option.onprogress
+    const onerror = option.onerror
+    const onclose = option.onclose
+    const plateDataList = option.plateDataList
+    const totalNum = option.plateDataList.length
+    const limitNum = option.limitNum || 25
 
-    private init() {
-        this.ws = new WebsocketBase({
-            onopen: () => {
-                this.start()
-            },
-            onmessage: (data: string) => {
-                try {
-                    const res = JSON.parse(data)
-                    const code = Number(res.basic.code)
-                    // 开始导入
-                    if (res.url === '/device/platelib/import/start#response' && code === 0) {
-                        this.cutPackage(0)
-                        this.onprogress && this.onprogress(this.limitNum)
+    const ws = WebsocketBase({
+        onopen: () => {
+            start()
+        },
+        onmessage: (data) => {
+            if (typeof data === 'string') {
+                const res = JSON.parse(data)
+                const code = Number(res.basic.code)
+                // 开始导入
+                if (res.url === '/device/platelib/import/start#response' && code === 0) {
+                    cutPackage(0)
+                    onprogress && onprogress(limitNum)
+                }
+                // 导入有误
+                else if (res.url === '/device/platelib/import/start#response' && code !== 0) {
+                    onerror && onerror(code)
+                }
+                // 通知进度
+                else if (res.url === '/device/platelib/import/data#response' && code === 0) {
+                    // 由于step实际记录会将再次导入的数据计入计算，所以这里需要计算当前已经导入的数据
+                    const currIndex = (importIdx + 1) * limitNum
+                    if (currIndex >= totalNum) {
+                        onsuccess && onsuccess()
+                    } else {
+                        importIdx++
+                        cutPackage(importIdx)
+                        onprogress && onprogress(currIndex + limitNum)
                     }
-                    // 导入有误
-                    else if (res.url === '/device/platelib/import/start#response' && code !== 0) {
-                        this.onerror && this.onerror(code)
+                }
+                // 导入过程有误
+                else if (res.url === '/device/platelib/import/data#response' && code !== 0) {
+                    // 536870960：代表系统忙，需要等待2秒，重新进行数据下发，此处不需要importIdx自增
+                    if (code === ErrorCode.USER_ERROR_SYSTEM_BUSY) {
+                        setTimeout(function () {
+                            cutPackage(importIdx)
+                        }, 2000)
+                    } else {
+                        onerror && onerror(code)
                     }
-                    // 通知进度
-                    else if (res.url === '/device/platelib/import/data#response' && code == 0) {
-                        const step = res.data.step
-                        if (step >= this.totalNum) {
-                            this.onsuccess && this.onsuccess()
-                        } else {
-                            this.importIdx++
-                            this.cutPackage(this.importIdx)
-                            this.onprogress && this.onprogress(step)
-                        }
-                    }
-                    // 导入过程有误
-                    else if (res.url === '/device/platelib/import/data#response' && code != 0) {
-                        this.onerror && this.onerror(code)
-                    }
-                    // 停止录入成功
-                    else if (res.url === '/device/platelib/import/stop#response') {
-                        this.destroy()
-                    }
-                } catch (ev) {}
-            },
-            onerror: this.onerror,
-            onclose: this.onclose,
-        })
-    }
+                }
+                // 停止录入成功
+                else if (res.url === '/device/platelib/import/stop#response') {
+                    destroy()
+                }
+            }
+        },
+        onerror: onerror,
+        onclose: onclose,
+    })
 
-    // 裁剪JSON数据成多份
-    private cutPackage(importIdx: number) {
-        const startIdx = importIdx * this.limitNum
-        const endIdx = (importIdx + 1) * this.limitNum
-        const plateDataListSlice = this.plateDataList.slice(startIdx, endIdx)
-        if (plateDataListSlice.length > 0) {
-            const cmd = CMD_PLATELIB_IMPORT_DATA(this.taskId as string, plateDataListSlice)
-            this.sendJsonBuffer(cmd)
+    /**
+     * @description 裁剪JSON数据成多份
+     * @param {number} importIdx
+     */
+    const cutPackage = (importIdx: number) => {
+        const startIdx = importIdx * limitNum
+        const endIdx = (importIdx + 1) * limitNum
+        const plateDataListSlice = plateDataList.slice(startIdx, endIdx)
+        if (plateDataListSlice.length) {
+            const cmd = CMD_PLATELIB_IMPORT_DATA(taskId as string, plateDataListSlice)
+            sendJsonBuffer(cmd)
         }
     }
 
-    // 传输给服务端
-    private sendJsonBuffer(json: any) {
+    /**
+     * @description 传输给服务端
+     * @param {Object} json
+     */
+    const sendJsonBuffer = (json: Record<any, any>) => {
         dataToBuffer(JSON.stringify(json)).then((jsonBuffer) => {
             // 包头buffer + jsonbuffer (数据包含在jsonbuffer里)
             const headerbuffer = buildHeader(json)
-            const temp = appendBuffer(headerbuffer, jsonBuffer)
-            this.ws!.send(temp)
+            const temp = appendBuffer(headerbuffer, jsonBuffer as ArrayBufferLike)
+            ws.send(temp)
         })
     }
 
-    start() {
-        const cmd = CMD_PLATELIB_IMPORT_START()
-        this.taskId = cmd.data.task_id
-        this.ws!.send(JSON.stringify(cmd))
+    const start = () => {
+        const cmd = CMD_PLATELIB_IMPORT_START(totalNum)
+        taskId = cmd.data.task_id
+        ws.send(JSON.stringify(cmd))
     }
 
-    stop() {
-        const cmd = CMD_PLATELIB_IMPORT_STOP(this.taskId as string)
-        this.ws!.send(JSON.stringify(cmd))
+    const stop = () => {
+        const cmd = CMD_PLATELIB_IMPORT_STOP(taskId as string)
+        ws.send(JSON.stringify(cmd))
     }
 
-    destroy() {
-        this.ws!.close()
+    const destroy = () => {
+        ws.close()
+    }
+
+    return {
+        start,
+        stop,
+        destroy,
     }
 }

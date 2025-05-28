@@ -2,21 +2,27 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-04-20 16:04:39
  * @Description: 二级类型1布局页--适用于所有配置页
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 17:05:11
  */
-
-import { type RouteRecordRaw } from 'vue-router'
-import { menu2Item, menu3Items, menu3Item, getMenuItem } from '@/router'
+import { getMenuItem } from '@/router'
 
 export default defineComponent({
     setup() {
         const route = useRoute()
         const router = useRouter()
-        const menu = useMenuStore()
-        const chilComponent = ref()
+        const chilComponent = ref<ConfigComponentInstance>()
+        const layoutStore = useLayoutStore()
+        const userSession = useUserSessionStore()
 
-        //排序后的菜单分组
+        const menu2Item = computed(() => layoutStore.menu2Item)
+        const menu3Items = computed(() => layoutStore.menu3Items)
+        const menu3Item = computed(() => layoutStore.menu3Item)
+
+        const disabledIconIndex = import.meta.env.VITE_UI_TYPE === 'UI2-A' ? 0 : 1
+        const normalIconIndex = import.meta.env.VITE_UI_TYPE === 'UI2-A' ? 1 : 0
+
+        /**
+         * @description 排序后的菜单分组
+         */
         const sortedGroups = computed(() => {
             if (!menu2Item.value?.meta?.groups) {
                 return []
@@ -33,13 +39,17 @@ export default defineComponent({
 
         const navList = ref<RouteRecordRawExtends[]>([])
 
-        //生成面包屑导航条
+        /**
+         * @description 生成面包屑导航条
+         */
         const getBreadCrumb = () => {
+            navList.value = []
+
             const routes = router.getRoutes()
             navList.value.push(getMenuItem(routes.find((o) => o.name === 'functionPanel') as any as RouteRecordRawExtends))
 
             if (route.meta.navs) {
-                ;(route.meta.navs as string[]).forEach((name: string) => {
+                ;(route.meta.navs as string[]).forEach((name) => {
                     const navRoute = routes.find((o) => o.name === name)
                     if (navRoute) {
                         navList.value.push(getMenuItem(navRoute as any as RouteRecordRawExtends))
@@ -54,37 +64,99 @@ export default defineComponent({
         const groupMenuMap = ref<Record<string, RouteRecordRawExtends[]>>({})
 
         const getGroupMenuMap = () => {
+            groupMenuMap.value = {}
             menu3Items.value.forEach((value) => {
                 const meta = value.meta
                 if (meta.noMenu) {
                     return
                 }
+
                 if (!groupMenuMap.value[meta.group]) {
                     groupMenuMap.value[meta.group] = [] as RouteRecordRawExtends[]
                 }
+
                 groupMenuMap.value[meta.group].push(value)
             })
         }
 
-        onMounted(() => {
-            getBreadCrumb()
-            getGroupMenuMap()
-        })
-
-        const toDefault = (menuGroup: string) => {
-            const defaultMenu = groupMenuMap.value[menuGroup]?.find((o) => o.meta?.default === true) as RouteRecordRaw
+        /**
+         * @description 点击主菜单，跳转默认子菜单
+         * @param {string} menuGroup
+         */
+        const goToDefaultPage = (menuGroup: string) => {
+            const defaultMenu = groupMenuMap.value[menuGroup]?.find((o) => o.meta.default === true && !getMenuDisabled(o))
             if (defaultMenu) {
-                router.push(defaultMenu?.meta?.fullPath as string)
+                router.push(defaultMenu.meta.fullPath)
+            } else {
+                const defaultMenu = groupMenuMap.value[menuGroup].find((item) => !getMenuDisabled(item))
+                if (defaultMenu) {
+                    router.push(defaultMenu.meta.fullPath)
+                }
             }
         }
 
         /**
-         * 透传顶部工具栏事件，需要视图组件实现handleToolBarEvent方法
-         * @param toolBarEvent
+         * @description 路由跳转
+         * @param {RouteRecordRawExtends} route
+         */
+        const goToPath = (route: RouteRecordRawExtends) => {
+            if (getMenuDisabled(route)) {
+                return
+            }
+
+            router.push({
+                path: route.meta.fullPath,
+            })
+        }
+
+        /**
+         * @description 透传顶部工具栏事件，需要视图组件实现handleToolBarEvent方法
+         * @param {ConfigToolBarEvent} toolBarEvent
          */
         const handleToolBarEvent = (toolBarEvent: ConfigToolBarEvent<any>) => {
-            chilComponent.value?.handleToolBarEvent(toolBarEvent)
+            if (chilComponent.value && chilComponent.value.handleToolBarEvent) {
+                chilComponent.value.handleToolBarEvent(toolBarEvent)
+            }
         }
+
+        /**
+         * @description 是否禁用菜单
+         * @param {RouteRecordRawExtends} route
+         * @returns {boolean}
+         */
+        const getMenuDisabled = (route: RouteRecordRawExtends) => {
+            return typeof route.meta.auth !== 'undefined' && !userSession.hasAuth(route.meta.auth)
+        }
+
+        /**
+         * @description 是否禁用菜单组
+         * @param {RouteRecordRawExtends} group
+         * @returns {boolean}
+         */
+        const getMenuGroupDisabled = (group: string) => {
+            return groupMenuMap.value[group]?.every((item) => getMenuDisabled(item)) || false
+        }
+
+        watch(
+            () => route.path,
+            () => {
+                getBreadCrumb()
+            },
+            {
+                immediate: true,
+            },
+        )
+
+        watch(
+            () => menu3Items.value,
+            () => {
+                getGroupMenuMap()
+            },
+            {
+                deep: true,
+                immediate: true,
+            },
+        )
 
         return {
             route,
@@ -93,11 +165,15 @@ export default defineComponent({
             menu3Items,
             sortedGroups,
             groupMenuMap,
-            menu,
             chilComponent,
             navList,
             handleToolBarEvent,
-            toDefault,
+            goToDefaultPage,
+            getMenuDisabled,
+            getMenuGroupDisabled,
+            goToPath,
+            normalIconIndex,
+            disabledIconIndex,
         }
     },
 })

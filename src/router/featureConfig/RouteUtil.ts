@@ -25,30 +25,35 @@
 所以其他UI可能会产生自己的vue文件，并且可能引用public的html和js文件。
 */
 
-import featureTree from './featureTree'
+// @ts-expect-error
+import featureTree from '@ui/router'
 import type { RouteMeta, RouteRecordRaw } from 'vue-router'
-import { camel2Kebab } from '../../utils/tools'
+
+export const camel2Kebab = (name: string) => {
+    const arr = name.split('')
+    // 使用循环遍历字符串
+    const nameArr = arr.map((item) => {
+        if (item.toUpperCase() === item) {
+            // 使用toUpperCase()方法检测当前字符是否为大写
+            return '-' + item.toLowerCase()
+            // 大写就在前面加上-，并用toLowerCase()将当前字符转为小写
+        } else {
+            return item
+        }
+    })
+    return nameArr.join('')
+}
 
 //视图集合
 const viewComponents: Record<string, any> = {}
-const puglicPages = import.meta.glob('@public/page/**/*.vue')
+// 此处对页面组件的名称做了较严格的匹配，组件名称前缀为IntelBase、AlarmBase、RecordBase、或后缀为Pop、Item、Panel等等都被认为不是页面组件
+const puglicPages = import.meta.glob(['@public/page/**/*.vue', '!**/{Intel,Alarm,Record}Base*.vue', '!**/*Pop.vue', '!**/*Item.vue', '!**/!(Function)Panel.vue'])
 const uiPages = import.meta.glob('@ui/page/**/*.vue')
 
-// let uiPages: Record<string, any> = {} // import.meta.glob(import.meta.env.VITE_UI)
-// //新增UI后，需要在这里增加
-// if (__UI_1__) {
-//     uiPages = import.meta.glob('/src/views/UI1/page/**/*.vue')
-// }
-// if (__UI_2__) {
-//     uiPages = import.meta.glob('/src/views/UI2/page/**/*.vue')
-// }
-// if (__UI_3__) {
-//     uiPages = import.meta.glob('/src/views/UI3/page/**/*.vue')
-// }
-
 const getItemName = (file: string) => {
-    const item = file.replace('/src/views/', '')
-    return item.substring(item.indexOf('/', item.indexOf('/') + 1) + 1)
+    // const item = file.replace('/src/views/', '')
+    // return item.substring(item.indexOf('/', item.indexOf('/') + 1) + 1)
+    return file.split('/page/')[1]
 }
 
 Object.keys(uiPages).forEach((prop) => {
@@ -61,9 +66,6 @@ Object.keys(puglicPages).forEach((prop) => {
         viewComponents[itemName] = puglicPages[prop]
     }
 })
-
-let root: RouteRecordRaw
-let config: RouteRecordRaw
 
 /**
  * @description: 基于功能树和UI配置生成路由树
@@ -82,7 +84,7 @@ function buildRouter() {
     // setRouteAuth(routes);
 
     //将第一个有权限的子路由设置为上一级的默认路由，设置父路由的redirct为默认子路由
-    setRouteDefault(routes)
+    // setRouteDefault(routes)
 
     return routes
 }
@@ -110,30 +112,30 @@ function routeSortFun(a: RouteRecordRaw, b: RouteRecordRaw): number {
  * @param {RouteRecordRaw} _routes
  * @return {*}
  */
-function setRouteAuth(_routes: RouteRecordRaw[]) {
-    //TODO: 设置权限
-    console.log(_routes)
-}
+// function setRouteAuth(_routes: RouteRecordRaw[]) {
+//     // 设置权限
+//     console.log(_routes)
+// }
 
 /**
  * @description: 将第一个有权限的子路由设置为上一级的默认路由，设置父路由的redirct为默认子路由
  * @param {RouteRecordRaw} routes
  * @return {*}
  */
-function setRouteDefault(routes: RouteRecordRaw[]): void {
-    routes.forEach((item) => {
-        if (item.children) {
-            const defaultRoute = item.children.find((o) => {
-                const auth = (<RouteMeta>o.meta).auth
-                return auth === undefined || auth
-            })
-            if (defaultRoute) {
-                item.redirect = (<RouteMeta>defaultRoute.meta).fullPath as string
-            }
-            setRouteDefault(item.children)
-        }
-    })
-}
+// function setRouteDefault(routes: RouteRecordRaw[]): void {
+//     // routes.forEach((item) => {
+//     //     if (item.children) {
+//     //         const defaultRoute = item.children.find((o) => {
+//     //             const auth = (<RouteMeta>o.meta).auth
+//     //             return auth === undefined || auth
+//     //         })
+//     //         if (defaultRoute) {
+//     //             item.redirect = (<RouteMeta>defaultRoute.meta).fullPath as string
+//     //         }
+//     //         setRouteDefault(item.children)
+//     //     }
+//     // })
+// }
 
 /**
  * @description: 解析树/子树
@@ -144,6 +146,10 @@ function setRouteDefault(routes: RouteRecordRaw[]): void {
  */
 function resolveRouteTree(tree: FeatureTree, routes: RouteRecordRaw[], parent: RouteRecordRaw | null) {
     for (const key in tree) {
+        if (tree[key].meta?.remove) {
+            continue
+        }
+
         //如果没有设置name，用key作为默认的name
         if (tree[key].name === undefined) {
             tree[key].name = key
@@ -159,7 +165,7 @@ function resolveRouteTree(tree: FeatureTree, routes: RouteRecordRaw[], parent: R
  * @return {*}
  */
 function resolveRouteItem(featureItem: FeatureItem, routes: RouteRecordRaw[], parent: RouteRecordRaw | null) {
-    const routeRecord: RouteRecordRaw = <RouteRecordRaw>{}
+    const routeRecord = {} as RouteRecordRaw
     routes.push(routeRecord)
     //非叶子节点，菜单页面
     if ('children' in featureItem) {
@@ -190,26 +196,30 @@ function setRouteRecordField(featureItem: FeatureItem, routeRecord: RouteRecordR
     } else if (featureItem.component) {
         routeRecord.component = viewComponents[featureItem.component]
     }
+
     if (featureItem.name) {
         routeRecord.name = featureItem.name
-        if (featureItem.name === 'root') {
-            root = routeRecord
-        } else if (featureItem.name === 'config') {
-            config = routeRecord
-        }
     }
+
     if (featureItem.meta) {
         routeRecord.meta = featureItem.meta
     } else {
         routeRecord.meta = {}
     }
+
+    if (featureItem.beforeEnter) {
+        routeRecord.beforeEnter = featureItem.beforeEnter
+    }
+
     routeRecord.name = featureItem.name
     routeRecord.path = featureItem.path === undefined ? camel2Kebab(<string>featureItem.name) : featureItem.path
     routeRecord.meta.parent = parent
+
     let parentPath = ''
     if (parent) {
         parentPath = (<RouteMeta>parent.meta).fullPath as string
     }
+
     if (routeRecord.path === '') {
         routeRecord.meta.fullPath = ''
     } else if (routeRecord.path.startsWith('/')) {
@@ -221,6 +231,7 @@ function setRouteRecordField(featureItem: FeatureItem, routeRecord: RouteRecordR
     if (featureItem.redirect) {
         routeRecord.redirect = featureItem.redirect
     }
+
     if (featureItem.alias) {
         routeRecord.alias = featureItem.alias
     }
@@ -228,7 +239,4 @@ function setRouteRecordField(featureItem: FeatureItem, routeRecord: RouteRecordR
 
 export {
     buildRouter, //基于功能树和UI配置生成路由树
-    setRouteAuth, //设置路由权限
-    root, //登录后的根路由节点
-    config, //配置的根路由节点
 }

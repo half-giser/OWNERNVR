@@ -2,18 +2,13 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-25 09:59:23
  * @Description: 输出配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 17:41:54
  */
-import { type XmlResult } from '@/utils/xmlParse'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
-import OutputSplitTemplate from './OutputSplitTemplate.vue'
+import OutputTemplateItem from './OutputTemplateItem.vue'
 import OutputAddViewPop from './OutputAddViewPop.vue'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import { type UserCheckAuthForm } from '@/types/apiType/userAndSecurity'
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
-import ChannelGroupAdd from '../channel/ChannelGroupAdd.vue'
-import { ChlGroup } from '@/types/apiType/channel'
+import ChannelGroupAddPop from '../channel/ChannelGroupAddPop.vue'
+import { type CheckboxValueType } from 'element-plus'
 
 type ChlItem = {
     id: string
@@ -21,70 +16,16 @@ type ChlItem = {
     dwellTime?: number
 }
 
-interface ChlsDto {
-    id: string
-    winindex: number
-}
-
-interface ChlGroupData {
-    segNum: number
-    chls: ChlsDto[]
-}
-
-interface DwellData {
-    displayMode: string
-    timeInterval: number
-    isCheckDwell: boolean
-    chlGroups: ChlGroupData[]
-    mode: string // dwell | 'preview'
-}
-
-interface PreviewData {
-    displayMode: string
-    chlGroups: ChlGroupData[]
-}
-
-interface DecoderCardData {
-    decoderDwellData: {
-        [outIndex: number]: DwellData
-    }
-    decoderPreviewData: {
-        [outIndex: number]: PreviewData
-    }
-    ShowHdmiIn: number // outIndex：0表示输出1、1表示输出2...
-    onlineStatus: boolean
-}
-
-class MainOutputData {
-    displayMode = ''
-    timeInterval = 0
-    chlGroups: ChlGroupData[] = []
-}
-
-interface SubOutputDwellData {
-    [outIndex: number]: DwellData
-}
-
-interface SubOutputPreviewData {
-    [outIndex: number]: PreviewData
-}
-
-interface DecoderCardMap {
-    [id: number]: DecoderCardData
-}
 export default defineComponent({
     components: {
         BaseCheckAuthPop,
-        BaseImgSprite,
-        OutputSplitTemplate,
+        OutputTemplateItem,
         OutputAddViewPop,
         ChannelGroupEditPop,
-        ChannelGroupAdd,
+        ChannelGroupAddPop,
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const systemCaps = useCababilityStore()
 
         const cacheChlListOfGroup: Record<string, ChlItem[]> = {}
@@ -97,15 +38,6 @@ export default defineComponent({
             title: '',
         }
 
-        // 解码卡的数据
-        const decoderCardMap = ref<DecoderCardMap>({})
-        // 主输出的数据
-        const mainOutputData = ref(new MainOutputData())
-        // 副输出轮询数据
-        const subOutputDwellData = ref<SubOutputDwellData>({})
-        // 副输出预览数据
-        const subOutputPreviewData = ref<SubOutputPreviewData>({})
-
         const pageData = ref({
             // 通道菜单，切换通道组和通道
             chlMenu: [Translate('IDCS_CHANNEL'), Translate('IDCS_CHANNEL_GROUP')],
@@ -114,27 +46,30 @@ export default defineComponent({
             // 当前通道列表选中的通道
             activeChl: '',
             // 轮询时间选项 （秒）
-            dwellTimeOptions: [5, 10, 15, 20, 30, 40, 60],
+            dwellTimeOptions: [5, 10, 15, 20, 30, 40, 60].map((value) => {
+                return {
+                    value,
+                    label: getTranslateForSecond(value),
+                }
+            }),
             // 是否轮询复选框
             dwellCheckbox: false,
             // 轮询开关
             configSwitch: false,
             // 是否显示开关
             isConfigSwitch: false,
-            // 分屏选项
-            segList: [1, 4, 6, 8, 9, 13, 16, 25, 32, 36, 64],
             // 当前视图列表选中的视图
             activeView: 0,
             // 当前视图中选中的分屏
             activeWinIndex: -1,
-            // 初始Tab选中本机，当前选中的tab(本机0：local，解码卡1：decoderCardItem1，解码卡2：decoderCardItem2....)
-            tabId: 0, //'local',
-            // 当前选中输出. 主输出为0，辅输出的索引序号（1，2，3...）
-            outputIdx: 0,
+            // 初始Tab选中本机，当前选中的tab(-1 本机0：local，0 解码卡1：decoderCardItem1，1 解码卡2：decoderCardItem2....)
+            tabId: -1,
+            // 当前选中输出. 主输出为-1，辅输出的索引序号（0，1，2...）
+            outputIdx: -1,
             // 当前选择中的解码卡输出的索引序号（输出1：0，输出2：1，输出3：2，输出4：3）
             decoderIdx: 0,
             // 通道组列表
-            chlGroupList: [] as ChlItem[],
+            chlGroupList: [] as ChannelGroupDto[],
             // 当前选中的通道组
             activeChlGroup: '',
             // 当前通道组的通道列表
@@ -143,8 +78,8 @@ export default defineComponent({
             chlList: [] as ChlItem[],
             // 最大的输出分屏数
             outputScreenCount: 0,
-            // 当前选中的 TODO
-            activeOutputScreen: 0,
+            // 当前选中的
+            // activeOutputScreen: 0,
             // 是否有解码卡
             hasDecoder: false,
             // 打开新增通道组弹窗
@@ -155,60 +90,56 @@ export default defineComponent({
             isCheckAuth: false,
             // 是否打开收藏弹窗
             isAddView: false,
-            editChlGroup: new ChlGroup(),
+            editChlGroup: new ChannelGroupDto(),
         })
 
-        // 当前左侧缩略图的数据
-        const currentViewList = computed(() => {
-            if (outputType.value === 'main') {
-                return mainOutputData.value
-            } else if (outputType.value === 'dwell') {
-                if (pageData.value.tabId === 0) {
-                    if (subOutputDwellData.value[pageData.value.outputIdx]) {
-                        return subOutputDwellData.value[pageData.value.outputIdx]
-                    }
-                } else {
-                    if (decoderCardMap.value[pageData.value.tabId]?.decoderDwellData[pageData.value.decoderIdx]) {
-                        return decoderCardMap.value[pageData.value.tabId].decoderDwellData[pageData.value.decoderIdx]
-                    }
-                }
-            } else {
-                if (pageData.value.tabId === 0) {
-                    if (subOutputPreviewData.value[pageData.value.outputIdx]) {
-                        return subOutputPreviewData.value[pageData.value.outputIdx]
-                    }
-                } else {
-                    if (decoderCardMap.value[pageData.value.tabId]?.decoderPreviewData[pageData.value.decoderIdx]) {
-                        return decoderCardMap.value[pageData.value.tabId].decoderPreviewData[pageData.value.decoderIdx]
-                    }
-                }
+        const formData = ref(new SystemOutputSettingForm())
+
+        const isDwell = computed(() => {
+            if (pageData.value.tabId === -1 && pageData.value.outputIdx === -1) {
+                return formData.value.main.isDwell
             }
-            return {
-                chlGroups: [] as ChlGroupData[],
+
+            if (pageData.value.tabId === -1) {
+                return formData.value.sub[pageData.value.outputIdx].isDwell
+            } else {
+                return formData.value.decoder[pageData.value.tabId].output[pageData.value.decoderIdx].isDwell
             }
         })
 
-        // 输出类型 'main' | 'dwell' | 'preview'
-        const outputType = computed(() => {
-            if (pageData.value.tabId === 0 && pageData.value.outputIdx === 0) {
-                return 'main'
-            }
-            if (pageData.value.tabId === 0) {
-                return subOutputDwellData.value[pageData.value.outputIdx].mode
+        const getCurrentOutput = () => {
+            if (isDwell.value) {
+                if (pageData.value.tabId === -1) {
+                    if (pageData.value.outputIdx === -1) {
+                        return formData.value.main.dwell
+                    } else {
+                        return formData.value.sub[pageData.value.outputIdx].dwell
+                    }
+                } else {
+                    return formData.value.decoder[pageData.value.tabId].output[pageData.value.decoderIdx].dwell
+                }
             } else {
-                return decoderCardMap.value[pageData.value.tabId].decoderDwellData[pageData.value.decoderIdx].mode
+                if (pageData.value.tabId === -1) {
+                    if (pageData.value.outputIdx === -1) {
+                        return formData.value.main.preview
+                    } else {
+                        return formData.value.sub[pageData.value.outputIdx].preview
+                    }
+                } else {
+                    return formData.value.decoder[pageData.value.tabId].output[pageData.value.decoderIdx].preview
+                }
             }
-        })
+        }
 
         // 当前窗口项
         const activeViewItem = computed(() => {
-            if (currentViewList.value.chlGroups.length) {
-                return currentViewList.value.chlGroups[pageData.value.activeView]
-            }
-            return {
-                segNum: 1,
-                chls: [],
-            }
+            const activeView = isDwell.value ? pageData.value.activeView : 0
+            return (
+                getCurrentOutput().chlGroups[activeView] || {
+                    segNum: 1,
+                    chls: [],
+                }
+            )
         })
 
         // 当前视图窗口的数据
@@ -218,7 +149,7 @@ export default defineComponent({
 
         // 当前视窗通道数据
         const currentViewData = computed(() => {
-            const array = Array(64).fill({ id: '', value: '' }) as ChlItem[]
+            const array: ChlItem[] = Array(64).fill({ id: '', value: '' })
             activeViewItem.value.chls.forEach((item) => {
                 array[item.winindex] = {
                     id: item.id,
@@ -230,10 +161,10 @@ export default defineComponent({
 
         // 根据HDMI输出，是否显示遮罩层
         const isHDMIShadow = computed(() => {
-            if (pageData.value.tabId === 0) {
+            if (pageData.value.tabId === -1) {
                 return false
             }
-            const hdmiINData = decoderCardMap.value[pageData.value.tabId].ShowHdmiIn
+            const hdmiINData = formData.value.decoder[pageData.value.tabId].ShowHdmiIn
             // 当前选择的HDMI IN输出和解码卡输出一致，则把当前输出的配置隐藏
             if (hdmiINData === pageData.value.decoderIdx + 1) {
                 return true
@@ -244,26 +175,8 @@ export default defineComponent({
 
         // 当前轮询时间
         const currentTimeInterval = computed(() => {
-            const value = currentViewList.value as DwellData
-            if (value.timeInterval) {
-                return value.timeInterval
-            } else return 0
+            return getCurrentOutput().timeInterval
         })
-
-        /**
-         * @description 轮询选项的文本显示
-         * @param {number} value
-         * @returns {string}
-         */
-        const displayDwellTimeLabel = (value: number) => {
-            if (value < 60) {
-                return value + ' ' + Translate('IDCS_SECONDS')
-            } else if (value === 60) {
-                return value / 60 + ' ' + Translate('IDCS_MINUTE')
-            } else {
-                return value / 60 + ' ' + Translate('IDCS_MINUTES')
-            }
-        }
 
         /**
          * @description 根据通道id与通道名的映射，回显窗口的通道名
@@ -277,23 +190,16 @@ export default defineComponent({
          * @description 更新左侧视图缩略图
          */
         const addView = () => {
-            const item: ChlGroupData = {
+            const item: SystemOutputSettingChlGroup = {
                 segNum: 1,
                 chls: [],
             }
-            if (outputType.value === 'main') {
-                mainOutputData.value.chlGroups.push(item)
-            } else if (outputType.value === 'dwell') {
-                if (pageData.value.tabId !== 0) {
-                    decoderCardMap.value[pageData.value.tabId].decoderDwellData[pageData.value.decoderIdx].chlGroups.push(item)
-                } else {
-                    subOutputDwellData.value[pageData.value.outputIdx].chlGroups.push(item)
-                }
-            }
+
+            getCurrentOutput().chlGroups.push(item)
+
             nextTick(() => {
                 // 选中最后一个
-                pageData.value.activeView = currentViewList.value.chlGroups.length - 1
-                pageData.value.activeWinIndex = 0
+                changeView(getCurrentOutput().chlGroups.length - 1)
             })
         }
 
@@ -304,8 +210,8 @@ export default defineComponent({
         const changeView = (key: number) => {
             pageData.value.activeView = key
             nextTick(() => {
-                if (pageData.value.activeWinIndex > currentViewList.value.chlGroups.length - 1) {
-                    pageData.value.activeWinIndex = 0
+                if (pageData.value.activeWinIndex > getCurrentOutput().chlGroups.length - 1) {
+                    changeWinIndex(0)
                 }
             })
         }
@@ -315,22 +221,14 @@ export default defineComponent({
          * @param {number} viewIndex
          */
         const delView = (viewIndex: number) => {
-            if (outputType.value === 'main') {
-                mainOutputData.value.chlGroups.splice(viewIndex, 1)
-            } else if (outputType.value === 'dwell') {
-                if (pageData.value.tabId !== 0) {
-                    decoderCardMap.value[pageData.value.tabId].decoderDwellData[pageData.value.decoderIdx].chlGroups.splice(viewIndex, 1)
-                } else {
-                    subOutputDwellData.value[pageData.value.outputIdx].chlGroups.splice(viewIndex, 1)
-                }
-            }
+            getCurrentOutput().chlGroups.splice(viewIndex, 1)
         }
 
         /**
          * @description 收藏当前视图
          */
         const collectView = () => {
-            if (!currentViewList.value.chlGroups.length) {
+            if (!getCurrentOutput().chlGroups.length) {
                 return
             }
             pageData.value.isAddView = true
@@ -340,56 +238,30 @@ export default defineComponent({
          * @description 切换分屏视图
          */
         const changeSplit = (segment: number) => {
-            if (!currentViewList.value.chlGroups.length) {
+            if (!getCurrentOutput().chlGroups.length) {
                 return
             }
-            if (outputType.value === 'main') {
-                mainOutputData.value.chlGroups[pageData.value.activeView].segNum = segment
-            } else if (outputType.value === 'dwell') {
-                if (pageData.value.tabId !== 0) {
-                    decoderCardMap.value[pageData.value.tabId].decoderDwellData[pageData.value.decoderIdx].chlGroups[pageData.value.activeView].segNum = segment
-                } else {
-                    subOutputDwellData.value[pageData.value.outputIdx].chlGroups[pageData.value.activeView].segNum = segment
-                }
-            } else {
-                if (pageData.value.tabId !== 0) {
-                    decoderCardMap.value[pageData.value.tabId].decoderPreviewData[pageData.value.decoderIdx].chlGroups[0].segNum = segment
-                } else {
-                    subOutputPreviewData.value[pageData.value.outputIdx].chlGroups[0].segNum = segment
-                }
-            }
+            const activeView = isDwell.value ? pageData.value.activeView : 0
+            getCurrentOutput().chlGroups[activeView].segNum = segment
         }
 
         /**
          * @description 清空视图内容
          */
         const clearAllSplitData = () => {
-            if (!currentViewList.value.chlGroups.length) {
+            if (!getCurrentOutput().chlGroups.length) {
                 return
             }
-            if (outputType.value === 'main') {
-                mainOutputData.value.chlGroups[pageData.value.activeView].chls = []
-            } else if (outputType.value === 'dwell') {
-                if (pageData.value.tabId !== 0) {
-                    decoderCardMap.value[pageData.value.tabId].decoderDwellData[pageData.value.decoderIdx].chlGroups[pageData.value.activeView].chls = []
-                } else {
-                    subOutputDwellData.value[pageData.value.outputIdx].chlGroups[pageData.value.activeView].chls = []
-                }
-            } else {
-                if (pageData.value.tabId !== 0) {
-                    decoderCardMap.value[pageData.value.tabId].decoderPreviewData[pageData.value.decoderIdx].chlGroups[0].chls = []
-                } else {
-                    subOutputPreviewData.value[pageData.value.outputIdx].chlGroups[0].chls = []
-                }
-            }
+            const activeView = isDwell.value ? pageData.value.activeView : 0
+            getCurrentOutput().chlGroups[activeView].chls = []
         }
 
         /**
          * @description 比较新旧数据，清除某视窗内容
-         * @param {ChlsDto[]} oldChls
+         * @param {SystemOutputSettingChlItem[]} oldChls
          * @param {number} winIndex
          */
-        const spliceSplitData = (oldChls: ChlsDto[], winIndex: number) => {
+        const spliceSplitData = (oldChls: SystemOutputSettingChlItem[], winIndex: number) => {
             const findIndex = oldChls.findIndex((item) => item.winindex === winIndex)
             if (findIndex > -1) {
                 oldChls.splice(findIndex, 1)
@@ -402,38 +274,16 @@ export default defineComponent({
          * @param {number} winIndex
          */
         const clearSplitData = (winIndex: number) => {
-            if (outputType.value === 'main') {
-                mainOutputData.value.chlGroups[pageData.value.activeView].chls = spliceSplitData(mainOutputData.value.chlGroups[pageData.value.activeView].chls, winIndex)
-            } else if (outputType.value === 'dwell') {
-                if (pageData.value.tabId !== 0) {
-                    decoderCardMap.value[pageData.value.tabId].decoderDwellData[pageData.value.decoderIdx].chlGroups[pageData.value.activeView].chls = spliceSplitData(
-                        decoderCardMap.value[pageData.value.tabId].decoderDwellData[pageData.value.decoderIdx].chlGroups[pageData.value.activeView].chls,
-                        winIndex,
-                    )
-                } else {
-                    subOutputDwellData.value[pageData.value.outputIdx].chlGroups[pageData.value.activeView].chls = spliceSplitData(
-                        subOutputDwellData.value[pageData.value.outputIdx].chlGroups[pageData.value.activeView].chls,
-                        winIndex,
-                    )
-                }
-            } else {
-                if (pageData.value.tabId !== 0) {
-                    decoderCardMap.value[pageData.value.tabId].decoderPreviewData[pageData.value.decoderIdx].chlGroups[0].chls = spliceSplitData(
-                        decoderCardMap.value[pageData.value.tabId].decoderPreviewData[pageData.value.decoderIdx].chlGroups[0].chls,
-                        winIndex,
-                    )
-                } else {
-                    subOutputPreviewData.value[pageData.value.outputIdx].chlGroups[0].chls = spliceSplitData(subOutputPreviewData.value[pageData.value.outputIdx].chlGroups[0].chls, winIndex)
-                }
-            }
+            const activeView = isDwell.value ? pageData.value.activeView : 0
+            getCurrentOutput().chlGroups[activeView].chls = spliceSplitData(getCurrentOutput().chlGroups[activeView].chls, winIndex)
         }
 
         /**
          * @description 比较新旧数据，更新视图内容
-         * @param {ChlsDto[]} oldChls
-         * @param {ChlsDto[]} newChls
+         * @param {SystemOutputSettingChlItem[]} oldChls
+         * @param {SystemOutputSettingChlItem[]} newChls
          */
-        const mergeSplitData = (oldChls: ChlsDto[], newChls: ChlsDto[]) => {
+        const mergeSplitData = (oldChls: SystemOutputSettingChlItem[], newChls: SystemOutputSettingChlItem[]) => {
             const keys = oldChls.map((item) => item.winindex)
             newChls.forEach((item) => {
                 const index = keys.indexOf(item.winindex)
@@ -448,33 +298,11 @@ export default defineComponent({
 
         /**
          * @description 更新视图内容
-         * @param {ChlsDto[]} chls
+         * @param {SystemOutputSettingChlItem[]} chls
          */
-        const updateSplitData = (chls: ChlsDto[]) => {
-            if (outputType.value === 'main') {
-                mainOutputData.value.chlGroups[pageData.value.activeView].chls = mergeSplitData(mainOutputData.value.chlGroups[pageData.value.activeView].chls, chls)
-            } else if (outputType.value === 'dwell') {
-                if (pageData.value.tabId !== 0) {
-                    decoderCardMap.value[pageData.value.tabId].decoderDwellData[pageData.value.decoderIdx].chlGroups[pageData.value.activeView].chls = mergeSplitData(
-                        decoderCardMap.value[pageData.value.tabId].decoderDwellData[pageData.value.decoderIdx].chlGroups[pageData.value.activeView].chls,
-                        chls,
-                    )
-                } else {
-                    subOutputDwellData.value[pageData.value.outputIdx].chlGroups[pageData.value.activeView].chls = mergeSplitData(
-                        subOutputDwellData.value[pageData.value.outputIdx].chlGroups[pageData.value.activeView].chls,
-                        chls,
-                    )
-                }
-            } else {
-                if (pageData.value.tabId !== 0) {
-                    decoderCardMap.value[pageData.value.tabId].decoderPreviewData[pageData.value.decoderIdx].chlGroups[0].chls = mergeSplitData(
-                        decoderCardMap.value[pageData.value.tabId].decoderPreviewData[pageData.value.decoderIdx].chlGroups[0].chls,
-                        chls,
-                    )
-                } else {
-                    subOutputPreviewData.value[pageData.value.outputIdx].chlGroups[0].chls = mergeSplitData(subOutputPreviewData.value[pageData.value.outputIdx].chlGroups[0].chls, chls)
-                }
-            }
+        const updateSplitData = (chls: SystemOutputSettingChlItem[]) => {
+            const activeView = isDwell.value ? pageData.value.activeView : 0
+            getCurrentOutput().chlGroups[activeView].chls = mergeSplitData(getCurrentOutput().chlGroups[activeView].chls, chls)
         }
 
         /**
@@ -497,10 +325,7 @@ export default defineComponent({
         const editChlGroup = () => {
             const find = pageData.value.chlGroupList.find((item) => item.id === pageData.value.activeChlGroup)
             if (find) {
-                pageData.value.editChlGroup.id = find.id
-                pageData.value.editChlGroup.name = find.value
-                pageData.value.editChlGroup.dwellTime = find.dwellTime!
-
+                pageData.value.editChlGroup = find
                 pageData.value.isEditChlGroup = true
             }
         }
@@ -519,12 +344,11 @@ export default defineComponent({
             const id = pageData.value.activeChlGroup
             const findItem = pageData.value.chlGroupList.find((item) => item.id === id)
             if (findItem) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'question',
-                    title: Translate('IDCS_INFO_TIP'),
-                    message: Translate('IDCS_DELETE_MP_GROUP_S').formatForLang(getShortString(findItem.value, 10)),
+                    message: Translate('IDCS_DELETE_MP_GROUP_S').formatForLang(getShortString(findItem.name, 10)),
                 }).then(async () => {
-                    openLoading(LoadingTarget.FullScreen)
+                    openLoading()
                     const sendXml = rawXml`
                         <condition>
                             <chlGroupIds type="list">
@@ -532,19 +356,12 @@ export default defineComponent({
                             </chlGroupIds>
                         </condition>
                     `
-                    const result = await delChlGroup(getXmlWrapData(sendXml))
-                    const $ = queryXml(result)
-                    closeLoading(LoadingTarget.FullScreen)
-                    if ($('/response/status').text() === 'success') {
-                        openMessageTipBox({
-                            type: 'success',
-                            title: Translate('IDCS_SUCCESS_TIP'),
-                            message: Translate('IDCS_DELETE_SUCCESS'),
-                        }).then(() => {
-                            getChlGroupList()
-                            pageData.value.chlListOfGroup = []
-                        })
-                    }
+                    const result = await delChlGroup(sendXml)
+                    closeLoading()
+                    commDelResponseHandler(result, () => {
+                        getChlGroupList()
+                        pageData.value.chlListOfGroup = []
+                    })
                 })
             }
         }
@@ -558,17 +375,16 @@ export default defineComponent({
                 requireField: ['name'],
             })
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                pageData.value.chlList = []
-                $('/response/content/item').forEach((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.chlList = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
-                    const id = item.attr('id')!
+                    const id = item.attr('id')
                     const value = $item('name').text()
-                    pageData.value.chlList.push({
+                    chlNameMaping[id] = value
+                    return {
                         id,
                         value,
-                    })
-                    chlNameMaping[id] = value
+                    }
                 })
             }
         }
@@ -582,17 +398,19 @@ export default defineComponent({
                     <name />
                 </requireField>
             `
-            const result = await queryChlGroupList(getXmlWrapData(sendXml))
+            const result = await queryChlGroupList(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                pageData.value.chlGroupList = []
-                $('/response/content/item').forEach((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.chlGroupList = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
-                    pageData.value.chlGroupList.push({
-                        id: item.attr('id')!,
-                        value: $item('name').text(),
-                        dwellTime: Number($item('dwellTime').text()),
-                    })
+                    return {
+                        id: item.attr('id'),
+                        nameMaxByteLen: $item('name').attr('maxByteLen').num() || nameByteMaxLen,
+                        name: $item('name').text(),
+                        dwellTime: $item('dwellTime').text().num(),
+                        chlCount: $item('chlCount').text().num(),
+                        chls: [],
+                    }
                 })
             }
         }
@@ -609,26 +427,24 @@ export default defineComponent({
                 return cacheChlListOfGroup[id]
             }
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <condition>
                     <chlGroupId>${id}</chlGroupId>
                 </condition>
             `
-            const result = await queryChlGroup(getXmlWrapData(sendXml))
+            const result = await queryChlGroup(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
-            if ($('/response/status').text() === 'success') {
-                cacheChlListOfGroup[id] = [] as ChlItem[]
-                $('/response/content/chlList/item').forEach((item) => {
-                    // const $item = queryXml(item.element)
-                    cacheChlListOfGroup[id].push({
-                        id: item.attr('id')!,
+            if ($('status').text() === 'success') {
+                cacheChlListOfGroup[id] = $('content/chlList/item').map((item) => {
+                    return {
+                        id: item.attr('id'),
                         value: item.text(),
-                    })
+                    }
                 })
                 pageData.value.chlListOfGroup = cacheChlListOfGroup[id]
             } else {
@@ -642,12 +458,12 @@ export default defineComponent({
          * @param {string} id 通道组ID
          */
         const setWinFromChlGroup = async (id: string) => {
-            if (!currentViewList.value.chlGroups.length) {
+            if (!getCurrentOutput().chlGroups.length) {
                 return
             }
             pageData.value.activeChlGroup = id
             const result = (await getChlListOfGroup(id)) as ChlItem[]
-            const values: ChlsDto[] = []
+            const values: SystemOutputSettingChlItem[] = []
             result.forEach((item, index) => {
                 const winindex = pageData.value.activeWinIndex + index
                 if (winindex >= systemCaps.ipChlMaxCount) {
@@ -666,7 +482,7 @@ export default defineComponent({
          * @param {string} id 通道组ID
          */
         const setWinFromChl = (id: string) => {
-            if (!currentViewList.value.chlGroups.length) {
+            if (!getCurrentOutput().chlGroups.length) {
                 return
             }
             updateSplitData([
@@ -706,180 +522,151 @@ export default defineComponent({
             const result = await queryDwell()
             const $ = queryXml(result)
 
-            // 解码卡排序
-            const decoderResXml = $('/response/decoderContent/decoder')
-            const decoderArrXml = $('/response/decoderContent/decoder').sort((a, b) => {
-                return Number(a.attr('id')) - Number(b.attr('id'))
-            })
-            const decorderOutputXml: Record<number, XmlResult> = {}
-            // 解码卡输出排序
-            decoderArrXml.forEach((item) => {
-                const $item = queryXml(item.element)
-                const decoderId = Number(item.attr('id'))
-                const onlineStatus = item.attr('onlineStatus')!.toBoolean()
-                decoderCardMap.value[decoderId].onlineStatus = onlineStatus
-                const currDecoderOut = $item('item').sort((a, b) => {
-                    return Number(a.attr('outIndex')) - Number(b.attr('outIndex'))
-                })
-                if (!decorderOutputXml[decoderId]) {
-                    decorderOutputXml[decoderId] = currDecoderOut // 用id区分属于哪一解码卡的输出
-                }
-            })
-            // 获取解码卡各输出的配置
-            Object.keys(decorderOutputXml).forEach((key) => {
-                const id = Number(key)
-                const outItemXml = decorderOutputXml[id] // 获取每张解码卡的各个输出数据
-                outItemXml.forEach((item) => {
-                    const $item = queryXml(item.element)
-                    const outIndex = Number(item.attr('outIndex'))
-                    // 0/1 表示当前输出是轮询('0')还是预览('1')模式
-                    const isDecoderCheckDwell = Number(item.attr('validItem')) === 0
-                    // 表示当前输出是HDMI IN输出
-                    const showHdmiIn = item.attr('ShowHdmiIn')!.toBoolean()
-                    if (showHdmiIn) {
-                        // outIndex：0表示输出1、1表示输出2...
-                        decoderCardMap.value[id].ShowHdmiIn = outIndex * 1 + 1
-                    }
-                    decoderCardMap.value[id].decoderDwellData = {}
-                    decoderCardMap.value[id].decoderPreviewData = {}
-                    $item('item1').forEach((element) => {
-                        const $element = queryXml(element.element)
-                        const displayMode = $element('displayMode').text()
-                        if (displayMode === 'dwell') {
-                            decoderCardMap.value[id].decoderDwellData[outIndex] = {
-                                displayMode,
-                                timeInterval: Number($element('timeInterval').text()),
-                                // 表示当前输出是否勾选轮询check框
-                                isCheckDwell: isDecoderCheckDwell,
-                                chlGroups: [],
-                                mode: 'preview',
-                            }
-                            // 表示当前输出是否勾选轮询check框
-                            $element('chlGroups/item').forEach((chlGroup) => {
-                                const $chlGroup = queryXml(chlGroup.element)
-                                const segNum = Number($chlGroup('segNum').text())
-                                const chlsData: ChlsDto[] = []
-                                $chlGroup('chls/item').forEach((chlItem) => {
-                                    chlsData.push({
-                                        id: chlItem.attr('id')!,
-                                        winindex: Number(chlItem.text()),
-                                    })
-                                })
-                                decoderCardMap.value[id].decoderDwellData[outIndex].chlGroups.push({
-                                    segNum: segNum,
-                                    chls: chlsData,
-                                })
-                            })
-                        } else {
-                            decoderCardMap.value[id].decoderPreviewData[outIndex] = {
-                                displayMode,
-                                chlGroups: [],
-                            }
-                            const segNum = Number($element('segNum').text())
-                            const chlsData: ChlsDto[] = []
-                            $element('chls/item').forEach((chl) => {
-                                chlsData.push({
-                                    id: chl.attr('id')!,
-                                    winindex: Number(chl.text()),
-                                })
-                            })
-                            decoderCardMap.value[id].decoderPreviewData[outIndex].chlGroups[0].segNum = segNum
-                            decoderCardMap.value[id].decoderPreviewData[outIndex].chlGroups[0].chls = chlsData
-                        }
-                    })
-                })
-            })
+            // 解码卡输出
+            // $('decoderContent/decoder').forEach((decoder) => {
+            //     const $decoder = queryXml(decoder.element)
+            //     const decoderId = decoder.attr('id').num()
+            //     const onlineStatus = decoder.attr('onlineStatus').bool()
+
+            //     // 设备端刘顺：每张解码卡固定4个输出
+            //     formData.value.decoder.push({
+            //         id: decoderId,
+            //         onlineStatus,
+            //         ShowHdmiIn: -1,
+            //         output: Array(4)
+            //             .fill(0)
+            //             .map((_, index) => {
+            //                 const item = new SystemOutputSettingItem()
+            //                 item.id = index
+            //                 return item
+            //             }),
+            //     })
+
+            //     $decoder('item').forEach((outItem) => {
+            //         const $outItem = queryXml(outItem.element)
+            //         const outIndex = outItem.attr('outIndex').num()
+
+            //         // 表示当前输出是HDMI IN输出
+            //         const showHdmiIn = outItem.attr('ShowHdmiIn').bool()
+            //         if (showHdmiIn) {
+            //             formData.value.decoder[decoderId].ShowHdmiIn = outIndex
+            //         }
+
+            //         // 0/1 表示当前输出是轮询('0')还是预览('1')模式
+            //         formData.value.decoder[decoderId].output[outIndex].isDwell = outItem.attr('validItem').num() === 0
+            //         formData.value.decoder[decoderId].output[outIndex].maxWin = systemCaps.decoderOutputMaxWin[decoderId]
+
+            //         $outItem('item1').forEach((element) => {
+            //             const $element = queryXml(element.element)
+            //             const displayMode = $element('displayMode').text()
+            //             // 表示当前输出是否勾选轮询check框
+            //             if (displayMode === 'dwell') {
+            //                 formData.value.decoder[decoderId].output[outIndex].dwell = {
+            //                     id: 0,
+            //                     timeInterval: $element('timeInterval').text().num() || 5,
+            //                     chlGroups: $element('chlGroups/item').map((chlGroup) => {
+            //                         const $chlGroup = queryXml(chlGroup.element)
+            //                         return {
+            //                             segNum: $chlGroup('segNum').text().num(),
+            //                             chls: $chlGroup('chls/item').map((chl) => ({
+            //                                 id: chl.attr('id'),
+            //                                 winindex: chl.text().num(),
+            //                             })),
+            //                         }
+            //                     }),
+            //                 }
+            //             } else {
+            //                 formData.value.decoder[decoderId].output[outIndex].preview.chlGroups = [
+            //                     {
+            //                         segNum: $element('segNum').text().num() || 1,
+            //                         chls: $element('chls/item').map((chlItem) => {
+            //                             return {
+            //                                 id: chlItem.attr('id'),
+            //                                 winindex: chlItem.text().num(),
+            //                             }
+            //                         }),
+            //                     },
+            //                 ]
+            //             }
+            //         })
+            //     })
+
+            //     pageData.value.hasDecoder = true
+            // })
 
             // 获取主输出的配置
-            mainOutputData.value = new MainOutputData()
-            mainOutputData.value.displayMode = $('/response/content/item[@outType="Main"]/item1/displayMode').text()
-            mainOutputData.value.timeInterval = Number($('/response/content/item[@outType="Main"]/item1/timeInterval').text())
-            mainOutputData.value.chlGroups = []
-            $('/response/content/item[@outType="Main"]/item1/chlGroups/item').forEach((item) => {
-                const $item = queryXml(item.element)
-                const segNum = Number($item('segNum').text())
-                const chlsData: ChlsDto[] = []
-                $item('chls/item').forEach((chl) => {
-                    chlsData.push({
-                        id: chl.attr('id')!,
-                        winindex: Number(chl.text()),
-                    })
-                })
-                mainOutputData.value.chlGroups.push({
-                    segNum: segNum,
-                    chls: chlsData,
-                })
-            })
+            formData.value.main.isDwell = true
+            formData.value.main.dwell = {
+                id: 0,
+                timeInterval: $('content/item[@outType="Main"]/item1/timeInterval').text().num(),
+                chlGroups: $('content/item[@outType="Main"]/item1/chlGroups/item').map((item) => {
+                    const $item = queryXml(item.element)
 
-            // 获取副输出的配置
-            subOutputDwellData.value = {}
-            subOutputPreviewData.value = {}
-            for (let idx = 1; idx < systemCaps.outputScreensCount; idx++) {
-                // 辅输出-轮询数据
-                subOutputDwellData.value[idx] = {
-                    displayMode: 'dwell',
-                    timeInterval: 5,
-                    isCheckDwell: false,
-                    chlGroups: [],
-                    mode: 'preview',
-                }
-                // 辅输出-预览数据
-                subOutputPreviewData.value[idx] = {
-                    displayMode: 'preview',
-                    chlGroups: [{ segNum: 1, chls: [] }],
-                }
+                    return {
+                        segNum: $item('segNum').text().num(),
+                        chls: $item('chls/item').map((chl) => {
+                            return {
+                                id: chl.attr('id'),
+                                winindex: chl.text().num(),
+                            }
+                        }),
+                    }
+                }),
+            }
+            formData.value.main.maxWin = systemCaps.previewMaxWinForOutputSetting
+
+            const subOutputMaxWinMap: Record<number, number> = {
+                1: systemCaps.sub1OutputMaxWin,
+                2: systemCaps.sub2OutputMaxWin,
+                3: systemCaps.sub3OutputMaxWin,
             }
 
-            $("/response/content/item[contains(@outType,'Sub')]").forEach((item) => {
+            // 获取副输出的配置
+            for (let idx = 0; idx < systemCaps.outputScreensCount - 1; idx++) {
+                const item = new SystemOutputSettingItem()
+                item.id = idx + 1
+                item.maxWin = subOutputMaxWinMap[item.id]
+                formData.value.sub.push(item)
+            }
+
+            $("content/item[contains(@outType,'Sub')]").forEach((item, index) => {
                 const $item = queryXml(item.element)
-                // 每个辅输出对应的索引序号（1，2，3...）
-                const outIndex = Number(item.attr('outIndex'))
-                // validItem：0/1表示当前辅输出是轮询('0')还是预览('1')模式
-                const isSubCheckDwell = Number(item.attr('validItem')) === 0
+                formData.value.sub[index].id = item.attr('outIndex').num()
+                formData.value.sub[index].isDwell = item.attr('validItem').num() === 0
+
                 $item('item1').forEach((element) => {
                     const $element = queryXml(element.element)
                     const displayMode = $element('displayMode').text()
                     if (displayMode === 'dwell') {
-                        subOutputDwellData.value[outIndex].displayMode = displayMode
-                        subOutputDwellData.value[outIndex].timeInterval = Number($element('timeInterval').text())
-                        // 表示当前输出是否勾选轮询check框
-                        subOutputDwellData.value[outIndex].isCheckDwell = isSubCheckDwell
-                        $element('chlGroups/item').forEach((chlGroup) => {
-                            const $chlGroup = queryXml(chlGroup.element)
-                            const segNum = Number($chlGroup('segNum').text())
-                            const chlsData: ChlsDto[] = []
-                            $chlGroup('chls/item').forEach((chlItem) => {
-                                chlsData.push({
-                                    id: chlItem.attr('id')!,
-                                    winindex: Number(chlItem.text()),
-                                })
-                            })
-                            subOutputDwellData.value[outIndex].chlGroups.push({
-                                segNum: segNum,
-                                chls: chlsData,
-                            })
-                        })
+                        formData.value.sub[index].dwell = {
+                            id: 0,
+                            timeInterval: $element('timeInterval').text().num() || 5,
+                            chlGroups: $element('chlGroups/item').map((chlGroup) => {
+                                const $chlGroup = queryXml(chlGroup.element)
+                                return {
+                                    segNum: $chlGroup('segNum').text().num(),
+                                    chls: $chlGroup('chls/item').map((chl) => ({
+                                        id: chl.attr('id'),
+                                        winindex: chl.text().num(),
+                                    })),
+                                }
+                            }),
+                        }
                     } else {
-                        subOutputPreviewData.value[outIndex].displayMode = displayMode
-                        const segNum = Number($element('segNum').text())
-                        const chlsData: ChlsDto[] = []
-                        $element('chls/item').forEach((chl) => {
-                            chlsData.push({
-                                id: chl.attr('id')!,
-                                winindex: Number(chl.text()),
-                            })
-                        })
-                        subOutputPreviewData.value[outIndex].chlGroups[0].segNum = segNum
-                        subOutputPreviewData.value[outIndex].chlGroups[0].chls = chlsData
+                        formData.value.sub[index].preview.chlGroups = [
+                            {
+                                segNum: $element('segNum').text().num() || 1,
+                                chls: $element('chls/item').map((chlItem) => {
+                                    return {
+                                        id: chlItem.attr('id'),
+                                        winindex: chlItem.text().num(),
+                                    }
+                                }),
+                            },
+                        ]
                     }
                 })
             })
-
-            if (decoderResXml.length) {
-                pageData.value.hasDecoder = true
-            } else {
-                pageData.value.hasDecoder = false
-            }
         }
 
         /**
@@ -888,9 +675,9 @@ export default defineComponent({
         const getSystemWorkMode = async () => {
             const result = await querySystemWorkMode()
             const $ = queryXml(result)
-            const supportAI = $('/response/content/supportAI').text().toBoolean()
-            const is3535A = $('/response/content/openSubOutput').length > 0
-            const openSubOutput = $('/response/content/openSubOutput').text().toBoolean()
+            const supportAI = $('content/supportAI').text().bool()
+            const is3535A = $('content/openSubOutput').length > 0
+            const openSubOutput = $('content/openSubOutput').text().bool()
             // 只有3535A且支持AI的机型才会有辅输出开关
             if (supportAI && is3535A) {
                 pageData.value.isConfigSwitch = true
@@ -905,9 +692,8 @@ export default defineComponent({
          */
         const handleConfigSwitchChange = () => {
             pageData.value.configSwitch = !pageData.value.configSwitch
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_OPEN_SUBOUTPUT_TIP'),
             }).then(() => {
                 pageData.value.isCheckAuth = true
@@ -919,10 +705,9 @@ export default defineComponent({
          * @param {UserCheckAuthForm} e
          */
         const handleCheckAuthByConfigSwitchChange = async (e: UserCheckAuthForm) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
-            // TODO: 原项目注释说“开关可编辑只可能是这种情况”，但关闭时，开关并没有隐藏
-            // 开关可编辑只可能是这种情况async
+            // 开关可编辑只可能是这种情况
             const sendXml = rawXml`
                 <content>
                     <supportAI>false</supportAI>
@@ -936,13 +721,13 @@ export default defineComponent({
             const result = await editSystemWorkMode(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
-            if ($('/response/status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 pageData.value.isCheckAuth = false
                 pageData.value.configSwitch = !pageData.value.configSwitch
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
 
                 switch (errorCode) {
@@ -960,30 +745,26 @@ export default defineComponent({
                         break
                 }
 
-                openMessageTipBox({
-                    type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 
         /**
          * @description 提交轮询信息时生成通道组列表字符串
-         * @param {ChlGroupData[]} data
+         * @param {SystemOutputSettingChlGroup[]} data
          * @returns {string}
          */
-        const getChlGroupXml = (data: ChlGroupData[]) => {
+        const getChlGroupXml = (data: SystemOutputSettingChlGroup[]) => {
             return data
                 .map((item) => {
                     return rawXml`
-                    <item>
-                        <segNum>${String(item.segNum)}</segNum>
-                        <chls>
-                            ${item.chls.map((chl) => `<item id="${chl.id}">${String(chl.winindex)}</item>`).join('')}
-                        </chls>
-                    </item>
-                `
+                        <item>
+                            <segNum>${item.segNum}</segNum>
+                            <chls>
+                                ${item.chls.map((chl) => `<item id="${chl.id}">${chl.winindex}</item>`).join('')}
+                            </chls>
+                        </item>
+                    `
                 })
                 .join('')
         }
@@ -992,77 +773,7 @@ export default defineComponent({
          * @description 提交轮询信息
          */
         const setDwellData = async () => {
-            openLoading(LoadingTarget.FullScreen)
-
-            // 副输出
-            const subOutDataXml: string[] = []
-            if (systemCaps.outputScreensCount > 1) {
-                for (let idx = 1; idx < systemCaps.outputScreensCount; idx++) {
-                    const outType = idx > 1 ? 'Sub' + idx : 'Sub'
-                    const validItem = subOutputDwellData.value[idx].isCheckDwell ? '0' : '1'
-                    const timeInterval = subOutputDwellData.value[idx].timeInterval
-                    const xml = rawXml`
-                        <item outIndex="${String(idx)}" validItem="${validItem}" outType="${outType}">
-                            <item1 id="0">
-                                <displayMode>dwell</displayMode>
-                                <timeInterval>${String(timeInterval)}</timeInterval>
-                                <chlGroups>
-                                    ${getChlGroupXml(subOutputDwellData.value[idx].chlGroups)}
-                                </chlGroups>
-                            </item1>
-                            <item1 id="1">
-                                <displayMode>preview</displayMode>
-                                <segNum>${String(subOutputPreviewData.value[idx].chlGroups[0].segNum)}</segNum>
-                                <chls>${subOutputPreviewData.value[idx].chlGroups[0].chls.map((chl) => `<item id="${chl.id}">${String(chl.winindex)}</item>`).join('')}</chls>
-                            </item1>
-                        </item>
-                    `
-                    subOutDataXml.push(xml)
-                }
-            }
-
-            // 解码卡
-            const decoderDataXml: string[] = []
-            Object.keys(decoderCardMap.value).forEach((key) => {
-                const item = decoderCardMap.value[Number(key)]
-                const cardID = Number(key)
-                let itemXml = ''
-                // 解码卡不在线，则无需下发配置信息
-                if (decoderCardMap.value[cardID].onlineStatus) {
-                    Object.keys(item.decoderDwellData).forEach((key2) => {
-                        const outputIndex = Number(key2)
-                        const dwellItem = item.decoderDwellData[outputIndex]
-                        let previewXml = ''
-                        if (item.decoderPreviewData[outputIndex].chlGroups.length) {
-                            previewXml = rawXml`
-                                <item1 id="1">
-                                    <displayMode>preview</displayMode>
-                                    <segNum>${String(item.decoderPreviewData[outputIndex].chlGroups[0].segNum)}</segNum>
-                                    <chls>${item.decoderPreviewData[outputIndex].chlGroups[0].chls.map((chl) => `<item id="${chl.id}">${String(chl.winindex)}</item>`).join('')}</chls>
-                                </item1>
-                            `
-                        }
-                        itemXml = rawXml`
-                            <item outIndex="${key2}" ${item.ShowHdmiIn ? 'ShowHdmiIn="true"' : ''} validItem="${dwellItem.isCheckDwell ? '0' : '1'}">
-                                <item1 id="0">
-                                    <displayMode>dwell</displayMode>
-                                    <timeInterval>${String(dwellItem.timeInterval)}</timeInterval>
-                                    <chlGroups>
-                                    ${getChlGroupXml(dwellItem.chlGroups)}
-                                    </chlGroups>
-                                </item1>
-                                ${previewXml}
-                            </item>
-                        `
-                    })
-                }
-                const xml = rawXml`
-                    <decoder id="${key}">
-                        ${itemXml}
-                    </decoder>
-                `
-                decoderDataXml.push(xml)
-            })
+            openLoading()
 
             const sendXml = rawXml`
                 <content>
@@ -1070,19 +781,67 @@ export default defineComponent({
                         <item1 id="0">
                             <displayMode>dwell</displayMode>
                             <chlGroups>
-                                ${getChlGroupXml(mainOutputData.value.chlGroups)}
+                                ${getChlGroupXml(formData.value.main.dwell.chlGroups)}
                             </chlGroups>
                         </item1>
                     </item>
-                    ${subOutDataXml.join('')}
-                    <decoderContent>
-                        ${decoderDataXml.join('')}
-                    </decoderContent>
+                    ${formData.value.sub
+                        .map((item) => {
+                            return rawXml`
+                                <item outIndex="${item.id}" validItem="${item.isDwell ? 0 : 1}" outType="Sub${item.id === 1 ? '' : item.id}">
+                                    <item1 id="0">
+                                        <displayMode>dwell</displayMode>
+                                        <timeInterval>${item.dwell.timeInterval}</timeInterval>
+                                        <chlGroups>
+                                            ${getChlGroupXml(item.dwell.chlGroups)}
+                                        </chlGroups>
+                                    </item1>
+                                    <item1 id="1">
+                                        <displayMode>preview</displayMode>
+                                        <segNum>${item.preview.chlGroups[0].segNum}</segNum>
+                                        <chls>${item.preview.chlGroups[0].chls.map((chl) => `<item id="${chl.id}">${chl.winindex}</item>`).join('')}</chls>
+                                    </item1>
+                                </item>
+                            `
+                        })
+                        .join('')}
                 </content>
+                <decoderContent>
+                    ${formData.value.decoder
+                        .filter((item) => item.onlineStatus)
+                        .map((item) => {
+                            return rawXml`
+                                <decoder id="${item.id}">
+                                    ${item.output
+                                        .map((output, index) => {
+                                            const ShowHdmiIn = item.ShowHdmiIn === index
+                                            return rawXml`
+                                                <item outIndex="${output.id}" validItem="${output.isDwell ? 0 : 1}" ${ShowHdmiIn ? ' ShowHdmiIn="true"' : ''}>
+                                                    <item1 id="0">
+                                                        <displayMode>dwell</displayMode>
+                                                        <timeInterval>${output.dwell.timeInterval}</timeInterval>
+                                                        <chlGroups>
+                                                            ${getChlGroupXml(output.dwell.chlGroups)}
+                                                        </chlGroups>
+                                                    </item1>
+                                                    <item1 id="1">
+                                                        <displayMode>preview</displayMode>
+                                                        <segNum>${output.preview.chlGroups[0].segNum}</segNum>
+                                                        <chls>${output.preview.chlGroups[0].chls.map((chl) => `<item id="${chl.id}">${chl.winindex}</item>`).join('')}</chls>
+                                                    </item1>
+                                                </item>
+                                            `
+                                        })
+                                        .join('')}
+                                </decoder>
+                            `
+                        })
+                        .join('')}
+                </decoderContent>
             `
 
             await editDwell(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
@@ -1119,6 +878,7 @@ export default defineComponent({
             if (i === 1) {
                 return Translate('IDCS_MAIN_SCREEN')
             }
+
             if (i === 2 && pageData.value.outputScreenCount === 2) {
                 return Translate('IDCS_SECOND_SCREEN')
             }
@@ -1130,23 +890,21 @@ export default defineComponent({
          * @param {number} num 秒
          */
         const changeTimeInterval = (num: number) => {
-            if (pageData.value.tabId === 0) {
-                subOutputDwellData.value[pageData.value.outputIdx].timeInterval = num
-            } else {
-                decoderCardMap.value[pageData.value.tabId].decoderDwellData[pageData.value.decoderIdx].timeInterval = num
-            }
+            getCurrentOutput().timeInterval = num
         }
 
         /**
          * @description 更改TabID
-         * @param {number} id 索引值，从0开始
+         * @param {number} tabId 索引值，从0开始
          */
-        const changeTab = (index: number) => {
-            pageData.value.tabId = index
-            if (index !== 0) {
-                pageData.value.dwellCheckbox = decoderCardMap.value[pageData.value.tabId].decoderDwellData[pageData.value.decoderIdx].mode === 'dwell'
+        const changeTab = (tabId: number) => {
+            if (tabId !== -1) {
+                if (!formData.value.decoder[tabId].onlineStatus) {
+                    return
+                }
             }
-            decoderCardMap.value = decoderCardMap.value
+            pageData.value.tabId = tabId
+            changeWinIndex(0)
         }
 
         /**
@@ -1155,10 +913,7 @@ export default defineComponent({
          */
         const changeOutput = (index: number) => {
             pageData.value.outputIdx = index
-            if (index !== 0) {
-                pageData.value.dwellCheckbox = subOutputDwellData.value[pageData.value.outputIdx].mode === 'dwell'
-            }
-            subOutputDwellData.value = subOutputDwellData.value
+            changeWinIndex(0)
         }
 
         /**
@@ -1167,10 +922,6 @@ export default defineComponent({
          */
         const changeDecoderIndex = (index: number) => {
             pageData.value.decoderIdx = index
-            if (index !== 0) {
-                pageData.value.dwellCheckbox = decoderCardMap.value[pageData.value.tabId].decoderDwellData[pageData.value.decoderIdx].mode === 'dwell'
-            }
-            decoderCardMap.value = decoderCardMap.value
         }
 
         const changeWinIndex = (index: number) => {
@@ -1180,35 +931,59 @@ export default defineComponent({
         /**
          * @description 更新输出类型
          */
-        const changeOutputType = () => {
-            if (pageData.value.tabId === 0 && pageData.value.outputIdx === 0) {
+        const changeOutputType = (value: CheckboxValueType) => {
+            if (pageData.value.tabId === -1 && pageData.value.outputIdx === -1) {
                 return
             }
-            if (pageData.value.dwellCheckbox) {
-                if (pageData.value.tabId === 0) {
-                    subOutputDwellData.value[pageData.value.outputIdx].mode = 'dwell'
-                } else {
-                    decoderCardMap.value[pageData.value.tabId].decoderDwellData[pageData.value.decoderIdx].mode = 'dwell'
-                }
+
+            if (pageData.value.tabId === -1) {
+                formData.value.sub[pageData.value.outputIdx].isDwell = value as boolean
             } else {
-                if (pageData.value.tabId === 0) {
-                    subOutputDwellData.value[pageData.value.outputIdx].mode = 'preview'
-                } else {
-                    decoderCardMap.value[pageData.value.tabId].decoderDwellData[pageData.value.decoderIdx].mode = 'preview'
-                }
+                formData.value.decoder[pageData.value.tabId].output[pageData.value.decoderIdx].isDwell = value as boolean
             }
         }
 
+        // hdmi输入选项
+        // const hdmiInOptions = computed(() => {
+        //     if (pageData.value.tabId === -1) {
+        //         return []
+        //     }
+        //     return [
+        //         {
+        //             value: -1,
+        //             label: Translate('IDCS_NULL'),
+        //         },
+        //     ].concat(
+        //         formData.value.decoder[pageData.value.tabId].output.map((_, index) => {
+        //             return {
+        //                 value: index,
+        //                 label: `${Translate('IDCS_OUTPUT')}${index + 1}`,
+        //             }
+        //         }),
+        //     )
+        // })
+
+        // 分屏选项
+        const segList = computed(() => {
+            let maxWin = 64
+
+            if (pageData.value.tabId === -1) {
+                if (pageData.value.outputIdx === -1) {
+                    maxWin = formData.value.main.maxWin
+                } else {
+                    maxWin = formData.value.sub[pageData.value.outputIdx].maxWin
+                }
+            } else {
+                maxWin = formData.value.decoder[pageData.value.tabId].output[pageData.value.decoderIdx].maxWin
+            }
+
+            return [1, 4, 6, 8, 9, 13, 16, 25, 32, 36, 64].filter((item) => item <= maxWin)
+        })
+
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             await getChlsList()
             await getChlGroupList()
-
-            /**
-             * 获取解码卡的最大分割数
-             * 未配置解码卡时，queryDwell协议不会返回解码卡信息，导致ShowHdmiIn, decoderDwellData，decoderPreviewData为空
-             */
-            await systemCaps.updateCabability()
 
             await getDwellData()
 
@@ -1218,21 +993,18 @@ export default defineComponent({
             // 是否支持显示辅输出
             showSecondaryOutput()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         return {
             pageData,
             currentSegment,
             currentViewData,
-            decoderCardMap,
             currentTimeInterval,
             isHDMIShadow,
-            currentViewList,
             activeViewItem,
             getChlGroupList,
             addView,
-            displayDwellTimeLabel,
             changeSplit,
             collectView,
             clearSplitData,
@@ -1259,16 +1031,13 @@ export default defineComponent({
             setWinFromChl,
             changeView,
             changeDecoderIndex,
-            outputType,
             closeEditChlGroup,
             closeAddChlGroup,
-
-            BaseCheckAuthPop,
-            BaseImgSprite,
-            OutputSplitTemplate,
-            // OutputAddViewPop,
-            ChannelGroupEditPop,
-            ChannelGroupAdd,
+            // hdmiInOptions,
+            isDwell,
+            formData,
+            getCurrentOutput,
+            segList,
         }
     },
 })

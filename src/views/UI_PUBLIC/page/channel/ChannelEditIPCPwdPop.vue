@@ -1,98 +1,84 @@
 <!--
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-05-23 10:00:35
- * @Description:
+ * @Description: 通道 - 编辑IPC密码弹窗
 -->
 <template>
     <el-dialog
         :title="Translate('IDCS_MODIFY_IPC_PASSWORD')"
         width="550"
-        align-center
         @opened="opened"
+        @closed="formRef?.resetFields()"
     >
         <el-table
             ref="tableRef"
-            border
-            stripe
+            v-title
             :data="tableData"
-            height="245px"
-            table-layout="fixed"
+            height="245"
             show-overflow-tooltip
             highlight-current-row
-            empty-text=" "
             @row-click="handleRowClick"
         >
             <el-table-column
                 type="selection"
-                width="50px"
+                width="50"
             />
             <el-table-column
                 type="index"
                 :label="Translate('IDCS_SERIAL_NUMBER')"
-                width="80px"
+                width="80"
             />
             <el-table-column
                 prop="name"
                 :label="Translate('IDCS_CHANNEL_NAME')"
-                min-width="240px"
+                min-width="240"
             />
             <el-table-column
-                prop="chlStatus"
                 :label="Translate('IDCS_CONNECT_STATUS')"
-                width="120px"
-            />
+                width="120"
+            >
+                {{ Translate('IDCS_ONLINE') }}
+            </el-table-column>
         </el-table>
         <el-form
             ref="formRef"
+            v-title
             :model="formData"
             :rules="rules"
-            label-width="150px"
-            label-position="left"
-            class="ruleForm"
+            class="stripe"
         >
-            <el-row class="config-row">
-                <el-form-item
-                    prop="password"
-                    :label="Translate('IDCS_NEW_PASSWORD')"
-                >
-                    <el-input
-                        v-model="formData.password"
-                        :placeholder="Translate('IDCS_PASSWORD_TIP')"
-                        class="passwordInput"
-                    />
-                </el-form-item>
-            </el-row>
-            <el-row class="config-row">
-                <el-form-item
-                    prop="confirmPassword"
-                    :label="Translate('IDCS_CONFIRM_PASSWORD')"
-                >
-                    <el-input
-                        v-model="formData.confirmPassword"
-                        :placeholder="Translate('IDCS_PASSWORD_TIP')"
-                        class="passwordInput"
-                    />
-                </el-form-item>
-            </el-row>
+            <el-form-item
+                prop="password"
+                :label="Translate('IDCS_NEW_PASSWORD')"
+            >
+                <BasePasswordInput
+                    v-model="formData.password"
+                    :placeholder="Translate('IDCS_PASSWORD_TIP')"
+                    maxlength="16"
+                />
+            </el-form-item>
+            <el-form-item
+                prop="confirmPassword"
+                :label="Translate('IDCS_CONFIRM_PASSWORD')"
+            >
+                <BasePasswordInput
+                    v-model="formData.confirmPassword"
+                    :placeholder="Translate('IDCS_PASSWORD_TIP')"
+                    maxlength="16"
+                />
+            </el-form-item>
         </el-form>
-        <el-row>
-            <el-col class="el-col-flex-end">
-                <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="close(false)">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </el-col>
-        </el-row>
+        <div class="base-btn-box">
+            <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 
 <script lang="ts" src="./ChannelEditIPCPwdPop.v.ts"></script>
 
 <style scoped lang="scss">
-.ruleForm {
-    width: 420px;
-    margin: 20px auto;
-
-    .passwordInput {
-        width: 270px;
-    }
+.el-form {
+    margin: 10px auto 0;
 }
 </style>

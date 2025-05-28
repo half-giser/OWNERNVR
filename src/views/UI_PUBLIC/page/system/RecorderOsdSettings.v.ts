@@ -2,18 +2,12 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-27 09:03:07
  * @Description: 录像机OSD配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-27 17:55:08
  */
-import { SystemRecorderOSDSettingsForm } from '@/types/apiType/system'
-
 export default defineComponent({
     setup() {
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
-
         const pageData = ref({
-            options: DEFAULT_SWITCH_OPTIONS,
-            isAddress: getUiAndTheme().name === 'UI1-E',
+            options: getTranslateOptions(DEFAULT_SWITCH_OPTIONS),
+            isAddress: import.meta.env.VITE_UI_TYPE === 'UI1-E',
         })
 
         const formData = ref(new SystemRecorderOSDSettingsForm())
@@ -22,23 +16,23 @@ export default defineComponent({
          * @description 获取数据
          */
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await queryDevOsdDisplayCfg()
             const $ = queryXml(result)
 
-            formData.value.nameEnable = $('/response/content/nameSwitch').text()
-            formData.value.iconEnable = $('/response/content/iconSwitch').text()
-            formData.value.addressEnable = $('/response/content/addressSwitch').text()
+            formData.value.nameEnable = $('content/nameSwitch').text()
+            formData.value.iconEnable = $('content/iconSwitch').text()
+            formData.value.addressEnable = $('content/addressSwitch').text()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
          * @description 提交表单
          */
         const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <content>
@@ -49,8 +43,8 @@ export default defineComponent({
             `
             const result = await editDevOsdDisplayCfg(sendXml)
 
-            commSaveResponseHadler(result)
-            closeLoading(LoadingTarget.FullScreen)
+            commSaveResponseHandler(result)
+            closeLoading()
         }
 
         onMounted(() => {

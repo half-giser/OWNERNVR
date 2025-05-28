@@ -2,12 +2,11 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-11 19:30:59
  * @Description: 列表项组件
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-24 17:13:39
 -->
 <template>
     <li
-        :class="{ active }"
+        v-title
+        :class="{ active, 'show-hover': showHover }"
         @click="handleClick"
         @dblclick="handleDblClick"
     >
@@ -18,12 +17,15 @@
 <script lang="ts" setup>
 withDefaults(
     defineProps<{
+        /**
+         * @property 是否选中状态
+         */
         active?: boolean
-        icon?: string
+        showHover?: boolean
     }>(),
     {
         active: false,
-        icon: '',
+        showHover: true,
     },
 )
 
@@ -32,15 +34,27 @@ const emits = defineEmits<{
     (e: 'dblclick'): void
 }>()
 
+const instance = getCurrentInstance()
+
 let timer: NodeJS.Timeout | number = 0
 
+/**
+ * @description 拦截点击事件，在非双击时回调
+ */
 const handleClick = () => {
-    clearTimeout(timer)
-    timer = setTimeout(() => {
+    if (instance?.vnode?.props?.onDblclick) {
+        clearTimeout(timer)
+        timer = setTimeout(() => {
+            emits('click')
+        }, 250)
+    } else {
         emits('click')
-    }, 300)
+    }
 }
 
+/**
+ * @description 双击时，取消点击事件
+ */
 const handleDblClick = () => {
     clearTimeout(timer)
     emits('dblclick')
@@ -50,25 +64,45 @@ const handleDblClick = () => {
 <style lang="scss" scoped>
 li {
     list-style: none;
-    padding: 5px;
+    margin: 0;
+    padding: 0 10px;
     border: 1px solid transparent;
     cursor: pointer;
     font-size: 13px;
+    display: flex;
+    align-items: center;
+    line-height: 30px;
+    user-select: none;
+    background-color: var(--main-bg);
+    width: 100%;
+    box-sizing: border-box;
 
-    :deep(span) {
-        &:last-child {
-            margin-left: 10px;
+    :deep(.Sprite) {
+        margin-right: 8px;
+    }
+
+    :deep(.el-checkbox) {
+        height: 30px;
+        width: 100%;
+        overflow: hidden;
+    }
+
+    :deep(.el-checkbox__label) {
+        text-overflow: ellipsis;
+        width: calc(100% - 20px);
+        overflow: hidden;
+    }
+
+    &.show-hover {
+        &:hover,
+        &.active {
+            border-color: var(--primary);
         }
     }
 
-    &:hover,
     &.active {
-        border-color: var(--primary--04);
-    }
-
-    &.active {
-        background-color: var(--primary--04);
-        color: white;
+        background-color: var(--primary);
+        color: var(--main-text-active);
     }
 }
 </style>

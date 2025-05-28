@@ -2,119 +2,93 @@
  * @Description: 录像——参数配置
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-02 16:12:12
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-09 13:48:10
  */
 
-import { cloneDeep, isEqual } from 'lodash'
-import RecParamCustomizationPop from './RecParamCustomizationPop.vue'
-import { type ChlRecParamList, type ItemList } from '@/types/apiType/record'
+import RecordParameterCustomPop from './RecordParameterCustomPop.vue'
 
 export default defineComponent({
     components: {
-        RecParamCustomizationPop,
+        RecordParameterCustomPop,
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const systemCaps = useCababilityStore()
 
-        const supportANR = systemCaps.supportANR == true
-        // 保存原始数据，用来判断数据是否已被修改
-        const originalData = ref({
-            chlRecData: [] as ChlRecParamList[],
-            streamRecSwitch: {
-                doubleStreamSwitch: '',
-                loopRecSwitch: '',
-            },
-        })
-
-        const oldExpirationArr = [] as string[]
-
-        const expirationPopData = ref({
-            expirationType: '',
-            expirationData: {} as ChlRecParamList,
-        })
+        const supportANR = systemCaps.supportANR
+        const oldExpirationArr: string[] = []
 
         const pageData = ref({
-            doubleStreamRecSwitch: '',
             chkDoubleStreamRec: [
-                { value: 'double', label: Translate('IDCS_RECORD_MODE_DOUBLE') },
-                { value: 'main', label: Translate('IDCS_RECORD_MODE_MAIN') },
-                { value: 'sub', label: Translate('IDCS_RECORD_MODE_SUB') },
+                {
+                    value: 'double',
+                    label: Translate('IDCS_RECORD_MODE_DOUBLE'),
+                },
+                {
+                    value: 'main',
+                    label: Translate('IDCS_RECORD_MODE_MAIN'),
+                },
+                {
+                    value: 'sub',
+                    label: Translate('IDCS_RECORD_MODE_SUB'),
+                },
             ],
-            txtMSRecDuration: '',
-            chkLoopRec: true,
             IPCMap: {} as Record<string, string>,
-            expirationList: [] as ItemList[],
-            perList: [] as ItemList[],
-            postList: [] as ItemList[],
+            expirationList: [] as SelectOption<string, string>[],
+            perList: [] as SelectOption<string, string>[],
+            postList: [] as SelectOption<string, string>[],
             // 开关选项列表
-            switchOption: [
-                { value: 'true', label: Translate('IDCS_ON') },
-                { value: 'false', label: Translate('IDCS_OFF') },
-            ],
+            switchOption: getTranslateOptions(DEFAULT_SWITCH_OPTIONS),
             isSetCustomization: false,
+            expirationType: '',
+            expirationData: new RecordParamDto(),
+            originalDoubleStreamSwitch: '',
         })
 
-        const tableData = ref<ChlRecParamList[]>([])
+        const tableData = ref<RecordParamDto[]>([])
+        const editRows = useWatchEditRows<RecordParamDto>()
+
+        const formData = ref(new RecordParamForm())
+        const editForm = useWatchEditData(formData)
 
         const getDevRecParamData = async () => {
             const result = await queryRecordDistributeInfo()
-            const $dev = queryXml(result)
+            const $ = await commLoadResponseHandler(result)
 
-            commLoadResponseHandler(result, ($) => {
-                pageData.value.doubleStreamRecSwitch = $('/response/content/doubleStreamRecSwitch').text()
-                switch (pageData.value.doubleStreamRecSwitch) {
-                    case 'main':
-                        break
-                    case 'sub':
-                        break
-                    default:
-                        pageData.value.doubleStreamRecSwitch = 'double'
-                }
+            let doubleStreamRecSwitch = $('content/doubleStreamRecSwitch').text()
+            if (!['main', 'sub'].includes(doubleStreamRecSwitch)) {
+                doubleStreamRecSwitch = 'double'
+            }
+            formData.value.doubleStreamRecSwitch = doubleStreamRecSwitch
+            // pageData.value.txtMSRecDuration = $('content/mainStreamRecDuration').text()
+            formData.value.loopRecSwitch = $('content/loopRecSwitch').text().bool()
 
-                pageData.value.txtMSRecDuration = $('/response/content/mainStreamRecDuration').text()
-                pageData.value.chkLoopRec = $('/response/content/loopRecSwitch').text().toLowerCase() === 'true'
+            pageData.value.originalDoubleStreamSwitch = doubleStreamRecSwitch
 
-                pageData.value.expirationList = $('/response/content/expirationNote')
-                    .text()
-                    .split(',')
-                    .map((item) => {
-                        return {
-                            value: item,
-                            label: item == '0' ? Translate('IDCS_EXPIRE_OFF') : item == '1' ? '1 ' + Translate('IDCS_DAY_ALL') : item + ' ' + Translate('IDCS_DAYS'),
-                        }
-                    })
-                pageData.value.expirationList.push({ value: 'customization', label: Translate('IDCS_REPLAY_CUSTOMIZE') })
+            pageData.value.expirationList = $('content/expirationNote')
+                .text()
+                .array()
+                .map((item) => {
+                    return {
+                        value: item,
+                        label: item === '0' ? Translate('IDCS_EXPIRE_OFF') : item === '1' ? '1 ' + Translate('IDCS_DAY_ALL') : item + ' ' + Translate('IDCS_DAYS'),
+                    }
+                })
+            pageData.value.expirationList.push({
+                value: 'customization',
+                label: Translate('IDCS_REPLAY_CUSTOMIZE'),
             })
 
-            return $dev
+            return $
         }
 
         const getChlRecNodeList = async () => {
-            const sendXML = rawXml`
-                <types>
-                    <nodeType>
-                        <enum>chls</enum>
-                        <enum>sensors</enum>
-                        <enum>alarmOuts</enum>
-                    </nodeType>
-                </types>
-                <nodeType type='nodeType'>chls</nodeType>
-                <requireField>
-                    <name/>
-                    <chlType/>
-                    <supportANR/>
-                </requireField>
-            `
-            const result = await queryNodeEncodeInfo(sendXML)
-
+            const result = await getChlList({
+                requireField: ['supportANR'],
+            })
             commLoadResponseHandler(result, ($) => {
-                $('/content/item').forEach((item) => {
+                $('content/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    pageData.value.IPCMap[item.attr('id') as string] = $item('/supportANR').text()
+                    pageData.value.IPCMap[item.attr('id')] = $item('supportANR').text()
                 })
             })
         }
@@ -130,38 +104,29 @@ export default defineComponent({
                 </requireField>
             `
             const result = await queryNodeEncodeInfo(sendXML)
-            const $chl = queryXml(result)
+            const $ = await commLoadResponseHandler(result)
 
-            commLoadResponseHandler(result, ($) => {
-                pageData.value.perList = $('/response/content/item/preRecordTimeNote')
-                    .text()
-                    .split(',')
-                    .map((item) => {
-                        return {
-                            value: item,
-                            label: item == '0' ? Translate('IDCS_NO_BEFOREHAND_RECORD') : item + ' ' + Translate('IDCS_SECONDS'),
-                        }
-                    })
+            pageData.value.perList = $('content/item/preRecordTimeNote')
+                .text()
+                .array()
+                .map((item) => {
+                    return {
+                        value: item,
+                        label: item === '0' ? Translate('IDCS_NO_BEFOREHAND_RECORD') : getTranslateForSecond(Number(item)),
+                    }
+                })
 
-                pageData.value.postList = $('/response/content/item/delayedRecordTimeNote')
-                    .text()
-                    .split(',')
-                    .map((item) => {
-                        return {
-                            value: item,
-                            label:
-                                item == '0'
-                                    ? Translate('IDCS_NO_DELAY')
-                                    : item == '60'
-                                      ? '1 ' + Translate('IDCS_MINUTE')
-                                      : Number(item) > 60
-                                        ? Number(item) / 60 + ' ' + Translate('IDCS_MINUTES')
-                                        : item + ' ' + Translate('IDCS_SECONDS'),
-                        }
-                    })
-            })
+            pageData.value.postList = $('content/item/delayedRecordTimeNote')
+                .text()
+                .array()
+                .map((item) => {
+                    return {
+                        value: item,
+                        label: item === '0' ? Translate('IDCS_NO_DELAY') : getTranslateForSecond(Number(item)),
+                    }
+                })
 
-            return $chl
+            return $
         }
 
         const getData = async () => {
@@ -170,11 +135,11 @@ export default defineComponent({
             const $dev = await getDevRecParamData()
             const $chl = await getChlRecParamData()
 
-            if ($dev('/response/status').text() == 'success' && $chl('/response/status').text() == 'success') {
-                const expiration = $dev('/response/content/expiration').text()
-                const expirationUnit = $dev('/response/content/expiration').attr('unit')
+            if ($dev('status').text() === 'success' && $chl('status').text() === 'success') {
+                const expiration = $dev('content/expiration').text()
+                const expirationUnit = $dev('content/expiration').attr('unit')
 
-                const data: ChlRecParamList[] = $chl('/response/content/item').map((item, index) => {
+                tableData.value = $chl('content/item').map((item, index) => {
                     const $item = queryXml(item.element)
 
                     const id = item.attr('id')
@@ -188,56 +153,57 @@ export default defineComponent({
                         delayedRecordTimeNote: $item('delayedRecordTimeNote').text(),
                         per: $item('rec').attr('per'),
                         post: $item('rec').attr('post'),
-                        ANRSwitch: supportANR ? $item('ANRSwitch').text() : 'false',
-                        expiration: expiration ? expiration : '0',
+                        ANRSwitch: supportANR ? $item('ANRSwitch').text() || 'false' : 'false',
+                        expiration: expiration || '0',
                         expirationUnit: expirationUnit ? expirationUnit : 'd',
-                        manufacturerEnable: pageData.value.IPCMap[id as string] == 'true',
+                        manufacturerEnable: pageData.value.IPCMap[id] === 'true',
+                        expirationDisplay: '',
+                        week: '',
+                        holiday: '',
+                        singleExpirationUnit: '',
+                        disabled: false,
+                        status: '',
+                        statusTip: '',
                     }
                 })
-
-                $dev('/response/content/chlParam/item').forEach((item) => {
+                $dev('content/chlParam/item').forEach((item) => {
                     const $item = queryXml(item.element)
 
-                    const singleExpirationUnit = $item('expiration').attr('unit') ? $item('expiration').attr('unit') : 'd'
+                    const singleExpirationUnit = $item('expiration').attr('unit') || 'd'
 
-                    data.forEach((element) => {
-                        if (element.id == item.attr('id')) {
+                    tableData.value.some((element) => {
+                        if (element.id === item.attr('id')) {
                             element.week = $item('week').text()
                             element.holiday = $item('holiday').text()
                             element.singleExpirationUnit = singleExpirationUnit
-                            element.expiration = $item('expiration').text() ? $item('expiration').text() : '0'
+                            element.expiration = $item('expiration').text() || '0'
                             element.expirationUnit = singleExpirationUnit
+                            return true
                         }
                     })
                 })
-
-                tableData.value = data
-
                 tableData.value.forEach((item) => {
-                    if (!item['expiration']) {
-                        item['week'] = ''
-                        item['holiday'] = ''
-                        item['singleExpirationUnit'] = expirationUnit
+                    if (!item.expiration) {
+                        item.week = ''
+                        item.holiday = ''
+                        item.singleExpirationUnit = expirationUnit
                     } else {
-                        if (item.singleExpirationUnit == 'h') {
-                            item.expirationDisplay = item.expiration == '1' ? '1 ' + Translate('IDCS_HOUR') : item.expiration + ' ' + Translate('IDCS_HOURS')
+                        if (item.singleExpirationUnit === 'h') {
+                            item.expirationDisplay = item.expiration === '1' ? '1 ' + Translate('IDCS_HOUR') : item.expiration + ' ' + Translate('IDCS_HOURS')
                         } else {
                             item.expirationDisplay = item.expiration
                         }
                     }
                     oldExpirationArr.push(item.expirationDisplay)
+                    editRows.listen(item)
                 })
 
-                originalData.value.chlRecData = cloneDeep(tableData)
-                originalData.value.streamRecSwitch = {
-                    doubleStreamSwitch: $dev('/response/content/doubleStreamRecSwitch').text(),
-                    loopRecSwitch: $dev('/response/content/loopRecSwitch').text(),
-                }
+                editForm.listen()
             }
         }
 
         const setDevRecData = async () => {
-            let sendXml = rawXml`
+            const sendXml = rawXml`
                 <types>
                     <recModeType>
                         <enum>manually</enum>
@@ -254,95 +220,85 @@ export default defineComponent({
                     </autoRecModeType>
                 </types>
                 <content>
-                    <doubleStreamRecSwitch>${pageData.value.doubleStreamRecSwitch}</doubleStreamRecSwitch>
-                    <loopRecSwitch>${String(pageData.value.chkLoopRec)}</loopRecSwitch>
+                    <doubleStreamRecSwitch>${formData.value.doubleStreamRecSwitch}</doubleStreamRecSwitch>
+                    <loopRecSwitch>${formData.value.loopRecSwitch}</loopRecSwitch>
                     <chlParam>
+                        ${tableData.value
+                            .map((item) => {
+                                const singleExpirationUnit = item.singleExpirationUnit || 'd'
+                                return rawXml`
+                                    <item id='${item.id}'>
+                                        ${item.week ? `<week>${item.week}</week>` : ''}
+                                        ${item.holiday ? `<holiday>${item.holiday}</holiday>` : ''}
+                                        ${item.expiration ? `<expiration unit='${singleExpirationUnit}'>${item.expiration}</expiration>` : ''}
+                                    </item>
+                                `
+                            })
+                            .join('')}
+                    </chlParam>
+                </content>
             `
-            tableData.value.forEach((item) => {
-                const singleExpirationUnit = item['singleExpirationUnit'] || 'd'
-                sendXml += `<item id='${item['id']}'>`
-                sendXml += item['week'] ? `<week>${item['week']}</week>` : ``
-                sendXml += item['holiday'] ? `<holiday>${item['holiday']}</holiday>` : ``
-                sendXml += item['expiration'] ? `<expiration unit='${singleExpirationUnit}'>${item['expiration']}</expiration>` : ``
-                sendXml += `</item>`
-            })
-            sendXml += `</chlParam>`
-            sendXml += `</content>`
+
             const result = await editRecordDistributeInfo(sendXml)
             return result
         }
 
-        const setChlRecData = async (changeList: ChlRecParamList[]) => {
-            let sendXml = rawXml`<content type='list' total='${String(changeList.length)}'\>`
-
-            changeList.forEach((item) => {
-                sendXml += `<item id='${item.id}'>
-                    <rec per='${item.per}' post='${item.post}'/>`
-                if (supportANR && item.manufacturerEnable) {
-                    sendXml += `<ANRSwitch>${item.ANRSwitch}</ANRSwitch>`
-                }
-                sendXml += `</item>`
-            })
-            sendXml += `</content>`
+        const setChlRecData = async () => {
+            const rows = editRows.toArray()
+            const sendXml = rawXml`
+                <content type='list' total='${rows.length}'>
+                    ${rows
+                        .map((item) => {
+                            return rawXml`
+                                <item id='${item.id}'>
+                                    <rec per='${item.per}' post='${item.post}'/>
+                                    ${supportANR && item.manufacturerEnable ? `<ANRSwitch>${item.ANRSwitch}</ANRSwitch>` : ''}
+                                </item>
+                            `
+                        })
+                        .join('')}
+                </content>
+            `
             const result = await editNodeEncodeInfo(sendXml)
 
             return result
         }
 
         const setRecParamCfgData = async () => {
-            // 判断修改过的选项
-            const changeList = [] as ChlRecParamList[]
-            tableData.value.forEach((item, index) => {
-                const element = originalData.value.chlRecData[index]
-                if (!isEqual(item, element)) {
-                    changeList.push(item)
-                }
-            })
-            const doubleStreamSwitchChange = originalData.value.streamRecSwitch.doubleStreamSwitch !== pageData.value.doubleStreamRecSwitch
-            const loopRecSwitchChange = originalData.value.streamRecSwitch.loopRecSwitch !== String(pageData.value.chkLoopRec)
+            let result: XMLDocument | Element | undefined
 
-            let devResult
-            let chlResult
+            if (editRows.size() || !editForm.disabled.value) {
+                result = await setDevRecData()
+            }
 
-            if (doubleStreamSwitchChange || loopRecSwitchChange) {
-                devResult = await setDevRecData()
-                commSaveResponseHadler(devResult)
-            } else if (changeList.length > 0 || doubleStreamSwitchChange || loopRecSwitchChange) {
-                devResult = await setDevRecData()
-                chlResult = await setChlRecData(changeList)
-                // 原代码中P2P模式下进行如下处理，recParamCfg.js，444行
-                // if (APP_TYPE == "P2P") {
-                //     result1=result1[0];
-                //     result2=result2[0];
-                // }
-                commSaveResponseHadler(chlResult)
-            } else {
-                openMessageTipBox({
-                    type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
-                    message: Translate('IDCS_SAVE_DATA_FAIL'),
+            if (editRows.size()) {
+                result = await setChlRecData()
+            }
+
+            if (result) {
+                commSaveResponseHandler(result)
+                pageData.value.originalDoubleStreamSwitch = formData.value.doubleStreamRecSwitch
+                editForm.update()
+                editRows.toArray().forEach((item) => {
+                    editRows.remove(item)
                 })
             }
-            await getData()
         }
 
-        const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+        const setData = () => {
+            openLoading()
 
-            if (originalData.value.streamRecSwitch.doubleStreamSwitch != pageData.value.doubleStreamRecSwitch) {
-                openMessageTipBox({
-                    type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
+            if (pageData.value.originalDoubleStreamSwitch !== formData.value.doubleStreamRecSwitch) {
+                openMessageBox({
+                    type: 'question',
                     message: Translate('IDCS_RECORD_MODE_CHANGE_AFTER_REBOOT'),
+                }).then(() => {
+                    setRecParamCfgData()
                 })
-                    .then(() => {
-                        setRecParamCfgData()
-                    })
-                    .catch(() => {})
             } else {
                 setRecParamCfgData()
             }
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         const changeAllPerList = (value: string) => {
@@ -365,24 +321,23 @@ export default defineComponent({
             })
         }
 
-        const changeExpirationList = (rowData: ChlRecParamList) => {
-            const value = rowData.expirationDisplay
-            if (value == 'customization') {
+        const changeExpirationList = (rowData: RecordParamDto) => {
+            const value = rowData.expirationDisplay!
+            if (value === 'customization') {
                 rowData.expirationDisplay = oldExpirationArr[rowData.index]
-                expirationPopData.value.expirationType = 'single'
-                expirationPopData.value.expirationData = rowData
+                pageData.value.expirationType = 'single'
+                pageData.value.expirationData = rowData
                 pageData.value.isSetCustomization = true
             } else {
-                if (value == '0') {
+                if (value === '0') {
                     rowData.expiration = value
                     rowData.singleExpirationUnit = 'd'
                     oldExpirationArr[rowData.index] = rowData.expiration
                 } else {
-                    const unit = value == '1' ? Translate('IDCS_BY_DAY') : Translate('IDCS_DAYS')
+                    const unit = value === '1' ? Translate('IDCS_BY_DAY') : Translate('IDCS_DAYS')
                     const tips = value + ' ' + unit
-                    openMessageTipBox({
-                        type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
+                    openMessageBox({
+                        type: 'question',
                         message: Translate('IDCS_CHANGE_EXPIRE_TIME_WARNING_D').formatForLang(tips),
                     })
                         .then(() => {
@@ -391,7 +346,7 @@ export default defineComponent({
                             oldExpirationArr[rowData.index] = rowData.expiration
                         })
                         .catch(() => {
-                            if (rowData.singleExpirationUnit == 'h') {
+                            if (rowData.singleExpirationUnit === 'h') {
                                 rowData.expirationDisplay = oldExpirationArr[rowData.index]
                             } else {
                                 rowData.expiration = oldExpirationArr[rowData.index]
@@ -403,10 +358,10 @@ export default defineComponent({
         }
 
         const changeAllExpirationList = (value: string) => {
-            if (value == 'customization') {
-                expirationPopData.value.expirationType = 'all'
+            if (value === 'customization') {
+                pageData.value.expirationType = 'all'
                 pageData.value.isSetCustomization = true
-            } else if (value == '0') {
+            } else if (value === '0') {
                 tableData.value.forEach((item) => {
                     item.expiration = value
                     item.expirationDisplay = value
@@ -414,11 +369,10 @@ export default defineComponent({
                     oldExpirationArr[item.index] = item.expiration
                 })
             } else {
-                const unit = value == '1' ? Translate('IDCS_BY_DAY') : Translate('IDCS_DAYS')
+                const unit = value === '1' ? Translate('IDCS_BY_DAY') : Translate('IDCS_DAYS')
                 const tips = value + ' ' + unit
-                openMessageTipBox({
-                    type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
+                openMessageBox({
+                    type: 'question',
                     message: Translate('IDCS_CHANGE_EXPIRE_TIME_WARNING_D').formatForLang(tips),
                 })
                     .then(() => {
@@ -431,7 +385,7 @@ export default defineComponent({
                     })
                     .catch(() => {
                         tableData.value.forEach((item) => {
-                            if (item.singleExpirationUnit == 'h') {
+                            if (item.singleExpirationUnit === 'h') {
                                 item.expirationDisplay = oldExpirationArr[item.index]
                             } else {
                                 item.expiration = oldExpirationArr[item.index]
@@ -442,14 +396,14 @@ export default defineComponent({
             }
         }
 
-        const handleGetExpirationData = (week: string, holiday: string, expiration: number, expirationData?: ChlRecParamList) => {
-            if (expirationPopData.value.expirationType == 'all') {
+        const handleGetExpirationData = (week: string, holiday: string, expiration: number, expirationData?: RecordParamDto) => {
+            if (pageData.value.expirationType === 'all') {
                 tableData.value.forEach((item) => {
                     item.week = week
                     item.holiday = holiday
                     item.singleExpirationUnit = 'h'
                     item.expiration = String(expiration)
-                    item.expirationDisplay = expiration == 1 ? '1 ' + Translate('IDCS_HOUR') : expiration + ' ' + Translate('IDCS_HOURS')
+                    item.expirationDisplay = expiration === 1 ? '1 ' + Translate('IDCS_HOUR') : expiration + ' ' + Translate('IDCS_HOURS')
 
                     oldExpirationArr[item.index] = item.expirationDisplay
                 })
@@ -458,23 +412,22 @@ export default defineComponent({
                 expirationData!.holiday = holiday
                 expirationData!.singleExpirationUnit = 'h'
                 expirationData!.expiration = String(expiration)
-                expirationData!.expirationDisplay = expiration == 1 ? '1 ' + Translate('IDCS_HOUR') : expiration + ' ' + Translate('IDCS_HOURS')
+                expirationData!.expirationDisplay = expiration === 1 ? '1 ' + Translate('IDCS_HOUR') : expiration + ' ' + Translate('IDCS_HOURS')
 
                 oldExpirationArr[expirationData!.index] = expirationData!.expirationDisplay
             }
         }
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             await getData()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         return {
             supportANR,
-            expirationPopData,
             tableData,
             pageData,
             setData,
@@ -483,8 +436,10 @@ export default defineComponent({
             changeAllANRSwitchList,
             changeExpirationList,
             changeAllExpirationList,
-            RecParamCustomizationPop,
             handleGetExpirationData,
+            formData,
+            editRows,
+            editForm,
         }
     },
 })

@@ -2,74 +2,30 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-19 13:37:56
  * @Description: 现场预览-云台视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-26 14:10:11
 -->
 <template>
     <div class="ptz">
-        <div class="pane">
-            <BaseImgSprite
-                v-for="item in pageData.steer"
-                :key="item.file"
-                :file="item.file"
-                :index="0"
-                :hover-index="1"
-                :chunk="4"
-                @mousedown="addCmd(item)"
-                @mouseup="stopCmd()"
-            />
-        </div>
-        <div class="speed">
-            <BaseImgSprite
-                file="SpeedSlow"
-                :index="0"
-                :hover-index="1"
-                :chunk="4"
-                @click="decreaseSpeed()"
-            />
-            <el-slider
-                v-model="pageData.speed"
-                :min="pageData.minSpeed"
-                :max="pageData.maxSpeed"
-                :step="1"
-            />
-            <BaseImgSprite
-                file="SpeedQuick"
-                :index="0"
-                :hover-index="1"
-                :chunk="4"
-                @click="increaseSpeed()"
-            />
-        </div>
+        <ChannelPtzCtrlPanel
+            layout="vertical"
+            :chl-id="winData?.chlID || ''"
+            :enable-ctrl="winData?.supportPtz || winData?.supportIntegratedPtz || false"
+            :enable-zoom="winData?.supportAZ || winData?.supportPtz || winData?.supportIntegratedPtz || false"
+            :enable-focus="winData?.supportAZ || winData?.supportIntegratedPtz || false"
+            :enable-iris="winData?.supportIris || winData?.supportIntegratedPtz || false"
+            :enable-speed="winData?.supportPtz || winData?.supportIntegratedPtz || false"
+            :min-speed="winData?.MinPtzCtrlSpeed || 1"
+            :max-speed="winData?.MaxPtzCtrlSpeed || 8"
+            @speed="setSpeed"
+            @trigger="$emit('trigger')"
+        />
         <div
-            v-for="item in pageData.controls"
-            :key="item.name"
-            class="row"
+            v-show="winData.supportPtz || winData.supportIntegratedPtz"
+            class="list"
         >
-            <BaseImgSprite
-                :file="item.control[0].file"
-                :index="0"
-                :hover-index="1"
-                :chunk="4"
-                @mousedown="addCmd(item.control[0])"
-                @mouseup="stopCmd()"
-            />
-            <span>{{ item.name }}</span>
-            <BaseImgSprite
-                :file="item.control[1].file"
-                :index="0"
-                :hover-index="1"
-                :chunk="4"
-                @mousedown="addCmd(item.control[1])"
-                @mouseup="stopCmd()"
-            />
-        </div>
-        <div class="list">
             <div class="list-menu">
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     file="left"
-                    :index="1"
-                    :hover-index="0"
+                    :index="[1, 0, 0, 1]"
                     :chunk="2"
                     @click="changeMenu(pageData.activeMenu - 1)"
                 />
@@ -80,40 +36,44 @@
                 >
                     {{ item.label }}
                 </div>
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     file="right"
-                    :index="1"
-                    :hover-index="0"
+                    :index="[1, 0, 0, 1]"
                     :chunk="2"
                     @click="changeMenu(pageData.activeMenu + 1)"
                 />
             </div>
-            <LivePtzPreset
+            <LivePtzPresetPanel
                 v-show="pageData.activeMenu === 0"
                 :enabled="hasAuth"
                 :chl-id="chlId"
                 :chl-name="winData.chlName"
                 :speed="pageData.speed"
+                @trigger="$emit('trigger')"
             />
-            <LivePtzCruise
+            <LivePtzCruisePanel
                 v-show="pageData.activeMenu === 1"
                 :enabled="hasAuth"
                 :chl-id="chlId"
                 :chl-name="winData.chlName"
                 :speed="pageData.speed"
+                @trigger="$emit('trigger')"
             />
-            <LivePtzGroup
+            <LivePtzGroupPanel
                 v-show="pageData.activeMenu === 2"
                 :enabled="hasAuth"
                 :chl-id="chlId"
+                :chl-name="winData.chlName"
+                @trigger="$emit('trigger')"
             />
-            <LivePtzTrace
+            <LivePtzTracePanel
                 v-show="pageData.activeMenu === 3"
                 :enabled="hasAuth"
                 :chl-id="chlId"
                 :chl-name="winData.chlName"
                 :speed="pageData.speed"
                 :active="pageData.activeMenu === 3"
+                @trigger="$emit('trigger')"
             />
         </div>
     </div>
@@ -144,23 +104,25 @@
 
 .speed {
     width: 190px;
-    margin: 0 auto 10px;
+    margin: 0 auto 3px;
     display: flex;
     align-items: center;
     flex-shrink: 0;
 
     span:first-child {
-        margin-right: 5px;
+        margin-right: 10px;
+        flex-shrink: 0;
     }
 
     span:last-child {
-        margin-left: 5px;
+        margin-left: 10px;
+        flex-shrink: 0;
     }
 }
 
 .row {
     width: 190px;
-    margin: 5px auto;
+    margin: 3px auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -171,7 +133,7 @@
     height: 100%;
     width: 220px;
     margin: 10px auto 20px;
-    border: 1px solid var(--border-color4);
+    border: 1px solid var(--btn-border);
     display: flex;
     flex-direction: column;
 
@@ -181,6 +143,7 @@
         justify-content: space-between;
         flex-shrink: 0;
         margin: 10px 0;
+        font-size: 16px;
     }
 
     &-main {
@@ -202,7 +165,8 @@
         width: 90%;
         margin: 0 5%;
         padding-top: 5px;
-        border-top: 1px solid var(--border-color4);
+        border-top: 1px solid var(--btn-border);
+
         span {
             margin-left: 5px;
         }

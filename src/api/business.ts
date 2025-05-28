@@ -4,30 +4,94 @@
  * @Description: 业务应用api
  */
 
-import type { AxiosRequestConfig } from 'axios'
-import http from './api'
+import fetch from './api'
 
-// 获取停车场基础配置（基础配置、车位管理、出入口）
-export const queryParkingLotConfig = () => http.fetch('queryParkingLotConfig', getXmlWrapData(''))
-// 编辑停车场基础配置（基础配置、车位管理、出入口）
-export const editParkingLotConfig = (data: string, config?: AxiosRequestConfig) => http.fetch('editParkingLotConfig', data, config)
+/**
+ * @description 获取停车场基础配置（基础配置、车位管理、出入口）
+ * @returns
+ */
+export const queryParkingLotConfig = () => fetch('queryParkingLotConfig', '')
 
-// 获取门禁配置-门锁配置
-export const queryAccessControlCfg = (data: string, config?: AxiosRequestConfig) => http.fetch('queryAccessControlCfg', data, config)
-// 编辑门禁配置-门锁配置
-export const editAccessControlCfg = (data: string, config?: AxiosRequestConfig) => http.fetch('editAccessControlCfg', data, config)
-// 获取门禁配置-韦根配置
-export const queryAccessDataComCfg = (data: string, config?: AxiosRequestConfig) => http.fetch('queryAccessDataComCfg', data, config)
-// 编辑门禁配置-韦根配置
-export const editAccessDataComCfg = (data: string, config?: AxiosRequestConfig) => http.fetch('editAccessDataComCfg', data, config)
+/**
+ * @description 编辑停车场基础配置（基础配置、车位管理、出入口）
+ * @returns
+ */
+export const editParkingLotConfig = (data: string) => fetch('editParkingLotConfig', data)
 
-// 获取人脸考勤-人脸分组列表数据
-export const queryFacePersonnalInfoGroupList = () => http.fetch('queryFacePersonnalInfoGroupList', getXmlWrapData(''))
-// 获取人脸考勤-人脸分组中的人脸数据
-export const queryFacePersonnalInfoList = (data: string, config?: AxiosRequestConfig) => http.fetch('queryFacePersonnalInfoList', data, config)
+/**
+ * @description 获取门禁配置-门锁配置
+ * @param data
+ * @param config
+ * @returns
+ */
+export const queryAccessControlCfg = (data: string) => fetch('queryAccessControlCfg', data)
 
-export const queryPlateLibrary = () => http.fetch('queryPlateLibrary', getXmlWrapData(''))
+/**
+ * @description 编辑门禁配置-门锁配置
+ * @param data
+ * @param config
+ * @returns
+ */
+export const editAccessControlCfg = (data: string) => fetch('editAccessControlCfg', data)
 
-export const createFacePersonnalInfoGroup = (data: string) => http.fetch('createFacePersonnalInfoGroup', getXmlWrapData(data), {}, false)
+/**
+ * @description 获取门禁配置-韦根配置
+ * @param data
+ * @param config
+ * @returns
+ */
+export const queryAccessDataComCfg = (data: string) => fetch('queryAccessDataComCfg', data)
 
-export const createFacePersonnalInfo = (data: string) => http.fetch('createFacePersonnalInfo', getXmlWrapData(data), {}, false)
+/**
+ * @description 编辑门禁配置-韦根配置
+ * @param data
+ * @param config
+ * @returns
+ */
+export const editAccessDataComCfg = (data: string) => fetch('editAccessDataComCfg', data)
+
+/**
+ * @description 获取个人脸照
+ * @param {string} data
+ * @returns
+ */
+export const searchGateSnap = (data: string) => fetch('searchGateSnap', data)
+
+/**
+ * @description 开门放闸
+ * @param {string} data
+ * @returns
+ */
+export const openGate = (data: string) => fetch('openGate', data)
+
+/**
+ * @description 搜索开闸事件关联数据
+ * @param {string} data
+ * @returns
+ */
+export const searchOpenGateEventRelevanceData = (data: string) => fetch('searchOpenGateEventRelevanceData', data)
+
+/**
+ * @description
+ * @returns
+ */
+export const queryPassengerFlowStatisticsConfig = () => fetch('queryPassengerFlowStatisticsConfig', '')
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const editPassengerFlowStatisticsConfig = (data: string) => fetch('editPassengerFlowStatisticsConfig', data)
+
+/**
+ * @description
+ * @returns
+ */
+export const resetPassengerFlowStatistics = () => fetch('resetPassengerFlowStatistics', '')
+
+/**
+ * @description
+ * @returns
+ */
+export const queryPassengerFlowStatisticsInfo = () => fetch('queryPassengerFlowStatisticsInfo', '')

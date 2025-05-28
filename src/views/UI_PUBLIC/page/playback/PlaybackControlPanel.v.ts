@@ -2,11 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-06 20:37:13
  * @Description: 回放-操作视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 10:56:04
  */
-import { LiveSharedWinData } from '@/types/apiType/live'
-
 export default defineComponent({
     props: {
         /**
@@ -15,7 +11,6 @@ export default defineComponent({
         mode: {
             type: String,
             required: true,
-            default: '',
         },
         /**
          * @property 当前窗口数据
@@ -23,7 +18,6 @@ export default defineComponent({
         winData: {
             type: Object as PropType<LiveSharedWinData>,
             required: true,
-            default: () => new LiveSharedWinData(),
         },
         /**
          * @property 分屏数
@@ -31,7 +25,6 @@ export default defineComponent({
         split: {
             type: Number,
             required: true,
-            default: 1,
         },
         /**
          * @property 音量
@@ -39,7 +32,6 @@ export default defineComponent({
         volume: {
             type: Number,
             required: true,
-            default: 50,
         },
     },
     emits: {
@@ -65,6 +57,9 @@ export default defineComponent({
             return !isNaN(num)
         },
         audio(bool: boolean) {
+            return typeof bool === 'boolean'
+        },
+        trigger(bool: boolean) {
             return typeof bool === 'boolean'
         },
     },
@@ -96,69 +91,21 @@ export default defineComponent({
             if (!chlID.value) {
                 return true
             }
+
             if (prop.winData.PLAY_STATUS === 'stop') {
                 return true
             }
+
             if (prop.winData.PLAY_STATUS === 'play') {
                 return false
             }
             return true
         })
 
-        /**
-         * @description 抓图
-         */
-        const snap = () => {
-            if (disabled.value) {
-                return
-            }
-            ctx.emit('snap')
-        }
-
-        /**
-         * @description 关闭图像
-         */
-        const closeImg = () => {
-            if (disabled.value) {
-                return
-            }
-            ctx.emit('closeImg')
-        }
-
-        /**
-         * @description 放大
-         */
-        const zoomIn = () => {
-            if (disabled.value) {
-                return
-            }
-            ctx.emit('zoomIn')
-        }
-
-        /**
-         * @description 缩小
-         */
-        const zoomOut = () => {
-            if (disabled.value) {
-                return
-            }
-            ctx.emit('zoomOut')
-        }
-
         // 是否禁用原始比例
         const originalDisplayDisabled = computed(() => {
             return !systemCaps.supportOriginalDisplay || disabled.value
         })
-
-        /**
-         * @description 原始比例
-         */
-        const originalDisplay = () => {
-            if (originalDisplayDisabled.value) {
-                return
-            }
-            ctx.emit('originalDisplay', !prop.winData.original)
-        }
 
         // 是否禁用码流类型
         const streamTypeDisabled = computed(() => {
@@ -173,14 +120,17 @@ export default defineComponent({
          * @description 更新码流
          * @param {number} type
          */
-        const changeStreamType = (type: number) => {
+        const changeStreamType = (type: string | number | boolean | undefined) => {
             if (prop.winData.streamType === type) {
                 return
             }
+
             if (streamTypeDisabled.value && type === 0) {
                 return
             }
-            ctx.emit('streamType', type)
+
+            ctx.emit('trigger', false)
+            ctx.emit('streamType', type as number)
         }
 
         // 是否禁用音频
@@ -199,6 +149,7 @@ export default defineComponent({
                 return
             }
             ctx.emit('volume', num)
+            ctx.emit('trigger', true)
         }
 
         /**
@@ -210,17 +161,13 @@ export default defineComponent({
                 return
             }
             ctx.emit('audio', !bool)
+            ctx.emit('trigger', true)
         }
 
         return {
             pageData,
             disabled,
             originalDisplayDisabled,
-            snap,
-            closeImg,
-            zoomIn,
-            zoomOut,
-            originalDisplay,
             streamTypeDisabled,
             changeStreamType,
             audioDisabled,

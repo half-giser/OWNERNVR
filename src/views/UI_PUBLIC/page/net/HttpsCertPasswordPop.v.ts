@@ -2,11 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-15 17:12:04
  * @Description: 证书加密密码弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-15 20:24:06
  */
-import { type FormInstance, type FormRules } from 'element-plus'
-import { NetHTTPSCertPasswordForm } from '@/types/apiType/net'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     emits: {
@@ -17,10 +14,11 @@ export default defineComponent({
             return true
         },
     },
-    setup(prop, ctx) {
+    setup(_prop, ctx) {
         const { Translate } = useLangStore()
 
         const pageData = ref({
+            // 是否加密选项
             options: [
                 {
                     value: 'unencrypted',
@@ -33,18 +31,17 @@ export default defineComponent({
             ],
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new NetHTTPSCertPasswordForm())
         const formRule = ref<FormRules>({
             password: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (!value.length && formData.value.encryption === 'encrypted') {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
                         callback()
-                        return
                     },
                     trigger: 'manual',
                 },
@@ -55,7 +52,7 @@ export default defineComponent({
          * @description 验证表单，通过后回传信息
          */
         const verify = () => {
-            formRef.value!.validate((valid: boolean) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     ctx.emit('confirm', {
                         encryption: formData.value.encryption,
@@ -75,9 +72,8 @@ export default defineComponent({
         /**
          * @description 打开弹窗时重置表单
          */
-        const opened = () => {
-            formRef.value?.clearValidate()
-            formRef.value?.resetFields()
+        const open = () => {
+            formData.value = new NetHTTPSCertPasswordForm()
         }
 
         return {
@@ -87,7 +83,7 @@ export default defineComponent({
             formRef,
             verify,
             close,
-            opened,
+            open,
         }
     },
 })

@@ -2,11 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-08 18:02:05
  * @Description: 存储模式新增磁盘弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-08 20:00:21
  */
-import { StorageModeDiskGroupList, type StorageModeDiskList } from '@/types/apiType/disk'
-
 export default defineComponent({
     props: {
         /**
@@ -30,14 +26,12 @@ export default defineComponent({
         close() {
             return true
         },
-        comfirm() {
+        confirm() {
             return true
         },
     },
     setup(prop, ctx) {
         const { Translate, langId } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
 
         const tableData = ref<StorageModeDiskList[]>([])
         const pageData = ref({
@@ -48,25 +42,24 @@ export default defineComponent({
          * @description 请求磁盘数据
          */
         const getData = async () => {
-            const disk = await queryDiskStatus()
-            const $disk = queryXml(disk)
+            const result = await queryDiskStatus()
+            const $ = queryXml(result)
 
             const sendXml = rawXml`
                 <condition>
                     <langId>${langId}</langId>
                 </condition>
             `
-            const result = await queryLogicalDiskList(sendXml)
-            const $ = queryXml(result)
+            const disk = await queryLogicalDiskList(sendXml)
+            const $disk = queryXml(disk)
 
             tableData.value = []
 
-            // TODO 需要测试数据
-            if ($('/response/status').text() === 'success') {
-                $disk('/response/content/item').forEach((item) => {
+            if ($('status').text() === 'success') {
+                $disk('content/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    const diskId = item.attr('id')!
-                    const diskStatus = $(`/response/content/item[@id="${diskId}"]/diskStatus`).text()
+                    const diskId = item.attr('id')
+                    const diskStatus = $(`content/item[@id="${diskId}"]/diskStatus`).text()
                     const diskInterfaceType = $item('diskInterfaceType').text()
                     const diskType = $item('diskType').text()
                     const diskList = prop.current.diskList.map((item) => item.id)
@@ -75,8 +68,8 @@ export default defineComponent({
                         // 非备份组磁盘
                         tableData.value.push({
                             id: diskId,
-                            name: diskInterfaceType == 'esata' ? Translate('IDCS_ESATA') + diskName : diskType === 'raid' ? diskName : Translate('IDCS_DISK') + diskName,
-                            size: Math.floor(Number($item('size').text())),
+                            name: diskInterfaceType === 'esata' ? Translate('IDCS_ESATA') + diskName : diskType === 'raid' ? diskName : Translate('IDCS_DISK') + diskName,
+                            size: Math.floor($item('size').text().num() / 1024),
                         })
                     }
                 })
@@ -110,19 +103,14 @@ export default defineComponent({
          */
         const confirm = () => {
             if (!pageData.value.selection.length) {
-                openMessageTipBox({
-                    type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
-                    message: Translate('IDCS_PLEASE_SELECT_DISK'),
-                })
+                openMessageBox(Translate('IDCS_PLEASE_SELECT_DISK'))
                 return
             }
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_HD_CHANGE_GROUP_WARNING'),
             }).then(async () => {
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
 
                 const sendXml = rawXml`
                    <types>
@@ -139,14 +127,14 @@ export default defineComponent({
                         </diskGroup>
                     </content>
                 `
-                const result = await editSetAndElementRelation(getXmlWrapData(sendXml))
+                const result = await editSetAndElementRelation(sendXml)
                 const $ = queryXml(result)
 
-                if ($('/response/status').text() === 'success') {
-                    ctx.emit('comfirm')
+                if ($('status').text() === 'success') {
+                    ctx.emit('confirm')
                 }
 
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
             })
         }
 

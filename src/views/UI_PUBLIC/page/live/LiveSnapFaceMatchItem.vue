@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-22 16:42:37
  * @Description: 现场预览-目标检测视图-人脸比对项组件
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 16:59:24
 -->
 <template>
     <div
@@ -15,111 +13,69 @@
                 class="item-left"
                 @click="$emit('detail')"
             >
-                <img :src="displayBase64Img(data.snap_pic)" />
+                <img
+                    :src="displayBase64Img(data.snap_pic)"
+                    @load="loadImg"
+                />
                 <div class="item-menu">
-                    <el-tooltip
-                        :content="Translate('IDCS_REGISTER')"
-                        :show-after="500"
-                    >
-                        <BaseImgSprite
-                            file="live_add"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click.stop="$emit('add')"
-                        />
-                    </el-tooltip>
-                    <el-tooltip
-                        :content="Translate('IDCS_SEARCH')"
-                        :show-after="500"
-                    >
-                        <BaseImgSprite
-                            file="live_search"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click.stop="$emit('search', '')"
-                        />
-                    </el-tooltip>
-                    <el-tooltip
-                        :content="Translate('IDCS_REPLAY')"
-                        :show-after="500"
-                    >
-                        <BaseImgSprite
-                            file="live_play"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click="$emit('playRec')"
-                        />
-                    </el-tooltip>
-                    <el-tooltip
-                        :content="Translate('IDCS_MORE')"
-                        :show-after="500"
-                    >
-                        <BaseImgSprite
-                            file="live_more"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click="$emit('detail')"
-                        />
-                    </el-tooltip>
+                    <!-- <BaseImgSpriteBtn
+                        file="live_add"
+                        :title="Translate('IDCS_REGISTER')"
+                        @click="$emit('add')"
+                    /> -->
+                    <BaseImgSpriteBtn
+                        file="live_search"
+                        :title="Translate('IDCS_SEARCH')"
+                        @click="$emit('search', '')"
+                    />
+                    <BaseImgSpriteBtn
+                        file="live_play"
+                        :title="Translate('IDCS_REPLAY')"
+                        @click="$emit('playRec')"
+                    />
+                    <BaseImgSpriteBtn
+                        file="live_more"
+                        :title="Translate('IDCS_MORE')"
+                        @click="$emit('detail')"
+                    />
                 </div>
             </div>
             <div
                 class="item-right"
                 @click="$emit('faceDetail')"
             >
-                <img :src="displayBase64Img(data.repo_pic)" />
+                <img
+                    :src="displayBase64Img(data.repo_pic)"
+                    @load="loadImg"
+                />
                 <div class="item-menu">
-                    <el-tooltip
-                        :content="Translate('IDCS_SEARCH')"
-                        :show-after="500"
-                    >
-                        <BaseImgSprite
-                            file="live_search"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click.stop="$emit('search', 'featureImg')"
-                        />
-                    </el-tooltip>
-                    <el-tooltip
-                        :content="Translate('IDCS_REPLAY')"
-                        :show-after="500"
-                    >
-                        <BaseImgSprite
-                            file="live_play"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click.stop="$emit('playRec')"
-                        />
-                    </el-tooltip>
-                    <el-tooltip
-                        :content="Translate('IDCS_MORE')"
-                        :show-after="500"
-                    >
-                        <BaseImgSprite
-                            file="live_more"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click.stop="$emit('faceDetail')"
-                        />
-                    </el-tooltip>
+                    <BaseImgSpriteBtn
+                        file="live_search"
+                        :title="Translate('IDCS_SEARCH')"
+                        @click="$emit('search', 'featureImg')"
+                    />
+                    <BaseImgSpriteBtn
+                        file="live_play"
+                        :title="Translate('IDCS_REPLAY')"
+                        @click="$emit('playRec')"
+                    />
+                    <BaseImgSpriteBtn
+                        file="live_more"
+                        :title="Translate('IDCS_MORE')"
+                        @click="$emit('faceDetail')"
+                    />
                 </div>
             </div>
         </div>
         <div class="item-center">
             <div>{{ data.chlName }}</div>
-            <div>{{ data.info.similarity }}%</div>
+            <div>{{ data.info?.similarity }}%</div>
             <div>{{ displayTime(data.detect_time) }}</div>
         </div>
         <div class="item-bottom">
-            <span>{{ data.info.text_tip || data.info.group_name }}</span>
-            <span>({{ data.info.remarks || data.info.name }})</span>
+            <span>{{ data.info?.text_tip || data.info?.group_name }}</span>
+            <span>({{ data.info?.remarks || data.info?.name }})</span>
+            <span></span>
         </div>
     </div>
 </template>
@@ -131,12 +87,12 @@
     width: 235px;
     margin: 5px auto;
     padding: 5px;
-    border: 1px solid var(--border-dark);
+    border: 1px solid var(--panel-snap-border);
     font-size: 12px;
     box-sizing: border-box;
 
     &.border {
-        border-color: var(--border-snap-history);
+        border-color: var(--panel-snap-history-border);
     }
 
     &-top {
@@ -149,12 +105,11 @@
         position: relative;
         width: 100px;
         height: 120px;
-        background-color: var(--bg-table);
 
         img {
             width: 100%;
             height: 100%;
-            object-fit: fill;
+            background-color: var(--panel-menu-bg);
         }
 
         &:hover .item-menu {
@@ -172,11 +127,10 @@
         align-items: center;
         justify-content: center;
         opacity: 0;
-        background-color: var(--bg-color-opacity2);
+        background-color: var(--panel-snap-btn-bg);
 
         span {
             margin: 0 1px;
-            cursor: pointer;
         }
     }
 
@@ -188,9 +142,16 @@
         margin-top: 5px;
         line-height: 22px;
         display: flex;
+        justify-content: space-around;
 
         & > div {
             margin: 0 5px;
+
+            &:nth-child(2) {
+                padding: 0 5px;
+                border: 1px solid var(--table-border);
+                border-radius: 11px;
+            }
         }
     }
 
@@ -200,10 +161,10 @@
         display: flex;
         justify-content: center;
         line-height: 16px;
-        color: var(--primary--04);
+        color: var(--primary);
 
         &.border {
-            border: 1px solid var(--primary--02);
+            border: 1px solid var(--primary);
         }
 
         .rtl {

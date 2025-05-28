@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-04 20:56:11
  * @Description: 格式化工具模块
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 14:23:00
  */
 
 /**
@@ -26,43 +24,52 @@ export const camel2Kebab = (name: string) => {
     return nameArr.join('')
 }
 
+const TEXT_ENTITY_LIST = [
+    {
+        ch: '&',
+        entity: '&amp;',
+    },
+    {
+        ch: '<',
+        entity: '&lt;',
+    },
+    {
+        ch: '>',
+        entity: '&gt;',
+    },
+    {
+        ch: '"',
+        entity: '&quot;',
+    },
+]
+
 /**
  * @description 用实体替换特殊字符
- * @param str
+ * @param {string} str
  * @returns {string}
  */
 export const replaceWithEntity = (str: string) => {
-    str = '' + str // 参数必须转换为字符串，否则可能会报错
-    const entityList = [
-        { ch: '&', entity: '&amp;' },
-        { ch: '<', entity: '&lt;' },
-        { ch: '>', entity: '&gt;' },
-        { ch: '"', entity: '&quot;' },
-    ]
-    entityList.forEach((element) => {
+    TEXT_ENTITY_LIST.forEach((element) => {
         str = str.replace(new RegExp(element.ch, 'g'), element.entity)
     })
     return str
 }
 
+/**
+ * @description 字符串转换为实体
+ * @param {String} str
+ * @returns {String}
+ */
 export const convertToTextEntities = (str: string) => {
-    str = '' + str
-    const entityList: { ch: string; entity: string }[] = [
-        { ch: '&amp;', entity: '&' },
-        { ch: '&lt;', entity: '<' },
-        { ch: '&gt;', entity: '>' },
-        { ch: '&quot;', entity: '"' },
-        { ch: '&nbsp;', entity: ' ' },
-    ]
-    entityList.forEach((element) => {
-        str = str.replace(new RegExp(element.ch, 'g'), element.entity)
+    TEXT_ENTITY_LIST.forEach((element) => {
+        str = str.replace(new RegExp(element.entity, 'g'), element.ch)
     })
     return str
 }
 
 /**
  * @description 16进制转10进制数字
- * @param str
+ * @param {string} str
  * @return {number}
  */
 export const hexToDec = (str: string) => {
@@ -72,7 +79,7 @@ export const hexToDec = (str: string) => {
 
 /**
  * @description 10进制转16进制字符串
- * @param num
+ * @param {number} num
  * @return {string}
  */
 export const decToHex = (num: number) => {
@@ -80,9 +87,21 @@ export const decToHex = (num: number) => {
 }
 
 /**
+ * @description 返回IP十进制数值
+ * @param {string} ip
+ * @returns {number}
+ */
+export const getIpNumber = (ip: string) => {
+    const split = ip.split('.').map((item) => Number(item))
+    return split.reduce((sum, current, index) => {
+        return sum + current * Math.pow(Math.pow(2, 8), split.length - 1 - index)
+    }, 0)
+}
+
+/**
  * @description 获取指定字节长度字符串
- * @param str 源字符串
- * @param limit 指定字节长度
+ * @param {string} str 源字符串
+ * @param {number} limit 指定字节长度
  * @returns {string} 指定字节长度字符串
  */
 export const getLimitStr = (str: string, limit: number) => {
@@ -98,11 +117,13 @@ export const getLimitStr = (str: string, limit: number) => {
         } else {
             reLen++
         }
+
         if (reLen > limit && !flag) {
             sliceNo = i // 实际需要截取的位数
             flag = true
         }
     }
+
     if (reLen > limit) {
         return str.slice(0, sliceNo)
     }
@@ -110,19 +131,28 @@ export const getLimitStr = (str: string, limit: number) => {
 }
 
 /**
- * @description
- * @param str
- * @param len
+ * @description 移除字符串中所有空格
+ * @param {string} str
  * @returns {string}
  */
-export const getShortString = (str: string, len: number) => {
-    return str.length > len ? str.substr(0, len) + '...' : str
+export const trimAllSpace = (str: string) => {
+    return str.replace(/\s/g, '')
 }
 
 /**
- * @description
- * @param $sourcestr
- * @param $cutlength
+ * @description 截取字符串
+ * @param {string} str
+ * @param {number} len
+ * @returns {string}
+ */
+export const getShortString = (str: string, len: number) => {
+    return str.length > len ? str.slice(0, len) + '...' : str
+}
+
+/**
+ * @description 按照字节长度来截取字符串
+ * @param {string} $sourcestr
+ * @param {number} $cutlength
  * @returns {string}
  */
 export const cutStringByByte = ($sourcestr: string, $cutlength: number) => {
@@ -151,10 +181,64 @@ export const cutStringByByte = ($sourcestr: string, $cutlength: number) => {
             // $lastByte = 4
         }
     }
+
     if ($i > $cutlength) {
         $returnstr = $sourcestr.substr(0, $j - 1)
     }
     return $returnstr
+}
+
+// 字符编码数值对应的存储长度：
+// UCS-2编码(16进制) UTF-8 字节流(二进制)
+// 0000 - 007F	   0xxxxxxx （1字节）
+// 0080 - 07FF	   110xxxxx 10xxxxxx （2字节）
+// 0800 - FFFF	   1110xxxx 10xxxxxx 10xxxxxx （3字节）
+// var str="，";
+// alert("字符数"+str.length+" ，字节数"+str.getBytesLength());
+export const getBytesLength = (str: string) => {
+    let totalLength = 0
+    let charCode
+    for (let i = 0; i < str.length; i++) {
+        charCode = str.charCodeAt(i)
+        if (charCode < 0x007f) {
+            totalLength++
+        } else if (0x0080 <= charCode && charCode <= 0x07ff) {
+            totalLength += 2
+        } else if (0x0800 <= charCode && charCode <= 0xffff) {
+            totalLength += 3
+        } else {
+            totalLength += 4
+        }
+    }
+    return totalLength
+}
+
+export const getLimitBytesStr = (str: string, len: number) => {
+    if (!str) return str
+
+    let num = 0
+    let j = 0
+
+    for (let i = 0, lens = str.length; i < lens; i++) {
+        const charCode = str.charCodeAt(i)
+        if (charCode < 0x007f) {
+            num += 1
+        } else if (0x0080 <= charCode && charCode <= 0x07ff) {
+            num += 2
+        } else if (0x0800 <= charCode && charCode <= 0xffff) {
+            num += 3
+        } else {
+            num += 4
+        }
+
+        if (num > len) {
+            break
+        } else {
+            j = i + 1
+        }
+    }
+
+    return str.substring(0, j + 1)
 }
 
 /**
@@ -183,12 +267,23 @@ export const formatInputMaxLength = (value: string) => {
  */
 export const formatInputUserName = (value: string) => {
     value = value.replace(/([`\^\[\]]|[^A-z\d!@#%(){}~_\\'./\-\s])/g, '')
-    return formatInputMaxLength(value)
+    return value
+}
+
+/**
+ * @description 处理输入框长数字串的输入,过滤掉非数字字符
+ * @param {string} value
+ * @returns {string}
+ */
+export const formatDigit = (value: string) => {
+    value = value.replace(/[^0-9]/g, '')
+    return value
 }
 
 /**
  * @description 处理邮箱的输入
- * @param value
+ * @param {string} email
+ * @returns {string}
  */
 export const hideEmailAddress = (email: string) => {
     if (email) {
@@ -213,7 +308,7 @@ export const hideEmailAddress = (email: string) => {
 /**
  * @description 敏感信息脱敏变换
  * @param {string} value
- * @param {string} level
+ * @param {enum} level 'low' | 'high' | 'medium' | 'tail'
  * @param {string} type
  * @returns {string}
  */
@@ -228,39 +323,42 @@ export const hideSensitiveInfo = (value: string, level: 'low' | 'high' | 'medium
         { type: /\·/, value: '·' },
         { type: /\s/, value: ' ' },
     ]
-    if (type == 'name') {
+    if (type === 'name') {
         let result = ''
         const nameArr = []
-        for (let index = 0; index < separator.length; index++) {
-            if (separator[index]['type'].test(value)) {
-                const tmpArr = value.split(separator[index].value)
-                tmpArr.forEach(function (e, i) {
+        separator.some((item) => {
+            if (item.type.test(value)) {
+                const tmpArr = value.split(item.value)
+                tmpArr.forEach((e, i) => {
                     nameArr.push(e)
-                    i < tmpArr.length - 1 && nameArr.push(separator[index].value)
+                    if (i < tmpArr.length - 1) {
+                        nameArr.push(item.value)
+                    }
                 })
-                break
+                return true
             }
-        }
+        })
+
         if (!nameArr.length) {
             nameArr.push(value)
         }
-        const spaceCharArr = nameArr.filter(function (item) {
-            return item == '·' || item == ' ' || item == '.'
+        const spaceCharArr = nameArr.filter((item) => {
+            return item === '·' || item === ' ' || item === '.'
         })
-        if (spaceCharArr.length == 0) {
+        if (!spaceCharArr.length) {
             const nameLevel = nameArr[0].length >= 3 ? 'medium' : 'tail'
             result = hideSensitiveInfo(nameArr[0], nameLevel)
-        } else if (spaceCharArr.length == 1) {
-            nameArr.forEach(function (e, i) {
-                if (i == 0 || i == nameArr.length - 1) {
+        } else if (spaceCharArr.length === 1) {
+            nameArr.forEach((e, i) => {
+                if (i === 0 || i === nameArr.length - 1) {
                     result += hideSensitiveInfo(e, 'medium', 'name')
                 } else {
                     result += e
                 }
             })
         } else {
-            nameArr.forEach(function (e, i) {
-                if (i == 0 || i == nameArr.length - 1) {
+            nameArr.forEach((e, i) => {
+                if (i === 0 || i === nameArr.length - 1) {
                     result += hideSensitiveInfo(e, 'medium', 'name')
                 } else {
                     result += e
@@ -276,31 +374,41 @@ export const hideSensitiveInfo = (value: string, level: 'low' | 'high' | 'medium
     const strLen = value.length
     const n = Math.floor(strLen / 3)
     const x = strLen % 3
-    let f = ''
-    for (let i = 0; i < n + x; i++) {
-        f += '*'
-    }
+    const f = new Array(n + x).fill('*').join('')
+
     // 全部显示
-    if (level == 'low') {
+    if (level === 'low') {
         return value
     }
 
     // 全部脱敏
-    if (level == 'high') {
+    if (level === 'high') {
         return value.replace(/./g, '*')
     }
+
     // 3N+x中间脱敏
-    if (level == 'medium') {
+    if (level === 'medium') {
         return (str = value.substr(0, n) + f + value.substr(strLen - n, n))
     }
+
     // 3N+x尾部脱敏
-    if (level == 'tail') {
-        if (strLen == 1) return (str = '*')
-        if (strLen == 2) return (str = value.substr(0, 1) + '*')
+    if (level === 'tail') {
+        if (strLen === 1) return (str = '*')
+        if (strLen === 2) return (str = value.substr(0, 1) + '*')
         return (str = value.substr(0, 2 * n + x) + value.substr(strLen - n, n).replace(/./g, '*'))
     }
+
     if (strLen < 3) {
         return f
     }
     return str
+}
+
+/**
+ * @description Pads the current number with a given number (possibly repeated) so that the resulting string reaches a given length
+ * @param {number} num
+ * @returns {string}
+ */
+export const padStart = (num: number, maxLength: number, fillNumber = 0) => {
+    return (num + '').padStart(maxLength, fillNumber + '')
 }

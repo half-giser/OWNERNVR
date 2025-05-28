@@ -1,95 +1,113 @@
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-05-22 17:18:32
- * @Description:
+ * @Description: 添加通道 - 激活IPC弹窗
  */
-import { type FormInstance } from 'element-plus'
-import { type ChannelQuickAddDto } from '../../../../types/apiType/channel'
-import { getSecurityVer } from '../../../../utils/tools'
-import { AES_encrypt } from '../../../../utils/encrypt'
-import { useUserSessionStore } from '@/stores/userSession'
-import { activateIPC } from '../../../../api/channel'
-import { getXmlWrapData } from '../../../../api/api'
-import useLoading from '@/hooks/useLoading'
-import { useLangStore } from '@/stores/lang'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
-        activateIpcData: Array<ChannelQuickAddDto>,
-        close: {
-            type: Function,
-            require: true,
-            default: () => {},
+        activateIpcData: {
+            type: Array as PropType<ChannelQuickAddDto[]>,
+            required: true,
         },
     },
-    setup(props: any) {
+    emits: {
+        close() {
+            return true
+        },
+    },
+    setup(props, { emit }) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const userSessionStore = useUserSessionStore()
-        const formRef = ref<FormInstance>()
-        const formData = ref({} as Record<string, string>)
+
+        const formRef = useFormRef()
+        const formData = ref({
+            password: '',
+            confirmPassword: '',
+        })
         const useDefaultPwdSwitch = ref(false)
 
-        const validate = {
-            validatePassword: (_rule: any, value: any, callback: any) => {
-                if (!useDefaultPwdSwitch.value) {
-                    if (!value) {
-                        callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
-                        return
-                    }
-                }
-                callback()
-            },
-            validateConfirmPassword: (_rule: any, value: any, callback: any) => {
-                if (!useDefaultPwdSwitch.value) {
-                    if (!value) {
-                        callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
-                        return
-                    }
-                    if (formData.value.password != value) {
-                        callback(new Error(Translate('IDCS_PWD_MISMATCH_TIPS')))
-                        return
-                    }
-                }
-                callback()
-            },
-        }
+        const rules = ref<FormRules>({
+            password: [
+                {
+                    validator: (_rule, value: string, callback) => {
+                        if (!useDefaultPwdSwitch.value) {
+                            if (!value) {
+                                callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
+                                return
+                            }
+                        }
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
+            confirmPassword: [
+                {
+                    validator: (_rule, value: string, callback) => {
+                        if (!useDefaultPwdSwitch.value) {
+                            if (!value) {
+                                callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
+                                return
+                            }
 
-        const rules = ref({
-            password: [{ validator: validate.validatePassword, trigger: 'manual' }],
-            confirmPassword: [{ validator: validate.validateConfirmPassword, trigger: 'manual' }],
+                            if (formData.value.password !== value) {
+                                callback(new Error(Translate('IDCS_PWD_MISMATCH_TIPS')))
+                                return
+                            }
+                        }
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
         })
 
-        const opened = () => {
-            if (formRef.value) formRef.value.resetFields()
-            formData.value = {}
+        const close = () => {
+            formRef.value!.resetFields()
             useDefaultPwdSwitch.value = false
         }
 
         const save = () => {
-            if (!formRef) return false
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate(async (valid) => {
                 if (valid) {
-                    let data = '<content>'
-                    props.activateIpcData.forEach((ele: ChannelQuickAddDto) => {
-                        data += `<item>
-                                    <userPassword>
-                                        <password type='string' encryptType='md5' maxLen='63'${getSecurityVer()}><![CDATA[${useDefaultPwdSwitch.value ? '' : AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>
-                                    </userPassword>
-                                    <name>${ele.devName}</name>
-                                    <ip>${ele.ip}</ip>
-                                    <port>${ele.httpPort}</port>
-                                    <protocolType>${ele.protocolType}</protocolType>
-                                    <manufacturer>${ele.manufacturer}</manufacturer>
-                                </item>`
-                    })
-                    data += '</content>'
-                    openLoading(LoadingTarget.FullScreen)
-                    activateIPC(getXmlWrapData(data)).then(() => {
-                        closeLoading(LoadingTarget.FullScreen)
-                        // 激活后成功或失败不做提示处理
-                        props.close()
-                    })
+                    const sendXml = rawXml`
+                        <content>
+                            ${props.activateIpcData
+                                .map((item) => {
+                                    return rawXml`
+                                        <item>
+                                            ${
+                                                useDefaultPwdSwitch.value
+                                                    ? rawXml`
+                                                            <userPassword>
+                                                                <password type='string' encryptType='md5' maxLen='63'${getSecurityVer()}>${wrapCDATA(useDefaultPwdSwitch.value ? '' : AES_encrypt(formData.value.password, userSessionStore.sesionKey))}</password>
+                                                            </userPassword>
+                                                        `
+                                                    : ''
+                                            }
+                                            <name>${wrapCDATA(item.devName)}</name>
+                                            <ip>${item.ip}</ip>
+                                            <port>${item.httpPort}</port>
+                                            <type>${item.httpType}</type>
+                                            <protocolType>${item.protocolType}</protocolType>
+                                            <productModel ${item.productModel.factoryName ? ` factoryName="${item.productModel.identity || item.productModel.factoryName}"` : ''}>${item.productModel.innerText}</productModel>
+                                            <manufacturer>${item.manufacturer}</manufacturer>
+                                            <localEthName>${item.localEthName}</localEthName>
+                                            <subIp>${item.subIp}</subIp>
+                                            <subIpNetMask>${item.subIpNetMask}</subIpNetMask>
+                                        </item>
+                                    `
+                                })
+                                .join('')}
+                        </content>
+                    `
+                    openLoading()
+                    await activateIPC(sendXml)
+                    closeLoading()
+                    // 激活后成功或失败不做提示处理
+                    emit('close')
                 }
             })
         }
@@ -99,7 +117,7 @@ export default defineComponent({
             formData,
             useDefaultPwdSwitch,
             rules,
-            opened,
+            close,
             save,
         }
     },

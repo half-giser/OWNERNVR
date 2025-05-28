@@ -22,7 +22,7 @@
     <Sprite Path="skirt.png" LocationX="59" LocationY="40" />
     <Sprite Path="collect.png" LocationX="29" LocationY="71" />
     <Sprite Path="mask.png" LocationX="59" LocationY="71" />
-    <Sprite Path="vehicle_brand.png" LocationX="89" LocationY="71" />
+    <Sprite Path="vehicle_brand_type.png" LocationX="89" LocationY="71" />
     <Sprite Path="cruise.png" LocationX="89" LocationY="132" />
     <Sprite Path="success.png" LocationX="29" LocationY="132" />
     <Sprite Path="gender.png" LocationX="149" LocationY="40" />

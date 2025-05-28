@@ -2,28 +2,25 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-05 17:32:00
  * @Description: 存储模式新增磁盘弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 16:15:58
 -->
 <template>
     <el-dialog
         :title="Translate('IDCS_ADD_DISK')"
-        width="600px"
-        align-center
-        draggable
+        width="600"
         @open="open"
     >
         <div>
             <el-table
+                v-title
                 :data="tableData"
-                border
-                stripe
-                height="400px"
+                show-overflow-tooltip
+                height="400"
                 @selection-change="changeSelection"
             >
                 <el-table-column
                     :label="Translate('IDCS_SERIAL_NUMBER')"
                     type="index"
+                    width="70"
                 />
                 <el-table-column
                     type="selection"
@@ -39,23 +36,15 @@
                 />
             </el-table>
         </div>
-        <template #footer>
-            <el-row>
-                <el-col
-                    :span="12"
-                    class="el-col-flex-start"
-                >
-                    {{ Translate('IDCS_SELECT_CHANNEL_COUNT').formatForLang(pageData.selection.length, tableData.length) }}
-                </el-col>
-                <el-col
-                    :span="12"
-                    class="el-col-flex-end"
-                >
-                    <el-button @click="confirm">{{ Translate('IDCS_ADD') }}</el-button>
-                    <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
-        </template>
+        <div class="base-btn-box space-between">
+            <div>
+                {{ Translate('IDCS_SELECT_CHANNEL_COUNT').formatForLang(pageData.selection.length, tableData.length) }}
+            </div>
+            <div>
+                <el-button @click="confirm">{{ Translate('IDCS_ADD') }}</el-button>
+                <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+            </div>
+        </div>
     </el-dialog>
 </template>
 

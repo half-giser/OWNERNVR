@@ -1,0 +1,69 @@
+/*
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-09-06 10:35:28
+ * @Description: 通道版块的一些公共样式，前缀必须为.base-chl-*
+ */
+.base-chl-box {
+    width: 100%;
+    height: var(--content-height);
+    display: flex;
+}
+
+.base-chl-box-left {
+    width: 400px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 10;
+}
+
+.base-chl-box-player {
+    width: 400px;
+    height: 300px;
+    flex-shrink: 0;
+}
+
+.base-chl-box-right {
+    width: 100%;
+    height: 100%;
+    margin-left: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.base-chl-icon-btn {
+    position: relative;
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border: 1px solid var(--ptz-btn);
+    background-color: var(--ptz-btn);
+
+    .Sprite {
+        position: absolute;
+        top: -5px;
+        left: -5px;
+    }
+
+    &:hover {
+        border-color: var(--primary);
+        background-color: transparent;
+    }
+
+    &.disabled {
+        background-color: var(--ptz-btn-disabled);
+
+        &:hover {
+            border-color: var(--ptz-btn);
+        }
+    }
+
+    & + & {
+        margin-left: 5px;
+    }
+}
+
+.base-rich-text {
+    line-height: 1.4;
+}

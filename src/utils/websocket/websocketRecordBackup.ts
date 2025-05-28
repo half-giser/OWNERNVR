@@ -2,13 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-30 14:33:04
  * @Description: websocket 备份录像
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-11 09:40:01
  */
-import WebsocketBase from './websocketBase'
-import RecordBuilder from '../wasmPlayer/recordBuilder'
-import { ErrorCode } from '../constants'
-import { CMD_PLAYBACK_REFRESH_FRAME_INDEX, CMD_PLAYBACK_CLOSE, CMD_PLAYBACK_OPEN, type CmdPlaybackOpenOption } from './websocketCmd'
 
 export interface WebsocketRecordBackupOption {
     onready?: () => void
@@ -16,7 +10,7 @@ export interface WebsocketRecordBackupOption {
     onFrameTime?: (frameTime: number, taskIndex: number) => void
     onerror?: (errorcode?: number) => void
     onclose?: () => void
-    maxSingleSize: number
+    maxSingleSize: number // 单录像文件最大字节数
 }
 
 export type WebsocketRecordBackupOnMessageParam = {
@@ -27,69 +21,65 @@ export type WebsocketRecordBackupOnMessageParam = {
     frameTime: number
     firstFrameTime: number
     finished: boolean
+    errorCode?: number
 }
 
 type CmdQueueDatum = {
     cmd: ReturnType<typeof CMD_PLAYBACK_OPEN>
     taskIndex: number
+    taskId: string
 }
 
-export default class WebsocketRecordBackup {
-    private ws?: WebsocketBase
-    private recordBuilder?: RecordBuilder
-    private ready = false
-    private taskId?: string
-    private lastTaskId?: string
-    private recordList: CmdPlaybackOpenOption[] = []
-    private cmdQueue: CmdQueueDatum[] = []
-    private frameIndex = 0
-    private frameTime = 0
-    private taskIndex = -1
-    private taskStatusMap: Record<string, string> = {}
-    private taskIdFrameTimeMap: Record<string, number> = {}
-    private canFreshFrameIndex = false
-    private readonly onready: WebsocketRecordBackupOption['onready']
-    private readonly onmessage: WebsocketRecordBackupOption['onmessage']
-    private readonly onFrameTime: WebsocketRecordBackupOption['onFrameTime']
-    private readonly onerror: WebsocketRecordBackupOption['onerror']
-    private readonly onclose: WebsocketRecordBackupOption['onclose']
+export const WebsocketRecordBackup = (option: WebsocketRecordBackupOption) => {
+    let ws: ReturnType<typeof WebsocketBase>
+    let ready = false
+    let taskId: string | null = null
+    let lastTaskId: string
+    let recordList: CmdPlaybackOpenOption[] = []
+    let cmdQueue: CmdQueueDatum[] = [] // 任务队列, 串行方式执行任务
+    let frameIndex = 0 // 当前帧
+    let frameTime = 0 // 当前帧时间
+    let taskIndex = -1 // 当前执行的任务索引
+    let taskStatusMap: Record<string, string> = {}
+    let taskIdFrameTimeMap: Record<string, number> = {}
+    let canFreshFrameIndex = false
 
-    constructor(option: WebsocketRecordBackupOption) {
-        this.onready = option.onready
-        this.onmessage = option.onmessage
-        this.onFrameTime = option.onFrameTime
-        this.onerror = option.onerror
-        this.onclose = option.onclose
-        this.recordBuilder = new RecordBuilder({
-            maxSingleSize: option.maxSingleSize,
-            ready: () => this.init(),
-            onFrameIndex: (frameIndex: number, frameTime: number) => {
-                this.frameIndex = frameIndex
-                this.frameTime = frameTime
-                if (frameTime && !this.taskIdFrameTimeMap[this.taskId as string]) {
-                    this.taskIdFrameTimeMap[this.taskId as string] = frameTime
-                }
-                // 每8帧执行一次刷新帧命令
-                if (frameIndex % 8 === 0 && this.canFreshFrameIndex) {
-                    this.refreshFrameIndex(frameIndex)
-                }
-                // 每30帧通知一次帧时间
-                if (frameIndex % 30 === 0) {
-                    this.onFrameTime && this.onFrameTime(frameTime, this.taskIndex)
-                }
-            },
-        })
-    }
+    const onready = option.onready
+    const onmessage = option.onmessage
+    const onFrameTime = option.onFrameTime
+    const onerror = option.onerror
+    const onclose = option.onclose
+    const recordBuilder = WasmRecordBuilder({
+        maxSingleSize: option.maxSingleSize,
+        ready: () => init(),
+        onFrameIndex: (currentFrameIndex: number, currentFrameTime: number) => {
+            frameIndex = currentFrameIndex
+            frameTime = currentFrameTime
+            if (frameTime && !taskIdFrameTimeMap[taskId as string]) {
+                taskIdFrameTimeMap[taskId as string] = frameTime
+            }
 
-    init() {
-        this.ws = new WebsocketBase({
+            // 每8帧执行一次刷新帧命令
+            if (frameIndex % 8 === 0 && canFreshFrameIndex) {
+                refreshFrameIndex(frameIndex)
+            }
+
+            // 每30帧通知一次帧时间
+            if (frameIndex % 30 === 0) {
+                onFrameTime && onFrameTime(frameTime, taskIndex)
+            }
+        },
+    })
+
+    const init = () => {
+        ws = WebsocketBase({
             onopen: () => {
-                this.ready = true
-                this.onready && this.onready()
+                ready = true
+                onready && onready()
             },
             onmessage: (data: string | ArrayBuffer) => {
-                if (data instanceof ArrayBuffer) {
-                    this.recordBuilder!.sendBuffer(data)
+                if (typeof data !== 'string') {
+                    recordBuilder.sendBuffer(data)
                 } else {
                     const res = JSON.parse(data)
                     const resBasic = res.basic || {}
@@ -99,192 +89,210 @@ export default class WebsocketRecordBackup {
                     if (code && code !== 0) {
                         let taskId = resData.task_id
                         taskId = taskId ? taskId.toLowerCase() : null
-                        this.handleErrorCode(code, taskId, res.url)
+                        handleErrorCode(code, taskId, res.url)
                     }
                 }
             },
             onerror: () => {
-                this.ready = false
-                this.onerror && this.onerror()
+                ready = false
+                onerror && onerror()
             },
             onclose: () => {
-                this.ready = false
-                this.onclose && this.onclose()
+                ready = false
+                onclose && onclose()
             },
         })
     }
 
-    // 检查当前渲染任务是否执行完
-    checkReady(cb: () => void) {
+    /**
+     * @description 检查当前渲染任务是否执行完
+     * @param {Function} cb
+     */
+    const checkReady = (cb: () => void) => {
         const timer = setTimeout(() => {
-            if (this.ready) {
+            if (ready) {
                 cb()
             } else {
-                this.checkReady(cb)
+                checkReady(cb)
                 clearTimeout(timer)
             }
         }, 0)
     }
 
-    // 处理错误码
-    handleErrorCode(errorCode: number, taskId: string, url: string) {
-        console.log(`record:${taskId} end, errorCode: ${errorCode}, URL:${url}, last frameIndex: ${this.frameIndex}`)
+    /**
+     * @description 处理错误码
+     * @param {number} errorCode
+     * @param {string} taskId
+     * @param {string} url
+     */
+    const handleErrorCode = (errorCode: number, taskId: string, url: string) => {
+        console.log(`end record:${taskId} end, errorCode: ${errorCode}, URL:${url}, last frameIndex: ${frameIndex}`)
 
-        if (!this.canFreshFrameIndex || this.taskStatusMap[taskId] === 'done') {
+        if (!canFreshFrameIndex || taskStatusMap[taskId] === 'done') {
             return
         }
+
         if (taskId) {
-            this.taskStatusMap[taskId] = 'done'
+            taskStatusMap[taskId] = 'done'
         }
-        this.canFreshFrameIndex = false
-        this.recordBuilder!.stopRecord(true) // 遇到错误码时，手动中断录像
+        canFreshFrameIndex = false
+        recordBuilder.stopRecord(true) // 遇到错误码时，手动中断录像
         if (errorCode === ErrorCode.USER_ERROR_NO_RECORDDATA) {
             // 当前任务无录像时
-            if (this.cmdQueue.length <= 1) {
+            if (cmdQueue.length <= 1) {
                 // 任务队列为空，则通知完成
-                const taskIndex = this.recordList.length - 1
-                this.onmessage &&
-                    this.onmessage({
+                const taskIndex = recordList.length - 1
+                onmessage &&
+                    onmessage({
                         file: null,
                         taskId,
                         taskIndex,
-                        chlId: this.recordList[taskIndex].chlID,
+                        chlId: recordList[taskIndex].chlID,
                         frameTime: 0,
                         firstFrameTime: 0,
                         finished: true,
+                        errorCode,
                     })
             }
             return
         }
+
         if (errorCode && errorCode !== ErrorCode.USER_ERROR_FILE_STREAM_COMPLETED) {
             // 录像流结束
-            this.onerror && this.onerror(errorCode)
+            onerror && onerror(errorCode)
         }
     }
 
     /**
-     * 开启一个任务
-     * @param {Array<Object>} recordList 成员字段见startOneTask
+     * @description 开启一个任务
+     * @param {Array<CmdPlaybackOpenOption>} recordList 成员字段见startOneTask
      */
-    start(recordList: CmdPlaybackOpenOption[]) {
-        if (!(recordList && recordList.length)) {
+    const start = (currentRecordList: CmdPlaybackOpenOption[]) => {
+        if (!currentRecordList.length) {
             return
         }
-        this.recordList = recordList
-        this.cmdQueue = []
-        this.checkReady(() => {
-            for (let i = 0; i < recordList.length; i++) {
-                this.startOneTask(recordList[i], i)
+        recordList = currentRecordList
+        cmdQueue = []
+        checkReady(() => {
+            for (let i = 0; i < currentRecordList.length; i++) {
+                startOneTask(currentRecordList[i], i)
             }
         })
     }
 
     /**
-     * 开启一个录像任务
-     * @param {Object} record
-     *      @property {String} chlID: 通道id
-     *      @property {Number} startTime: 开始时间戳（秒）
-     *      @property {Number} endTime: 结束时间戳（秒）
-     *      @property {Boolean} backupVideo 备份视频
-     *      @property {Boolean} backupAudio 备份音频
-     * @param {Object} taskIndex 任务索引
+     * @description 开启一个录像任务
+     * @param {CmdPlaybackOpenOption} record
+     * @param {number} taskIndex 任务索引
      */
-    startOneTask(record: CmdPlaybackOpenOption, taskIndex: number) {
+    const startOneTask = (record: CmdPlaybackOpenOption, taskIndex: number) => {
+        const chlId = record.chlID
         const cmd = CMD_PLAYBACK_OPEN(record)
         const taskId = cmd.data.task_id
-        const chlId = record.chlID
-        this.cmdQueue.push({
+
+        cmdQueue.push({
             cmd: cmd,
+            taskId: taskId,
             taskIndex: taskIndex,
         })
-        this.taskStatusMap[taskId] = 'waiting'
-        if (this.cmdQueue.length === this.recordList.length) {
-            this.lastTaskId = taskId
+
+        taskStatusMap[taskId] = 'waiting'
+
+        if (cmdQueue.length === recordList.length) {
+            lastTaskId = taskId
         }
-        this.recordBuilder!.createRecord((recordFile, isFinished, fileIndex) => {
-            this.onmessage &&
-                this.onmessage({
+
+        recordBuilder.startRecord((recordFile, isFinished) => {
+            onmessage &&
+                onmessage({
                     file: recordFile,
                     taskId: taskId,
-                    taskIndex,
-                    chlId,
-                    frameTime: this.frameTime,
-                    firstFrameTime: this.taskIdFrameTimeMap[taskId] || cmd.data.start_time * 1000 + 2000,
-                    finished: isFinished && this.taskStatusMap[this.lastTaskId as string] === 'done',
+                    taskIndex: taskIndex,
+                    chlId: chlId,
+                    frameTime: frameTime,
+                    firstFrameTime: taskIdFrameTimeMap[taskId] || cmd.data.start_time * 1000 + 2000,
+                    finished: isFinished && taskStatusMap[lastTaskId] === 'done',
                 })
-            console.log(`record:${taskIndex} -- fileIndex:${fileIndex} complete, frameTime:${new Date(this.frameTime).format('yyyy/MM/dd HH:mm:ss')}`)
+            console.log('complete record', taskIndex, '， frameTime：', formatDate(frameTime, DEFAULT_DATE_FORMAT))
+            // 完成一个任务后才开启下一个
             if (isFinished) {
-                // 完成一个任务后才开启下一个
-                this.execNextCmd()
+                execNextCmd()
             }
         })
-        if (this.cmdQueue.length === 1) {
-            this.execCmd()
+
+        if (cmdQueue.length === 1) {
+            execCmd()
         }
         return taskId
     }
 
     /**
-     * 停止请求录像回放
+     * @description 停止请求录像回放
      */
-    stop() {
-        if (!this.taskId) {
+    const stop = () => {
+        if (!taskId) {
             return
         }
-        const cmd = CMD_PLAYBACK_CLOSE(this.taskId)
-        this.ws!.send(JSON.stringify(cmd))
+        const cmd = CMD_PLAYBACK_CLOSE(taskId)
+        ws?.send(JSON.stringify(cmd))
     }
 
     /**
-     * 停止全部任务
+     * @description 停止全部任务
      */
-
-    stopAll() {
-        this.stop()
-        this.cmdQueue = []
+    const stopAll = () => {
+        stop()
+        cmdQueue = []
     }
 
     /**
-     * 刷新帧索引
+     * @description 刷新帧索引
+     * @param {number} frameIndex
      */
-    refreshFrameIndex(frameIndex: number) {
-        const cmd = CMD_PLAYBACK_REFRESH_FRAME_INDEX(this.taskId as string, frameIndex)
-        this.ws!.send(JSON.stringify(cmd))
+    const refreshFrameIndex = (frameIndex: number) => {
+        const cmd = CMD_PLAYBACK_REFRESH_FRAME_INDEX(taskId as string, frameIndex)
+        ws?.send(JSON.stringify(cmd))
     }
 
     /**
-     * 发送请求
+     * @description 发送请求
      */
-    execCmd() {
-        const cmdItem = this.cmdQueue[0]
-        this.canFreshFrameIndex = !!cmdItem
+    const execCmd = () => {
+        const cmdItem = cmdQueue[0]
+        canFreshFrameIndex = !!cmdItem
         if (cmdItem) {
-            this.taskId = cmdItem.cmd.data.task_id
-            this.taskIndex = cmdItem.taskIndex
-            this.ws!.send(JSON.stringify(cmdItem.cmd))
-            this.taskStatusMap[this.taskId as string] = 'excuting'
+            taskId = cmdItem.taskId
+            taskIndex = cmdItem.taskIndex
+            ws?.send(JSON.stringify(cmdItem.cmd))
+            taskStatusMap[taskId as string] = 'excuting'
         }
     }
 
     /**
-     * 发送下一个请求
+     * @description 发送下一个请求
      */
-    execNextCmd() {
-        this.stop()
-        this.cmdQueue.shift()
-        this.execCmd()
+    const execNextCmd = () => {
+        stop()
+        cmdQueue.shift()
+        execCmd()
     }
 
-    destroy() {
-        this.ws?.close()
-        delete this.ws
-        this.recordBuilder?.destroy()
-        delete this.recordBuilder
-        this.ready = false
-        delete this.taskId
-        this.cmdQueue = []
-        this.recordList = []
-        this.taskStatusMap = {}
-        this.taskIdFrameTimeMap = {}
+    const destroy = () => {
+        ws?.close()
+        recordBuilder.destroy()
+        ready = false
+        taskId = null
+        cmdQueue = []
+        recordList = []
+        taskStatusMap = {}
+        taskIdFrameTimeMap = {}
+    }
+
+    return {
+        checkReady,
+        start,
+        stop,
+        stopAll,
+        destroy,
     }
 }

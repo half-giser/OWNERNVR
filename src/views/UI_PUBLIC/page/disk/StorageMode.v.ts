@@ -2,10 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-08 18:01:29
  * @Description: 存储模式配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 16:12:49
  */
-import type { StorageModeDiskGroupListDatum, StorageModeDiskGroupList } from '@/types/apiType/disk'
 import StorageModeAddDiskPop from './StorageModeAddDiskPop.vue'
 import StorageModeAddChlPop from './StorageModeAddChlPop.vue'
 
@@ -16,8 +13,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate, langId } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
 
         const pageData = ref({
             // 磁盘组列表
@@ -55,7 +50,7 @@ export default defineComponent({
          * @description 获取磁盘组数据
          */
         const getDiskGroupList = async () => {
-            const sendXml = `
+            const sendXml = rawXml`
                 <condition>
                     <langId>${langId}</langId>
                 </condition>
@@ -64,13 +59,13 @@ export default defineComponent({
             const $ = queryXml(result)
             const disk = await queryLogicalDiskList(sendXml)
             const $disk = queryXml(disk)
-            const isDiskDataSuccess = $disk('/response/status').text() === 'success'
+            const isDiskDataSuccess = $disk('status').text() === 'success'
 
             pageData.value.diskGroupList = []
             pageData.value.diskTotalNum = 0
             pageData.value.backupDiskId = []
 
-            $('/response/content/item').forEach((item) => {
+            $('content/item').forEach((item) => {
                 const $item = queryXml(item.element)
                 const isBackUp = item.attr('type') === 'backup'
 
@@ -78,7 +73,7 @@ export default defineComponent({
                 if (!isBackUp) {
                     const chlList = $item('chls/item').map((chl) => {
                         return {
-                            id: chl.attr('id')!,
+                            id: chl.attr('id'),
                             text: chl.text(),
                         }
                     })
@@ -86,28 +81,28 @@ export default defineComponent({
                     const diskList: StorageModeDiskGroupListDatum[] = []
                     let totalSize = 0
                     $item('disks/item').forEach((element) => {
-                        const id = element.attr('id')!
+                        const id = element.attr('id')
                         if (pageData.value.diskStatus[id].diskEncryptStatus !== excludeFlag) {
                             diskList.push({
                                 id,
                                 text: element.text(),
                             })
                             if (isDiskDataSuccess) {
-                                totalSize += Number($disk(`/response/content/item[@id="${id}"]/size`).text())
+                                totalSize += $disk(`content/item[@id="${id}"]/size`).text().num()
                             }
                         }
                     })
 
                     pageData.value.diskTotalNum += diskList.length
                     pageData.value.diskGroupList.push({
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         chlList,
                         diskList,
                         diskCount: $item('disks/item').length,
                         totalSize: displayStorageSize(totalSize),
                     })
                 } else {
-                    const backupDiskId = $('disks/item').map((item) => item.attr('id')!)
+                    const backupDiskId = $('disks/item').map((item) => item.attr('id'))
                     pageData.value.backupDiskId.push(...backupDiskId)
                 }
             })
@@ -129,7 +124,7 @@ export default defineComponent({
          */
         const displayStorageSize = (size: number) => {
             const sizeGB = size / 1024
-            if (size > 1024) {
+            if (sizeGB > 1024) {
                 const sizeTB = sizeGB / 1024
                 return sizeTB.toFixed(1) + 'TB'
             }
@@ -140,9 +135,6 @@ export default defineComponent({
          * @description 打开新增通道弹窗
          */
         const addChl = () => {
-            if (!currentItem.value.diskList.length) {
-                return
-            }
             pageData.value.isAddChl = true
         }
 
@@ -183,9 +175,8 @@ export default defineComponent({
          * @param {string} id
          */
         const deleteDisk = (id: string) => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_HD_CHANGE_GROUP_WARNING'),
             }).then(() => {
                 editRelation('disks', id)
@@ -198,57 +189,42 @@ export default defineComponent({
          * @param {string} elementId 通道ID/磁盘ID
          */
         const editRelation = async (elementName: string, elementId: string) => {
-            openLoading(LoadingTarget.FullScreen)
-
-            let chlXml = ''
-            if (elementName === 'chls') {
-                chlXml = rawXml`
-                    <diskGroup>
-                        <action type="actionType">remove</action>
-                        <id>${currentItem.value.id}</id>
-                        <chls type="list">
-                            <item id="${elementId}" />
-                        </chls>
-                    </diskGroup>
-                `
-            }
+            openLoading()
 
             const sendXml = rawXml`
                 <types>
                     <actionType>${wrapEnums(['add', 'remove'])}</actionType>
                 </types>
                 <content>
-                    ${chlXml}
+                    ${
+                        elementName === 'chls'
+                            ? rawXml`
+                                <diskGroup>
+                                    <action type="actionType">remove</action>
+                                    <id>${currentItem.value.id}</id>
+                                    <chls type="list">
+                                        <item id="${elementId}" />
+                                    </chls>
+                                </diskGroup>
+                            `
+                            : ''
+                    }
                     <diskGroup>
                         <action type="actionType">add</action>
                         <id>${pageData.value.diskGroupList[0].id}</id>
-                        <${elementName} type="list">
-                            <item id="${elementId}"></item>
+                        <${elementName}${' type="list"'}>
+                            <item id="${elementId}" />
                         </${elementName}>
                     </diskGroup>
                 </content>
             `
 
-            const result = await editSetAndElementRelation(getXmlWrapData(sendXml))
-            const $ = queryXml(result)
+            const result = await editSetAndElementRelation(sendXml)
 
-            closeLoading(LoadingTarget.FullScreen)
-
-            if ($('/response/status').text() === 'success') {
-                openMessageTipBox({
-                    type: 'success',
-                    title: Translate('IDCS_SUCCESS_TIP'),
-                    message: Translate('IDCS_DELETE_SUCCESS'),
-                }).finally(() => {
-                    getDiskGroupList()
-                })
-            } else {
-                openMessageTipBox({
-                    type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
-                    message: Translate('IDCS_DELETE_FAIL'),
-                })
-            }
+            closeLoading()
+            commDelResponseHandler(result, () => {
+                getDiskGroupList()
+            })
         }
 
         /**
@@ -258,32 +234,36 @@ export default defineComponent({
             const result = await queryDiskStatus()
             const $ = queryXml(result)
             pageData.value.diskStatus = Object.fromEntries(
-                $('/response/content/item').map((item) => {
+                $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     const obj = {
                         diskStatus: $item('diskStatus').text(),
                         diskEncryptStatus: $item('diskEncryptStatus').text(),
                     }
-                    return [item.attr('id')!, obj]
+                    return [item.attr('id'), obj]
                 }),
             )
         }
 
         /**
          * @description 改变选中的磁盘组
+         * @param {} item
          * @param {number} index
          */
-        const changeDiskGroup = (index: number) => {
+        const changeDiskGroup = (item: StorageModeDiskGroupList, index: number) => {
+            if (!item.diskList.length && !item.chlList.length && index >= pageData.value.diskTotalNum) {
+                return
+            }
             pageData.value.activeIndex = index
         }
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             await getDiskStatus()
             await getDiskGroupList()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         return {
@@ -297,8 +277,6 @@ export default defineComponent({
             deleteDisk,
             changeDiskGroup,
             currentItem,
-            StorageModeAddDiskPop,
-            StorageModeAddChlPop,
         }
     },
 })

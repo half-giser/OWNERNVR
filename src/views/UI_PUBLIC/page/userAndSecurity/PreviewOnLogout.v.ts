@@ -2,34 +2,46 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-18 18:43:27
  * @Description: 登出后预览
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 20:33:25
  */
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
-import BaseVideoPlayer from '../../components/player/BaseVideoPlayer.vue'
-import { type UserPreviewOnLogoutChannelList } from '@/types/apiType/userAndSecurity'
+import type { TableInstance } from 'element-plus'
 
 export default defineComponent({
-    components: {
-        BaseVideoPlayer,
-        BaseImgSprite,
-    },
     setup() {
-        const { openMessageTipBox } = useMessageBox()
-        const { closeLoading, LoadingTarget, openLoading } = useLoading()
-        const { Translate } = useLangStore()
-
         const playerRef = ref<PlayerInstance>()
 
-        const channelList = ref<UserPreviewOnLogoutChannelList[]>([])
+        const tableRef = ref<TableInstance>()
+        const tableData = ref<UserPreviewOnLogoutChannelList[]>([])
+        const watchEdit = useWatchEditData(tableData)
 
         const pageData = ref({
             // 通道选项
-            channelOptions: DEFAULT_SWITCH_OPTIONS,
+            channelOptions: getTranslateOptions(DEFAULT_SWITCH_OPTIONS),
             // 当前选中的通道
             activeChannelIndex: 0,
-            // 是否可提交
-            buttonDisabled: true,
+        })
+
+        const ready = computed(() => {
+            return playerRef.value?.ready || false
+        })
+
+        // 播放模式
+        const mode = computed(() => {
+            if (!ready.value) {
+                return ''
+            }
+            return playerRef.value!.mode
+        })
+
+        let player: PlayerInstance['player']
+        let plugin: PlayerInstance['plugin']
+
+        const chlOptions = computed(() => {
+            return tableData.value.map((item, value) => {
+                return {
+                    value,
+                    label: item.name,
+                }
+            })
         })
 
         watch(
@@ -42,8 +54,7 @@ export default defineComponent({
          * @param {string} value
          */
         const changeAllChannel = (value: string) => {
-            pageData.value.buttonDisabled = false
-            channelList.value.forEach((item) => {
+            tableData.value.forEach((item) => {
                 item.switch = value
             })
         }
@@ -52,38 +63,51 @@ export default defineComponent({
          * @description 获取页面数据
          */
         const getData = async () => {
+            openLoading()
+
             const result = await queryLogoutChlPreviewAuth()
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                channelList.value = []
-                $('/response/content/item').forEach((item) => {
+
+            closeLoading()
+
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
-                    channelList.value.push({
-                        id: item.attr('id') as string,
+                    return {
+                        id: item.attr('id'),
                         name: $item('name').text(),
                         switch: $item('switch').text(),
-                    })
+                    }
                 })
-                play()
+                watchEdit.listen()
             }
         }
+
+        /**
+         * @description 准备就绪后开始播放
+         */
+        const stopWatchFirstPlay = watchEffect(() => {
+            if (tableData.value.length && ready.value) {
+                nextTick(() => play())
+                stopWatchFirstPlay()
+            }
+        })
 
         /**
          * @description 切换播放通道
          */
         const play = () => {
-            if (!channelList.value[pageData.value.activeChannelIndex]) return
-            if (!playerRef.value || !playerRef.value.ready) return
-            const { id, name } = channelList.value[pageData.value.activeChannelIndex]
-            if (playerRef.value.mode === 'ocx') {
-                playerRef.value.plugin.RetryStartChlView(id, name)
+            const { id, name } = tableData.value[pageData.value.activeChannelIndex]
+
+            if (mode.value === 'ocx') {
+                plugin.RetryStartChlView(id, name)
             }
-            if (playerRef.value.mode === 'h5') {
-                playerRef.value.player.play({
+
+            if (mode.value === 'h5') {
+                player.play({
                     chlID: id,
                     streamType: 2,
                 })
-                return
             }
         }
 
@@ -91,87 +115,77 @@ export default defineComponent({
          * @description 更新数据
          */
         const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
-            const channel = channelList.value
-                .map((item) => {
-                    return rawXml`
-                    <item id="${item.id}">
-                        <name>${wrapCDATA(item.name)}</name>
-                        <switch>${item.switch}</switch>
-                    </item>
-                `
-                })
-                .join('')
             const sendXML = rawXml`
                 <content>
-                    ${channel}
+                    ${tableData.value
+                        .map((item) => {
+                            return rawXml`
+                                <item id="${item.id}">
+                                    <switch>${item.switch}</switch>
+                                </item>
+                            `
+                        })
+                        .join('')}
                 </content>
             `
             const result = await editLogoutChlPreviewAuth(sendXML)
-            const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
-
-            if ($('/response/status').text() === 'success') {
-                openMessageTipBox({
-                    type: 'success',
-                    title: Translate('IDCS_SUCCESS_TIP'),
-                    message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                })
-            } else {
-                openMessageTipBox({
-                    type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
-                    message: Translate('IDCS_SAVE_DATA_FAIL'),
-                })
-            }
+            closeLoading()
+            commSaveResponseHandler(result, () => {
+                watchEdit.update()
+            })
         }
 
         /**
          * @description 视频插件ready回调
          */
         const onReady = () => {
-            playerRef.value?.plugin.SetPluginNotice('#layout2Content')
-            if (playerRef.value?.mode === 'ocx') {
+            player = playerRef.value!.player
+            plugin = playerRef.value!.plugin
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
-            play()
+        }
+
+        const changeChl = () => {
+            tableRef.value!.setCurrentRow(tableData.value[pageData.value.activeChannelIndex])
         }
 
         /**
          * @description 更改选中的用户
          * @param {UserPreviewOnLogoutChannelList} row
          */
-        const handleChangeUser = (row: UserPreviewOnLogoutChannelList) => {
-            pageData.value.activeChannelIndex = channelList.value.findIndex((item) => item.id === row.id)
+        const changeUser = (row: UserPreviewOnLogoutChannelList) => {
+            pageData.value.activeChannelIndex = tableData.value.findIndex((item) => item.id === row.id)
         }
 
         onMounted(() => {
             getData()
         })
 
-        /**
-         * @description 注销页面时停止接收数据
-         */
         onBeforeUnmount(() => {
-            if (playerRef.value?.mode === 'ocx') {
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx') {
                 const sendXML = OCX_XML_StopPreview('ALL')
-                playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         })
 
         return {
             playerRef,
+            tableRef,
             onReady,
-            channelList,
+            tableData,
             pageData,
+            watchEdit,
+            chlOptions,
             changeAllChannel,
             setData,
-            handleChangeUser,
-            BaseVideoPlayer,
-            BaseImgSprite,
+            changeUser,
+            changeChl,
         }
     },
 })

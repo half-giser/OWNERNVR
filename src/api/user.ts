@@ -5,19 +5,16 @@
  */
 
 import type { AxiosRequestConfig } from 'axios'
-import http from './api'
-import { getXmlWrapData } from '@/api/api'
+import fetch from './api'
 import router from '../router'
-import { delCookie } from '@/utils/cookie'
-import { LocalCacheKey } from '@/utils/constants'
+import { removeAsyncRoutes } from '../router'
+import progress from '@bassist/progress'
 
 /**
  * @description 预登录
- * @param {string} data
- * @param config
  * @returns
  */
-export const reqLogin = (data: string, config?: AxiosRequestConfig) => http.fetch('reqLogin', data, config)
+export const reqLogin = () => fetch('reqLogin', '')
 
 /**
  * @description 登录
@@ -26,7 +23,7 @@ export const reqLogin = (data: string, config?: AxiosRequestConfig) => http.fetc
  * @param checkCommonErrorSwitch
  * @returns
  */
-export const doLogin = (data: string, config?: AxiosRequestConfig, checkCommonErrorSwitch = true) => http.fetch('doLogin', data, config, checkCommonErrorSwitch)
+export const doLogin = (data: string, config?: AxiosRequestConfig, checkCommonErrorSwitch = false) => fetch('doLogin', data, config, checkCommonErrorSwitch)
 
 /**
  * @description 退出登录
@@ -34,27 +31,94 @@ export const doLogin = (data: string, config?: AxiosRequestConfig, checkCommonEr
  * @param config
  * @returns
  */
-export const doLogout = (data: string, config?: AxiosRequestConfig) => http.fetch('doLogout', data, config)
+export const doLogout = () => fetch('doLogout', '', {}, false)
 
 /**
  * @description 登出处理
- * @param {boolean} isTotokenInvalid
+ * @param {boolean} isHttps 是否登出后以HTTPS访问登录页
  * @returns
  */
-export const Logout = (isTotokenInvalid: boolean = false) => {
+export const Logout = async (isHttps?: boolean) => {
+    progress.start()
+
     const userSession = useUserSessionStore()
+    const pluginStore = usePluginStore()
     if (router.currentRoute.value.name === 'login') return
-    if (!isTotokenInvalid) {
-        doLogout(getXmlWrapData(''))
+
+    if (userSession.appType === 'STANDARD') {
+        try {
+            await doLogout()
+        } catch {}
+        userSession.clearSession()
+        pluginStore.showPluginNoResponse = false
+        removeAsyncRoutes()
+        if (typeof isHttps === 'boolean') {
+            if (isHttps) {
+                window.location.href = `https://${location.host}/index.html`
+            } else {
+                window.location.href = `http://${location.host}/index.html`
+            }
+        } else {
+            router.push('/login')
+            window.location.href = '#/login'
+        }
+    } else {
+        userSession.clearSession()
+        window.location.href = '/index.html'
     }
-    userSession.sessionId = ''
-    // sessionStorage.removeItem(LocalCacheKey.sessionId)
-    delCookie(LocalCacheKey.sessionId)
-    router.push('/login')
+}
+
+/**
+ * @description 从URL中解析用户信息
+ * @returns
+ */
+export const getLoginInfoByURL = () => {
+    const url = new URL(window.location.href)
+    const reqTime = url.searchParams.get('reqTime')
+    const reqID = url.searchParams.get('reqID')
+    const userSession = useUserSessionStore()
+    let info = url.searchParams.get('info')
+    if (reqTime && reqID && info) {
+        info = urlToBase64Str(info)
+        const AESKey = sha256_encrypt_WordArray(reqTime + ':dashboard:' + reqID)
+        const AESIV = MD5_encrypt_WordArray(reqID)
+        const userInfo = AES_CBC_Decrypt(info, AESKey, AESIV)
+        userSession.urlLoginAuth = userInfo
+        window.location.href = location.origin + location.pathname
+        return true
+    } else {
+        return false
+    }
 }
 
 /**
  * @description 查询隐私政策
  * @returns
  */
-export const queryShowPrivacyView = () => http.fetch('queryShowPrivacyView', getXmlWrapData(''))
+export const queryShowPrivacyView = () => fetch('queryShowPrivacyView', '')
+
+/**
+ * @description 获取Session信息
+ * @returns
+ */
+export const getSessionInfo = () => fetch('queryShowPrivacyView', '', {}, false)
+
+/**
+ * @description
+ * @returns
+ */
+export const queryRecoverPasswordInfo = () => fetch('queryRecoverPasswordInfo', '', {}, false)
+
+/**
+ * @description
+ * @param data
+ * @returns
+ */
+export const sendCaptchaEmail = (data: string) => fetch('sendCaptchaEmail', data, {}, false)
+
+/**
+ * @description
+ * @param data
+ * @returns
+ */
+export const recoverPassword = (data: string) => fetch('recoverPassword', data, {}, false)

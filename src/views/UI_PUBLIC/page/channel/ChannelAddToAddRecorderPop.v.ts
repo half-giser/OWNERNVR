@@ -1,372 +1,302 @@
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-05-29 20:39:11
- * @Description:
+ * @Description: 添加通道 - 添加录像机通道弹窗
  */
-import { ChannelAddRecorderDto, type DefaultPwdDto, QueryNodeListDto, RecorderAddDto, RecorderDto } from '@/types/apiType/channel'
-import { type FormInstance } from 'element-plus'
-import useMessageBox from '@/hooks/useMessageBox'
-import useLoading from '@/hooks/useLoading'
-import { useLangStore } from '@/stores/lang'
-import { checkIpV4, commLoadResponseHandler, getChlList, getSecurityVer } from '@/utils/tools'
-import { AES_encrypt } from '@/utils/encrypt'
-import { useUserSessionStore } from '@/stores/userSession'
-import { createDevList, queryRecorder, testRecorder } from '@/api/channel'
-import { getXmlWrapData } from '@/api/api'
-import { queryXml } from '@/utils/xmlParse'
-import { trim, cloneDeep } from 'lodash'
-import { useRouter } from 'vue-router'
-import { errorCodeMap } from '@/utils/constants'
-import BaseIpInput from '../../components/form/BaseIpInput.vue'
-import { editBasicCfg } from '@/api/system'
+import { type TableInstance, type FormRules } from 'element-plus'
 
 export default defineComponent({
-    components: { BaseIpInput },
     props: {
-        editItem: ChannelAddRecorderDto,
-        mapping: Object,
-        chlCountLimit: {
-            type: Number,
-            default: 128,
+        editItem: {
+            type: Object as PropType<ChannelAddRecorderDto>,
+            required: true,
         },
-        faceMatchLimitMaxChlNum: {
-            type: Number,
-            default: 0,
-        },
-        callBack: Function,
-        close: {
-            type: Function,
-            require: true,
-            default: () => {},
+        mapping: {
+            type: Object as PropType<Record<string, ChannelDefaultPwdDto>>,
+            required: true,
         },
     },
-    setup(props) {
+    emits: {
+        callBack() {
+            return true
+        },
+        close() {
+            return true
+        },
+    },
+    setup(props, { emit }) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const userSessionStore = useUserSessionStore()
-        const { openMessageTipBox } = useMessageBox()
+        const systemCaps = useCababilityStore()
         const router = useRouter()
-        const formRef = ref<FormInstance>()
-        const formData = ref(new RecorderAddDto())
-        const tableRef = ref()
-        const tableData = ref()
+        const formRef = useFormRef()
+        const formData = ref(new ChannelRecorderAddDto())
+        const tableRef = ref<TableInstance>()
         const selNum = ref(0)
-        const total = ref(0)
-        const eleChkDomainDisabled = ref(true)
-        const eleServePortDisabled = ref(true)
-        const eleIpDisabled = ref(true)
+        const disabled = ref(true)
         const eleUserNameDisabled = ref(true)
         const eleChlCountDisabled = ref(true)
         const eleBtnTestDisabled = ref(true)
-        const showDefaultPwdRow = ref(true)
 
-        let editItemBak: ChannelAddRecorderDto | undefined
-        const defaultRecorderData = new RecorderAddDto()
-        defaultRecorderData.ip = '0.0.0.0'
-        defaultRecorderData.servePort = '6036'
-        defaultRecorderData.httpPort = '80'
-        defaultRecorderData.channelCount = '8'
+        const DEFAULT_RECORDER_IP = DEFAULT_EMPTY_IP
+        const DEFAULT_RECORDER_SERVER_PORT = 6036
+        const DEFAULT_RECORDER_HTTP_PORT = 80
+        const DEFAULT_RECORDER_CHANNEL_COUNT = 8
 
-        const errorMap: Record<string, Record<string, string>> = {
-            '536870947': {
-                errorCode: '536870947',
-                errorDescription: Translate('IDCS_DEVICE_PWD_ERROR'),
-            },
-            '536870948': {
-                errorCode: '536870948',
-                errorDescription: Translate('IDCS_DEVICE_PWD_ERROR'),
-            },
-            '536870951': {
-                errorCode: '536870951',
-                errorDescription: Translate('IDCS_REMOTE_USER_LOCKED'),
-            },
-            '536870953': {
-                errorCode: '536870953',
-                errorDescription: Translate('IDCS_NO_PERMISSION'),
-            },
-            '536871009': {
-                errorCode: '536871009',
-                errorDescription: Translate('IDCS_RECORDER_HTTPPORT_ERR'),
-            },
+        const errorMap: Record<number, string> = {
+            [ErrorCode.USER_ERROR_NO_USER]: Translate('IDCS_DEVICE_PWD_ERROR'),
+            [ErrorCode.USER_ERROR_PWD_ERR]: Translate('IDCS_DEVICE_PWD_ERROR'),
+            [ErrorCode.USER_ERROR_USER_LOCKED]: Translate('IDCS_REMOTE_USER_LOCKED'),
+            [ErrorCode.USER_ERROR_NO_AUTH]: Translate('IDCS_NO_PERMISSION'),
+            [ErrorCode.USER_ERROR_CHECK_FILE_ERROR]: Translate('IDCS_RECORDER_HTTPPORT_ERR'),
         }
 
-        const handleRowClick = (rowData: RecorderDto) => {
-            tableRef.value.clearSelection()
-            tableRef.value.toggleRowSelection(rowData, true)
+        const handleRowClick = (rowData: ChannelRecorderDto) => {
+            if (rowData.isAdded) {
+                return
+            }
+            tableRef.value!.clearSelection()
+            tableRef.value!.toggleRowSelection(rowData, true)
         }
 
         const handleSelectionChange = () => {
-            selNum.value = tableRef.value.getSelectionRows().length
+            selNum.value = tableRef.value!.getSelectionRows().length
         }
 
         const getData = (showSuccessTip?: boolean) => {
-            openLoading(LoadingTarget.FullScreen)
-            if ((props.mapping as Record<string, DefaultPwdDto>)['RECORDER']) {
-                const data = `<condition>
-                                ${formData.value.chkDomain ? '<domain><![CDATA[' + formData.value.domain + ']]></domain>' : '<ip>' + formData.value.ip + '</ip>'}
-                                <port>${formData.value.servePort}</port>
-                                <version>${editItemBak?.version}</version>
-                                <httpPort>${formData.value.httpPort}</httpPort>
-                                <userName>${formData.value.userName}</userName>
-                                ${formData.value.useDefaultPwd ? '' : '<password' + getSecurityVer() + '><![CDATA[' + AES_encrypt(formData.value.password, userSessionStore.sesionKey) + ']]></password>'}
-                            </condition>`
-                queryRecorder(getXmlWrapData(data), undefined, false).then((res: any) => {
-                    closeLoading(LoadingTarget.FullScreen)
-                    res = queryXml(res)
-                    if (res('status').text() == 'success') {
+            openLoading()
+            if ((props.mapping as Record<string, ChannelDefaultPwdDto>).RECORDER) {
+                const data = rawXml`
+                    <condition>
+                        ${formData.value.chkDomain ? `<domain>${formData.value.domain}</domain>` : `<ip>${formData.value.ip}</ip>`}
+                        <port>${formData.value.servePort}</port>
+                        <version>${props.editItem.version || ''}</version>
+                        <httpPort>${formData.value.httpPort}</httpPort>
+                        <userName>${formData.value.userName}</userName>
+                        ${formData.value.useDefaultPwd ? '' : `<password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.password, userSessionStore.sesionKey))}</password>`}
+                    </condition>
+                `
+                queryRecorder(data).then((res) => {
+                    closeLoading()
+                    const $ = queryXml(res)
+                    if ($('status').text() === 'success') {
                         if (showSuccessTip) {
-                            openMessageTipBox({
+                            openMessageBox({
                                 type: 'success',
-                                title: Translate('IDCS_SUCCESS_TIP'),
                                 message: Translate('IDCS_TEST_SUCCESS'),
-                                showCancelButton: false,
                             })
                         }
-                        formData.value.ip = res('//content/ip').text() || defaultRecorderData.ip
-                        formData.value.chkDomain = !res('//content/ip').text()
-                        if (res('//content/domain').text()) {
-                            const isIp = checkIpV4(res('//content/domain').text())
-                            if (isIp) formData.value.ip = res('//content/domain').text()
+
+                        formData.value.ip = $('content/ip').text() || DEFAULT_RECORDER_IP
+                        formData.value.chkDomain = !$('content/ip').text()
+                        if ($('content/domain').text()) {
+                            const domain = $('content/domain').text()
+                            const isIp = checkIpV4(domain)
                             formData.value.chkDomain = !isIp
-                            formData.value.domain = isIp ? '' : res('//content/domain').text()
+                            formData.value.ip = isIp ? domain : formData.value.ip
+                            formData.value.domain = isIp ? '' : domain
                         }
-                        formData.value.servePort = res('//content/port').text()
-                        const chlCount = res('//content/chlList').attr('total')
-                        if (chlCount * 1 > 0) {
+                        formData.value.servePort = $('content/port').text().num()
+
+                        const chlCount = $('content/chlList').attr('total').num()
+                        if (chlCount > 0) {
                             formData.value.channelCount = chlCount
                         } else {
                             eleChlCountDisabled.value = false
                         }
-                        const productModel = res('//content/productModel').text() || editItemBak?.productModel
-                        formData.value.recorderList = []
-                        res('//content/chlList/item').forEach((ele: any) => {
-                            const eleXml = queryXml(ele.element)
-                            const newData = new RecorderDto()
-                            newData.index = ele.attr('index')
-                            newData.name = eleXml('name').text()
-                            newData.isAdded = eleXml('isAdded').text() == 'true'
-                            newData.bandWidth = eleXml('bandWidth').text()
+
+                        const productModel = $('content/productModel').text() || props.editItem.productModel
+                        formData.value.recorderList = $('content/chlList/item').map((ele) => {
+                            const $item = queryXml(ele.element)
+                            const newData = new ChannelRecorderDto()
+                            newData.index = ele.attr('index').num()
+                            newData.name = $item('name').text()
+                            newData.isAdded = $item('isAdded').text().bool()
+                            newData.bandWidth = $item('bandWidth').text()
                             newData.productModel = productModel
-                            formData.value.recorderList.push(newData)
+                            return newData
                         })
-                        formData.value.recorderList.sort((a: RecorderDto, b: RecorderDto) => {
-                            return Number(a.index) - Number(b.index)
+                        formData.value.recorderList.sort((a, b) => {
+                            return a.index - b.index
                         })
-                        total.value = formData.value.recorderList.length
                     } else {
-                        const errorCode = res('errorCode').text()
-                        openMessageTipBox({
-                            type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
-                            message: errorMap[errorCode] ? errorMap[errorCode]['errorDescription'] : Translate('IDCS_LOGIN_OVERTIME'),
-                            showCancelButton: false,
+                        const errorCode = $('errorCode').text().num()
+                        openMessageBox(errorMap[errorCode] || Translate('IDCS_LOGIN_OVERTIME')).then(() => {
+                            const chlCount = formData.value.channelCount
+                            formData.value.recorderList = Array(chlCount)
+                                .fill(0)
+                                .map((_, index) => {
+                                    const item = new ChannelRecorderDto()
+                                    item.index = index + 1
+                                    item.productModel = props.editItem.productModel
+                                    return item
+                                })
+                            eleUserNameDisabled.value = false
+                            eleBtnTestDisabled.value = false
+                            eleChlCountDisabled.value = false
                         })
-                            .then(() => {
-                                formData.value.recorderList = []
-                                const chlCount = formData.value.channelCount
-                                for (let i = 0; i < Number(chlCount); i++) {
-                                    const newData = new RecorderDto()
-                                    newData.index = String(i + 1)
-                                    newData.productModel = editItemBak?.productModel as string
-                                    formData.value.recorderList.push(newData)
-                                }
-                                total.value = formData.value.recorderList.length
-                                eleUserNameDisabled.value = false
-                                eleBtnTestDisabled.value = false
-                                eleChlCountDisabled.value = false
-                            })
-                            .catch(() => {})
                     }
                 })
             }
         }
 
-        const validate = {
-            validateIp: (_rule: any, _value: any, callback: any) => {
-                if (formData.value.chkDomain) {
-                    const domain = trim(formData.value.domain)
-                    if (!domain.length) {
-                        callback(new Error(Translate('IDCS_DOMAIN_NAME_EMPTY')))
-                        return
-                    }
-                } else {
-                    const ip = trim(formData.value.ip)
-                    if (!ip || ip == '0.0.0.0') {
-                        callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_INVALID')))
-                        return
-                    }
-                }
-                callback()
-            },
-        }
-
-        const rules = ref({
-            ip: [{ validator: validate.validateIp, trigger: 'manual' }],
+        const rules = ref<FormRules>({
+            ip: [
+                {
+                    validator: (_rule, value: string, callback) => {
+                        if (formData.value.chkDomain) {
+                            const domain = formData.value.domain.trim()
+                            if (!domain.length) {
+                                callback(new Error(Translate('IDCS_DOMAIN_NAME_EMPTY')))
+                                return
+                            }
+                        } else {
+                            const ip = value.trim()
+                            if (!ip || ip === DEFAULT_EMPTY_IP) {
+                                callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_INVALID')))
+                                return
+                            }
+                        }
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
         })
 
         const loadNoRecoderData = (chlCount: number) => {
-            formData.value.recorderList = []
-            for (let i = 0; i < chlCount; i++) {
-                const newData = new RecorderDto()
-                newData.index = String(i + 1)
-                formData.value.recorderList.push(newData)
-            }
-            total.value = formData.value.recorderList.length
+            formData.value.recorderList = Array(chlCount)
+                .fill(0)
+                .map((_, index) => {
+                    const item = new ChannelRecorderDto()
+                    item.index = index + 1
+                    return item
+                })
         }
 
         const getTestData = () => {
-            let data = '<content>'
-            if (formData.value.chkDomain) {
-                data += `<domain><![CDATA[${formData.value.domain}]]></domain>`
-            } else {
-                data += `<ip>${formData.value.ip}</ip>`
-            }
-            data += `<port>${formData.value.servePort}</port>
-                    <userName>${formData.value.userName}</userName>`
-            if (showDefaultPwdRow) {
-                if (!formData.value.useDefaultPwd) {
-                    data += `<password${getSecurityVer()}><![CDATA[${AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>`
-                }
-            } else {
-                // 手动添加没有使用默认密码的选项
-                data += `<password${getSecurityVer()}><![CDATA[${AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>`
-            }
-            data += '</content>'
-            return getXmlWrapData(data)
+            const sendXml = rawXml`
+                <content>
+                    ${formData.value.chkDomain ? `<domain>${wrapCDATA(formData.value.domain)}</domain>` : `<ip>${formData.value.ip}</ip>`}
+                    <port>${formData.value.servePort ? formData.value.servePort : ''}</port>
+                    <userName>${formData.value.userName}</userName>
+                    ${!props.editItem.ip || (props.editItem.ip && !formData.value.useDefaultPwd) ? `<password${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.password, userSessionStore.sesionKey))}</password>` : ''}
+                </content>
+            `
+            return sendXml
         }
 
         const test = () => {
-            if (!formRef) return false
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate(async (valid) => {
                 if (valid) {
-                    openLoading(LoadingTarget.FullScreen)
-                    testRecorder(getTestData(), undefined, false).then((res: any) => {
-                        closeLoading(LoadingTarget.FullScreen)
-                        res = queryXml(res)
-                        if (res('status').text() == 'success') {
-                            if (!editItemBak) editItemBak = new ChannelAddRecorderDto()
-                            editItemBak.ip = formData.value.ip
-                            editItemBak.port = formData.value.servePort
-                            editItemBak.httpPort = defaultRecorderData.httpPort
-                            getData(true)
-                        } else {
-                            const errorCode = res('errorCode').text()
-                            openMessageTipBox({
-                                type: 'info',
-                                title: Translate('IDCS_INFO_TIP'),
-                                message: errorMap[errorCode] ? errorMap[errorCode]['errorDescription'] : Translate('IDCS_LOGIN_OVERTIME'),
-                                showCancelButton: false,
-                            })
-                                .then(() => {
-                                    loadNoRecoderData(Number(formData.value.channelCount))
-                                })
-                                .catch(() => {})
+                    openLoading()
+                    const res = await testRecorder(getTestData())
+                    closeLoading()
+                    const $ = queryXml(res)
+                    if ($('status').text() === 'success') {
+                        getData(true)
+                    } else {
+                        const errorCode = $('errorCode').text().num()
+                        let errorMsg = ''
+                        switch (errorCode) {
+                            case 536870947:
+                                errorMsg = Translate('IDCS_DEVICE_PWD_ERROR')
+                                break
+                            case 536870948:
+                                errorMsg = Translate('IDCS_DEVICE_PWD_ERROR')
+                                break
+                            case 536870951:
+                                errorMsg = Translate('IDCS_REMOTE_USER_LOCKED')
+                                break
+                            case 536870953:
+                                errorMsg = Translate('IDCS_NO_PERMISSION')
+                                break
+                            case 536871009:
+                                errorMsg = Translate('IDCS_RECORDER_HTTPPORT_ERR')
+                                break
+                            case 536871090:
+                                errorMsg = Translate('IDCS_TEST_FAIL_WITHOUT_AUTH')
+                                break
+                            default:
+                                errorMsg = Translate('IDCS_LOGIN_OVERTIME')
+                                break
                         }
-                    })
+
+                        openMessageBox(errorMsg).then(() => {
+                            loadNoRecoderData(formData.value.channelCount)
+                        })
+                    }
                 }
             })
         }
 
         const save = () => {
-            if (tableRef.value.getSelectionRows().length == 0) return
+            if (!tableRef.value!.getSelectionRows().length) return
             setData()
         }
 
         const setData = () => {
-            if (!formRef) return false
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
-                    getChlList(new QueryNodeListDto()).then((res: any) => {
-                        closeLoading(LoadingTarget.FullScreen)
+                    getChlList().then((res) => {
+                        closeLoading()
                         commLoadResponseHandler(res, () => {
-                            res = queryXml(res)
-                            const addedChlNum = res('//content/item').length
-                            if (addedChlNum + tableRef.value.getSelectionRows().length > props.chlCountLimit) {
-                                openMessageTipBox({
-                                    type: 'info',
-                                    title: Translate('IDCS_INFO_TIP'),
-                                    message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
-                                    showCancelButton: false,
-                                })
+                            const $ = queryXml(res)
+                            const addedChlNum = $('content/item').length
+                            if (addedChlNum + tableRef.value!.getSelectionRows().length > systemCaps.chlMaxCount) {
+                                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
                                 return
                             }
-                            openLoading(LoadingTarget.FullScreen)
-                            createDevList(getSaveData()).then((res: any) => {
-                                closeLoading(LoadingTarget.FullScreen)
-                                res = queryXml(res)
-                                if (res('status').text() == 'success') {
-                                    openMessageTipBox({
+                            openLoading()
+                            createDevList(getSaveData()).then((res) => {
+                                closeLoading()
+                                const $ = queryXml(res)
+                                if ($('status').text() === 'success') {
+                                    openMessageBox({
                                         type: 'success',
-                                        title: Translate('IDCS_SUCCESS_TIP'),
                                         message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                                        showCancelButton: false,
+                                    }).then(() => {
+                                        router.push('list')
                                     })
-                                        .then(() => {
-                                            router.push('list')
-                                        })
-                                        .catch(() => {})
                                 } else {
-                                    const errorCdoe = res('errorCode').text()
-                                    if (errorCdoe == errorCodeMap.nodeExist) {
-                                        openMessageTipBox({
-                                            type: 'info',
-                                            title: Translate('IDCS_INFO_TIP'),
-                                            message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_CAMERA_EXISTED'),
-                                            showCancelButton: false,
-                                        })
-                                    } else if (errorCdoe == '536871004') {
-                                        openMessageTipBox({
-                                            type: 'info',
-                                            title: Translate('IDCS_INFO_TIP'),
-                                            message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
-                                            showCancelButton: false,
-                                        })
-                                            .then(() => {
-                                                props.close()
+                                    const errorCdoe = $('errorCode').text().num()
+                                    switch (errorCdoe) {
+                                        case ErrorCode.USER_ERROR_NODE_ID_EXISTS:
+                                            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_CAMERA_EXISTED'))
+                                            break
+                                        case ErrorCode.USER_ERROR_OVER_LIMIT:
+                                            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT')).then(() => {
+                                                emit('close')
                                             })
-                                            .catch(() => {})
-                                    } else if (errorCdoe == '536871005') {
-                                        openMessageTipBox({
-                                            type: 'info',
-                                            title: Translate('IDCS_INFO_TIP'),
-                                            message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_BANDWIDTH_LIMIT'),
-                                            showCancelButton: false,
-                                        })
-                                    } else if (errorCdoe == '536871007') {
-                                        const poePort = res('poePort').text()
-                                        // POE连接冲突提示
-                                        openMessageTipBox({
-                                            type: 'info',
-                                            title: Translate('IDCS_INFO_TIP'),
-                                            message: Translate('IDCS_POE_RESOURCE_CONFLICT_TIP').formatForLang(poePort),
-                                            showCancelButton: false,
-                                        })
-                                    } else if (errorCdoe == '536871050') {
-                                        openMessageTipBox({
-                                            type: 'info',
-                                            title: Translate('IDCS_INFO_TIP'),
-                                            message: Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(props.faceMatchLimitMaxChlNum),
-                                            showCancelButton: false,
-                                        })
-                                    } else if (errorCdoe == '536871052') {
-                                        const msg =
-                                            Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(props.faceMatchLimitMaxChlNum) + Translate('IDCS_REBOOT_DEVICE').formatForLang(Translate('IDCS_KEEP_ADD'))
-                                        openMessageTipBox({
-                                            type: 'question',
-                                            title: Translate('IDCS_INFO_TIP'),
-                                            message: msg,
-                                        })
-                                            .then(() => {
-                                                editBasicCfg(getXmlWrapData(`<content><AISwitch>false</AISwitch></content>`))
+                                            break
+                                        case ErrorCode.USER_ERROR_OVER_BANDWIDTH_LIMIT:
+                                            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_BANDWIDTH_LIMIT'))
+                                            break
+                                        case ErrorCode.USER_ERROR_SPECIAL_CHAR:
+                                            // POE连接冲突提示
+                                            openMessageBox(Translate('IDCS_POE_RESOURCE_CONFLICT_TIP').formatForLang($('poePort').text()))
+                                            break
+                                        case ErrorCode.USER_ERROR_LIMITED_PLATFORM_TYPE_MISMATCH:
+                                            openMessageBox(Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(systemCaps.faceMatchLimitMaxChlNum))
+                                            break
+                                        case ErrorCode.USER_ERROR_PC_LICENSE_MISMATCH:
+                                            openMessageBox({
+                                                type: 'question',
+                                                message:
+                                                    Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(systemCaps.faceMatchLimitMaxChlNum) +
+                                                    Translate('IDCS_REBOOT_DEVICE').formatForLang(Translate('IDCS_KEEP_ADD')),
+                                            }).then(() => {
+                                                const sendXml = rawXml`
+                                                    <content>
+                                                        <AISwitch>false</AISwitch>
+                                                    </content>
+                                                `
+                                                editBasicCfg(sendXml)
                                             })
-                                            .catch(() => {})
-                                    } else {
-                                        openMessageTipBox({
-                                            type: 'info',
-                                            title: Translate('IDCS_INFO_TIP'),
-                                            message: Translate('IDCS_SAVE_DATA_FAIL'),
-                                            showCancelButton: false,
-                                        })
+                                            break
+                                        default:
+                                            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
+                                            break
                                     }
                                 }
                             })
@@ -378,7 +308,9 @@ export default defineComponent({
 
         const getSaveData = () => {
             const defalutNamePrefix = 'Recorder_'
-            let data = `
+            const selection = tableRef.value!.getSelectionRows() as ChannelRecorderDto[]
+
+            const sendXml = rawXml`
                 <types>
                     <manufacturer>
                         <enum displayName='TVT'>TVT</enum>
@@ -394,83 +326,87 @@ export default defineComponent({
                     </protocolType>
                 </types>
                 <content type='list'>
-                        <itemType>
+                    <itemType>
                         <manufacturer type='manufacturer'/>
                         <protocolType type='protocolType'/>
                         <bandWidth unit='MB'/>
-                        </itemType>`
-            tableRef.value.getSelectionRows().forEach((ele: RecorderDto) => {
-                data += `
-                    <item>
-                        <name>${ele.name || defalutNamePrefix + ele.index}</name>`
-                if (formData.value.chkDomain) {
-                    data += `<domain><![CDATA[${formData.value.domain}]]></domain>`
-                } else {
-                    data += `<ip>${formData.value.ip}</ip>`
-                }
-                data += `
-                    <port>${formData.value.servePort}</port>
-                    <userName>${formData.value.userName}</userName>`
-                if (editItemBak) {
-                    if (!formData.value.useDefaultPwd) {
-                        data += `<password${getSecurityVer()}><![CDATA[${AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>`
-                    }
-                } else {
-                    // 手动添加没有使用默认密码的选项
-                    data += `<password${getSecurityVer()}><![CDATA[${AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>`
-                }
-                data += `
-                    <index>${Number(ele.index) - 1}</index>
-                    <manufacturer>RECORDER</manufacturer>
-                    <protocolType>RECORDER</protocolType>
-                    <productModel factoryName='Customer'>${ele.productModel}</productModel>`
-                if (ele.bandWidth) data += `<bandWidth>${ele.bandWidth}</bandWidth>`
-                data += `
-                    <rec per='5' post='10'/>
-                    <snapSwitch>false</snapSwitch>
-                    <buzzerSwitch>false</buzzerSwitch>
-                    <popVideoSwitch>false</popVideoSwitch>
-                    <frontEndOffline_popMsgSwitch>true</frontEndOffline_popMsgSwitch>
-                    </item>`
-            })
-            data += '</content>'
-            return getXmlWrapData(data)
+                    </itemType>
+                    ${selection
+                        .map((ele) => {
+                            return rawXml`
+                                <item>
+                                    <name>${ele.name || defalutNamePrefix + ele.index}</name>
+                                    ${formData.value.chkDomain ? `<domain>${wrapCDATA(formData.value.domain)}</domain>` : `<ip>${formData.value.ip}</ip>`}
+                                    <port>${formData.value.servePort}</port>
+                                    <userName>${formData.value.userName}</userName>
+                                    ${!props.editItem.ip || (props.editItem.ip && !formData.value.useDefaultPwd) ? `<password${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.password, userSessionStore.sesionKey))}</password>` : ''}
+                                    <index>${ele.index - 1}</index>
+                                    <manufacturer>RECORDER</manufacturer>
+                                    <protocolType>RECORDER</protocolType>
+                                    <productModel factoryName='Customer'>${ele.productModel}</productModel>
+                                    ${ele.bandWidth ? `<bandWidth>${ele.bandWidth}</bandWidth>` : ''}
+                                    <rec per='5' post='10'/>
+                                    <snapSwitch>false</snapSwitch>
+                                    <buzzerSwitch>false</buzzerSwitch>
+                                    <popVideoSwitch>false</popVideoSwitch>
+                                    <frontEndOffline_popMsgSwitch>true</frontEndOffline_popMsgSwitch>
+                                </item>
+                            `
+                        })
+                        .join('')}
+                </content>
+            `
+
+            return sendXml
+        }
+
+        /**
+         * @description 是否禁用表格行
+         * @param data
+         * @returns {string}
+         */
+        const handleRowClassName = (data: { row: ChannelRecorderDto; index: number }) => {
+            if (data.row.isAdded) {
+                return 'disabled'
+            }
+            return ''
+        }
+
+        /**
+         * @description 判断表格行是否可选
+         * @param {ChannelRecorderDto} row
+         * @returns {boolean}
+         */
+        const isSelectable = (row: ChannelRecorderDto) => {
+            return !row.isAdded
         }
 
         const opened = () => {
-            editItemBak = cloneDeep(props.editItem)
             selNum.value = 0
-            total.value = 0
-            eleChkDomainDisabled.value = true
-            eleServePortDisabled.value = true
-            eleIpDisabled.value = true
+            disabled.value = true
             eleChlCountDisabled.value = true
             eleUserNameDisabled.value = true
             eleBtnTestDisabled.value = true
-            showDefaultPwdRow.value = true
-            formData.value = new RecorderAddDto()
-            formData.value.userName = (props.mapping as Record<string, DefaultPwdDto>)['RECORDER'].userName
-            if (editItemBak) {
-                formData.value.ip = editItemBak?.ip
-                formData.value.servePort = editItemBak?.port
-                formData.value.channelCount = Number(editItemBak?.chlTotalCount) * 1 ? editItemBak?.chlTotalCount : defaultRecorderData.channelCount
-                formData.value.httpPort = editItemBak?.httpPort
+            formData.value = new ChannelRecorderAddDto()
+            formData.value.userName = (props.mapping as Record<string, ChannelDefaultPwdDto>).RECORDER.userName
+            if (props.editItem.ip) {
+                formData.value.ip = props.editItem.ip
+                formData.value.servePort = props.editItem.port
+                formData.value.channelCount = props.editItem.chlTotalCount ? props.editItem.chlTotalCount : DEFAULT_RECORDER_CHANNEL_COUNT
+                formData.value.httpPort = props.editItem.httpPort
                 formData.value.useDefaultPwd = true
                 getData()
             } else {
-                formData.value.ip = defaultRecorderData.ip
-                formData.value.servePort = defaultRecorderData.servePort
-                formData.value.channelCount = defaultRecorderData.channelCount
-                formData.value.httpPort = defaultRecorderData.httpPort
+                formData.value.ip = DEFAULT_RECORDER_IP
+                formData.value.servePort = DEFAULT_RECORDER_SERVER_PORT
+                formData.value.channelCount = DEFAULT_RECORDER_CHANNEL_COUNT
+                formData.value.httpPort = DEFAULT_RECORDER_HTTP_PORT
                 formData.value.useDefaultPwd = false
-                eleIpDisabled.value = false
-                eleChkDomainDisabled.value = false
-                eleServePortDisabled.value = false
+                disabled.value = false
                 eleChlCountDisabled.value = false
                 eleUserNameDisabled.value = false
                 eleBtnTestDisabled.value = false
-                showDefaultPwdRow.value = false
-                loadNoRecoderData(Number(formData.value.channelCount))
+                loadNoRecoderData(formData.value.channelCount)
             }
         }
 
@@ -479,18 +415,15 @@ export default defineComponent({
             formData,
             rules,
             tableRef,
-            tableData,
             selNum,
-            total,
             handleRowClick,
+            handleRowClassName,
             handleSelectionChange,
+            isSelectable,
             test,
             save,
             opened,
-            eleChkDomainDisabled,
-            eleServePortDisabled,
-            eleIpDisabled,
-            showDefaultPwdRow,
+            disabled,
             eleChlCountDisabled,
             eleUserNameDisabled,
             eleBtnTestDisabled,

@@ -2,15 +2,11 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-04 16:47:11
  * @Description: 健康状态检测
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 16:08:55
  */
-import { type DiskHealthInfoDiskList, type DiskHealthInfoDiskDetailList } from '@/types/apiType/disk'
 
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
 
         // 磁盘健康状态与显示文本的映射
         const DISK_STATUS_MAPPING: Record<string, string> = {
@@ -95,11 +91,11 @@ export default defineComponent({
             const result = await queryDiskHealthDetailInfo(sendXml)
             const $ = queryXml(result)
 
-            tableData.value = $('/response/content/disk/item').map((item) => {
+            tableData.value = $('content/disk/item').map((item) => {
                 const $item = queryXml(item.element)
-                const id = item.attr('id')!
-                const status = item.attr('status')!
-                let value = item.attr('value')!
+                const id = item.attr('id')
+                const status = item.attr('status')
+                let value = item.attr('value')
                 if ([17, 18].includes(Number(id)) && status === 'normal') {
                     value = 'N/A'
                 }
@@ -110,7 +106,7 @@ export default defineComponent({
                     value,
                     suggest: $item('suggest/item')
                         .map((suggest) => suggest.text())
-                        .join(';'),
+                        .join('; '),
                 }
             })
         }
@@ -119,18 +115,18 @@ export default defineComponent({
          * @description 获取数据
          */
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await queryAllDisksHealthStatus()
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
-            pageData.value.diskList = $('/response/content/diskList/item').map((item) => {
+            pageData.value.diskList = $('content/diskList/item').map((item) => {
                 const $item = queryXml(item.element)
                 const healthStatus = $item('healthStatus').text()
                 return {
-                    id: item.attr('id')!,
+                    id: item.attr('id'),
                     name: $item('slotIndex').text(),
                     serialNum: $item('serialNum').text(),
                     healthStatus: healthStatus ? DISK_STATUS_MAPPING[healthStatus] : healthStatus,

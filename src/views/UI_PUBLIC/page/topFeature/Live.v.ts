@@ -2,15 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-29 18:07:29
  * @Description: 现场预览
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 15:05:28
  */
-import { cloneDeep } from 'lodash-es'
-import { type LiveChannelList, type LiveCustomViewChlList, LiveSharedWinData } from '@/types/apiType/live'
-import BaseNotification from '../../components/BaseNotification.vue'
-import { type TVTPlayerWinDataListItem, type TVTPlayerPosInfoItem } from '@/utils/wasmPlayer/tvtPlayer'
-import WebsocketState from '@/utils/websocket/websocketState'
-import { APP_TYPE } from '@/utils/constants'
 import { type XMLQuery } from '@/utils/xmlParse'
 import LiveChannelPanel, { type ChannelPanelExpose } from '../live/LiveChannelPanel.vue'
 import LiveScreenPanel from '../live/LiveScreenPanel.vue'
@@ -36,7 +28,7 @@ const useStateSubscribe = (
     recordCallback: (chlID: string, status: boolean) => void,
     recordRemoteCallback: (status: boolean) => void,
 ) => {
-    let ws: WebsocketState | null = null
+    let ws: ReturnType<typeof WebsocketState> | null = null
 
     // 报警节点id和通道GUID的映射
     const chlIdMap = ref<Record<string, string>>({})
@@ -50,20 +42,33 @@ const useStateSubscribe = (
         type: string[]
         isRecording: boolean
     }
+
     const recordStatusMap = ref<Record<string, RecordStatusItem>>({})
+
+    const ready = computed(() => {
+        return playerRef.value?.ready || false
+    })
+
+    const mode = computed(() => {
+        if (!ready.value) {
+            return ''
+        }
+
+        return playerRef.value?.mode
+    })
 
     /**
      * @description 订阅状态
      */
     const createStateSubscribe = () => {
-        ws = new WebsocketState({
+        ws = WebsocketState({
             config: {
                 channel_state_info: true,
                 alarm_state_info: userSession.hasAuth('alarmMgr'),
             },
-            onmessage(data: any) {
+            onmessage(data) {
                 handleChlState(data.channel_state_info)
-                handleAlarmInfo(data.alarm_state_info)
+                handleAlarmState(data.alarm_state_info)
             },
         })
     }
@@ -89,12 +94,16 @@ const useStateSubscribe = (
         }
 
         const chlOnlineList = chlRef.value?.getOnlineChlList() || []
+        const recordList: RecordState[] = []
 
         // 火点检测/温度检测录像类型映射转换
         const recordTypeMap: Record<string, string> = {
             smart_fire_point: 'fire_point',
             smart_temperature: 'temperature',
+            smart_aoi_entry: 'aoi_entry',
+            smart_aoi_leave: 'aoi_leave',
         }
+
         chlStateInfo.forEach((item) => {
             const isOnline = item.connect_state
             const chlId = item.channel_id
@@ -109,7 +118,11 @@ const useStateSubscribe = (
             })
             const findChlIndex = chlOnlineList.indexOf(chlId)
             if (isOnline) {
-                handleRecordStatus(chlId, tempRecordTypes, isRecording)
+                recordList.push({
+                    id: chlId,
+                    recType: tempRecordTypes,
+                    isRecording,
+                })
                 if (findChlIndex === -1) {
                     chlOnlineList.push(chlId)
                 }
@@ -119,6 +132,8 @@ const useStateSubscribe = (
                 }
             }
         })
+
+        handleRecordState(recordList)
         chlRef.value?.setOnlineChlList(chlOnlineList)
     }
 
@@ -139,7 +154,7 @@ const useStateSubscribe = (
      * @description 处理报警信息
      * @param {AlarmState[]} alarmInfo
      */
-    const handleAlarmInfo = (alarmInfo?: AlarmState[]) => {
+    const handleAlarmState = (alarmInfo?: AlarmState[]) => {
         if (!alarmInfo || !alarmInfo.length) {
             return
         }
@@ -154,7 +169,10 @@ const useStateSubscribe = (
             const chlList = chlRef.value?.getChlMap() || {}
             const find = chlList[chlId]
             if (find) {
-                playerRef.value?.player.setAlarmStatus(chlId, alarmType, isAlarming)
+                if (mode.value === 'h5') {
+                    playerRef.value?.player.setAlarmStatus(chlId, alarmType, isAlarming)
+                }
+
                 // 缓存每个通道报警状态
                 if (!alarmStatusMap.value[chlId]) {
                     alarmStatusMap.value[chlId] = {}
@@ -164,48 +182,60 @@ const useStateSubscribe = (
         })
     }
 
+    interface RecordState {
+        id: string
+        recType: string[]
+        isRecording: boolean
+    }
+
     /**
      * @description 根据通道录像状态更新录像osd
      * @param {string} chlId
      * @param {Array} recordTypes
      * @param {Boolean} isRecording
      */
-    const handleRecordStatus = (chlId: string, recordTypes: string[], isRecording: boolean) => {
-        playerRef.value?.player.setRecordStatus(chlId, recordTypes, isRecording)
-        recordStatusMap.value[chlId] = {
-            type: recordTypes,
-            isRecording,
-        }
-        handleManualRecBtnStatus(chlId, recordTypes, isRecording)
-    }
+    const handleRecordState = (recordInfo: RecordState[]) => {
+        recordInfo.forEach((item) => {
+            if (mode.value === 'h5') {
+                playerRef.value?.player.setRecordStatus(item.id, item.recType, item.isRecording)
+            }
 
-    /**
-     * @description 更新手动录像操作按钮的状态
-     * @param {string} chlId
-     * @param {Array} recordTypes
-     * @param {Boolean} isRecording
-     */
-    const handleManualRecBtnStatus = (chlId: string, recordTypes: string[], isRecording: boolean) => {
-        const currentRemoteRecBtnStatus = isRecording && recordTypes.length > 0 && recordTypes.includes('manual')
-        recordCallback(chlId, currentRemoteRecBtnStatus)
+            recordStatusMap.value[item.id] = {
+                type: item.recType,
+                isRecording: item.isRecording,
+            }
 
-        const resultArr: string[] = []
+            const currentRemoteRecBtnStatus = item.isRecording && item.recType.length > 0 && item.recType.includes('manual')
+            recordCallback(item.id, currentRemoteRecBtnStatus)
+        })
+
+        const recordingChls: string[] = []
+        const cmdParms: { id: string; recType: string }[] = []
+
         Object.entries(recordStatusMap.value).forEach(([chlId, item]) => {
             if (item.type.includes('manual') && item.isRecording) {
-                resultArr.push(chlId)
+                recordingChls.push(chlId)
             }
+            cmdParms.push({
+                id: chlId,
+                recType: item.isRecording ? item.type.join(',') : 'noStatus',
+            })
         })
-        const isActiveRemoteRecBtn = false // 底部菜单.IsActiveAllRemoteRec()
-        if (isActiveRemoteRecBtn && resultArr.length) {
-            return
+
+        if (mode.value === 'ocx') {
+            const sendXML = OCX_XML_SetRecStatus(cmdParms)
+            playerRef.value?.plugin.ExecuteCmd(sendXML)
         }
+
         const onlineChlCount = (chlRef.value?.getOnlineChlList() || []).length
-        const allRemoteRecBtnStatus = !!resultArr.length && onlineChlCount === resultArr.length
-        recordRemoteCallback(allRemoteRecBtnStatus)
+        recordRemoteCallback(!!onlineChlCount && !!recordingChls.length)
     }
 
-    onMounted(() => {
-        createStateSubscribe()
+    const stopWatch = watchEffect(() => {
+        if (ready.value) {
+            createStateSubscribe()
+            stopWatch()
+        }
     })
 
     onBeforeUnmount(() => {
@@ -233,7 +263,7 @@ const useRecType = (mode: Ref<string>) => {
     const getData = async () => {
         const result = await queryRecordDistributeInfo()
         const $ = queryXml(result)
-        recType.value = $('/response/content/recMode/mode').text()
+        recType.value = $('content/recMode/mode').text()
     }
 
     const stopWatch = watch(
@@ -254,119 +284,6 @@ const useRecType = (mode: Ref<string>) => {
     return recType
 }
 
-/**
- * @description 是否显示POS信息
- */
-const usePos = (mode: Ref<string>) => {
-    const posInfo: Record<string, TVTPlayerPosInfoItem> = {}
-
-    /**
-     * @description 获取POS数据列表
-     */
-    const getData = async () => {
-        const result = await queryPosList()
-        const $ = queryXml(result)
-        if ($('/response/status').text() !== 'success') return
-        const $systemX = $('/response/content/itemType/coordinateSystem/X')
-        const $systemY = $('/response/content/itemType/coordinateSystem/Y')
-        const width = Number($systemX.attr('max')) - Number($systemX.attr('min'))
-        const height = Number($systemY.attr('max')) - Number($systemY.attr('min'))
-
-        $('/response/channel/chl').forEach((ele) => {
-            const chlId = ele.attr('id') as string
-            const $ele = queryXml(ele.element)
-            const previewDisplay = $ele('previewDisplay').text() === 'true'
-            const printMode = $ele('printMode').text()
-            posInfo[chlId] = {
-                previewDisplay: previewDisplay, // 现场预览是否显示pos
-                printMode: printMode as 'page' | 'scroll', // pos显示模式：page翻页/scroll滚屏
-                displayPosition: {
-                    // pos显示区域
-                    x: 0,
-                    y: 0,
-                    width: width,
-                    height: height,
-                },
-                timeout: 10, // pos超时隐藏时间，默认10秒
-            }
-        })
-        $('/response/content/item').forEach((ele) => {
-            const $ele = queryXml(ele.element)
-            const $position = `param/displaySetting/displayPosition/`
-            const $triggerChls = $ele('trigger/triggerChl/chls/item')
-            const timeout = $ele('param/displaySetting/common/timeOut').text()
-            if ($triggerChls.length === 0) return
-            const displayPosition = {
-                x: Number($ele(`${$position}X`).text()),
-                y: Number($ele(`${$position}Y`).text()),
-                width: Number($ele(`${$position}width`).text()),
-                height: Number($ele(`${$position}height`).text()),
-            }
-            $triggerChls.forEach((item) => {
-                const chlId = item.attr('id')!
-                if (posInfo[chlId]) {
-                    posInfo[chlId].displayPosition = displayPosition
-                    posInfo[chlId].timeout = Number(timeout)
-                }
-            })
-        })
-    }
-
-    /**
-     * @description 查询通道的POS信息
-     * @param {string} chlId
-     */
-    const getPosInfo = (chlId: string) => {
-        if (posInfo[chlId]) {
-            return posInfo[chlId]
-        }
-        return {
-            previewDisplay: false,
-            printMode: 'page',
-            timeout: 10,
-            displayPosition: {
-                x: 0,
-                y: 0,
-                width: 0,
-                height: 0,
-            },
-        }
-    }
-
-    /**
-     * @description 生成OCX命令
-     * @param {Boolean} bool
-     * @param {String} chlId
-     * @param {Number} winIndex
-     */
-    const getCmd = (bool: boolean, chlId: string, winIndex: number) => {
-        const pos = getPosInfo(chlId)
-        if (pos.previewDisplay) {
-            const area = pos.displayPosition
-            return OCX_XML_SetPOSDisplayArea(bool, winIndex, area.x, area.y, area.width, area.height, pos.printMode)
-        } else {
-            return OCX_XML_SetPOSDisplayArea(false, winIndex, 0, 0, 0, 0)
-        }
-    }
-
-    const stopWatch = watch(
-        mode,
-        (newVal) => {
-            if (newVal === 'ocx') {
-                getData()
-                stopWatch()
-            } else if (newVal === 'h5') {
-                stopWatch()
-            }
-        },
-        {
-            immediate: true,
-        },
-    )
-
-    return getCmd
-}
-
 export default defineComponent({
     components: {
         LiveChannelPanel,
@@ -377,18 +294,12 @@ export default defineComponent({
         LivePtzPanel,
         LiveSnapPanel,
         LiveFishEyePanel,
-        BaseNotification,
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
-
         const systemCaps = useCababilityStore()
         const userSession = useUserSessionStore()
         const layoutStore = useLayoutStore()
-        const pluginStore = usePluginStore()
-        const theme = getUiAndTheme()
 
         const playerRef = ref<PlayerInstance>()
         const chlRef = ref<ChannelPanelExpose>()
@@ -401,8 +312,6 @@ export default defineComponent({
             .map(() => ({ ...cloneWinData }))
 
         const pageData = ref({
-            // 通知数据
-            notification: [] as string[],
             // 分屏数
             split: layoutStore.liveLastSegNum || 1,
             // 当前选中窗口的数据
@@ -422,25 +331,27 @@ export default defineComponent({
             // 是否开启远程录像
             remoteRecord: false,
             // 音量
-            volume: 50,
+            volume: 65,
             // AZ支持
             supportAz: false,
             // 鱼眼支持
             supportFishEye: false,
             // 通道与能力映射
             chlMap: {} as Record<string, LiveChannelList>,
+            isDetectTarget: false,
+        })
+
+        // 播放模式
+        const ready = computed(() => {
+            return playerRef.value?.ready || false
         })
 
         // 播放模式
         const mode = computed(() => {
-            if (!playerRef.value) {
+            if (!ready.value) {
                 return ''
             }
-            return playerRef.value.mode
-        })
-
-        const ready = computed(() => {
-            return playerRef.value?.ready || false
+            return playerRef.value!.mode
         })
 
         const recType = useRecType(mode)
@@ -458,22 +369,10 @@ export default defineComponent({
                 pageData.value.allRemoteRecord = status
             },
         )
-        const pos = usePos(mode)
-
-        // 抓拍视图是否显示
-        const isSnapPanel = computed(() => {
-            if (mode.value === 'h5') {
-                return true
-            }
-            if (mode.value === 'ocx' && APP_TYPE === 'STANDARD') {
-                return true
-            }
-            return false
-        })
 
         // 鱼眼视图是否显示
         const isFishEyePanel = computed(() => {
-            return mode.value === 'ocx' && APP_TYPE === 'STANDARD'
+            return mode.value === 'ocx' && userSession.appType === 'STANDARD'
         })
 
         let player: PlayerInstance['player']
@@ -482,65 +381,58 @@ export default defineComponent({
         /**
          * @description 播放器准备就绪回调
          */
-        const handlePlayerReady = async () => {
+        const handlePlayerReady = () => {
             player = playerRef.value!.player
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
                 if (isHttpsLogin()) {
-                    pageData.value.notification = [formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`)]
+                    openNotify(formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`), true)
                 }
 
-                if (theme.name === 'UI1-E') {
+                if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
                     player.getChlIp()
                 }
             }
+
             if (mode.value === 'ocx') {
-                if (!plugin.IsInstallPlugin()) {
-                    plugin.SetPluginNotice('#layout2Content')
-                    return
-                }
-                if (!plugin.IsPluginAvailable()) {
-                    pluginStore.showPluginNoResponse = true
-                    plugin.ShowPluginNoResponse()
-                }
-
-                if (APP_TYPE === 'STANDARD' && isHttpsLogin()) {
+                if (userSession.appType === 'STANDARD' && isHttpsLogin()) {
                     // 本地https访问时，提示不支持目标检测（依赖websocket与设备端的通信，仅支持http）
-                    pageData.value.notification = [formatHttpsTips(Translate('IDCS_TARGET_DETECTION'))]
+                    openNotify(formatHttpsTips(Translate('IDCS_TARGET_DETECTION')), true)
                 }
-
-                const productModel = await getDeviceInfo()
-                plugin.VideoPluginNotifyEmitter.addListener(notify)
 
                 {
                     const sendXML = OCX_XML_SetPluginModel('Interactive', 'Live')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 }
 
-                {
-                    const sendXML = OCX_XML_SetProperty({
-                        calendarType: userSession.calendarType,
-                        supportRecStatus: true,
-                        supportImageRotate: systemCaps.supportImageRotate,
-                        showVideoLossMessage: systemCaps.showVideoLossMessage,
-                        productModel: productModel,
-                    })
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                    // 视频预览默认铺满显示，设置走廊模式旋转时，需要选择“原始比例”显示
-                    if (systemCaps.supportOriginalDisplay) {
-                        pageData.value.winData.original = true
-                    }
-                }
+                const sendXML = OCX_XML_SetProperty({
+                    calendarType: userSession.calendarType,
+                    supportRecStatus: true,
+                    supportImageRotate: systemCaps.supportImageRotate,
+                    showVideoLossMessage: systemCaps.showVideoLossMessage,
+                    productModel: systemCaps.productModel,
+                })
+                plugin.ExecuteCmd(sendXML)
             }
+
+            // 视频预览默认铺满显示，设置走廊模式旋转时，需要选择“原始比例”显示
+            displayOriginal(true)
+
+            toggleOSD(true)
         }
 
         /**
-         * @description 获取产品型号
+         * @description 获取OSD配置
          */
-        const getDeviceInfo = async () => {
-            const result = await queryBasicCfg(getXmlWrapData(''))
-            return queryXml(result)('/response/content/productModel').text()
+        const getDeviceOSDDisplayConfig = async () => {
+            const result = await queryDevOsdDisplayCfg()
+            const $ = queryXml(result)
+            const nameSwitch = $('content/nameSwitch').text().bool()
+            const iconSwitch = $('content/iconSwitch').text().bool()
+            const addressSwitch = $('content/addressSwitch').text().bool()
+            const sendXML = OCX_XML_SetPropertyOSD(nameSwitch, iconSwitch, addressSwitch)
+            plugin.ExecuteCmd(sendXML)
         }
 
         /**
@@ -549,7 +441,8 @@ export default defineComponent({
          * @param {Object} winData
          */
         const updateWinData = (index: number, winData: TVTPlayerWinDataListItem) => {
-            if (playerRef.value && index === playerRef.value.player.getSelectedWinIndex()) {
+            if (playerRef.value && index === player?.getSelectedWinIndex()) {
+                const isSameChl = pageData.value.winData.chlID === winData.CHANNEL_INFO?.chlID
                 pageData.value.winData = {
                     PLAY_STATUS: winData.PLAY_STATUS,
                     winIndex: winData.winIndex,
@@ -564,12 +457,18 @@ export default defineComponent({
                     showPos: winData.showPos,
                     chlID: winData.CHANNEL_INFO?.chlID || '',
                     supportPtz: winData.CHANNEL_INFO?.supportPtz || false,
-                    chlName: winData.CHANNEL_INFO?.chlName || '',
+                    supportIntegratedPtz: winData.CHANNEL_INFO?.supportIntegratedPtz || false,
+                    supportIris: winData.CHANNEL_INFO?.supportIris || false,
+                    supportAZ: winData.CHANNEL_INFO?.supportAZ || false,
+                    chlName: winData.CHANNEL_INFO?.chlID ? pageData.value.chlMap[winData.CHANNEL_INFO!.chlID]?.value || '' : '',
                     streamType: winData.CHANNEL_INFO?.streamType || 2,
+                    MinPtzCtrlSpeed: winData.CHANNEL_INFO?.chlID ? pageData.value.chlMap[winData.CHANNEL_INFO!.chlID]?.MinPtzCtrlSpeed : 1,
+                    MaxPtzCtrlSpeed: winData.CHANNEL_INFO?.chlID ? pageData.value.chlMap[winData.CHANNEL_INFO!.chlID]?.MaxPtzCtrlSpeed : 8,
                     talk: false,
                     isDwellPlay: false,
                     groupID: '',
                     supportAudio: true,
+                    canShowAudioError: isSameChl ? pageData.value.winData.canShowAudioError : false,
                 }
             }
         }
@@ -578,18 +477,36 @@ export default defineComponent({
         const stopInitialPlay = watchEffect(() => {
             if (Object.keys(pageData.value.chlMap).length && ready.value) {
                 nextTick(() => {
-                    if (layoutStore.liveLastChlList.length > 0) {
+                    if (isHttpsLogin() && mode.value === 'h5') {
+                        stopInitialPlay()
+                        return
+                    }
+
+                    if (layoutStore.liveLastChlList.length) {
                         const curerntOnlineList = chlRef.value?.getOnlineChlList() || []
-                        const onlineList = layoutStore.liveLastChlList.filter((item) => {
-                            return curerntOnlineList.includes(item)
-                        })
+                        const onlineList = layoutStore.liveLastChlList
+                            .filter((item) => {
+                                return curerntOnlineList.includes(item)
+                            })
+                            .map((item, index) => {
+                                return {
+                                    chlIndex: index,
+                                    chlId: item,
+                                }
+                            })
                         setTimeout(() => {
-                            playChls(onlineList)
+                            playCustomView(onlineList, layoutStore.liveLastSegNum)
                         }, 100)
                     } else {
                         setTimeout(() => {
                             playSplitVideo(1)
                         }, 100)
+                    }
+
+                    if (mode.value === 'ocx') {
+                        if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
+                            getDeviceOSDDisplayConfig()
+                        }
                     }
                     stopInitialPlay()
                 })
@@ -605,6 +522,9 @@ export default defineComponent({
                 return
             }
 
+            // 切换分屏时，关闭所有通道声音
+            closeAllAudio()
+
             // 切换分屏时，取消通道组轮询
             stopPollingChlGroup()
 
@@ -619,9 +539,11 @@ export default defineComponent({
             if (mode.value === 'h5') {
                 player.stopAll()
                 player.setSplit(segNum)
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_SetScreenMode(segNum, type)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
 
             nextTick(() => {
@@ -637,6 +559,7 @@ export default defineComponent({
             if (!ready.value) {
                 return
             }
+
             if (mode.value === 'h5') {
                 chlList.forEach((chlID, index) => {
                     // 切换分割数时，默认使用子码流
@@ -645,19 +568,29 @@ export default defineComponent({
                         streamType: 2,
                         winIndex: index,
                         supportPtz: pageData.value.chlMap[chlID].supportPtz,
+                        supportAZ: pageData.value.chlMap[chlID].supportAZ,
+                        supportIris: pageData.value.chlMap[chlID].supportIris,
+                        supportIntegratedPtz: pageData.value.chlMap[chlID].supportIntegratedPtz,
                         volumn: pageData.value.volume,
                     }
                     player.play(params)
                 })
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 chlList.forEach((chlID, index) => {
-                    {
-                        const sendXML = OCX_XML_SelectScreen(index)
-                        plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                    }
-                    {
+                    const sendXML = OCX_XML_SelectScreen(index)
+                    plugin.ExecuteCmd(sendXML)
+
+                    if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
+                        const sendXML = OCX_XML_SetViewChannelID(chlID, pageData.value.chlMap[chlID].value, {
+                            chlIp: pageData.value.chlMap[chlID].chlIp,
+                            poeSwitch: pageData.value.chlMap[chlID].poeSwitch,
+                        })
+                        plugin.ExecuteCmd(sendXML)
+                    } else {
                         const sendXML = OCX_XML_SetViewChannelID(chlID, pageData.value.chlMap[chlID].value)
-                        plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                        plugin.ExecuteCmd(sendXML)
                     }
                 })
             }
@@ -674,15 +607,20 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 const winIndex = player.getSelectedWinIndex()
-                stopPollingChlGroup(winIndex)
 
                 // 当前点击的通道与正在选中播放的窗口相同
                 if (chlID === pageData.value.winData.chlID) {
                     return
                 }
 
+                stopPollingChlGroup(winIndex)
+
                 // 点击的通道正处于播放状态
                 if (pageData.value.playingList.includes(chlID)) {
+                    if (pageData.value.playingList.length === 1) {
+                        return
+                    }
+
                     const winData = player.getWinData()
                     const find = winData.find((item) => item.CHANNEL_INFO?.chlID === chlID && !item.isPolling)
 
@@ -693,7 +631,10 @@ export default defineComponent({
                             chlID: curChlID,
                             winIndex: findIndex,
                             streamType: 2,
-                            supportPtz: pageData.value.chlMap[curChlID].supportPtz,
+                            supportPtz: pageData.value.chlMap[chlID].supportPtz,
+                            supportAZ: pageData.value.chlMap[chlID].supportAZ,
+                            supportIris: pageData.value.chlMap[chlID].supportIris,
+                            supportIntegratedPtz: pageData.value.chlMap[chlID].supportIntegratedPtz,
                             volume: pageData.value.volume,
                         })
                         player.play({
@@ -701,6 +642,9 @@ export default defineComponent({
                             winIndex: winIndex,
                             streamType: 2,
                             supportPtz: pageData.value.chlMap[chlID].supportPtz,
+                            supportAZ: pageData.value.chlMap[chlID].supportAZ,
+                            supportIris: pageData.value.chlMap[chlID].supportIris,
+                            supportIntegratedPtz: pageData.value.chlMap[chlID].supportIntegratedPtz,
                             volume: pageData.value.volume,
                         })
                         return
@@ -712,40 +656,52 @@ export default defineComponent({
                     streamType: 2,
                     winIndex: player.getSelectedWinIndex(),
                     supportPtz: pageData.value.chlMap[chlID].supportPtz,
+                    supportAZ: pageData.value.chlMap[chlID].supportAZ,
+                    supportIris: pageData.value.chlMap[chlID].supportIris,
+                    supportIntegratedPtz: pageData.value.chlMap[chlID].supportIntegratedPtz,
                     audioStatus: false,
                     volume: pageData.value.volume,
                 })
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 const currentChlID = pageData.value.winData.chlID
                 const currentChlWinIndex = pageData.value.winData.winIndex
-
-                stopPollingChlGroup(currentChlWinIndex)
 
                 // 当前点击的通道与正在选中播放的窗口相同
                 if (chlID === pageData.value.winData.chlID) {
                     return
                 }
 
+                stopPollingChlGroup(currentChlWinIndex)
+
                 // 点击的通道正处于播放状态
                 if (pageData.value.playingList.includes(chlID)) {
+                    if (pageData.value.playingList.length === 1) {
+                        return
+                    }
+
                     const find = cacheWinMap.find((item) => item.chlID === chlID && !item.isPolling)
                     if (find) {
                         const findIndex = find.winIndex
                         {
                             const sendXML = OCX_XML_SelectScreen(findIndex)
-                            plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                            plugin.ExecuteCmd(sendXML)
                         }
+
                         {
                             const sendXML = OCX_XML_SetViewChannelID(currentChlID, pageData.value.chlMap[currentChlID].value)
-                            plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                            plugin.ExecuteCmd(sendXML)
                         }
+
                         {
                             const sendXML = OCX_XML_SelectScreen(currentChlWinIndex)
-                            plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                            plugin.ExecuteCmd(sendXML)
                         }
+
                         {
                             const sendXML = OCX_XML_SetViewChannelID(chlID, pageData.value.chlMap[chlID].value)
-                            plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                            plugin.ExecuteCmd(sendXML)
                         }
                     }
 
@@ -753,7 +709,7 @@ export default defineComponent({
                 }
 
                 const sendXML = OCX_XML_SetViewChannelID(chlID, pageData.value.chlMap[chlID].value)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -777,19 +733,22 @@ export default defineComponent({
 
                 const startPollingChlGroup = () => {
                     const chl = chlList[currentIndex % chlList.length]
-                    if (playerRef.value) {
-                        playerRef.value.player.play({
-                            chlID: chl.id,
-                            winIndex,
-                            streamType: 2,
-                            isSelect: false,
-                            callback: () => startPollingChlGroup,
-                            audioStatus: false,
-                            isPolling: true,
-                            volume: pageData.value.volume,
-                        })
-                        playerRef.value.player.screen.setPollIndex(winIndex)
-                    }
+                    player.play({
+                        chlID: chl.id,
+                        winIndex,
+                        streamType: 2,
+                        isSelect: false,
+                        callback: () => startPollingChlGroup,
+                        audioStatus: false,
+                        isPolling: true,
+                        supportPtz: pageData.value.chlMap[chl.id].supportPtz,
+                        supportAZ: pageData.value.chlMap[chl.id].supportAZ,
+                        supportIris: pageData.value.chlMap[chl.id].supportIris,
+                        supportIntegratedPtz: pageData.value.chlMap[chl.id].supportIntegratedPtz,
+                        volume: pageData.value.volume,
+                    })
+                    player.setPollIndex(winIndex)
+
                     chlGroupTimer[winIndex] = setTimeout(() => {
                         currentIndex++
                         startPollingChlGroup()
@@ -797,9 +756,11 @@ export default defineComponent({
                 }
 
                 startPollingChlGroup()
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_CallChlGroup(chlList, groupId, dwellTime)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -818,16 +779,18 @@ export default defineComponent({
                     clearTimeout(chlGroupTimer[index])
                     chlGroupTimer[index] = 0
                 }
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 let sendXML = ''
                 if (index === -1) {
-                    sendXML = OCX_XML_StopPreview('ALL')
+                    sendXML = OCX_XML_StopPreview('CURRENT')
                 } else if (index === pageData.value.winData.winIndex) {
                     sendXML = OCX_XML_StopPreview('CURRENT')
                 } else {
                     sendXML = OCX_XML_StopPreview(index)
                 }
-                plugin?.GetVideoPlugin()?.ExecuteCmd(sendXML)
+                plugin?.ExecuteCmd(sendXML)
             }
         }
 
@@ -843,14 +806,18 @@ export default defineComponent({
 
             stopPollingChlGroup()
 
-            pageData.value.split = segNum
             if (mode.value === 'h5') {
+                player.stopAll()
                 player.setSplit(segNum)
-            } else if (mode.value === 'ocx') {
-                const sendXML = OCX_XML_SetScreenMode(segNum, segNum === 10 ? 2 : 1)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
 
+            if (mode.value === 'ocx') {
+                const sendXML = OCX_XML_SetScreenMode(segNum, segNum === 10 ? 2 : 1)
+                plugin.ExecuteCmd(sendXML)
+            }
+
+            pageData.value.split = segNum
+            // pageData.value.playingList = []
             playChls(arr.map((item) => item.chlId))
         }
 
@@ -872,29 +839,28 @@ export default defineComponent({
             const chlId = data.CHANNEL_INFO!.chlID
 
             updateWinData(index, data)
-
-            if (!pageData.value.playingList.includes(chlId)) {
-                pageData.value.playingList.push(chlId)
-            }
-
-            const alaramStatus = stateSubscribe.alarmStatusMap.value[chlId]
-            if (alaramStatus) {
-                Object.entries(alaramStatus).forEach(([type, bool]) => {
-                    playerRef.value!.player.setAlarmStatus(chlId, type, bool)
-                })
-            }
-
-            const recordStatus = stateSubscribe.recordStatusMap.value[chlId]
-            if (recordStatus) {
-                playerRef.value!.player.setRecordStatus(chlId, recordStatus.type, recordStatus.isRecording)
-            }
+            setAlarmStatus(chlId)
+            setRecStatus(chlId)
         }
 
         // UI1-D UI1-G 选择高画质登录
-        if (['UI1-D', 'UI1-G'].includes(theme.name) && userSession.defaultStreamType === 'main') {
+        if (import.meta.env.VITE_UI_TYPE === 'UI1-D' || import.meta.env.VITE_UI_TYPE === 'UI1-G') {
             const stopFirstLoadStream = watchEffect(() => {
-                if (pageData.value.split === 1 && pageData.value.playingList.length) {
-                    changeStreamType(1)
+                if (mode.value === 'h5' || mode.value === 'ocx') {
+                    if (userSession.defaultStreamType === 'main') {
+                        if (mode.value === 'h5') {
+                            if (pageData.value.split === 1) {
+                                changeStreamType(1)
+                            }
+                        }
+
+                        if (mode.value === 'ocx') {
+                            changeStreamType(1)
+                        }
+
+                        userSession.defaultStreamType = 'sub'
+                    }
+
                     stopFirstLoadStream()
                 }
             })
@@ -906,14 +872,7 @@ export default defineComponent({
          * @param {TVTPlayerWinDataListItem} data
          */
         const handlePlayerStop = (index: number, data: TVTPlayerWinDataListItem) => {
-            const chlId = data.CHANNEL_INFO!.chlID
-
             updateWinData(index, data)
-
-            const findIndex = pageData.value.playingList.indexOf(chlId)
-            if (findIndex > -1) {
-                pageData.value.playingList.splice(findIndex, 1)
-            }
         }
 
         /**
@@ -926,14 +885,13 @@ export default defineComponent({
             pageData.value.allPreview = type
 
             // 设置通道列表图标显示状态
-            if (type) {
-                data.forEach((item) => {
-                    const chlId = item.CHANNEL_INFO!.chlID
-                    if (!pageData.value.playingList.includes(chlId)) {
-                        pageData.value.playingList.push(chlId)
-                    }
-                })
-            }
+            pageData.value.playingList = []
+            data.forEach((item) => {
+                const chlId = item.CHANNEL_INFO!.chlID
+                if (chlId) {
+                    pageData.value.playingList.push(chlId)
+                }
+            })
         }
 
         /**
@@ -945,22 +903,21 @@ export default defineComponent({
         const handlePlayerError = (index: number, data: TVTPlayerWinDataListItem, error?: string) => {
             // 不支持打开音频
             if (error === 'notSupportAudio') {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_AUDIO_NOT_SUPPORT'),
-                })
+                openMessageBox(Translate('IDCS_AUDIO_NOT_SUPPORT'))
                 pageData.value.winData.supportAudio = false
                 pageData.value.winData.audio = false
             }
             // 当前用户打开无音频的权限
             else if (error === 'noPermission') {
-                openMessageTipBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_PERMISSION'),
-                })
+                openMessageBox(Translate('IDCS_NO_PERMISSION'))
             }
             // 音频流关闭事件，将对应通道的音频图标置为关闭状态
             else if (error === 'audioClosed') {
+                updateWinData(index, data)
+            }
+            // 当前选中的通道离线，置灰目标检索按钮
+            else if (error === 'offline') {
+                // TODO
                 updateWinData(index, data)
             } else {
                 updateWinData(index, data)
@@ -976,11 +933,19 @@ export default defineComponent({
         const handlePlayerRecordFile = (recordBuf: ArrayBuffer, data: TVTPlayerWinDataListItem, recordStartTime: number) => {
             const chlId = data.CHANNEL_INFO!.chlID
             const chlName = chlRef.value!.getChlMap()[chlId].value
-            const date = formatDate(new Date(recordStartTime), 'YYYYMMDDHHmmss')
-            download(new Blob([recordBuf]), `${chlName}_${date}.avi`)
-            if (!localStorage.localAviNotEncrypted) {
-                pageData.value.notification.push(Translate('IDCS_AVI_UNENCRYPTED_TIP'))
-                localStorage.localAviNotEncrypted = 'true'
+            const date = formatDate(recordStartTime, 'YYYYMMDDHHmmss')
+            download(new Blob([recordBuf]), `${chlName.replace(FILE_LIMIT_REG, '#')}_${date}.avi`)
+            if (!localStorage.getItem(LocalCacheKey.KEY_LOCAL_AVI_NOT_ENCRYPTED)) {
+                openNotify(Translate('IDCS_AVI_UNENCRYPTED_TIP'))
+                localStorage.setItem(LocalCacheKey.KEY_LOCAL_AVI_NOT_ENCRYPTED, 'true')
+            }
+        }
+
+        const handlePlayerAudioError = () => {
+            // 不支持打开音频
+            if (pageData.value.winData.canShowAudioError) {
+                openMessageBox(Translate('IDCS_UNSUPPORT_AUDIO_CODEC_TYPE'))
+                pageData.value.winData.canShowAudioError = false
             }
         }
 
@@ -1000,10 +965,12 @@ export default defineComponent({
                 } else {
                     player.stopAllRecord()
                 }
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 pageData.value.winData.localRecording = bool
                 const sendXML = OCX_XML_AllRecSwitch(bool ? 'ON' : 'OFF')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -1040,13 +1007,28 @@ export default defineComponent({
                     player.setPollingState(false)
                     player.stopAll()
                 }
-            } else {
+            }
+
+            if (mode.value === 'ocx') {
                 if (bool) {
-                    // TODO
+                    const chlIds = (chlRef.value?.getOnlineChlList() || []).slice(0, pageData.value.split)
+                    const chlNames = chlIds.map((item) => pageData.value.chlMap[item].value)
+                    if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
+                        const chlPoe = chlIds.map((item) => {
+                            return {
+                                chlIp: pageData.value.chlMap[item].chlIp,
+                                poeSwitch: pageData.value.chlMap[item].poeSwitch,
+                            }
+                        })
+                        const sendXML = OCX_XML_SetAllViewChannelId(chlIds, chlNames, chlPoe)
+                        plugin.ExecuteCmd(sendXML)
+                    } else {
+                        const sendXML = OCX_XML_SetAllViewChannelId(chlIds, chlNames)
+                        plugin.ExecuteCmd(sendXML)
+                    }
                 } else {
                     const sendXML = OCX_XML_StopPreview('ALL')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                    // TODO
+                    plugin.ExecuteCmd(sendXML)
                 }
             }
             pageData.value.allPreview = bool
@@ -1060,13 +1042,15 @@ export default defineComponent({
             if (!playerRef.value?.ready) {
                 return
             }
+
             if (mode.value === 'ocx') {
                 if (bool) {
                     toggleTalk(false)
+                    // 打开对讲时，关闭音频
                     setAudio(false)
                 }
                 const sendXML = OCX_XML_TalkSwitch(bool ? 'ON' : 'OFF')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
             pageData.value.allTalk = bool
         }
@@ -1079,9 +1063,10 @@ export default defineComponent({
             if (!ready.value) {
                 return
             }
+
             if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_SetStreamType('ALL', type)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
             pageData.value.winData.streamType = type
         }
@@ -1094,12 +1079,59 @@ export default defineComponent({
             if (!ready.value) {
                 return
             }
+
             pageData.value.osd = bool
+
             if (mode.value === 'h5') {
                 player.toggleOSD(bool)
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_OSDSwitch(bool ? 'ON' : 'OFF')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
+
+                if (bool) {
+                    setRecStatus()
+                }
+            }
+        }
+
+        /**
+         * @description 设置报警状态OSD
+         * @param {string} chlId h5模式需传chlId，ocx不需要
+         */
+        const setAlarmStatus = (chlId = '') => {
+            if (mode.value === 'h5') {
+                const alaramStatus = stateSubscribe.alarmStatusMap.value[chlId]
+                if (alaramStatus) {
+                    Object.entries(alaramStatus).forEach(([type, bool]) => {
+                        playerRef.value!.player.setAlarmStatus(chlId, type, bool)
+                    })
+                }
+            }
+        }
+
+        /**
+         * @description 设置录像状态OSD
+         * @param {string} chlId h5模式需传chlId，ocx不需要
+         */
+        const setRecStatus = (chlId = '') => {
+            if (mode.value === 'h5') {
+                const recordStatus = stateSubscribe.recordStatusMap.value[chlId]
+                if (recordStatus) {
+                    playerRef.value!.player.setRecordStatus(chlId, recordStatus.type, recordStatus.isRecording)
+                }
+            }
+
+            if (mode.value === 'ocx') {
+                const cmdParms = Object.entries(stateSubscribe.recordStatusMap.value).map((item) => {
+                    return {
+                        id: item[0],
+                        recType: item[1].isRecording ? item[1].type.join(',') : 'noStatus',
+                    }
+                })
+                const sendXML = OCX_XML_SetRecStatus(cmdParms)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -1110,11 +1142,14 @@ export default defineComponent({
             if (!ready.value) {
                 return
             }
+
             if (mode.value === 'h5') {
                 player.fullscreen()
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_FullScreen()
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -1126,9 +1161,13 @@ export default defineComponent({
             if (!playerRef.value?.ready) {
                 return
             }
+
+            // 点击相同分割数时切换通道
             if (pageData.value.split === split) {
+                chlRef.value?.switchChl(split)
                 return
             }
+
             pageData.value.split = split
             playSplitVideo(split)
         }
@@ -1148,18 +1187,21 @@ export default defineComponent({
             if (!ready.value) {
                 return
             }
+
             if (mode.value === 'h5') {
                 const date = formatDate(new Date(), 'YYYYMMDDHHmmss')
                 const chlName = pageData.value.winData.chlName
                 player.snap(pageData.value.winData.winIndex, `${chlName}_${date}`)
                 // NT-12559 首次本地抓图，提示图片数据未加密
-                if (!localStorage.getItem('snapPicNotEncrypted')) {
-                    pageData.value.notification.push(Translate('IDCS_IMG_UNENCRYPTED_TIP'))
-                    localStorage.setItem('snapPicNotEncrypted', 'true')
+                if (!localStorage.getItem(LocalCacheKey.KEY_SNAP_PIC_NOT_ENCRYPTED)) {
+                    openNotify(Translate('IDCS_IMG_UNENCRYPTED_TIP'))
+                    localStorage.setItem(LocalCacheKey.KEY_SNAP_PIC_NOT_ENCRYPTED, 'true')
                 }
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_TakePhotoByWinIndex(pageData.value.winData.winIndex)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -1177,7 +1219,9 @@ export default defineComponent({
 
                 player.setPollingState(false, winIndex)
                 player.stop(winIndex)
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 stopPollingChlGroup(pageData.value.winData.winIndex)
                 pageData.value.winData.PLAY_STATUS = 'stop'
             }
@@ -1192,12 +1236,14 @@ export default defineComponent({
             }
 
             if (mode.value === 'h5') {
-                player.zoomOut(player.getSelectedWinIndex())
-            } else if (mode.value === 'ocx') {
+                player.zoomIn(player.getSelectedWinIndex())
+            }
+
+            if (mode.value === 'ocx') {
                 fisheyeRef.value?.exitAdjust(pageData.value.winData.chlID)
 
                 const sendXML = OCX_XML_MagnifyImg()
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -1210,12 +1256,14 @@ export default defineComponent({
             }
 
             if (mode.value === 'h5') {
-                player.zoomIn(player.getSelectedWinIndex())
-            } else if (mode.value === 'ocx') {
+                player.zoomOut(player.getSelectedWinIndex())
+            }
+
+            if (mode.value === 'ocx') {
                 fisheyeRef.value?.exitAdjust(pageData.value.winData.chlID)
 
                 const sendXML = OCX_XML_MinifyImg()
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -1230,9 +1278,11 @@ export default defineComponent({
             pageData.value.winData.original = bool
             if (mode.value === 'h5') {
                 player.displayOriginal(player.getSelectedWinIndex(), bool)
-            } else if (mode.value === 'ocx') {
-                const sendXML = OCX_XML_OriginalDisplaySwitch(pageData.value.winData.winIndex, bool.toString() as 'true' | 'false')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+            }
+
+            if (mode.value === 'ocx') {
+                const sendXML = OCX_XML_OriginalDisplaySwitch(pageData.value.winData.winIndex, bool)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -1247,9 +1297,11 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 player.zoom3D(player.getSelectedWinIndex(), bool)
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_3DSwitch(bool)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
             pageData.value.winData.magnify3D = bool
         }
@@ -1268,11 +1320,16 @@ export default defineComponent({
                     chlID: pageData.value.winData.chlID,
                     streamType,
                     supportPtz: pageData.value.chlMap[pageData.value.winData.chlID].supportPtz,
+                    supportAZ: pageData.value.chlMap[pageData.value.winData.chlID].supportAZ,
+                    supportIris: pageData.value.chlMap[pageData.value.winData.chlID].supportIris,
+                    supportIntegratedPtz: pageData.value.chlMap[pageData.value.winData.chlID].supportIntegratedPtz,
                     volume: pageData.value.volume,
                 })
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 if (streamType === 1) {
-                    openLoading(LoadingTarget.FullScreen)
+                    openLoading(document.querySelector('.base-home-panel.right') as HTMLElement)
 
                     const sendXml = rawXml`
                         <condition>
@@ -1286,22 +1343,22 @@ export default defineComponent({
                     `
                     const result = await queryNodeEncodeInfo(sendXml)
                     const $ = queryXml(result)
-                    const content = $('/response/content/item')
+                    const content = $('content/item')
 
                     let mainResolution = ''
-                    if (content.length > 0) {
+                    if (content.length) {
                         const $el = queryXml(content[0].element)
                         if (recType.value) {
-                            mainResolution = recType.value === 'auto' ? $el('ae').attr('res')! : $el('an').attr('res')!
+                            mainResolution = recType.value === 'auto' ? $el('ae').attr('res') : $el('an').attr('res')
                         }
                     }
                     const sendXML = OCX_XML_SetStreamType(pageData.value.winData.winIndex, streamType, mainResolution.replace(/[x|X|*]/g, 'x'))
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
 
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading(document.querySelector('.base-home-panel.right') as HTMLElement)
                 } else {
                     const sendXML = OCX_XML_SetStreamType(pageData.value.winData.winIndex, streamType)
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 }
             }
         }
@@ -1323,9 +1380,11 @@ export default defineComponent({
                 } else {
                     player.stopRecord(player.getSelectedWinIndex())
                 }
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_RecSwitch(bool ? 'ON' : 'OFF')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -1350,9 +1409,11 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 player.setVolume(player.getSelectedWinIndex(), volume)
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_SetVolume(volume)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -1366,27 +1427,51 @@ export default defineComponent({
             }
 
             pageData.value.winData.audio = bool
+            pageData.value.winData.canShowAudioError = bool
+
             if (mode.value === 'h5') {
                 if (bool) {
                     player.openAudio(player.getSelectedWinIndex())
                 } else {
                     player.closeAudio(player.getSelectedWinIndex())
                 }
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 if (userAuth.value.audio[pageData.value.winData.chlID] === false) {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_NO_PERMISSION'),
-                    })
+                    openMessageBox(Translate('IDCS_NO_PERMISSION'))
                     return
                 }
+
                 if (bool) {
-                    const sendXML = OCX_XML_SetVolume(0)
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                } else {
+                    // 打开音频时，先关闭对讲
+                    if (pageData.value.winData.talk) {
+                        toggleTalk(false)
+                    } else if (pageData.value.allTalk) {
+                        toggleAllTalk(false)
+                    }
+
                     const sendXML = OCX_XML_SetVolume(pageData.value.volume)
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
+                } else {
+                    const sendXML = OCX_XML_SetVolume(0)
+                    plugin.ExecuteCmd(sendXML)
                 }
+            }
+        }
+
+        const closeAllAudio = () => {
+            if (!ready.value) {
+                return
+            }
+
+            if (mode.value === 'h5') {
+                player.getPlayingWinIndexList().forEach((index) => {
+                    player.closeAudio(index)
+                })
+            }
+
+            if (mode.value === 'ocx') {
             }
         }
 
@@ -1403,10 +1488,11 @@ export default defineComponent({
             if (mode.value === 'ocx') {
                 if (bool) {
                     toggleAllTalk(false)
+                    // 打开对讲时，关闭音频
                     setAudio(false)
                 }
-                const sendXML = OCX_XML_TalkSwitch(bool ? 'ON' : 'OFF')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                const sendXML = OCX_XML_TalkSwitch(bool ? 'ON' : 'OFF', pageData.value.winData.chlID)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -1419,9 +1505,10 @@ export default defineComponent({
             if (!ready.value) {
                 return
             }
+
             if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_SetFishEyeMode(installType, fishEyeMode)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -1441,18 +1528,26 @@ export default defineComponent({
             pageData.value.supportFishEye = bool
         }
 
+        const getSnapBase64 = () => {
+            return player.getSnapBase64()
+        }
+
+        const clearTargetDetect = () => {
+            pageData.value.isDetectTarget = false
+        }
+
         let notifyTimer: NodeJS.Timeout | number = 0
 
         /**
          * @description 插件接收消息
          * @param {XMLQuery} $
          */
-        const notify = ($: XMLQuery) => {
+        const notify = ($: XMLQuery, stateType: string) => {
             // 设置预览通道状态
-            if ($('statenotify[@type="StartViewChl"]').length) {
-                const status = $("statenotify[@type='StartViewChl']/status").text()
-                const chlId = $("statenotify[@type='StartViewChl']/chlId").text()
-                const winIndex = Number($("statenotify[@type='StartViewChl']/winIndex").text())
+            if (stateType === 'StartViewChl') {
+                const status = $('statenotify/status').text()
+                const chlId = $('statenotify/chlId').text()
+                const winIndex = $('statenotify/winIndex').text().num()
                 switch (status) {
                     case 'success':
                         cacheWinMap[winIndex].PLAY_STATUS = 'play'
@@ -1471,23 +1566,34 @@ export default defineComponent({
                         }
 
                         //设置通道是否显示POS信息
-                        plugin.GetVideoPlugin().ExecuteCmd(pos(true, chlId, winIndex))
+                        const pos = player.getPosInfo(chlId)
+                        if (pos.previewDisplay) {
+                            const area = pos.displayPosition
+                            const sendXml = OCX_XML_SetPOSDisplayArea(true, winIndex, area.x, area.y, area.width, area.height, pos.printMode)
+                            plugin.ExecuteCmd(sendXml)
+                        } else {
+                            const sendXml = OCX_XML_SetPOSDisplayArea(false, winIndex, 0, 0, 0, 0)
+                            plugin.ExecuteCmd(sendXml)
+                        }
+
+                        setRecStatus()
                         break
                     case 'offline':
-                        // pageData.value.notification.push(Translate("IDCS_NODE_NOT_ONLINE"))
+                        // openNotify(Translate("IDCS_NODE_NOT_ONLINE"))
                         break
                     case 'busy':
-                        pageData.value.notification.push(Translate('IDCS_DEVICE_BUSY'))
+                        openNotify(Translate('IDCS_DEVICE_BUSY'))
                         break
                     case 'noRight':
-                        pageData.value.notification.push(Translate('IDCS_CHL_NO_PLAY_REC_AUTH'))
+                        openNotify(Translate('IDCS_CHL_NO_PLAY_REC_AUTH'))
                         break
                 }
             }
+
             // 设置停止预览通道状态
-            else if ($('statenotify[@type="StopViewChl"]').length) {
-                const chlId = $('statenotify[@type="StopViewChl"]/chlId').text()
-                const winIndex = Number($('statenotify[@type="StopViewChl"]/winIndex').text())
+            if (stateType === 'StopViewChl') {
+                const chlId = $('statenotify/chlId').text()
+                const winIndex = $('statenotify/winIndex').text().num()
 
                 cacheWinMap[winIndex] = { ...cloneWinData }
 
@@ -1500,26 +1606,29 @@ export default defineComponent({
                     pageData.value.playingList.splice(index, 1)
                 }
             }
+
             // 设置预览通道失败
-            else if ($('statenotify[@type="SetViewChannelId"]').length) {
-                if ($('statenotify[@type="SetViewChannelId"]/status').text() !== 'success') {
-                    const errorCode = Number($('statenotify[@type="SetViewChannelId"]/errorCode').text())
+            if (stateType === 'SetViewChannelId') {
+                if ($('statenotify/status').text() !== 'success') {
+                    const errorCode = $('statenotify/errorCode').text().num()
                     // 主码流预览失败超过上限，切换回子码流预览
-                    if (errorCode == ErrorCode.USER_ERROR_CHANNEL_NO_OPEN_VIDEO) {
+                    if (errorCode === ErrorCode.USER_ERROR_CHANNEL_NO_OPEN_VIDEO) {
                         changeStreamType(2)
-                        pageData.value.notification.push(Translate('IDCS_OPEN_STREAM_FAIL'))
+                        openNotify(Translate('IDCS_OPEN_STREAM_FAIL'))
                     }
                 }
             }
+
             // 窗口状态改变通知
-            else if ($('statenotify[@type="WindowStatus"]').length) {
-                if (Number($('statenotify[@type="WindowStatus"]/previewingWinNum').text())) {
-                    pageData.value.allPreview = false
-                    pageData.value.winData.PLAY_STATUS = 'stop'
-                } else {
+            if (stateType === 'WindowStatus') {
+                if ($('statenotify/previewingWinNum').text().num()) {
                     pageData.value.allPreview = true
+                    // pageData.value.winData.PLAY_STATUS = 'stop'
+                } else {
+                    pageData.value.allPreview = false
                 }
-                if (Number($('statenotify[@type="WindowStatus"]/recordingWinNum').text())) {
+
+                if ($('statenotify/recordingWinNum').text().num()) {
                     pageData.value.winData.localRecording = true
                     pageData.value.allClientRecord = true
                 } else {
@@ -1527,14 +1636,15 @@ export default defineComponent({
                     pageData.value.allClientRecord = false
                 }
             }
+
             // 如果是选中窗体改变通知，重新绑定预置点和巡航线
-            else if ($('statenotify[@type="CurrentSelectedWindow"]').length) {
-                const $item = queryXml($("statenotify[@type='CurrentSelectedWindow']")[0].element)
-                const winIndex = Number($item('winIndex').text().trim())
+            if (stateType === 'CurrentSelectedWindow') {
+                const $item = queryXml($('statenotify')[0].element)
+                const winIndex = $item('winIndex').text().trim().num()
                 cacheWinMap[winIndex] = { ...cloneWinData }
 
                 let chlID = $item('chlId').text().trim()
-                if (chlID === '{00000000-0000-0000-0000-000000000000}') {
+                if (chlID === DEFAULT_EMPTY_ID) {
                     chlID = ''
                 }
 
@@ -1543,81 +1653,98 @@ export default defineComponent({
                 }
 
                 cacheWinMap[winIndex].chlID = chlID
-                cacheWinMap[winIndex].winIndex = Number($item('winIndex').text().trim())
+                cacheWinMap[winIndex].winIndex = $item('winIndex').text().trim().num()
 
-                cacheWinMap[winIndex].isPolling = $item('isGroupPlay').text().toBoolean()
-                cacheWinMap[winIndex].isDwellPlay = $item('isDwellPlay').text().toBoolean()
+                cacheWinMap[winIndex].isPolling = $item('isGroupPlay').text().bool()
+                cacheWinMap[winIndex].isDwellPlay = $item('isDwellPlay').text().bool()
                 let groupID = $item('groupId').text()
-                if (groupID === '{00000000-0000-0000-0000-000000000000}') {
+                if (groupID === DEFAULT_EMPTY_ID) {
                     groupID = ''
                 }
                 cacheWinMap[winIndex].groupID = groupID
 
-                cacheWinMap[winIndex].localRecording = $item('recing').text().toBoolean()
-                cacheWinMap[winIndex].audio = $item('volumOn').text().toBoolean()
-                cacheWinMap[winIndex].talk = $item('ipcTalking').text().toBoolean()
-                cacheWinMap[winIndex].original = $item('isOriginalDisplayOn').text().toBoolean()
-                cacheWinMap[winIndex].magnify3D = $item('is3DMagnifyOn').text().toBoolean()
-                cacheWinMap[winIndex].supportAudio = $item('isSupportAudio').text().toBoolean()
+                cacheWinMap[winIndex].localRecording = $item('recing').text().bool()
+                cacheWinMap[winIndex].audio = $item('volumOn').text().bool()
+                cacheWinMap[winIndex].talk = $item('ipcTalking').text().bool()
+                cacheWinMap[winIndex].original = $item('isOriginalDisplayOn').text().bool()
+                cacheWinMap[winIndex].magnify3D = $item('is3DMagnifyOn').text().bool()
+                cacheWinMap[winIndex].supportAudio = $item('isSupportAudio').text().bool()
+
+                cacheWinMap[winIndex].canShowAudioError = false
+                cacheWinMap[winIndex].supportPtz = chlID ? pageData.value.chlMap[chlID].supportPtz : false
+                cacheWinMap[winIndex].supportAZ = chlID ? pageData.value.chlMap[chlID].supportAZ : false
+                cacheWinMap[winIndex].supportIris = chlID ? pageData.value.chlMap[chlID].supportIris : false
+                cacheWinMap[winIndex].supportIntegratedPtz = chlID ? pageData.value.chlMap[chlID].supportIntegratedPtz : false
+                cacheWinMap[winIndex].MinPtzCtrlSpeed = chlID ? pageData.value.chlMap[chlID].MinPtzCtrlSpeed : 1
+                cacheWinMap[winIndex].MaxPtzCtrlSpeed = chlID ? pageData.value.chlMap[chlID].MaxPtzCtrlSpeed : 8
 
                 const streamTypeNode = $item('streamType')
-                cacheWinMap[winIndex].streamType = !streamTypeNode.length ? 2 : Number(streamTypeNode.text())
+                cacheWinMap[winIndex].streamType = !streamTypeNode.length ? 2 : streamTypeNode.text().num()
 
-                if ($item('isFocusView').text().toBoolean()) {
+                if ($item('isFocusView').text().bool()) {
                     clearTimeout(notifyTimer)
                     notifyTimer = setTimeout(() => {
                         pageData.value.winData = { ...cacheWinMap[winIndex] }
                     }, 100)
                 }
             }
+
             // 通知分割屏数目
-            else if ($('statenotify[@type="CurrentFrameNum"]').length || $('statenotify[@type="CurrentScreenMode"]').length) {
-                pageData.value.split = Number($('statenotify').text().trim())
+            if (stateType === 'CurrentFrameNum' || stateType === 'CurrentScreenMode') {
+                pageData.value.split = $('statenotify').text().trim().num()
             }
+
             // 通知抓图结果
-            else if ($('statenotify[@type="TakePhoto"]').length) {
-                if ($('statenotify[@type="TakePhoto"]/status').text() === 'success') {
-                    if (!window.localStorage.getItem('snapPicNotEncrypted')) {
-                        pageData.value.notification.push(Translate('IDCS_IMG_UNENCRYPTED_TIP'))
-                        window.localStorage.setItem('snapPicNotEncrypted', 'true')
+            if (stateType === 'TakePhoto') {
+                if ($('statenotify/status').text() === 'success') {
+                    if (import.meta.env.VITE_UI_TYPE !== 'UI1-E') {
+                        if (!localStorage.getItem(LocalCacheKey.KEY_SNAP_PIC_NOT_ENCRYPTED)) {
+                            openNotify(Translate('IDCS_IMG_UNENCRYPTED_TIP'))
+                            localStorage.setItem(LocalCacheKey.KEY_SNAP_PIC_NOT_ENCRYPTED, 'true')
+                        }
                     }
-                    pageData.value.notification.push(Translate('IDCS_SNAP_SUCCESS_PATH') + $('statenotify[@type="TakePhoto"]/dir').text())
+                    openNotify(Translate('IDCS_SNAP_SUCCESS_PATH') + $('statenotify/dir').text())
                 } else {
-                    const errorDescription = $('statenotify[@type="TakePhoto"]/errorDescription').text()
-                    pageData.value.notification.push(Translate('IDCS_SNAP_FAIL') + (errorDescription ? errorDescription : ''))
+                    const errorDescription = $('statenotify/errorDescription').text()
+                    openNotify(Translate('IDCS_SNAP_FAIL') + errorDescription)
                 }
             }
+
             // 通知手动录像结果
-            else if ($('statenotify[@type="RecComplete"]').length) {
-                if ($('statenotify[@type="RecComplete"]/status').text() == 'success') {
-                    if (!window.localStorage.getItem('localAviNotEncrypted')) {
-                        pageData.value.notification.push(Translate('IDCS_AVI_UNENCRYPTED_TIP'))
-                        window.localStorage.setItem('localAviNotEncrypted', 'true')
+            if (stateType === 'RecComplete') {
+                if ($('statenotify/status').text() === 'success') {
+                    if (import.meta.env.VITE_UI_TYPE !== 'UI1-E') {
+                        if (!localStorage.getItem(LocalCacheKey.KEY_LOCAL_AVI_NOT_ENCRYPTED)) {
+                            openNotify(Translate('IDCS_AVI_UNENCRYPTED_TIP'))
+                            localStorage.setItem(LocalCacheKey.KEY_LOCAL_AVI_NOT_ENCRYPTED, 'true')
+                        }
                     }
-                    pageData.value.notification.push(Translate('IDCS_REC_SUCCESS_PATH') + $('statenotify[@type="RecComplete"]/dir').text())
+                    openNotify(Translate('IDCS_REC_SUCCESS_PATH') + $('statenotify/dir').text())
                 } else {
                     // 延迟100毫秒防止通知过快，导致之前操作状态未设置好
-                    setTimeout(function () {
+                    setTimeout(() => {
                         if (pageData.value.winData.localRecording) {
                             recordLocal(false)
                         }
 
-                        const errorDescription = $('statenotify[@type="RecComplete"]/errorDescription').text()
-                        pageData.value.notification.push(Translate('IDCS_REC_FAIL') + (errorDescription ? errorDescription : ''))
+                        const errorDescription = $('statenotify/errorDescription').text()
+                        openNotify(Translate('IDCS_REC_FAIL') + errorDescription)
                     }, 100)
                 }
             }
+
             // 对讲
-            else if ($('statenotify[@type="TalkSwitch"]').length) {
-                if ($('statenotify[@type="TalkSwitch"]/status').text() == 'success') {
-                    if ($('statenotify[@type="TalkSwitch"]/chlId').text() == pageData.value.winData.chlID) {
+            if (stateType === 'TalkSwitch') {
+                if ($('statenotify/status').text() === 'success') {
+                    if ($('statenotify/chlId').text() === pageData.value.winData.chlID) {
                         pageData.value.winData.talk = true
                     } else {
                         pageData.value.allTalk = true
                     }
+                    // 打开对讲时，关闭音频
                     setAudio(false)
                 } else {
-                    const errorCode = Number($('statenotify[@type="TalkSwitch"]/errorCode').text())
+                    const errorCode = $('statenotify/errorCode').text().num()
                     const errorCodes: Record<number, string> = {
                         [ErrorCode.USER_ERROR_DEVICE_BUSY]: Translate('IDCS_AUDIO_BUSY'),
                         [ErrorCode.USER_ERROR_CHANNEL_AUDIO_OPEN_FAIL]: Translate('IDCS_DEVICE_BUSY'),
@@ -1628,10 +1755,18 @@ export default defineComponent({
                     if (pageData.value.allTalk) {
                         pageData.value.allTalk = false
                     }
+
                     if (pageData.value.winData.talk) {
                         pageData.value.winData.talk = false
                     }
-                    pageData.value.notification.push(errorInfo)
+                    openNotify(errorInfo)
+                }
+            }
+
+            if (stateType === 'AudioNoSupport') {
+                if (pageData.value.winData.canShowAudioError) {
+                    pageData.value.winData.canShowAudioError = false
+                    openMessageBox(Translate('IDCS_UNSUPPORT_AUDIO_CODEC_TYPE'))
                 }
             }
         }
@@ -1641,18 +1776,16 @@ export default defineComponent({
             layoutStore.liveLastChlList = [...pageData.value.playingList]
 
             stopPollingChlGroup()
-            console.log('live before unmounted')
 
-            if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx') {
                 // 离开时切换为一分屏，防止safari上其余用到插件的地方出现多分屏
                 {
                     const sendXML = OCX_XML_SetScreenMode(1)
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 }
 
-                plugin.VideoPluginNotifyEmitter.removeListener(notify)
-
-                console.log('live unmounted')
+                // 离开时关闭osd信息，防止pc其他带视频的地方显示两个通道名
+                toggleOSD(false)
             }
         })
 
@@ -1698,17 +1831,11 @@ export default defineComponent({
             playCustomView,
             setAudio,
             updateSupportAz,
-            isSnapPanel,
             isFishEyePanel,
-            LiveChannelPanel,
-            LiveScreenPanel,
-            LiveControlPanel,
-            LiveAsidePanel,
-            LiveLensPanel,
-            LivePtzPanel,
-            LiveSnapPanel,
-            LiveFishEyePanel,
-            BaseNotification,
+            notify,
+            handlePlayerAudioError,
+            getSnapBase64,
+            clearTargetDetect,
         }
     },
 })

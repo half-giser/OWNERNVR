@@ -2,8 +2,6 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-04-20 16:04:39
  * @Description: 二级类型2布局页--三级类型1布局页--适用于“智能分析-搜索”、“业务应用-停车场管理”等
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 19:44:04
 -->
 <template>
     <el-container id="layout3">
@@ -13,30 +11,31 @@
                 popper-effect="light"
                 :router="true"
             >
-                <template
+                <el-menu-item
                     v-for="menu3 in menu3Items"
                     :key="menu3.meta.fullPath"
+                    :index="menu3.meta.fullPath"
+                    :route="menu3"
                 >
-                    <el-menu-item
-                        v-if="isMenuItemShow(menu3)"
-                        :index="menu3.meta.fullPath"
-                        :route="menu3"
-                    >
-                        <template #default>
-                            <BaseImgSprite :file="menu3.meta.icon" />
-                        </template>
-                        <template #title>
-                            <span
-                                :title="Translate(menu3.meta.lk || '')"
-                                v-text="Translate(menu3.meta.lk || '')"
-                            ></span>
-                        </template>
-                    </el-menu-item>
-                </template>
+                    <template #default>
+                        <BaseImgSprite :file="menu3.meta.icon" />
+                    </template>
+                    <template #title>
+                        <span
+                            v-title
+                            class="text-ellipsis"
+                            v-text="Translate(menu3.meta.lk || '')"
+                        ></span>
+                    </template>
+                </el-menu-item>
             </el-menu>
         </el-aside>
         <el-main id="layout3Content">
-            <RouterView />
+            <RouterView v-slot="{ Component }">
+                <KeepAlive :max="6">
+                    <component :is="Component" />
+                </KeepAlive>
+            </RouterView>
         </el-main>
     </el-container>
 </template>
@@ -45,43 +44,58 @@
 
 <style lang="scss" scoped>
 #layout3 {
-    background-color: var(--page-bg);
+    width: 100%;
+    background-color: var(--main-bg);
 }
 
 #layout3Left {
     width: 100px;
-    border-right: solid 1px var(--border-color1);
-    background-color: var(--page-bg);
+    border-right: solid 1px var(--content-border);
+    background-color: var(--main-bg);
+
+    .el-menu {
+        border-right: 0;
+        background-color: var(--main-bg);
+
+        .el-menu-item {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 !important;
+            height: 90px;
+            color: var(--sidebar-text);
+
+            --el-menu-hover-bg-color: var(--sidebar-bg-hover);
+            --el-menu-text-color: var(--sidebar-text);
+
+            &.is-active {
+                background-color: var(--sidebar-bg-active);
+                border: 0;
+                color: var(--sidebar-text-active);
+
+                &:hover {
+                    color: var(--sidebar-text-active);
+                }
+            }
+
+            &:hover {
+                color: var(--sidebar-text-hover);
+            }
+
+            span {
+                width: 100%;
+                font-size: 12px;
+                line-height: 30px;
+                display: block;
+            }
+        }
+    }
 }
 
 #layout3Content {
-    background-color: var(--page-bg);
+    background-color: var(--main-bg);
     padding: 0;
-}
-
-.el-menu {
-    border-right: 0px;
-}
-
-.el-menu-item {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 0px !important;
-    height: 90px;
-    --el-menu-hover-bg-color: var(--primary--01);
-
-    &.is-active {
-        background-color: var(--primary--04);
-        border: 0;
-        color: var(--page-bg);
-    }
-
-    span {
-        line-height: 30px;
-        width: 100%;
-    }
 }
 </style>

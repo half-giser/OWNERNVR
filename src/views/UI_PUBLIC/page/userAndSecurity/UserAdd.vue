@@ -2,23 +2,15 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-14 09:47:30
  * @Description: 添加用户页面
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 14:18:10
 -->
 <template>
-    <div class="UserAdd">
+    <div>
         <el-form
             ref="formRef"
-            class="form stripe"
-            label-position="left"
-            :rules
+            v-title
+            class="stripe"
+            :rules="rules"
             :model="formData"
-            :style="{
-                '--form-input-width': '340px',
-                '--form-label-width': '150px',
-            }"
-            hide-required-asterisk
-            inline-message
         >
             <el-form-item
                 prop="userName"
@@ -27,10 +19,9 @@
                 <el-input
                     v-model.trim="formData.userName"
                     type="text"
-                    :placeholder="Translate('IDCS_USERNAME')"
                     :formatter="formatInputUserName"
                     :parser="formatInputUserName"
-                    :maxlength="nameByteMaxLen"
+                    maxlength="63"
                     @paste.capture.prevent=""
                 />
             </el-form-item>
@@ -38,72 +29,93 @@
                 prop="password"
                 :label="Translate('IDCS_PASSWORD')"
             >
-                <el-input
+                <BasePasswordInput
                     v-model="formData.password"
-                    type="password"
-                    :placeholder="Translate('IDCS_PASSWORD')"
-                    @copy.capture.prevent=""
-                    @paste.capture.prevent=""
+                    maxlength="16"
                 />
             </el-form-item>
-            <BasePasswordStrength
-                :strength
-                class="strength"
-            />
+            <el-form-item>
+                <BasePasswordStrength
+                    class="strength"
+                    :strength
+                />
+            </el-form-item>
             <el-form-item
                 prop="confirmPassword"
                 :label="Translate('IDCS_CONFIRM_PASSWORD')"
             >
-                <el-input
+                <BasePasswordInput
                     v-model="formData.confirmPassword"
-                    type="password"
-                    :placeholder="Translate('IDCS_CONFIRM_PASSWORD')"
-                    @copy.capture.prevent=""
-                    @paste.capture.prevent=""
+                    maxlength="16"
+                />
+            </el-form-item>
+            <el-form-item :label="Translate('IDCS_RIGHT_GROUP')">
+                <el-select-v2
+                    v-model="formData.authGroup"
+                    :options="authGroupOptions"
+                />
+            </el-form-item>
+            <el-form-item :label="Translate('IDCS_ALLOW_CHANGE_PWD')">
+                <el-checkbox
+                    v-model="formData.allowModifyPassword"
+                    :label="Translate('IDCS_ENABLE')"
                 />
             </el-form-item>
             <el-form-item
-                prop="allowModifyPassword"
-                :label="Translate('IDCS_ALLOW_CHANGE_PWD')"
+                v-if="pageData.isAdmin"
+                :label="Translate('IDCS_REMOTE_LOGIN_ACCESS_CODE')"
             >
-                <el-checkbox v-model="formData.allowModifyPassword"></el-checkbox>
-            </el-form-item>
-            <el-form-item
-                prop="email"
-                :label="Translate('IDCS_EMAIL_ADDRESS')"
-            >
-                <BaseSensitiveEmailInput
-                    v-model="formData.email"
-                    :placeholder="Translate('IDCS_EMAIL_ADDRESS')"
+                <el-checkbox
+                    v-model="formData.accessCode"
+                    :label="Translate('IDCS_ENABLE')"
+                />
+                <BaseImgSprite
+                    file="question"
+                    :index="0"
+                    :hover-index="1"
+                    :chunk="2"
+                    :title="Translate('IDCS_REMOTE_LOGIN_ACCESS_CODE_TIP').formatForLang(1)"
                 />
             </el-form-item>
-            <el-form-item
-                prop="authGroup"
-                :label="Translate('IDCS_RIGHT_GROUP')"
-            >
-                <el-select v-model="formData.authGroup">
-                    <el-option
-                        v-for="item in authGroupOptions"
-                        :key="item.id"
-                        :label="displayAuthGroup(item.name)"
-                        :value="item.id"
+            <el-form-item :label="Translate('IDCS_REMARK')">
+                <el-input v-model="formData.email" />
+            </el-form-item>
+            <!-- <el-form-item :label="Translate('IDCS_BING_MAC')">
+                <el-input />
+                <el-checkbox />
+            </el-form-item> -->
+            <el-form-item>
+                <template #label>
+                    <el-checkbox
+                        v-model="formData.loginScheduleInfoEnabled"
+                        :label="Translate('IDCS_LOGIN_SECHDULE')"
                     />
-                </el-select>
+                </template>
+                <BaseScheduleSelect
+                    v-model="formData.loginScheduleInfo"
+                    :options="pageData.scheduleList"
+                    :disabled="!formData.loginScheduleInfoEnabled"
+                    @edit="pageData.isSchedulePop = true"
+                />
             </el-form-item>
-            <div class="notice">{{ noticeMsg }}</div>
+            <div
+                v-clean-html="noticeMsg"
+                class="notice base-rich-text"
+            ></div>
             <div class="base-btn-box">
-                <el-button
-                    class="btn-ok"
-                    @click="verify"
-                    >{{ Translate('IDCS_ADD') }}</el-button
-                >
+                <el-button @click="verify">{{ Translate('IDCS_ADD') }}</el-button>
                 <el-button @click="goBack">{{ Translate('IDCS_CANCEL') }}</el-button>
             </div>
         </el-form>
         <BaseCheckAuthPop
-            v-model="isAuthDialog"
-            @close="isAuthDialog = false"
+            v-model="pageData.isCheckAuthPop"
+            title="IDCS_CERTIFICATION_RIGHT"
+            @close="pageData.isCheckAuthPop = false"
             @confirm="doCreateUser"
+        />
+        <BaseScheduleManagePop
+            v-model="pageData.isSchedulePop"
+            @close="closeSchedulePop"
         />
     </div>
 </template>
@@ -112,11 +124,11 @@
 
 <style lang="scss" scoped>
 .strength {
-    width: calc(var(--form-input-width) + var(--form-label-width) + 15px);
+    width: calc(var(--form-input-width) + var(--form-label-width));
 }
 
 .notice {
-    margin: 15px 15px;
+    margin: 15px;
     font-size: 15px;
 }
 </style>

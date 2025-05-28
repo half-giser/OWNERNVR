@@ -2,10 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-06 20:35:43
  * @Description: 回放-右侧视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-07 09:10:09
  */
-import { LiveSharedWinData } from '@/types/apiType/live'
+import { type SlotsType } from 'vue'
 
 export default defineComponent({
     props: {
@@ -15,7 +13,6 @@ export default defineComponent({
         mode: {
             type: String,
             required: true,
-            default: '',
         },
         /**
          * @property 当前窗口数据
@@ -23,7 +20,6 @@ export default defineComponent({
         winData: {
             type: Object as PropType<LiveSharedWinData>,
             required: true,
-            default: () => new LiveSharedWinData(),
         },
         /**
          * @property 支持鱼眼
@@ -31,9 +27,11 @@ export default defineComponent({
         supportFishEye: {
             type: Boolean,
             required: true,
-            default: false,
         },
     },
+    slots: Object as SlotsType<{
+        default: (scope: { index: number }) => any
+    }>,
     setup(prop) {
         const { Translate } = useLangStore()
 

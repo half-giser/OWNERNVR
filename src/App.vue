@@ -2,55 +2,43 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-24 17:12:55
  * @Description: 
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 15:37:47
 -->
 <template>
     <div>
         <el-config-provider :locale="langStore.elLocale">
-            <router-view v-slot="{ Component }">
-                <transition name="page-view">
-                    <component
-                        :is="Component"
-                        :key
-                    />
-                </transition>
-            </router-view>
+            <router-view />
         </el-config-provider>
         <transition name="intitial-view">
             <div
-                v-show="!layoutStore.isInitial"
+                v-show="!layoutStore.isInitial && !plugin.pluginNoticeContainer"
                 id="InitialView"
             ></div>
         </transition>
+        <BaseNotification
+            :model-value="layoutStore.notifications"
+            @update:model-value="layoutStore.notifications = $event"
+        />
+        <BasePluginNotice />
     </div>
 </template>
 
 <script setup lang="ts">
-import { isMobile, watchResize } from '@bassist/utils'
-import { getXmlWrapData } from './api/api'
-import { queryActivationStatus, querySystemCaps } from './api/system'
-import { queryXml } from './utils/xmlParse'
-import { APP_TYPE } from './utils/constants'
-import usePlugin from './utils/ocx/ocxPlugin'
-import { useUserSessionStore } from './stores/userSession'
 import dayjs from 'dayjs'
+import { generateAsyncRoutes } from './router'
 
 const route = useRoute()
 const router = useRouter()
-const key = computed(() => `${String(route.name || route.path)}-${new Date()}`)
 const layoutStore = useLayoutStore()
 const langStore = useLangStore()
 const session = useUserSessionStore()
+const plugin = usePlugin()
+const systemCaps = useCababilityStore()
 
-const Plugin = usePlugin()
-provide('Plugin', Plugin)
-
-watchResize(() => {
-    document.body.className = `platform-${isMobile() ? 'mobile' : 'desktop'}`
-})
-
-const hanedleActivationStatus = async (checkActivationStatus: boolean, isUserAuth: boolean) => {
+/**
+ * @description 如果未激活，跳转开机向导，否则，根据登录状态，跳转登录或现场预览
+ * @param {boolean} checkActivationStatus
+ */
+const hanedleActivationStatus = async (checkActivationStatus: boolean) => {
     try {
         layoutStore.isInitial = true
         const auInfo = session.auInfo_N9K
@@ -58,49 +46,48 @@ const hanedleActivationStatus = async (checkActivationStatus: boolean, isUserAut
             router.replace('/guide')
         } else {
             if (!auInfo) {
-                router.replace('/login')
+                if (getLoginInfoByURL()) {
+                    // router.replace('/urllogin')
+                } else if (session.urlLoginAuth) {
+                    router.replace('/urllogin')
+                } else {
+                    router.replace('/login')
+                }
                 return
-            } else if (isUserAuth && route.name === 'login') {
-                router.replace('/live')
+            } else {
+                await systemCaps.updateCabability()
+                await systemCaps.updateDiskMode()
+                await systemCaps.updateBaseConfig()
+                generateAsyncRoutes()
+                if (route.name === 'login') {
+                    router.replace('/live')
+                } else {
+                    router.replace(route.fullPath)
+                }
             }
         }
     } catch (e) {
         console.error(e)
     }
+
+    // layoutStore.isInitial = true
+    // generateAsyncRoutes()
+    // router.replace('/guide')
 }
 
-if (APP_TYPE === 'STANDARD') {
-    let isUserAuth = false
-
-    querySystemCaps(getXmlWrapData(''))
-        .then(() => {
-            isUserAuth = true
+if (session.appType === 'STANDARD') {
+    // 标准登录此处请求语言翻译和时间日期配置，P2P登录则延后至插件连接成功后请求
+    langStore
+        .getLangTypes()
+        .then(() => langStore.getLangItems(true))
+        .then(() => queryActivationStatus())
+        .then((result) => {
+            const checkActivationStatus = queryXml(result)('content/activated').text().bool()
+            hanedleActivationStatus(checkActivationStatus)
         })
-        .finally(() => {
-            queryActivationStatus().then((result) => {
-                const checkActivationStatus = queryXml(result)('/response/content/activated').text() === 'true'
-                hanedleActivationStatus(checkActivationStatus, isUserAuth)
-            })
-        })
+} else {
+    session.getP2PSessionInfo()
 }
-
-onMounted(() => {
-    Plugin.DisposePlugin()
-    Plugin.StartV2Process()
-})
-
-onBeforeUnmount(() => {
-    Plugin.DisposePlugin()
-})
-
-watch(
-    () => session.sessionId,
-    (val) => {
-        if (val === '') {
-            Plugin.DisposePlugin()
-        }
-    },
-)
 
 watch(
     () => session.calendarType,
@@ -117,6 +104,12 @@ watch(
         immediate: true,
     },
 )
+
+if (import.meta.env.PROD) {
+    onBeforeUnmount(() => {
+        plugin.DisposePlugin()
+    })
+}
 </script>
 
 <style lang="scss">
@@ -125,7 +118,7 @@ body {
 }
 
 #InitialView {
-    background: #fff center url(/initview.gif) no-repeat;
+    background: var(--color-white) var(--img-initview) center no-repeat;
     position: absolute;
     width: 100%;
     height: 100%;
@@ -139,30 +132,32 @@ body {
     transition: opacity 0.5s ease 0.5s;
 }
 
-.page-view {
-    &-enter-from {
-        opacity: 0;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100vw;
-    }
+// .page-view {
+//     &-enter-from {
+//         opacity: 0;
+//         position: absolute;
+//         top: 0;
+//         left: 0;
+//         width: 100vw;
+//     }
 
-    &-leave-to {
-        opacity: 0;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        z-index: 1;
-    }
+//     &-leave-to {
+//         opacity: 0;
+//         position: absolute;
+//         top: 0;
+//         left: 0;
+//         width: 100vw;
+//         z-index: 1;
+//     }
 
-    &-enter-active {
-        transition: opacity 0.4s linear;
-    }
+//     &-enter-active {
+//         width: 100vw;
+//         transition: opacity 0.3s linear;
+//     }
 
-    &-leave-active {
-        transition: opacity 0.4s linear;
-    }
-}
+//     &-leave-active {
+//         width: 100vw;
+//         transition: opacity 0.3s linear;
+//     }
+// }
 </style>

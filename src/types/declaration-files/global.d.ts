@@ -5,63 +5,44 @@
  */
 
 import type { Action, MessageBoxState } from 'element-plus'
-import type usePlugin from '@/utils/ocx/ocxPlugin'
-import type TVTPlayer from '@/utils/wasmPlayer/tvtPlayer'
+import type { PluginType as _PluginType } from '@/utils/ocx/ocxPlugin'
 import type { UserChlAuth as _UserChlAuth } from '@/hooks/useUserChlAuth'
+import type { PlayerWinDataListItem, PlayerPosInfoItem, PlayerReturnsType } from '@/components/player/BaseVideoPlayer.vue'
+import type { ScheduleLineReturnsType } from '@/components/BaseScheduleLine.vue'
+import type { ScheduleWeekReturnsType } from '@/components/BaseScheduleWeek.vue'
+import type { TimelineReturnsType } from '@/components/player/BaseTimeline.vue'
+import type { LivePopReturnsType } from '@/components/player/BaseLivePop.vue'
+import type { HeatMapReturnsType } from '@/components/chart/BaseHeatMapChart.vue'
 
 export {}
 
 declare global {
-    /**
-     * 语言项
-     */
-    interface LangItem {
-        id: string
-        value: string
-    }
-
-    interface ImportCallOptions {
-        query: string
-    }
-
     interface String {
-        formatForLang: Function
-        format: Function
-        toBoolean: () => boolean
+        formatForLang: (...args: (string | number)[]) => string
+        format: (...args: (string | number)[]) => string
+        /**
+         * @description 如果text()/attr()返回的字符串为'true',则返回true，否则为false
+         * @returns {boolean}
+         */
+        bool: () => boolean
+        /**
+         * @description 将text()/attr()返回的字符串转换为数字. 如果为空字符串，则返回0
+         * @returns {number}
+         */
+        num: () => number
+        /**
+         * @description 将text()/attr()返回的字符串转换为字符串数组
+         * @param {string} seperator 分隔符，默认为','
+         * @returns {string[]}
+         */
+        array: (seperator?: string) => string[]
+        /**
+         * @description text()/attr()若为空字符串时，返回undefined，否则返回原字符串
+         * @returns {string | undefined}
+         */
+        undef: () => string | undefined
     }
-    /**
-     * el-tree自定义类型
-     */
-    interface Tree {
-        id: string
-        value?: string | number | boolean | object
-        label: string
-        children?: Tree[]
-        isLeaf: boolean
-        status?: number
-        disabled?: boolean
-        pId?: string
-    }
-    /**
-     * 日期选择器单元格数据类型
-     */
-    interface DateCell {
-        column: number
-        customClass: string
-        disabled: boolean
-        end: boolean
-        inRange: boolean
-        row: number
-        selected: Dayjs
-        isCurrent: boolean
-        isSelected: boolean
-        start: boolean
-        text: number
-        timestamp: number
-        date: Date
-        dayjs: Dayjs
-        type: 'normal' | 'today' | 'week' | 'next-month' | 'prev-month'
-    }
+
     /**
      * 系统信息
      */
@@ -69,7 +50,9 @@ declare global {
         platform: string
         version: string
     }
+
     type BrowserType = 'ie' | 'opera' | 'lowEdge' | 'edge' | 'firefox' | 'chrome' | 'safari' | 'unknow'
+
     /**
      * 浏览器信息
      */
@@ -78,36 +61,7 @@ declare global {
         version: string
         majorVersion: number
     }
-    /**
-     * 资源树下拉选中资源返回数据类型
-     */
-    type ValType = String | Number | Boolean | Object | Array<String | Number | Boolean | Object>
 
-    type ElMessageType = 'success' | 'warning' | 'error' | 'info'
-
-    type ElTagType = 'success' | 'warning' | 'info' | 'danger'
-
-    interface ElTableFilterItem {
-        value: any
-        text: any
-    }
-
-    interface Date {
-        format(template: string): string
-    }
-    /**
-     * 事件信息
-     */
-    interface ChlRecEvent {
-        chlName: string
-        event: string
-        eventDisplay?: string
-        startTime: string
-        endTime: string
-        dataSource: string
-        duration: string
-        size: string
-    }
     /**
      * 全局变量
      */
@@ -116,22 +70,27 @@ declare global {
         // systemInfo: SystemInfo
         browserInfo: BrowserInfo
         serverIp: string
-        LoadingTarget: Record<string, string>
-        openLoading: Function
-        closeLoading: Function
-        notify: Function
     }
 
-    type PluginType = ReturnType<typeof usePlugin>
+    interface TableColumn<T> {
+        row: T
+        column: any
+        $index: number
+    }
 
-    type AlarmContentType = 'none' | 'ptz' | 'tvWall' | 'sysRec' | 'popVideo' | 'snapShot' | 'alarmOut'
+    type PluginType = _PluginType
 
     interface ConfigToolBarEvent<T> {
         type: string
         data: T
     }
-    interface ChannelToolBarEvent {
+
+    interface SearchToolBarEvent {
         searchText: string
+    }
+
+    interface ConfigComponentInstance {
+        handleToolBarEvent?: (e: ConfigToolBarEvent<T>) => void
     }
 
     /**
@@ -161,30 +120,23 @@ declare global {
         msRequestFullscreen: () => void
     }
 
+    interface ElementExtends {
+        scrollIntoViewIfNeeded: (bool: boolean) => void
+    }
+
     interface Document extends DocumentExtends {}
 
     interface HTMLCanvasElement extends DocumentExtends {}
 
-    interface HTMLDivElement extends DocumentExtends {}
+    interface HTMLElement extends DocumentExtends {}
 
-    /**
-     * 通用下拉列表Item类型
-     */
-    interface SelectItem {
-        value: any
-        label: any
-    }
+    interface Element extends ElementExtends {}
 
     interface SelectOption<T, K> {
         value: T
         label: K
-    }
-
-    interface ImageSpriteCoordinatesItem {
-        x: number
-        y: number
-        width: number
-        height: number
+        disabled?: boolean
+        options?: SelectOption<T, K>[]
     }
 
     interface ImageSpriteProperties {
@@ -194,71 +146,52 @@ declare global {
 
     interface ImageSprite {
         properties: ImageSpriteProperties
-        coordinates: Record<string, ImageSpriteCoordinatesItem>
+        coordinates: Record<string, number[]> // x y width height
     }
 
     interface PlayerInstance {
-        player: TVTPlayer
+        player: PlayerReturnsType
         plugin: PluginType
         mode: 'h5' | 'ocx'
         ready: boolean
     }
 
+    type TVTPlayerWinDataListItem = PlayerWinDataListItem
+
+    type TVTPlayerPosInfoItem = PlayerPosInfoItem
+
     interface LivePopInstance {
-        openLiveWin(chlId: string, chlName: string, chlIndex: string, chlType: string, isOnline?: boolean): void
+        openLiveWin(chlId: string, chlName: string, isOnline?: boolean): void
     }
 
-    interface TimelineInstance {
-        updateChlList: (
-            chlList: { chlName: string; chlId: string; records: { startTime: number; endTime: number; event: string; [key?: string]: any }[] }[],
-            autoPointer: boolean,
-            pageType: 'live' | 'record',
-        ) => void
-        play: (step: number, speed: number) => void
-        stop: () => void
-        getTime: () => number
-        setTime: (time: number) => void
-        playForward: (second: number) => void
-        playBack: (second: number) => void
-        setDstDayTime: (currentDayStartTime: string) => void
-        setClipStart: (time?: number) => void
-        setClipEnd: (time?: number) => void
-        clearData: () => void
-        getMaxTime: () => number
-        setColorMap: (colorMap: { value: string; color: string; name: string; children: string[] }[]) => void
-        getTimeSplitList: () => { startTime: number; endTime: number }[]
-        getPointerTime: () => number
-        getTimeRangeMask: () => [number, number]
-        clearClipRange: () => void
-        getDST: () => {
-            hours: number
-            start: number
-            end: number
-        }
-    }
+    type LivePopInstance = LivePopReturnsType
+
+    type TimelineInstance = TimelineReturnsType
+
+    type ScheduleWeekInstance = ScheduleWeekReturnsType
+
+    type ScheduleLineInstance = ScheduleLineReturnsType
+
+    type HeatMapInstance = HeatMapReturnsType
 
     type UserChlAuth = _UserChlAuth
 
-    /**
-     * 通用的日期选择选项卡组件选中日期后的日期信息
-     */
-    interface SelectedDateInfo {
-        startTimeFormat: string
-        endTimeFormat: string
-        oneWeekFirstDayFormat: string
-        oneWeekLastDayFormat: string
-        oneMonthFirstDayFormat: string
-        oneMonthLastDayFormat: string
-        startTimeFormatForCalc: string
-        endTimeFormatForCalc: string
-        oneWeekFirstDayFormatForCalc: string
-        oneWeekLastDayFormatForCalc: string
-        oneMonthFirstDayFormatForCalc: string
-        oneMonthLastDayFormatForCalc: string
-        currentDateIndex: string
-        selectedDateForShow: string
-        selectedDateForLabel: string
+    declare const natIp: string
+    declare const natPort: string
+    declare const natIp_2_0: string
+    declare const natPort_2_0: string
+    declare const ISOLATION: string
+    declare const CUSTOMER_ID: string
+
+    declare const ClientPluVer: string
+    declare const P2PClientPluVer: string
+    declare const MacP2PClientPluVer: string
+
+    interface WindowExtends {
+        __RUNTIME_OCX_PLUGIN__: undefined | PluginType
     }
+
+    interface Window extends WindowExtends {}
 }
 
 /**
@@ -267,20 +200,13 @@ declare global {
 declare module 'vue' {
     interface ComponentCustomProperties {
         Translate: (key: string) => string
+        formatInputMaxLength: (str: string) => string
+        formatInputUserName: (str: string) => string
+        blurInput: (e: Event) => void
+        formatDigit: (str: string) => string
     }
 
-    interface GlobalComponents {
-        BaseImgSprite: (typeof import('@/views/UI_PUBLIC/components/sprite/BaseImgSprite.vue'))['default']
-        BaseVideoPlayer: (typeof import('@/views/UI_PUBLIC/components/player/BaseVideoPlayer.vue'))['default']
-        BasePluginPlayer: (typeof import('@/views/UI_PUBLIC/components/ocx/BasePluginPlayer.vue'))['default']
-        BaseIpInput: (typeof import('@/views/UI_PUBLIC/components/form/BaseIpInput.vue'))['default']
-        BaseMacInput: (typeof import('@/views/UI_PUBLIC/components/form/BaseMacInput.vue'))['default']
-        BasePasswordStrength: (typeof import('@/views/UI_PUBLIC/components/form/BasePasswordStrength.vue'))['default']
-        BaseSensitiveEmailInput: (typeof import('@/views/UI_PUBLIC/components/form/BaseSensitiveEmailInput.vue'))['default']
-        BaseSensitiveTextInput: (typeof import('@/views/UI_PUBLIC/components/form/BaseSensitiveTextInput.vue'))['default']
-        BaseScheduleLine: (typeof import('@/components/BaseScheduleLine.vue'))['default']
-        BaseScheduleWeek: (typeof import('@/components/BaseScheduleWeek.vue'))['default']
-    }
+    interface GlobalComponents {}
 }
 
 /**

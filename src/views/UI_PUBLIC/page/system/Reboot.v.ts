@@ -2,33 +2,24 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-20 15:59:54
  * @Description: 系统重启
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-20 17:21:02
  */
-import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import { type UserCheckAuthForm } from '@/types/apiType/userAndSecurity'
 
 export default defineComponent({
-    components: {
-        BaseCheckAuthPop,
-    },
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
 
         let timer: NodeJS.Timeout | number = 0
 
         const pageData = ref({
             // 显示隐藏权限弹窗
-            isAuthDialog: false,
+            isAuthPop: false,
         })
 
         /**
          * @description 打开鉴权弹窗
          */
         const verify = () => {
-            pageData.value.isAuthDialog = true
+            pageData.value.isAuthPop = true
         }
 
         /**
@@ -36,7 +27,7 @@ export default defineComponent({
          * @param {UserCheckAuthForm} e
          */
         const confirm = async (e: UserCheckAuthForm) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <auth>
@@ -47,14 +38,14 @@ export default defineComponent({
             const result = await reboot(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
-
-            if ($('/response/status').text() === 'success') {
-                pageData.value.isAuthDialog = false
+            if ($('status').text() === 'success') {
+                pageData.value.isAuthPop = false
                 openLoading(LoadingTarget.FullScreen, Translate('IDCS_REBOOTING'))
                 timer = reconnect()
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                closeLoading()
+
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NO_AUTH:
@@ -66,11 +57,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_USER_OR_PASSWORD_ERROR')
                         break
                 }
-                openMessageTipBox({
-                    type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 
@@ -82,7 +69,6 @@ export default defineComponent({
             verify,
             confirm,
             pageData,
-            BaseCheckAuthPop,
         }
     },
 })

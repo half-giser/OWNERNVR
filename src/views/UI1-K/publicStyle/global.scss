@@ -1,0 +1,312 @@
+/*
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-05-29 13:48:55
+ * @Description: UI1-K 主题样式
+ */
+@use '@/scss/function' as *;
+
+#n9web {
+    --img-login-content: #{img-url('@ui/publicStyle/img/LoginContent.png')};
+    --img-logo: #{img-url('@ui/publicStyle/img/appName.png')};
+    --img-login-btn: #{img-url('@ui/publicStyle/img/loginBtn.png')};
+    --img-motion-note: #{img-url('@/views/UI_PUBLIC/publicStyle/img/motionNote.gif')};
+    --img-loading: #{img-url('@ui/publicStyle/img/loading.gif')};
+    --img-spinner: #{img-url('@ui/publicStyle/img/spinner.gif')};
+    --img-initview: #{img-url('@/views/UI_PUBLIC/publicStyle/img/initview.gif')};
+    --img-favicon: url('@/views/UI_PUBLIC/publicStyle/img/favicon.ico');
+
+    --primary-light: #f9e9c8;
+    --primary: #fdd24b;
+
+    --body-bg: var(--main-bg);
+
+    --main-text: #000;
+    --main-text-light: #8d8d8d;
+    --main-text-active: #fff;
+    --main-bg: #eee;
+    --main-border: #666;
+
+    --content-border: #999;
+    --live-border: #999;
+    --live-wasm-border: #999;
+
+    --subheading-text: #000;
+    --subheading-bg: #ccc;
+
+    --header-bg: #000;
+    --header-text: #cbcbcb;
+    --header-border: #666;
+    --header-menu-text: #666;
+    --header-menu-text-hover: #fff;
+    --header-menu-text-active: var(--primary);
+    --header-menu-bg: transparent;
+    --header-menu-bg-hover: transparent;
+    --header-menu-bg-active: transparent;
+    --header-menu-border: transparent;
+    --header-menu-border-hover: #fff;
+    --header-menu-border-active: var(--primary);
+
+    --footer-text: #676767;
+    --footer-bg: #fff;
+
+    --input-text: #000;
+    --input-text-disabled: #6d6d70;
+    --input-bg: #fff;
+    --input-bg-disabled: #808080;
+    --input-border: #888;
+    --input-border-disabled: #888;
+
+    --form-stripe: #eee;
+
+    --radio-btn-text: #666;
+    --radio-btn-text-hover: var(--main-text);
+    --radio-btn-text-active: #666;
+    --radio-btn-bg: #fff;
+    --radio-btn-bg-hover: var(--primary-light);
+    --radio-btn-bg-active: var(--primary);
+    --radio-btn-text-disabled: #a0a0a0;
+    --radio-btn-bg-disabled: #f0f0f0;
+    --radio-btn-border-disabled: #ccc;
+
+    --upload-bg-text: #000;
+    --upload-bg: #eee;
+    --upload-bg-hover: #ddd;
+
+    --slider-btn-border: #808080;
+    --slider-btn-border-disabled: #dcdcdc;
+
+    --btn-text: #fff;
+    --btn-text-hover: #000;
+    --btn-text-disabled: #5f5f5f;
+    --btn-bg: #888;
+    --btn-bg-hover: var(--primary);
+    --btn-bg-disabled: #ccc;
+    --btn-border: #888;
+    --btn-border-hover: #fdd24f;
+    --btn-border-disabled: #999;
+
+    --table-text-disabled: #888;
+    --table-border: #ccc;
+    --table-bg: #ccc;
+    --table-bg-hover: #f7f7f7;
+    --table-stripe: #eee;
+    --table-expand-bg: #fff;
+    --table-wrap-bg: var(--main-bg);
+
+    --table-tbody-border: #f0f0f0;
+
+    --table-thead-text: #000;
+    --table-thead-bg: #e5e5e5;
+    --table-thead-border: #ccc;
+    --table-thead-bottom-border: #ccc;
+    --table-checkbox-border-checked: #e9efff;
+
+    --dialog-title: #666;
+    --dialog-bg: #fff;
+
+    --popover-bg: #f2f2f2;
+
+    --dropdown-bg: #f2f2f2;
+
+    --transfer-title-bg: #666;
+    --transfer-bg: transparent;
+    --transfer-stripe: transparent;
+    --transfer-border: #999;
+    --transfer-text: var(--main-text);
+    --transfer-btn-bg-disabled: var(--btn-bg-disabled);
+
+    --config-menu-text: #3c3c3c;
+    --config-menu-text-hover: var(--primary);
+    --config-menu-text-active: var(--primary);
+    --config-menu-text-disabled: #d9d9d9;
+    --config-menu-bg: unset;
+    --config-menu-bg-hover: unset;
+    --config-menu-bg-active: unset;
+    --config-menu-bg-disabled: unset;
+    --config-menu-border: #aeaeae;
+    --config-menu-border-hover: var(--primary);
+    --config-menu-border-disabled: #d9d9d9;
+
+    --config-submenu-text: #8f8f8f;
+    --config-submenu-text-hover: var(--primary);
+    --config-submenu-text-disabled: #d9d9d9;
+    --config-submenu-bg: unset;
+
+    --login-bg: var(--main-bg);
+    --login-content-bg: transparent;
+    --login-btn-text: #fff;
+
+    --login-plugin-text: #9b9b9b;
+
+    --authcode-bg: #fff;
+    --authcode-content-bg: transparent;
+    --authcode-btn-text: #fff;
+    --authcode-input-text-disabled: #454545;
+    --authcode-input-bg-disabled: #ccc;
+
+    --config-aside-text: #333;
+    --config-aside-text-hover: #555;
+    --config-aside-text-active: #555;
+    --config-aside-text-disabled: #d9d9d9;
+    --config-aside-bg: unset;
+    --config-aside-item-border-hover: var(--primary);
+    --config-aside-item-bg: unset;
+    --config-aside-item-bg-active: #ffbe00;
+    --config-aside-item-bg-hover: unset;
+
+    --breadcrumb-text: #454545;
+    --breadcrumb-bg: transparent;
+
+    --ptz-btn: #f0f0f0;
+    --ptz-btn-disabled: #fff;
+
+    --ai-menu-bg-disabled: #aeabab;
+    --ai-menu-text-disabled: #797979;
+
+    --ai-linkbox-bg: #d0d0d0;
+    --ai-linkbox-border: #888;
+    --ai-advance-bg: #e5e5e5;
+
+    --output-eth-bg: transparent;
+    --output-tab-bg: #e5e5e5;
+    --output-tab-btn-bg: #e5e5e5;
+
+    --disk-group-text-active: #fff;
+    --disk-group-bg-active: #f4971a;
+
+    --upgrade-text-active: #23de1a;
+
+    --panel-bg: #fff;
+    --panel-header-bg: #fff;
+    --panel-header-text: #666;
+    --panel-header-text-02: #666;
+    --panel-menu-bg: #f0f2f3;
+    --panel-menu-bg-active: #fff;
+    --panel-btn-bg: #d9d9d9;
+    --panel-btn-bg-disabled: #777;
+
+    --panel-chl-border: #eee;
+    --panel-chl-border-hover: var(--primary);
+    --panel-chl-bg: transparent;
+    --panel-chl-bg-hover: transparent;
+
+    --panel-snap-border: black;
+    --panel-snap-history-border: #fc6;
+    --panel-snap-btn-bg: rgb(0 0 0 / 50%);
+
+    --panel-event-text: #d5d4d4;
+    --panel-event-bg: #454545;
+    --panel-event-bg-hover: #f9eecc;
+    --panel-event-bg-active: var(--primary);
+    --panel-event-title-text: #d5d4d4;
+    --panel-event-title-bg: #999;
+
+    --tabbar-text: #333;
+    --tabbar-text-hover: #000;
+    --tabbar-text-active: #676767;
+    --tabbar-bg: #fff;
+    --tabbar-bg-hover: var(--primary-light);
+    --tabbar-bg-active: var(--primary);
+
+    --sidebar-text: var(--header-menu-text);
+    --sidebar-text-hover: #333;
+    --sidebar-text-active: var(--main-text-active);
+    --sidebar-bg: transparent;
+    --sidebar-bg-hover: var(--primary-light);
+    --sidebar-bg-active: var(--primary);
+
+    --backup-snap-bg: #555;
+    --backup-snap-border: #555;
+
+    --intel-snap-border: #000;
+
+    --parklog-label-text: #8d8d8d;
+    --parklog-bg: #f0f2f3;
+    --parklog-box-bg: #d9d9d9;
+    --parklog-title-bg: #cbcbcb;
+
+    --player-bg: #4c4c4b;
+    --player-split-border: #343434;
+
+    --calendar-bg: var(--main-bg);
+    --calendar-header-text: #343434;
+    --calendar-header-bg: #f5f5f5;
+    --calendar-thead-bg: #d4d4d4;
+    --calendar-text-disabled: #ccc;
+    --calendar-border: #dedede;
+    --calendar-bg-hover: #dfdfdf;
+    --calendar-bg-active: var(--primary);
+    --calendar-bg-today: var(--primary-light);
+
+    --loading-bg: rgb(255 255 255 / 30%);
+    --loading-text: #ccc;
+
+    --color-online: green;
+    --color-offline: red;
+    --color-error: red;
+    --color-white: #fff;
+    --color-black: #000;
+
+    --scrollbar-track-bg: #f7f7f7;
+    --scrollbar-track-border: #efefef;
+    --scrollbar-thumb-bg: #e6e6e6;
+    --scrollbar-thumb-border: #e0e0e0;
+    --scrollbar-thumb-bg-hover: #d9d9d9;
+    --scrollbar-thumb-bg-active: #c2c2c2;
+
+    --timeline-legend-bg: #666;
+
+    --timeline-bg-02: #fff;
+    --timeline-scale-line-02: #aaa;
+    --timeline-scale-text-02: #333;
+    --timeline-split-line-02: #ccc;
+    --timeline-pointer-02: #409eff;
+    --timeline-pointer-time-02: #333;
+    --timeline-moving-pointer-02: #ddd;
+    --timeline-moving-time-bg-02: rgb(0 0 0 / 50%);
+    --timeline-moving-time-text-02: #fff;
+    --timeline-range-mask-02: rgb(0 187 219 / 50%);
+
+    --barchart-text: black;
+    --barchart-line: #ac7e7e;
+    --barchart-item-01: #c94049;
+    --barchart-item-02: #10df63;
+
+    --schedule-form-text: var(--main-text);
+    --schedule-form-bg: #eee;
+    --schedule-form-btn: #6e83b3;
+    --schedule-btn: #6e83b3;
+    --schedule-scale: #000;
+    --schedule-time-span-bg: #f2f2f3;
+    --schedule-time-span-bg-active: #fdd24f;
+    --schedule-time-span-bg-selection: #fdd24f;
+
+    --float-ok: #006400;
+    --float-error: #f00;
+
+    --qrcode-bg: #fff;
+    --qrcode-label-bg: #8f8d8d;
+
+    --plugin-link-text: #327eee;
+    --plugin-link-text-hover: #fdd24f;
+
+    --pagination-border: #888;
+    --pagination-border-hover: #cacaca;
+    --pagination-border-disabled: #e0e0e0;
+
+    --datepicker-header-bg: #f3f8ff;
+    --datepicker-border: #b9d7fc;
+    --datepicker-text: #000;
+    --datepicker-text-hover: #06c;
+    --datepicker-bg-hover: #f3f8ff;
+    --datepicker-border-hover: #06c;
+    --datepicker-btn-border: #b9d7fc;
+    --datepicker-btn-bg: #f3f8ff;
+    --datepicker-btn-text: #06c;
+    --datepicker-input-border: #b9d7fc;
+    --datepicker-input-bg: #fff;
+    --datepicker-input-text: #000;
+
+    --tooltip-border: #111;
+    --tooltip-text: #333;
+}

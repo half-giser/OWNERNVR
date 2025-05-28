@@ -2,28 +2,23 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-17 17:21:49
  * @Description: 编辑用户信息弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 20:50:29
  */
-import BaseSensitiveEmailInput from '../../components/form/BaseSensitiveEmailInput.vue'
-import { UserEditForm, type UserAuthGroupOption } from '@/types/apiType/userAndSecurity'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
-    components: {
-        BaseSensitiveEmailInput,
-    },
     props: {
         /**
          * @property 用户ID
          */
         userId: {
             type: String,
-            require: true,
-            default: '',
+            required: true,
         },
     },
     emits: {
+        confirm() {
+            return true
+        },
         close() {
             return true
         },
@@ -34,41 +29,21 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const userSession = useUserSessionStore()
-        const { openMessageTipBox } = useMessageBox()
-        const { closeLoading, LoadingTarget, openLoading } = useLoading()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new UserEditForm())
 
         const pageData = ref({
-            // 是否显示AuthGroup选项框
-            isAuthGroup: false,
-            // Enable选项框的disable
-            isEnableDisabled: false,
-            // AuthEffective选项框的disable
-            isAuthEffectiveDisabled: false,
-            // AuthGroup选项框的disable
-            isAuthGroupDisabled: false,
-            // 是否显示修改密码按钮
-            isChangePasswordBtn: false,
+            isEditAdmin: false,
+            isEditSelf: false,
+            isEditDebug: false,
+            isSchedulePop: false,
+            scheduleList: [] as SelectOption<string, string>[],
+            isAdmin: userSession.userType === USER_TYPE_DEFAULT_ADMIN,
+            isCheckAuthPop: false,
         })
 
-        const rules = ref<FormRules>({
-            email: [
-                {
-                    validator: (rule, value: string, callback) => {
-                        if (value.length && !checkEmail(value)) {
-                            callback(new Error(Translate('IDCS_PROMPT_INVALID_EMAIL')))
-                            return
-                        }
-                        callback()
-                    },
-                    trigger: 'manual',
-                },
-            ],
-        })
-
-        const authGroupOptions = ref<UserAuthGroupOption[]>([])
+        const authGroupOptions = ref<SelectOption<string, string>[]>([])
 
         /**
          * @description 回显用户信息
@@ -81,43 +56,37 @@ export default defineComponent({
             `
             const result = await queryUser(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                formData.value.enabled = $('/response/content/enabled').text().toBoolean()
-                formData.value.userName = $('/response/content/userName').text()
-                formData.value.email = $('/response/content/email').text()
-                formData.value.authGroup = $('/response/content/authGroup').attr('id') as string
-                formData.value.allowModifyPassword = $('/response/content/modifyPassword').text().toBoolean()
-                formData.value.authEffective = $('/response/content/authEffective').text().toBoolean()
+            if ($('status').text() === 'success') {
+                formData.value.enabled = $('content/enabled').text().bool()
+                formData.value.userName = $('content/userName').text()
+                formData.value.userNameMaxByteLen = $('content/userName').attr('maxByteLen').num() || nameByteMaxLen
+                formData.value.email = $('content/email').text()
+                formData.value.emailMaxByteLen = $('content/email').attr('maxByteLen').num() || nameByteMaxLen
+                formData.value.authGroup = $('content/authGroup').attr('id')
+                formData.value.allowModifyPassword = $('content/modifyPassword').text().bool()
+                formData.value.authEffective = !$('content/authEffective').text().bool()
+                formData.value.accessCode = $('content/accessCode').text().bool()
+                formData.value.loginScheduleInfoEnabled = $('content/loginScheduleInfo').attr('enable').bool()
+                formData.value.loginScheduleInfo = $('content/loginScheduleInfo').attr('scheduleId')
 
-                const authInfo = userSession.getAuthInfo()
-                const currentUserName = authInfo ? authInfo[0] : ''
+                const currentUserName = userSession.userName
                 const editUserName = formData.value.userName
-                const editUserType = $('/response/content/userType').text()
-                pageData.value.isAuthGroup = USER_TYPE_DEFAULT_ADMIN !== editUserType
-                pageData.value.isEnableDisabled = false
+                const editUserType = $('content/userType').text()
 
-                if (currentUserName === editUserName) {
-                    pageData.value.isEnableDisabled = true
-                }
+                pageData.value.isEditAdmin = USER_TYPE_DEFAULT_ADMIN === editUserType
+                pageData.value.isEditSelf = currentUserName === editUserName
+                pageData.value.isEditDebug = 'debug' === editUserType
 
-                if (editUserType === USER_TYPE_DEFAULT_ADMIN) {
-                    pageData.value.isEnableDisabled = true
-                    pageData.value.isAuthEffectiveDisabled = true
-                    pageData.value.isAuthGroupDisabled = true
-                    pageData.value.isChangePasswordBtn = false
+                if (pageData.value.isEditAdmin) {
                     authGroupOptions.value = [
                         {
-                            id: '',
-                            name: 'Administrator',
+                            value: '',
+                            label: displayAuthGroup('Administrator'),
                         },
                     ]
-                } else {
-                    pageData.value.isAuthEffectiveDisabled = false
-                    pageData.value.isAuthGroupDisabled = false
-                    pageData.value.isChangePasswordBtn = true
                 }
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 let errorText = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR:
@@ -126,13 +95,7 @@ export default defineComponent({
                     default:
                         errorText = Translate('IDCS_QUERY_DATA_FAIL')
                 }
-                openMessageTipBox({
-                    type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
-                    message: errorText,
-                }).then(() => {
-                    ctx.emit('close')
-                })
+                openMessageBox(errorText)
             }
         }
 
@@ -144,33 +107,20 @@ export default defineComponent({
         }
 
         /**
-         * @description 表单验证
-         */
-        const verify = () => {
-            formRef.value?.validate((valid) => {
-                if (valid) {
-                    doEditUser()
-                }
-            })
-        }
-
-        /**
          * @description 获取权限组
          */
         const getAuthGroup = async () => {
             const sendXml = rawXml`
-                <requireField>
-                    <name/>
-                </requireField>
+                <name/>
             `
             const result = await queryAuthGroupList(sendXml)
 
             commLoadResponseHandler(result, ($) => {
-                authGroupOptions.value = $('/response/content/item').map((item) => {
+                authGroupOptions.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        id: item.attr('id')!,
-                        name: $item('name').text(),
+                        value: item.attr('id'),
+                        label: displayAuthGroup($item('name').text()),
                     }
                 })
             })
@@ -180,7 +130,11 @@ export default defineComponent({
          * @description 确认修改用户信息
          */
         const doEditUser = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            pageData.value.isCheckAuthPop = true
+        }
+
+        const confirmEditUser = async (e: UserCheckAuthForm) => {
+            openLoading()
 
             const sendXml = rawXml`
                 <content>
@@ -188,22 +142,29 @@ export default defineComponent({
                     <userName>${wrapCDATA(formData.value.userName)}</userName>
                     <authGroup id="${formData.value.authGroup}"></authGroup>
                     <bindMacSwitch>false</bindMacSwitch>
-                    <modifyPassword>${String(formData.value.allowModifyPassword)}</modifyPassword>
-                    <mac>${wrapCDATA('00:00:00:00:00:00')}</mac>
+                    <modifyPassword>${formData.value.allowModifyPassword}</modifyPassword>
+                    <mac>${wrapCDATA(DEFAULT_EMPTY_MAC)}</mac>
                     <email>${wrapCDATA(formData.value.email)}</email>
-                    <enabled>${String(formData.value.enabled)}</enabled>
-                    <authEffective>${String(formData.value.authEffective)}</authEffective>
+                    <enabled>${formData.value.enabled}</enabled>
+                    ${pageData.value.isAdmin ? `<accessCode>${formData.value.accessCode}</accessCode>` : ''}
+                    ${!pageData.value.isEditAdmin && !pageData.value.isEditDebug ? `<loginScheduleInfo enable="${formData.value.loginScheduleInfoEnabled}" scheduleId="${formData.value.loginScheduleInfo}"></loginScheduleInfo>` : ''}
+                    <authEffective>${!formData.value.authEffective}</authEffective>
                 </content>
+                <auth>
+                    <userName>${e.userName}</userName>
+                    <password>${e.hexHash}</password>
+                </auth>
             `
             const result = await editUser(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
-            if ($('/response/status').text() === 'success') {
-                ctx.emit('close')
+            if ($('status').text() === 'success') {
+                pageData.value.isCheckAuthPop = false
+                ctx.emit('confirm')
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = $('errorCode').text().num()
                 let errorText = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR:
@@ -212,22 +173,17 @@ export default defineComponent({
                     default:
                         errorText = Translate('IDCS_SAVE_DATA_FAIL')
                 }
-                openMessageTipBox({
-                    type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
-                    message: errorText,
-                }).then(() => {
-                    ctx.emit('close')
-                })
+                openMessageBox(errorText)
             }
         }
 
         /**
          * @description 打开弹窗时的数据请求
          */
-        const handleOpen = async () => {
+        const open = async () => {
             await getAuthGroup()
-            await getUser()
+            await getScheduleList()
+            getUser()
         }
 
         /**
@@ -235,6 +191,16 @@ export default defineComponent({
          */
         const goBack = () => {
             ctx.emit('close')
+        }
+
+        const getScheduleList = async () => {
+            pageData.value.scheduleList = await buildScheduleList()
+        }
+
+        const closeSchedulePop = async () => {
+            pageData.value.isSchedulePop = false
+            await getScheduleList()
+            formData.value.loginScheduleInfo = getScheduleId(pageData.value.scheduleList, formData.value.loginScheduleInfo)
         }
 
         /**
@@ -252,13 +218,12 @@ export default defineComponent({
             formData,
             pageData,
             authGroupOptions,
-            handleOpen,
+            open,
             changePassword,
-            verify,
-            rules,
+            doEditUser,
             goBack,
-            displayAuthGroup,
-            BaseSensitiveEmailInput,
+            closeSchedulePop,
+            confirmEditUser,
         }
     },
 })

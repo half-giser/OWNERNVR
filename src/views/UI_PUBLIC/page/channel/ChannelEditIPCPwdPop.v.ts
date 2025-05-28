@@ -1,72 +1,71 @@
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-05-23 10:00:43
- * @Description:
+ * @Description: 通道 - 编辑IPC密码弹窗
  */
-import { type ChannelInfoDto } from '@/types/apiType/channel'
-import { type FormInstance } from 'element-plus'
-import { getSecurityVer } from '../../../../utils/tools'
-import { AES_encrypt } from '../../../../utils/encrypt'
-import { useUserSessionStore } from '@/stores/userSession'
-import { getXmlWrapData } from '../../../../api/api'
-import { editIPChlPassword } from '../../../../api/channel'
-import { queryXml } from '../../../../utils/xmlParse'
-import useMessageBox from '@/hooks/useMessageBox'
-import useLoading from '@/hooks/useLoading'
-import { useLangStore } from '@/stores/lang'
+import { type TableInstance, type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
-        editData: Array<ChannelInfoDto>,
-        nameMapping: Object,
-        close: {
-            type: Function,
-            require: true,
-            default: () => {},
+        editData: {
+            type: Array as PropType<ChannelInfoDto[]>,
+            required: true,
+        },
+        nameMapping: {
+            type: Object as PropType<Record<string, string>>,
+            default: () => ({}),
         },
     },
-    setup(props: any) {
+    emits: {
+        close() {
+            return true
+        },
+    },
+    setup(props, { emit }) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const userSessionStore = useUserSessionStore()
-        const { openMessageTipBox } = useMessageBox()
-        const tableRef = ref()
-        const tableData = ref([] as Array<ChannelInfoDto>)
-        const formRef = ref<FormInstance>()
-        const formData = ref({} as Record<string, string>)
 
-        const validate = {
-            validatePassword: (_rule: any, value: any, callback: any) => {
-                if (!value) {
-                    callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
-                    return
-                }
-                callback()
-            },
-            validateConfirmPassword: (_rule: any, value: any, callback: any) => {
-                if (formData.value.password != value) {
-                    callback(new Error(Translate('IDCS_PWD_MISMATCH_TIPS')))
-                    return
-                }
-                callback()
-            },
-        }
+        const tableRef = ref<TableInstance>()
+        const tableData = ref<Array<ChannelInfoDto>>([])
+        const formRef = useFormRef()
+        const formData = ref<Record<string, string>>({})
 
-        const rules = ref({
-            password: [{ validator: validate.validatePassword, trigger: 'manual' }],
-            confirmPassword: [{ validator: validate.validateConfirmPassword, trigger: 'manual' }],
+        const rules = ref<FormRules>({
+            password: [
+                {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value) {
+                            callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
+                            return
+                        }
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
+            confirmPassword: [
+                {
+                    validator: (_rule, value: string, callback) => {
+                        if (formData.value.password !== value) {
+                            callback(new Error(Translate('IDCS_PWD_MISMATCH_TIPS')))
+                            return
+                        }
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
         })
 
         const handleRowClick = (rowData: ChannelInfoDto) => {
-            tableRef.value.clearSelection()
-            tableRef.value.toggleRowSelection(rowData, true)
+            tableRef.value!.clearSelection()
+            tableRef.value!.toggleRowSelection(rowData, true)
         }
 
         const opened = () => {
-            if (formRef.value) formRef.value.resetFields()
             formData.value = {}
-            tableData.value = props.editData.filter((ele: ChannelInfoDto) => {
-                return ele.chlStatus == Translate('IDCS_ONLINE') && ele.protocolType == 'TVT_IPCAMERA' && ele.addType != 'poe'
+            tableData.value = props.editData.filter((ele) => {
+                return ele.isOnline && ele.protocolType === 'TVT_IPCAMERA' && ele.addType !== 'poe'
             })
             tableData.value.sort((a, b) => {
                 //按字符串排序 (NT2-1297)
@@ -82,59 +81,52 @@ export default defineComponent({
                 }
                 return result
             })
-            tableRef.value.toggleAllSelection()
+            tableRef.value!.toggleAllSelection()
+        }
+
+        const sendData = async (ele: ChannelInfoDto) => {
+            const sendXml = rawXml`
+                <content>
+                    <chl id='${ele.id}'>
+                        <password${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.password, userSessionStore.sesionKey))}</password>
+                    </chl>
+                </content>
+            `
+            const res = await editIPChlPassword(sendXml)
+            if (queryXml(res)('status').text() === 'success') {
+                return true
+            } else {
+                return false
+            }
         }
 
         const save = () => {
-            if (!formRef) return false
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate(async (valid) => {
                 if (valid) {
-                    const rows = tableRef.value.getSelectionRows()
-                    const total = rows.length
-                    let count = 0
-                    let successCount = 0
-                    let saveFailIpc = ''
-                    if (rows.length == 0) return
+                    const rows = tableRef.value!.getSelectionRows()
+                    if (!rows.length) return
 
-                    const sendData = (ele: ChannelInfoDto) => {
-                        const data = `<content>
-                            <chl id='${ele.id}'>
-                                <password${getSecurityVer()}><![CDATA[${AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>
-                            </chl>
-                        </content>`
-                        editIPChlPassword(getXmlWrapData(data)).then((res: any) => {
-                            count++
-                            if (queryXml(res)('status').text() == 'success') {
-                                successCount++
-                            } else {
-                                saveFailIpc += `${props.nameMapping[ele.id]},`
-                            }
-                            if (count == total) {
-                                closeLoading(LoadingTarget.FullScreen)
-                                props.close()
-                                if (successCount == total) {
-                                    openMessageTipBox({
-                                        type: 'success',
-                                        title: Translate('IDCS_SUCCESS_TIP'),
-                                        message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                                        showCancelButton: false,
-                                    })
-                                } else {
-                                    openMessageTipBox({
-                                        type: 'info',
-                                        title: Translate('IDCS_INFO_TIP'),
-                                        message: saveFailIpc + Translate('IDCS_SAVE_DATA_FAIL'),
-                                        showCancelButton: false,
-                                    })
-                                }
-                            }
-                        })
+                    openLoading()
+
+                    const saveFailIpc: string[] = []
+                    for (let i = 0; i < rows.length; i++) {
+                        const result = await sendData(rows[i])
+                        if (!result) {
+                            saveFailIpc.push(props.nameMapping[rows[i].id])
+                        }
                     }
 
-                    openLoading(LoadingTarget.FullScreen)
-                    rows.forEach((ele: ChannelInfoDto) => {
-                        sendData(ele)
-                    })
+                    closeLoading()
+
+                    emit('close')
+                    if (saveFailIpc.length) {
+                        openMessageBox(saveFailIpc.join(', ') + ' ' + Translate('IDCS_SAVE_DATA_FAIL'))
+                    } else {
+                        openMessageBox({
+                            type: 'success',
+                            message: Translate('IDCS_SAVE_DATA_SUCCESS'),
+                        })
+                    }
                 }
             })
         }

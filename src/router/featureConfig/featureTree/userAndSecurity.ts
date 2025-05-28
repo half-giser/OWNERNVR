@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 11:47:13
  * @Description: 功能面板-账户和安全
  */
-export default {
+const userAndSecurityRoutes: FeatureItem = {
     component: 'layout/L2T1Layout.vue',
     path: 'security',
     meta: {
@@ -11,6 +11,7 @@ export default {
         lk: 'IDCS_ACCOUNT_AND_SECURITY',
         plClass: 'md1',
         icon: 'user',
+        auth: 'securityMgr',
         groups: {
             //账户和权限
             account: {
@@ -33,8 +34,8 @@ export default {
         },
     },
     children: {
+        // 添加用户
         userAdd: {
-            //添加用户
             path: 'user/add',
             component: 'userAndSecurity/UserAdd.vue',
             meta: {
@@ -46,8 +47,8 @@ export default {
                 homeSort: 10,
             },
         },
+        // 查看或更改用户
         userlist: {
-            //查看或更改用户
             path: 'user/list',
             components: {
                 toolBar: 'userAndSecurity/UserToolBar.vue',
@@ -58,12 +59,14 @@ export default {
                 lk: 'IDCS_CHANGE_OR_DELETE_USER',
                 group: 'account',
                 default: true,
+                homeDefault: true,
                 inHome: 'self',
                 homeSort: 20,
+                minHeight: 850,
             },
         },
+        // 添加权限组
         permissionGroupAdd: {
-            //添加权限组
             path: 'auth_group/add',
             component: 'userAndSecurity/PermissionGroupAdd.vue',
             meta: {
@@ -71,10 +74,11 @@ export default {
                 lk: 'IDCS_ADD_USER_RIGHT',
                 noMenu: true,
                 group: 'account',
+                minHeight: 850,
             },
         },
+        // 查看或更改权限组
         permissionGroup: {
-            //查看或更改权限组
             path: 'auth_group/list',
             components: {
                 toolBar: 'userAndSecurity/PermissionToolBar.vue',
@@ -86,11 +90,12 @@ export default {
                 group: 'account',
                 inHome: 'self',
                 homeSort: 30,
+                minHeight: 850,
             },
         },
+        // 黑白名单
         blockAndAllowList: {
-            //黑白名单
-            path: 'security/rule/filter',
+            path: 'rule/filter',
             component: 'userAndSecurity/BlockAndAllowList.vue',
             meta: {
                 sort: 10,
@@ -101,9 +106,9 @@ export default {
                 homeSort: 40,
             },
         },
+        // 登出后预览
         previewOnLogout: {
-            //登出后预览
-            path: 'security/preview/logout',
+            path: 'preview/logout',
             component: 'userAndSecurity/PreviewOnLogout.vue',
             meta: {
                 sort: 20,
@@ -111,9 +116,9 @@ export default {
                 group: 'security',
             },
         },
+        // 网络安全
         networkSecurity: {
-            //网络安全
-            path: 'security/network/security',
+            path: 'network/security',
             component: 'userAndSecurity/NetworkSecurity.vue',
             meta: {
                 sort: 30,
@@ -121,19 +126,50 @@ export default {
                 group: 'security',
             },
         },
+        // 密码安全
         passwordSecurity: {
-            //密码安全
-            path: 'security/passwordSecurity',
+            path: 'passwordSecurity',
             component: 'userAndSecurity/PasswordSecurity.vue',
             meta: {
                 sort: 40,
                 lk: 'IDCS_PASSWORD_SAFETY',
                 group: 'security',
+                hasCap(systemCaps) {
+                    return systemCaps.supportPwdSecurityConfig
+                },
             },
         },
+        // 找回密码设置 1.4.13
+        findPassword: {
+            path: 'findPwd',
+            component: 'userAndSecurity/FindPassword.vue',
+            meta: {
+                sort: 50,
+                lk: 'IDCS_PASSWORD_PROTECT_SET',
+                group: 'security',
+                hasCap() {
+                    const userSession = useUserSessionStore()
+                    return userSession.userType === USER_TYPE_DEFAULT_ADMIN
+                },
+            },
+        },
+        // 双重认证 1.4.13
+        dualAuth: {
+            path: 'dualAuthConfig',
+            component: 'userAndSecurity/DualAuthConfig.vue',
+            meta: {
+                sort: 60,
+                lk: 'IDCS_DOUBLE_VERIFICATION',
+                group: 'security',
+                hasCap() {
+                    const userSession = useUserSessionStore()
+                    return userSession.userType === USER_TYPE_DEFAULT_ADMIN
+                },
+            },
+        },
+        // 在线用户
         onlineUser: {
-            //在线用户
-            path: 'security/user/status',
+            path: 'user/status',
             component: 'userAndSecurity/OnlineUser.vue',
             meta: {
                 sort: 10,
@@ -143,4 +179,6 @@ export default {
             },
         },
     },
-} as FeatureItem
+}
+
+export default userAndSecurityRoutes

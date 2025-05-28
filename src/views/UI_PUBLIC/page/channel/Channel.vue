@@ -1,279 +1,235 @@
-<!-- eslint-disable vue/eqeqeq -->
 <!--
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-05-04 12:58:39
- * @Description:
+ * @Description: 通道列表
 -->
 <template>
-    <div>
-        <el-table
-            ref="tableRef"
-            class="ChannelList"
-            border
-            stripe
-            :data="tableData"
-            table-layout="fixed"
-            show-overflow-tooltip
-            empty-text=" "
-            highlight-current-row
-        >
-            <el-table-column
-                prop="chlNum"
-                :label="Translate('IDCS_CHANNEL_NUMBER')"
-                width="80px"
-            />
-            <el-table-column
-                prop="name"
-                :label="Translate('IDCS_CHANNEL_NAME')"
-                min-width="200px"
+    <div class="base-flex-box">
+        <div class="base-table-box">
+            <el-table
+                ref="tableRef"
+                v-title
+                :data="virtualTableData"
+                show-overflow-tooltip
+                highlight-current-row
             >
-                <template #default="scope">
-                    <span>{{ formatDisplayName(scope.row) }}</span>
-                </template>
-            </el-table-column>
-            <el-table-column
-                prop="ip"
-                :label="Translate('IDCS_ADDRESS')"
-                min-width="140px"
-            />
-            <el-table-column
-                :label="Translate('IDCS_PORT')"
-                width="80px"
-            >
-                <template #default="scope">
-                    <span>{{ scope.row.port === '0' ? '' : scope.row.port }}</span>
-                </template>
-            </el-table-column>
-            <el-table-column
-                :label="Translate('IDCS_CONNECT_STATUS')"
-                width="100px"
-            >
-                <template #default="scope">
-                    <span
-                        class="status"
-                        :class="{ online: scope.row.chlStatus === Translate('IDCS_ONLINE'), offline: scope.row.chlStatus === Translate('IDCS_OFFLINE') }"
-                        >{{ scope.row.chlStatus }}</span
-                    >
-                </template>
-            </el-table-column>
-            <el-table-column
-                prop="manufacturer"
-                :label="Translate('IDCS_PROTOCOL')"
-                min-width="140px"
-            >
-                <template #default="scope">
-                    <span>{{ formatDisplayManufacturer(scope.row) }}</span>
-                </template>
-            </el-table-column>
-            <el-table-column
-                prop="productModel.innerText"
-                :label="Translate('IDCS_PRODUCT_MODEL')"
-                min-width="140px"
-            />
-            <el-table-column
-                :label="Translate('IDCS_PREVIEW')"
-                width="80px"
-            >
-                <template #default="scope">
-                    <BaseImgSprite
-                        file="play (3)"
-                        :chunk="4"
-                        :index="0"
-                        :hover-index="1"
-                        :active-index="1"
-                        @click="handlePreview(scope.row)"
-                    />
-                </template>
-            </el-table-column>
-            <el-table-column
-                :label="Translate('IDCS_EDIT')"
-                width="80px"
-            >
-                <template #header>
-                    <el-dropdown trigger="click">
-                        <span class="el-dropdown-link">
-                            {{ Translate('IDCS_EDIT') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                <el-table-column
+                    :label="Translate('IDCS_CHANNEL_NUMBER')"
+                    width="80"
+                >
+                    <template #default="{ $index }: TableColumn<number>">
+                        {{ tableData[$index].chlNum }}
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    :label="Translate('IDCS_CHANNEL_NAME')"
+                    min-width="200"
+                >
+                    <template #default="{ $index }: TableColumn<number>">
+                        {{ formatDisplayName(tableData[$index]) }}
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    :label="Translate('IDCS_ADDRESS')"
+                    min-width="140"
+                >
+                    <template #default="{ $index }: TableColumn<number>">
+                        {{ tableData[$index].ip }}
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    :label="Translate('IDCS_SUB_DEVICE_ID')"
+                    width="150"
+                >
+                    <template #default="{ $index }: TableColumn<number>">
+                        {{ tableData[$index].autoReportID || '--' }}
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    :label="Translate('IDCS_REMOTE_CHANNEL_NUMBER')"
+                    width="100"
+                >
+                    <template #default="{ $index }: TableColumn<number>">
+                        {{ tableData[$index].chlIndex + 1 }}
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    :label="Translate('IDCS_PORT')"
+                    width="80"
+                >
+                    <template #default="{ $index }: TableColumn<number>">
+                        {{ tableData[$index].protocolType === 'RTSP' ? '' : tableData[$index].autoReportID !== '' ? '--' : tableData[$index].port }}
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    :label="Translate('IDCS_CONNECT_STATUS')"
+                    width="100"
+                >
+                    <template #default="{ $index }: TableColumn<number>">
+                        <span
+                            class="status"
+                            :class="tableData[$index].isOnline ? 'text-online' : 'text-offline'"
+                        >
+                            {{ tableData[$index].ip === '' ? '' : tableData[$index].isOnline ? Translate('IDCS_ONLINE') : Translate('IDCS_OFFLINE') }}
                         </span>
-                        <template #dropdown>
-                            <el-dropdown-menu>
-                                <el-dropdown-item @click="handleEditIPCPwd">{{ Translate('IDCS_MODIFY_IPC_PASSWORD') }}</el-dropdown-item>
-                            </el-dropdown-menu>
-                        </template>
-                    </el-dropdown>
-                </template>
-                <template #default="scope">
-                    <BaseImgSprite
-                        file="edit (2)"
-                        :chunk="4"
-                        :index="0"
-                        :hover-index="1"
-                        :active-index="1"
-                        @click="handleEditChannel(scope.row)"
-                    />
-                </template>
-            </el-table-column>
-            <el-table-column
-                :label="Translate('IDCS_DELETE')"
-                width="80px"
-            >
-                <template #header>
-                    <el-dropdown trigger="click">
-                        <span class="el-dropdown-link">
-                            {{ Translate('IDCS_DELETE') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                        </span>
-                        <template #dropdown>
-                            <el-dropdown-menu>
-                                <el-dropdown-item @click="handleDelChannelAll">{{ Translate('IDCS_DELETE_ALL') }}</el-dropdown-item>
-                            </el-dropdown-menu>
-                        </template>
-                    </el-dropdown>
-                </template>
-                <template #default="scope">
-                    <BaseImgSprite
-                        file="del"
-                        :chunk="4"
-                        :index="0"
-                        :hover-index="1"
-                        :active-index="1"
-                        :class="{ disabled: scope.row.delDisabled }"
-                        @click="handleDelChannel(scope.row)"
-                    />
-                </template>
-            </el-table-column>
-            <el-table-column
-                prop="setting"
-                :label="Translate('IDCS_CONFIGURATION')"
-                width="80px"
-            >
-                <template #default="scope">
-                    <BaseImgSprite
-                        v-show="scope.row.showSetting"
-                        file="localCfg"
-                        :chunk="4"
-                        :index="0"
-                        :hover-index="1"
-                        :active-index="1"
-                        @click="handleSettingChannel(scope.row)"
-                    />
-                </template>
-            </el-table-column>
-            <el-table-column
-                prop="upgrade"
-                :label="Translate('IDCS_UPGRADE')"
-                width="80px"
-            >
-                <template #header>
-                    <el-dropdown trigger="click">
-                        <span class="el-dropdown-link">
-                            {{ Translate('IDCS_UPGRADE') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                        </span>
-                        <template #dropdown>
-                            <el-dropdown-menu>
-                                <el-dropdown-item @click="handleBatchUpgradeIPC">{{ Translate('IDCS_IPC_BATCH_UPGRADE') }}</el-dropdown-item>
-                            </el-dropdown-menu>
-                        </template>
-                    </el-dropdown>
-                </template>
-                <template #default="scope">
-                    <BaseImgSprite
-                        v-show="handleShowUpgradeBtn(scope.row) && scope.row.upgradeStatus == 'normal'"
-                        file="upload"
-                        :chunk="4"
-                        :index="0"
-                        :hover-index="1"
-                        :active-index="1"
-                        :disabled-index="3"
-                        :disabled="scope.row.upgradeDisabled"
-                        @click="handleUpgradeIPC(scope.row)"
-                    />
-                    <BaseImgSprite
-                        v-show="scope.row.upgradeStatus == 'error'"
-                        file="error"
-                        :chunk="1"
-                        :index="0"
-                        @click="handleUpgradeIPC(scope.row)"
-                    />
-                    <BaseImgSprite
-                        v-show="scope.row.upgradeStatus == 'success'"
-                        file="success"
-                        :chunk="1"
-                        :index="0"
-                        @click="handleUpgradeIPC(scope.row)"
-                    />
-                    <span v-show="scope.row.upgradeStatus == 'progress'">{{ scope.row.upgradeProgressText }}</span>
-                </template>
-            </el-table-column>
-            <el-table-column
-                prop="version"
-                :label="Translate('IDCS_VERSION')"
-                min-width="140px"
-            />
-        </el-table>
-        <el-row class="row_ip">
-            <el-col v-if="ipNumVisable">
-                <span>{{ Translate('IDCS_IP_NUM') }}</span>
-                <span>{{ ipNum }}</span>
-            </el-col>
-        </el-row>
-        <el-row class="row_brandwidth">
-            <span>{{ txtBrandwidth }}</span>
-        </el-row>
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    :label="Translate('IDCS_PROTOCOL')"
+                    min-width="140"
+                >
+                    <template #default="{ $index }: TableColumn<number>">
+                        {{ formatDisplayManufacturer(tableData[$index]) }}
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    :label="Translate('IDCS_PRODUCT_MODEL')"
+                    min-width="140"
+                >
+                    <template #default="{ $index }: TableColumn<number>">
+                        {{ tableData[$index].productModel.innerText }}
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    :label="Translate('IDCS_PREVIEW')"
+                    width="80"
+                >
+                    <template #default="{ $index }: TableColumn<number>">
+                        <BaseImgSpriteBtn
+                            file="preview"
+                            @click="handlePreview(tableData[$index])"
+                        />
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    :label="Translate('IDCS_EDIT')"
+                    width="80"
+                >
+                    <template #header>
+                        <el-dropdown>
+                            <BaseTableDropdownLink>
+                                {{ Translate('IDCS_EDIT') }}
+                            </BaseTableDropdownLink>
+                            <template #dropdown>
+                                <el-dropdown-menu>
+                                    <el-dropdown-item @click="editIPCPwd">{{ Translate('IDCS_MODIFY_IPC_PASSWORD') }}</el-dropdown-item>
+                                </el-dropdown-menu>
+                            </template>
+                        </el-dropdown>
+                    </template>
+                    <template #default="{ $index }: TableColumn<number>">
+                        <BaseImgSpriteBtn
+                            file="edit2"
+                            @click="editChannel(tableData[$index])"
+                        />
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    :label="Translate('IDCS_DELETE')"
+                    width="80"
+                >
+                    <template #header>
+                        <el-dropdown>
+                            <BaseTableDropdownLink>
+                                {{ Translate('IDCS_DELETE') }}
+                            </BaseTableDropdownLink>
+                            <template #dropdown>
+                                <el-dropdown-menu>
+                                    <el-dropdown-item @click="delAllChannel">{{ Translate('IDCS_DELETE_ALL') }}</el-dropdown-item>
+                                </el-dropdown-menu>
+                            </template>
+                        </el-dropdown>
+                    </template>
+                    <template #default="{ $index }: TableColumn<number>">
+                        <BaseImgSpriteBtn
+                            file="del"
+                            :disabled="tableData[$index].delDisabled"
+                            @click="delChannel(tableData[$index])"
+                        />
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    :label="Translate('IDCS_CONFIGURATION')"
+                    width="80"
+                >
+                    <template #default="{ $index }: TableColumn<number>">
+                        <BaseImgSpriteBtn
+                            v-show="tableData[$index].showSetting"
+                            file="localCfg"
+                            :disabled="!tableData[$index].supportSetting"
+                            @click="setChannel(tableData[$index])"
+                        />
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    :label="Translate('IDCS_UPGRADE')"
+                    width="80"
+                >
+                    <template #header>
+                        <el-dropdown>
+                            <BaseTableDropdownLink>
+                                {{ Translate('IDCS_UPGRADE') }}
+                            </BaseTableDropdownLink>
+                            <template #dropdown>
+                                <el-dropdown-menu>
+                                    <el-dropdown-item @click="upgradeIPCBatch">{{ Translate('IDCS_IPC_BATCH_UPGRADE') }}</el-dropdown-item>
+                                </el-dropdown-menu>
+                            </template>
+                        </el-dropdown>
+                    </template>
+                    <template #default="{ $index }: TableColumn<ChannelInfoDto>">
+                        <BaseImgSpriteBtn
+                            v-show="isShowUpgradeBtn(tableData[$index]) && tableData[$index].upgradeStatus === 'normal'"
+                            file="upload"
+                            :disabled="isUpgradeDisabled(tableData[$index])"
+                            @click="upgradeIPC(tableData[$index])"
+                        />
+                        <BaseImgSprite
+                            v-show="tableData[$index].upgradeStatus === 'error'"
+                            file="error"
+                            @click="upgradeIPC(tableData[$index])"
+                        />
+                        <BaseImgSprite
+                            v-show="tableData[$index].upgradeStatus === 'success'"
+                            file="success"
+                        />
+                        <span v-show="tableData[$index].upgradeStatus === 'progress'">{{ tableData[$index].upgradeProgressText }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    :label="Translate('IDCS_VERSION')"
+                    min-width="140"
+                >
+                    <template #default="{ $index }: TableColumn<number>">
+                        {{ tableData[$index].version }}
+                    </template>
+                </el-table-column>
+            </el-table>
+        </div>
+        <div class="base-btn-box flex-start">
+            <div v-show="ipNumVisable">{{ Translate('IDCS_IP_NUM') }} {{ ipNum }}</div>
+        </div>
+        <div class="base-btn-box flex-start collapse">
+            {{ txtBrandwidth }}
+        </div>
         <ChannelEditPop
             v-model="channelEditPopVisable"
             :row-data="editRowData"
             :protocol-list="protocolList"
             :manufacturer-map="manufacturerMap"
-            :close="closeEditChannelPop"
-            :name-mapping="editNameMapping"
-            :set-data-call-back="setDataCallBack"
-        >
-        </ChannelEditPop>
+            :name-mapping="nameMapping"
+            @confirm="confirmEditChannel"
+            @close="closeEditChannelPop"
+        />
         <ChannelEditIPCPwdPop
             v-model="editIPCPwdPopVisiable"
             :edit-data="tableData"
-            :name-mapping="editNameMapping"
-            :close="closeEditIPCPwdPop"
-        >
-        </ChannelEditIPCPwdPop>
-        <BaseLivePop ref="baseLivePopRef"></BaseLivePop>
-        <BaseNotification v-model:notifications="notifications"></BaseNotification>
-        <ChannelIPCUpgradePop ref="channelIPCUpgradePopRef"></ChannelIPCUpgradePop>
+            :name-mapping="nameMapping"
+            @close="closeEditIPCPwdPop"
+        />
+        <BaseLivePop ref="baseLivePopRef" />
+        <ChannelIPCUpgradePop ref="channelIPCUpgradePopRef" />
     </div>
 </template>
 
 <script lang="ts" src="./Channel.v.ts"></script>
-
-<style scoped lang="scss">
-.ChannelList {
-    width: 100%;
-    height: calc(100vh - 280px);
-
-    .el-dropdown-link {
-        color: var(--el-table-header-text-color);
-    }
-
-    .status {
-        &.online {
-            color: var(--color-online);
-        }
-        &.offline {
-            color: var(--color-offline);
-        }
-    }
-}
-.row_ip {
-    display: flex;
-    justify-content: flex-start;
-    align-items: flex-end;
-    margin-top: 10px;
-    height: 20px;
-    font-size: 15px;
-}
-
-.row_brandwidth {
-    display: flex;
-    justify-content: flex-start;
-    align-items: flex-end;
-    font-size: 15px;
-}
-</style>

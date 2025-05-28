@@ -1,108 +1,110 @@
-import { ChlGroup } from '@/types/apiType/channel'
-import { trim, cloneDeep } from 'lodash'
-
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-06-18 14:20:56
- * @Description:
+ * @Description: 通道组 - 编辑弹窗
  */
+import { type FormRules } from 'element-plus'
+
 export default defineComponent({
     props: {
-        editItem: ChlGroup,
-        callBack: Function,
-        close: {
-            type: Function,
-            require: true,
-            default: () => {},
+        editItem: {
+            type: Object as PropType<ChannelGroupDto>,
+            required: true,
+        },
+        dwellTimeList: {
+            type: Array as PropType<number[]>,
+            default: () => [5, 10, 20, 30, 60, 120, 300, 600],
         },
     },
-    setup(props: any) {
+    emits: {
+        close() {
+            return true
+        },
+        callBack(data: ChannelGroupDto) {
+            return !!data
+        },
+    },
+    setup(props, { emit }) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
-        const formRef = ref()
-        const formData = ref(new ChlGroup())
-        const timeList = [
-            { text: '5 ' + Translate('IDCS_SECONDS'), value: 5 },
-            { text: '10 ' + Translate('IDCS_SECONDS'), value: 10 },
-            { text: '20 ' + Translate('IDCS_SECONDS'), value: 20 },
-            { text: '30 ' + Translate('IDCS_SECONDS'), value: 30 },
-            { text: '1 ' + Translate('IDCS_MINUTE'), value: 60 },
-            { text: '2 ' + Translate('IDCS_MINUTES'), value: 120 },
-            { text: '5 ' + Translate('IDCS_MINUTES'), value: 300 },
-            { text: '10 ' + Translate('IDCS_MINUTES'), value: 600 },
-        ]
 
-        const validate = {
-            validateName: (_rule: any, value: any, callback: any) => {
-                value = trim(value)
-                if (value.length === 0) {
-                    callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
-                    return
-                } else {
-                    formData.value.name = value = cutStringByByte(value, nameByteMaxLen)
-                    // 应该不可能发生此情况
-                    if (value == 0) {
-                        callback(new Error(Translate('IDCS_INVALID_CHAR')))
-                        return
-                    }
-                }
-                callback()
-            },
-        }
-        const rules = ref({
-            name: [{ validator: validate.validateName, trigger: 'manual' }],
+        const formRef = useFormRef()
+        const formData = ref(new ChannelGroupDto())
+        // const timeList = [5, 10, 20, 30, 60, 120, 300, 600].map((value) => {
+        //     return {
+        //         label: value + Translate('IDCS_SECONDS'),
+        //         value,
+        //     }
+        // })
+
+        const timeList = ref<SelectOption<number, string>[]>([])
+
+        const rules = ref<FormRules>({
+            name: [
+                {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
+                            callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
+                            return
+                        }
+
+                        if (!cutStringByByte(value, nameByteMaxLen)) {
+                            callback(new Error(Translate('IDCS_INVALID_CHAR')))
+                            return
+                        }
+
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
         })
 
         const opened = () => {
-            if (formRef.value) formRef.value.resetFields()
             formData.value = cloneDeep(props.editItem)
+            const dwellTimeList = props.dwellTimeList
+            if (!dwellTimeList.includes(formData.value.dwellTime)) {
+                dwellTimeList.push(formData.value.dwellTime)
+            }
+            timeList.value = dwellTimeList
+                .sort((a, b) => a - b)
+                .map((item) => {
+                    return {
+                        label: item + Translate('IDCS_SECONDS'),
+                        value: item,
+                    }
+                })
         }
 
         const verification = async () => {
             if (!formRef) return false
-            return await formRef.value.validate()
+            return await formRef.value!.validate()
         }
 
         const save = async () => {
             if (!(await verification())) return
-            const data = `
+            const sendXml = rawXml`
                 <content>
                     <id>${formData.value.id}</id>
-                    <name><![CDATA[${formData.value.name}]]></name>
+                    <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
                     <dwellTime unit='s'>${formData.value.dwellTime}</dwellTime>
                 </content>`
-            openLoading(LoadingTarget.FullScreen)
-            editChlGroup(getXmlWrapData(data)).then((res: any) => {
-                closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
-                    openMessageTipBox({
+            openLoading()
+            editChlGroup(sendXml).then((res) => {
+                closeLoading()
+                const $ = queryXml(res)
+                if ($('status').text() === 'success') {
+                    openMessageBox({
                         type: 'success',
-                        title: Translate('IDCS_SUCCESS_TIP'),
                         message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                        showCancelButton: false,
+                    }).then(() => {
+                        emit('callBack', formData.value)
+                        emit('close')
                     })
-                        .then(() => {
-                            if (props.callBack) props.callBack(formData.value)
-                            props.close()
-                        })
-                        .catch(() => {})
                 } else {
-                    if (Number(res('errorCode').text()) == errorCodeMap.nameExist) {
-                        openMessageTipBox({
-                            type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
-                            message: Translate('IDCS_PROMPT_CHANNEL_GROUP_NAME_EXIST'),
-                            showCancelButton: false,
-                        })
+                    if ($('errorCode').text().num() === ErrorCode.USER_ERROR_NAME_EXISTED) {
+                        openMessageBox(Translate('IDCS_PROMPT_CHANNEL_GROUP_NAME_EXIST'))
                     } else {
-                        openMessageTipBox({
-                            type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
-                            message: Translate('IDCS_SAVE_DATA_FAIL'),
-                            showCancelButton: false,
-                        })
+                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
                     }
                 }
             })

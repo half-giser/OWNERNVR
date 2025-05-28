@@ -2,60 +2,56 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-10 09:11:22
  * @Description: PPPoE
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 13:32:20
 -->
 <template>
     <div>
         <el-form
             ref="formRef"
+            v-title
             :model="formData"
             :rules="formRule"
-            :style="{
-                '--form-input-width': '340px',
-            }"
-            label-position="left"
-            inline-message
             class="stripe"
         >
             <el-form-item>
-                <el-checkbox v-model="formData.switch">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
+                <el-checkbox
+                    v-model="formData.switch"
+                    :label="Translate('IDCS_ENABLE')"
+                />
             </el-form-item>
             <el-form-item
                 :label="Translate('IDCS_ACCOUNT')"
                 prop="userName"
             >
-                <el-input
+                <BaseTextInput
                     v-model.trim="formData.userName"
                     :disabled="!formData.switch"
-                    :formatter="formatInputUserName"
-                    :parser="formatInputUserName"
-                    :maxlength="nameByteMaxLen"
+                    :maxlength="formData.userNameMaxByteLen"
                 />
             </el-form-item>
-            <el-form-item
-                :label="Translate('IDCS_CHANGE_PWD')"
-                prop="password"
-            >
-                <el-input
+            <el-form-item prop="password">
+                <template #label>
+                    <div class="base-label-box">
+                        <span>{{ Translate('IDCS_PASSWORD') }}</span>
+                        <el-checkbox
+                            v-show="pageData.isPasswordSwitch"
+                            v-model="pageData.passwordSwitch"
+                            :disabled="!formData.switch || pageData.wirelessSwitch"
+                        />
+                    </div>
+                </template>
+                <BasePasswordInput
                     v-model.trim="formData.password"
-                    type="password"
                     :disabled="!formData.switch || !pageData.passwordSwitch || pageData.wirelessSwitch"
-                    @copy.capture.prevent=""
-                    @paste.capture.prevent=""
+                    :maxlength="32"
                 />
-                <el-checkbox
-                    v-show="pageData.isPasswordSwitch"
-                    v-model="pageData.passwordSwitch"
-                    :disabled="!formData.switch || pageData.wirelessSwitch"
-                ></el-checkbox>
             </el-form-item>
             <div class="base-btn-box">
                 <el-button
                     :disabled="pageData.wirelessSwitch"
                     @click="setData"
-                    >{{ Translate('IDCS_APPLY') }}</el-button
                 >
+                    {{ Translate('IDCS_APPLY') }}
+                </el-button>
             </div>
         </el-form>
     </div>
