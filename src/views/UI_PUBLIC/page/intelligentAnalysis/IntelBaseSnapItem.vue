@@ -5,9 +5,8 @@
 -->
 <template>
     <div
-        v-if="!showCompare"
         class="snap normal_snap"
-        :class="[searchType]"
+        :class="[searchType, showCompare ? 'compare_snap' : 'normal_snap']"
     >
         <!-- 封面图区域 -->
         <div class="pic_show_container">
@@ -82,6 +81,17 @@
                             @click.stop="handleRegister"
                         />
                     </div>
+                </div>
+                <div
+                    v-if="showCompare"
+                    class="compare_pic"
+                >
+                    <!-- 封面图 -->
+                    <img
+                        :src="comparePicInfo?.pic"
+                        class="center_operate"
+                        @load="loadImg"
+                    />
                 </div>
             </div>
         </div>
@@ -107,113 +117,11 @@
                     />
                 </span>
             </div>
-        </div>
-    </div>
-    <div
-        v-else
-        class="snap compare_snap"
-    >
-        <!-- 封面图区域 -->
-        <div class="pic_show_container">
+
             <div
-                v-if="targetData.isNoData"
-                class="noData_pic"
+                v-if="showCompare"
+                class="info_show_compare"
             >
-                <BaseImgSprite
-                    file="noData"
-                    :chunk="1"
-                />
-                <span class="tip_text">{{ Translate('IDCS_NO_RECORD_DATA') }}</span>
-            </div>
-            <div
-                v-else-if="targetData.isDelete"
-                class="deleted_pic"
-            >
-                <BaseImgSprite
-                    file="hasDeleted"
-                    :chunk="1"
-                />
-                <span class="tip_text">{{ Translate('IDCS_DELETED') }}</span>
-            </div>
-            <div
-                v-else
-                class="normal_pic"
-                :class="{
-                    checked: targetData.checked,
-                    selected: targetData.index === detailIndex,
-                }"
-                @click="handleClickCover"
-            >
-                <div class="snap_pic">
-                    <!-- 顶部操作区域（checkbox选择框） -->
-                    <div class="top_operate">
-                        <el-checkbox
-                            v-model="targetData.checked"
-                            @change="handleChecked"
-                            @click.stop=""
-                        />
-                    </div>
-                    <!-- 封面图 -->
-                    <img
-                        :src="targetData.objPicData.data"
-                        class="center_operate"
-                        @load="loadImg"
-                    />
-                    <!-- 底部操作区域（搜索、导出、注册） -->
-                    <div class="bottom_operate">
-                        <BaseImgSprite
-                            v-if="showSearch"
-                            file="snap_search"
-                            :chunk="4"
-                            :hover-index="1"
-                            class="operate_icon"
-                            @click.stop="handleSearch"
-                        />
-                        <BaseImgSprite
-                            v-if="showExport"
-                            file="export_btn"
-                            :chunk="4"
-                            :hover-index="1"
-                            class="operate_icon"
-                            @click.stop="handleExport"
-                        />
-                        <BaseImgSprite
-                            v-if="showRegister"
-                            file="register"
-                            :chunk="4"
-                            :hover-index="1"
-                            class="operate_icon"
-                            @click.stop="handleRegister"
-                        />
-                    </div>
-                </div>
-                <div class="compare_pic">
-                    <!-- 封面图 -->
-                    <img
-                        :src="comparePicInfo?.pic"
-                        class="center_operate"
-                        @load="loadImg"
-                    />
-                </div>
-            </div>
-        </div>
-        <!-- 描述信息区域 -->
-        <div class="info_show_container">
-            <div class="info_show_snap">
-                <span class="frametime">{{ displayDateTime(targetData.timeStamp * 1000) }}</span>
-                <span class="picChlName text-ellipsis">{{ targetData.channelName }}</span>
-                <span
-                    v-if="showSimilarity"
-                    class="similarityValue"
-                >
-                    <span class="value">{{ `(${targetData.similarity} %)` }}</span>
-                    <BaseImgSprite
-                        file="Rectangle"
-                        :chunk="1"
-                    />
-                </span>
-            </div>
-            <div class="info_show_compare">
                 <span class="comparePicName">{{ comparePicInfo?.name || comparePicInfo?.note || Translate('IDCS_SAMPLE') }}</span>
             </div>
         </div>
