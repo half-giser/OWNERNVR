@@ -1,7 +1,7 @@
 {
   "extends": "@bassist/tsconfig/node.json",
   "compilerOptions": {
-    // 设置 composite: true, 说明此项目为整个工程的依赖项目
+    // 设置 composite: true, 说明此项目为整个Web 工程的引用依赖
     "composite": true
   },
   "include": ["vite.config.ts", "scripts/**/*.ts", "package.json"]
