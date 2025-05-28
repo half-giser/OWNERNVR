@@ -3,6 +3,7 @@
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件的类型定义，类型命名的前缀统一为Alaram*
  */
+export type AlarmDetectTarget = 'person' | 'car' | 'motor'
 
 /**
  * @description 报警输出
@@ -601,9 +602,9 @@ export class AlarmPeaDto {
     // 持续时间列表
     holdTimeList: SelectOption<number, string>[] = []
     // 检测目标列表
-    detectTargetList: SelectOption<string, string>[] = []
+    detectTargetList: SelectOption<AlarmDetectTarget, string>[] = []
     // 检测目标
-    detectTarget = 'person'
+    detectTarget: AlarmDetectTarget = 'person'
     // 是否支持配置时间阈值
     supportDuration = false
     // 时间阈值
@@ -661,7 +662,7 @@ export class AlarmTripwireDto {
     // 检测目标列表
     detectTargetList: SelectOption<string, string>[] = []
     // 检测目标
-    detectTarget = 'person'
+    detectTarget: AlarmDetectTarget = 'person'
     // 方向
     direction: CanvasPasslineDirection = 'none'
     // 方向列表
@@ -718,7 +719,7 @@ export class AlarmObjectFilterCfgDto {
     supportMotorMaxMin = false // 支持配置目标大小--非机动车
     supportCommonEnable = false
     supportCommonSensitivity = false
-    detectTargetList: string[] = [] // 检测目标列表：person、car、motor
+    detectTargetList: AlarmDetectTarget[] = [] // 检测目标列表：person、car、motor
     commonSensitivity = new AlarmSensitivityInfoDto()
     person = new AlarmTargetCfgDto() // 检测目标为人的相关数据：开启检测、灵敏度、最小目标范围、最大目标范围
     car = new AlarmTargetCfgDto() // 检测目标为车的相关数据：开启检测、灵敏度、最小目标范围、最大目标范围
@@ -754,7 +755,7 @@ export class AlarmNumberInputDto {
  * @description 目标大小最值数据类型
  */
 export class AlarmMaxMinRegionInfoDto {
-    region = []
+    region: CanvasBaseArea[] = []
     width = 0
     height = 0
     min = 0
@@ -798,7 +799,7 @@ export class AlarmLoiterDto {
     // 检测目标列表
     detectTargetList: SelectOption<string, string>[] = []
     // 检测目标
-    detectTarget = 'person'
+    detectTarget: AlarmDetectTarget = 'person'
     // 是否支持配置时间阈值
     supportDuration = false
     // 时间阈值
@@ -893,9 +894,9 @@ export class AlarmHeatMapDto {
     // 联动追踪
     autoTrack = false
     // 检测目标列表
-    detectTargetList: SelectOption<string, string>[] = []
+    detectTargetList: SelectOption<AlarmDetectTarget, string>[] = []
     // 检测目标
-    detectTarget = 'person'
+    detectTarget: AlarmDetectTarget = 'person'
     boundaryInfo: {
         objectFilter: AlarmObjectFilterCfgDto
         point: CanvasBasePoint[]
@@ -968,9 +969,9 @@ export class AlarmAreaStatisDto {
     // 持续时间列表
     holdTimeList: SelectOption<number, string>[] = []
     // 检测目标列表
-    detectTargetList: SelectOption<string, string>[] = []
+    detectTargetList: SelectOption<AlarmDetectTarget, string>[] = []
     // 检测目标
-    detectTarget = 'person'
+    detectTarget: AlarmDetectTarget = 'person'
     // 是否支持配置时间阈值
     supportDuration = false
     // 时间阈值
@@ -1226,7 +1227,7 @@ export class AlarmPassLinesDto {
     // 检测目标列表
     detectTargetList: SelectOption<string, string>[] = []
     // 检测目标
-    detectTarget = 'person'
+    detectTarget: AlarmDetectTarget = 'person'
     // 是否支持配置时间阈值
     supportDuration = false
     // 时间阈值
@@ -1601,7 +1602,7 @@ export class AlarmVideoStructureDto {
     // 检测目标列表
     detectTargetList: SelectOption<string, string>[] = []
     // 检测目标
-    detectTarget = 'person'
+    detectTarget: AlarmDetectTarget = 'person'
     // 屏蔽区域
     maskAreaInfo: { point: CanvasBasePoint[]; maxCount: number }[] = []
     detectAreaInfo: {

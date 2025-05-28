@@ -261,14 +261,11 @@ export default defineComponent({
             userCheckAuthForm.userName = e.userName
             userCheckAuthForm.hexHash = e.hexHash
             userCheckAuthForm.password = e.password
-            // userInputEncryptPwdForm.password = ''
 
             if (pageData.value.checkAuthType === 'upgrade') {
                 upgrade()
             } else {
                 confirmBackUpAndUpgrade()
-                // pageData.value.isCheckAuth = false
-                // pageData.value.isEncryptPwd = true
             }
         }
 
@@ -340,6 +337,10 @@ export default defineComponent({
         const upgrade = (noCheckversion = false) => {
             openLoading()
 
+            if (systemCaps.devSystemType === 1) {
+                pageData.value.isCheckAuth = false
+            }
+
             if (isSupportH5.value) {
                 const obj: CmdUploadFileOpenOption = {
                     file_id: 'upgrade_file',
@@ -369,7 +370,6 @@ export default defineComponent({
                     },
                     success: () => {
                         uploadTimer = reconnect()
-                        // closeLoading()
                     },
                     error: (errorCode) => {
                         closeLoading()
@@ -384,7 +384,6 @@ export default defineComponent({
                         version: 'SmallMemory',
                         authName: userCheckAuthForm.userName,
                         authPwd: userCheckAuthForm.password,
-                        // secPassword: userInputEncryptPwdForm.password,
                         token: userSession.token,
                     }
                     const sendXML = OCX_XML_FileNetTransport('Upgrade', param)
@@ -445,16 +444,6 @@ export default defineComponent({
                         Logout()
                     })
                     break
-                // 原项目中 536871017 这个errorcode出现了两次，此处不会执行到
-                // case ErrorCode.USER_ERROR_NO_PARENT_AREA_AUTH:
-                //     // 校验升级包是低版本
-                //     openMessageBox({
-                //         type: 'question',
-                //         message: Translate('IDCS_UPGRADE_INCOMPATIBLE_VERSION_CONFIRM'),
-                //     }).then(() => {
-                //         upgrade(true)
-                //     })
-                //     break
                 case ErrorCode.USER_ERROR_UNSUPPORTED_CMD:
                 case 536871060:
                     showMessage(Translate('IDCS_DEVICE_NOT_ALLOW_UPGRADE'))

@@ -8,6 +8,7 @@ import LiveSnapItem from './LiveSnapItem.vue'
 import LiveSnapStructItem from './LiveSnapStructItem.vue'
 import IntelFaceDBSnapRegisterPop from '../intelligentAnalysis/IntelFaceDBSnapRegisterPop.vue'
 import IntelLicencePlateDBAddPlatePop from '../intelligentAnalysis/IntelLicencePlateDBAddPlatePop.vue'
+import IntelSearchBackupPop, { type IntelSearchBackUpExpose } from '../intelligentAnalysis/IntelSearchBackupPop.vue'
 import LiveSnapVehiclePlateItem from './LiveSnapVehiclePlateItem.vue'
 import LiveSnapPop from './LiveSnapPop.vue'
 import fetch from '@/api/api'
@@ -21,6 +22,7 @@ export default defineComponent({
         IntelLicencePlateDBAddPlatePop,
         LiveSnapVehiclePlateItem,
         LiveSnapPop,
+        IntelSearchBackupPop,
     },
     props: {
         /**
@@ -34,6 +36,8 @@ export default defineComponent({
     setup(prop) {
         const { Translate } = useLangStore()
         const router = useRouter()
+
+        const backupPopRef = ref<IntelSearchBackUpExpose>()
 
         // 由于Webscoket回传和HTTP请求的事件类型和目标类型的key值命名不同，所以需根据映射关系对列表数据重新组装
 
@@ -285,8 +289,6 @@ export default defineComponent({
          * @param {String} type
          */
         const search = async (data: WebsocketSnapOnSuccessSnap, type = '') => {
-            // todo
-
             if (!getAuth(data.chlId)) {
                 return
             }
@@ -410,11 +412,38 @@ export default defineComponent({
 
         /**
          *
-         * @description 导出 TODO 等待备份功能实现
-         * @param data
+         * @description 导出
+         * @param {WebsocketSnapOnSuccessSnap} data
          */
         const backup = async (data: WebsocketSnapOnSuccessSnap) => {
-            console.log('导出', data)
+            const isThermal = !!data.thermal_scene_pic || !!data.optical_scene_pic
+            const isFaceCompare = data.type === 'face_verify'
+            backupPopRef.value?.startBackup({
+                isBackupPic: true,
+                isBackupVideo: false,
+                indexData: [
+                    {
+                        chlId: data.chlId,
+                        chlName: data.chlName,
+                        frameTime: Math.floor(data.detect_time / 1000),
+                        timeStamp100ns: Number(data.frame_time.split(' ')[1].split(':')[3]),
+                        snapContent: data.snap_pic!,
+                        targetID: data.info!.target_id!,
+                        isThermal: isThermal,
+                        originContent: isThermal ? data.thermal_scene_pic! : data.scene_pic!,
+                        eventContent: isThermal ? data.optical_scene_pic! : '',
+                        dataBaseContent: isFaceCompare ? data.repo_pic! : '',
+                        faceDataBaseInfo: isFaceCompare
+                            ? {
+                                  face_id: data.info!.face_id,
+                                  name: data.info!.name,
+                                  group_name: data.info!.group_name,
+                              }
+                            : undefined,
+                        plateNumber: data.info?.plate || '',
+                    },
+                ],
+            })
         }
 
         const getDetectResultInfos = async (imgData: string, imgWidth: number, imgHeight: number) => {
@@ -501,37 +530,37 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <extractImgInfos>
-                            <item index="${detectImgInfo.detectIndex}">
-                                <imgWidth>${detectImgInfo.imgWidth}</imgWidth>
-                                <imgHeight>${detectImgInfo.imgHeight}</imgHeight>
-                                <imgFormat>${detectImgInfo.imgFormat}</imgFormat>
-                                <imgData>${detectImgInfo.imgData}</imgData>
-                                <rect>
-                                    <leftTop>
-                                        <x>${targetItem.rect.leftTop.x}</x>
-                                        <y>${targetItem.rect.leftTop.y}</y>
-                                    </leftTop>
-                                    <rightBottom>
-                                        <x>${targetItem.rect.rightBottom.x}</x>
-                                        <y>${targetItem.rect.rightBottom.y}</y>
-                                    </rightBottom>
-                                    <scaleWidth>${targetItem.rect.scaleWidth}</scaleWidth>
-                                    <scaleHeight>${targetItem.rect.scaleHeight}</scaleHeight>
-                                </rect>
-                                <targetType>${targetItem.targetType}</targetType>
-                                <featurePointInfos>
-                                    ${targetItem.featurePointInfos
-                                        .map((point) => {
-                                            return rawXml`
-                                                <item index="${point.faceFeatureIndex}">
-                                                    <x>${point.x}</x>
-                                                    <y>${point.y}</y>
-                                                </item>
-                                            `
-                                        })
-                                        .join('')}
-                                </featurePointInfos>
-                            </item>
+                        <item index="${detectImgInfo.detectIndex}">
+                            <imgWidth>${detectImgInfo.imgWidth}</imgWidth>
+                            <imgHeight>${detectImgInfo.imgHeight}</imgHeight>
+                            <imgFormat>${detectImgInfo.imgFormat}</imgFormat>
+                            <imgData>${detectImgInfo.imgData}</imgData>
+                            <rect>
+                                <leftTop>
+                                    <x>${targetItem.rect.leftTop.x}</x>
+                                    <y>${targetItem.rect.leftTop.y}</y>
+                                </leftTop>
+                                <rightBottom>
+                                    <x>${targetItem.rect.rightBottom.x}</x>
+                                    <y>${targetItem.rect.rightBottom.y}</y>
+                                </rightBottom>
+                                <scaleWidth>${targetItem.rect.scaleWidth}</scaleWidth>
+                                <scaleHeight>${targetItem.rect.scaleHeight}</scaleHeight>
+                            </rect>
+                            <targetType>${targetItem.targetType}</targetType>
+                            <featurePointInfos>
+                                ${targetItem.featurePointInfos
+                                    .map((point) => {
+                                        return rawXml`
+                                            <item index="${point.faceFeatureIndex}">
+                                                <x>${point.x}</x>
+                                                <y>${point.y}</y>
+                                            </item>
+                                        `
+                                    })
+                                    .join('')}
+                            </featurePointInfos>
+                        </item>
                     </extractImgInfos>
                 </content>
             `
@@ -547,7 +576,6 @@ export default defineComponent({
         const showDetail = (index: number, openType: string) => {
             pageData.value.openType = openType
             infoListMapping = pageData.value.snapListQueue.slice(0, pageData.value.menu[pageData.value.activeMenu].maxlength)
-            console.log('infoListMapping', infoListMapping)
             pageData.value.snapIndex = index
             pageData.value.snapList = infoListMapping.map((item) => {
                 let eventType = EVENT_TYPE[item.info!.event_type] || EVENT_TYPE[item.type] || ''
@@ -607,74 +635,7 @@ export default defineComponent({
             }
         }
 
-        //     faceListMapping = pageData.value.snapListQueue.slice(0, pageData.value.menu[pageData.value.activeMenu].maxlength).filter((item) => item.type === 'face_verify')
-        //     // const faceId = currentSnapList.value[index].info!.face_id
-        //     // pageData.value.faceList = faceListMapping.map((item) => {
-        //     //     const width = item.info!.ptWidth || 10000
-        //     //     const height = item.info!.ptHeight || 10000
-        //     //     let X1 = 0,
-        //     //         X2 = 0,
-        //     //         Y1 = 0,
-        //     //         Y2 = 0
-        //     //     const pointLeftTop = item.info!.point_left_top
-        //     //     const pointRightBottm = item.info!.point_right_bottom
-        //     //     if (pointLeftTop && pointRightBottm) {
-        //     //         const leftTop = pointLeftTop.slice(1, -1).split(',')
-        //     //         const rightBottom = pointRightBottm.slice(1, -1).split(',')
-        //     //         X1 = Number(leftTop[0]) / width
-        //     //         X2 = Number(rightBottom[0]) / width
-        //     //         Y1 = Number(leftTop[1]) / height
-        //     //         Y2 = Number(rightBottom[1]) / height
-        //     //     }
-
-        //     //     let eventType = EVENT_TYPE[item.info!.event_type] || EVENT_TYPE[item.type] || ''
-        //     //     const compareType = COMPARE_TYPE[item.info!.compare_status] || ''
-        //     //     if (eventType === 'plateDetection' && compareType !== '') {
-        //     //         eventType = 'plateMatch'
-        //     //     }
-
-        //     //     return {
-        //     //         imgId: item.info!.face_id,
-        //     //         pic: item.snap_pic ? wrapBase64Img(item.snap_pic) : '',
-        //     //         match: item.repo_pic ? wrapBase64Img(item.repo_pic) : '',
-        //     //         timestamp: item.detect_time,
-        //     //         frameTime: item.frame_time,
-        //     //         chlId: item.chlId,
-        //     //         chlName: item.chlName,
-        //     //         recStartTime: item.detect_time - 5000,
-        //     //         recEndTime: item.detect_time + 5000,
-        //     //         eventType: eventType + compareType,
-        //     //         targetType: TARGET_MAPPING[item.type] || '',
-        //     //         similarity: Number(item.info!.similarity),
-
-        //     //         number: item.info!.serial_number,
-        //     //         name: item.info!.name,
-        //     //         sex: item.info!.gender,
-        //     //         birthday: item.info!.birth_date,
-        //     //         nativePlace: '',
-        //     //         certificateType: '',
-        //     //         certificateNum: item.info!.certificate_number,
-        //     //         mobile: item.info!.mobile_phone_number,
-        //     //         note: item.info!.remarks || '',
-        //     //         groupName: item.info!.group_name,
-
-        //     //         panorama: item.scene_pic ? wrapBase64Img(item.scene_pic) : '',
-        //     //         width,
-        //     //         height,
-        //     //         X1,
-        //     //         Y1,
-        //     //         X2,
-        //     //         Y2,
-        //     //     }
-        //     // })
-        //     // pageData.value.faceIndex = pageData.value.faceList.findIndex((item) => {
-        //     //     return item.imgId === faceId
-        //     // })
-        //     // pageData.value.isFacePop = true
-        // }
-
         // 获取图片宽高
-
         const getImgSize = (imgBase64: string) => {
             return new Promise((resolve: (size: { width: number; height: number }) => void) => {
                 const img = new Image()
@@ -705,13 +666,13 @@ export default defineComponent({
             showDetail,
             register,
             currentSnapList,
-            // showFaceDetail,
             handleSnapRec,
             handleSnapRegister,
             handleSnapSearch,
             handleSnapExport,
             handleMatchSnapRec,
             handleMatchSnapSearch,
+            backupPopRef,
         }
     },
 })

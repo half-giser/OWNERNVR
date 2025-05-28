@@ -14,7 +14,7 @@ import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { LineChart } from 'echarts/charts'
 import { TitleComponent, TooltipComponent, GridComponent } from 'echarts/components'
-import { type EChartsOption } from 'echarts'
+import { type EChartsOption, type LineSeriesOption } from 'echarts'
 
 export default defineComponent({
     components: {
@@ -77,12 +77,30 @@ export default defineComponent({
             schedule: '',
             count: 0,
             xCount: 0,
-            myChart: null,
             audioQueueMaxLen: 100,
-            audioStandardData: [],
-            audioBackGroundData: [],
-            colors: ['red', 'blue', 'green'],
+            audioStandardData: [] as LineSeriesOption['data'],
+            audioBackGroundData: [] as LineSeriesOption['data'],
+            isSupportWebsocket: true,
+            legendOptions: [
+                {
+                    name: Translate('IDCS_SOUND_INTENSITY'),
+                    color: '#c23531',
+                    lineWidth: 1.5,
+                },
+                {
+                    name: Translate('IDCS_BACK_GROUND_SOUND_INTENSITY'),
+                    color: '#00f',
+                    lineWidth: 1.5,
+                },
+                {
+                    name: Translate('IDCS_SOUND_RISE_THRESHOLD'),
+                    color: '#61a0a8',
+                    lineWidth: 2,
+                },
+            ],
         })
+
+        use([CanvasRenderer, LineChart, TitleComponent, TooltipComponent, GridComponent])
 
         const options = ref<EChartsOption>({
             title: {
@@ -97,18 +115,29 @@ export default defineComponent({
             },
             tooltip: {
                 trigger: 'axis',
-                formatter: function (params) {
-                    let res = ''
-                    for (let i = 0; i < params.length; i++) {
-                        if (i === 0) {
-                            const tempIndex = params[i].name < 100 ? '' : params[i].name - 99
-                            res += tempIndex + '<br />'
+                formatter: (params) => {
+                    console.log('params', params)
+                    if (Array.isArray(params)) {
+                        let res = ''
+                        for (let i = 0; i < params.length; i++) {
+                            if (i === 0) {
+                                const tempIndex = Number(params[i].name) < 100 ? '' : Number(params[i].name) - 99
+                                res += tempIndex + '<br />'
+                            }
+
+                            let seriesValue: number | string = '-'
+                            if (params[i].value && Array.isArray(params[i].value)) {
+                                if ((params[i].value as number[])[1]) {
+                                    seriesValue = (params[i].value as number[])[1]
+                                }
+                            }
+
+                            res += `<span class="asd-circle" style="background-color: ${params[i].color}"></span>${seriesValue}<br />`
                         }
-                        const seriesValue = !params[i].value[1] ? '-' : params[i].value[1]
-                        res += '<span class="asd-circle ' + pageData.value.colors[i] + '"></span>' + seriesValue + '<br />'
+                        return res
+                    } else {
+                        return ''
                     }
-                    return res
-                    // return ''
                 },
             },
             grid: [
@@ -125,7 +154,9 @@ export default defineComponent({
                     show: false,
                     inside: false,
                 },
-                // splitLine: false,
+                splitLine: {
+                    show: false,
+                },
                 boundaryGap: false,
                 axisLine: {
                     show: true,
@@ -147,55 +178,30 @@ export default defineComponent({
                 axisTick: {
                     show: true,
                 },
-                splitLine: false,
+                splitLine: {
+                    show: false,
+                },
             },
-            series: [
-                {
-                    data: pageData.value.audioStandardData,
+            series: [pageData.value.audioStandardData, pageData.value.audioBackGroundData, []].map((item, index) => {
+                return {
+                    data: item,
                     type: 'line',
-                    name: Translate('IDCS_SOUND_INTENSITY'),
+                    name: pageData.value.legendOptions[index].name,
                     showSymbol: false,
                     itemStyle: {
-                        color: '#c23531',
+                        color: pageData.value.legendOptions[index].color,
                     },
                     lineStyle: {
-                        width: 1.5,
+                        width: pageData.value.legendOptions[index].lineWidth,
                     },
-                },
-                {
-                    data: pageData.value.audioBackGroundData,
-                    type: 'line',
-                    name: Translate('IDCS_BACK_GROUND_SOUND_INTENSITY'),
-                    showSymbol: false,
-                    itemStyle: {
-                        color: '#00f',
-                    },
-                    lineStyle: {
-                        width: 1.5,
-                    },
-                },
-                {
-                    data: [],
-                    type: 'line',
-                    name: Translate('IDCS_SOUND_RISE_THRESHOLD'),
-                    showSymbol: false,
-                    itemStyle: {
-                        color: '#61a0a8',
-                    },
-                    lineStyle: {
-                        width: 2,
-                    },
-                },
-            ],
+                }
+            }),
             backgroundColor: '#686e7a',
         })
 
-        // const asdChartRef = ref(null)
         const formData = ref(new AlarmAsdDto())
         const watchEdit = useWatchEditData(formData)
         let websocket: ReturnType<typeof WebsocketSnap> | null = null
-
-        use([CanvasRenderer, LineChart, TitleComponent, TooltipComponent, GridComponent])
 
         /**
          * @description 关闭排程管理后刷新排程列表
@@ -230,14 +236,15 @@ export default defineComponent({
          * @description 处理推送的声音异常强度数据
          */
         const handleSoundData = (soundDataArr: WebsocketSnapOnSuccessParam[]) => {
-            if (pageData.value.audioStandardData.length > pageData.value.audioQueueMaxLen) {
-                pageData.value.audioStandardData.shift()
-                pageData.value.audioBackGroundData.shift()
+            const data = soundDataArr as WebsocketSnapOnSuccessAudio[]
+            if (pageData.value.audioStandardData!.length > pageData.value.audioQueueMaxLen) {
+                pageData.value.audioStandardData!.shift()
+                pageData.value.audioBackGroundData!.shift()
             }
-            soundDataArr.forEach((item: {}) => {
+            data.forEach((item) => {
                 pageData.value.xCount++
-                pageData.value.audioStandardData.push([pageData.value.xCount, item.soundLevel])
-                pageData.value.audioBackGroundData.push([pageData.value.xCount, item.backgroundLevel])
+                pageData.value.audioStandardData!.push([pageData.value.xCount, item.soundLevel])
+                pageData.value.audioBackGroundData!.push([pageData.value.xCount, item.backgroundLevel])
             })
             renderChart()
         }
@@ -494,61 +501,37 @@ export default defineComponent({
                 pageData.value.audioStandardData.push(tempItem)
                 pageData.value.audioBackGroundData.push(tempItem)
             }
-            // pageData.value.myChart = echarts.init(asdChartRef.value)
             renderChart()
-            // if (isNotSupportWebsocket) {
-            //     $('#asd_paramwrap .legend').hide()
-            //     $('#divAsdEchartArea').html('')
-            //     $('#divAsdEchartArea').css('backgroundColor', '#686e7a')
-            //     RollMsg.clear()
-            //     RollMsg.Append(CommonFunctions.FormatHttpsTips(LangCtrl._L_('IDCS_REALTIME_VOLUMN')))
-            // }
+
+            if (isNotSupportWebsocket()) {
+                pageData.value.isSupportWebsocket = false
+                openNotify(formatHttpsTips(Translate('IDCS_REALTIME_VOLUMN')))
+            }
         }
 
         // 声音强度图表渲染
         const renderChart = () => {
             const controlValue = formData.value.sdRiseThreshold.value || 50
-            const controlValueList = pageData.value.audioStandardData.map(function (item) {
-                return [item[0], controlValue]
+            const controlValueList = pageData.value.audioStandardData!.map((item) => {
+                if (item && Array.isArray(item)) {
+                    return [item[0], controlValue]
+                }
+                return [0, controlValue]
             })
-            options.value.series = [
-                {
-                    data: pageData.value.audioStandardData,
+            options.value.series = [pageData.value.audioStandardData, pageData.value.audioBackGroundData, controlValueList].map((item, index) => {
+                return {
+                    data: item,
                     type: 'line',
-                    name: Translate('IDCS_SOUND_INTENSITY'),
+                    name: pageData.value.legendOptions[index].name,
                     showSymbol: false,
                     itemStyle: {
-                        color: '#c23531',
+                        color: pageData.value.legendOptions[index].color,
                     },
                     lineStyle: {
-                        width: 1.5,
+                        width: pageData.value.legendOptions[index].lineWidth,
                     },
-                },
-                {
-                    data: pageData.value.audioBackGroundData,
-                    type: 'line',
-                    name: Translate('IDCS_BACK_GROUND_SOUND_INTENSITY'),
-                    showSymbol: false,
-                    itemStyle: {
-                        color: '#00f',
-                    },
-                    lineStyle: {
-                        width: 1.5,
-                    },
-                },
-                {
-                    data: controlValueList,
-                    type: 'line',
-                    name: Translate('IDCS_SOUND_RISE_THRESHOLD'),
-                    showSymbol: false,
-                    itemStyle: {
-                        color: '#61a0a8',
-                    },
-                    lineStyle: {
-                        width: 2,
-                    },
-                },
-            ]
+                }
+            })
         }
 
         onMounted(async () => {
