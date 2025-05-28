@@ -198,6 +198,7 @@
                         search-type="byCar"
                         @detail="showDetail(item)"
                         @checked="handleChecked"
+                        @backup="handleBackupCurrentTarget"
                     />
                 </div>
                 <!-- 摩托车/单车 - 抓拍图容器 -->
@@ -215,6 +216,7 @@
                         search-type="byMotorcycle"
                         @detail="showDetail(item)"
                         @checked="handleChecked"
+                        @backup="handleBackupCurrentTarget"
                     />
                 </div>
                 <!-- 车牌号 - 抓拍图容器 -->
@@ -232,6 +234,7 @@
                         search-type="byPlateNumber"
                         @detail="showDetail(item)"
                         @checked="handleChecked"
+                        @backup="handleBackupCurrentTarget"
                     />
                 </div>
             </div>
@@ -339,17 +342,15 @@
             </div>
             <!-- 打开/关闭详情按钮 -->
             <div class="resize_icon_left">
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     :file="pageData.isDetailOpen ? 'right_close' : 'left_open'"
-                    :chunk="4"
                     class="icon_left"
                     @click="switchDetail"
                 />
             </div>
             <div class="resize_icon_right">
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     :file="pageData.isDetailOpen ? 'right_close' : 'left_open'"
-                    :chunk="4"
                     class="icon_right"
                     @click="switchDetail"
                 />
@@ -366,7 +367,10 @@
             />
         </div>
     </div>
-    <IntelSearchBackupPop ref="IntelSearchBackupPopRef" />
+    <IntelSearchBackupPop
+        ref="backupPopRef"
+        :auth="auth"
+    />
 </template>
 
 <script lang="ts" src="./IntelVehicleSearch.v.ts"></script>
@@ -438,6 +442,7 @@
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
+    flex: 1;
 
     .base-intel-row {
         .el-radio-button {
@@ -464,10 +469,6 @@
         margin: auto;
         width: 10px;
         height: 60px;
-
-        &:hover {
-            opacity: 0.8;
-        }
     }
 
     .resize_icon_left {
@@ -511,6 +512,10 @@
     }
 }
 
+.base-intel-right {
+    padding: 10px;
+}
+
 .sort_item {
     display: flex;
     justify-content: flex-end;
@@ -536,9 +541,5 @@
     .Sprite {
         transform: scale(0.7);
     }
-}
-
-.base-intel-right {
-    padding: 10px;
 }
 </style>

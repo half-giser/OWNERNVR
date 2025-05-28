@@ -235,7 +235,6 @@
         @confirm="pageData.isRegisterPlatePop = false"
         @close="pageData.isRegisterPlatePop = false"
     />
-    <IntelSearchBackupPop ref="IntelSearchBackupPopRef" />
 </template>
 
 <script lang="ts" src="./IntelBaseSnapItem.v.ts"></script>
@@ -474,6 +473,16 @@
                 left: calc(100% - 55px);
             }
         }
+    }
+}
+
+.detail_open {
+    .snap {
+        width: calc((100% - 25px) / 4);
+    }
+
+    .compare_snap {
+        width: calc((100% - 60px) / 2);
     }
 }
 </style>

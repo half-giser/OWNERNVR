@@ -24,29 +24,25 @@
                 v-show="pageData.tab !== 'trigger'"
                 class="base-ai-param-box-left fixed"
             >
-                <!-- <div
-                    ref="asdChartRef"
-                    class="voiceChartDiv"
-                >
-                    
-                </div> -->
-                <v-chart
-                    class="voiceChartDiv"
-                    :option="options"
-                    autoresize
-                />
+                <div class="chart">
+                    <v-chart
+                        v-if="pageData.isSupportWebsocket"
+                        class="chart"
+                        :option="options"
+                        autoresize
+                    />
+                </div>
                 <div class="legend">
-                    <div class="legendItem">
-                        <span class="circle red"></span>
-                        <span> {{ Translate('IDCS_SOUND_INTENSITY') }} </span>
-                    </div>
-                    <div class="legendItem">
-                        <span class="circle blue"></span>
-                        <span> {{ Translate('IDCS_BACK_GROUND_SOUND_INTENSITY') }} </span>
-                    </div>
-                    <div class="legendItem">
-                        <span class="circle green"></span>
-                        <span> {{ Translate('IDCS_SOUND_RISE_THRESHOLD') }} </span>
+                    <div
+                        v-for="item in pageData.legendOptions"
+                        :key="item.name"
+                        class="legendItem"
+                    >
+                        <span
+                            class="asd-circle"
+                            :style="{ backgroundColor: item.color }"
+                        ></span>
+                        <span> {{ item.name }} </span>
                     </div>
                 </div>
             </div>
@@ -188,9 +184,10 @@
 <script lang="ts" src="./AsdPanel.v.ts"></script>
 
 <style lang="scss" scoped>
-.voiceChartDiv {
+.chart {
     width: 440px;
     height: 300px;
+    background-color: #686e7a;
 }
 
 .legendItem {
@@ -208,15 +205,15 @@
     vertical-align: middle;
 }
 
-.asd-circle.red {
-    background-color: #f00;
-}
+// .asd-circle.red {
+//     background-color: #f00;
+// }
 
-.asd-circle.blue {
-    background-color: #00f;
-}
+// .asd-circle.blue {
+//     background-color: #00f;
+// }
 
-.asd-circle.green {
-    background-color: #61a0a8;
-}
+// .asd-circle.green {
+//     background-color: #61a0a8;
+// }
 </style>

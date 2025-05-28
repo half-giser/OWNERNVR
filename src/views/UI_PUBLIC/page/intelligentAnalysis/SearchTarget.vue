@@ -6,15 +6,20 @@
                 <el-tooltip :content="Translate('IDCS_REID')">
                     <BaseImgSpriteBtn
                         class="btn"
+                        :hover-index="-1"
+                        :active-index="0"
                         file="target_retrieval"
                     />
                 </el-tooltip>
                 <div class="top-left-label">{{ Translate('IDCS_REID') }}</div>
             </div>
             <div class="top-right">
-                <BaseImgSpriteBtn
+                <BaseImgSprite
                     class="btn"
                     file="exit"
+                    :index="0"
+                    :hover-index="1"
+                    :chunk="2"
                     @click="handleExit"
                 />
                 <div
@@ -28,6 +33,7 @@
         <!-- 搜索条件、结果显示区域 -->
         <div class="center">
             <div class="base-intel-box">
+                <!-- 左侧条件筛选 -->
                 <div
                     v-show="!pageData.isDetailOpen"
                     class="base-intel-left"
@@ -61,7 +67,6 @@
                             :data="tableData"
                             row-key="value"
                             @selection-change="handleCurrentChange"
-                            @row-click="handleRowClick"
                         >
                             <el-table-column
                                 type="selection"
@@ -98,6 +103,7 @@
                         <el-button @click="getAllTargetIndexDatas">{{ Translate('IDCS_SEARCH') }}</el-button>
                     </div>
                 </div>
+                <!-- 中间抓拍图列表 -->
                 <div
                     class="base-intel-center"
                     :class="{
@@ -151,6 +157,7 @@
                                 search-type="bySearchTarget"
                                 @detail="showDetail(item)"
                                 @checked="handleChecked"
+                                @backup="handleBackupCurrentTarget"
                             />
                         </div>
                     </div>
@@ -193,36 +200,38 @@
                     </div>
                     <!-- 打开/关闭详情按钮 -->
                     <div class="resize_icon_left">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             :file="pageData.isDetailOpen ? 'right_close' : 'left_open'"
-                            :chunk="4"
                             class="icon_left"
                             @click="switchDetail"
                         />
                     </div>
                     <div class="resize_icon_right">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             :file="pageData.isDetailOpen ? 'right_close' : 'left_open'"
-                            :chunk="4"
                             class="icon_right"
                             @click="switchDetail"
                         />
                     </div>
                 </div>
-            </div>
-            <!-- 详情容器 -->
-            <div
-                v-show="pageData.isDetailOpen"
-                class="base-intel-right"
-            >
-                <IntelSearchDetail
-                    ref="detailRef"
-                    @change-item="handleChangeItem"
-                />
+                <!-- 右侧详情容器 -->
+                <div
+                    v-show="pageData.isDetailOpen"
+                    class="base-intel-right"
+                >
+                    <IntelSearchDetail
+                        ref="detailRef"
+                        @change-item="handleChangeItem"
+                    />
+                </div>
             </div>
         </div>
         <div class="copyright">{{ Translate('IDCS_COPYRIGHT') }}</div>
     </div>
+    <IntelSearchBackupPop
+        ref="backupPopRef"
+        :auth="auth"
+    />
 </template>
 
 <script lang="ts" src="./SearchTarget.v.ts"></script>
@@ -294,19 +303,6 @@
     box-sizing: border-box;
     display: flex;
 
-    .base-intel-left {
-        padding: 14px;
-
-        .label {
-            margin-bottom: 4px;
-        }
-
-        .label2,
-        .label3 {
-            margin-top: 24px;
-        }
-    }
-
     .pic_container {
         display: flex;
         flex-wrap: wrap;
@@ -329,6 +325,19 @@
         justify-content: center;
         align-items: center;
         box-sizing: border-box;
+    }
+
+    .base-intel-left {
+        padding: 14px;
+
+        .label {
+            margin-bottom: 4px;
+        }
+
+        .label2,
+        .label3 {
+            margin-top: 24px;
+        }
     }
 
     .base-intel-center {
@@ -363,10 +372,6 @@
             margin: auto;
             width: 10px;
             height: 60px;
-
-            &:hover {
-                opacity: 0.8;
-            }
         }
 
         .resize_icon_left {
@@ -409,6 +414,10 @@
             height: 72px;
         }
     }
+
+    .base-intel-right {
+        padding: 10px;
+    }
 }
 
 .sort_item {
@@ -436,10 +445,6 @@
     .Sprite {
         transform: scale(0.7);
     }
-}
-
-.base-intel-right {
-    padding: 10px;
 }
 
 .base-btn-box {

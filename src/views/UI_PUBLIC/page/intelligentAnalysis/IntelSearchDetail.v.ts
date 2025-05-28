@@ -323,7 +323,7 @@ export default defineComponent({
             } else {
                 pageData.value.snapImg = (currDetailData.value as IntelTargetDataItem).objPicData.data
                 pageData.value.panoramaImg = (currDetailData.value as IntelTargetDataItem).backgroundPicDatas[0].data
-                pageData.value.detectTargetImg = (currDetailData.value as IntelTargetDataItem).backgroundPicDatas[0].data.split(',').pop()
+                pageData.value.detectTargetImg = (currDetailData.value as IntelTargetDataItem).backgroundPicDatas[0].data.split(',').pop() || ''
                 getAttributeData()
                 if (pageData.value.targetMenuType === 'targetEvent') {
                     getTargetEventData()
@@ -380,8 +380,8 @@ export default defineComponent({
             }
 
             if (targetType !== 'humanFace') {
-                let content = ''
                 for (const attr in attrObj) {
+                    let content = ''
                     // 车牌号、车牌颜色、车辆颜色、需要处理后再显示
                     if (attr === 'plateNumber') {
                         content = attrObj[attr]
@@ -420,7 +420,7 @@ export default defineComponent({
                             content = Translate(VALUE_NAME_MAPPING[attrObj[attr][clothColor]])
                         }
                     } else {
-                        content = VALUE_NAME_MAPPING[attrObj[attr]]
+                        content = VALUE_NAME_MAPPING[attrObj[attr]] && Translate(VALUE_NAME_MAPPING[attrObj[attr]])
                     }
 
                     if (checkValidStr(content)) {
@@ -707,7 +707,7 @@ export default defineComponent({
                 strokeStyle: '#0000ff',
             })
 
-            //绘制属性信息
+            // 绘制属性信息
             // 目标框距离容器顶部位置
             const targetBoxRectTop = Y1
             // 目标框距离容器左侧位置
@@ -1274,16 +1274,12 @@ export default defineComponent({
         /**
          * @description 导出图片
          */
-        const handleExportPic = () => {
-            // setBackupData("backupPic");
-        }
+        const handleExportPic = () => {}
 
         /**
          * @description 导出音频
          */
-        const handleExportVideo = () => {
-            // setBackupData("backupVideo");
-        }
+        const handleExportVideo = () => {}
 
         /**
          * @description 全屏显示

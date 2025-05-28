@@ -5,25 +5,26 @@
  */
 import IntelSearchDetail from './IntelSearchDetail.vue'
 import { type TableInstance, type DropdownInstance, type CheckboxValueType } from 'element-plus'
+import IntelSearchBackupPop, { type IntelSearchBackUpExpose } from './IntelSearchBackupPop.vue'
 
 export default defineComponent({
     components: {
         IntelSearchDetail,
+        IntelSearchBackupPop,
     },
     setup() {
         const { Translate } = useLangStore()
         const auth = useUserChlAuth(true)
         const router = useRouter()
+        const backupPopRef = ref<IntelSearchBackUpExpose>()
 
         // 排序下拉框的引用
         const searchTargetDropdown = ref<DropdownInstance>()
-        const IntelSearchBackupPopRef = ref()
         // 详情弹框
         const detailRef = ref()
         const tableRef = ref<TableInstance>()
 
         const tableData = ref<SelectOption<string, string>[]>([])
-        const selected = ref<SelectOption<string, string>[]>([])
 
         const pageData = ref({
             // 日期范围类型
@@ -119,6 +120,8 @@ export default defineComponent({
                     }
                 })
                 .filter((item) => item !== null) // NTA1-1294 不显示已删除通道
+
+            tableRef.value!.toggleAllSelection()
         }
 
         /**
@@ -149,16 +152,7 @@ export default defineComponent({
          * @param {SelectOption<string, string>[]} row
          */
         const handleCurrentChange = (row: SelectOption<string, string>[]) => {
-            selected.value = row
-        }
-
-        /**
-         * @description 点击行 仅选中该行
-         * @param {SelectOption<string, string>} row
-         */
-        const handleRowClick = (row: SelectOption<string, string>) => {
-            tableRef.value!.clearSelection()
-            tableRef.value!.toggleRowSelection(row, true)
+            pageData.value.chlIdList = row.map((item) => item.value)
         }
 
         /**
@@ -801,12 +795,19 @@ export default defineComponent({
          * @description 备份全部
          */
         const handleBackupAll = () => {
-            IntelSearchBackupPopRef.value.startBackup({
+            backupPopRef.value?.startBackup({
                 isBackupPic: true,
                 isBackupVideo: false,
-                indexData: getCurrTargetIndexDatas(),
-                allChlAuth: auth,
-                chlAuthMapping: [],
+                indexData: pageData.value.targetIndexDatasForSearchTarget.map((item) => {
+                    return {
+                        index: item.index,
+                        chlId: item.chlID,
+                        chlName: item.channelName,
+                        frameTime: item.timeStamp * 1000,
+                        startTime: item.startTime,
+                        endTime: item.endTime,
+                    }
+                }),
             })
         }
 
@@ -814,12 +815,34 @@ export default defineComponent({
          * @description 备份选中项
          */
         const handleBackup = (backupType: 'pic' | 'video' | 'picAndVideo') => {
-            IntelSearchBackupPopRef.value.startBackup({
+            backupPopRef.value?.startBackup({
                 isBackupPic: backupType === 'pic' || backupType === 'picAndVideo',
                 isBackupVideo: backupType === 'video' || backupType === 'picAndVideo',
-                indexData: getCurrSelectedTargetDatas(),
-                allChlAuth: auth,
-                chlAuthMapping: [],
+                indexData: pageData.value.selectedTargetDatasForSearchTarget.map((item) => {
+                    return {
+                        index: item.index,
+                        chlId: item.chlID,
+                        chlName: item.channelName,
+                        frameTime: item.timeStamp * 1000,
+                        startTime: item.startTime,
+                        endTime: item.endTime,
+                    }
+                }),
+            })
+        }
+
+        const handleBackupCurrentTarget = (item: IntelTargetDataItem) => {
+            backupPopRef.value?.startBackup({
+                isBackupPic: true,
+                isBackupVideo: false,
+                indexData: [
+                    {
+                        index: item.index,
+                        chlId: item.chlID,
+                        chlName: item.channelName,
+                        frameTime: item.timeStamp * 1000,
+                    },
+                ],
             })
         }
 
@@ -926,7 +949,6 @@ export default defineComponent({
             handleExit,
             changeDateRange,
             handleCurrentChange,
-            handleRowClick,
             getAllTargetIndexDatas,
             handleChangePage,
             handleCheckedAll,
@@ -939,6 +961,9 @@ export default defineComponent({
             handleChangeItem,
             handleChecked,
             isEnableBackup,
+            handleBackupCurrentTarget,
+            auth,
+            backupPopRef,
         }
     },
 })

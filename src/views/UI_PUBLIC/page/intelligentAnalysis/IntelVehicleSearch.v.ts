@@ -9,7 +9,7 @@ import IntelBaseProfileSelector from './IntelBaseProfileSelector.vue'
 import IntelBasePlateColorPop from './IntelBasePlateColorPop.vue'
 import IntelBaseSnapItem from './IntelBaseSnapItem.vue'
 import IntelSearchDetail from './IntelSearchDetail.vue'
-import IntelSearchBackupPop from './IntelSearchBackupPop.vue'
+import IntelSearchBackupPop, { type IntelSearchBackUpExpose } from './IntelSearchBackupPop.vue'
 import { type DropdownInstance, type CheckboxValueType } from 'element-plus'
 
 export default defineComponent({
@@ -25,12 +25,12 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const dateTime = useDateTimeStore()
-        const auth = useUserChlAuth(false)
+        const auth = useUserChlAuth(true)
         // 三个排序下拉框的引用
         const carSortDropdown = ref<DropdownInstance>()
         const motorcycleSortDropdown = ref<DropdownInstance>()
         const plateNumberSortDropdown = ref<DropdownInstance>()
-        const IntelSearchBackupPopRef = ref()
+        const backupPopRef = ref<IntelSearchBackUpExpose>()
         const detailRef = ref()
 
         // key对应界面tab类型，value对应协议需要下发的searchType字段
@@ -899,12 +899,19 @@ export default defineComponent({
          * @description 备份全部
          */
         const handleBackupAll = () => {
-            IntelSearchBackupPopRef.value.startBackup({
+            backupPopRef.value?.startBackup({
                 isBackupPic: true,
                 isBackupVideo: false,
-                indexData: getCurrTargetIndexDatas(),
-                allChlAuth: auth,
-                chlAuthMapping: [],
+                indexData: getCurrTargetIndexDatas().map((item) => {
+                    return {
+                        index: item.index,
+                        chlId: item.chlID,
+                        chlName: item.channelName,
+                        frameTime: item.timeStamp * 1000,
+                        startTime: item.startTime,
+                        endTime: item.endTime,
+                    }
+                }),
             })
         }
 
@@ -912,12 +919,34 @@ export default defineComponent({
          * @description 备份选中项
          */
         const handleBackup = (backupType: 'pic' | 'video' | 'picAndVideo') => {
-            IntelSearchBackupPopRef.value.startBackup({
+            backupPopRef.value?.startBackup({
                 isBackupPic: backupType === 'pic' || backupType === 'picAndVideo',
                 isBackupVideo: backupType === 'video' || backupType === 'picAndVideo',
-                indexData: getCurrSelectedTargetDatas(),
-                allChlAuth: auth,
-                chlAuthMapping: [],
+                indexData: getCurrSelectedTargetDatas().map((item) => {
+                    return {
+                        index: item.index,
+                        chlId: item.chlID,
+                        chlName: item.channelName,
+                        frameTime: item.timeStamp * 1000,
+                        startTime: item.startTime,
+                        endTime: item.endTime,
+                    }
+                }),
+            })
+        }
+
+        const handleBackupCurrentTarget = (item: IntelTargetDataItem) => {
+            backupPopRef.value?.startBackup({
+                isBackupPic: true,
+                isBackupVideo: false,
+                indexData: [
+                    {
+                        index: item.index,
+                        chlId: item.chlID,
+                        chlName: item.channelName,
+                        frameTime: item.timeStamp * 1000,
+                    },
+                ],
             })
         }
 
@@ -1020,7 +1049,9 @@ export default defineComponent({
             handleChecked,
             displayDateTime,
             isEnableBackup,
-            IntelSearchBackupPopRef,
+            handleBackupCurrentTarget,
+            backupPopRef,
+            auth,
         }
     },
 })
