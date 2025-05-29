@@ -154,6 +154,7 @@
                                 :target-data="item"
                                 :detail-index="pageData.openDetailIndexForSearchTarget"
                                 :show-compare="false"
+                                :grid="pageData.isDetailOpen ? 4 : 6"
                                 search-type="bySearchTarget"
                                 @detail="showDetail(item)"
                                 @checked="handleChecked"
@@ -222,6 +223,8 @@
                     <IntelSearchDetail
                         ref="detailRef"
                         @change-item="handleChangeItem"
+                        @backup="handleBackupCurrentTarget"
+                        @search="handleRefresh"
                     />
                 </div>
             </div>
@@ -416,7 +419,11 @@
     }
 
     .base-intel-right {
-        padding: 10px;
+        width: 893px;
+    }
+
+    .intelDetail {
+        height: 100% !important;
     }
 }
 
