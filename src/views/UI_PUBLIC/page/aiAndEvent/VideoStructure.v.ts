@@ -5,11 +5,13 @@
  */
 import AlarmBaseChannelSelector from './AlarmBaseChannelSelector.vue'
 import VideoStructurePanel from './VideoStructurePanel.vue'
+import AlarmBaseErrorPanel from './AlarmBaseErrorPanel.vue'
 
 export default defineComponent({
     components: {
         AlarmBaseChannelSelector,
         VideoStructurePanel,
+        AlarmBaseErrorPanel,
     },
     setup() {
         const systemCaps = useCababilityStore()
@@ -22,7 +24,7 @@ export default defineComponent({
             // 在线通道列表
             onlineChannelList: [] as AlarmOnlineChlDto[],
             // 通道能力集
-            chlCaps: {} as Record<string, AlarmVideoMetaDto>,
+            chlCaps: {} as Record<string, AlarmChlDto>,
             notSupport: false,
             // 声音列表
             voiceList: [] as SelectOption<string, string>[],
@@ -96,14 +98,14 @@ export default defineComponent({
                                 name: name,
                                 accessType: accessType,
                             })
-                            pageData.value.chlCaps[id] = {
-                                id: id,
-                                ip: ip,
-                                name: name,
-                                accessType: accessType,
-                                chlType: chlType,
-                                supportVideoMetadata: supportVideoMetadata,
-                            }
+                            const item = new AlarmChlDto()
+                            item.id = id
+                            item.ip = ip
+                            item.name = name
+                            item.accessType = accessType
+                            item.chlType = chlType
+                            item.supportVideoMetadata = supportVideoMetadata
+                            pageData.value.chlCaps[id] = item
                         }
                     }
                 })

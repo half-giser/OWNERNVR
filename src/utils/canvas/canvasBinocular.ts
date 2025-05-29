@@ -4,10 +4,16 @@
  * 四种模式：箭头、多边形、矩形、OSD
  * @Author: yejiahao yejiahao@tvt.net.cn
  */
-import { type AlarmBinoCountBoundaryDto } from '@/types/apiType/aiAndEvent'
+// import { type AlarmBinoCountBoundaryDto } from '@/types/apiType/aiAndEvent'
 import type { CanvasBaseArea, CanvasBasePoint } from './canvasBase'
 import { type CanvasPasslinePassline, type CanvasPasslineOsdInfo, type CanvasPasslineLineItem, type CanvasPasslineRect } from './canvasPassline'
 import { type CanvasPolygonAreaType } from './canvasPolygon'
+
+export interface CanvasBinicularPoint {
+    [key: string]: CanvasBasePoint[]
+    rectA: CanvasBasePoint[]
+    rectB: CanvasBasePoint[]
+}
 
 interface CanvasBinicularOption {
     el?: HTMLCanvasElement
@@ -91,7 +97,7 @@ export const CanvasBinocular = (option: CanvasBinicularOption = {}) => {
     let enablePolygon = false
     let currAreaIndex = 0
     let pointList: CanvasBasePoint[] = []
-    let detectAreaInfo: AlarmBinoCountBoundaryDto[][] = []
+    let detectAreaInfo: CanvasBinicularPoint[] = []
     let maskAreaInfo: CanvasBasePoint[][] = []
     let regionInfoList: CanvasBaseArea[] = []
     let area = {
@@ -221,7 +227,7 @@ export const CanvasBinocular = (option: CanvasBinicularOption = {}) => {
      * @property {Boolean} isFoucusClosePath 是否强制闭合
      */
     const drawAllPolygon = (
-        newDetectAreaInfo: AlarmBinoCountBoundaryDto[][],
+        newDetectAreaInfo: CanvasBinicularPoint[],
         newMaskAreaInfo: CanvasBasePoint[][],
         currAreaType: CanvasPolygonAreaType,
         currAreaIndex: number,

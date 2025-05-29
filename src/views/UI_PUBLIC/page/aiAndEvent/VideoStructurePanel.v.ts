@@ -5,8 +5,12 @@
  */
 import { type CheckboxValueType, type CheckboxGroupValueType } from 'element-plus'
 import { type XMLQuery } from '@/utils/xmlParse'
+import AlarmBaseErrorPanel from './AlarmBaseErrorPanel.vue'
 
 export default defineComponent({
+    components: {
+        AlarmBaseErrorPanel,
+    },
     props: {
         /**
          * @property 选中的通道
@@ -335,6 +339,7 @@ export default defineComponent({
                 // 解析检测目标的数据
                 const objectFilterMode = getCurrentAICfgMode('boundary', $param)
                 pageData.value.objectFilterMode = objectFilterMode
+
                 const $paramObjectFilter = $('content/chl/param/objectFilter')
                 let objectFilter = ref(new AlarmObjectFilterCfgDto())
                 if (objectFilterMode === 'mode1') {
@@ -461,16 +466,13 @@ export default defineComponent({
                     }
                 })
 
-                let detectTargetList: { value: string; label: string }[] = []
                 // 默认用detectAreaInfo的第一个数据初始化检测目标
-                if (detectAreaInfo[0].objectFilter.detectTargetList.length) {
-                    detectTargetList = detectAreaInfo[0].objectFilter.detectTargetList.map((item) => {
-                        return {
-                            value: item,
-                            label: detectTargetTypeTip[item],
-                        }
-                    })
-                }
+                const detectTargetList = detectAreaInfo[0].objectFilter.detectTargetList.map((item) => {
+                    return {
+                        value: item,
+                        label: detectTargetTypeTip[item],
+                    }
+                })
 
                 formData.value = {
                     enabledSwitch,
@@ -511,7 +513,7 @@ export default defineComponent({
                     detectAreaInfo,
                     maskAreaInfo,
                     detectTargetList,
-                    detectTarget: detectTargetList[0].value,
+                    detectTarget: detectTargetList.length ? detectTargetList[0].value : 'person',
                     osdType: $param('osdConfig/osdType').text(),
                     osdPersonCfgList,
                     osdCarCfgList,
@@ -572,9 +574,7 @@ export default defineComponent({
                 formData.value.countOSD.osdFormat = (osdPersonName ? osdPersonName + '-# ' : '') + (osdCarName ? osdCarName + '-# ' : '') + (osdBikeName ? osdBikeName + '-# ' : '')
             }
 
-            if (pageData.value.tab === 'param') {
-                setEnableOSD()
-            }
+            changeTab()
         }
 
         /**
@@ -584,15 +584,16 @@ export default defineComponent({
             if (pageData.value.tab === 'param') {
                 setAreaView(currAreaType)
                 if (mode.value === 'h5') {
-                    drawer.setEnable(true)
-                    drawer.setOSDEnable(formData.value.countOSD.switch)
-                    drawer.init(true)
+                    setTimeout(() => {
+                        drawer.setEnable(true)
+                        drawer.setOSDEnable(false)
+                        drawer.init(true)
+                    }, 10)
                 }
 
                 if (mode.value === 'ocx') {
-                    const osdData = formData.value.countOSD ? formData.value.countOSD : noneOSD
                     setTimeout(() => {
-                        const sendXML1 = OCX_XML_SetVsdAreaInfo(osdData, 'vsd')
+                        const sendXML1 = OCX_XML_SetVsdAreaInfo(noneOSD, 'vsd')
                         plugin.ExecuteCmd(sendXML1)
 
                         const sendXML2 = OCX_XML_SetVsdAreaAction('EDIT_ON')
@@ -653,6 +654,32 @@ export default defineComponent({
                 }
 
                 showAllArea(false)
+            } else if (pageData.value.tab === 'osd') {
+                if (mode.value === 'h5') {
+                    setTimeout(() => {
+                        drawer.clear()
+                        drawer.setEnable(false)
+                        drawer.setOSDEnable(formData.value.countOSD.switch)
+                        drawer.setOSD(formData.value.countOSD)
+                        drawer.init(true)
+                    }, 10)
+                }
+
+                if (mode.value === 'ocx') {
+                    const osdData = formData.value.countOSD ? formData.value.countOSD : noneOSD
+                    setTimeout(() => {
+                        const sendXML1 = OCX_XML_SetVsdAreaInfo(osdData, 'vsd')
+                        plugin.ExecuteCmd(sendXML1)
+
+                        const sendXML2 = OCX_XML_SetVsdAreaAction('NONE')
+                        plugin.ExecuteCmd(sendXML2)
+
+                        const sendXML3 = OCX_XML_SetVsdAreaAction('EDIT_OFF')
+                        plugin.ExecuteCmd(sendXML3)
+
+                        play()
+                    }, 100)
+                }
             }
         }
 
@@ -899,17 +926,20 @@ export default defineComponent({
                     const areaList = [1, 2]
                     const sendXMLClear = OCX_XML_DeleteRectangleArea(areaList)
                     plugin.ExecuteCmd(sendXMLClear)
-                    const minRegionForPlugin = cloneDeep(minRegionInfo.region[0])
-                    minRegionForPlugin.ID = 1
-                    minRegionForPlugin.text = 'Min'
-                    minRegionForPlugin.LineColor = 'yellow'
-                    const maxRegionForPlugin = cloneDeep(maxRegionInfo.region[0])
-                    maxRegionForPlugin.ID = 2
-                    maxRegionForPlugin.text = 'Max'
-                    maxRegionForPlugin.LineColor = 'yellow'
-                    const rectangles = []
-                    rectangles.push(minRegionForPlugin)
-                    rectangles.push(maxRegionForPlugin)
+                    const rectangles = [
+                        {
+                            ...minRegionInfo.region[0],
+                            ID: 1,
+                            text: 'Min',
+                            LineColor: 'yellow',
+                        },
+                        {
+                            ...maxRegionInfo.region[0],
+                            ID: 2,
+                            text: 'Max',
+                            LineColor: 'yellow',
+                        },
+                    ]
                     const sendXML = OCX_XML_AddRectangleArea(rectangles)
                     plugin.ExecuteCmd(sendXML)
                 }
@@ -1254,7 +1284,7 @@ export default defineComponent({
                                                         })
                                                         .join('')}
                                                 </point>
-                                                    ${setItemObjectFilterData(element)}
+                                                ${setItemObjectFilterData(element)}
                                             </item>
                                     `
                                     })
@@ -1264,21 +1294,21 @@ export default defineComponent({
                                 ${formData.value.maskAreaInfo
                                     .map((element) => {
                                         return rawXml`
-                                        <item>
-                                            <point type='list' maxCount='${element.maxCount}' count='${element.point.length}'>
-                                                ${element.point
-                                                    .map((item) => {
-                                                        return rawXml`
-                                                            <item>
-                                                                <X>${Math.floor(item.X)}</X>
-                                                                <Y>${Math.floor(item.Y)}</Y>
-                                                            </item>
-                                                        `
-                                                    })
-                                                    .join('')}
-                                            </point>
-                                        </item>
-                                    `
+                                            <item>
+                                                <point type='list' maxCount='${element.maxCount}' count='${element.point.length}'>
+                                                    ${element.point
+                                                        .map((item) => {
+                                                            return rawXml`
+                                                                <item>
+                                                                    <X>${Math.floor(item.X)}</X>
+                                                                    <Y>${Math.floor(item.Y)}</Y>
+                                                                </item>
+                                                            `
+                                                        })
+                                                        .join('')}
+                                                </point>
+                                            </item>
+                                        `
                                     })
                                     .join('')}
                             </maskArea>
