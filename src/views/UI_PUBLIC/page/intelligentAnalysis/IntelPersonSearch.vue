@@ -483,6 +483,10 @@
     }
 }
 
+.base-intel-right {
+    flex: 1;
+}
+
 .sort_item {
     display: flex;
     justify-content: flex-end;
