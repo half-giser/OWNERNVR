@@ -95,10 +95,10 @@
             </div>
             <div
                 v-show="pageData.isBtnVisible"
-                class="btns"
+                class="base-intel-target-btns"
             >
                 <div
-                    class="btn"
+                    class="base-intel-target-btn"
                     :class="{
                         disabled: !total || currentIndex === 0,
                     }"
@@ -107,7 +107,7 @@
                     {{ Translate('IDCS_PREVIOUS') }}
                 </div>
                 <div
-                    class="btn"
+                    class="base-intel-target-btn"
                     :class="{
                         disabled: !total || currentIndex === total - 1,
                     }"
@@ -257,33 +257,6 @@
 
     .search-box & {
         height: 430px;
-    }
-}
-
-.btns {
-    display: flex;
-    position: absolute;
-    left: 0;
-    bottom: 30px;
-    z-index: 5;
-
-    .btn {
-        min-width: 65px;
-        height: 48px;
-        line-height: 48px;
-        text-align: center;
-        cursor: pointer;
-        background-color: var(--color-white);
-        user-select: none;
-
-        &:hover:not(.disabled) {
-            background-color: var(--primary-light);
-        }
-
-        &.disabled {
-            color: var(--main-text-light);
-            cursor: not-allowed;
-        }
     }
 }
 

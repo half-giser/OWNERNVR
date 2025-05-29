@@ -5,19 +5,21 @@
  */
 import IntelSearchDetail from './IntelSearchDetail.vue'
 import { type TableInstance, type DropdownInstance, type CheckboxValueType } from 'element-plus'
+import IntelSearchBackupPop, { type IntelSearchBackUpExpose } from './IntelSearchBackupPop.vue'
 
 export default defineComponent({
     components: {
         IntelSearchDetail,
+        IntelSearchBackupPop,
     },
     setup() {
         const { Translate } = useLangStore()
         const auth = useUserChlAuth(true)
         const router = useRouter()
+        const backupPopRef = ref<IntelSearchBackUpExpose>()
 
         // 排序下拉框的引用
         const searchTargetDropdown = ref<DropdownInstance>()
-        const IntelSearchBackupPopRef = ref()
         // 详情弹框
         const detailRef = ref()
         const tableRef = ref<TableInstance>()
@@ -142,7 +144,6 @@ export default defineComponent({
             } else {
                 pageData.value.dateRangeType = type
             }
-            getAllTargetIndexDatas()
         }
 
         /**
@@ -793,12 +794,19 @@ export default defineComponent({
          * @description 备份全部
          */
         const handleBackupAll = () => {
-            IntelSearchBackupPopRef.value.startBackup({
+            backupPopRef.value?.startBackup({
                 isBackupPic: true,
                 isBackupVideo: false,
-                indexData: getCurrTargetIndexDatas(),
-                allChlAuth: auth,
-                chlAuthMapping: [],
+                indexData: pageData.value.targetIndexDatasForSearchTarget.map((item) => {
+                    return {
+                        index: item.index,
+                        chlId: item.chlID,
+                        chlName: item.channelName,
+                        frameTime: item.timeStamp,
+                        startTime: item.startTime,
+                        endTime: item.endTime,
+                    }
+                }),
             })
         }
 
@@ -806,12 +814,35 @@ export default defineComponent({
          * @description 备份选中项
          */
         const handleBackup = (backupType: 'pic' | 'video' | 'picAndVideo') => {
-            IntelSearchBackupPopRef.value.startBackup({
+            backupPopRef.value?.startBackup({
                 isBackupPic: backupType === 'pic' || backupType === 'picAndVideo',
                 isBackupVideo: backupType === 'video' || backupType === 'picAndVideo',
-                indexData: getCurrSelectedTargetDatas(),
-                allChlAuth: auth,
-                chlAuthMapping: [],
+                indexData: pageData.value.selectedTargetDatasForSearchTarget.map((item) => {
+                    return {
+                        index: item.index,
+                        chlId: item.chlID,
+                        chlName: item.channelName,
+                        frameTime: item.timeStamp,
+                        startTime: item.startTime,
+                        endTime: item.endTime,
+                    }
+                }),
+            })
+        }
+
+        const handleBackupCurrentTarget = (item: IntelTargetDataItem | IntelTargetIndexItem, type = 'pic') => {
+            backupPopRef.value?.startBackup({
+                isBackupPic: type.includes('pic'),
+                isBackupVideo: type.includes('video'),
+                isBackupPlateCsv: type.includes('csv'),
+                indexData: [
+                    {
+                        index: item.index,
+                        chlId: item.chlID,
+                        chlName: item.channelName,
+                        frameTime: item.timeStamp,
+                    },
+                ],
             })
         }
 
@@ -892,7 +923,7 @@ export default defineComponent({
             return currSelectedTargetDatas.length > 0
         })
 
-        onMounted(async () => {
+        const setDefaultData = () => {
             if (localStorage.getItem('extractResultInfos')) {
                 const extractResultInfos = JSON.parse(localStorage.getItem('extractResultInfos') || '')
                 pageData.value.targetType = extractResultInfos[0].targetType
@@ -901,7 +932,21 @@ export default defineComponent({
                 const img = extractResultInfos[0].imgBase64
                 pageData.value.pic = img.startsWith('data:image/png;base64,') ? img : 'data:image/png;base64,' + img
             }
+        }
 
+        const handleRefresh = () => {
+            resetSortStatus()
+            resetCurrSelectedTargetDatas()
+            setCurrTargetIndexDatas([])
+            setCurrTargetDatas([])
+            pageData.value.pageIndexForSearchTarget = 1
+            pageData.value.selectedTargetDatasForSearchTarget = []
+            pageData.value.isDetailOpen = false
+            setDefaultData()
+        }
+
+        onMounted(async () => {
+            setDefaultData()
             getChlData()
         })
 
@@ -930,6 +975,10 @@ export default defineComponent({
             handleChangeItem,
             handleChecked,
             isEnableBackup,
+            handleBackupCurrentTarget,
+            auth,
+            backupPopRef,
+            handleRefresh,
         }
     },
 })

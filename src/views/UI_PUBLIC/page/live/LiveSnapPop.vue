@@ -6,7 +6,7 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_DETAIL')"
-        width="950"
+        width="942"
         @open="open"
         @opened="opened"
         @close="close"
@@ -240,12 +240,12 @@
             <!-- 上一张/下一张 -->
             <div
                 v-show="pageData.showSnap"
-                class="btns"
+                class="base-intel-target-btns"
                 @mouseenter="showSnap(true)"
                 @mouseleave="showSnap(false)"
             >
                 <div
-                    class="btn"
+                    class="base-intel-target-btn"
                     :disabled="pageData.index === 0"
                     :class="{
                         disabled: pageData.index === 0,
@@ -255,8 +255,7 @@
                     {{ Translate('IDCS_PREVIOUS') }}
                 </div>
                 <div
-                    id="next"
-                    class="btn"
+                    class="base-intel-target-btn"
                     :disabled="pageData.index === listData.length - 1"
                     :class="{
                         disabled: pageData.index === listData.length - 1,
@@ -381,7 +380,7 @@
                 &-title {
                     position: absolute;
                     color: var(--btn-text-disabled);
-                    background-color: var(--attribute--title-bg);
+                    background-color: var(--target-title-bg);
                     box-sizing: border-box;
                     padding: 0 4px;
                 }
@@ -407,7 +406,7 @@
                         text-overflow: ellipsis;
                         white-space: nowrap;
                         color: var(--main-text-active);
-                        background-color: var(--attribute-item-bg);
+                        background-color: var(--target-attr-bg);
                     }
                 }
             }
@@ -552,7 +551,7 @@
         }
 
         &-item.selected {
-            background-color: var(--tab-active-bg);
+            background-color: var(--target-bullet-bg);
         }
     }
 
@@ -601,44 +600,15 @@
             align-items: center;
             justify-content: flex-end;
             width: 100%;
+
+            .Sprite {
+                margin-left: 3px;
+            }
         }
     }
 
-    .btns {
-        position: absolute;
-        width: 136px;
-        height: 48px;
-        left: 0;
-        top: 430px;
-        z-index: 3;
-        background-color: var(--color-white);
-
-        .btn {
-            background-color: var(--color-white);
-            color: var(--tooltip-text);
-            border: 0;
-            position: absolute;
-            width: 55px;
-            height: 22px;
-            padding: 13px 5px;
-            cursor: pointer;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            text-align: center;
-
-            &.disabled {
-                cursor: default;
-                color: var(--btn-bg-disabled);
-            }
-
-            &:hover:not(.disabled) {
-                background-color: var(--preNext-btn-bg-active);
-            }
-        }
-
-        #next {
-            right: 0;
-        }
+    .base-intel-target-btns {
+        bottom: 60px;
     }
 
     ::v-deep(.compare-info-form .top-line .el-form-item__content),

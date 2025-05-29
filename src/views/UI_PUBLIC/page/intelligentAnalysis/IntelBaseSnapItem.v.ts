@@ -3,20 +3,13 @@
  * @Date: 2025-05-21 10:30:00
  * @Description: 智能分析-人、车
  */
-import IntelFaceDBSnapRegisterPop from './IntelFaceDBSnapRegisterPop.vue'
-import IntelSearchBackupPop from './IntelSearchBackupPop.vue'
-
 export default defineComponent({
-    components: {
-        IntelFaceDBSnapRegisterPop,
-        IntelSearchBackupPop,
-    },
     props: {
         /**
          * @property 当前搜索类型
          */
         searchType: {
-            type: String,
+            type: String as PropType<'byFace' | 'bySearchTarget' | 'byBody' | 'byPlateNumber' | 'byPassRecord' | 'byMotorcycle' | 'byCar' | 'byPersonAttribute'>,
             default: 'byFace',
         },
         /**
@@ -49,6 +42,20 @@ export default defineComponent({
             default: () => [new IntelFaceDBSnapFaceList()],
             require: true,
         },
+        /**
+         * @property 每行显示数量
+         */
+        grid: {
+            type: Number,
+            default: 6,
+        },
+        /**
+         * @property 比例 高/宽
+         */
+        ratio: {
+            type: String,
+            default: '133%',
+        },
     },
     emits: {
         detail() {
@@ -58,6 +65,12 @@ export default defineComponent({
             return !!targetData
         },
         search(targetData: IntelTargetDataItem) {
+            return !!targetData
+        },
+        backup(targetData: IntelTargetDataItem) {
+            return !!targetData
+        },
+        register(targetData: IntelTargetDataItem) {
             return !!targetData
         },
     },
@@ -70,7 +83,6 @@ export default defineComponent({
             isRegisterFacePop: false, // 注册人脸的弹框
             isRegisterPlatePop: false, // 注册车牌的弹框
         })
-        const IntelSearchBackupPopRef = ref()
 
         /**
          * @description 处理点击封面图事件（打开详情）
@@ -103,38 +115,14 @@ export default defineComponent({
          * @description 导出选中项数据（单个数据）
          */
         const handleExport = () => {
-            const indexDataItem = {
-                chlId: prop.targetData.chlID,
-                chlName: prop.targetData.channelName,
-                frameTime: prop.targetData.timeStamp * 1000,
-                timeStamp100ns: prop.targetData.timeStamp100ns,
-                snapContent: prop.targetData.objPicData.data,
-                targetID: prop.targetData.targetID,
-                isThermal: prop.targetData.backgroundPicDatas.length > 1,
-                originContent: prop.targetData.backgroundPicDatas.length > 1 ? prop.targetData.backgroundPicDatas[1].data : prop.targetData.backgroundPicDatas[0].data,
-                eventContent: prop.targetData.backgroundPicDatas.length > 1 ? prop.targetData.backgroundPicDatas[0].data : '',
-                dataBaseContent: prop.targetData.isFaceFeature ? prop.targetData.personInfoData : '',
-                faceDataBaseInfo: prop.targetData.isFaceFeature ? prop.targetData.humanAttrInfo : '',
-                plateNumber: prop.targetData.plateAttrInfo.plateNumber,
-            }
-            IntelSearchBackupPopRef.value.startBackup({
-                isBackupPic: true,
-                isBackupVideo: false,
-                indexData: [indexDataItem],
-                allChlAuth: true,
-                chlAuthMapping: [],
-            })
+            ctx.emit('backup', prop.targetData)
         }
 
         /**
          * @description 注册（人脸、车牌号）
          */
         const handleRegister = () => {
-            if (prop.searchType === 'byFace') {
-                pageData.value.isRegisterFacePop = true
-            } else if (prop.searchType === 'byPlateNumber') {
-                pageData.value.isRegisterPlatePop = true
-            }
+            ctx.emit('register', prop.targetData)
         }
 
         /**
@@ -238,7 +226,6 @@ export default defineComponent({
             showPlateNumber,
             showSimilarity,
             comparePicInfo,
-            IntelSearchBackupPopRef,
         }
     },
 })

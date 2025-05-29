@@ -23,7 +23,10 @@
                 />
             </el-radio-group>
         </div>
-        <div class="pageCenter">
+        <div
+            id="intelDetail-center"
+            class="pageCenter"
+        >
             <div
                 class="picVideoWrap"
                 @mouseenter="showSnap(true)"
@@ -115,17 +118,19 @@
                         type="image"
                         :mode="mode"
                         :pic="pageData.detectTargetImg"
+                        :route-type="searchTargetRouteType"
+                        @search="handleGoToSearchTargetPage"
                     />
                 </div>
                 <!--叠加在图片上的上一个、下一个按钮 -->
                 <div
                     v-show="pageData.isShowPrevNextBtn"
-                    class="btns"
+                    class="base-intel-target-btns"
                     @mouseenter="handleMouseMove(true)"
                     @mouseleave="handleMouseMove(false)"
                 >
                     <div
-                        class="btn"
+                        class="base-intel-target-btn"
                         :disabled="pageData.detailIndex === 0"
                         :class="{
                             disabled: pageData.detailIndex === 0,
@@ -135,8 +140,7 @@
                         {{ Translate('IDCS_PREVIOUS') }}
                     </div>
                     <div
-                        id="next"
-                        class="btn"
+                        class="base-intel-target-btn"
                         :disabled="pageData.detailIndex === detailData.length - 1"
                         :class="{
                             disabled: pageData.detailIndex === detailData.length - 1,
@@ -147,25 +151,24 @@
                     </div>
                 </div>
             </div>
-            <div
+            <BasePlayerControl
                 v-show="pageData.detailType === 'record'"
-                class="control-bar"
-            >
-                <span class="start-time">{{ displayTime(pageData.startTimeStamp) }}</span>
-                <el-slider
-                    v-model="pageData.progress"
-                    :show-tooltip="false"
-                    :min="pageData.startTimeStamp"
-                    :max="pageData.endTimeStamp"
-                    :disabled="pageData.iconDisabled"
-                    @mousedown="handleSliderMouseDown"
-                    @mouseup="handleSliderMouseUp"
-                    @change="handleSliderChange"
-                />
-                <span class="end-time">{{ displayTime(pageData.endTimeStamp) }}</span>
-            </div>
-
+                v-model="pageData.progress"
+                :start-time="pageData.startTimeStamp"
+                :end-time="pageData.endTimeStamp"
+                :highlight="[currDetailData.startTime, currDetailData.endTime]"
+                :disabled="pageData.iconDisabled"
+                :marks="marks"
+                enable-highlight
+                @mousedown="handleSliderMouseDown"
+                @mouseup="handleSliderMouseUp"
+                @change="handleSliderChange"
+            />
             <div class="btn-bar">
+                <div
+                    v-show="pageData.detailType === 'snap'"
+                    class="left-wrap"
+                ></div>
                 <!-- 视频底部左侧按钮模块 -->
                 <div
                     v-show="pageData.detailType === 'record'"
@@ -209,18 +212,16 @@
                         @mouseenter="hoverRecSpeed(true)"
                         @mouseleave="hoverRecSpeed(false)"
                     >
-                        <div class="speedBtnTitle">
-                            <el-tooltip
-                                :content="pageData.speedBtnTitle"
-                                placement="right"
-                            >
-                                <BaseImgSpriteBtn
-                                    class="btn"
-                                    :file="pageData.speedBtn"
-                                    :disabled="pageData.iconDisabled"
-                                />
-                            </el-tooltip>
-                        </div>
+                        <el-tooltip
+                            :content="pageData.speedBtnTitle"
+                            placement="right"
+                        >
+                            <BaseImgSpriteBtn
+                                class="btn"
+                                :file="pageData.speedBtn"
+                                :disabled="pageData.iconDisabled"
+                            />
+                        </el-tooltip>
                         <div
                             v-show="pageData.isHoverSpeed"
                             class="speedBtnList"
@@ -246,7 +247,6 @@
                         <BaseImgSpriteBtn
                             class="btn"
                             file="fw10s"
-                            :title="Translate('IDCS_PLAY_DEC_10_SECONDS')"
                             :disabled="pageData.iconDisabled"
                             @click="handleJump(-10)"
                         />
@@ -267,7 +267,6 @@
                             v-show="systemCaps.supportREID"
                             class="btn"
                             file="target_retrieval"
-                            :title="Translate('IDCS_REID')"
                             :active="pageData.enableREID"
                             :disabled="pageData.iconDisabled"
                             @click="handleSearchTarget"
@@ -285,18 +284,9 @@
                     </el-tooltip>
                     <el-tooltip :content="Translate('IDCS_AUDIO')">
                         <BaseImgSpriteBtn
-                            v-show="pageData.detailType === 'record' && !pageData.enableAudio"
+                            v-show="pageData.detailType === 'record'"
                             class="btn"
-                            file="soundClose"
-                            :disabled="pageData.iconDisabled"
-                            @click="handleVoice"
-                        />
-                    </el-tooltip>
-                    <el-tooltip :content="Translate('IDCS_AUDIO')">
-                        <BaseImgSpriteBtn
-                            v-show="pageData.detailType === 'record' && pageData.enableAudio"
-                            class="btn"
-                            file="soundOpen"
+                            :file="pageData.enableAudio ? 'soundOpen' : 'soundClose'"
                             :disabled="pageData.iconDisabled"
                             @click="handleVoice"
                         />
@@ -313,26 +303,16 @@
                     </el-tooltip>
                     <el-tooltip :content="Translate('IDCS_EXPORT')">
                         <BaseImgSpriteBtn
-                            v-show="pageData.detailType === 'snap'"
                             class="btn"
                             file="export_btn"
                             :disabled="pageData.iconDisabled"
-                            @click="handleExportPic"
+                            @click="handleExport"
                         />
                     </el-tooltip>
-                    <el-tooltip :content="Translate('IDCS_EXPORT')">
-                        <BaseImgSpriteBtn
-                            v-show="pageData.detailType === 'record'"
-                            class="btn"
-                            file="export_btn"
-                            :disabled="pageData.iconDisabled"
-                            @click="handleExportVideo"
-                        />
-                    </el-tooltip>
-                    <el-tooltip :content="Translate('IDCS_FULLSCREEN')">
+                    <el-tooltip :content="pageData.isFullScreen ? Translate('IDCS_EXIT_FULLSCREEN') : Translate('IDCS_FULLSCREEN')">
                         <BaseImgSpriteBtn
                             class="btn"
-                            file="full_screen"
+                            :file="pageData.isFullScreen ? 'exit_full_screen' : 'full_screen'"
                             :disabled="pageData.iconDisabled"
                             @click="handleFullScreen"
                         />
@@ -375,8 +355,8 @@
                             class="font-weight-bold"
                         >
                             <el-text>{{ personInfoData.name }}</el-text>
-                            <a>&nbsp;|&nbsp;</a>
-                            <el-text class="">{{ `${currDetailData.similarity}%` }}</el-text>
+                            <span>&nbsp;|&nbsp;</span>
+                            <el-text>{{ currDetailData.similarity }}%</el-text>
                         </el-form-item>
                         <el-divider />
                         <el-form-item :label="Translate('IDCS_SEX')">
@@ -410,10 +390,9 @@
                     </el-form>
                 </div>
                 <!-- 目标事件 -->
-                <el-scrollbar
+                <div
                     v-if="pageData.targetMenuType === 'targetEvent'"
-                    vertical
-                    height="175"
+                    class="targetInfoWrap"
                 >
                     <div
                         v-for="(item, index) in pageData.targetEventDataNoSort"
@@ -437,7 +416,7 @@
                             >
                         </div>
                     </div>
-                </el-scrollbar>
+                </div>
             </div>
             <div
                 v-if="isTrail"
@@ -454,12 +433,16 @@
 
 <style lang="scss" scoped>
 .intelDetail {
-    height: 100%;
-    padding: 15px;
+    width: 100%;
+    height: calc(var(--content-height) - 10px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 
     .pageHead {
         height: 28px;
         position: relative;
+        flex-shrink: 0;
     }
 
     .pageCenter {
@@ -467,6 +450,8 @@
         width: 98%;
         height: 520px;
         margin-top: 2px;
+        flex-shrink: 0;
+        background-color: var(--main-bg);
 
         .picVideoWrap {
             width: 100%;
@@ -484,6 +469,10 @@
                     height: 100%;
                     z-index: 0;
                     object-fit: fill;
+
+                    &[src=''] {
+                        opacity: 0;
+                    }
                 }
 
                 &-snap-right {
@@ -526,7 +515,7 @@
                         &-title {
                             position: absolute;
                             color: var(--btn-text-disabled);
-                            background-color: var(--attribute--title-bg);
+                            background-color: var(--target-title-bg);
                             box-sizing: border-box;
                             padding: 0 4px;
                         }
@@ -552,7 +541,7 @@
                                 text-overflow: ellipsis;
                                 white-space: nowrap;
                                 color: var(--main-text-active);
-                                background-color: var(--attribute-item-bg);
+                                background-color: var(--target-attr-bg);
                             }
                         }
                     }
@@ -563,112 +552,38 @@
                 width: 100%;
                 height: 100%;
                 border: 2px solid var(--subheading-bg);
-            }
-
-            .btns {
-                position: absolute;
-                width: 136px;
-                height: 48px;
-                left: 0;
-                bottom: 20px;
-                z-index: 11;
-                background-color: var(--color-white);
-
-                .btn {
-                    background-color: var(--color-white);
-                    color: var(--tooltip-text);
-                    border: 0;
-                    position: absolute;
-                    width: 55px;
-                    height: 22px;
-                    padding: 13px 5px;
-                    cursor: pointer;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                    text-align: center;
-
-                    &.disabled {
-                        cursor: default;
-                        color: var(--btn-bg-disabled);
-                    }
-
-                    &:hover:not(.disabled) {
-                        background-color: var(--preNext-btn-bg-active);
-                    }
-                }
-
-                #next {
-                    right: 0;
-                }
-            }
-        }
-
-        .control-bar {
-            align-items: center;
-            display: flex;
-            height: 22px;
-            margin-top: 10px;
-            width: 100%;
-
-            .start-time,
-            .end-time {
-                flex-shrink: 0;
-                font-size: 14px;
-                line-height: 1;
-                padding: 5px 0;
-                text-align: left;
-                width: 90px;
-            }
-
-            .end-time {
-                text-align: right;
+                box-sizing: border-box;
             }
         }
 
         .btn-bar {
-            position: absolute;
             width: 100%;
             height: 48px;
-            left: 5px;
-            bottom: 5px;
             user-select: none;
+            display: flex;
+            justify-content: space-between;
 
             .left-wrap {
-                position: absolute;
-                left: 0;
-                bottom: 0;
                 width: 50%;
                 height: 100%;
-                line-height: 58px;
                 text-align: left;
-                z-index: 6;
                 display: flex;
                 justify-content: flex-start;
                 align-items: center;
 
                 .el-select {
-                    width: 75px;
-                    display: inline-block;
+                    width: 90px;
                     height: 20px;
                     line-height: 20px;
                     margin-left: 4px;
-                    vertical-align: middle;
                 }
 
                 .speedWrap {
                     position: relative;
-                    display: inline-block;
                     width: 34px;
                     height: 34px;
-                    vertical-align: middle;
                     cursor: pointer;
                     margin-right: 4px;
-
-                    .speedBtnTitle .Sprite {
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                    }
 
                     .speedBtnList {
                         display: flex;
@@ -687,13 +602,8 @@
 
             .right-wrap {
                 user-select: none;
-                position: absolute;
-                right: 3px;
-                bottom: 0;
                 width: 50%;
                 height: 100%;
-                line-height: 58px;
-                z-index: 9;
                 display: flex;
                 justify-content: flex-end;
                 align-items: center;
@@ -706,14 +616,15 @@
     }
 
     .pageFooter {
-        height: calc(100% - 569px);
+        width: 100%;
+        height: calc(100% - 560px);
 
         .picVideoMode {
+            width: 100%;
             height: 100%;
 
             .el-divider--horizontal {
-                /* stylelint-disable-next-line length-zero-no-unit */
-                margin: 0px;
+                margin: 0;
             }
 
             .el-radio-group.tab_container {
@@ -751,7 +662,8 @@
             }
 
             .personInfoWrap {
-                height: calc(100% - 50px);
+                width: 100%;
+                height: calc(100% - 15px);
                 overflow-y: auto;
 
                 .font-weight-bold {
@@ -773,6 +685,12 @@
                 .el-divider--horizontal {
                     border-width: 2px;
                 }
+            }
+
+            .targetInfoWrap {
+                width: 100%;
+                height: calc(100% - 15px);
+                overflow-y: auto;
             }
 
             .targetList {

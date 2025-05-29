@@ -95,143 +95,51 @@
                 </div>
                 <!-- 排序、全选 -->
                 <div>
-                    <!-- 汽车 - 排序、全选 -->
-                    <div v-show="pageData.searchType === 'byCar'">
-                        <el-dropdown ref="carSortDropdown">
-                            <BaseTableDropdownLink>
-                                {{ Translate('IDCS_SORT') }}
-                            </BaseTableDropdownLink>
-                            <template #dropdown>
-                                <div
+                    <el-dropdown>
+                        <BaseTableDropdownLink>
+                            {{ Translate('IDCS_SORT') }}
+                        </BaseTableDropdownLink>
+                        <template #dropdown>
+                            <el-dropdown-menu>
+                                <el-dropdown-item
                                     v-for="opt in pageData.sortOptions"
                                     :key="opt.value"
                                     class="sort_item"
                                     @click="handleSort(opt.value)"
                                 >
-                                    <span class="sort_item_label">{{ opt.label }}</span>
+                                    <span class="sort_item_label">{{ opt.label }} </span>
                                     <BaseImgSprite
                                         :file="opt.status === 'up' ? 'sortAsc' : 'sortDes'"
                                         :chunk="4"
                                         :index="pageData.sortType === opt.value ? 1 : 3"
                                     />
-                                </div>
-                            </template>
-                        </el-dropdown>
-                        <el-checkbox
-                            v-model="pageData.isCheckedAll"
-                            :label="Translate('IDCS_SELECT_ALL')"
-                            @change="handleCheckedAll"
-                        />
-                    </div>
-                    <!-- 摩托车/单车 - 排序、全选 -->
-                    <div v-show="pageData.searchType === 'byMotorcycle'">
-                        <el-dropdown ref="motorcycleSortDropdown">
-                            <BaseTableDropdownLink>
-                                {{ Translate('IDCS_SORT') }}
-                            </BaseTableDropdownLink>
-                            <template #dropdown>
-                                <div
-                                    v-for="opt in pageData.sortOptions"
-                                    :key="opt.value"
-                                    class="sort_item"
-                                    @click="handleSort(opt.value)"
-                                >
-                                    <span class="sort_item_label">{{ opt.label }}</span>
-                                    <BaseImgSprite
-                                        :file="opt.status === 'up' ? 'sortAsc' : 'sortDes'"
-                                        :chunk="4"
-                                        :index="pageData.sortType === opt.value ? 1 : 3"
-                                    />
-                                </div>
-                            </template>
-                        </el-dropdown>
-                        <el-checkbox
-                            v-model="pageData.isCheckedAll"
-                            :label="Translate('IDCS_SELECT_ALL')"
-                            @change="handleCheckedAll"
-                        />
-                    </div>
-                    <!-- 车牌号 - 排序、全选 -->
-                    <div v-show="pageData.searchType === 'byPlateNumber'">
-                        <el-dropdown ref="plateNumberSortDropdown">
-                            <BaseTableDropdownLink>
-                                {{ Translate('IDCS_SORT') }}
-                            </BaseTableDropdownLink>
-                            <template #dropdown>
-                                <div
-                                    v-for="opt in pageData.sortOptions"
-                                    :key="opt.value"
-                                    class="sort_item"
-                                    @click="handleSort(opt.value)"
-                                >
-                                    <span class="sort_item_label">{{ opt.label }}</span>
-                                    <BaseImgSprite
-                                        :file="opt.status === 'up' ? 'sortAsc' : 'sortDes'"
-                                        :chunk="4"
-                                        :index="pageData.sortType === opt.value ? 1 : 3"
-                                    />
-                                </div>
-                            </template>
-                        </el-dropdown>
-                        <el-checkbox
-                            v-model="pageData.isCheckedAll"
-                            :label="Translate('IDCS_SELECT_ALL')"
-                            @change="handleCheckedAll"
-                        />
-                    </div>
+                                </el-dropdown-item>
+                            </el-dropdown-menu>
+                        </template>
+                    </el-dropdown>
+                    <el-checkbox
+                        v-model="pageData.isCheckedAll"
+                        :label="Translate('IDCS_SELECT_ALL')"
+                        @change="handleCheckedAll"
+                    />
                 </div>
             </div>
             <!-- 抓拍图容器 -->
             <div class="base-intel-center-center base-intel-pics-box">
                 <!-- 汽车 - 抓拍图容器 -->
-                <div
-                    v-show="pageData.searchType === 'byCar'"
-                    id="byCarSearchContentPic"
-                    class="base-intel-pics-content"
-                >
+                <div class="base-intel-pics-content">
                     <IntelBaseSnapItem
-                        v-for="(item, index) in pageData.targetDatasForCar"
+                        v-for="(item, index) in getCurrTargetDatas()"
                         :key="index"
                         :target-data="item"
-                        :detail-index="pageData.openDetailIndexForCar"
+                        :detail-index="openDetailIndex"
                         :show-compare="false"
-                        search-type="byCar"
+                        :search-type="pageData.searchType"
+                        :grid="pageData.isDetailOpen ? 4 : 6"
                         @detail="showDetail(item)"
                         @checked="handleChecked"
-                    />
-                </div>
-                <!-- 摩托车/单车 - 抓拍图容器 -->
-                <div
-                    v-show="pageData.searchType === 'byMotorcycle'"
-                    id="byMotorcycleSearchContentPic"
-                    class="base-intel-pics-content"
-                >
-                    <IntelBaseSnapItem
-                        v-for="(item, index) in pageData.targetDatasForMotorcycle"
-                        :key="index"
-                        :target-data="item"
-                        :detail-index="pageData.openDetailIndexForMotorcycle"
-                        :show-compare="false"
-                        search-type="byMotorcycle"
-                        @detail="showDetail(item)"
-                        @checked="handleChecked"
-                    />
-                </div>
-                <!-- 车牌号 - 抓拍图容器 -->
-                <div
-                    v-show="pageData.searchType === 'byPlateNumber'"
-                    id="byPlateNumberSearchContentPic"
-                    class="base-intel-pics-content"
-                >
-                    <IntelBaseSnapItem
-                        v-for="(item, index) in pageData.targetDatasForPlateNumber"
-                        :key="index"
-                        :target-data="item"
-                        :detail-index="pageData.openDetailIndexForPlateNumber"
-                        :show-compare="false"
-                        search-type="byPlateNumber"
-                        @detail="showDetail(item)"
-                        @checked="handleChecked"
+                        @backup="handleBackupCurrentTarget"
+                        @register="handleRegister"
                     />
                 </div>
             </div>
@@ -239,117 +147,49 @@
             <div class="base-intel-center-bottom">
                 <!-- 分页器 -->
                 <div class="base-btn-box">
-                    <!-- 汽车 - 分页器 -->
                     <BasePagination
-                        v-show="pageData.searchType === 'byCar'"
-                        v-model:current-page="pageData.pageIndexForCar"
-                        v-model:page-size="pageData.pageSizeForCar"
-                        :page-sizes="[pageData.pageSizeForCar]"
-                        :total="pageData.targetIndexDatasForCar.length"
-                        @current-change="handleChangePage"
-                    />
-                    <!-- 摩托车/单车 - 分页器 -->
-                    <BasePagination
-                        v-show="pageData.searchType === 'byMotorcycle'"
-                        v-model:current-page="pageData.pageIndexForMotorcycle"
-                        v-model:page-size="pageData.pageSizeForMotorcycle"
-                        :page-sizes="[pageData.pageSizeForMotorcycle]"
-                        :total="pageData.targetIndexDatasForMotorcycle.length"
-                        @current-change="handleChangePage"
-                    />
-                    <!-- 车牌号 - 分页器 -->
-                    <BasePagination
-                        v-show="pageData.searchType === 'byPlateNumber'"
-                        v-model:current-page="pageData.pageIndexForPlateNumber"
-                        v-model:page-size="pageData.pageSizeForPlateNumber"
-                        :page-sizes="[pageData.pageSizeForPlateNumber]"
-                        :total="pageData.targetIndexDatasForPlateNumber.length"
+                        :current-page="getCurrPageIndex()"
+                        :page-size="pageData.pageSize"
+                        :page-sizes="[pageData.pageSize]"
+                        :total="getCurrTargetIndexDatas().length"
+                        @update:current-page="setCurrPageIndex"
                         @current-change="handleChangePage"
                     />
                 </div>
                 <!-- 备份/全部备份按钮 -->
                 <div class="base-btn-box">
-                    <!-- 汽车 -->
-                    <div v-show="pageData.searchType === 'byCar'">
-                        <el-button @click="handleBackupAll">
-                            {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
+                    <el-button @click="handleBackupAll">
+                        {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
+                    </el-button>
+                    <el-dropdown placement="top-end">
+                        <el-button :disabled="!isEnableBackup">
+                            {{ Translate('IDCS_BACKUP') }}
                         </el-button>
-                        <el-dropdown placement="top-end">
-                            <el-button :disabled="!isEnableBackup">
-                                {{ Translate('IDCS_BACKUP') }}
-                            </el-button>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <el-dropdown-item
-                                        v-for="item in pageData.backupTypeOptions"
-                                        :key="item.value"
-                                        @click="handleBackup(item.value)"
-                                    >
-                                        {{ Translate(item.label) }}
-                                    </el-dropdown-item>
-                                </el-dropdown-menu>
-                            </template>
-                        </el-dropdown>
-                    </div>
-                    <!-- 摩托车/单车 -->
-                    <div v-show="pageData.searchType === 'byMotorcycle'">
-                        <el-button @click="handleBackupAll">
-                            {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
-                        </el-button>
-                        <el-dropdown placement="top-end">
-                            <el-button :disabled="!isEnableBackup">
-                                {{ Translate('IDCS_BACKUP') }}
-                            </el-button>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <el-dropdown-item
-                                        v-for="item in pageData.backupTypeOptions"
-                                        :key="item.value"
-                                        @click="handleBackup(item.value)"
-                                    >
-                                        {{ Translate(item.label) }}
-                                    </el-dropdown-item>
-                                </el-dropdown-menu>
-                            </template>
-                        </el-dropdown>
-                    </div>
-                    <!-- 车牌号 -->
-                    <div v-show="pageData.searchType === 'byPlateNumber'">
-                        <el-button @click="handleBackupAll">
-                            {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
-                        </el-button>
-                        <el-dropdown placement="top-end">
-                            <el-button :disabled="!isEnableBackup">
-                                {{ Translate('IDCS_BACKUP') }}
-                            </el-button>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <el-dropdown-item
-                                        v-for="item in pageData.backupTypeOptions"
-                                        :key="item.value"
-                                        @click="handleBackup(item.value)"
-                                    >
-                                        {{ Translate(item.label) }}
-                                    </el-dropdown-item>
-                                </el-dropdown-menu>
-                            </template>
-                        </el-dropdown>
-                    </div>
+                        <template #dropdown>
+                            <el-dropdown-menu>
+                                <el-dropdown-item
+                                    v-for="item in pageData.searchType === 'byPlateNumber' ? pageData.backupPlateTypeOptions : pageData.backupTypeOptions"
+                                    :key="item.value"
+                                    @click="handleBackup(item.value)"
+                                >
+                                    {{ Translate(item.label) }}
+                                </el-dropdown-item>
+                            </el-dropdown-menu>
+                        </template>
+                    </el-dropdown>
                 </div>
             </div>
             <!-- 打开/关闭详情按钮 -->
             <div class="resize_icon_left">
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     :file="pageData.isDetailOpen ? 'right_close' : 'left_open'"
-                    :chunk="4"
                     class="icon_left"
                     @click="switchDetail"
                 />
             </div>
             <div class="resize_icon_right">
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     :file="pageData.isDetailOpen ? 'right_close' : 'left_open'"
-                    :chunk="4"
                     class="icon_right"
                     @click="switchDetail"
                 />
@@ -363,10 +203,24 @@
             <IntelSearchDetail
                 ref="detailRef"
                 @change-item="handleChangeItem"
+                @backup="handleBackupCurrentTarget"
             />
         </div>
     </div>
-    <IntelSearchBackupPop ref="IntelSearchBackupPopRef" />
+    <IntelSearchBackupPop
+        ref="backupPopRef"
+        :auth="auth"
+    />
+    <!-- 车牌注册弹框 -->
+    <IntelLicencePlateDBAddPlatePop
+        v-model="pageData.isRegisterPop"
+        type="register"
+        :data="{
+            plateNumber: pageData.registerPlateNumber,
+        }"
+        @confirm="pageData.isRegisterPop = false"
+        @close="pageData.isRegisterPop = false"
+    />
 </template>
 
 <script lang="ts" src="./IntelVehicleSearch.v.ts"></script>
@@ -387,8 +241,6 @@
             padding: 0;
 
             :deep(.el-form) {
-                height: 30px;
-
                 &.plate_number_color {
                     .el-form-item__label,
                     .el-input {
@@ -413,19 +265,6 @@
                             margin-bottom: 0;
                         }
                     }
-                }
-            }
-        }
-
-        :deep(.el-form) {
-            height: 30px;
-            margin-bottom: 10px !important;
-
-            .el-form-item {
-                padding: 0 !important;
-
-                .el-input__inner {
-                    height: 30px;
                 }
             }
         }
@@ -465,10 +304,6 @@
         margin: auto;
         width: 10px;
         height: 60px;
-
-        &:hover {
-            opacity: 0.8;
-        }
     }
 
     .resize_icon_left {
@@ -512,26 +347,14 @@
     }
 }
 
-.base-intel-right {
-    padding: 10px;
-}
-
 .sort_item {
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    max-width: 85px;
-    cursor: pointer;
-    font-size: 14px;
-    border: solid 1px var(--content-border);
-    background-color: var(--color-white);
 
     &_label {
-        display: flex;
         flex: 1;
-        padding-left: 10px;
-        justify-content: flex-end;
-        white-space: nowrap;
+        text-align: center;
     }
 
     &:hover {
