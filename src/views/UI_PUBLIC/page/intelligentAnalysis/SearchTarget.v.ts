@@ -144,7 +144,6 @@ export default defineComponent({
             } else {
                 pageData.value.dateRangeType = type
             }
-            getAllTargetIndexDatas()
         }
 
         /**
@@ -803,7 +802,7 @@ export default defineComponent({
                         index: item.index,
                         chlId: item.chlID,
                         chlName: item.channelName,
-                        frameTime: item.timeStamp * 1000,
+                        frameTime: item.timeStamp,
                         startTime: item.startTime,
                         endTime: item.endTime,
                     }
@@ -823,7 +822,7 @@ export default defineComponent({
                         index: item.index,
                         chlId: item.chlID,
                         chlName: item.channelName,
-                        frameTime: item.timeStamp * 1000,
+                        frameTime: item.timeStamp,
                         startTime: item.startTime,
                         endTime: item.endTime,
                     }
@@ -831,16 +830,17 @@ export default defineComponent({
             })
         }
 
-        const handleBackupCurrentTarget = (item: IntelTargetDataItem) => {
+        const handleBackupCurrentTarget = (item: IntelTargetDataItem | IntelTargetIndexItem, type = 'pic') => {
             backupPopRef.value?.startBackup({
-                isBackupPic: true,
-                isBackupVideo: false,
+                isBackupPic: type.includes('pic'),
+                isBackupVideo: type.includes('video'),
+                isBackupPlateCsv: type.includes('csv'),
                 indexData: [
                     {
                         index: item.index,
                         chlId: item.chlID,
                         chlName: item.channelName,
-                        frameTime: item.timeStamp * 1000,
+                        frameTime: item.timeStamp,
                     },
                 ],
             })
@@ -923,7 +923,7 @@ export default defineComponent({
             return currSelectedTargetDatas.length > 0
         })
 
-        onMounted(async () => {
+        const setDefaultData = () => {
             if (localStorage.getItem('extractResultInfos')) {
                 const extractResultInfos = JSON.parse(localStorage.getItem('extractResultInfos') || '')
                 pageData.value.targetType = extractResultInfos[0].targetType
@@ -932,7 +932,21 @@ export default defineComponent({
                 const img = extractResultInfos[0].imgBase64
                 pageData.value.pic = img.startsWith('data:image/png;base64,') ? img : 'data:image/png;base64,' + img
             }
+        }
 
+        const handleRefresh = () => {
+            resetSortStatus()
+            resetCurrSelectedTargetDatas()
+            setCurrTargetIndexDatas([])
+            setCurrTargetDatas([])
+            pageData.value.pageIndexForSearchTarget = 1
+            pageData.value.selectedTargetDatasForSearchTarget = []
+            pageData.value.isDetailOpen = false
+            setDefaultData()
+        }
+
+        onMounted(async () => {
+            setDefaultData()
             getChlData()
         })
 
@@ -964,6 +978,7 @@ export default defineComponent({
             handleBackupCurrentTarget,
             auth,
             backupPopRef,
+            handleRefresh,
         }
     },
 })

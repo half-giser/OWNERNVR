@@ -2247,7 +2247,7 @@ export const OCX_XML_SetTripwireLine = (line: { direction: 'none' | 'rightortop'
  * 设置矩形区域（通用：矩形侦测区域/最大最小区域）
  * rectangles：要进行显示的区域对象列表
  */
-export const OCX_XML_AddRectangleArea = (rectangles: { ID: string; text?: string; LineColor?: string; X1: number; X2: number; Y1: number; Y2: number }[]) => {
+export const OCX_XML_AddRectangleArea = (rectangles: { ID: number; text?: string; LineColor?: string; X1: number; X2: number; Y1: number; Y2: number }[]) => {
     return wrapXml(rawXml`
         <cmd type="AddRectangleArea">
             ${rectangles
@@ -2287,7 +2287,7 @@ export const OCX_XML_DeleteRectangleArea = (IDs: number[]) => {
  * curSubArea：当前绘制的绘制区域，双目计数特有
  */
 export const OCX_XML_AddPolygonArea = (
-    polygonAreas: { point: CanvasBasePoint[]; LineColor?: string; area: number }[] | CanvasBasePoint[][][],
+    polygonAreas: { point: CanvasBasePoint[]; LineColor?: string; area?: number }[] | CanvasBasePoint[][][],
     currentArea: number,
     showAll: boolean,
     curSubArea?: string,

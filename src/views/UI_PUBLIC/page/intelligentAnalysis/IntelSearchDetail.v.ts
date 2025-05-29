@@ -10,12 +10,24 @@ import dayjs from 'dayjs'
 import { VALUE_NAME_MAPPING } from '@/utils/const/snap'
 
 export default defineComponent({
+    emits: {
+        backup(data: IntelTargetDataItem | IntelTargetIndexItem, type: string) {
+            return !!data && typeof type === 'string'
+        },
+        changeItem(index: string) {
+            return typeof index === 'string'
+        },
+        search() {
+            return true
+        },
+    },
     setup(_props, ctx) {
         const { Translate } = useLangStore()
         const browserInfo = getBrowserInfo()
         const systemInfo = getSystemInfo()
         const dateTime = useDateTimeStore()
         const systemCaps = useCababilityStore()
+        const route = useRoute()
 
         let context: ReturnType<typeof CanvasBase>
         const canvasRef = ref<HTMLCanvasElement>()
@@ -689,15 +701,19 @@ export default defineComponent({
         /**
          * @description 渲染矩形目标框绘制和属性信息
          */
-        const renderCanvas = () => {
-            if (!context) {
-                return
+        const renderCanvas = async () => {
+            if (!context && canvasRef.value) {
+                context = CanvasBase(canvasRef.value)
             }
+
+            context.ClearRect(0, 0, pageData.value.canvasWidth, pageData.value.canvasHeight)
             pageData.value.canvasWidth = document.querySelector('.picVideoWrap')?.clientWidth || 791
             pageData.value.canvasHeight = document.querySelector('.picVideoWrap')?.clientHeight || 430
+            context.getCanvas().width = pageData.value.canvasWidth
+            context.getCanvas().height = pageData.value.canvasHeight
+            await nextTick()
             const attrTextMaxWidth = pageData.value.attrTextMaxWidth
             const attrTextMaxHeight = pageData.value.attrTextMaxHeight
-            context.ClearRect(0, 0, pageData.value.canvasWidth, pageData.value.canvasHeight)
             const X1 = (currDetailData.value as IntelTargetDataItem).targetTrace.X1 * pageData.value.canvasWidth
             const X2 = (currDetailData.value as IntelTargetDataItem).targetTrace.X2 * pageData.value.canvasWidth
             const Y1 = (currDetailData.value as IntelTargetDataItem).targetTrace.Y1 * pageData.value.canvasHeight
@@ -929,8 +945,7 @@ export default defineComponent({
          * @param {number} index
          * @param {TVTPlayerWinDataListItem} data
          */
-        const handlePlayerSuccess = (index: number, data: TVTPlayerWinDataListItem) => {
-            console.log('PlayerSuccess:', data)
+        const handlePlayerSuccess = (_index: number, data: TVTPlayerWinDataListItem) => {
             pageData.value.playStatus = data.PLAY_STATUS
             pageData.value.iconDisabled = false
         }
@@ -956,8 +971,6 @@ export default defineComponent({
          * @param {string} error
          */
         const handlePlayerError = (_index: number, data: TVTPlayerWinDataListItem, error?: string) => {
-            console.log('PlayerError:', data)
-
             // 不支持打开音频
             if (error === 'notSupportAudio') {
                 openMessageBox(Translate('IDCS_AUDIO_NOT_SUPPORT'))
@@ -1159,6 +1172,17 @@ export default defineComponent({
                 }
                 pageData.value.isDetectTarget = enableREID
             }
+
+            if (!pageData.value.isFullScreen) {
+                handleFullScreen()
+            }
+        }
+
+        const handleGoToSearchTargetPage = () => {
+            if (pageData.value.isFullScreen) {
+                handleFullScreen()
+            }
+            ctx.emit('search')
         }
 
         const clearTargetDetect = (isResume = true) => {
@@ -1274,26 +1298,70 @@ export default defineComponent({
         /**
          * @description 导出图片
          */
-        const handleExportPic = () => {}
-
-        /**
-         * @description 导出音频
-         */
-        const handleExportVideo = () => {}
+        const handleExport = () => {
+            ctx.emit('backup', currDetailData.value, pageData.value.detailType === 'snap' ? 'pic' : 'video')
+        }
 
         /**
          * @description 全屏显示
          */
         const handleFullScreen = () => {
-            if (mode.value === 'h5') {
-                player.fullscreen()
-            }
-
-            if (mode.value === 'ocx') {
-                const sendXML = OCX_XML_FullScreen()
-                plugin.ExecuteCmd(sendXML)
+            const fullScreenElement = document.getElementById('intelDetail-center')
+            if (fullScreenElement) {
+                if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement) {
+                    if (fullScreenElement.requestFullscreen) {
+                        fullScreenElement.requestFullscreen()
+                    } else if (fullScreenElement.webkitRequestFullscreen) {
+                        fullScreenElement.webkitRequestFullscreen()
+                    } else if (fullScreenElement.mozRequestFullScreen) {
+                        fullScreenElement.mozRequestFullScreen()
+                    } else {
+                        openMessageBox("This browser doesn't support fullscreen")
+                    }
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen()
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen()
+                    } else if (document.mozCancelFullScreen) {
+                        document.mozCancelFullScreen()
+                    } else {
+                        alert("Exit fullscreen doesn't work")
+                    }
+                }
             }
         }
+
+        const handleFullScreenChange = () => {
+            if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement) {
+                pageData.value.isFullScreen = true
+
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_SetESCHook(true)
+                    plugin.ExecuteCmd(sendXML)
+                }
+            } else {
+                pageData.value.isFullScreen = false
+                pageData.value.isDetectTarget = false
+
+                if (pageData.value.detailType === 'record' && pageData.value.playStatus === 'play') {
+                    play()
+                }
+
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_SetESCHook(false)
+                    plugin.ExecuteCmd(sendXML)
+                }
+            }
+
+            setTimeout(() => {
+                renderCanvas()
+            }, 50)
+        }
+
+        useEventListener(document, 'fullscreenchange', handleFullScreenChange, false)
+        useEventListener(document, 'webkitfullscreenchange', handleFullScreenChange, false)
+        useEventListener(document, 'mozfullscreenchange', handleFullScreenChange, false)
 
         /**
          * @description 点击表格行，回放当前行录像
@@ -1417,6 +1485,10 @@ export default defineComponent({
             }
         }
 
+        const searchTargetRouteType = computed(() => {
+            return route.path.includes('search-target') ? 'refresh' : 'navigate'
+        })
+
         /**
          * @description 设置插件播放状态
          * @param {string} status
@@ -1441,6 +1513,15 @@ export default defineComponent({
                     break
             }
         }
+
+        const marks = computed(() => {
+            return pageData.value.targetEventDataNoSort.map((item) => {
+                return {
+                    value: item.timeStamp,
+                    label: EVENT_TYPE_MAPPING[item.eventType],
+                }
+            })
+        })
 
         /**
          * @description 设置插件显示/隐藏透明区域，用于防止$dom元素被插件遮挡
@@ -1495,12 +1576,6 @@ export default defineComponent({
                 plugin?.ExecuteCmd(OCX_XML_RestoreTransparentArea(points, posType, 'true'))
             }
         }
-
-        onMounted(() => {
-            if (!context) {
-                context = CanvasBase(canvasRef.value!)
-            }
-        })
 
         /**
          * @description 重置播放器
@@ -1580,10 +1655,13 @@ export default defineComponent({
         }
 
         onUnmounted(() => {
-            stop()
             if (mode.value === 'ocx') {
                 plugin?.ExecuteCmd(OCX_XML_SetScreenMouseEvent(false))
             }
+        })
+
+        onBeforeRouteLeave(() => {
+            stop()
         })
 
         ctx.expose({
@@ -1635,14 +1713,16 @@ export default defineComponent({
             changeRecSpeed,
             handleJump,
             handleSearchTarget,
+            handleGoToSearchTargetPage,
             handleShowAIMsg,
             handleVoice,
             handlePos,
-            handleExportPic,
-            handleExportVideo,
+            handleExport,
             handleFullScreen,
             handleClickTarget,
             clearTargetDetect,
+            marks,
+            searchTargetRouteType,
         }
     },
 })

@@ -54,6 +54,7 @@ const prop = withDefaults(
         chlId?: string
         startTime?: number
         endTime?: number
+        routeType?: 'navigate' | 'refresh'
     }>(),
     {
         pic: '',
@@ -62,6 +63,7 @@ const prop = withDefaults(
         chlId: '',
         startTime: 0,
         endTime: 0,
+        routeType: 'navigate',
     },
 )
 
@@ -461,11 +463,13 @@ const search = async (detectImgInfo: TargetImgInfo, targetItem: TargetListDto) =
         },
     ]
 
-    emits('search', extractResultInfos)
     localStorage.setItem('extractResultInfos', JSON.stringify(extractResultInfos))
-    router.push({
-        path: '/intelligentAnalysis/search-target',
-    })
+    emits('search', extractResultInfos)
+    if (prop.routeType === 'navigate') {
+        router.push({
+            path: '/intelligentAnalysis/search-target',
+        })
+    }
 }
 
 const cropImage = async (detectImgInfo: TargetImgInfo, targetItem: TargetListDto) => {
@@ -527,14 +531,14 @@ watch(
     &-box {
         position: absolute;
         background:
-            linear-gradient(to left, yellow, yellow) left top no-repeat,
-            linear-gradient(to bottom, yellow, yellow) left top no-repeat,
-            linear-gradient(to left, yellow, yellow) right top no-repeat,
-            linear-gradient(to bottom, yellow, yellow) right top no-repeat,
-            linear-gradient(to left, yellow, yellow) left bottom no-repeat,
-            linear-gradient(to bottom, yellow, yellow) left bottom no-repeat,
-            linear-gradient(to left, yellow, yellow) right bottom no-repeat,
-            linear-gradient(to left, yellow, yellow) right bottom no-repeat;
+            linear-gradient(to left, var(--target-human-bg), var(--target-human-bg)) left top no-repeat,
+            linear-gradient(to bottom, var(--target-human-bg), var(--target-human-bg)) left top no-repeat,
+            linear-gradient(to left, var(--target-human-bg), var(--target-human-bg)) right top no-repeat,
+            linear-gradient(to bottom, var(--target-human-bg), var(--target-human-bg)) right top no-repeat,
+            linear-gradient(to left, var(--target-human-bg), var(--target-human-bg)) left bottom no-repeat,
+            linear-gradient(to bottom, var(--target-human-bg), var(--target-human-bg)) left bottom no-repeat,
+            linear-gradient(to left, var(--target-human-bg), var(--target-human-bg)) right bottom no-repeat,
+            linear-gradient(to left, var(--target-human-bg), var(--target-human-bg)) right bottom no-repeat;
         background-size:
             1px 20%,
             20% 1px,
@@ -542,8 +546,8 @@ watch(
             20% 1px;
 
         &:hover {
-            border: 1px solid yellow;
-            box-shadow: 0 0 1px 1px yellow;
+            border: 1px solid var(--target-human-bg);
+            box-shadow: 0 0 1px 1px var(--target-human-bg);
             background: none;
 
             .target-btn {
@@ -554,14 +558,14 @@ watch(
 
         &.humanFace {
             background:
-                linear-gradient(to left, red, red) left top no-repeat,
-                linear-gradient(to bottom, red, red) left top no-repeat,
-                linear-gradient(to left, red, red) right top no-repeat,
-                linear-gradient(to bottom, red, red) right top no-repeat,
-                linear-gradient(to left, red, red) left bottom no-repeat,
-                linear-gradient(to bottom, red, red) left bottom no-repeat,
-                linear-gradient(to left, red, red) right bottom no-repeat,
-                linear-gradient(to left, red, red) right bottom no-repeat;
+                linear-gradient(to left, var(--target-face-bg), var(--target-face-bg)) left top no-repeat,
+                linear-gradient(to bottom, var(--target-face-bg), var(--target-face-bg)) left top no-repeat,
+                linear-gradient(to left, var(--target-face-bg), var(--target-face-bg)) right top no-repeat,
+                linear-gradient(to bottom, var(--target-face-bg), var(--target-face-bg)) right top no-repeat,
+                linear-gradient(to left, var(--target-face-bg), var(--target-face-bg)) left bottom no-repeat,
+                linear-gradient(to bottom, var(--target-face-bg), var(--target-face-bg)) left bottom no-repeat,
+                linear-gradient(to left, var(--target-face-bg), var(--target-face-bg)) right bottom no-repeat,
+                linear-gradient(to left, var(--target-face-bg), var(--target-face-bg)) right bottom no-repeat;
             background-size:
                 1px 20%,
                 20% 1px,
@@ -569,8 +573,8 @@ watch(
                 20% 1px;
 
             &:hover {
-                border: 1px solid red;
-                box-shadow: 0 0 1px 1px red;
+                border: 1px solid var(--target-face-bg);
+                box-shadow: 0 0 1px 1px var(--target-face-bg);
                 background: none;
             }
         }

@@ -592,9 +592,9 @@ export class SystemRS485Form {
 export class SystemRS485Dto {
     id = ''
     name = ''
-    baudrate = 0
+    baudrate = 9600
     addrID = 0
-    protocol = ''
+    protocol = 'PELCOD'
     code = ''
     operate = ''
     settingInfos = ''

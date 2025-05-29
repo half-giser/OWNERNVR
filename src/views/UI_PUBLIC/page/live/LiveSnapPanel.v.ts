@@ -419,6 +419,7 @@ export default defineComponent({
             const isThermal = !!data.thermal_scene_pic || !!data.optical_scene_pic
             const isFaceCompare = data.type === 'face_verify'
             backupPopRef.value?.startBackup({
+                apiType: 'snap-wall',
                 isBackupPic: true,
                 isBackupVideo: false,
                 indexData: [

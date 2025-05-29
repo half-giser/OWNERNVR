@@ -240,12 +240,12 @@
             <!-- 上一张/下一张 -->
             <div
                 v-show="pageData.showSnap"
-                class="btns"
+                class="base-intel-target-btns"
                 @mouseenter="showSnap(true)"
                 @mouseleave="showSnap(false)"
             >
                 <div
-                    class="btn"
+                    class="base-intel-target-btn"
                     :disabled="pageData.index === 0"
                     :class="{
                         disabled: pageData.index === 0,
@@ -255,7 +255,7 @@
                     {{ Translate('IDCS_PREVIOUS') }}
                 </div>
                 <div
-                    class="btn"
+                    class="base-intel-target-btn"
                     :disabled="pageData.index === listData.length - 1"
                     :class="{
                         disabled: pageData.index === listData.length - 1,
@@ -380,7 +380,7 @@
                 &-title {
                     position: absolute;
                     color: var(--btn-text-disabled);
-                    background-color: var(--attribute--title-bg);
+                    background-color: var(--target-title-bg);
                     box-sizing: border-box;
                     padding: 0 4px;
                 }
@@ -406,7 +406,7 @@
                         text-overflow: ellipsis;
                         white-space: nowrap;
                         color: var(--main-text-active);
-                        background-color: var(--attribute-item-bg);
+                        background-color: var(--target-attr-bg);
                     }
                 }
             }
@@ -551,7 +551,7 @@
         }
 
         &-item.selected {
-            background-color: var(--tab-active-bg);
+            background-color: var(--target-bullet-bg);
         }
     }
 
@@ -607,36 +607,8 @@
         }
     }
 
-    .btns {
-        display: flex;
-        position: absolute;
-        left: 0;
+    .base-intel-target-btns {
         bottom: 60px;
-        z-index: 5;
-
-        .btn {
-            min-width: 65px;
-            height: 48px;
-            line-height: 48px;
-            text-align: center;
-            cursor: pointer;
-            background-color: var(--color-white);
-            user-select: none;
-
-            &:hover:not(.disabled) {
-                background-color: var(--primary-light);
-            }
-
-            &:active:not(.disabled) {
-                background-color: var(--primary);
-                color: var(--main-text-active);
-            }
-
-            &.disabled {
-                color: var(--main-text-light);
-                cursor: not-allowed;
-            }
-        }
     }
 
     ::v-deep(.compare-info-form .top-line .el-form-item__content),

@@ -118,6 +118,9 @@ declare global {
         webkitRequestFullscreen: () => void
         mozRequestFullScreen: () => void
         msRequestFullscreen: () => void
+        exitFullscreen?: () => void
+        readonly webkitFullscreenElement: Element | null
+        readonly mozFullScreenElement: Element | null
     }
 
     interface ElementExtends {
