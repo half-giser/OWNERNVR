@@ -349,6 +349,7 @@
         flex-direction: column;
         justify-content: space-between;
         align-items: center;
+        flex: 1;
 
         .base-intel-row {
             .el-radio-button {
@@ -419,7 +420,7 @@
     }
 
     .base-intel-right {
-        width: 893px;
+        flex: 1;
     }
 
     .intelDetail {

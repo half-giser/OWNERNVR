@@ -697,14 +697,10 @@ export class IntelHumanAttrInfoItem {
     hat = ''
     glasses = ''
     backpack = ''
-    upperCloth = {
-        upperClothType: '',
-        upperClothColor: '',
-    }
-    lowerCloth = {
-        lowerClothType: '',
-        lowerClothColor: '',
-    }
+    upperClothType = ''
+    upperClothColor = ''
+    lowerClothType = ''
+    lowerClothColor = ''
     skirt = ''
     direction = ''
 }
