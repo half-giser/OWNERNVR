@@ -97,6 +97,8 @@
                                 :target-data="item"
                                 :detail-index="`${pageData.detailIndex}`"
                                 search-type="byPassRecord"
+                                :grid="pageData.isDetailOpen ? 2 : 3"
+                                ratio="60%"
                                 @detail="showDetail(index)"
                                 @backup="backUpItem(index)"
                             />

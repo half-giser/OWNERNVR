@@ -151,268 +151,111 @@
                         />
                     </el-radio-group>
                 </div>
-                <!-- 排序、全选 -->
                 <div>
-                    <!-- 人脸 - 排序、全选 -->
-                    <div v-show="pageData.searchType === 'byFace'">
-                        <el-dropdown ref="faceSortDropdown">
-                            <BaseTableDropdownLink>
-                                {{ Translate('IDCS_SORT') }}
-                            </BaseTableDropdownLink>
-                            <template #dropdown>
-                                <div
-                                    v-for="opt in pageData.sortOptions"
-                                    v-show="(pageData.isByPic && opt.value !== 'chl') || (!pageData.isByPic && opt.value !== 'similarity')"
-                                    :key="opt.value"
-                                    class="sort_item"
-                                    @click="handleSort(opt.value)"
-                                >
-                                    <span class="sort_item_label">{{ opt.label }}</span>
-                                    <BaseImgSprite
-                                        :file="opt.status === 'up' ? 'sortAsc' : 'sortDes'"
-                                        :chunk="4"
-                                        :index="pageData.sortType === opt.value ? 1 : 3"
-                                    />
-                                </div>
-                            </template>
-                        </el-dropdown>
-                        <el-checkbox
-                            v-model="pageData.isCheckedAll"
-                            :label="Translate('IDCS_SELECT_ALL')"
-                            @change="handleCheckedAll"
-                        />
-                    </div>
-                    <!-- 人体 - 排序、全选 -->
-                    <div v-show="pageData.searchType === 'byBody'">
-                        <el-dropdown ref="bodySortDropdown">
-                            <BaseTableDropdownLink>
-                                {{ Translate('IDCS_SORT') }}
-                            </BaseTableDropdownLink>
-                            <template #dropdown>
-                                <div
-                                    v-for="opt in pageData.sortOptions"
-                                    v-show="(pageData.isByPic && opt.value !== 'chl') || (!pageData.isByPic && opt.value !== 'similarity')"
-                                    :key="opt.value"
-                                    class="sort_item"
-                                    @click="handleSort(opt.value)"
-                                >
-                                    <span class="sort_item_label">{{ opt.label }}</span>
-                                    <BaseImgSprite
-                                        :file="opt.status === 'up' ? 'sortAsc' : 'sortDes'"
-                                        :chunk="4"
-                                        :index="pageData.sortType === opt.value ? 1 : 3"
-                                    />
-                                </div>
-                            </template>
-                        </el-dropdown>
-                        <el-checkbox
-                            v-model="pageData.isCheckedAll"
-                            :label="Translate('IDCS_SELECT_ALL')"
-                            @change="handleCheckedAll"
-                        />
-                    </div>
-                    <!-- 人属性 - 排序、全选 -->
-                    <div v-show="pageData.searchType === 'byPersonAttribute'">
-                        <el-dropdown ref="personAttributeSortDropdown">
-                            <BaseTableDropdownLink>
-                                {{ Translate('IDCS_SORT') }}
-                            </BaseTableDropdownLink>
-                            <template #dropdown>
-                                <div
+                    <!-- 排序 -->
+                    <el-dropdown>
+                        <BaseTableDropdownLink>
+                            {{ Translate('IDCS_SORT') }}
+                        </BaseTableDropdownLink>
+                        <template #dropdown>
+                            <el-dropdown-menu>
+                                <template
                                     v-for="opt in pageData.sortOptions"
                                     :key="opt.value"
-                                    class="sort_item"
-                                    @click="handleSort(opt.value)"
                                 >
-                                    <span class="sort_item_label">{{ opt.label }}</span>
-                                    <BaseImgSprite
-                                        :file="opt.status === 'up' ? 'sortAsc' : 'sortDes'"
-                                        :chunk="4"
-                                        :index="pageData.sortType === opt.value ? 1 : 3"
-                                    />
-                                </div>
-                            </template>
-                        </el-dropdown>
-                        <el-checkbox
-                            v-model="pageData.isCheckedAll"
-                            :label="Translate('IDCS_SELECT_ALL')"
-                            @change="handleCheckedAll"
-                        />
-                    </div>
+                                    <el-dropdown-item
+                                        v-if="pageData.searchType === 'byPersonAttribute' || (pageData.isByPic && opt.value !== 'chl') || (!pageData.isByPic && opt.value !== 'similarity')"
+                                        :key="opt.value"
+                                        class="sort_item"
+                                        @click="handleSort(opt.value)"
+                                    >
+                                        <span class="sort_item_label">{{ opt.label }} </span>
+                                        <BaseImgSprite
+                                            :file="opt.status === 'up' ? 'sortAsc' : 'sortDes'"
+                                            :chunk="4"
+                                            :index="pageData.sortType === opt.value ? 1 : 3"
+                                        />
+                                    </el-dropdown-item>
+                                </template>
+                            </el-dropdown-menu>
+                        </template>
+                    </el-dropdown>
+                    <!-- 全选 -->
+                    <el-checkbox
+                        v-model="pageData.isCheckedAll"
+                        :label="Translate('IDCS_SELECT_ALL')"
+                        @change="handleCheckedAll"
+                    />
                 </div>
             </div>
             <!-- 抓拍图容器 -->
-            <div class="base-intel-center-center base-intel-pics-box">
-                <!-- 人脸 - 抓拍图容器 -->
-                <div
-                    v-show="pageData.searchType === 'byFace' && !pageData.isTrail"
-                    id="byFaceSearchContentPic"
-                    class="base-intel-pics-content"
-                >
+            <div
+                v-show="!pageData.isTrail"
+                class="base-intel-center-center base-intel-pics-box"
+            >
+                <div class="base-intel-pics-content">
                     <IntelBaseSnapItem
-                        v-for="(item, index) in pageData.targetDatasForFace"
+                        v-for="(item, index) in getCurrTargetDatas()"
                         :key="index"
                         :target-data="item"
-                        :detail-index="pageData.openDetailIndexForFace"
+                        :detail-index="openDetailIndex"
                         :show-compare="showCompare"
-                        :choose-pics="pageData.choosePicsForFace"
-                        search-type="byFace"
+                        :choose-pics="choosePics"
+                        :search-type="pageData.searchType"
+                        :grid="snapItemGrid"
+                        :ratio="snapItemRatio"
                         @detail="showDetail(item)"
                         @checked="handleChecked"
                         @search="handleSearch"
                         @backup="handleBackupCurrentTarget"
-                    />
-                </div>
-                <!-- 人脸 - 轨迹容器 -->
-                <div
-                    v-show="pageData.searchType === 'byFace' && pageData.isTrail"
-                    id="byFaceSearchContentTrack"
-                    class="base-intel-pics-content"
-                >
-                    <IntelFaceSearchTrackMapPanel :data="pageData.chlIdList" />
-                </div>
-                <!-- 人体 - 抓拍图容器 -->
-                <div
-                    v-show="pageData.searchType === 'byBody'"
-                    id="byBodySearchContentPic"
-                    class="base-intel-pics-content"
-                >
-                    <IntelBaseSnapItem
-                        v-for="(item, index) in pageData.targetDatasForBody"
-                        :key="index"
-                        :target-data="item"
-                        :detail-index="pageData.openDetailIndexForBody"
-                        :show-compare="showCompare"
-                        :choose-pics="pageData.choosePicsForBody"
-                        search-type="byBody"
-                        @detail="showDetail(item)"
-                        @checked="handleChecked"
-                        @search="handleSearch"
-                        @backup="handleBackupCurrentTarget"
-                    />
-                </div>
-                <!-- 人属性 - 抓拍图容器 -->
-                <div
-                    v-show="pageData.searchType === 'byPersonAttribute'"
-                    id="byPersonAttributeSearchContentPic"
-                    class="base-intel-pics-content"
-                >
-                    <IntelBaseSnapItem
-                        v-for="(item, index) in pageData.targetDatasForPersonAttribute"
-                        :key="index"
-                        :target-data="item"
-                        :detail-index="pageData.openDetailIndexForPersonAttribute"
-                        :show-compare="false"
-                        search-type="byPersonAttribute"
-                        @detail="showDetail(item)"
-                        @checked="handleChecked"
-                        @search="handleSearch"
-                        @backup="handleBackupCurrentTarget"
+                        @register="handleRegister"
                     />
                 </div>
             </div>
             <!-- 分页器、备份/全部备份按钮容器 -->
-            <div class="base-intel-center-bottom">
+            <div
+                v-show="!pageData.isTrail"
+                class="base-intel-center-bottom"
+            >
                 <!-- 分页器 -->
                 <div class="base-btn-box">
-                    <!-- 人脸 - 分页器 -->
                     <BasePagination
-                        v-show="pageData.searchType === 'byFace'"
-                        v-model:current-page="pageData.pageIndexForFace"
-                        v-model:page-size="pageData.pageSizeForFace"
-                        :page-sizes="[pageData.pageSizeForFace]"
-                        :total="pageData.targetIndexDatasForFace.length"
-                        @current-change="handleChangePage"
-                    />
-                    <!-- 人体 - 分页器 -->
-                    <BasePagination
-                        v-show="pageData.searchType === 'byBody'"
-                        v-model:current-page="pageData.pageIndexForBody"
-                        v-model:page-size="pageData.pageSizeForBody"
-                        :page-sizes="[pageData.pageSizeForBody]"
-                        :total="pageData.targetIndexDatasForBody.length"
-                        @current-change="handleChangePage"
-                    />
-                    <!-- 人属性 - 分页器 -->
-                    <BasePagination
-                        v-show="pageData.searchType === 'byPersonAttribute'"
-                        v-model:current-page="pageData.pageIndexForPersonAttribute"
-                        v-model:page-size="pageData.pageSizeForPersonAttribute"
-                        :page-sizes="[pageData.pageSizeForPersonAttribute]"
-                        :total="pageData.targetIndexDatasForPersonAttribute.length"
+                        :current-page="getCurrPageIndex()"
+                        :page-size="pageData.pageSize"
+                        :page-sizes="[pageData.pageSize]"
+                        :total="getCurrTargetIndexDatas().length"
+                        @update:current-page="setCurrPageIndex"
                         @current-change="handleChangePage"
                     />
                 </div>
                 <!-- 备份/全部备份按钮 -->
                 <div class="base-btn-box">
-                    <!-- 人脸 -->
-                    <div v-show="pageData.searchType === 'byFace'">
-                        <el-button @click="handleBackupAll">
-                            {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
+                    <el-button @click="handleBackupAll">
+                        {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
+                    </el-button>
+                    <el-dropdown placement="top-end">
+                        <el-button :disabled="!isEnableBackup">
+                            {{ Translate('IDCS_BACKUP') }}
                         </el-button>
-                        <el-dropdown placement="top-end">
-                            <el-button :disabled="!isEnableBackup">
-                                {{ Translate('IDCS_BACKUP') }}
-                            </el-button>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <el-dropdown-item
-                                        v-for="item in pageData.backupTypeOptions"
-                                        :key="item.value"
-                                        @click="handleBackup(item.value)"
-                                    >
-                                        {{ Translate(item.label) }}
-                                    </el-dropdown-item>
-                                </el-dropdown-menu>
-                            </template>
-                        </el-dropdown>
-                    </div>
-                    <!-- 人体 -->
-                    <div v-show="pageData.searchType === 'byBody'">
-                        <el-button @click="handleBackupAll">
-                            {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
-                        </el-button>
-                        <el-dropdown placement="top-end">
-                            <el-button :disabled="!isEnableBackup">
-                                {{ Translate('IDCS_BACKUP') }}
-                            </el-button>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <el-dropdown-item
-                                        v-for="item in pageData.backupTypeOptions"
-                                        :key="item.value"
-                                        @click="handleBackup(item.value)"
-                                    >
-                                        {{ Translate(item.label) }}
-                                    </el-dropdown-item>
-                                </el-dropdown-menu>
-                            </template>
-                        </el-dropdown>
-                    </div>
-                    <!-- 人属性 -->
-                    <div v-show="pageData.searchType === 'byPersonAttribute'">
-                        <el-button @click="handleBackupAll">
-                            {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
-                        </el-button>
-                        <el-dropdown placement="top-end">
-                            <el-button :disabled="!isEnableBackup">
-                                {{ Translate('IDCS_BACKUP') }}
-                            </el-button>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <el-dropdown-item
-                                        v-for="item in pageData.backupTypeOptions"
-                                        :key="item.value"
-                                        @click="handleBackup(item.value)"
-                                    >
-                                        {{ Translate(item.label) }}
-                                    </el-dropdown-item>
-                                </el-dropdown-menu>
-                            </template>
-                        </el-dropdown>
-                    </div>
+                        <template #dropdown>
+                            <el-dropdown-menu>
+                                <el-dropdown-item
+                                    v-for="item in pageData.backupTypeOptions"
+                                    :key="item.value"
+                                    @click="handleBackup(item.value)"
+                                >
+                                    {{ Translate(item.label) }}
+                                </el-dropdown-item>
+                            </el-dropdown-menu>
+                        </template>
+                    </el-dropdown>
                 </div>
             </div>
+            <!-- 人脸 - 轨迹容器 -->
+            <IntelFaceSearchTrackMapPanel
+                v-show="pageData.searchType === 'byFace' && pageData.isTrail"
+                :data="trackChlId"
+            />
             <!-- 打开/关闭详情按钮 -->
             <div class="resize_icon_left">
                 <BaseImgSpriteBtn
@@ -437,6 +280,7 @@
             <IntelSearchDetail
                 ref="detailRef"
                 @change-item="handleChangeItem"
+                @backup="handleBackupCurrentTarget"
             />
         </div>
     </div>
@@ -455,6 +299,13 @@
     <IntelSearchBackupPop
         ref="backupPopRef"
         :auth="auth"
+    />
+    <!-- 人脸注册弹框 -->
+    <IntelFaceDBSnapRegisterPop
+        v-model="pageData.isRegisterPop"
+        :pic="pageData.registerPic"
+        @confirm="pageData.isRegisterPop = false"
+        @close="pageData.isRegisterPop = false"
     />
 </template>
 
@@ -632,27 +483,14 @@
     }
 }
 
-.base-intel-right {
-    padding: 10px;
-    flex: 1;
-}
-
 .sort_item {
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    max-width: 85px;
-    cursor: pointer;
-    font-size: 14px;
-    border: solid 1px var(--content-border);
-    background-color: var(--color-white);
 
     &_label {
-        display: flex;
         flex: 1;
-        padding-left: 10px;
-        justify-content: flex-end;
-        white-space: nowrap;
+        text-align: center;
     }
 
     &:hover {
