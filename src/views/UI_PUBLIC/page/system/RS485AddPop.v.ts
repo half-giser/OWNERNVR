@@ -91,6 +91,9 @@ export default defineComponent({
         const open = () => {
             if (prop.type === 'add') {
                 formData.value = new SystemRS485Dto()
+                if (prop.operateTypeList.length) {
+                    formData.value.operate = prop.operateTypeList[0].value
+                }
             } else {
                 formData.value = cloneDeep(prop.row)
             }
