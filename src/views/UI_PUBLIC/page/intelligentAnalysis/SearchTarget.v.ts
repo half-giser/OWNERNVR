@@ -387,14 +387,10 @@ export default defineComponent({
                         hat: $('content/humanAttrInfo/hat').text(),
                         glasses: $('content/humanAttrInfo/glasses').text(),
                         backpack: $('content/humanAttrInfo/backpack').text(),
-                        upperCloth: {
-                            upperClothType: $('content/humanAttrInfo/upperClothType').text(),
-                            upperClothColor: $('content/humanAttrInfo/upperClothColor').text(),
-                        },
-                        lowerCloth: {
-                            lowerClothType: $('content/humanAttrInfo/lowerClothType').text(),
-                            lowerClothColor: $('content/humanAttrInfo/lowerClothColor').text(),
-                        },
+                        upperClothType: $('content/humanAttrInfo/upperClothType').text(),
+                        upperClothColor: $('content/humanAttrInfo/upperClothColor').text(),
+                        lowerClothType: $('content/humanAttrInfo/lowerClothType').text(),
+                        lowerClothColor: $('content/humanAttrInfo/lowerClothColor').text(),
                         skirt: $('content/humanAttrInfo/skirt').text(),
                         direction: $('content/humanAttrInfo/direction').text(),
                     }

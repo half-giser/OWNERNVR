@@ -1,11 +1,13 @@
-/* stylelint-disable length-zero-no-unit */
 <!--
  * @Description:智能分析-详情
  * @Author: liyanqi a11219@tvt.net.cn
  * @Date: 2025-05-20 10:20:17
 -->
 <template>
-    <div class="intelDetail">
+    <div
+        v-if="pageData.showDeatilView"
+        class="intelDetail"
+    >
         <div class="pageHead">
             <el-radio-group
                 v-model="pageData.detailType"
@@ -108,7 +110,6 @@
                         @message="notify"
                         @time="handleTime"
                         @play-status="handlePlayerStatus"
-                        @ontime="handlePlayerOntime"
                         @success="handlePlayerSuccess"
                         @play-complete="handlePlayComplete"
                         @error="handlePlayerError"
@@ -351,41 +352,41 @@
                         }"
                     >
                         <el-form-item
-                            :label="Translate('IDCS_NAME_PERSON')"
+                            :label="`${Translate('IDCS_NAME_PERSON')} ：`"
                             class="font-weight-bold"
                         >
-                            <el-text>{{ personInfoData.name }}</el-text>
-                            <span>&nbsp;|&nbsp;</span>
-                            <el-text>{{ currDetailData.similarity }}%</el-text>
+                            <el-text class="text-ellipsis">{{ personInfoData.name }}</el-text>
+                            <a>&nbsp;|&nbsp;</a>
+                            <el-text class="">{{ `${currDetailData.similarity}%` }}</el-text>
                         </el-form-item>
                         <el-divider />
-                        <el-form-item :label="Translate('IDCS_SEX')">
-                            <el-text>{{ personInfoData.sex }}</el-text>
+                        <el-form-item :label="`${Translate('IDCS_SEX')} ：`">
+                            <el-text>{{ displayGender(personInfoData.sex) }}</el-text>
                         </el-form-item>
-                        <el-form-item :label="Translate('IDCS_NUMBER')">
-                            <el-text>{{ personInfoData.number }}</el-text>
+                        <el-form-item :label="`${Translate('IDCS_NUMBER')} ：`">
+                            <el-text class="text-ellipsis">{{ personInfoData.number }}</el-text>
                         </el-form-item>
-                        <el-form-item :label="Translate('IDCS_PHONE_NUMBER')">
-                            <el-text>{{ personInfoData.mobile }}</el-text>
+                        <el-form-item :label="`${Translate('IDCS_PHONE_NUMBER')} ：`">
+                            <el-text class="text-ellipsis">{{ personInfoData.mobile }}</el-text>
                         </el-form-item>
-                        <el-form-item :label="Translate('IDCS_BIRTHDAY')">
-                            <el-text>{{ personInfoData.birthday }}</el-text>
+                        <el-form-item :label="`${Translate('IDCS_BIRTHDAY')} ：`">
+                            <el-text class="text-ellipsis">{{ personInfoData.birthday }}</el-text>
                         </el-form-item>
-                        <el-form-item :label="Translate('IDCS_NATIVE_PLACE')">
-                            <el-text>{{ personInfoData.nativePlace }}</el-text>
+                        <el-form-item :label="`${Translate('IDCS_NATIVE_PLACE')} ：`">
+                            <el-text class="text-ellipsis">{{ personInfoData.nativePlace }}</el-text>
                         </el-form-item>
-                        <el-form-item :label="Translate('IDCS_ADD_FACE_GROUP')">
-                            <el-text>{{ personInfoData.groupName || '--' }}</el-text>
+                        <el-form-item :label="`${Translate('IDCS_ADD_FACE_GROUP')} ：`">
+                            <el-text class="text-ellipsis">{{ personInfoData.groupName || '--' }}</el-text>
                         </el-form-item>
                         <el-divider />
-                        <el-form-item :label="Translate('IDCS_ID_TYPE')">
-                            <el-text>{{ personInfoData.certificateType }}</el-text>
+                        <el-form-item :label="`${Translate('IDCS_ID_TYPE')} ：`">
+                            <el-text class="text-ellipsis">{{ personInfoData.certificateType }}</el-text>
                         </el-form-item>
-                        <el-form-item :label="Translate('IDCS_ID_NUMBER')">
-                            <el-text>{{ personInfoData.certificateNum }}</el-text>
+                        <el-form-item :label="`${Translate('IDCS_ID_NUMBER')} ：`">
+                            <el-text class="text-ellipsis">{{ personInfoData.certificateNum }}</el-text>
                         </el-form-item>
-                        <el-form-item :label="Translate('IDCS_REMARK')">
-                            <el-text>{{ personInfoData.note }}</el-text>
+                        <el-form-item :label="`${Translate('IDCS_REMARK')} ：`">
+                            <el-text class="text-ellipsis">{{ personInfoData.note }}</el-text>
                         </el-form-item>
                     </el-form>
                 </div>
@@ -592,6 +593,7 @@
                         align-items: center;
                         position: absolute;
                         top: 34px;
+                        z-index: 5;
                     }
                 }
 
