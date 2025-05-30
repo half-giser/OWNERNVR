@@ -11,6 +11,7 @@ import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
 import AlarmBasePresetSelector from './AlarmBasePresetSelector.vue'
 import AlarmBaseIPSpeakerSelector from './AlarmBaseIPSpeakerSelector.vue'
 import AlarmBaseSnapSelector from './AlarmBaseSnapSelector.vue'
+import AlarmBaseErrorPanel from './AlarmBaseErrorPanel.vue'
 
 export default defineComponent({
     components: {
@@ -20,6 +21,7 @@ export default defineComponent({
         AlarmBasePresetSelector,
         AlarmBaseSnapSelector,
         AlarmBaseIPSpeakerSelector,
+        AlarmBaseErrorPanel,
     },
     props: {
         /**
@@ -296,7 +298,7 @@ export default defineComponent({
         const changeArea = (points: CanvasBasePoint[] | CanvasBaseArea) => {
             if (currAreaType === 'maskArea') {
                 const index = pageData.value.maskAreaIndex
-                formData.value.maskAreaInfo[index].points = points
+                formData.value.maskAreaInfo[index].points = points as CanvasBasePoint[]
             } else {
                 pageData.value.currRowData.points = points as CanvasBasePoint[]
             }
@@ -1004,11 +1006,16 @@ export default defineComponent({
          */
         const setOtherAreaClosed = () => {
             if (mode.value === 'h5') {
-                const allInfoList = [...formData.value.boundaryData, ...formData.value.maskAreaInfo]
+                const allInfoList: (AlarmTemperatureDetectionBoundryDto | { points: CanvasBasePoint[]; maxCount: number })[] = [...formData.value.boundaryData, ...formData.value.maskAreaInfo]
                 // 画点-区域
                 if (allInfoList && allInfoList.length > 0) {
                     allInfoList.forEach((item) => {
-                        if (item.ruleType === 'area' && item.points.length >= 4 && drawer.judgeAreaCanBeClosed(item.points)) {
+                        if (
+                            (item as AlarmTemperatureDetectionBoundryDto).ruleType &&
+                            (item as AlarmTemperatureDetectionBoundryDto).ruleType === 'area' &&
+                            item.points.length >= 4 &&
+                            drawer.judgeAreaCanBeClosed(item.points)
+                        ) {
                             setClosed(item.points)
                         }
                     })
@@ -1114,7 +1121,7 @@ export default defineComponent({
                                     .map((element) => {
                                         return rawXml`
                                                 <item>
-                                                    <point type="list" maxCount="${element.maxCount}" count="${element.point.length}">
+                                                    <point type="list" maxCount="${element.maxCount}" count="${element.points.length}">
                                                         ${element.points
                                                             .map((point) => {
                                                                 return rawXml`

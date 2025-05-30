@@ -47,5 +47,9 @@ export default defineComponent({
             type: String,
             default: 'normal',
         },
+        showTime: {
+            type: Boolean,
+            default: true,
+        },
     },
 })

@@ -9,6 +9,7 @@ import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
 import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
 import AlarmBasePresetSelector from './AlarmBasePresetSelector.vue'
 import AlarmBaseIPSpeakerSelector from './AlarmBaseIPSpeakerSelector.vue'
+import AlarmBaseErrorPanel from './AlarmBaseErrorPanel.vue'
 
 export default defineComponent({
     components: {
@@ -17,6 +18,7 @@ export default defineComponent({
         AlarmBaseTriggerSelector,
         AlarmBasePresetSelector,
         AlarmBaseIPSpeakerSelector,
+        AlarmBaseErrorPanel,
     },
     props: {
         /**
@@ -728,7 +730,7 @@ export default defineComponent({
          */
         const changeArea = (points: CanvasBaseArea | CanvasBasePoint[]) => {
             const area = pageData.value.warnAreaIndex
-            formData.value.boundaryInfo[area].point = points
+            formData.value.boundaryInfo[area].point = points as CanvasBasePoint[]
             if (pageData.value.isShowAllArea) {
                 showAllArea(true)
             }
@@ -768,12 +770,14 @@ export default defineComponent({
                     // 先清除所有区域
                     const sendClearXML = OCX_XML_DeletePolygonArea('clearAll')
                     plugin.ExecuteCmd(sendClearXML)
+
                     // 再绘制当前区域
                     const polygonAreas = [cloneDeep(boundaryInfoList[curIndex])]
-                    const sendAreaXML = OCX_XML_AddPolygonArea(polygonAreas, curIndex.toString(), true)
+                    const sendAreaXML = OCX_XML_AddPolygonArea(polygonAreas, curIndex, true)
                     plugin.ExecuteCmd(sendAreaXML)
+
                     // 然后再绘制所有区域（结合上面绘制的当前区域会让当前区域有加粗效果）
-                    const sendAllAreaXML = OCX_XML_AddPolygonArea(boundaryInfoList, curIndex.toString(), true)
+                    const sendAllAreaXML = OCX_XML_AddPolygonArea(boundaryInfoList, curIndex, true)
                     plugin.ExecuteCmd(sendAllAreaXML)
                 }
             } else {
@@ -815,17 +819,21 @@ export default defineComponent({
                     const areaList = [1, 2]
                     const sendXMLClear = OCX_XML_DeleteRectangleArea(areaList)
                     plugin.ExecuteCmd(sendXMLClear)
-                    const minRegionForPlugin = cloneDeep(minRegionInfo.region[0])
-                    minRegionForPlugin.ID = 1
-                    minRegionForPlugin.text = 'Min'
-                    minRegionForPlugin.LineColor = 'yellow'
-                    const maxRegionForPlugin = cloneDeep(maxRegionInfo.region[0])
-                    maxRegionForPlugin.ID = 2
-                    maxRegionForPlugin.text = 'Max'
-                    maxRegionForPlugin.LineColor = 'yellow'
-                    const rectangles = []
-                    rectangles.push(minRegionForPlugin)
-                    rectangles.push(maxRegionForPlugin)
+
+                    const rectangles = [
+                        {
+                            ...minRegionInfo.region[0],
+                            ID: 1,
+                            text: 'Min',
+                            LineColor: 'yellow',
+                        },
+                        {
+                            ...maxRegionInfo.region[0],
+                            ID: 2,
+                            text: 'Max',
+                            LineColor: 'yellow',
+                        },
+                    ]
                     const sendXML = OCX_XML_AddRectangleArea(rectangles)
                     plugin.ExecuteCmd(sendXML)
                 }
@@ -877,7 +885,7 @@ export default defineComponent({
                 if (mode.value === 'ocx') {
                     const sendClearXML = OCX_XML_DeletePolygonArea('clearAll')
                     plugin.ExecuteCmd(sendClearXML)
-                    const sendXML = OCX_XML_AddPolygonArea(boundaryInfo[area], area, false)
+                    const sendXML = OCX_XML_AddPolygonArea([boundaryInfo[area]], area, false)
                     plugin.ExecuteCmd(sendXML)
                 }
             }
@@ -1044,7 +1052,7 @@ export default defineComponent({
         onBeforeUnmount(() => {
             if (plugin?.IsPluginAvailable() && mode.value === 'ocx') {
                 // 切到其他AI事件页面时清除一下插件显示的（线条/点/矩形/多边形）数据
-                const sendAreaXML = OCX_XML_AddPolygonArea([], '0', false)
+                const sendAreaXML = OCX_XML_AddPolygonArea([], 0, false)
                 plugin.ExecuteCmd(sendAreaXML)
                 // 画点
                 const sendAllAreaXML = OCX_XML_DeletePolygonArea('clearAll')

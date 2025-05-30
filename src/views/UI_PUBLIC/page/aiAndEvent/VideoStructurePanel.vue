@@ -5,12 +5,7 @@
 -->
 <template>
     <div>
-        <div
-            v-if="pageData.reqFail"
-            class="base-ai-not-support-box"
-        >
-            {{ Translate('IDCS_QUERY_DATA_FAIL') }}
-        </div>
+        <AlarmBaseErrorPanel v-if="pageData.reqFail" />
         <div v-if="pageData.tab">
             <div class="base-ai-param-box-left fixed">
                 <div
@@ -273,6 +268,49 @@
                                         </el-form-item>
                                     </div>
                                 </div>
+                            </el-form>
+                        </div>
+                    </el-tab-pane>
+                    <!-- OSD -->
+                    <el-tab-pane
+                        v-if="formData.countOSD.supportCountOSD"
+                        :label="Translate('IDCS_OSD')"
+                        name="osd"
+                        class="base-ai-param-box"
+                    >
+                        <div class="base-ai-param-box-left"></div>
+                        <div class="base-ai-param-box-right">
+                            <el-form v-title>
+                                <!-- 图片叠加 -->
+                                <div class="base-ai-subheading">{{ Translate('IDCS_OSD') }}</div>
+                                <el-form-item>
+                                    <el-checkbox
+                                        v-model="formData.countOSD.switch"
+                                        :label="Translate('IDCS_STATIST_OSD')"
+                                        @change="setEnableOSD"
+                                    />
+                                </el-form-item>
+                                <el-form-item :label="Translate('IDCS_HUMAN_COUNT')">
+                                    <el-input
+                                        v-model="formData.countOSD.osdPersonName"
+                                        maxlength="10"
+                                        :disabled="!formData.countOSD.supportOsdPersonName"
+                                    />
+                                </el-form-item>
+                                <el-form-item :label="Translate('IDCS_VEHICLE_COUNT')">
+                                    <el-input
+                                        v-model="formData.countOSD.osdCarName"
+                                        maxlength="10"
+                                        :disabled="!formData.countOSD.supportOsdCarName"
+                                    />
+                                </el-form-item>
+                                <el-form-item :label="Translate('IDCS_BIKE_COUNT')">
+                                    <el-input
+                                        v-model="formData.countOSD.osdBikeName"
+                                        maxlength="10"
+                                        :disabled="!formData.countOSD.supportBikeName"
+                                    />
+                                </el-form-item>
                             </el-form>
                         </div>
                     </el-tab-pane>

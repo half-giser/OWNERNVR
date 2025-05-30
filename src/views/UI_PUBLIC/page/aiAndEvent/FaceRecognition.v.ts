@@ -13,6 +13,7 @@ import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
 import AlarmBasePresetSelector from './AlarmBasePresetSelector.vue'
 import AlarmBaseIPSpeakerSelector from './AlarmBaseIPSpeakerSelector.vue'
 import AlarmBaseResourceData from './AlarmBaseResourceData.vue'
+import AlarmBaseErrorPanel from './AlarmBaseErrorPanel.vue'
 
 export default defineComponent({
     components: {
@@ -24,6 +25,7 @@ export default defineComponent({
         AlarmBasePresetSelector,
         AlarmBaseIPSpeakerSelector,
         AlarmBaseResourceData,
+        AlarmBaseErrorPanel,
     },
     setup() {
         const { Translate } = useLangStore()
