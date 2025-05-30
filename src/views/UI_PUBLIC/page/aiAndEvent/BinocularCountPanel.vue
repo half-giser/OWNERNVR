@@ -30,7 +30,7 @@
                     <div class="base-btn-box space-between">
                         <div>
                             <el-checkbox
-                                v-show="pageData.tab === 'param' && pageData.showAllAreaVisible"
+                                v-show="pageData.tab === 'param' && isShowAllVisible"
                                 v-model="pageData.isShowAllArea"
                                 :label="Translate('IDCS_DISPLAY_ALL_AREA')"
                                 @change="toggleShowAllArea"
@@ -39,7 +39,7 @@
                         <div>
                             <el-button @click="clearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
                             <el-button
-                                v-if="pageData.tab === 'param' && pageData.clearAllVisible"
+                                v-if="pageData.tab === 'param' && isShowAllVisible"
                                 @click="clearAllArea"
                             >
                                 {{ Translate('IDCS_FACE_CLEAR_ALL') }}

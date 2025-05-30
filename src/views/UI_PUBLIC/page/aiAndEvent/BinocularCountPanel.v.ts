@@ -134,10 +134,6 @@ export default defineComponent({
             calibrationModeList: [] as SelectOption<string, string>[],
             // 是否显示全部区域绑定值
             isShowAllArea: false,
-            // 控制显示展示全部区域的checkbox
-            showAllAreaVisible: true,
-            // 控制显示清除全部区域按钮 >=2才显示
-            clearAllVisible: true,
             // 当前画点规则 regulation==1：画矩形，regulation==0或空：画点 - (regulation=='1'则currentRegulation为true：画矩形，否则currentRegulation为false：画点)
             currentRegulation: false,
             // 是否启用自动重置
@@ -346,109 +342,94 @@ export default defineComponent({
             const holdTime = $param('alarmHoldTime').text().num()
             const holdTimeList = getAlarmHoldTimeList($param('holdTimeNote').text(), holdTime)
 
-            const boundaryInfo: {
-                direction: CanvasBoundaryDirection
-                rectA: {
-                    point: CanvasBasePoint[]
-                    area: number
-                    LineColor: string
-                    maxCount: number
-                }
-                rectB: {
-                    point: CanvasBasePoint[]
-                    area: number
-                    LineColor: string
-                    maxCount: number
-                }
-            }[] = []
+            let boundaryInfo = $param('rule/boundary/item').map((element, index) => {
+                const $element = queryXml(element.element)
+                const direction = $element('direction').text() as CanvasBoundaryDirection
 
-            if ($param('rule/boundary/item').length > 0) {
-                pageData.value.detectType = 1
-                $param('rule/boundary/item').forEach((element, index) => {
-                    const $element = queryXml(element.element)
-                    const direction = $element('direction').text() as CanvasBoundaryDirection
-                    const rectA = {
-                        point: [] as CanvasBasePoint[],
+                return {
+                    direction,
+                    rectA: {
+                        point: $element('rectA/point/item').map((point) => {
+                            const $item = queryXml(point.element)
+                            return {
+                                X: $item('X').text().num(),
+                                Y: $item('Y').text().num(),
+                                isClosed: true,
+                            }
+                        }),
                         area: index,
                         LineColor: 'green',
                         maxCount: $element('rectA/point').attr('maxCount').num(),
-                    }
-                    $element('rectA/point/item').forEach((point) => {
-                        const $item = queryXml(point.element)
-                        rectA.point.push({
-                            X: $item('X').text().num(),
-                            Y: $item('Y').text().num(),
-                            isClosed: true,
-                        })
-                    })
-                    const rectB = {
-                        point: [] as CanvasBasePoint[],
+                    },
+                    rectB: {
+                        point: $element('rectB/point/item').map((point) => {
+                            const $item = queryXml(point.element)
+                            return {
+                                X: $item('X').text().num(),
+                                Y: $item('Y').text().num(),
+                                isClosed: true,
+                            }
+                        }),
                         area: index,
                         LineColor: 'green',
                         maxCount: $element('rectB/point').attr('maxCount').num(),
-                    }
-                    $element('rectB/point/item').forEach((point) => {
-                        const $item = queryXml(point.element)
-                        rectB.point.push({
-                            X: $item('X').text().num(),
-                            Y: $item('Y').text().num(),
-                            isClosed: true,
-                        })
-                    })
-                    boundaryInfo.push({ direction, rectA, rectB })
-                })
+                    },
+                }
+            })
+
+            if (boundaryInfo.length) {
+                pageData.value.detectType = 1
             } else {
-                boundaryInfo.push({
-                    direction: pageData.value.defaultAreaDirection,
-                    rectA: {
-                        point: [],
-                        area: 0,
-                        LineColor: 'green',
-                        maxCount: 6,
+                boundaryInfo = [
+                    {
+                        direction: pageData.value.defaultAreaDirection,
+                        rectA: {
+                            point: [],
+                            area: 0,
+                            LineColor: 'green',
+                            maxCount: 6,
+                        },
+                        rectB: {
+                            point: [],
+                            area: 0,
+                            LineColor: 'green',
+                            maxCount: 6,
+                        },
                     },
-                    rectB: {
-                        point: [],
-                        area: 0,
-                        LineColor: 'green',
-                        maxCount: 6,
-                    },
-                })
+                ]
             }
 
-            const lineInfo: {
-                direction: CanvasPasslineDirection
-                startPoint: { X: number; Y: number }
-                endPoint: { X: number; Y: number }
-            }[] = []
-
-            if ($param('rule/line/item').length > 0) {
-                pageData.value.detectType = 0
-                $param('rule/line/item').forEach((item) => {
-                    const $item = queryXml(item.element)
-                    lineInfo.push({
-                        direction: $item('direction').text() as CanvasPasslineDirection,
-                        startPoint: {
-                            X: $item('startPoint/X').text().num(),
-                            Y: $item('startPoint/Y').text().num(),
-                        },
-                        endPoint: {
-                            X: $item('endPoint/X').text().num(),
-                            Y: $item('endPoint/Y').text().num(),
-                        },
-                    })
-                })
-            } else {
-                lineInfo.push({
-                    direction: pageData.value.defaultLineDirection,
+            let lineInfo = $param('rule/line/item').map((item) => {
+                const $item = queryXml(item.element)
+                return {
+                    direction: $item('direction').text() as CanvasPasslineDirection,
                     startPoint: {
-                        X: 0,
-                        Y: 0,
+                        X: $item('startPoint/X').text().num(),
+                        Y: $item('startPoint/Y').text().num(),
                     },
                     endPoint: {
-                        X: 0,
-                        Y: 0,
+                        X: $item('endPoint/X').text().num(),
+                        Y: $item('endPoint/Y').text().num(),
                     },
-                })
+                }
+            })
+
+            if (lineInfo.length) {
+                pageData.value.detectType = 0
+            } else {
+                lineInfo = [
+                    {
+                        direction: pageData.value.defaultLineDirection,
+                        startPoint: {
+                            X: 0,
+                            Y: 0,
+                        },
+                        endPoint: {
+                            X: 0,
+                            Y: 0,
+                        },
+                    },
+                ]
             }
 
             if ($param('rule/line').length > 0) {
@@ -464,6 +445,7 @@ export default defineComponent({
                     label: Translate('IDCS_WARN_AREA'),
                 })
             }
+
             // OSD
             const countOSD = {
                 switch: $param('countOSD/switch').text().bool(),
@@ -940,10 +922,12 @@ export default defineComponent({
                     // 切到其他AI事件页面时清除一下插件显示的（线条/点/矩形/多边形）数据
                     clearOCXData(pageData.value.noneOSD, false)
                     if (modeType === 'auto') {
-                        const sendXML1 = OCX_XML_AddPolygonArea([], 0, false)
-                        plugin.ExecuteCmd(sendXML1)
                         const sendXML2 = OCX_XML_SetVfdAreaAction('EDIT_ON')
                         plugin.ExecuteCmd(sendXML2)
+
+                        const sendXML1 = OCX_XML_AddPolygonArea([], 0, false)
+                        plugin.ExecuteCmd(sendXML1)
+
                         const sendXML3 = OCX_XML_SetVfdArea(formData.value.calibration.regionInfo, 'regionArea', 'green', OCX_AI_EVENT_TYPE_VFD_BLOCK)
                         plugin.ExecuteCmd(sendXML3)
                     }
@@ -993,28 +977,28 @@ export default defineComponent({
             const boundaryInfoList = formData.value.boundaryInfo
             pageData.value.warnAreaChecked = [] as number[]
             pageData.value.drawAreaChecked = [] as string[]
-            boundaryInfoList.forEach(function (ele, idx) {
+            boundaryInfoList.forEach((ele, idx) => {
                 if ((ele.rectA.point && ele.rectA.point.length > 0) || (ele.rectB.point && ele.rectB.point.length > 0)) {
                     pageData.value.warnAreaChecked.push(idx)
                     pageData.value.drawAreaChecked.push('rectA')
                     pageData.value.drawAreaChecked.push('rectB')
                 }
             })
+        }
 
+        const isShowAllVisible = computed(() => {
             if (pageData.value.detectType === 0) {
                 if (formData.value.lineInfo.length > 1) {
-                    pageData.value.showAllAreaVisible = true
-                    pageData.value.clearAllVisible = true
+                    return true
                 } else {
-                    pageData.value.showAllAreaVisible = false
-                    pageData.value.clearAllVisible = false
+                    return false
                 }
-            } else {
-                // 警戒区域有2个绘制区域，因此默认展示以下配置项
-                pageData.value.showAllAreaVisible = true
-                pageData.value.clearAllVisible = true
             }
-        }
+            // 警戒区域有2个绘制区域，因此默认展示以下配置项
+            else {
+                return true
+            }
+        })
 
         /**
          * @description 初始化数据
@@ -1029,7 +1013,6 @@ export default defineComponent({
          * @description 切换线/区域
          */
         const changeLineArea = () => {
-            refreshInitPage()
             setOcxData()
         }
 
@@ -1259,7 +1242,6 @@ export default defineComponent({
             if (pageData.value.isShowAllArea) {
                 showAllArea(true)
             }
-            refreshInitPage()
         }
 
         /**
@@ -1532,7 +1514,7 @@ export default defineComponent({
             plugin.ExecuteCmd(sendClearRectXML)
             const sendEnableRectXML = OCX_XML_SetVfdAreaAction('EDIT_OFF')
             plugin.ExecuteCmd(sendEnableRectXML)
-            setTimeout(function () {
+            setTimeout(() => {
                 // 清除OSD绘制
                 const sendClearOsdXML = OCX_XML_SetTripwireLineInfo(osdData, onlyOSD)
                 plugin.ExecuteCmd(sendClearOsdXML)
@@ -1699,6 +1681,7 @@ export default defineComponent({
             resetData,
             clearArea,
             clearAllArea,
+            isShowAllVisible,
         }
     },
 })

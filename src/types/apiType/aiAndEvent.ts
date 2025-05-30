@@ -1768,3 +1768,13 @@ export class AlarmTriggerWhiteLightPopDto {
         chls: [] as SelectOption<string, string>[],
     }
 }
+
+export class AlarmDetectTargetDto {
+    chlId = ''
+    chlName = ''
+    workMode = ''
+    enable = false
+    online = false
+    front: boolean[] = []
+    back: boolean[] = []
+}

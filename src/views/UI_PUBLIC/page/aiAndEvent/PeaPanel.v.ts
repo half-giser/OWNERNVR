@@ -755,7 +755,7 @@ export default defineComponent({
                 boundaryInfoList.forEach((ele) => {
                     allRegionList.push(ele.point)
                 })
-                maskAreaInfoList.forEach(function (ele) {
+                maskAreaInfoList.forEach((ele) => {
                     allRegionList.push(ele.point)
                 })
                 for (const i in allRegionList) {
@@ -777,29 +777,17 @@ export default defineComponent({
          */
         const changeTab = () => {
             if (pageData.value.tab === 'param') {
-                const area = pageData.value.warnAreaIndex
-                const boundaryInfo = formData.value.boundaryInfo
                 if (mode.value === 'h5') {
                     drawer.setEnable(true)
-                    setPeaOcxData()
                 }
 
                 if (mode.value === 'ocx') {
-                    setTimeout(() => {
-                        if (boundaryInfo[area].point.length) {
-                            const sendXML1 = OCX_XML_SetPeaArea(boundaryInfo[area].point, pageData.value.currentRegulation)
-                            plugin.ExecuteCmd(sendXML1)
-                        }
-
-                        const maxCount = getMaxCount()
-                        const sendXML2 = OCX_XML_SetPeaAreaAction('EDIT_ON', maxCount)
-                        plugin.ExecuteCmd(sendXML2)
-                    }, 100)
+                    const maxCount = getMaxCount()
+                    const sendXML = OCX_XML_SetPeaAreaAction('EDIT_ON', maxCount)
+                    plugin.ExecuteCmd(sendXML)
                 }
 
-                if (pageData.value.isShowAllArea) {
-                    showAllPeaArea(true)
-                }
+                setPeaOcxData()
             } else if (pageData.value.tab === 'target') {
                 showAllPeaArea(false)
                 if (mode.value === 'h5') {
@@ -808,13 +796,11 @@ export default defineComponent({
                 }
 
                 if (mode.value === 'ocx') {
-                    setTimeout(() => {
-                        const sendXML1 = OCX_XML_SetPeaAreaAction('NONE')
-                        plugin.ExecuteCmd(sendXML1)
+                    const sendXML1 = OCX_XML_SetPeaAreaAction('NONE')
+                    plugin.ExecuteCmd(sendXML1)
 
-                        const sendXML2 = OCX_XML_SetPeaAreaAction('EDIT_OFF')
-                        plugin.ExecuteCmd(sendXML2)
-                    }, 100)
+                    const sendXML2 = OCX_XML_SetPeaAreaAction('EDIT_OFF')
+                    plugin.ExecuteCmd(sendXML2)
                 }
             }
         }
@@ -1288,7 +1274,7 @@ export default defineComponent({
          * @param {CanvasBasePoint} poinObjtList
          */
         const setClosed = (poinObjtList: CanvasBasePoint[]) => {
-            poinObjtList.forEach(function (element) {
+            poinObjtList.forEach((element) => {
                 element.isClosed = true
             })
         }

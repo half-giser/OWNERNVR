@@ -588,28 +588,16 @@ export default defineComponent({
          */
         const changeTab = () => {
             if (pageData.value.tab === 'param') {
-                const area = pageData.value.warnAreaIndex
-                const boundaryInfo = formData.value.boundaryInfo
                 if (mode.value === 'h5') {
                     drawer.setEnable(true)
-                    setOcxData()
                 }
 
                 if (mode.value === 'ocx') {
-                    setTimeout(() => {
-                        if (boundaryInfo[area].point.length) {
-                            const sendXML1 = OCX_XML_SetPeaArea(boundaryInfo[area].point, pageData.value.currentRegulation)
-                            plugin.ExecuteCmd(sendXML1)
-                        }
-
-                        const sendXML2 = OCX_XML_SetPeaAreaAction('EDIT_ON')
-                        plugin.ExecuteCmd(sendXML2)
-                    }, 100)
+                    const sendXML = OCX_XML_SetPeaAreaAction('EDIT_ON')
+                    plugin.ExecuteCmd(sendXML)
                 }
 
-                if (pageData.value.isShowAllArea) {
-                    showAllArea(true)
-                }
+                setOcxData()
             }
         }
 
@@ -922,7 +910,7 @@ export default defineComponent({
          * @param {CanvasBasePoint} poinObjtList
          */
         const setClosed = (poinObjtList: CanvasBasePoint[]) => {
-            poinObjtList.forEach(function (element) {
+            poinObjtList.forEach((element) => {
                 element.isClosed = true
             })
         }
@@ -935,7 +923,7 @@ export default defineComponent({
             if (mode.value === 'h5' && !pageData.value.currentRegulation) {
                 const boundaryInfoList = formData.value.boundaryInfo
                 if (boundaryInfoList && boundaryInfoList.length > 0) {
-                    boundaryInfoList.forEach(function (boundaryInfo) {
+                    boundaryInfoList.forEach((boundaryInfo) => {
                         const poinObjtList = boundaryInfo.point
                         if (poinObjtList.length >= 4 && drawer.judgeAreaCanBeClosed(poinObjtList)) {
                             setClosed(poinObjtList)

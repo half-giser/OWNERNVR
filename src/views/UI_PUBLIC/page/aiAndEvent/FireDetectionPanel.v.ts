@@ -80,10 +80,6 @@ export default defineComponent({
             maskAreaChecked: [] as number[],
             // 是否显示全部区域绑定值
             isShowAllArea: false,
-            // 控制显示展示全部区域的checkbox
-            showAllAreaVisible: true,
-            // 控制显示清除全部区域按钮 >=2才显示
-            clearAllVisible: true,
             // 当前画点规则 regulation==1：画矩形，regulation==0或空：画点 - (regulation=='1'则currentRegulation为true：画矩形，否则currentRegulation为false：画点)
             currentRegulation: false,
         })
@@ -462,7 +458,7 @@ export default defineComponent({
             if (!pageData.value.currentRegulation) {
                 const allRegionList: CanvasBasePoint[][] = []
                 const maskAreaInfoList = formData.value.maskAreaInfo
-                maskAreaInfoList.forEach(function (ele) {
+                maskAreaInfoList.forEach((ele) => {
                     allRegionList.push(ele.point)
                 })
                 for (const i in allRegionList) {
@@ -491,15 +487,6 @@ export default defineComponent({
                 }
                 return -1
             })
-
-            // 是否显示全部区域切换按钮和清除全部按钮（区域数量大于等于2时才显示）
-            if (maskAreaInfoList && maskAreaInfoList.length > 1) {
-                pageData.value.showAllAreaVisible = true
-                pageData.value.clearAllVisible = true
-            } else {
-                pageData.value.showAllAreaVisible = false
-                pageData.value.clearAllVisible = false
-            }
         }
 
         /**
@@ -521,15 +508,11 @@ export default defineComponent({
                 }
 
                 if (mode.value === 'ocx') {
-                    setTimeout(() => {
-                        const sendXML = OCX_XML_SetVsdAreaAction('EDIT_ON')
-                        plugin.ExecuteCmd(sendXML)
-                    }, 100)
+                    const sendXML = OCX_XML_SetVsdAreaAction('EDIT_ON')
+                    plugin.ExecuteCmd(sendXML)
                 }
+
                 setOcxData()
-                if (pageData.value.isShowAllArea) {
-                    showAllArea(true)
-                }
             } else if (pageData.value.tab === 'target') {
                 showAllArea(false)
                 if (mode.value === 'h5') {
@@ -538,13 +521,11 @@ export default defineComponent({
                 }
 
                 if (mode.value === 'ocx') {
-                    setTimeout(() => {
-                        const sendXML1 = OCX_XML_SetVsdAreaAction('NONE')
-                        plugin.ExecuteCmd(sendXML1)
+                    const sendXML1 = OCX_XML_SetVsdAreaAction('NONE')
+                    plugin.ExecuteCmd(sendXML1)
 
-                        const sendXML2 = OCX_XML_SetVsdAreaAction('EDIT_OFF')
-                        plugin.ExecuteCmd(sendXML2)
-                    }, 100)
+                    const sendXML2 = OCX_XML_SetVsdAreaAction('EDIT_OFF')
+                    plugin.ExecuteCmd(sendXML2)
                 }
             }
         }
@@ -584,7 +565,6 @@ export default defineComponent({
             if (pageData.value.isShowAllArea) {
                 showAllArea(true)
             }
-            refreshInitPage()
         }
 
         /**
@@ -684,7 +664,7 @@ export default defineComponent({
          * @param {CanvasBasePoint} poinObjtList
          */
         const setClosed = (poinObjtList: CanvasBasePoint[]) => {
-            poinObjtList.forEach(function (element) {
+            poinObjtList.forEach((element) => {
                 element.isClosed = true
             })
         }
@@ -697,7 +677,7 @@ export default defineComponent({
             if (mode.value === 'h5' && !pageData.value.currentRegulation) {
                 const maskAreaInfoList = formData.value.maskAreaInfo
                 if (maskAreaInfoList && maskAreaInfoList.length > 0) {
-                    maskAreaInfoList.forEach(function (maskAreaInfo) {
+                    maskAreaInfoList.forEach((maskAreaInfo) => {
                         const poinObjtList = maskAreaInfo.point
                         if (poinObjtList.length >= 4 && drawer.judgeAreaCanBeClosed(poinObjtList)) {
                             setClosed(poinObjtList)
@@ -792,7 +772,6 @@ export default defineComponent({
                     })
                     const index = pageData.value.maskAreaIndex
                     formData.value.maskAreaInfo[index].point = points
-                    refreshInitPage()
                 }
 
                 const errorCode = $('statenotify/errorCode').text().num()

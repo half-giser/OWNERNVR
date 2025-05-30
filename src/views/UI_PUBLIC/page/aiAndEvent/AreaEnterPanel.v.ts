@@ -110,10 +110,6 @@ export default defineComponent({
             schedule: '',
             // 是否显示全部区域绑定值
             isShowAllArea: false,
-            // 控制显示展示全部区域的checkbox
-            showAllAreaVisible: true,
-            // 控制显示清除全部区域按钮 >=2才显示
-            clearAllVisible: true,
             // 控制显示最值区域
             isShowDisplayRange: false,
             // 画图相关
@@ -687,11 +683,12 @@ export default defineComponent({
          * @returns
          */
         const getRegionPoints = (points: CanvasBaseArea) => {
-            const pointList = []
-            pointList.push({ X: points.X1, Y: points.Y1, isClosed: true })
-            pointList.push({ X: points.X2, Y: points.Y1, isClosed: true })
-            pointList.push({ X: points.X2, Y: points.Y2, isClosed: true })
-            pointList.push({ X: points.X1, Y: points.Y2, isClosed: true })
+            const pointList = [
+                { X: points.X1, Y: points.Y1, isClosed: true },
+                { X: points.X2, Y: points.Y1, isClosed: true },
+                { X: points.X2, Y: points.Y2, isClosed: true },
+                { X: points.X1, Y: points.Y2, isClosed: true },
+            ]
             return pointList
         }
 
@@ -708,7 +705,7 @@ export default defineComponent({
                 boundaryInfoList.forEach((ele) => {
                     allRegionList.push(ele.point)
                 })
-                maskAreaInfoList.forEach(function (ele) {
+                maskAreaInfoList.forEach((ele) => {
                     allRegionList.push(ele.point)
                 })
                 for (const i in allRegionList) {
@@ -730,28 +727,16 @@ export default defineComponent({
          */
         const changeTab = () => {
             if (pageData.value.tab === 'param') {
-                const area = pageData.value.warnAreaIndex
-                const boundaryInfo = formData.value.boundaryInfo
                 if (mode.value === 'h5') {
                     drawer.setEnable(true)
-                    setOcxData()
                 }
 
                 if (mode.value === 'ocx') {
-                    setTimeout(() => {
-                        if (boundaryInfo[area].point.length) {
-                            const sendXML1 = OCX_XML_SetPeaArea(boundaryInfo[area].point, pageData.value.currentRegulation)
-                            plugin.ExecuteCmd(sendXML1)
-                        }
-
-                        const sendXML2 = OCX_XML_SetPeaAreaAction('EDIT_ON')
-                        plugin.ExecuteCmd(sendXML2)
-                    }, 100)
+                    const sendXML2 = OCX_XML_SetPeaAreaAction('EDIT_ON')
+                    plugin.ExecuteCmd(sendXML2)
                 }
 
-                if (pageData.value.isShowAllArea) {
-                    showAllArea(true)
-                }
+                setOcxData()
             }
         }
 
@@ -768,15 +753,6 @@ export default defineComponent({
                     }
                     return -1
                 })
-
-                // 是否显示全部区域切换按钮和清除全部按钮（区域数量大于等于2时才显示）
-                if (regionInfoList && regionInfoList.length > 1) {
-                    pageData.value.showAllAreaVisible = true
-                    pageData.value.clearAllVisible = true
-                } else {
-                    pageData.value.showAllAreaVisible = false
-                    pageData.value.clearAllVisible = false
-                }
             } else {
                 // 画点-警戒区域
                 const boundaryInfoList = formData.value.boundaryInfo
@@ -794,17 +770,16 @@ export default defineComponent({
                     }
                     return -1
                 })
-
-                // 是否显示全部区域切换按钮和清除全部按钮（区域数量大于等于2时才显示）
-                if (boundaryInfoList && boundaryInfoList.length > 1) {
-                    pageData.value.showAllAreaVisible = true
-                    pageData.value.clearAllVisible = true
-                } else {
-                    pageData.value.showAllAreaVisible = false
-                    pageData.value.clearAllVisible = false
-                }
             }
         }
+
+        const isShowAllVisible = computed(() => {
+            if (pageData.value.currentRegulation) {
+                return formData.value.regionInfo.length > 1
+            } else {
+                return formData.value.boundaryInfo.length > 1
+            }
+        })
 
         /**
          * @description 初始化数据
@@ -970,7 +945,6 @@ export default defineComponent({
             if (pageData.value.isShowAllArea) {
                 showAllArea(true)
             }
-            refreshInitPage()
         }
 
         /**
@@ -1201,7 +1175,7 @@ export default defineComponent({
          * @param {CanvasBasePoint} poinObjtList
          */
         const setClosed = (poinObjtList: CanvasBasePoint[]) => {
-            poinObjtList.forEach(function (element) {
+            poinObjtList.forEach((element) => {
                 element.isClosed = true
             })
         }
@@ -1214,7 +1188,7 @@ export default defineComponent({
             if (mode.value === 'h5' && !pageData.value.currentRegulation) {
                 const allInfoList = [...formData.value.boundaryInfo, ...formData.value.maskAreaInfo]
                 if (allInfoList && allInfoList.length > 0) {
-                    allInfoList.forEach(function (boundaryInfo) {
+                    allInfoList.forEach((boundaryInfo) => {
                         const poinObjtList = boundaryInfo.point
                         if (poinObjtList.length >= 4 && drawer.judgeAreaCanBeClosed(poinObjtList)) {
                             setClosed(poinObjtList)
@@ -1357,7 +1331,6 @@ export default defineComponent({
                             formData.value.boundaryInfo[area].point = points
                         }
                     }
-                    refreshInitPage()
                 }
 
                 const errorCode = $('statenotify/errorCode').text().num()
@@ -1422,6 +1395,7 @@ export default defineComponent({
             editLockStatus,
             clearArea,
             clearAllArea,
+            isShowAllVisible,
         }
     },
 })

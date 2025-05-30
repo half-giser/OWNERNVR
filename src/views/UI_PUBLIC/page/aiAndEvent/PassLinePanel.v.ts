@@ -91,6 +91,13 @@ export default defineComponent({
             motor: Translate('IDCS_NON_VEHICLE'),
         }
 
+        const noneOSD = {
+            switch: false,
+            X: 0,
+            Y: 0,
+            osdFormat: '',
+        }
+
         const pageData = ref({
             // 是否支持声音设置
             supportAlarmAudioConfig: true,
@@ -453,27 +460,20 @@ export default defineComponent({
             if (pageData.value.tab === 'param') {
                 if (props.chlData.supportPassLine) {
                     if (mode.value === 'h5') {
-                        setPassLineOcxData()
                         passLineDrawer.setEnable('line', true)
                         passLineDrawer.setEnable('osd', false)
                         passLineDrawer.setOSD(formData.value.countOSD)
                     }
 
                     if (mode.value === 'ocx') {
-                        setTimeout(() => {
-                            const alarmLine = pageData.value.surfaceIndex
-                            const plugin = playerRef.value!.plugin
+                        const sendXML2 = OCX_XML_SetTripwireLineAction('EDIT_ON')
+                        plugin.ExecuteCmd(sendXML2)
 
-                            const sendXML1 = OCX_XML_SetTripwireLine(formData.value.line[alarmLine])
-                            plugin.ExecuteCmd(sendXML1)
-
-                            const sendXML2 = OCX_XML_SetTripwireLineAction('EDIT_ON')
-                            plugin.ExecuteCmd(sendXML2)
-
-                            const sendXML3 = OCX_XML_SetTripwireLineInfo(formData.value.countOSD)
-                            plugin.ExecuteCmd(sendXML3)
-                        }, 100)
+                        const sendXML3 = OCX_XML_SetTripwireLineInfo(noneOSD)
+                        plugin.ExecuteCmd(sendXML3)
                     }
+
+                    setPassLineOcxData()
                 } else if (props.chlData.supportCpc) {
                     setCpcOcxData()
                     cpcDrawer.setEnable(true)
@@ -489,16 +489,14 @@ export default defineComponent({
                     }
 
                     if (mode.value === 'ocx') {
-                        setTimeout(() => {
-                            const sendXML1 = OCX_XML_SetTripwireLineAction('NONE')
-                            plugin.ExecuteCmd(sendXML1)
+                        const sendXML1 = OCX_XML_SetTripwireLineAction('NONE')
+                        plugin.ExecuteCmd(sendXML1)
 
-                            const sendXML2 = OCX_XML_SetTripwireLineAction('EDIT_OFF')
-                            plugin.ExecuteCmd(sendXML2)
+                        const sendXML2 = OCX_XML_SetTripwireLineAction('EDIT_OFF')
+                        plugin.ExecuteCmd(sendXML2)
 
-                            const sendXML3 = OCX_XML_SetTripwireLineInfo(formData.value.countOSD)
-                            plugin.ExecuteCmd(sendXML3)
-                        }, 100)
+                        const sendXML3 = OCX_XML_SetTripwireLineInfo(formData.value.countOSD)
+                        plugin.ExecuteCmd(sendXML3)
                     }
                 } else if (props.chlData.supportCpc) {
                     cpcDrawer.clear()
@@ -1455,18 +1453,6 @@ export default defineComponent({
 
                 if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_SetTripwireLine(line)
-                    plugin.ExecuteCmd(sendXML)
-                }
-            }
-
-            if (formData.value.countOSD.switch) {
-                if (mode.value === 'h5') {
-                    passLineDrawer.setEnable('osd', true)
-                    passLineDrawer.setOSD(formData.value.countOSD)
-                }
-
-                if (mode.value === 'ocx') {
-                    const sendXML = OCX_XML_SetTripwireLineInfo(formData.value.countOSD)
                     plugin.ExecuteCmd(sendXML)
                 }
             }

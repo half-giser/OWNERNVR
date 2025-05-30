@@ -750,15 +750,6 @@ export default defineComponent({
                 }
                 return -1
             })
-
-            // 是否显示全部区域切换按钮和清除全部按钮（区域数量大于等于2时才显示）
-            if (maskAreaInfoList && maskAreaInfoList.length > 1) {
-                pageData.value.showAllAreaVisible = true
-                pageData.value.clearAllVisible = true
-            } else {
-                pageData.value.showAllAreaVisible = false
-                pageData.value.clearAllVisible = false
-            }
         }
 
         const getRuleTypeList = (ruleType: string) => {
@@ -1038,7 +1029,7 @@ export default defineComponent({
             // 屏蔽区域为多边形
             const allRegionList: CanvasBasePoint[][] = []
             const maskAreaInfoList = formData.value.maskAreaInfo
-            maskAreaInfoList.forEach(function (ele) {
+            maskAreaInfoList.forEach((ele) => {
                 allRegionList.push(ele.points)
             })
             for (const i in allRegionList) {
@@ -1216,6 +1207,7 @@ export default defineComponent({
                 }).finally(() => {
                     // 保存成功后刷新视频区域，四个点时区域没有闭合但保存后也可以闭合（四点已经可以画面）
                     setAreaView()
+                    refreshInitPage()
                     watchEdit.update()
                 })
             } else {
@@ -1267,15 +1259,15 @@ export default defineComponent({
                         pageData.value.currRowData.points
                     }
                 }
+            }
 
-                const errorCode = $('statenotify/errorCode').text().num()
-                if (errorCode === 517) {
-                    // 517-区域已闭合
-                    clearCurrentArea()
-                } else if (errorCode === 515) {
-                    // 515-区域有相交直线，不可闭合
-                    openMessageBox(Translate('IDCS_INTERSECT'))
-                }
+            const errorCode = $('statenotify/errorCode').text().num()
+            if (errorCode === 517) {
+                // 517-区域已闭合
+                clearCurrentArea()
+            } else if (errorCode === 515) {
+                // 515-区域有相交直线，不可闭合
+                openMessageBox(Translate('IDCS_INTERSECT'))
             }
         }
 
