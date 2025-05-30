@@ -9,6 +9,7 @@ import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
 import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
 import AlarmBasePresetSelector from './AlarmBasePresetSelector.vue'
 import { type CheckboxValueType } from 'element-plus'
+import AlarmBaseErrorPanel from './AlarmBaseErrorPanel.vue'
 
 export default defineComponent({
     components: {
@@ -16,6 +17,7 @@ export default defineComponent({
         AlarmBaseAlarmOutSelector,
         AlarmBaseTriggerSelector,
         AlarmBasePresetSelector,
+        AlarmBaseErrorPanel,
     },
     props: {
         /**
@@ -122,7 +124,7 @@ export default defineComponent({
             warnAreaIndex: 0,
             warnAreaChecked: [] as number[],
             // 选择的绘制区域index
-            drawAreaIndex: 'rectA',
+            drawAreaIndex: 'rectA' as 'rectA' | 'rectB',
             drawAreaChecked: [] as string[],
             // 绘制线方向下拉
             lineDirectionList: [] as SelectOption<string, string>[],
@@ -1069,8 +1071,7 @@ export default defineComponent({
             // 警戒区域
             const area = pageData.value.warnAreaIndex
             // 绘制区域
-            const drawArea = pageData.value.drawAreaIndex
-            formData.value.boundaryInfo[area][drawArea].point = pageData.value.areaDirection
+            formData.value.boundaryInfo[area].direction = pageData.value.areaDirection
             setOcxData()
         }
 
@@ -1136,26 +1137,26 @@ export default defineComponent({
                     <chl id="${props.currChlId}" scheduleGuid="${pageData.value.schedule}">
                        ${
                            props.chlData.supportBinocularCountConfig
-                               ? `
-                        <param>
-                            <calibration>
-                                <mode type="calibrationMode" default="auto">${data.calibration.modeType}</mode>
-                                <height>${data.calibration.height.value}</height>
-                                ${
-                                    !getRegionInfoIsEmpty(data.calibration.regionInfo)
-                                        ? `
-                                     <regionInfo>
-                                        <X1>${Math.floor(data.calibration.regionInfo.X1)}</X1>
-                                        <Y1>${Math.floor(data.calibration.regionInfo.Y1)}</Y1>
-                                        <X2>${Math.floor(data.calibration.regionInfo.X2)}</X2>
-                                        <Y2>${Math.floor(data.calibration.regionInfo.Y2)}</Y2>
-                                     </regionInfo>`
-                                        : ''
-                                }
+                               ? rawXml`
+                                    <param>
+                                        <calibration>
+                                            <mode type="calibrationMode" default="auto">${data.calibration.modeType}</mode>
+                                            <height>${data.calibration.height.value}</height>
+                                            ${
+                                                !getRegionInfoIsEmpty(data.calibration.regionInfo)
+                                                    ? rawXml`
+                                                        <regionInfo>
+                                                            <X1>${Math.floor(data.calibration.regionInfo.X1)}</X1>
+                                                            <Y1>${Math.floor(data.calibration.regionInfo.Y1)}</Y1>
+                                                            <X2>${Math.floor(data.calibration.regionInfo.X2)}</X2>
+                                                            <Y2>${Math.floor(data.calibration.regionInfo.Y2)}</Y2>
+                                                        </regionInfo>`
+                                                    : ''
+                                            }
 
-                            </calibration>
-                        </param>
-                        `
+                                        </calibration>
+                                    </param>
+                                `
                                : ''
                        }
                     </chl>
@@ -1227,30 +1228,31 @@ export default defineComponent({
          */
         const changeArea = (points: CanvasBaseArea | CanvasBasePoint[] | CanvasPasslinePassline, osdInfo?: CanvasPolygonOSDInfo) => {
             if (pageData.value.tab === 'calibration') {
-                formData.value.calibration.regionInfo = points
+                formData.value.calibration.regionInfo = points as CanvasBaseArea
             } else if (pageData.value.tab === 'imageOSD') {
                 if (osdInfo) {
                     formData.value.countOSD.X = osdInfo.X
                     formData.value.countOSD.Y = osdInfo.Y
                 }
             } else {
+                const lineInfo = points as CanvasPasslinePassline
                 // 警戒线
                 if (pageData.value.detectType === 0) {
                     const lineIndex = pageData.value.lineIndex
                     formData.value.lineInfo[lineIndex].startPoint = {
-                        X: points.startX,
-                        Y: points.startY,
+                        X: lineInfo.startX,
+                        Y: lineInfo.startY,
                     }
                     formData.value.lineInfo[lineIndex].endPoint = {
-                        X: points.endX,
-                        Y: points.endY,
+                        X: lineInfo.endX,
+                        Y: lineInfo.endY,
                     }
                 } else {
                     // 警戒区域
                     const area = pageData.value.warnAreaIndex
                     // 绘制区域
                     const drawArea = pageData.value.drawAreaIndex
-                    formData.value.boundaryInfo[area][drawArea].point = points
+                    formData.value.boundaryInfo[area][drawArea].point = points as CanvasBasePoint[]
                 }
             }
 
@@ -1288,10 +1290,9 @@ export default defineComponent({
                     const area = pageData.value.warnAreaIndex // 警戒区域
                     const drawArea = pageData.value.drawAreaIndex // 绘制区域
                     // 画点
-                    const boundaryInfo: CanvasBasePoint[][] = []
+                    const boundaryInfo: CanvasBinicularPoint[] = []
                     const boundaryInfoList = formData.value.boundaryInfo
                     boundaryInfoList.forEach((ele, idx) => {
-                        boundaryInfo[idx] = {}
                         boundaryInfo[idx].rectA = ele.rectA.point ? ele.rectA.point : []
                         boundaryInfo[idx].rectB = ele.rectB.point ? ele.rectB.point : []
                     })
@@ -1306,15 +1307,17 @@ export default defineComponent({
                         const sendClearXML = OCX_XML_DeletePolygonArea('clearAll')
                         plugin.ExecuteCmd(sendClearXML)
                         // 再绘制当前区域
-                        const polygonAreas = {}
+                        const polygonAreas: Record<number, { [key: string]: CanvasBasePoint[] }> = {}
                         if (boundaryInfoList.length > 0) {
-                            polygonAreas[area] = {}
-                            polygonAreas[area][drawArea] = (boundaryInfoList[area][drawArea] && boundaryInfoList[area][drawArea].point) || []
+                            polygonAreas[area] = {
+                                [drawArea]: (boundaryInfoList[area][drawArea] && boundaryInfoList[area][drawArea].point) || [],
+                            }
+                            // polygonAreas[area][drawArea] = (boundaryInfoList[area][drawArea] && boundaryInfoList[area][drawArea].point) || []
                         }
-                        const sendAreaXML = OCX_XML_AddPolygonArea(polygonAreas, area, false, drawArea)
+                        const sendAreaXML = OCX_XML_AddPolygonAreaBinicular(polygonAreas, area, false, drawArea)
                         plugin.ExecuteCmd(sendAreaXML)
                         // 然后再绘制所有区域（结合上面绘制的当前区域会让当前区域有加粗效果）
-                        const sendAllAreaXML = OCX_XML_AddPolygonArea(boundaryInfo, area, true, drawArea)
+                        const sendAllAreaXML = OCX_XML_AddPolygonAreaBinicular(boundaryInfo, area, true, drawArea)
                         plugin.ExecuteCmd(sendAllAreaXML)
                     }
                 }
@@ -1407,10 +1410,12 @@ export default defineComponent({
                     const sendClearXML = OCX_XML_DeletePolygonArea('clearAll')
                     plugin.ExecuteCmd(sendClearXML)
                     // 再绘制当前区域
-                    const polygonAreas = {}
-                    polygonAreas[area] = {}
-                    polygonAreas[area][drawArea] = polygonData
-                    const sendXML = OCX_XML_AddPolygonArea(polygonAreas, area, false, drawArea)
+                    const polygonAreas = {
+                        [area]: {
+                            [drawArea]: polygonData,
+                        },
+                    }
+                    const sendXML = OCX_XML_AddPolygonAreaBinicular(polygonAreas, area, false, drawArea)
                     plugin.ExecuteCmd(sendXML)
                 }
             }
@@ -1448,7 +1453,7 @@ export default defineComponent({
          * @param {CanvasBasePoint} poinObjtList
          */
         const setClosed = (poinObjtList: CanvasBasePoint[]) => {
-            poinObjtList.forEach(function (element) {
+            poinObjtList.forEach((element) => {
                 element.isClosed = true
             })
         }
@@ -1461,14 +1466,18 @@ export default defineComponent({
             if (mode.value === 'h5' && !pageData.value.currentRegulation) {
                 const boundaryInfoList = formData.value.boundaryInfo
                 if (boundaryInfoList && boundaryInfoList.length > 0) {
-                    boundaryInfoList.forEach(function (boundaryInfo) {
-                        const pointItem = ['rectA', 'rectB']
-                        for (const key in boundaryInfo) {
-                            if (pointItem.includes(key)) {
-                                const poinObjtList = boundaryInfo[key].point
-                                if (poinObjtList.length >= 4 && drawer.judgeAreaCanBeClosed(poinObjtList)) {
-                                    setClosed(poinObjtList)
-                                }
+                    boundaryInfoList.forEach((boundaryInfo) => {
+                        {
+                            const poinObjtList = boundaryInfo.rectA.point
+                            if (poinObjtList.length >= 4 && drawer.judgeAreaCanBeClosed(poinObjtList)) {
+                                setClosed(poinObjtList)
+                            }
+                        }
+
+                        {
+                            const poinObjtList = boundaryInfo.rectB.point
+                            if (poinObjtList.length >= 4 && drawer.judgeAreaCanBeClosed(poinObjtList)) {
+                                setClosed(poinObjtList)
                             }
                         }
                     })
@@ -1579,7 +1588,8 @@ export default defineComponent({
             const boundaryInfoList = formData.value.boundaryInfo
             // 画点-警戒区域
             boundaryInfoList.forEach((ele) => {
-                ele.point = []
+                ele.rectA.point = []
+                ele.rectB.point = []
             })
 
             if (mode.value === 'h5') {
@@ -1601,15 +1611,12 @@ export default defineComponent({
             // 标定方式
             if (stateType === 'VfdArea') {
                 // 绘制矩形
-                const regionInfo: CanvasBaseArea = $('/item').map((element) => {
-                    return {
-                        X1: element.attr('X1').num(),
-                        Y1: element.attr('Y1').num(),
-                        X2: element.attr('X2').num(),
-                        Y2: element.attr('Y2').num(),
-                    }
-                })
-                formData.value.calibration.regionInfo = regionInfo
+                formData.value.calibration.regionInfo = {
+                    X1: $('statenotify/item/X1').text().num(),
+                    X2: $('statenotify/item/X2').text().num(),
+                    Y1: $('statenotify/item/Y1').text().num(),
+                    Y2: $('statenotify/item/Y2').text().num(),
+                }
             } else if (stateType === 'TripwireLineInfo') {
                 // 绘制OSD
                 const X = $('statenotify/PosInfo/X').text().num()

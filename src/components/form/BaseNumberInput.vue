@@ -150,10 +150,6 @@ const handleKeyPress = (e: Event | KeyboardEvent) => {
         default:
             if (/[0-9]/.test(keyCode)) {
                 isPreventDefault = false
-                // 数字不以0开头，如果已经输入0，阻止其他数字输入
-                if (showValue.value === 0 || showValue.value === '0' || showValue.value === '-0') {
-                    isPreventDefault = true
-                }
             }
             break
     }
@@ -284,8 +280,8 @@ const updateValue = (value: string) => {
         return
     }
 
-    if (/^00/.test(value)) {
-        value = value.replace('0', '')
+    if (/^0\d/.test(value)) {
+        value = '0'
     }
 
     if (props.precision > 0) {

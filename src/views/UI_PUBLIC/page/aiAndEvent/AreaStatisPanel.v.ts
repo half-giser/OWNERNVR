@@ -9,6 +9,7 @@ import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
 import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
 import AlarmBasePresetSelector from './AlarmBasePresetSelector.vue'
 import AlarmBaseIPSpeakerSelector from './AlarmBaseIPSpeakerSelector.vue'
+import AlarmBaseErrorPanel from './AlarmBaseErrorPanel.vue'
 import { type CheckboxValueType } from 'element-plus'
 
 export default defineComponent({
@@ -18,6 +19,7 @@ export default defineComponent({
         AlarmBaseTriggerSelector,
         AlarmBasePresetSelector,
         AlarmBaseIPSpeakerSelector,
+        AlarmBaseErrorPanel,
     },
     props: {
         /**

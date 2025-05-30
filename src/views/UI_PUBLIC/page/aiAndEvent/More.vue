@@ -17,13 +17,10 @@
             v-title
             class="base-ai-menu-tabs"
         >
-            <div
+            <AlarmBaseErrorPanel
                 v-show="pageData.notSupport"
-                class="base-ai-not-support-box"
-            >
-                {{ Translate('IDCS_ADD_INTEL_CHANNEL_TIP').formatForLang(Translate('IDCS_INTELLIGENT')) }}
-            </div>
-
+                type="not-support"
+            />
             <!-- 徘徊检测 -->
             <el-tab-pane
                 :disabled="!chlData.supportLoitering"
