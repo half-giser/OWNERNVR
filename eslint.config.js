@@ -6,6 +6,7 @@
 import { defineFlatConfig, prettier, vue, typescript } from '@bassist/eslint'
 
 // https://github.com/chengpeiquan/bassist/tree/main/packages/eslint
+// 使用 defineFlatConfig 方法，是为了拓展第三方库 @bassist/eslint 的相关配置
 export default defineFlatConfig([
     ...vue,
     ...typescript,
