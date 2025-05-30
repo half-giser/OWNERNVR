@@ -56,6 +56,7 @@
                     :chl-name="chl.chlName"
                     :pic="chl.imgUrl"
                     :active="pageData.select?.chlId === chl.chlId"
+                    :show-time="false"
                     time=""
                     @click="handleSelect(chl)"
                     @dblclick="handleOpen()"

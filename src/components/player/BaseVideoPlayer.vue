@@ -1366,7 +1366,7 @@ const fullscreen = () => {
     } else if (el.msRequestFullscreen) {
         el.msRequestFullscreen()
     } else {
-        alert("This browser doesn't supporter fullscreen")
+        openMessageBox("This browser doesn't support fullscreen")
     }
 
     // safari全屏时不触发window.onresize事件，需要手动执行

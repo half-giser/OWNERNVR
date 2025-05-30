@@ -6,35 +6,27 @@
  * 备份 = 图片（抓拍图、原图、可见光图、热成像图） + 录像 + （图片+录像）
  */
 export interface backupOption {
-    isOldAPI?: boolean
+    apiType?: 'default' | 'snap-wall' | 'legacy'
     isBackupPic?: boolean
     isBackupVideo?: boolean
     isBackupPlateCsv?: boolean // 车--车牌号csv
     isBackupPassRecordCsv?: boolean // 停车场--进出记录csv
-    // allChlAuth?: boolean
-    // chlAuthMapping?: Record<string, Record<string, string>>
     indexData: indexDataItem[]
 }
 
 interface newIndexDataItem {
     index: string // 'AWAAAAAA..'
     chlId: string // '{00000001-0000-0000-0000-000000000000}'
-    // chlID: string // '{00000001-0000-0000-0000-000000000000}'
     chlName: string // 'IPCamera01'
-    // channelName: string // ..
     frameTime: number // 1732593582（时间戳秒）
-    // timeStamp: number // 1732593582（时间戳秒）
     startTime?: number // 1732591582（时间戳秒）
     endTime?: number // 1732598612（时间戳秒）
 }
 
 interface oldIndexDataItem {
     chlId: string // '{00000001-0000-0000-0000-000000000000}'
-    // chlID: string // '{00000001-0000-0000-0000-000000000000}'
     chlName: string // 'IPCamera01'
-    // channelName: string // ..
     frameTime: number // 1732593582（时间戳秒）
-    // timeStamp: number // 1732593582（时间戳秒）
     frameTimeStr: string // '2024-11-28 22:40:16:3902110'（时间戳字符串）
     startTime?: number // 1732591582（时间戳秒）
     endTime?: number // 1732598612（时间戳秒）
@@ -45,16 +37,12 @@ interface oldIndexDataItem {
     blockNo: number // '58'
     offset: number // '0'
     eventType: number // '6'
-    direction?: string
 }
 
 interface hadIndexDataItem {
     chlId: string // '{00000001-0000-0000-0000-000000000000}'
-    // chlID: string // '{00000001-0000-0000-0000-000000000000}'
     chlName: string // 'IPCamera01'
-    // channelName: string // ..
     frameTime: number // 1732593582（时间戳秒）
-    // timeStamp: number // 1732593582（时间戳秒）
     timeStamp100ns: number // 1732591582000（时间戳100纳秒）
     snapContent: string // 抓拍图base64
     originContent: string // 原图图base64
@@ -130,6 +118,8 @@ export default defineComponent({
     },
     setup(props, ctx) {
         const { Translate } = useLangStore()
+        const userSession = useUserSessionStore()
+        const dateTime = useDateTimeStore()
 
         const pageData = ref({
             isShowDialog: false,
@@ -159,6 +149,29 @@ export default defineComponent({
             manual: Translate('IDCS_MANNAL_RELEASE'), // 手动放行
         }
 
+        const CSV_MAPPING = {
+            passRecord: {
+                title: Translate('IDCS_VEHICLE_ENTRY_EXIT_RECORD'),
+                thead: [
+                    Translate('IDCS_LICENSE_PLATE_NUM'),
+                    Translate('IDCS_VEHICLE_PARKING_TIME'),
+                    Translate('IDCS_VEHICLE_IN_OUT_RESULT'),
+                    Translate('IDCS_VEHICLE_ENTRANCE'),
+                    Translate('IDCS_VEHICLE_IN_TIME'),
+                    Translate('IDCS_VEHICLE_IN_RELEASE_METHOD'),
+                    Translate('IDCS_VEHICLE_EXIT'),
+                    Translate('IDCS_VEHICLE_OUT_TIME'),
+                    Translate('IDCS_VEHICLE_OUT_RELEASE_METHOD'),
+                    Translate('IDCS_VEHICLE_OWNER'),
+                    Translate('IDCS_PHONE_NUMBER'),
+                ],
+            },
+            plate: {
+                title: Translate('EXPORT_SNAP_PLATE_LIST'),
+                thead: [Translate('IDCS_SERIAL_NUMBER'), Translate('IDCS_LICENSE_PLATE_NUM'), Translate('IDCS_CHANNEL'), Translate('IDCS_DEVICE_NAME'), Translate('IDCS_SNAP_TIME')],
+            },
+        }
+
         let backupData: backupDataItem[] = []
         let xlsList: string[][] = []
         let fileNameMap: Record<string, number> = {}
@@ -166,7 +179,7 @@ export default defineComponent({
         let zipFileNum = 1
         let zipFileIndex = 0
         let maxFileOfZip = 1000
-        let isOldAPI: backupOption['isOldAPI'] = false
+        let apiType: backupOption['apiType'] = 'default'
         let isBackupPic: backupOption['isBackupPic'] = false
         let isBackupVideo: backupOption['isBackupVideo'] = false
         let isBackupPlateCsv: backupOption['isBackupPlateCsv'] = false
@@ -194,13 +207,11 @@ export default defineComponent({
             recorder && recorder.destroy()
             recorder = null
             if (option) {
-                isOldAPI = option.isOldAPI
+                apiType = option.apiType || 'default'
                 isBackupPic = option.isBackupPic
                 isBackupVideo = option.isBackupVideo
                 isBackupPlateCsv = option.isBackupPlateCsv
                 isBackupPassRecordCsv = option.isBackupPassRecordCsv
-                // allChlAuth = option.allChlAuth
-                // chlAuthMapping = option.chlAuthMapping
                 indexData = option.indexData
             }
         }
@@ -241,118 +252,127 @@ export default defineComponent({
             showPage('export')
             for (let index = 0; index < indexData.length; index++) {
                 const indexDataItem = indexData[index]
-                const data = (await getData(indexDataItem)) as Record<string, Record<string, string>>
-                setDataBackup(data)
+                const data = await getData(indexDataItem)
                 const currentTask = index + 1
+                await setDataBackup(data as Record<string, getPicNameOption | backupDataItem | getCsvContentOption>)
                 updateProgress(currentTask)
-                if (currentTask % maxFileOfZip === 0 || currentTask === indexData.length) createZip()
+
+                if (!pageData.value.isShowDialog) {
+                    recorder && recorder.destroy()
+                    break
+                }
+
+                if (currentTask % maxFileOfZip === 0 || currentTask === indexData.length) {
+                    createZip()
+                }
             }
         }
 
         // 获取数据
         const getData = async (indexDataItem: indexDataItem) => {
-            return new Promise(async (resolve) => {
-                const promiseGetPic = getPicData(indexDataItem)
-                const promiseGetRecord = getRecordData(indexDataItem)
-                Promise.all([promiseGetPic, promiseGetRecord]).then(async (results) => {
-                    const picData = results[0] as Record<string, string>
-                    const recordData = results[1] as Record<string, string>
-                    const csvData = (await getCsvData(picData)) as Record<string, string>
-                    resolve({ picData, recordData, csvData })
-                })
-            })
+            const picData = await getPicData(indexDataItem)
+            const recordData = await getRecordData(indexDataItem)
+            const csvData = (await getCsvData(picData as any as Record<string, string | number>)) as Record<string, string>
+            return { picData, recordData, csvData }
         }
 
         // 设置数据备份格式
-        const setDataBackup = (data: Record<string, getPicNameOption | backupDataItem | getCsvContentOption>) => {
-            data.picData && setPicDataBackup(data.picData as getPicNameOption)
-            data.recordData && setRecordDataBackup(data.recordData as backupDataItem)
-            data.csvData && setCsvDataBackup(data.csvData as getCsvContentOption)
+        const setDataBackup = async (data: Record<string, getPicNameOption | backupDataItem | getCsvContentOption>) => {
+            if (data.picData) setPicDataBackup(data.picData as getPicNameOption)
+            if (data.recordData) setRecordDataBackup(data.recordData as backupDataItem)
+            if (data.csvData) await setCsvDataBackup(data.csvData as getCsvContentOption)
         }
 
         // 从外部/协议获取图片内容
-        const getPicData = (indexDataItem: indexDataItem) => {
-            return new Promise(async (resolve) => {
-                if (isBackupPic) {
-                    const hadIndexDataItem = indexDataItem as hadIndexDataItem
-                    if (hadIndexDataItem.snapContent || hadIndexDataItem.originContent || hadIndexDataItem.dataBaseContent) {
-                        // 已获取图片
-                        resolve({
-                            chlName: hadIndexDataItem.chlName,
-                            frameTime: hadIndexDataItem.frameTime,
-                            targetID: hadIndexDataItem.targetID,
-                            snapContent: hadIndexDataItem.snapContent && wrapBase64Img(hadIndexDataItem.snapContent),
-                            originContent: hadIndexDataItem.originContent && wrapBase64Img(hadIndexDataItem.originContent),
-                            dataBaseContent: hadIndexDataItem.dataBaseContent && wrapBase64Img(hadIndexDataItem.dataBaseContent),
-                            isThermal: hadIndexDataItem.isThermal,
-                            eventContent: hadIndexDataItem.isThermal && wrapBase64Img(hadIndexDataItem.eventContent),
-                            plateNumber: hadIndexDataItem.plateNumber,
-                            timeStamp100ns: hadIndexDataItem.timeStamp100ns,
-                        })
-                    } else if (!isOldAPI) {
-                        // 新搜图协议: requestTargetData（1.4.13新增）
-                        const newIndexDataItem = indexDataItem as newIndexDataItem
-                        const sendXml = rawXml`
+        const getPicData = async (indexDataItem: indexDataItem) => {
+            // return new Promise(async (resolve) => {
+            if (isBackupPic || isBackupPassRecordCsv || isBackupPlateCsv) {
+                const hadIndexDataItem = indexDataItem as hadIndexDataItem
+                if (apiType === 'snap-wall') {
+                    // 已获取图片
+                    return {
+                        chlName: hadIndexDataItem.chlName,
+                        frameTime: hadIndexDataItem.frameTime * 1000,
+                        targetID: hadIndexDataItem.targetID,
+                        snapContent: hadIndexDataItem.snapContent && wrapBase64Img(hadIndexDataItem.snapContent),
+                        originContent: hadIndexDataItem.originContent && wrapBase64Img(hadIndexDataItem.originContent),
+                        dataBaseContent: hadIndexDataItem.dataBaseContent && wrapBase64Img(hadIndexDataItem.dataBaseContent),
+                        isThermal: hadIndexDataItem.isThermal,
+                        eventContent: hadIndexDataItem.isThermal && wrapBase64Img(hadIndexDataItem.eventContent),
+                        plateNumber: hadIndexDataItem.plateNumber,
+                        timeStamp100ns: hadIndexDataItem.timeStamp100ns,
+                    }
+                }
+
+                if (apiType === 'default') {
+                    // 新搜图协议: requestTargetData（1.4.13新增）
+                    const newIndexDataItem = indexDataItem as newIndexDataItem
+                    const sendXml = rawXml`
                             <condition>
                                 <index>${newIndexDataItem.index as string}</index>
                             </condition>
                         `
-                        const result = await requestTargetData(sendXml)
-                        const $ = queryXml(result)
-                        let originContent = ''
-                        let eventContent = ''
-                        $('content/backgroundPicDatas/item').forEach((item, index) => {
-                            const $el = queryXml(item.element)
-                            index === 0 && (originContent = $el('data').text() && wrapBase64Img($el('data').text()))
-                            index === 1 && (eventContent = $el('data').text() && wrapBase64Img($el('data').text()))
-                        })
-                        resolve({
-                            targetID: $('content/targetID').text(),
-                            chlName: newIndexDataItem.chlName,
-                            frameTime: newIndexDataItem.frameTime * 1000,
-                            timeStamp100ns: $('content/timeStamp100ns').text(),
-                            snapContent: wrapBase64Img($('content/objPicData/data').text()),
-                            originContent: originContent,
-                            eventContent: eventContent,
-                            isThermal: $('content/backgroundPicDatas/item').length > 1,
-                            plateNumber: $('content/plateAttrInfo/plateNumber').text(),
-                            isDelete: $('content/isDelete').text().bool(),
-                            isNoData: $('status').text() !== 'success',
-                        })
-                    } else {
-                        // 旧搜图协议: requestSmartTargetSnapImage
-                        const oldIndexDataItem = indexDataItem as oldIndexDataItem
-
-                        const sendXml1 = getSmartTargetSnapImageXml(oldIndexDataItem)
-                        const sendXml2 = getSmartTargetSnapImageXml(oldIndexDataItem, true)
-
-                        const result1 = requestSmartTargetSnapImage(sendXml1)
-                        const result2 = requestSmartTargetSnapImage(sendXml2)
-
-                        Promise.all([result1, result2]).then((results) => {
-                            const $snap = queryXml(results[0])
-                            const $origin = queryXml(results[1])
-                            resolve({
-                                targetID: $snap('targetID').text(),
-                                snapContent: $snap('content').text() && wrapBase64Img($snap('content').text()),
-                                originContent: $origin('content').text() && wrapBase64Img($origin('content').text()),
-                                isThermal: $origin('eventContent').length > 0,
-                                eventContent: $origin('eventContent').text() && wrapBase64Img($origin('eventContent').text()),
-                                plateNumber: $origin('plateNumber').text(),
-                                timeStamp100ns: oldIndexDataItem.frameTimeStr?.slice(-7),
-                                isDelete: $snap('status').text() !== 'success' && $origin('status').text() !== 'success',
-                                openType: $origin('OpenGateType').text(),
-                                owner: $origin('owner').text(),
-                                ownerPhone: $origin('ownerPhone').text(),
-                                chlName: oldIndexDataItem.chlName,
-                                frameTime: oldIndexDataItem.frameTime * 1000,
-                            })
-                        })
+                    const result = await requestTargetData(sendXml)
+                    const $ = queryXml(result)
+                    let originContent = ''
+                    let eventContent = ''
+                    $('content/backgroundPicDatas/item').forEach((item, index) => {
+                        const $el = queryXml(item.element)
+                        index === 0 && (originContent = $el('data').text() && wrapBase64Img($el('data').text()))
+                        index === 1 && (eventContent = $el('data').text() && wrapBase64Img($el('data').text()))
+                    })
+                    return {
+                        targetID: $('content/targetID').text(),
+                        chlName: newIndexDataItem.chlName,
+                        frameTime: newIndexDataItem.frameTime * 1000,
+                        timeStamp100ns: $('content/timeStamp100ns').text(),
+                        snapContent: wrapBase64Img($('content/objPicData/data').text()),
+                        originContent: originContent,
+                        eventContent: eventContent,
+                        isThermal: $('content/backgroundPicDatas/item').length > 1,
+                        plateNumber: $('content/plateAttrInfo/plateNumber').text(),
+                        isDelete: $('content/isDelete').text().bool(),
+                        isNoData: $('status').text() !== 'success',
                     }
-                } else {
-                    resolve(false)
                 }
-            })
+
+                if (apiType === 'legacy') {
+                    // 旧搜图协议: requestSmartTargetSnapImage
+                    const oldIndexDataItem = indexDataItem as oldIndexDataItem
+
+                    const sendXml1 = getSmartTargetSnapImageXml(oldIndexDataItem)
+                    const sendXml2 = getSmartTargetSnapImageXml(oldIndexDataItem, true)
+
+                    const result1 = await requestSmartTargetSnapImage(sendXml1)
+                    const result2 = await requestSmartTargetSnapImage(sendXml2)
+
+                    // Promise.all([result1, result2]).then((results) => {
+                    const $snap = queryXml(result1)
+                    const $origin = queryXml(result2)
+                    return {
+                        targetID: $snap('targetID').text(),
+                        snapContent: $snap('content').text() && wrapBase64Img($snap('content').text()),
+                        originContent: $origin('content').text() && wrapBase64Img($origin('content').text()),
+                        isThermal: $origin('eventContent').length > 0,
+                        eventContent: $origin('eventContent').text() && wrapBase64Img($origin('eventContent').text()),
+                        plateNumber: $origin('plateNumber').text(),
+                        timeStamp100ns: oldIndexDataItem.frameTimeStr?.slice(-7),
+                        isDelete: $snap('status').text() !== 'success' && $origin('status').text() !== 'success',
+                        openType: $origin('OpenGateType').text(),
+                        owner: $origin('owner').text(),
+                        ownerPhone: $origin('ownerPhone').text(),
+                        chlName: oldIndexDataItem.chlName,
+                        frameTime: oldIndexDataItem.frameTime * 1000,
+                        startTime: oldIndexDataItem.startTime,
+                        endTime: oldIndexDataItem.endTime,
+                        frameTimeStr: oldIndexDataItem.frameTimeStr,
+                        direction: $snap('directionType').text(),
+                    }
+                }
+            } else {
+                return false
+            }
+            // })
         }
 
         // 从协议获取录像内容
@@ -394,18 +414,19 @@ export default defineComponent({
         // 从协议获取表格内容
         const getCsvData = (data: Record<string, number | string>) => {
             return new Promise(async (resolve) => {
-                if (isBackupPlateCsv || isBackupPassRecordCsv) {
+                if (isBackupPassRecordCsv) {
+                    const isDirectionIn = data.direction === '1' || data.direction === 'in'
                     const obj = {
                         plateNumber: data.plateNumber,
                         direction: data.direction,
-                        isEnter: data.direction === '1',
-                        enterChl: data.direction === '1' ? data.chlName : '',
-                        enterType: data.direction === '1' ? OPEN_GATE_MAPPING[data.openType] : '',
-                        enterTime: data.direction === '1' ? data.frameTime : '',
-                        isExit: data.direction === '2',
-                        exitChl: data.direction === '2' ? data.chlName : '',
-                        exitType: data.direction === '2' ? OPEN_GATE_MAPPING[data.openType] : '',
-                        exitTime: data.direction === '2' ? data.frameTime : '',
+                        isEnter: isDirectionIn,
+                        enterChl: isDirectionIn ? data.chlName : '',
+                        enterType: isDirectionIn ? OPEN_GATE_MAPPING[data.openType] : '',
+                        enterTime: isDirectionIn ? data.frameTime : '',
+                        isExit: isDirectionIn,
+                        exitChl: !isDirectionIn ? data.chlName : '',
+                        exitType: !isDirectionIn ? OPEN_GATE_MAPPING[data.openType] : '',
+                        exitTime: !isDirectionIn ? data.frameTime : '',
                         master: data.owner || '',
                         phoneNum: data.ownerPhone || '',
                         parkDuration: '',
@@ -413,15 +434,15 @@ export default defineComponent({
                     }
                     const virtualStart = '2000-01-01 00:00:00' // 进场和出场时, 取不到相关帧时间, 这里取虚拟极值
                     const virtualEnd = '2080-01-01 00:00:00'
-                    const startTime = data.direction === '1' ? data.frameTimeStr : virtualStart
-                    const endTime = data.direction === '1' ? virtualEnd : data.frameTimeStr
+                    const startTime = isDirectionIn ? data.frameTimeStr : virtualStart
+                    const endTime = isDirectionIn ? virtualEnd : data.frameTimeStr
 
                     const sendXml = rawXml`
                         <condition>
                             <startTime>${startTime}</startTime>
                             <endTime>${endTime}</endTime>
-                            <direction>${data.direction === '1' ? 'out' : 'in'}</direction>
-                            <plate>${data.plateNumber}</plate>
+                            <direction>${isDirectionIn ? 'out' : 'in'}</direction>
+                            <plate>${wrapCDATA(data.plateNumber as string)}</plate>
                         </condition>
                     `
                     const result = await searchOpenGateEventRelevanceData(sendXml)
@@ -444,9 +465,19 @@ export default defineComponent({
                         obj.isExit = true
                     }
                     const parkType = getParkResultType(obj.isEnter, obj.enterType, obj.isExit, obj.exitType)
-                    obj.parkDuration = displayDuration({ enterTime: obj.enterTime as number, exitTime: obj.exitTime as number }) || ''
+                    obj.parkDuration =
+                        displayDuration({
+                            enterTime: obj.enterTime as number,
+                            exitTime: obj.exitTime as number,
+                        }) || ''
                     obj.parkResult = OPEN_GATE_MAPPING[parkType] || ''
                     resolve(obj)
+                } else if (isBackupPlateCsv) {
+                    resolve({
+                        plateNumber: data.plateNumber,
+                        chlName: data.chlName,
+                        frameTime: data.frameTime,
+                    })
                 } else {
                     resolve(false)
                 }
@@ -508,24 +539,24 @@ export default defineComponent({
         // 设置表格备份格式
         const setCsvDataBackup = async (csvData: getCsvContentOption) => {
             if (isBackupPlateCsv) {
-                xlsList.push(['1', csvData.plateNumber || '--', csvData.chlName as string, 'csvDeviceName', formatDate(new Date(csvData.frameTime as number), 'YYYY-MM-DD HH:mm:ss SSS')])
+                xlsList.push(['1', csvData.plateNumber || '--', csvData.chlName!, userSession.csvDeviceName, formatDate(new Date(csvData.frameTime!), 'YYYY-MM-DD HH:mm:ss SSS')])
             } else if (isBackupPassRecordCsv) {
                 const newRow = [
                     csvData.plateNumber || '--',
                     csvData.parkDuration || '--',
                     csvData.parkResult || '--',
                     csvData.enterChl || '--',
-                    csvData.enterTime || '--',
+                    csvData.enterTime ? formatDate(csvData.enterTime, dateTime.dateTimeFormat) : '--',
                     csvData.enterType || '--',
                     csvData.exitChl || '--',
-                    csvData.exitTime || '--',
+                    csvData.exitTime ? formatDate(csvData.exitTime, dateTime.dateTimeFormat) : '--',
                     csvData.exitType || '--',
                     csvData.master || '--',
                     csvData.phoneNum || '--',
                 ]
                 // 若同一个车牌进场后又出场，会根据两项记录进行两次getPic，最后生成的xlsList中会有两项相同的记录，因此需要去重 （不足：重复请求searchOpenGateEventRelevanceData）
                 if (
-                    !xlsList.some((item: string[]) => {
+                    !xlsList.some((item) => {
                         return item.toString() === newRow.toString()
                     })
                 ) {
@@ -533,28 +564,16 @@ export default defineComponent({
                 }
             }
 
-            if (pageData.value.currentTask % maxFileOfZip) {
-                const titleArr = isBackupPlateCsv
-                    ? [Translate('IDCS_SERIAL_NUMBER'), Translate('IDCS_LICENSE_PLATE_NUM'), Translate('IDCS_CHANNEL'), Translate('IDCS_DEVICE_NAME'), Translate('IDCS_SNAP_TIME')]
-                    : isBackupPassRecordCsv
-                      ? [
-                            Translate('IDCS_LICENSE_PLATE_NUM'),
-                            Translate('IDCS_VEHICLE_PARKING_TIME'),
-                            Translate('IDCS_VEHICLE_IN_OUT_RESULT'),
-                            Translate('IDCS_VEHICLE_ENTRANCE'),
-                            Translate('IDCS_VEHICLE_IN_TIME'),
-                            Translate('IDCS_VEHICLE_IN_RELEASE_METHOD'),
-                            Translate('IDCS_VEHICLE_EXIT'),
-                            Translate('IDCS_VEHICLE_OUT_TIME'),
-                            Translate('IDCS_VEHICLE_OUT_RELEASE_METHOD'),
-                            Translate('IDCS_VEHICLE_OWNER'),
-                            Translate('IDCS_PHONE_NUMBER'),
-                        ]
-                      : []
+            if (pageData.value.currentTask + 1 >= maxFileOfZip) {
+                const titleArr = isBackupPlateCsv ? CSV_MAPPING.plate.thead : CSV_MAPPING.passRecord.thead
                 const csvContent = await getExcelFile(titleArr, xlsList, getXlsName(), undefined)
                     .arrayBuffer()
                     .then((buffer) => buffer)
-                backupData.push({ content: csvContent, folder: '', name: getXlsName() })
+                backupData.push({
+                    content: csvContent,
+                    folder: '',
+                    name: getXlsName(),
+                })
             }
         }
 
@@ -661,7 +680,7 @@ export default defineComponent({
         }
 
         const getXlsName = () => {
-            const type = isBackupPlateCsv ? 'EXPORT_SNAP_PLATE_LIST' : isBackupPassRecordCsv ? Translate('IDCS_VEHICLE_ENTRY_EXIT_RECORD') : ''
+            const type = isBackupPlateCsv ? CSV_MAPPING.plate.title : CSV_MAPPING.passRecord.title
             const time = formatDate(new Date(), 'YYYY-MM-DD HH:mm:ss')
             const fileName = type + '-' + time + '.xls'
             return fileName
@@ -689,6 +708,10 @@ export default defineComponent({
 
         ctx.expose({
             startBackup,
+        })
+
+        onBeforeUnmount(() => {
+            recorder && recorder.destroy()
         })
 
         return {

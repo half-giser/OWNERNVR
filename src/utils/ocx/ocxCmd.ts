@@ -2247,7 +2247,7 @@ export const OCX_XML_SetTripwireLine = (line: { direction: 'none' | 'rightortop'
  * 设置矩形区域（通用：矩形侦测区域/最大最小区域）
  * rectangles：要进行显示的区域对象列表
  */
-export const OCX_XML_AddRectangleArea = (rectangles: { ID: string; text?: string; LineColor?: string; X1: number; X2: number; Y1: number; Y2: number }[]) => {
+export const OCX_XML_AddRectangleArea = (rectangles: { ID: number; text?: string; LineColor?: string; X1: number; X2: number; Y1: number; Y2: number }[]) => {
     return wrapXml(rawXml`
         <cmd type="AddRectangleArea">
             ${rectangles
@@ -2286,51 +2286,55 @@ export const OCX_XML_DeleteRectangleArea = (IDs: number[]) => {
  * showAll：是否绘制全部区域
  * curSubArea：当前绘制的绘制区域，双目计数特有
  */
-export const OCX_XML_AddPolygonArea = (
-    polygonAreas: { point: CanvasBasePoint[]; LineColor?: string; area: number }[] | CanvasBasePoint[][][],
-    currentArea: number,
-    showAll: boolean,
-    curSubArea?: string,
-) => {
+export const OCX_XML_AddPolygonArea = (polygonAreas: { point: CanvasBasePoint[]; LineColor?: string; area?: number }[], currentArea: number, showAll: boolean, curSubArea?: string) => {
     return wrapXml(rawXml`
         <cmd type="AddPolygonArea">
-            ${
-                curSubArea
-                    ? (polygonAreas as CanvasBasePoint[][][])
-                          .map((item, index) => {
-                              return rawXml`
+            ${polygonAreas
+                .map((polygonItem) => {
+                    return polygonItem.point.length
+                        ? rawXml`
                                 <points>
-                                    <Area>${showAll ? index : currentArea}</Area>
-                                    ${item
-                                        .map((sub, id) => {
-                                            return rawXml`
-                                                <polygons>
-                                                    <subArea>${id}</subArea>
-                                                    ${sub.map((point) => `<item X="${point.X}" Y="${point.Y}" />`).join('')}
-                                                    <LineColor>green</LineColor>
-                                                </polygons>
-                                            `
-                                        })
-                                        .join('')}
+                                    ${polygonItem.point.map((point) => `<item X="${point.X}" Y="${point.Y}" />`).join('')}
+                                    <Area>${polygonItem.area || currentArea}</Area>
+                                    ${polygonItem.LineColor ? `<LineColor>${polygonItem.LineColor}</LineColor>` : ''}
                                 </points>
                             `
-                          })
-                          .join('') // 绘制其他AI事件的多边形区域
-                    : (polygonAreas as { point: CanvasBasePoint[]; LineColor?: string; area: number }[])
-                          .map((polygonItem) => {
-                              return polygonItem.point.length
-                                  ? rawXml`
-                                        <points>
-                                            ${polygonItem.point.map((point) => `<item X="${point.X}" Y="${point.Y}" />`).join('')}
-                                            <Area>${polygonItem.area}</Area>
-                                            ${polygonItem.LineColor ? `<LineColor>${polygonItem.LineColor}</LineColor>` : ''}
-                                        </points>
-                                    `
-                                  : ''
-                          })
-                          .join('')
-            }
+                        : ''
+                })
+                .join('')}
             ${curSubArea ? `<curSubArea>${curSubArea.slice(-1)}</curSubArea>` : ''}
+            <currentArea>${currentArea}</currentArea>
+            <showAll>${showAll}</showAll>
+        </cmd>
+    `)
+}
+
+export const OCX_XML_AddPolygonAreaBinicular = (polygonAreas: Record<number, { [key: string]: CanvasBasePoint[] }>, currentArea: number, showAll: boolean, curSubArea: string) => {
+    let result = ''
+    let areaIndex = 0
+    for (const inx in polygonAreas) {
+        const itemObj = polygonAreas[inx]
+        result += '<points>'
+        const area = showAll ? areaIndex : currentArea
+        result += '<Area>' + area + '</Area>'
+        areaIndex++
+        for (const key in itemObj) {
+            if (itemObj[key].length > 0) {
+                result += '<polygons>'
+                result += '<subArea>' + key.slice(-1) + '</subArea>'
+                for (let i = 0; i < itemObj[key].length; i++) {
+                    result += '<item X="' + itemObj[key][i].X + '" Y="' + itemObj[key][i].Y + '" />'
+                }
+                result += '<LineColor>green</LineColor>'
+                result += '</polygons>'
+            }
+        }
+        result += '</points>'
+    }
+    return wrapXml(rawXml`
+        <cmd type="AddPolygonArea">
+            ${result}
+            <curSubArea>${curSubArea.slice(-1)}</curSubArea>
             <currentArea>${currentArea}</currentArea>
             <showAll>${showAll}</showAll>
         </cmd>

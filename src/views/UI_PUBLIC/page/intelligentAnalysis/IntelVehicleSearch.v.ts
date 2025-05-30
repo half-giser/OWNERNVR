@@ -10,7 +10,8 @@ import IntelBasePlateColorPop from './IntelBasePlateColorPop.vue'
 import IntelBaseSnapItem from './IntelBaseSnapItem.vue'
 import IntelSearchDetail from './IntelSearchDetail.vue'
 import IntelSearchBackupPop, { type IntelSearchBackUpExpose } from './IntelSearchBackupPop.vue'
-import { type DropdownInstance, type CheckboxValueType } from 'element-plus'
+import IntelLicencePlateDBAddPlatePop from './IntelLicencePlateDBAddPlatePop.vue'
+import { type CheckboxValueType } from 'element-plus'
 
 export default defineComponent({
     components: {
@@ -21,15 +22,13 @@ export default defineComponent({
         IntelBaseSnapItem,
         IntelSearchDetail,
         IntelSearchBackupPop,
+        IntelLicencePlateDBAddPlatePop,
     },
     setup() {
         const { Translate } = useLangStore()
         const dateTime = useDateTimeStore()
         const auth = useUserChlAuth(true)
         // 三个排序下拉框的引用
-        const carSortDropdown = ref<DropdownInstance>()
-        const motorcycleSortDropdown = ref<DropdownInstance>()
-        const plateNumberSortDropdown = ref<DropdownInstance>()
         const backupPopRef = ref<IntelSearchBackUpExpose>()
         const detailRef = ref()
 
@@ -53,7 +52,7 @@ export default defineComponent({
         // 界面数据
         const pageData = ref({
             // 搜索类型（byCar/byMotorcycle/byPlateNumber）
-            searchType: 'byCar',
+            searchType: 'byCar' as 'byCar' | 'byMotorcycle' | 'byPlateNumber',
             // 搜索选项
             searchOptions: [
                 {
@@ -105,15 +104,13 @@ export default defineComponent({
             plateNumber: '',
             // 选择的车牌颜色
             plateColors: [] as string[],
+            pageSize: 12,
             // 分页器（汽车）
             pageIndexForCar: 1,
-            pageSizeForCar: 12,
             // 分页器（摩托车/单车）
             pageIndexForMotorcycle: 1,
-            pageSizeForMotorcycle: 12,
             // 分页器（车牌号）
             pageIndexForPlateNumber: 1,
-            pageSizeForPlateNumber: 12,
             // 列表数据（汽车）
             targetIndexDatasForCar: [] as IntelTargetIndexItem[],
             // 列表数据（摩托车/单车）
@@ -138,15 +135,29 @@ export default defineComponent({
             backupTypeOptions: [
                 {
                     label: Translate('IDCS_BACKUP_PICTURE'),
-                    value: 'pic' as 'pic' | 'video' | 'picAndVideo',
+                    value: 'pic',
                 },
                 {
                     label: Translate('IDCS_BACKUP_RECORD'),
-                    value: 'video' as 'pic' | 'video' | 'picAndVideo',
+                    value: 'video',
                 },
                 {
                     label: Translate('IDCS_BACKUP_PICTURE_AND_RECORD'),
-                    value: 'picAndVideo' as 'pic' | 'video' | 'picAndVideo',
+                    value: 'pic+video',
+                },
+            ],
+            backupPlateTypeOptions: [
+                {
+                    label: Translate('IDCS_BACKUP_PICTURE_WITH_LIST').formatForLang(Translate('IDCS_LICENSE_PLATE_NUM_LIST')),
+                    value: 'pic+csv',
+                },
+                {
+                    label: Translate('IDCS_BACKUP_RECORD'),
+                    value: 'video',
+                },
+                {
+                    label: Translate('IDCS_BACKUP_PICTURE_AND_RECORD_WITH_LIST').formatForLang(Translate('IDCS_LICENSE_PLATE_NUM_LIST')),
+                    value: 'pic+csv+video',
                 },
             ],
             // 选中的详情数据（汽车）
@@ -159,6 +170,8 @@ export default defineComponent({
             isCheckedAll: false,
             // 是否支持备份（H5模式）
             isSupportBackUp: isBrowserSupportWasm() && !isHttpsLogin(),
+            isRegisterPop: false,
+            registerPlateNumber: '',
         })
         // 列表索引数据（根据分页索引pageIndex和分页大小pageSize从总数据targetIndexDatas中截取的当页列表数据）
         const sliceTargetIndexDatas = ref<IntelTargetIndexItem[]>([])
@@ -357,7 +370,6 @@ export default defineComponent({
                     <condition>
                         <index>${item.index}</index>
                         <supportRegister>true</supportRegister>
-                        ${pageData.value.searchType === 'byFace' || pageData.value.searchType === 'byBody' ? '<featureStatus>true</featureStatus>' : ''}
                     </condition>
                 `
                 const result = await requestTargetData(sendXml)
@@ -450,14 +462,10 @@ export default defineComponent({
                         hat: $('content/humanAttrInfo/hat').text(),
                         glasses: $('content/humanAttrInfo/glasses').text(),
                         backpack: $('content/humanAttrInfo/backpack').text(),
-                        upperCloth: {
-                            upperClothType: $('content/humanAttrInfo/upperClothType').text(),
-                            upperClothColor: $('content/humanAttrInfo/upperClothColor').text(),
-                        },
-                        lowerCloth: {
-                            lowerClothType: $('content/humanAttrInfo/lowerClothType').text(),
-                            lowerClothColor: $('content/humanAttrInfo/lowerClothColor').text(),
-                        },
+                        upperClothType: $('content/humanAttrInfo/upperClothType').text(),
+                        upperClothColor: $('content/humanAttrInfo/upperClothColor').text(),
+                        lowerClothType: $('content/humanAttrInfo/lowerClothType').text(),
+                        lowerClothColor: $('content/humanAttrInfo/lowerClothColor').text(),
                         skirt: $('content/humanAttrInfo/skirt').text(),
                         direction: $('content/humanAttrInfo/direction').text(),
                     }
@@ -599,22 +607,6 @@ export default defineComponent({
         }
 
         /**
-         * @description 获取分页pageSize
-         */
-        const getCurrPageSize = () => {
-            switch (pageData.value.searchType) {
-                case 'byCar':
-                    return pageData.value.pageSizeForCar
-                case 'byMotorcycle':
-                    return pageData.value.pageSizeForMotorcycle
-                case 'byPlateNumber':
-                    return pageData.value.pageSizeForPlateNumber
-                default:
-                    return 1
-            }
-        }
-
-        /**
          * @description 记录当前打开详情的索引index
          */
         const setCurrOpenDetailIndex = (index: string) => {
@@ -632,6 +624,18 @@ export default defineComponent({
                     break
             }
         }
+
+        const openDetailIndex = computed(() => {
+            switch (pageData.value.searchType) {
+                case 'byCar':
+                    return pageData.value.openDetailIndexForCar
+                case 'byMotorcycle':
+                    return pageData.value.openDetailIndexForMotorcycle
+                case 'byPlateNumber':
+                default:
+                    return pageData.value.openDetailIndexForPlateNumber
+            }
+        })
 
         /**
          * @description 获取当前属性数据
@@ -704,22 +708,6 @@ export default defineComponent({
         }
 
         /**
-         * @description 获取当前页面的下拉框引用
-         */
-        const getCurrDropdownRef = () => {
-            switch (pageData.value.searchType) {
-                case 'byCar':
-                    return carSortDropdown
-                case 'byMotorcycle':
-                    return motorcycleSortDropdown
-                case 'byPlateNumber':
-                    return plateNumberSortDropdown
-                default:
-                    return ref()
-            }
-        }
-
-        /**
          * @description 选择车牌号颜色（车牌号）
          */
         const handleChangePlateColor = (colors: string[]) => {
@@ -734,9 +722,8 @@ export default defineComponent({
             setCurrPageIndex(pageIndex)
             // 遍历列表索引数据的每一项，获取对应的详情数据
             const tempPageIndex = getCurrPageIndex()
-            const tempPageSize = getCurrPageSize()
             const tempTargetIndexDatas = getCurrTargetIndexDatas()
-            sliceTargetIndexDatas.value = tempTargetIndexDatas.slice((tempPageIndex - 1) * tempPageSize, tempPageIndex * tempPageSize)
+            sliceTargetIndexDatas.value = tempTargetIndexDatas.slice((tempPageIndex - 1) * pageData.value.pageSize, tempPageIndex * pageData.value.pageSize)
             getCurrPageTargetDatas(sliceTargetIndexDatas.value)
         }
 
@@ -754,8 +741,6 @@ export default defineComponent({
          * @description 手动排序: 时间排序、通道排序
          */
         const handleSort = (sortType: string) => {
-            const dropdownRef = getCurrDropdownRef()
-            dropdownRef.value?.handleClose()
             if (sortType === 'time') {
                 if (pageData.value.sortType === 'time') {
                     // 时间排序升序降序切换
@@ -836,8 +821,7 @@ export default defineComponent({
 
             setCurrTargetIndexDatas(targetIndexDatas)
             const tempPageIndex = getCurrPageIndex()
-            const tempPageSize = getCurrPageSize()
-            sliceTargetIndexDatas.value = targetIndexDatas.slice((tempPageIndex - 1) * tempPageSize, tempPageIndex * tempPageSize)
+            sliceTargetIndexDatas.value = targetIndexDatas.slice((tempPageIndex - 1) * pageData.value.pageSize, tempPageIndex * pageData.value.pageSize)
             openLoading()
             getCurrPageTargetDatas(sliceTargetIndexDatas.value)
         }
@@ -889,8 +873,7 @@ export default defineComponent({
             }
             setCurrTargetIndexDatas(targetIndexDatas)
             const tempPageIndex = getCurrPageIndex()
-            const tempPageSize = getCurrPageSize()
-            sliceTargetIndexDatas.value = targetIndexDatas.slice((tempPageIndex - 1) * tempPageSize, tempPageIndex * tempPageSize)
+            sliceTargetIndexDatas.value = targetIndexDatas.slice((tempPageIndex - 1) * pageData.value.pageSize, tempPageIndex * pageData.value.pageSize)
             openLoading()
             getCurrPageTargetDatas(sliceTargetIndexDatas.value)
         }
@@ -902,12 +885,13 @@ export default defineComponent({
             backupPopRef.value?.startBackup({
                 isBackupPic: true,
                 isBackupVideo: false,
+                isBackupPlateCsv: pageData.value.searchType === 'byPlateNumber',
                 indexData: getCurrTargetIndexDatas().map((item) => {
                     return {
                         index: item.index,
                         chlId: item.chlID,
                         chlName: item.channelName,
-                        frameTime: item.timeStamp * 1000,
+                        frameTime: item.timeStamp,
                         startTime: item.startTime,
                         endTime: item.endTime,
                     }
@@ -918,16 +902,17 @@ export default defineComponent({
         /**
          * @description 备份选中项
          */
-        const handleBackup = (backupType: 'pic' | 'video' | 'picAndVideo') => {
+        const handleBackup = (backupType: string) => {
             backupPopRef.value?.startBackup({
-                isBackupPic: backupType === 'pic' || backupType === 'picAndVideo',
-                isBackupVideo: backupType === 'video' || backupType === 'picAndVideo',
+                isBackupPic: backupType.includes('pic'),
+                isBackupVideo: backupType.includes('video'),
+                isBackupPlateCsv: backupType.includes('csv'),
                 indexData: getCurrSelectedTargetDatas().map((item) => {
                     return {
                         index: item.index,
                         chlId: item.chlID,
                         chlName: item.channelName,
-                        frameTime: item.timeStamp * 1000,
+                        frameTime: item.timeStamp,
                         startTime: item.startTime,
                         endTime: item.endTime,
                     }
@@ -935,16 +920,17 @@ export default defineComponent({
             })
         }
 
-        const handleBackupCurrentTarget = (item: IntelTargetDataItem) => {
+        const handleBackupCurrentTarget = (item: IntelTargetDataItem | IntelTargetIndexItem, type = 'pic') => {
             backupPopRef.value?.startBackup({
-                isBackupPic: true,
-                isBackupVideo: false,
+                isBackupPic: type.includes('pic'),
+                isBackupVideo: type.includes('video'),
+                isBackupPlateCsv: type.includes('csv'),
                 indexData: [
                     {
                         index: item.index,
                         chlId: item.chlID,
                         chlName: item.channelName,
-                        frameTime: item.timeStamp * 1000,
+                        frameTime: item.timeStamp,
                     },
                 ],
             })
@@ -1030,10 +1016,12 @@ export default defineComponent({
             return currSelectedTargetDatas.length > 0
         })
 
+        const handleRegister = (item: IntelTargetDataItem) => {
+            pageData.value.isRegisterPop = true
+            pageData.value.registerPlateNumber = item.plateAttrInfo.plateNumber
+        }
+
         return {
-            carSortDropdown,
-            motorcycleSortDropdown,
-            plateNumberSortDropdown,
             pageData,
             detailRef,
             getAllTargetIndexDatas,
@@ -1052,6 +1040,12 @@ export default defineComponent({
             handleBackupCurrentTarget,
             backupPopRef,
             auth,
+            handleRegister,
+            getCurrPageIndex,
+            getCurrTargetIndexDatas,
+            setCurrPageIndex,
+            getCurrTargetDatas,
+            openDetailIndex,
         }
     },
 })

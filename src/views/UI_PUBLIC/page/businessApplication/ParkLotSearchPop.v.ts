@@ -65,7 +65,7 @@ export default defineComponent({
                 },
                 {
                     label: Translate('IDCS_BACKUP_PICTURE_ENTRY_EXIT_RECORDING'),
-                    value: 'pic,csv',
+                    value: 'pic+csv',
                 },
             ],
             plateNumber: '',
@@ -165,53 +165,55 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('status').text() === 'success') {
-                tableData.value = $('content/i').map((item) => {
-                    const isDelSnap = item.attr('s') === 'd'
-                    const split = item.text().array()
-                    const guid = hexToDec(split[3])
-                    const chlId = getChlGuid16(split[3]).toUpperCase()
-                    const timestamp = hexToDec(split[0]) * 1000
+            tableData.value = $('content/i').map((item) => {
+                const isDelSnap = item.attr('s') === 'd'
+                const split = item.text().array()
+                const guid = hexToDec(split[3])
+                const chlId = getChlGuid16(split[3]).toUpperCase()
+                const timestamp = hexToDec(split[0]) * 1000
 
-                    return {
-                        isDelSnap: isDelSnap,
-                        isNoData: false,
-                        imgId: hexToDec(split[2]) + '',
-                        timestamp,
-                        frameTime: localToUtc(timestamp) + ':' + padStart(hexToDec(split[1]), 7),
-                        guid,
-                        chlId,
-                        chlName: chlIdNameMap[chlId] || Translate('IDCS_HISTORY_CHANNEL'),
-                        recStartTime: hexToDec(split[4]) * 1000,
-                        recEndTime: hexToDec(split[5]) * 1000,
-                        pathGUID: split[6],
-                        sectionNo: hexToDec(split[7]),
-                        fileIndex: hexToDec(split[8]),
-                        bolckNo: hexToDec(split[9]),
-                        offset: hexToDec(split[10]),
-                        eventTypeID: hexToDec(split[11]),
-                        direction: split[13],
-                        openType: split[12],
-                        plateNumber: '--',
-                        pic: '',
-                        panorama: '',
-                        eventType: '',
-                        targetType: '',
-                        width: 1,
-                        height: 1,
-                        X1: 0,
-                        Y1: 0,
-                        X2: 0,
-                        Y2: 0,
-                        attribute: {},
-                        owner: '',
-                        ownerPhone: '',
-                        isRelative: split[13] ? true : false,
-                        plateEndTime: '',
-                        plateStartTime: '',
-                        remark: '',
-                    }
-                })
+                return {
+                    isDelSnap: isDelSnap,
+                    isNoData: false,
+                    imgId: hexToDec(split[2]) + '',
+                    timestamp,
+                    frameTime: localToUtc(timestamp) + ':' + padStart(hexToDec(split[1]), 7),
+                    guid,
+                    chlId,
+                    chlName: chlIdNameMap[chlId] || Translate('IDCS_HISTORY_CHANNEL'),
+                    recStartTime: hexToDec(split[4]) * 1000,
+                    recEndTime: hexToDec(split[5]) * 1000,
+                    pathGUID: split[6],
+                    sectionNo: hexToDec(split[7]),
+                    fileIndex: hexToDec(split[8]),
+                    bolckNo: hexToDec(split[9]),
+                    offset: hexToDec(split[10]),
+                    eventTypeID: hexToDec(split[11]),
+                    direction: split[13],
+                    openType: split[12],
+                    plateNumber: '--',
+                    pic: '',
+                    panorama: '',
+                    eventType: '',
+                    targetType: '',
+                    width: 1,
+                    height: 1,
+                    X1: 0,
+                    Y1: 0,
+                    X2: 0,
+                    Y2: 0,
+                    attribute: {},
+                    owner: '',
+                    ownerPhone: '',
+                    isRelative: split[13] ? true : false,
+                    plateEndTime: '',
+                    plateStartTime: '',
+                    remark: '',
+                }
+            })
+
+            if (!tableData.value.length) {
+                openMessageBox(Translate('IDCS_NO_RECORD_DATA'))
             }
 
             changeSortType()
@@ -624,7 +626,7 @@ export default defineComponent({
         const backUpItem = (index: number) => {
             const data = sliceTableData.value[index]
             backupPopRef.value?.startBackup({
-                isOldAPI: true,
+                apiType: 'legacy',
                 isBackupPic: true,
                 isBackupPassRecordCsv: false,
                 indexData: [
@@ -653,9 +655,8 @@ export default defineComponent({
         const backUp = (value: string) => {
             const isBackupPic = value.includes('pic')
             const isBackupPassRecordCsv = value.includes('csv')
-
             backupPopRef.value?.startBackup({
-                isOldAPI: true,
+                apiType: 'legacy',
                 isBackupPic,
                 isBackupPassRecordCsv,
                 indexData: sliceTableData.value
@@ -663,9 +664,7 @@ export default defineComponent({
                     .map((data) => {
                         return {
                             chlId: data.chlId,
-                            // chlID: data.chlId,
                             chlName: chlIdNameMap[data.chlId],
-                            // channelName
                             frameTime: Math.floor(data.timestamp / 1000),
                             frameTimeStr: data.frameTime,
                             imgId: data.imgId,

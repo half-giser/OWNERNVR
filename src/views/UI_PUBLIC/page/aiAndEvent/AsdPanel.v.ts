@@ -15,6 +15,7 @@ import { CanvasRenderer } from 'echarts/renderers'
 import { LineChart } from 'echarts/charts'
 import { TitleComponent, TooltipComponent, GridComponent } from 'echarts/components'
 import { type EChartsOption, type LineSeriesOption } from 'echarts'
+import AlarmBaseErrorPanel from './AlarmBaseErrorPanel.vue'
 
 export default defineComponent({
     components: {
@@ -24,6 +25,7 @@ export default defineComponent({
         AlarmBasePresetSelector,
         AlarmBaseIPSpeakerSelector,
         VChart,
+        AlarmBaseErrorPanel,
     },
     props: {
         /**

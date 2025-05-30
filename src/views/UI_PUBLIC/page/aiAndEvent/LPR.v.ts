@@ -6,10 +6,12 @@
 import AlarmBaseChannelSelector from './AlarmBaseChannelSelector.vue'
 import RecognitionPanel from './RecognitionPanel.vue'
 import { type XMLQuery } from '@/utils/xmlParse'
+import AlarmBaseErrorPanel from './AlarmBaseErrorPanel.vue'
 
 export default defineComponent({
     components: {
         AlarmBaseChannelSelector,
+        AlarmBaseErrorPanel,
         RecognitionPanel,
     },
     setup() {

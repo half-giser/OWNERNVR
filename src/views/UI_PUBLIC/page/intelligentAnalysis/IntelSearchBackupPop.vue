@@ -10,7 +10,7 @@
         v-model="pageData.isShowDialog"
         :title="pageData.title"
         :show-close="pageData.isShowDialogClose"
-        :width="600"
+        :width="500"
     >
         <el-form
             v-show="pageData.isShowForm"

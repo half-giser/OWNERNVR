@@ -56,7 +56,7 @@
                 />
                 <el-table-column
                     :label="Translate('IDCS_TEST')"
-                    width="100"
+                    width="120"
                 >
                     <template #default="{ row }: TableColumn<SystemRS485Dto>">
                         <el-button

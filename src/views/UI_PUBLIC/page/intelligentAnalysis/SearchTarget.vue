@@ -154,6 +154,7 @@
                                 :target-data="item"
                                 :detail-index="pageData.openDetailIndexForSearchTarget"
                                 :show-compare="false"
+                                :grid="pageData.isDetailOpen ? 4 : 6"
                                 search-type="bySearchTarget"
                                 @detail="showDetail(item)"
                                 @checked="handleChecked"
@@ -222,6 +223,8 @@
                     <IntelSearchDetail
                         ref="detailRef"
                         @change-item="handleChangeItem"
+                        @backup="handleBackupCurrentTarget"
+                        @search="handleRefresh"
                     />
                 </div>
             </div>
@@ -346,6 +349,7 @@
         flex-direction: column;
         justify-content: space-between;
         align-items: center;
+        flex: 1;
 
         .base-intel-row {
             .el-radio-button {
@@ -416,7 +420,11 @@
     }
 
     .base-intel-right {
-        padding: 10px;
+        flex: 1;
+    }
+
+    .intelDetail {
+        height: 100% !important;
     }
 }
 

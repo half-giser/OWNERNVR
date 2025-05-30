@@ -16,12 +16,10 @@
         class="base-ai-menu-tabs"
         @tab-change="changeTab"
     >
-        <div
-            v-if="pageData.notSupport"
-            class="base-ai-not-support-box"
-        >
-            {{ Translate('IDCS_FACE_EVENT_UNSUPORT_TIP') }}
-        </div>
+        <AlarmBaseErrorPanel
+            v-show="pageData.notSupport"
+            type="not-support"
+        />
         <!-- 侦测 -->
         <el-tab-pane
             :label="Translate('IDCS_DETECTION')"

@@ -10,6 +10,7 @@ import AlarmBasePresetSelector from './AlarmBasePresetSelector.vue'
 import AlarmBaseIPSpeakerSelector from './AlarmBaseIPSpeakerSelector.vue'
 import AlarmBaseSnapSelector from './AlarmBaseSnapSelector.vue'
 import { type XMLQuery } from '@/utils/xmlParse'
+import AlarmBaseErrorPanel from './AlarmBaseErrorPanel.vue'
 
 export default defineComponent({
     components: {
@@ -19,6 +20,7 @@ export default defineComponent({
         AlarmBasePresetSelector,
         AlarmBaseIPSpeakerSelector,
         AlarmBaseSnapSelector,
+        AlarmBaseErrorPanel,
     },
     props: {
         /**
@@ -294,14 +296,13 @@ export default defineComponent({
                             },
                         }
                     }),
+                    ipSpeaker: $trigger('triggerAudioDevice/chls/item').map((item) => {
+                        return {
+                            ipSpeakerId: item.attr('id'),
+                            audioID: item.attr('audioID'),
+                        }
+                    }),
                 }
-
-                formData.value.ipSpeaker = $trigger('triggerAudioDevice/chls/item').map((item) => {
-                    return {
-                        ipSpeakerId: item.attr('id'),
-                        audioID: item.attr('audioID'),
-                    }
-                })
 
                 if (formData.value.audioSuport && props.chlData.supportAudio) {
                     formData.value.triggerList.push('triggerAudio')
@@ -578,7 +579,7 @@ export default defineComponent({
          */
         const changeArea = (points: CanvasBaseArea | CanvasBasePoint[]) => {
             const index = pageData.value.maskAreaIndex
-            formData.value.maskAreaInfo[index].point = points
+            formData.value.maskAreaInfo[index].point = points as CanvasBasePoint[]
 
             if (pageData.value.isShowAllArea) {
                 showAllArea(true)

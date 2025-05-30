@@ -186,7 +186,7 @@ export function WebGLPlayer(canvas: HTMLCanvasElement, option: Record<string, an
         } else if (canvas.mozRequestFullScreen) {
             canvas.mozRequestFullScreen()
         } else {
-            alert("This browser doesn't supporter fullscreen")
+            openMessageBox("This browser doesn't support fullscreen")
         }
     }
 

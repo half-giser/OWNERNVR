@@ -3,18 +3,13 @@
  * @Date: 2025-05-21 10:30:00
  * @Description: 智能分析-人、车
  */
-import IntelFaceDBSnapRegisterPop from './IntelFaceDBSnapRegisterPop.vue'
-
 export default defineComponent({
-    components: {
-        IntelFaceDBSnapRegisterPop,
-    },
     props: {
         /**
          * @property 当前搜索类型
          */
         searchType: {
-            type: String,
+            type: String as PropType<'byFace' | 'bySearchTarget' | 'byBody' | 'byPlateNumber' | 'byPassRecord' | 'byMotorcycle' | 'byCar' | 'byPersonAttribute'>,
             default: 'byFace',
         },
         /**
@@ -47,6 +42,20 @@ export default defineComponent({
             default: () => [new IntelFaceDBSnapFaceList()],
             require: true,
         },
+        /**
+         * @property 每行显示数量
+         */
+        grid: {
+            type: Number,
+            default: 6,
+        },
+        /**
+         * @property 比例 高/宽
+         */
+        ratio: {
+            type: String,
+            default: '133%',
+        },
     },
     emits: {
         detail() {
@@ -59,6 +68,9 @@ export default defineComponent({
             return !!targetData
         },
         backup(targetData: IntelTargetDataItem) {
+            return !!targetData
+        },
+        register(targetData: IntelTargetDataItem) {
             return !!targetData
         },
     },
@@ -110,11 +122,7 @@ export default defineComponent({
          * @description 注册（人脸、车牌号）
          */
         const handleRegister = () => {
-            if (prop.searchType === 'byFace') {
-                pageData.value.isRegisterFacePop = true
-            } else if (prop.searchType === 'byPlateNumber') {
-                pageData.value.isRegisterPlatePop = true
-            }
+            ctx.emit('register', prop.targetData)
         }
 
         /**

@@ -10,6 +10,7 @@
             placement="top"
             :width="Math.ceil(pageData.list.length / 9) * 110"
             popper-class="no-padding"
+            :disabled="!pageData.switch"
         >
             <template #reference>
                 <BaseImgSpriteBtn
@@ -17,6 +18,7 @@
                     file="custom_operate"
                     :title="pageData.name"
                     :active="pageData.isRS485Pop"
+                    :disabled="!pageData.switch"
                 />
             </template>
             <div>
