@@ -15,10 +15,7 @@
                 />
             </div>
             <!-- 只存在一个播放器，因此放于tab区域外 -->
-            <div
-                v-show="pageData.tab !== 'trigger'"
-                class="base-ai-param-box-left fixed"
-            >
+            <div class="base-ai-param-box-left fixed">
                 <div class="player">
                     <BaseVideoPlayer
                         ref="playerRef"
@@ -52,7 +49,6 @@
                 </div>
             </div>
             <div class="base-ai-form">
-                <!-- 三种功能 -->
                 <el-tabs
                     v-model="pageData.tab"
                     class="base-ai-tabs"
@@ -79,8 +75,7 @@
                                     </el-form-item>
                                     <!-- 规则 -->
                                     <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
-                                    <!-- 持续时间 -->
-                                    <el-form-item :label="pageData.lineAreaTxt">
+                                    <el-form-item :label="`${Translate('IDCS_LINE')}/${Translate('IDCS_AREA')}`">
                                         <el-select-v2
                                             v-model="pageData.detectType"
                                             :options="pageData.detectTypeList"

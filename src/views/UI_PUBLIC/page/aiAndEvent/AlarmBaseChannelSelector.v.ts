@@ -5,10 +5,6 @@
  */
 export default defineComponent({
     props: {
-        height: {
-            type: Number,
-            default: 140,
-        },
         list: {
             type: Array as PropType<{ id: string; name: string }[]>,
             default: () => [],
