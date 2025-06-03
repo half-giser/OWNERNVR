@@ -21,6 +21,7 @@
             <BaseImgSprite
                 class="item-thumbnail-404"
                 file="empty"
+                :scale="size === 'small' ? 0.4 : 0.6"
             />
             <img :src="pic" />
         </div>
@@ -89,10 +90,6 @@
 
         .item-thumbnail {
             height: 58px;
-
-            &-404 {
-                transform: translate3d(-50%, -50%, 0) scale(0.4);
-            }
         }
     }
 
@@ -106,7 +103,7 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate3d(-50%, -50%, 0) scale(0.6);
+            transform: translate3d(-50%, -50%, 0);
             pointer-events: none;
         }
 

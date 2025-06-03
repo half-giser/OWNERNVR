@@ -184,8 +184,9 @@
                                     value: 'index',
                                     label: 'name',
                                 }"
+                                popper-class="intersect-ocx"
+                                :persistent="true"
                                 @change="play"
-                                @visible-change="toggleOCX"
                             />
                         </el-form>
                         <div class="player">

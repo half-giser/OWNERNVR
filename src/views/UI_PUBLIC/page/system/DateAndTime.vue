@@ -89,6 +89,7 @@
                     v-model="formData.timeZone"
                     :options="pageData.timeZoneOption"
                     :props="{ value: 'timeZone' }"
+                    :persistent="true"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_DST')">
@@ -106,9 +107,3 @@
 </template>
 
 <script lang="ts" src="./DateAndTime.v.ts"></script>
-
-<style lang="scss" scoped>
-.is-sync {
-    margin-left: 10px;
-}
-</style>

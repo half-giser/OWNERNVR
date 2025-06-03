@@ -374,23 +374,23 @@
                                             />
                                         </template>
                                     </el-form-item>
-                                    <el-form-item v-if="formData.countOSD.supportOsdWelcomeName">
-                                        <template #label>{{ Translate('IDCS_BELOW_THRESHOLD') }}</template>
-                                        <template #default>
-                                            <input
-                                                v-model="formData.countOSD.osdWelcomeName"
-                                                :maxlength="formData.countOSD.osdWelcomeNameMaxLen"
-                                            />
-                                        </template>
+                                    <el-form-item
+                                        v-if="formData.countOSD.supportOsdWelcomeName"
+                                        :label="Translate('IDCS_BELOW_THRESHOLD')"
+                                    >
+                                        <input
+                                            v-model="formData.countOSD.osdWelcomeName"
+                                            :maxlength="formData.countOSD.osdWelcomeNameMaxLen"
+                                        />
                                     </el-form-item>
-                                    <el-form-item v-if="formData.countOSD.supportOsdAlarmName">
-                                        <template #label>{{ Translate('IDCS_OVER_THRESHOLD') }}</template>
-                                        <template #default>
-                                            <input
-                                                v-model="formData.countOSD.osdAlarmName"
-                                                :maxlength="formData.countOSD.osdAlarmNameMaxLen"
-                                            />
-                                        </template>
+                                    <el-form-item
+                                        v-if="formData.countOSD.supportOsdAlarmName"
+                                        :label="Translate('IDCS_OVER_THRESHOLD')"
+                                    >
+                                        <input
+                                            v-model="formData.countOSD.osdAlarmName"
+                                            :maxlength="formData.countOSD.osdAlarmNameMaxLen"
+                                        />
                                     </el-form-item>
                                 </el-form>
                             </div>
@@ -474,15 +474,12 @@
                             <div class="base-ai-subheading">
                                 {{ Translate('IDCS_RESET_INFO') }}
                             </div>
-                            <el-form-item>
-                                <template #label>{{ Translate('IDCS_AUTO_RESET') }}</template>
-                                <template #default>
-                                    <el-checkbox
-                                        v-model="pageData.autoReset"
-                                        :label="Translate('IDCS_ENABLE')"
-                                        @change="changeAutoReset"
-                                    />
-                                </template>
+                            <el-form-item :label="Translate('IDCS_AUTO_RESET')">
+                                <el-checkbox
+                                    v-model="pageData.autoReset"
+                                    :label="Translate('IDCS_ENABLE')"
+                                    @change="changeAutoReset"
+                                />
                             </el-form-item>
                             <!-- 模式 -->
                             <el-form-item :label="Translate('IDCS_MODE')">

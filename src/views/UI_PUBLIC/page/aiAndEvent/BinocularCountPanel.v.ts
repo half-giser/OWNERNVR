@@ -596,143 +596,143 @@ export default defineComponent({
                     <chl id="${props.currChlId}" scheduleGuid="${pageData.value.schedule}">
                        ${
                            props.chlData.supportBinocularCountConfig
-                               ? `
-                        <param>
-                            <switch>${data.detectionEnable}</switch>
-                            <alarmHoldTime unit="s">${data.holdTime}</alarmHoldTime>
-                            <sensitivity>${data.sensitivity.value}</sensitivity>
-                            <overcrowdingThreshold>${data.overcrowdingThreshold.value}</overcrowdingThreshold>
-                            ${data.pictureAvailable ? rawXml`<saveSourcePicture>${data.saveSourcePicture}</saveSourcePicture>` : ''}
-                            <rule ruleRelationType="mutex">
-                                <line type="list" count="${data.lineInfo.length ? data.lineInfo.length : 0}">
-                                 ${
-                                     !pageData.value.isClearLine
-                                         ? rawXml`
-                                    ${data.lineInfo
-                                        .map((element) => {
-                                            return rawXml`
-                                                <item>
-                                                    <direction type="direction">${element.direction}</direction>
-                                                    <startPoint>
-                                                        <X>${element.startPoint.X}</X>
-                                                        <Y>${element.startPoint.Y}</Y>
-                                                    </startPoint>
-                                                    <endPoint>
-                                                        <X>${element.endPoint.X}</X>
-                                                        <Y>${element.endPoint.Y}</Y>
-                                                    </endPoint>
-                                                </item>
-                                            `
-                                        })
-                                        .join('')}
-                                    `
-                                         : ''
-                                 }
+                               ? rawXml`
+                                <param>
+                                    <switch>${data.detectionEnable}</switch>
+                                    <alarmHoldTime unit="s">${data.holdTime}</alarmHoldTime>
+                                    <sensitivity>${data.sensitivity.value}</sensitivity>
+                                    <overcrowdingThreshold>${data.overcrowdingThreshold.value}</overcrowdingThreshold>
+                                    ${data.pictureAvailable ? rawXml`<saveSourcePicture>${data.saveSourcePicture}</saveSourcePicture>` : ''}
+                                    <rule ruleRelationType="mutex">
+                                        <line type="list" count="${data.lineInfo.length ? data.lineInfo.length : 0}">
+                                        ${
+                                            !pageData.value.isClearLine
+                                                ? rawXml`
+                                                    ${data.lineInfo
+                                                        .map((element) => {
+                                                            return rawXml`
+                                                                <item>
+                                                                    <direction type="direction">${element.direction}</direction>
+                                                                    <startPoint>
+                                                                        <X>${element.startPoint.X}</X>
+                                                                        <Y>${element.startPoint.Y}</Y>
+                                                                    </startPoint>
+                                                                    <endPoint>
+                                                                        <X>${element.endPoint.X}</X>
+                                                                        <Y>${element.endPoint.Y}</Y>
+                                                                    </endPoint>
+                                                                </item>
+                                                            `
+                                                        })
+                                                        .join('')}
+                                                    `
+                                                : ''
+                                        }
 
-                                </line>
-                                <boundary type="list" count="${data.boundaryInfo.length ? data.boundaryInfo.length : 0}">
-                                ${
-                                    !pageData.value.isClearArea
-                                        ? rawXml`
-                                         ${data.boundaryInfo
-                                             .map((element) => {
-                                                 return rawXml`
-                                                <item>
-                                                    <direction type="direction">${element.direction}</direction>
-                                                    <rectA>
-                                                        <point type="list" maxCount="${element.rectA.maxCount}" count="${element.rectA.point.length}">
-                                                            ${element.rectA.point
-                                                                .map((point, index) => {
-                                                                    return rawXml`
-                                                                        <item index="${index}">
-                                                                            <X>${Math.floor(point.X)}</X>
-                                                                            <Y>${Math.floor(point.Y)}</Y>
-                                                                        </item>
-                                                                    `
-                                                                })
-                                                                .join('')}
-                                                        </point>
-                                                    </rectA>
-                                                    <rectB>
-                                                        <point type="list" maxCount="${element.rectB.maxCount}" count="${element.rectB.point.length}">
-                                                            ${element.rectB.point
-                                                                .map((point, index) => {
-                                                                    return rawXml`
-                                                                        <item index="${index}">
-                                                                            <X>${Math.floor(point.X)}</X>
-                                                                            <Y>${Math.floor(point.Y)}</Y>
-                                                                        </item>
-                                                                    `
-                                                                })
-                                                                .join('')}
-                                                        </point>
-                                                    </rectB>
-                                                </item>
-                                                `
-                                             })
-                                             .join('')}
-                                         `
-                                        : ''
-                                }
+                                        </line>
+                                        <boundary type="list" count="${data.boundaryInfo.length ? data.boundaryInfo.length : 0}">
+                                        ${
+                                            !pageData.value.isClearArea
+                                                ? rawXml`
+                                                    ${data.boundaryInfo
+                                                        .map((element) => {
+                                                            return rawXml`
+                                                                <item>
+                                                                    <direction type="direction">${element.direction}</direction>
+                                                                    <rectA>
+                                                                        <point type="list" maxCount="${element.rectA.maxCount}" count="${element.rectA.point.length}">
+                                                                            ${element.rectA.point
+                                                                                .map((point, index) => {
+                                                                                    return rawXml`
+                                                                                        <item index="${index}">
+                                                                                            <X>${Math.floor(point.X)}</X>
+                                                                                            <Y>${Math.floor(point.Y)}</Y>
+                                                                                        </item>
+                                                                                    `
+                                                                                })
+                                                                                .join('')}
+                                                                        </point>
+                                                                    </rectA>
+                                                                    <rectB>
+                                                                        <point type="list" maxCount="${element.rectB.maxCount}" count="${element.rectB.point.length}">
+                                                                            ${element.rectB.point
+                                                                                .map((point, index) => {
+                                                                                    return rawXml`
+                                                                                        <item index="${index}">
+                                                                                            <X>${Math.floor(point.X)}</X>
+                                                                                            <Y>${Math.floor(point.Y)}</Y>
+                                                                                        </item>
+                                                                                    `
+                                                                                })
+                                                                                .join('')}
+                                                                        </point>
+                                                                    </rectB>
+                                                                </item>
+                                                            `
+                                                        })
+                                                        .join('')}
+                                                    `
+                                                : ''
+                                        }
 
-                                </boundary>
-                            </rule>
-                             <countPeriod>
-                                <countTimeType>${data.countPeriod.countTimeType}</countTimeType>
-                                <daily>
-                                    <dateSpan>${data.countPeriod.day.date}</dateSpan>
-                                    <dateTimeSpan>${data.countPeriod.day.dateTime}</dateTimeSpan>
-                                </daily>
-                                <weekly>
-                                    <dateSpan>${data.countPeriod.week.date}</dateSpan>
-                                    <dateTimeSpan>${data.countPeriod.week.dateTime}</dateTimeSpan>
-                                </weekly>
-                                <monthly>
-                                    <dateSpan>${data.countPeriod.month.date}</dateSpan>
-                                    <dateTimeSpan>${data.countPeriod.month.dateTime}</dateTimeSpan>
-                                </monthly>
-                            </countPeriod>
-                            <calibration>
-                                <mode type="calibrationMode" default="auto">${data.calibration.modeType}</mode>
-                                <height>${data.calibration.height.value}</height>
-                                ${
-                                    !getRegionInfoIsEmpty(data.calibration.regionInfo)
-                                        ? `
-                                     <regionInfo>
-                                        <X1>${Math.floor(data.calibration.regionInfo.X1)}</X1>
-                                        <Y1>${Math.floor(data.calibration.regionInfo.Y1)}</Y1>
-                                        <X2>${Math.floor(data.calibration.regionInfo.X2)}</X2>
-                                        <Y2>${Math.floor(data.calibration.regionInfo.Y2)}</Y2>
-                                     </regionInfo>`
-                                        : ''
-                                }
+                                        </boundary>
+                                    </rule>
+                                    <countPeriod>
+                                        <countTimeType>${data.countPeriod.countTimeType}</countTimeType>
+                                        <daily>
+                                            <dateSpan>${data.countPeriod.day.date}</dateSpan>
+                                            <dateTimeSpan>${data.countPeriod.day.dateTime}</dateTimeSpan>
+                                        </daily>
+                                        <weekly>
+                                            <dateSpan>${data.countPeriod.week.date}</dateSpan>
+                                            <dateTimeSpan>${data.countPeriod.week.dateTime}</dateTimeSpan>
+                                        </weekly>
+                                        <monthly>
+                                            <dateSpan>${data.countPeriod.month.date}</dateSpan>
+                                            <dateTimeSpan>${data.countPeriod.month.dateTime}</dateTimeSpan>
+                                        </monthly>
+                                    </countPeriod>
+                                    <calibration>
+                                        <mode type="calibrationMode" default="auto">${data.calibration.modeType}</mode>
+                                        <height>${data.calibration.height.value}</height>
+                                        ${
+                                            !getRegionInfoIsEmpty(data.calibration.regionInfo)
+                                                ? rawXml`
+                                                    <regionInfo>
+                                                        <X1>${Math.floor(data.calibration.regionInfo.X1)}</X1>
+                                                        <Y1>${Math.floor(data.calibration.regionInfo.Y1)}</Y1>
+                                                        <X2>${Math.floor(data.calibration.regionInfo.X2)}</X2>
+                                                        <Y2>${Math.floor(data.calibration.regionInfo.Y2)}</Y2>
+                                                    </regionInfo>`
+                                                : ''
+                                        }
 
-                            </calibration>
-                             <countOSD>
-                                <switch>${data.countOSD.switch}</switch>
-                                <X>${data.countOSD.X}</X>
-                                <Y>${data.countOSD.Y}</Y>
-                                <showEnterOsd>${data.countOSD.showEnterOsd}</showEnterOsd>
-                                <showExitOsd>${data.countOSD.showExitOsd}</showExitOsd>
-                                <showStayOsd>${data.countOSD.showStayOsd}</showStayOsd>
-                                <osdPersonName>${data.countOSD.osdPersonName}</osdPersonName>
-                                <osdChildName>${data.countOSD.osdChildName}</osdChildName>
-                                <osdAlarmName>${data.countOSD.osdAlarmName}</osdAlarmName>
-                                <osdWelcomeName>${data.countOSD.osdWelcomeName}</osdWelcomeName>
-                                ${data.countOSD.showEnterOsd ? `<osdEntranceName>${data.countOSD.osdEntranceName}</osdEntranceName>` : ''}
-                                ${data.countOSD.showExitOsd ? `<osdExitName>${data.countOSD.osdExitName}</osdExitName>` : ''}
-                                ${data.countOSD.showStayOsd ? `<osdStayName>${data.countOSD.osdStayName}</osdStayName>` : ''}
-                            </countOSD>
-                            <heightFilter>
-                                <switch>${data.enableHeightFilter}</switch>
-                                ${data.enableHeightFilter ? `<heightLowerLimit>${data.heightLowerLimit.value}</heightLowerLimit>` : ''}
-                            </heightFilter>
-                            <childFilter>
-                                <switch>${data.enableChildFilter}</switch>
-                                ${data.enableChildFilter ? `<heightUpperLimit>${data.childHeightLowerLimit.value}</heightUpperLimit>` : ''}
-                            </childFilter>
-                        </param>
-                        `
+                                    </calibration>
+                                    <countOSD>
+                                        <switch>${data.countOSD.switch}</switch>
+                                        <X>${data.countOSD.X}</X>
+                                        <Y>${data.countOSD.Y}</Y>
+                                        <showEnterOsd>${data.countOSD.showEnterOsd}</showEnterOsd>
+                                        <showExitOsd>${data.countOSD.showExitOsd}</showExitOsd>
+                                        <showStayOsd>${data.countOSD.showStayOsd}</showStayOsd>
+                                        <osdPersonName>${data.countOSD.osdPersonName}</osdPersonName>
+                                        <osdChildName>${data.countOSD.osdChildName}</osdChildName>
+                                        <osdAlarmName>${data.countOSD.osdAlarmName}</osdAlarmName>
+                                        <osdWelcomeName>${data.countOSD.osdWelcomeName}</osdWelcomeName>
+                                        ${data.countOSD.showEnterOsd ? `<osdEntranceName>${data.countOSD.osdEntranceName}</osdEntranceName>` : ''}
+                                        ${data.countOSD.showExitOsd ? `<osdExitName>${data.countOSD.osdExitName}</osdExitName>` : ''}
+                                        ${data.countOSD.showStayOsd ? `<osdStayName>${data.countOSD.osdStayName}</osdStayName>` : ''}
+                                    </countOSD>
+                                    <heightFilter>
+                                        <switch>${data.enableHeightFilter}</switch>
+                                        ${data.enableHeightFilter ? `<heightLowerLimit>${data.heightLowerLimit.value}</heightLowerLimit>` : ''}
+                                    </heightFilter>
+                                    <childFilter>
+                                        <switch>${data.enableChildFilter}</switch>
+                                        ${data.enableChildFilter ? `<heightUpperLimit>${data.childHeightLowerLimit.value}</heightUpperLimit>` : ''}
+                                    </childFilter>
+                                </param>
+                                `
                                : ''
                        }
                     </chl>

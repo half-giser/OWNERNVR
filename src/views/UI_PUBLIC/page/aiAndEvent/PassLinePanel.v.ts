@@ -967,26 +967,29 @@ export default defineComponent({
                                 <switch>${formData.value.countOSD.switch}</switch>
                                 <X>${Math.round(formData.value.countOSD.X)}</X>
                                 <Y>${Math.round(formData.value.countOSD.Y)}</Y>
-                            ${
-                                formData.value.countOSD.supportOsdEntranceName
-                                    ? `<showEnterOsd>${formData.value.countOSD.showEnterOsd}</showEnterOsd>
-                                <osdEntranceName>${formData.value.countOSD.osdEntranceName}</osdEntranceName>`
-                                    : ''
-                            }
-                             ${
-                                 formData.value.countOSD.supportOsdExitName
-                                     ? `<showExitOsd>${formData.value.countOSD.showExitOsd}</showExitOsd>
-                                <osdExitName>${formData.value.countOSD.osdExitName}</osdExitName>`
-                                     : ''
-                             }
-                             ${
-                                 formData.value.countOSD.supportOsdStayName
-                                     ? `<showStayOsd>${formData.value.countOSD.showStayOsd}</showStayOsd>
-                                <osdStayName>${formData.value.countOSD.osdStayName}</osdStayName>`
-                                     : ''
-                             }
-                             ${formData.value.countOSD.supportOsdAlarmName ? `<osdAlarmName>${formData.value.countOSD.osdAlarmName}</osdAlarmName>` : ''}
-                             ${formData.value.countOSD.supportOsdWelcomeName ? `<osdWelcomeName>${formData.value.countOSD.osdWelcomeName}</osdWelcomeName>` : ''}
+                                ${
+                                    formData.value.countOSD.supportOsdEntranceName
+                                        ? rawXml`
+                                            <showEnterOsd>${formData.value.countOSD.showEnterOsd}</showEnterOsd>
+                                            <osdEntranceName>${formData.value.countOSD.osdEntranceName}</osdEntranceName>`
+                                        : ''
+                                }
+                                ${
+                                    formData.value.countOSD.supportOsdExitName
+                                        ? rawXml`
+                                            <showExitOsd>${formData.value.countOSD.showExitOsd}</showExitOsd>
+                                            <osdExitName>${formData.value.countOSD.osdExitName}</osdExitName>`
+                                        : ''
+                                }
+                                ${
+                                    formData.value.countOSD.supportOsdStayName
+                                        ? rawXml`
+                                            <showStayOsd>${formData.value.countOSD.showStayOsd}</showStayOsd>
+                                            <osdStayName>${formData.value.countOSD.osdStayName}</osdStayName>`
+                                        : ''
+                                }
+                                ${formData.value.countOSD.supportOsdAlarmName ? `<osdAlarmName>${formData.value.countOSD.osdAlarmName}</osdAlarmName>` : ''}
+                                ${formData.value.countOSD.supportOsdWelcomeName ? `<osdWelcomeName>${formData.value.countOSD.osdWelcomeName}</osdWelcomeName>` : ''}
                             </countOSD>
                             ${formData.value.audioSuport && props.chlData.supportAudio ? `<triggerAudio>${formData.value.trigger.includes('triggerAudio')}</triggerAudio>` : ''}
                             ${formData.value.lightSuport && props.chlData.supportWhiteLight ? `<triggerWhiteLight>${formData.value.trigger.includes('triggerWhiteLight')}</triggerWhiteLight>` : ''}
@@ -1017,10 +1020,10 @@ export default defineComponent({
                             </line>
                             ${setParamObjectFilterData()}
                         </param>
-                       <trigger>
+                        <trigger>
                             <sysRec>
                                 <chls type="list">
-                                    ${formData.value.recordChls.map((element: { value: any; label: string }) => `<item id="${element.value}">${wrapCDATA(element.label)}</item>`).join('')}
+                                    ${formData.value.recordChls.map((element) => `<item id="${element.value}">${wrapCDATA(element.label)}</item>`).join('')}
                                 </chls>
                             </sysRec>
                             <alarmOut>
@@ -1033,11 +1036,11 @@ export default defineComponent({
                                     ${formData.value.presets
                                         .map((item) => {
                                             return rawXml`
-                                            <item>
-                                                <index>${item.index}</index>
-                                                <name>${wrapCDATA(item.name)}</name>
-                                                <chl id='${item.chl.value}'>${wrapCDATA(item.chl.label)}</chl>
-                                            </item>`
+                                                <item>
+                                                    <index>${item.index}</index>
+                                                    <name>${wrapCDATA(item.name)}</name>
+                                                    <chl id='${item.chl.value}'>${wrapCDATA(item.chl.label)}</chl>
+                                                </item>`
                                         })
                                         .join('')}
                                 </presets>
@@ -1046,7 +1049,7 @@ export default defineComponent({
                                 <chls type="list">
                                 ${formData.value.ipSpeaker
                                     .map((item) => {
-                                        return rawXml`<item id='${item.ipSpeakerId}' audioID='${item.audioID}'/>`
+                                        return `<item id='${item.ipSpeakerId}' audioID='${item.audioID}'/>`
                                     })
                                     .join('')}
                                 </chls>

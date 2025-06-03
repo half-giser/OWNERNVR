@@ -300,41 +300,29 @@
                                             />
                                         </template>
                                     </el-form-item>
-                                    <el-form-item>
-                                        <template #label>{{ Translate('IDCS_HUMAN_COUNT') }}</template>
-                                        <template #default>
-                                            <input
-                                                v-model="formData.countOSD.osdPersonName"
-                                                :maxlength="12"
-                                            />
-                                        </template>
+                                    <el-form-item :label="Translate('IDCS_HUMAN_COUNT')">
+                                        <input
+                                            v-model="formData.countOSD.osdPersonName"
+                                            :maxlength="12"
+                                        />
                                     </el-form-item>
-                                    <el-form-item>
-                                        <template #label>{{ Translate('IDCS_CHILD_COUNT') }}</template>
-                                        <template #default>
-                                            <input
-                                                v-model="formData.countOSD.osdChildName"
-                                                :maxlength="12"
-                                            />
-                                        </template>
+                                    <el-form-item :label="Translate('IDCS_CHILD_COUNT')">
+                                        <input
+                                            v-model="formData.countOSD.osdChildName"
+                                            :maxlength="12"
+                                        />
                                     </el-form-item>
-                                    <el-form-item>
-                                        <template #label>{{ Translate('IDCS_BELOW_THRESHOLD') }}</template>
-                                        <template #default>
-                                            <input
-                                                v-model="formData.countOSD.osdWelcomeName"
-                                                :maxlength="12"
-                                            />
-                                        </template>
+                                    <el-form-item :label="Translate('IDCS_BELOW_THRESHOLD')">
+                                        <input
+                                            v-model="formData.countOSD.osdWelcomeName"
+                                            :maxlength="12"
+                                        />
                                     </el-form-item>
-                                    <el-form-item>
-                                        <template #label>{{ Translate('IDCS_OVER_THRESHOLD') }}</template>
-                                        <template #default>
-                                            <input
-                                                v-model="formData.countOSD.osdAlarmName"
-                                                :maxlength="12"
-                                            />
-                                        </template>
+                                    <el-form-item :label="Translate('IDCS_OVER_THRESHOLD')">
+                                        <input
+                                            v-model="formData.countOSD.osdAlarmName"
+                                            :maxlength="12"
+                                        />
                                     </el-form-item>
                                 </el-form>
                             </div>

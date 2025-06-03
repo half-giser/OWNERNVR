@@ -688,20 +688,23 @@ export default defineComponent({
                                 <Y>${Math.round(formData.value.countOSD.Y)}</Y>
                             ${
                                 formData.value.countOSD.supportOsdEntranceName
-                                    ? `<showEnterOsd>${formData.value.countOSD.showEnterOsd}</showEnterOsd>
-                                <osdEntranceName>${formData.value.countOSD.osdEntranceName}</osdEntranceName>`
+                                    ? rawXml`
+                                        <showEnterOsd>${formData.value.countOSD.showEnterOsd}</showEnterOsd>
+                                        <osdEntranceName>${formData.value.countOSD.osdEntranceName}</osdEntranceName>`
                                     : ''
                             }
                              ${
                                  formData.value.countOSD.supportOsdExitName
-                                     ? `<showExitOsd>${formData.value.countOSD.showExitOsd}</showExitOsd>
-                                <osdExitName>${formData.value.countOSD.osdExitName}</osdExitName>`
+                                     ? rawXml`
+                                        <showExitOsd>${formData.value.countOSD.showExitOsd}</showExitOsd>
+                                        <osdExitName>${formData.value.countOSD.osdExitName}</osdExitName>`
                                      : ''
                              }
                              ${
                                  formData.value.countOSD.supportOsdStayName
-                                     ? `<showStayOsd>${formData.value.countOSD.showStayOsd}</showStayOsd>
-                                <osdStayName>${formData.value.countOSD.osdStayName}</osdStayName>`
+                                     ? rawXml`
+                                        <showStayOsd>${formData.value.countOSD.showStayOsd}</showStayOsd>
+                                        <osdStayName>${formData.value.countOSD.osdStayName}</osdStayName>`
                                      : ''
                              }
                              ${formData.value.countOSD.supportOsdAlarmName ? `<osdAlarmName>${formData.value.countOSD.osdAlarmName}</osdAlarmName>` : ''}
@@ -732,7 +735,7 @@ export default defineComponent({
                                                         })
                                                         .join('')}
                                                 </point>
-                                                    ${setItemObjectFilterData(element)}
+                                                ${setItemObjectFilterData(element)}
                                             </item>
                                         `
                                     })
@@ -756,11 +759,11 @@ export default defineComponent({
                                     ${formData.value.presets
                                         .map((item) => {
                                             return rawXml`
-                                            <item>
-                                                <index>${item.index}</index>
-                                                <name>${wrapCDATA(item.name)}</name>
-                                                <chl id='${item.chl.value}'>${wrapCDATA(item.chl.label)}</chl>
-                                            </item>`
+                                                <item>
+                                                    <index>${item.index}</index>
+                                                    <name>${wrapCDATA(item.name)}</name>
+                                                    <chl id='${item.chl.value}'>${wrapCDATA(item.chl.label)}</chl>
+                                                </item>`
                                         })
                                         .join('')}
                                 </presets>
@@ -769,7 +772,7 @@ export default defineComponent({
                                 <chls type="list">
                                 ${formData.value.ipSpeaker
                                     .map((item) => {
-                                        return rawXml`<item id='${item.ipSpeakerId}' audioID='${item.audioID}'/>`
+                                        return `<item id='${item.ipSpeakerId}' audioID='${item.audioID}'/>`
                                     })
                                     .join('')}
                                 </chls>

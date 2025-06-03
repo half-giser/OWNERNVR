@@ -330,12 +330,6 @@ export default defineComponent({
             }
         }
 
-        const toggleOCX = (bool: boolean) => {
-            if (mode.value === 'ocx') {
-                plugin.DisplayOCX(!bool)
-            }
-        }
-
         /**
          * @description 改变字体颜色，重新渲染POS绘制
          * @param {string} value
@@ -489,7 +483,6 @@ export default defineComponent({
             play,
             playerRef,
             div,
-            toggleOCX,
         }
     },
 })
