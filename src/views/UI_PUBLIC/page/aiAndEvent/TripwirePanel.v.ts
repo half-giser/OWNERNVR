@@ -88,10 +88,6 @@ export default defineComponent({
             surfaceChecked: [] as number[],
             // 是否显示全部区域绑定值
             isShowAllArea: false,
-            // 控制显示展示全部区域的checkbox
-            showAllAreaVisible: false,
-            // 控制显示清除全部区域按钮 >=2才显示
-            clearAllVisible: false,
             // 控制显示最值区域
             isShowDisplayRange: false,
             // 云台speed
@@ -678,22 +674,15 @@ export default defineComponent({
         const changeTab = async () => {
             if (pageData.value.tab === 'param') {
                 if (mode.value === 'h5') {
-                    setTripwireOcxData()
                     drawer.setEnable('line', true)
                 }
 
                 if (mode.value === 'ocx') {
-                    const surface = pageData.value.surfaceIndex
-                    const sendXML1 = OCX_XML_SetTripwireLine(formData.value.lineInfo[surface])
-                    plugin.ExecuteCmd(sendXML1)
-
                     const sendXML2 = OCX_XML_SetTripwireLineAction('EDIT_ON')
                     plugin.ExecuteCmd(sendXML2)
                 }
 
-                if (pageData.value.isShowAllArea) {
-                    showAllArea(true)
-                }
+                setTripwireOcxData()
             } else if (pageData.value.tab === 'trigger') {
                 showAllArea(false)
 
@@ -724,14 +713,6 @@ export default defineComponent({
                     return -1
                 }
             })
-
-            if (formData.value.lineInfo.length > 1) {
-                pageData.value.showAllAreaVisible = true
-                pageData.value.clearAllVisible = true
-            } else {
-                pageData.value.showAllAreaVisible = false
-                pageData.value.clearAllVisible = false
-            }
         }
 
         /**
@@ -871,7 +852,6 @@ export default defineComponent({
             if (pageData.value.isShowAllArea) {
                 showAllArea(true)
             }
-            refreshInitPage()
         }
 
         /**
@@ -1085,7 +1065,6 @@ export default defineComponent({
                     X: $('statenotify/endPoint').attr('X').num(),
                     Y: $('statenotify/endPoint').attr('Y').num(),
                 }
-                refreshInitPage()
             }
         }
 

@@ -61,9 +61,9 @@
                     class="no-padding"
                 >
                     <el-select-v2
-                        v-show="pageData.calendarOptions.length"
+                        v-show="calendarOptions.length"
                         v-model="formData.calendarType"
-                        :options="pageData.calendarOptions"
+                        :options="calendarOptions"
                     />
                 </el-form-item>
                 <div class="base-btn-box collapse">

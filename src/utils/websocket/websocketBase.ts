@@ -276,7 +276,7 @@ export const WebsocketBase = (option: WebsocketBaseOption) => {
 
     // 开启心跳
     const openHeartBeat = () => {
-        heartBeatTimer = setInterval(function () {
+        heartBeatTimer = setInterval(() => {
             if (isSTANDARD) {
                 if (ws.readyState === 1) {
                     console.log('websocket keep connect')

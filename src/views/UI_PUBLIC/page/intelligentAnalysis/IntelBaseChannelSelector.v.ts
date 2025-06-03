@@ -21,6 +21,10 @@ export default defineComponent({
             type: String,
             default: 'channel',
         },
+        keepRemovedChl: {
+            type: Boolean,
+            default: true,
+        },
     },
     emits: {
         'update:modelValue'(selection: string[]) {
@@ -113,16 +117,18 @@ export default defineComponent({
                     const $item = queryXml(item.element)
                     const text = $item('name').text()
                     const id = item.attr('id')
-                    if (id === DEFAULT_EMPTY_ID) {
-                        return null
-                    }
                     chlMap[id] = text
                     return {
                         label: text,
                         value: id,
                     }
                 })
-                .filter((item) => item !== null) // NTA1-1294 不显示已删除通道
+                .filter((item) => {
+                    if (prop.keepRemovedChl) {
+                        return true
+                    }
+                    return item.value !== DEFAULT_EMPTY_ID
+                }) // NTA1-1294 不显示已删除通道
         }
 
         // 打开弹窗时 重置选项

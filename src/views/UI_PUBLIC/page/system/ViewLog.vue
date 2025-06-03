@@ -184,10 +184,11 @@
 .detail-info {
     width: 100%;
     display: flex;
+    align-items: center;
 
     div {
         width: 100%;
-        height: 23px;
+        height: 46px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;

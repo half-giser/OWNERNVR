@@ -101,10 +101,6 @@ export default defineComponent({
             isSavePicDisabled: false,
             // 是否显示全部区域
             isShowAllArea: false,
-            // 控制显示展示全部区域的checkbox
-            showAllAreaVisible: true,
-            // 控制显示清除全部区域按钮 >=2才显示
-            clearAllVisible: true,
             // 控制显示最值区域
             isShowDisplayRange: false,
             // 排程
@@ -556,15 +552,6 @@ export default defineComponent({
                 }
                 return -1
             })
-
-            // 是否显示全部区域切换按钮和清除全部按钮（区域数量大于等于2时才显示）
-            if (formData.value.detectAreaInfo && formData.value.detectAreaInfo.length > 1) {
-                pageData.value.showAllAreaVisible = true
-                pageData.value.clearAllVisible = true
-            } else {
-                pageData.value.showAllAreaVisible = false
-                pageData.value.clearAllVisible = false
-            }
 
             // OSD状态
             if (formData.value.countOSD) {

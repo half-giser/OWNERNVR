@@ -59,7 +59,7 @@ export const WebsocketImportPlateLib = (option: WebsocketImportPlateLibOption) =
                 else if (res.url === '/device/platelib/import/data#response' && code !== 0) {
                     // 536870960：代表系统忙，需要等待2秒，重新进行数据下发，此处不需要importIdx自增
                     if (code === ErrorCode.USER_ERROR_SYSTEM_BUSY) {
-                        setTimeout(function () {
+                        setTimeout(() => {
                             cutPackage(importIdx)
                         }, 2000)
                     } else {

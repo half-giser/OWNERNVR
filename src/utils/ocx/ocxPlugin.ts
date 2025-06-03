@@ -36,8 +36,6 @@ const loadScript = async (src: string) => {
         const script = document.createElement('script')
         script.onload = () => {
             resolve(void 0)
-            // userSession.p2pSessionId = null
-            // startV2Process()
         }
         script.src = src
         document.body.appendChild(script)
@@ -114,7 +112,6 @@ const getSingletonPlugin = () => {
      */
     const getPluginUpdateNotice = () => {
         pluginNoticeHtml.value = 'IDCS_PLUGIN_VERSION_UPDATE'
-        // pluginDownloadUrl.value = downLoadUrl
     }
 
     /**
@@ -123,7 +120,6 @@ const getSingletonPlugin = () => {
      */
     const getPluginNotice = () => {
         pluginNoticeHtml.value = 'IDCS_NO_PLUGIN_FOR_WINDOWS'
-        // pluginDownloadUrl.value = downLoadUrl
     }
 
     /**
@@ -185,30 +181,6 @@ const getSingletonPlugin = () => {
             // TimeSliderPluginNotify(strXMLFormat)
             return
         }
-
-        // if (stateType === 'NVMS_NAT_CMD') {
-        //     const $response = $('statenotify/response')
-        //     const $request = queryXml(XMLStr2XMLDoc(CMD_QUEUE.cmd.cmd))('//cmd[@type="NVMS_NAT_CMD"]/request')
-        //     if ($response.attr('flag') === $request.attr('flag') && $response.attr('url') === $request.attr('url')) {
-        //         CMD_QUEUE.resolve($response[0].element)
-        //     }
-        // }
-
-        // 获取插件返回的sessionId，用于刷新无感知登录（授权码登录成功后，返回sessionId)
-        // if (stateType === 'sessionId') {
-        //     let sessionId = null
-        //     if ($('statenotify/sessionId').length) {
-        //         sessionId = $('statenotify/sessionId').text()
-        //     }
-        //     userSession.p2pSessionId = sessionId
-        //     return
-        // }
-
-        //OCX已创建好窗口，通知可以登录了
-        // else if (stateType === 'InitialComplete') {
-        //     setVideoPluginStatus('InitialComplete')
-        //     videoPluginLogin()
-        // }
         //连接成功 / 插件token和sessionId认证成功
         else if (stateType === 'connectstate' || stateType === 'AuthenticationState') {
             let status = ''
@@ -1165,7 +1137,7 @@ const getSingletonPlugin = () => {
         const divOcxRect = pluginRefDiv.getBoundingClientRect()
         const divOcxLeft = divOcxRect.left * ratio
         const divOcxTop = divOcxRect.top * ratio
-        const navHeight = document.getElementById('layoutMainHeader')!.clientHeight
+        const navHeight = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement ? 0 : document.getElementById('layoutMainHeader')?.clientHeight || 0
         const browserType = browserInfo.type // 浏览器类型
         const ocxMode = PluginSizeModeMapping[browserType]
         let refW = divOcxRect.width * ratio
@@ -1238,6 +1210,65 @@ const getSingletonPlugin = () => {
     }
 
     /**
+     * @description 设置插件显示/隐藏透明区域，用于防止dom元素被插件遮挡
+     * @param {boolean} bool
+     * @param {DOMRect} size
+     */
+    const setOCXTransparent = (bool: boolean, divOcxRect: DOMRect) => {
+        const ratio = window.devicePixelRatio
+        const browserType = browserInfo.type
+        const ocxMode = PluginSizeModeMapping[browserType] || PluginSizeModeMapping.unknow
+
+        let menuH = 0 // 浏览器工具栏高度（包含了地址栏、书签栏）
+        if (browserInfo.type === 'firefox') {
+            const offset = (window.outerWidth - window.innerWidth) / 2 // 外宽和内宽偏差值
+            let diffVersion = 0 // 火狐版本偏差值
+            if (window.screenTop < 0) {
+                // 火狐最大化时
+                if (systemInfo.version === 'Win7' || browserInfo.majorVersion <= 100) {
+                    // 小于100版本时取0, 大于100版本时取window.screenTop
+                    diffVersion = 0
+                } else {
+                    diffVersion = window.screenTop
+                }
+            }
+            menuH = (window.outerHeight - window.innerHeight - offset + diffVersion) * ratio
+        }
+
+        if (browserInfo.type === 'lowEdge') {
+            // 低版本Edge浏览器的screenTop不包括浏览器工具栏高度（地址栏、书签栏），需要额外进行计算
+            const offset = (window.outerWidth - window.innerWidth) / 2 // 外宽和内宽偏差值
+            let yDiff = 0
+            if (window.screenTop === 0) {
+                yDiff = 8
+            }
+            menuH = (window.outerHeight - window.innerHeight - offset - yDiff) * ratio
+        }
+
+        const startX = Math.ceil(divOcxRect.left) * ratio
+        const startY = Math.ceil(divOcxRect.top) * ratio + menuH
+        const width = Math.ceil(divOcxRect.width) * ratio
+        const height = Math.ceil(divOcxRect.height) * ratio
+        const points = [
+            { X: startX, Y: startY },
+            { X: startX + width, Y: startY },
+            { X: startX + width, Y: startY + height },
+            { X: startX, Y: startY + height },
+        ]
+
+        // 显示透明区域
+        if (bool) {
+            const sendXML = OCX_XML_setTransparentArea(points, ocxMode, 'false')
+            executeCmd(sendXML)
+        }
+        // 隐藏透明区域
+        else {
+            const sendXML = OCX_XML_RestoreTransparentArea(points, ocxMode, 'true')
+            executeCmd(sendXML)
+        }
+    }
+
+    /**
      * @description 根据浏览器的缩放比例获取视口大小
      * @param {number} ratio
      * @returns {Object}
@@ -1262,7 +1293,7 @@ const getSingletonPlugin = () => {
         browserMoveTimer: NodeJS.Timeout
         mutationObserver: MutationObserver
         resizeObserver: ResizeObserver
-        observerList: Map<HTMLElement, 'intersect' | 'visible'> // HTMLElement[]
+        observerList: Map<HTMLElement, { type: 'intersect' | 'visible'; rect: DOMRect }> // HTMLElement[]
     }
 
     const browserEventMap = {
@@ -1311,6 +1342,7 @@ const getSingletonPlugin = () => {
 
     // Dialog、Popover等遮挡OCX视窗时，强制OCX视窗隐藏
     let forcedHidden = false
+    let lastIntersectElement: HTMLElement | null = null
 
     /**
      * @description 关闭插件位置监听
@@ -1328,6 +1360,7 @@ const getSingletonPlugin = () => {
             browserMoveEventObj.mutationObserver.disconnect()
             browserMoveEventObj.resizeObserver.disconnect()
             browserEventMap.delete(pluginPlaceholderId)
+            lastIntersectElement = null
             forcedHidden = false
         }
     }
@@ -1360,9 +1393,21 @@ const getSingletonPlugin = () => {
         if (browserEventMap.has(pluginPlaceholderId)) return
 
         const interval = updateInterval || 50
-        const browserScrollCallback = () => {
+        const browserScrollCallback = debounce(() => {
             setPluginSize(pluginPlaceholderId, getVideoPlugin())
-        }
+
+            if (lastIntersectElement) {
+                const element = browserEventMap.get(pluginPlaceholderId)?.observerList.get(lastIntersectElement)
+                if (element) {
+                    setOCXTransparent(false, element.rect)
+                    if (lastIntersectElement.style.display !== 'none') {
+                        const rect = lastIntersectElement.getBoundingClientRect()
+                        browserEventMap.get(pluginPlaceholderId)!.observerList.set(lastIntersectElement, { type: 'intersect', rect: rect })
+                        setOCXTransparent(true, rect)
+                    }
+                }
+            }
+        })
 
         let oldX = 0
         let oldY = 0
@@ -1397,46 +1442,96 @@ const getSingletonPlugin = () => {
             }
         }, interval)
 
-        // 观察弹窗样式变化 重新设置插件大小、显示隐藏
-        const mutationObserver = new MutationObserver((mutationsList) => {
-            let flag = false
+        // 观察遮挡元素/OCX占位符样式变化 重新设置插件大小、显示隐藏
+        const mutationObserver = new MutationObserver(async (mutationsList) => {
+            let isPlaceholder = true // 是否OCX占位符发生变化
             for (const mutation of mutationsList) {
+                const target = mutation.target as HTMLElement
                 if (mutation.attributeName === 'style') {
-                    if ((mutation.target as HTMLElement).querySelector('.PluginPlayer') === null) {
-                        flag = true
+                    if (target.querySelector('.PluginPlayer') === null) {
+                        if (!target.classList.contains('el-select__popper')) {
+                            isPlaceholder = false
+                        }
                     } else {
                         browserScrollCallback()
                     }
                 }
+
+                if (mutation.attributeName === 'class') {
+                    if (target.classList.contains('el-select__popper')) {
+                        isPlaceholder = false
+                    }
+                }
             }
 
-            if (flag) {
+            if (!isPlaceholder) {
                 const data = browserEventMap.get(pluginPlaceholderId)
                 if (data) {
                     const rect = data.element.getBoundingClientRect()
+
                     let hasPop = false
+                    let hasIntersect = false
+                    let currentIntersectElement: HTMLElement | null = null
+
                     data.observerList.forEach((type, element) => {
-                        if (hasPop) {
-                            return
+                        if (type.type === 'intersect') {
+                            if (hasIntersect) {
+                                return
+                            }
+
+                            const elementRect = element.getBoundingClientRect()
+                            const isIntersect = element.style.display !== 'none' && isOverlap(rect, elementRect)
+                            if (isIntersect) {
+                                hasIntersect = true
+                                if (lastIntersectElement !== element) {
+                                    currentIntersectElement = element
+                                    setTimeout(() => {
+                                        const elementRect = element.getBoundingClientRect()
+                                        type.rect = elementRect
+                                        setOCXTransparent(isIntersect, elementRect)
+                                    }, 5)
+                                }
+                            }
                         }
 
-                        if (type === 'intersect') {
-                            const observeRect = element.getBoundingClientRect()
-                            hasPop = element.style.display !== 'none' && isOverlap(rect, observeRect)
-                            return
-                        }
+                        if (type.type === 'visible') {
+                            if (hasPop) {
+                                return
+                            }
 
-                        hasPop = element.style.display !== 'none'
+                            if (element.style.display !== 'none') {
+                                console.log(element)
+                            }
+
+                            hasPop = element.style.display !== 'none' && element.querySelector('.PluginPlayer') === null
+                        }
                     })
 
-                    if (!hasPop && browserEventMap.data.length) {
-                        forcedHidden = false
-                        displayOCX(true)
-                    }
+                    if (!hasIntersect) {
+                        if (lastIntersectElement) {
+                            const element = data.observerList.get(lastIntersectElement)!
+                            setOCXTransparent(false, element.rect)
+                            lastIntersectElement = null
+                        }
 
-                    if (hasPop) {
-                        forcedHidden = true
-                        displayOCX(false)
+                        if (!hasPop && browserEventMap.data.length) {
+                            forcedHidden = false
+                            displayOCX(true)
+                        }
+
+                        if (hasPop) {
+                            forcedHidden = true
+                            displayOCX(false)
+                        }
+                    } else {
+                        if (lastIntersectElement && currentIntersectElement && lastIntersectElement !== currentIntersectElement) {
+                            const element = data.observerList.get(lastIntersectElement)!
+                            setOCXTransparent(false, element.rect)
+                        }
+
+                        if (currentIntersectElement) {
+                            lastIntersectElement = currentIntersectElement
+                        }
                     }
                 }
             }
@@ -1446,8 +1541,9 @@ const getSingletonPlugin = () => {
          * @notice 这里自动获取同步加载的对话框组件，并把它们添加进观察列表
          * 如果是异步方式加载的组件，这里将添加失败，需要手动地执行ObserverElement()来添加
          */
+        const observerList = new Map<HTMLElement, { type: 'intersect' | 'visible'; rect: DOMRect }>()
 
-        const observerList = new Map<HTMLElement, 'intersect' | 'visible'>()
+        const DEFAULT_RECT = document.body.getBoundingClientRect()
 
         const dialogs = document.querySelectorAll('.el-dialog')
         for (const dialog of dialogs) {
@@ -1459,19 +1555,37 @@ const getSingletonPlugin = () => {
         const overlays = document.querySelectorAll('.el-overlay')
         for (const overlay of overlays) {
             mutationObserver.observe(overlay, { attributes: true })
-            observerList.set(overlay as HTMLElement, 'visible')
+            observerList.set(overlay as HTMLElement, {
+                type: 'visible',
+                rect: DEFAULT_RECT,
+            })
         }
 
         const poppers = document.querySelectorAll('.el-popover')
         for (const popper of poppers) {
             mutationObserver.observe(popper, { attributes: true })
-            observerList.set(popper as HTMLElement, 'intersect')
+            observerList.set(popper as HTMLElement, {
+                type: 'intersect',
+                rect: popper.getBoundingClientRect(),
+            })
         }
 
         const hideOCX = document.querySelectorAll('.hide-ocx')
         for (const popper of hideOCX) {
             mutationObserver.observe(popper, { attributes: true })
-            observerList.set(popper as HTMLElement, 'intersect')
+            observerList.set(popper as HTMLElement, {
+                type: 'visible',
+                rect: DEFAULT_RECT,
+            })
+        }
+
+        const intersetOCX = document.querySelectorAll('.intersect-ocx')
+        for (const popper of intersetOCX) {
+            mutationObserver.observe(popper, { attributes: true })
+            observerList.set(popper as HTMLElement, {
+                type: 'intersect',
+                rect: popper.getBoundingClientRect(),
+            })
         }
 
         // 观察容器大小变化 重新设置插件大小
@@ -1515,7 +1629,7 @@ const getSingletonPlugin = () => {
 
             browserEventMap.get(pluginRefDiv)!.mutationObserver.observe(observeElement, { attributes: true })
             if (observeType === 'intersect' || observeType === 'visible') {
-                browserEventMap.get(pluginRefDiv)!.observerList.set(observeElement, observeType)
+                browserEventMap.get(pluginRefDiv)!.observerList.set(observeElement, { type: observeType, rect: observeElement.getBoundingClientRect() })
             }
         }
     }
@@ -1645,6 +1759,7 @@ const getSingletonPlugin = () => {
         P2pCmdSender: CMD_QUEUE,
         AsynQueryInfo: asynQueryInfo,
         SetPluginSize: setPluginSize,
+        SetOCXTransparent: setOCXTransparent,
         DisplayOCX: displayOCX,
         GetVideoPluginStatus: getVideoPluginStatus,
         SetVideoPluginStatus: setVideoPluginStatus,

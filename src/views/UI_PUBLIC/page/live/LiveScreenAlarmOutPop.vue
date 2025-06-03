@@ -10,6 +10,7 @@
             placement="top"
             width="600"
             popper-class="no-padding"
+            :offset="10"
         >
             <template #reference>
                 <BaseImgSpriteBtn

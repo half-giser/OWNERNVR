@@ -242,7 +242,6 @@ export default defineComponent({
 
         // 日志子类型选项
         const subTypeOptions = computed(() => {
-            console.log(LOG_TYPE_MAPPING)
             if (formData.value.type === 'LOG_ALL') {
                 return Object.values(LOG_TYPE_MAPPING)
                     .flat()
@@ -361,10 +360,10 @@ export default defineComponent({
                         index: formData.value.pageSize * (formData.value.currentPage - 1) + (index + 1),
                         logType,
                         clientType,
-                        time: $item('time').text(), // ,
+                        time: $item('time').text(),
                         userName: $item('userName').text(),
-                        subType: clientType + Translate(TRANS_MAPPING[logType]),
-                        mainType: Translate(TRANS_MAPPING[SUB_MAIN_TYPE_MAPPING[logType]]),
+                        subType: clientType + (TRANS_MAPPING[logType] ? Translate(TRANS_MAPPING[logType]) : ''),
+                        mainType: SUB_MAIN_TYPE_MAPPING[logType] ? Translate(TRANS_MAPPING[SUB_MAIN_TYPE_MAPPING[logType]]) : '',
                         content: $item('content').text(),
                         chl: {
                             id: $item('chl').attr('id'),

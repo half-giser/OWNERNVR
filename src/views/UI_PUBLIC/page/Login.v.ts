@@ -312,18 +312,15 @@ export default defineComponent({
                 langStore.updateLangType(langType)
             }
             await langStore.getLangItems(true)
-            updateCalendar()
+            // updateCalendar()
             updateTitle()
             closeLoading()
         }
 
-        /**
-         * @description 根据用户选择的语言，获取日历类型
-         */
-        const updateCalendar = () => {
+        const calendarOptions = computed(() => {
             const langType = langStore.langType
             if (CALENDAR_TYPE_MAPPING[langType]) {
-                pageData.value.calendarOptions = CALENDAR_TYPE_MAPPING[langType].map((item) => {
+                return CALENDAR_TYPE_MAPPING[langType].map((item) => {
                     if (item.isDefault) {
                         formData.value.calendarType = item.value
                     }
@@ -333,10 +330,10 @@ export default defineComponent({
                     }
                 })
             } else {
-                pageData.value.calendarOptions = []
                 formData.value.calendarType = 'Gregorian'
+                return []
             }
-        }
+        })
 
         /**
          * @description 回车登录
@@ -355,7 +352,7 @@ export default defineComponent({
         onMounted(() => {
             updateTitle()
             getIsShowPrivacy()
-            updateCalendar()
+            // updateCalendar()
         })
 
         return {
@@ -373,6 +370,7 @@ export default defineComponent({
             handleDualAuthLogin,
             forgetPassword,
             opacity,
+            calendarOptions,
         }
     },
 })
