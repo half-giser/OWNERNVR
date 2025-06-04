@@ -63,11 +63,13 @@ export default defineComponent({
                     tab: 0,
                     file: 'live_channel',
                     label: Translate('IDCS_CHANNEL'),
+                    disabled: false,
                 },
                 {
                     tab: 1,
                     file: 'live_channel_group',
                     label: Translate('IDCS_CHANNEL_GROUP'),
+                    disabled: systemCaps.hotStandBy,
                 },
             ],
             // 当前选中的菜单索引

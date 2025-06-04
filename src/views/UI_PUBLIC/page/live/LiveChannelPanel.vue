@@ -27,6 +27,7 @@
             <div class="base-home-panel-menu">
                 <div
                     v-for="(item, index) in pageData.chlMenu"
+                    v-show="!item.disabled"
                     :key="item.tab"
                     class="base-home-panel-menu-item stroke"
                     :class="{

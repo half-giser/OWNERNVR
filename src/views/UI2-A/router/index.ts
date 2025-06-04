@@ -35,7 +35,7 @@ export default merge(routes, {
                                     group: 'database',
                                     default: true,
                                     hasCap(systemCaps) {
-                                        return systemCaps.supportFaceMatch && import.meta.env.VITE_UI_TYPE === 'UI2-A'
+                                        return systemCaps.supportFaceMatch && !systemCaps.hotStandBy
                                     },
                                 },
                                 alias: '/intelligent-analysis/sample-data-base/sample-data-base-face',
@@ -49,7 +49,7 @@ export default merge(routes, {
                                     lk: 'IDCS_VEHICLE_DATABASE',
                                     group: 'database',
                                     hasCap(systemCaps) {
-                                        return systemCaps.supportPlateMatch && import.meta.env.VITE_UI_TYPE === 'UI2-A'
+                                        return systemCaps.supportPlateMatch && !systemCaps.hotStandBy
                                     },
                                 },
                                 alias: '/intelligent-analysis/sample-data-base/sample-data-base-licence-plate',
