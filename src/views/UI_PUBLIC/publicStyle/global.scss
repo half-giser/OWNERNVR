@@ -469,3 +469,15 @@
     --target-face-bg: #f00; // 目标框人脸背景色
     --target-human-bg: #ff0; // 目标框人背景色
 }
+
+// use114 p2p
+#n9web.css_use114 {
+    --img-authcodelogin-bg: #{p2p-img-url('/css_use114/pictures/mainBg.png')};
+    --img-authcodelogin-mask: #{p2p-img-url('/css_use114/pictures/mainBgMask.png')};
+    --img-authcodelogin-icon: #{p2p-img-url('/css_use114/pictures/loginIcon.png')};
+
+    --img-authcodelogin-content: #{p2p-img-url('/css_use114/pictures/LoginContent.png')};
+    --img-authcodelogin-question: #{p2p-img-url('/css_use114/pictures/question.png')};
+    --img-authcodelogin-btn: #{p2p-img-url('/css_use114/pictures/loginBtn.png')};
+    --img-authcodelogin-logo: #{p2p-img-url('/css_use114/pictures/appName.png')};
+}

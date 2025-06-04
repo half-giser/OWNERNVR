@@ -8,7 +8,6 @@
         <AlarmBaseChannelSelector
             v-model="pageData.currChlId"
             :list="pageData.onlineChannelList"
-            :height="pageData.tab === 'avd' ? 100 : 140"
             @change="changeChannel"
         />
         <el-tabs

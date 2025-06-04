@@ -35,8 +35,9 @@
                     <el-select-v2
                         v-if="chlOptions.length"
                         v-model="pageData.tableIndex"
-                        :height="170"
                         :options="chlOptions"
+                        :persistent="true"
+                        popper-class="intersect-ocx"
                         @change="changeChl"
                     />
                     <el-select-v2
@@ -52,7 +53,6 @@
                         :props="{
                             label: 'index',
                         }"
-                        :height="170"
                     />
                 </el-form-item>
                 <el-form-item

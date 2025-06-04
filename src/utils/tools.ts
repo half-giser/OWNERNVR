@@ -1519,7 +1519,7 @@ export const getObjectFilterData = (objectMode: string, itemObjectFilter: { elem
     const supportPersonMaxMin = $itemNodeObj('person/minDetectTarget').length > 0 ? true : false
     const supportCarMaxMin = $itemNodeObj('car/minDetectTarget').length > 0 ? true : false
     const supportMotorMaxMin = $itemNodeObj('motor/minDetectTarget').length > 0 ? true : false
-    const detectTargetList = []
+    const detectTargetList: AlarmDetectTarget[] = []
     if (supportPersonMaxMin) detectTargetList.push('person')
     if (supportCarMaxMin) detectTargetList.push('car')
     if (supportMotorMaxMin) detectTargetList.push('motor')
@@ -1535,16 +1535,17 @@ export const getObjectFilterData = (objectMode: string, itemObjectFilter: { elem
         car = new AlarmTargetCfgDto(),
         motor = new AlarmTargetCfgDto()
     if (supportPerson) {
-        person = getDetectTargetData('person', objectMode, $itemNodeObj, $paramNodeObj)
+        person = getDetectTargetData('person', objectMode, $itemNodeObj, $paramNodeObj!)
     }
 
     if (supportCar) {
-        car = getDetectTargetData('car', objectMode, $itemNodeObj, $paramNodeObj)
+        car = getDetectTargetData('car', objectMode, $itemNodeObj, $paramNodeObj!)
     }
 
     if (supportMotor) {
-        motor = getDetectTargetData('motor', objectMode, $itemNodeObj, $paramNodeObj)
+        motor = getDetectTargetData('motor', objectMode, $itemNodeObj, $paramNodeObj!)
     }
+
     objectFilter.value = {
         supportPerson: supportPerson,
         supportCar: supportCar,

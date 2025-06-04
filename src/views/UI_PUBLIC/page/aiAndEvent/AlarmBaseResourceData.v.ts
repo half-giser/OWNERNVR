@@ -91,7 +91,7 @@ export default defineComponent({
                         const $item = queryXml(element.element)
 
                         const aiResType = element.attr('aiResType')
-                        const aiResPercent = $item('aiResPercent').text() + '%'
+                        const aiResPercent = $item('aiResPercent').text()
 
                         const aiResDetailInfo: Record<string, AlarmAIResDetailInfoDto> = {}
                         $item('detailInfos/item').forEach((ele) => {
@@ -191,10 +191,10 @@ export default defineComponent({
             }).then(async () => {
                 if (row.aiResType === 'reid') {
                     const sendXml = rawXml`
-                    <content>
-                        <switch>false</switch>
-                    </content>
-                `
+                        <content>
+                            <switch>false</switch>
+                        </content>
+                    `
                     openLoading()
                     const res = await editREIDCfg(sendXml)
                     closeLoading()

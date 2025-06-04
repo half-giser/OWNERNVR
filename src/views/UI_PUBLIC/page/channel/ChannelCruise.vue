@@ -24,6 +24,8 @@
                         v-if="tableData.length"
                         v-model="pageData.tableIndex"
                         :options="chlOptions"
+                        :persistent="true"
+                        popper-class="intersect-ocx"
                         @change="changeChl"
                     />
                     <el-select-v2
@@ -37,31 +39,31 @@
                         v-model="formData.cruiseIndex"
                         :options="cruiseOptions"
                         :props="{ label: 'index' }"
+                        :persistent="true"
+                        popper-class="intersect-ocx"
                     />
-                    <el-tooltip :content="Translate('IDCS_START_CRUISE')">
-                        <div
-                            class="base-chl-icon-btn"
-                            :class="{ disabled: !cruiseOptions.length }"
-                        >
-                            <BaseImgSpriteBtn
-                                file="play"
-                                :disabled="!cruiseOptions.length"
-                                @click="playCruise"
-                            />
-                        </div>
-                    </el-tooltip>
-                    <el-tooltip :content="Translate('IDCS_STOP_CRUISE')">
-                        <div
-                            class="base-chl-icon-btn"
-                            :class="{ disabled: !tableData.length }"
-                        >
-                            <BaseImgSpriteBtn
-                                file="stop"
-                                :disabled="!tableData.length"
-                                @click="stopCruise"
-                            />
-                        </div>
-                    </el-tooltip>
+                    <div
+                        class="base-chl-icon-btn"
+                        :class="{ disabled: !cruiseOptions.length }"
+                        :title="Translate('IDCS_START_CRUISE')"
+                    >
+                        <BaseImgSpriteBtn
+                            file="play"
+                            :disabled="!cruiseOptions.length"
+                            @click="playCruise"
+                        />
+                    </div>
+                    <div
+                        class="base-chl-icon-btn"
+                        :class="{ disabled: !tableData.length }"
+                        :title="Translate('IDCS_STOP_CRUISE')"
+                    >
+                        <BaseImgSpriteBtn
+                            file="stop"
+                            :disabled="!tableData.length"
+                            @click="stopCruise"
+                        />
+                    </div>
                 </el-form-item>
                 <el-form-item
                     :label="Translate('IDCS_CRUISE_NAME')"

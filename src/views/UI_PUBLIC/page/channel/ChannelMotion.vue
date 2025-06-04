@@ -29,6 +29,8 @@
                     <el-select-v2
                         v-model="selectedChlId"
                         :options="chlOptions"
+                        :persistent="true"
+                        popper-class="intersect-ocx"
                         @change="handleChlSel"
                     />
                 </el-form-item>
@@ -59,7 +61,6 @@
                         v-model="formData.holdTime"
                         :disabled="formData.disabled"
                         :options="formData.holdTimeList"
-                        :height="170"
                     />
                 </el-form-item>
                 <el-form-item
