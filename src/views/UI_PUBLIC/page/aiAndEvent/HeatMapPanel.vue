@@ -30,7 +30,7 @@
                     <div class="base-btn-box space-between">
                         <div>
                             <el-checkbox
-                                v-show="pageData.showAllAreaVisible"
+                                v-show="formData.boundaryInfo.length > 1"
                                 v-model="pageData.isShowAllArea"
                                 :label="Translate('IDCS_DISPLAY_ALL_AREA')"
                                 @change="toggleShowAllArea"
@@ -39,7 +39,7 @@
                         <div>
                             <el-button @click="clearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
                             <el-button
-                                v-if="pageData.clearAllVisible"
+                                v-show="formData.boundaryInfo.length > 1"
                                 @click="clearAllArea"
                             >
                                 {{ Translate('IDCS_FACE_CLEAR_ALL') }}
@@ -280,12 +280,7 @@
                                     </div>
                                     <div class="legend-item">
                                         <span class="legend-left">0</span>
-                                        <div
-                                            class="legend-gradient"
-                                            :style="{
-                                                background: pageData.legendGradient,
-                                            }"
-                                        ></div>
+                                        <div class="legend-gradient"></div>
                                         <span class="legend-right">{{ pageData.renderLevel }}</span>
                                     </div>
                                 </div>
@@ -465,6 +460,8 @@
     &-gradient {
         width: 100%;
         height: 15px;
+        // 此值为heatmap插件的渐变默认值
+        background: linear-gradient(90deg, #00f 25%, #0f0 55%, yellow 85%, #f00 100%) no-repeat;
     }
 }
 </style>

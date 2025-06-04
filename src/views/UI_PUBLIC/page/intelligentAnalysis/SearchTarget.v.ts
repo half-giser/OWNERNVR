@@ -3,13 +3,13 @@
  * @Author: liyanqi a11219@tvt.net.cn
  * @Date: 2025-05-26 14:21:56
  */
-import IntelSearchDetail from './IntelSearchDetail.vue'
-import { type TableInstance, type DropdownInstance, type CheckboxValueType } from 'element-plus'
+import IntelSearchDetailPanel from './IntelSearchDetailPanel.vue'
+import { type TableInstance, type CheckboxValueType } from 'element-plus'
 import IntelSearchBackupPop, { type IntelSearchBackUpExpose } from './IntelSearchBackupPop.vue'
 
 export default defineComponent({
     components: {
-        IntelSearchDetail,
+        IntelSearchDetailPanel,
         IntelSearchBackupPop,
     },
     setup() {
@@ -18,8 +18,6 @@ export default defineComponent({
         const router = useRouter()
         const backupPopRef = ref<IntelSearchBackUpExpose>()
 
-        // 排序下拉框的引用
-        const searchTargetDropdown = ref<DropdownInstance>()
         // 详情弹框
         const detailRef = ref()
         const tableRef = ref<TableInstance>()
@@ -73,15 +71,15 @@ export default defineComponent({
             backupTypeOptions: [
                 {
                     label: Translate('IDCS_BACKUP_PICTURE'),
-                    value: 'pic' as 'pic' | 'video' | 'picAndVideo',
+                    value: 'pic',
                 },
                 {
                     label: Translate('IDCS_BACKUP_RECORD'),
-                    value: 'video' as 'pic' | 'video' | 'picAndVideo',
+                    value: 'video',
                 },
                 {
                     label: Translate('IDCS_BACKUP_PICTURE_AND_RECORD'),
-                    value: 'picAndVideo' as 'pic' | 'video' | 'picAndVideo',
+                    value: 'pic+video',
                 },
             ],
             // 选中的详情数据（目标检索）
@@ -129,7 +127,9 @@ export default defineComponent({
          */
         const handleExit = () => {
             localStorage.setItem('extractResultInfos', '')
-            router.back()
+            router.push({
+                path: '/intelligent-analysis/search/search-person',
+            })
         }
 
         /**
@@ -294,7 +294,7 @@ export default defineComponent({
                     <condition>
                         <index>${item.index}</index>
                         <supportRegister>true</supportRegister>
-                        '<featureStatus>true</featureStatus>'
+                        <featureStatus>true</featureStatus>
                     </condition>
                 `
                 const result = await requestTargetData(sendXml)
@@ -518,13 +518,6 @@ export default defineComponent({
         }
 
         /**
-         * @description 获取当前界面的排序下拉框引用
-         */
-        const getCurrDropdownRef = () => {
-            return searchTargetDropdown
-        }
-
-        /**
          * @description 切换分页页码
          */
         const handleChangePage = (pageIndex: number) => {
@@ -552,8 +545,6 @@ export default defineComponent({
          * @description 手动排序: 时间排序、通道排序、相似度排序
          */
         const handleSort = (sortType: string) => {
-            const dropdownRef = getCurrDropdownRef()
-            dropdownRef.value?.handleClose()
             if (sortType === 'time') {
                 if (pageData.value.sortType === 'time') {
                     // 时间排序升序降序切换
@@ -809,10 +800,10 @@ export default defineComponent({
         /**
          * @description 备份选中项
          */
-        const handleBackup = (backupType: 'pic' | 'video' | 'picAndVideo') => {
+        const handleBackup = (type: string) => {
             backupPopRef.value?.startBackup({
-                isBackupPic: backupType === 'pic' || backupType === 'picAndVideo',
-                isBackupVideo: backupType === 'video' || backupType === 'picAndVideo',
+                isBackupPic: type.includes('pic'),
+                isBackupVideo: type.includes('video'),
                 indexData: pageData.value.selectedTargetDatasForSearchTarget.map((item) => {
                     return {
                         index: item.index,
@@ -847,6 +838,16 @@ export default defineComponent({
          */
         const switchDetail = () => {
             pageData.value.isDetailOpen = !pageData.value.isDetailOpen
+
+            if (pageData.value.isDetailOpen) {
+                const list = getCurrTargetDatas()
+                const find = list.find((item) => item.index === pageData.value.openDetailIndexForSearchTarget)
+                if (find) {
+                    showDetail(find)
+                } else if (list.length) {
+                    showDetail(list[0])
+                }
+            }
         }
 
         /**
@@ -955,7 +956,6 @@ export default defineComponent({
             tableData,
             tableRef,
             detailRef,
-            searchTargetDropdown,
             handleExit,
             changeDateRange,
             handleCurrentChange,

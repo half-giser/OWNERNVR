@@ -133,20 +133,12 @@
         position: relative;
         width: 100%;
         cursor: pointer;
-
-        &:hover,
-        &.active {
-            .sort-icon {
-                opacity: 1;
-            }
-        }
     }
 
     &-icon {
         position: absolute;
         left: 50%;
-        top: -3px;
-        opacity: 0;
+        top: 3px;
     }
 }
 </style>

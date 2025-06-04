@@ -9,7 +9,7 @@
         :style="{
             width,
             height,
-            backgroundSize: `${sprites.properties.width}px ${sprites.properties.height}px`,
+            backgroundSize: `${sprites.properties.width * scale}px ${sprites.properties.height * scale}px`,
             '--sprite-normal': position,
             '--sprite-hover': hoverPosition,
             '--sprite-active': activePosition,
@@ -66,6 +66,7 @@ const prop = withDefaults(
          * @property 点击事件是否阻止冒泡
          */
         stopPropagation?: boolean
+        scale?: number
     }>(),
     {
         chunk: 1,
@@ -76,6 +77,7 @@ const prop = withDefaults(
         disabledIndex: -1,
         disabled: false,
         stopPropagation: true,
+        scale: 1,
     },
 )
 
@@ -127,24 +129,24 @@ const disabledPosition = computed(() => {
  * @description 计算background-position-x
  */
 const getPositionX = (currentIndex: number) => {
-    return `-${item.value[0] + (currentIndex / prop.chunk) * item.value[2]}px`
+    return `-${(item.value[0] + (currentIndex / prop.chunk) * item.value[2]) * prop.scale}px`
 }
 
 /**
  * @description 计算background-position-y
  */
 const getPositionY = () => {
-    return `-${item.value[1]}px`
+    return `-${item.value[1] * prop.scale}px`
 }
 
 // css width
 const width = computed(() => {
-    return `${item.value[2] / prop.chunk}px`
+    return `${(item.value[2] / prop.chunk) * prop.scale}px`
 })
 
 // css height
 const height = computed(() => {
-    return `${item.value[3]}px`
+    return `${item.value[3] * prop.scale}px`
 })
 
 const click = (e: MouseEvent) => {

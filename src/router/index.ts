@@ -45,10 +45,15 @@ export const generateAsyncRoutes = () => {
             if (item.children) {
                 item.children = getAuthRoute(item.children)
 
-                // 设置路由重定向 （满足能力集和用户权限）
-                const redirect = item.children.find((item) => !item.meta.auth || userSession.hasAuth(item.meta.auth))
-                if (redirect) {
-                    item.redirect = redirect.meta.fullPath
+                if (!item.redirect) {
+                    // 设置路由重定向 （满足能力集和用户权限）
+                    const redirect = item.children.find((item) => {
+                        return !item.meta.auth || userSession.hasAuth(item.meta.auth)
+                    })
+
+                    if (redirect) {
+                        item.redirect = redirect.meta.fullPath
+                    }
                 }
             }
 

@@ -198,7 +198,7 @@ export function WebGLPlayer(canvas: HTMLCanvasElement, option: Record<string, an
         } else if (document.mozCancelFullScreen) {
             document.mozCancelFullScreen()
         } else {
-            alert("Exit fullscreen doesn't work")
+            openMessageBox("Exit fullscreen doesn't work")
         }
     }
 

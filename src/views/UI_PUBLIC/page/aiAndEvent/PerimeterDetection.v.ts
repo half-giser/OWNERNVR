@@ -8,6 +8,7 @@ import TripwirePanel from './TripwirePanel.vue'
 import PeaPanel from './PeaPanel.vue'
 import AreaEnterPanel from './AreaEnterPanel.vue'
 import AreaLeavePanel from './AreaLeavePanel.vue'
+import AlarmBaseErrorPanel from './AlarmBaseErrorPanel.vue'
 
 export default defineComponent({
     components: {
@@ -16,6 +17,7 @@ export default defineComponent({
         PeaPanel,
         AreaEnterPanel,
         AreaLeavePanel,
+        AlarmBaseErrorPanel,
     },
     setup() {
         const systemCaps = useCababilityStore()
@@ -204,6 +206,13 @@ export default defineComponent({
                                 supportFire: supportFire,
                                 supportTemperature: supportTemperature,
                                 supportVideoMetadata: supportVideoMetadata,
+                                supportLoitering: false,
+                                supportPvd: false,
+                                supportRegionStatistics: false,
+                                supportASD: false,
+                                supportHeatMap: false,
+                                supportCrowdGathering: false,
+                                supportBinocularCountConfig: false,
                             }
                         }
                     }

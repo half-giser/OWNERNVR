@@ -25,6 +25,7 @@
                 <div class="base-intel-left-form">
                     <IntelBaseChannelSelector
                         v-model="formData.chl"
+                        :keep-removed-chl="false"
                         @update:model-value="changeChl"
                         @ready="getChlMap"
                     />
