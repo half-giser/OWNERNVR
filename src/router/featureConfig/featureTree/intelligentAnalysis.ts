@@ -10,7 +10,7 @@ const intelligentAnalysisRoutes: FeatureItem = {
         sort: 40,
         lk: 'IDCS_INTEL_DETECTION',
         hasCap: (systemCaps) => {
-            return !systemCaps.IntelAndFaceConfigHide
+            return !systemCaps.IntelAndFaceConfigHide && !systemCaps.hotStandBy
         },
         icon: 'search_menu',
     },

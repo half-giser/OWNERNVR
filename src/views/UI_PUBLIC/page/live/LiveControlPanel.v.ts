@@ -230,7 +230,7 @@ export default defineComponent({
 
         // 是否禁用本地录像
         const localRecordDisabled = computed(() => {
-            return !userSession.hasAuth('rec') || disabled.value
+            return !userSession.hasAuth('rec') || systemCaps.hotStandBy || disabled.value
         })
 
         /**
@@ -712,6 +712,7 @@ export default defineComponent({
             wiperDisabled,
             runWiper,
             stopWiper,
+            systemCaps,
         }
     },
 })

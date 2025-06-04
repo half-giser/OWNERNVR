@@ -239,6 +239,7 @@ export const useUserSessionStore = defineStore(
 
             // 从磁盘信息获取Raid
             await cababilityStore.updateDiskMode()
+            await cababilityStore.updateHotStandbyMode()
 
             generateAsyncRoutes()
         }

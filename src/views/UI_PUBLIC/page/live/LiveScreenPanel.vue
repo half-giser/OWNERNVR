@@ -64,7 +64,7 @@
                 file="target_retrieval"
                 :title="Translate('IDCS_REID')"
                 :active="detectTarget"
-                :disabled="winData.PLAY_STATUS !== 'play'"
+                :disabled="winData.PLAY_STATUS !== 'play' || systemCaps.hotStandBy"
                 @click="$emit('update:detectTarget', !detectTarget)"
             />
             <!-- 全屏按钮 -->
@@ -102,12 +102,14 @@
             />
             <!-- 本地录像 -->
             <BaseImgSpriteBtn
+                :disabled="systemCaps.hotStandBy"
                 :file="clientRecord ? 'stop_rec_all_chl' : 'start_rec_all_chl'"
                 :title="clientRecord ? Translate('IDCS_CLIENT_RECORD_ALL_OFF') : Translate('IDCS_CLIENT_RECORD_ALL_ON')"
                 @click="$emit('trigger'), $emit('update:clientRecord', !clientRecord)"
             />
             <!-- 远程录像 -->
             <BaseImgSpriteBtn
+                v-show="!systemCaps.hotStandBy"
                 :file="remoteRecord ? 'stop_remote_rec_all_chl' : 'start_remote_rec_all_chl'"
                 :title="remoteRecord ? Translate('IDCS_REMOTE_MANUAL_RECORD_ALL_OFF') : Translate('IDCS_REMOTE_MANUAL_RECORD_ALL_ON')"
                 :disabled="remoteRecordDisabled"
@@ -116,6 +118,7 @@
             <!-- 对讲 -->
             <BaseImgSpriteBtn
                 v-show="isTalk"
+                :disabled="systemCaps.hotStandBy"
                 :file="talk ? 'stop_talk' : 'start_talk'"
                 :title="talk ? Translate('IDCS_TALKBACK_OFF') : Translate('IDCS_TALKBACK_ON')"
                 @click="$emit('trigger'), $emit('update:talk', !talk)"

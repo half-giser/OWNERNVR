@@ -330,7 +330,6 @@
                     <el-table-column
                         prop="name"
                         :label="Translate('IDCS_FILE_NAME')"
-                        width="395"
                         show-overflow-tooltip
                     />
                 </el-table>

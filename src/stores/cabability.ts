@@ -83,6 +83,8 @@ export const useCababilityStore = defineStore(
         const showOpenSourceLicense = ref(false)
         const supportSuperResolution = ref(false)
         const supportREID = ref(false)
+        const supportN1 = ref(false)
+        const hotStandBy = ref(false)
 
         const CustomerID = ref(0)
         const AISwitch = ref<boolean | undefined>()
@@ -180,6 +182,8 @@ export const useCababilityStore = defineStore(
             showOpenSourceLicense.value = $('showOpenSourceLicense').text().bool()
             supportSuperResolution.value = $('supportSuperResolution').text().bool()
             supportREID.value = $('supportREID').text().bool()
+            // 是否支持N+1（热备配置）
+            supportN1.value = $('supportN1').text().bool()
 
             $('FishEyeCaps/installType/enum').forEach((item) => {
                 const text = item.text()
@@ -203,6 +207,20 @@ export const useCababilityStore = defineStore(
             AISwitch.value = $('content/AISwitch').text().undef()?.bool()
             productModel.value = $('content/productModel').text()
             return $
+        }
+
+        const updateHotStandbyMode = async () => {
+            if (supportN1.value) {
+                const result = await queryHotStandbyCfg()
+                const $ = queryXml(result)
+                if ($('content/switch').text().bool()) {
+                    hotStandBy.value = $('content/workMode').text() === 'hotStandbyMode'
+                } else {
+                    hotStandBy.value = false
+                }
+            } else {
+                hotStandBy.value = false
+            }
         }
 
         return {
@@ -289,6 +307,8 @@ export const useCababilityStore = defineStore(
             showOpenSourceLicense,
             supportSuperResolution,
             supportREID,
+            updateHotStandbyMode,
+            hotStandBy,
         }
     },
     {

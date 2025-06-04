@@ -683,6 +683,30 @@ export default defineComponent({
                 filterLogType('LOG_EXCEPTION_ABNORMAL_RAID_HOT_EXCEPTION')
             }
 
+            // 热备机隐藏AI的日志类型
+            if (systemCaps.hotStandBy) {
+                filterLogType('LOG_ALARM_MOTION')
+                filterLogType('LOG_ALARM_OSC')
+                filterLogType('LOG_ALARM_AVD')
+                filterLogType('LOG_ALARM_PEA_TRIPWIRE')
+                filterLogType('LOG_ALARM_PEA_PERIMETER')
+                filterLogType('LOG_ALARM_SMART_AOI_ENTRY')
+                filterLogType('LOG_ALARM_SMART_AOI_LEAVE')
+                filterLogType('LOG_ALARM_VFD')
+                filterLogType('LOG_ALARM_CDD')
+                filterLogType('LOG_ALARM_LOITERING')
+                filterLogType('LOG_ALARM_PVD')
+                filterLogType('LOG_ALARM_FIRE_POINT')
+                filterLogType('LOG_ALARM_TEMPERATURE')
+                filterLogType('LOG_ALARM_PASSLINE_COUNT')
+                filterLogType('LOG_ALARM_FACE_MATCH')
+                filterLogType('LOG_ALARM_VEHICLE_PLATE_MATCH')
+                filterLogType('LOG_OPERATE_PLATELIBRARY')
+                filterLogType('LOG_OPERATE_FEATURELIBRARY')
+                filterLogType('LOG_OPERATE_PARKINGLOT_CONFIG')
+                filterLogType('LOG_OPERATE_ACCESS_CONTROL')
+            }
+
             formData.value.type = 'LOG_ALL'
             search()
         })

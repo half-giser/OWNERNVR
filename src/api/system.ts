@@ -364,3 +364,9 @@ export const editCustomOperateList = (data: string) => fetch('editCustomOperateL
  * @returns
  */
 export const querySecurityCode = (data: string) => fetch('querySecurityCode', data)
+
+/**
+ * @description 查询热备机配置
+ * @returns
+ */
+export const queryHotStandbyCfg = () => fetch('queryHotStandbyCfg', '')

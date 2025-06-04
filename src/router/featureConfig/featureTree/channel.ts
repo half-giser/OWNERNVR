@@ -8,7 +8,6 @@ const channelRoutes: FeatureItem = {
     meta: {
         sort: 10,
         lk: 'IDCS_CHANNEL',
-        plClass: 'md2',
         icon: 'chl',
         auth: 'remoteChlMgr',
         groups: {
@@ -42,6 +41,9 @@ const channelRoutes: FeatureItem = {
                 lk: 'IDCS_IPSPEAKER',
                 icon: 'ipSpeaker',
             },
+        },
+        hasCap(systemCaps) {
+            return !systemCaps.hotStandBy
         },
     },
     children: {

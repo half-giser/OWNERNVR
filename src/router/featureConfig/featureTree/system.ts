@@ -9,7 +9,6 @@ const systemRoutes: FeatureItem = {
     meta: {
         sort: 70,
         lk: 'IDCS_SYSTEM',
-        plClass: 'md3',
         icon: 'system',
         auth: 'remoteSysCfgAndMaintain',
         groups: {
@@ -261,6 +260,9 @@ const systemRoutes: FeatureItem = {
                 sort: 40,
                 lk: 'IDCS_RECORD_STATE',
                 group: 'info',
+                hasCap(systemCaps) {
+                    return !systemCaps.hotStandBy
+                },
             },
         },
         // 网络状态
