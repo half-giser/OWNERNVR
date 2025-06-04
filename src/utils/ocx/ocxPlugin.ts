@@ -1765,6 +1765,14 @@ const getSingletonPlugin = () => {
 
             // siteDictionary.js 在P2P服务器根目录下
             await loadScript(`${import.meta.env.VITE_P2P_BASE_URL}/siteDictionary.js?v=${import.meta.env.VITE_PACKAGE_VER}`)
+
+            // use114 使用中性版本，但定制化登录页/授权码登录页
+            const hostname = sha256_encrypt(location.hostname)
+            if (HOSTNAME_CSS_MAP && HOSTNAME_CSS_MAP[hostname]) {
+                const cssName = HOSTNAME_CSS_MAP[hostname]
+                document.querySelector('html')?.classList.add(cssName)
+            }
+
             await p2pLang.getLangTypes()
             await p2pLang.getLangItems()
             lang.langType = p2pLang.langType
