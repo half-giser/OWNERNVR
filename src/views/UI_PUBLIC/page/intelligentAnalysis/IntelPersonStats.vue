@@ -29,7 +29,7 @@
                 </div>
             </div>
         </div>
-        <div class="base-intel-right">
+        <div class="base-intel-center">
             <div class="base-intel-row">
                 <BaseDateTab
                     :model-value="formData.dateRange"

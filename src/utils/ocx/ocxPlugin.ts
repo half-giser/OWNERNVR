@@ -96,6 +96,7 @@ const getSingletonPlugin = () => {
     let reconCallBack = () => {} // 重连回调函数
     let p2pLoginTypeCallback: ((loginType: string, authCodeIndex: string) => void) | null = null
     let loginErrorCallback: ((code?: number, desc?: string) => void) | null = null
+    let p2pDualAuthLoginPop: ReturnType<typeof openP2PDualAuthLoginPop> | null = null
 
     const systemInfo = getSystemInfo()
     const browserInfo = getBrowserInfo()
@@ -178,11 +179,11 @@ const getSingletonPlugin = () => {
         }
 
         if ($('statenotify[@target="dateCtrl"]').length) {
-            // TimeSliderPluginNotify(strXMLFormat)
             return
         }
+
         //连接成功 / 插件token和sessionId认证成功
-        else if (stateType === 'connectstate' || stateType === 'AuthenticationState') {
+        if (stateType === 'connectstate' || stateType === 'AuthenticationState') {
             let status = ''
             if ($('statenotify/status').length) {
                 status = $('statenotify/status').text().trim()
@@ -202,6 +203,11 @@ const getSingletonPlugin = () => {
                 } else {
                     if (userSession.appType === 'P2P') {
                         closeLoading()
+
+                        if (p2pDualAuthLoginPop !== null) {
+                            p2pDualAuthLoginPop.close()
+                        }
+
                         if (VideoPluginReconnectTimeoutId !== null) {
                             // 重新连接成功，隐藏“加载中”状态
                             clearTimeout(VideoPluginReconnectTimeoutId)
@@ -305,7 +311,21 @@ const getSingletonPlugin = () => {
                         // 登录用户需要双重认证
                         case 536871090:
                             closeLoading()
-                            // TODO
+                            p2pDualAuthLoginPop = openP2PDualAuthLoginPop({
+                                confirm(data) {
+                                    openLoading()
+                                    // 双重认证登录(p2p插件使用明文传输，并且双重认证后p2p界面刷新逻辑保持跟账号密码登录后刷新逻辑一致（账密登录不返回sessionid，刷新界面仍然是通过账密登录，目前只有授权码登录后才会返回sessionid）)
+                                    userSession.setDualAuthInfo(data)
+                                    p2pDualAuthLogin()
+                                },
+                                close() {
+                                    p2pDualAuthLoginPop = null
+                                },
+                                destroy() {
+                                    p2pDualAuthLoginPop?.close()
+                                    goToIndex()
+                                },
+                            })
                             break
                         case ErrorCode.USER_ERROR_NO_USER:
                         case ErrorCode.USER_ERROR_PWD_ERR:
@@ -314,16 +334,20 @@ const getSingletonPlugin = () => {
                             if (curRoutUrl.includes('authCodeLogin')) {
                                 execLoginErrorCallback(errorCode, errorDescription)
                             } else {
-                                // 双重认证
+                                if (!!p2pDualAuthLoginPop) {
+                                    p2pDualAuthLoginPop.setErrorMsg(p2pLang.Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR'))
+                                } else {
+                                    goToIndex(errorCode, errorDescription)
+                                }
                             }
                             break
                         // 不在排程内
                         case 536871089:
-                            // 双重认证
-                            if (true) {
-                            }
-                            //
-                            else {
+                            closeLoading()
+                            if (!!p2pDualAuthLoginPop) {
+                                p2pDualAuthLoginPop.setErrorMsg(p2pLang.Translate('IDCS_LOGIN_NOT_IN_SCHEDULE'))
+                            } else {
+                                goToIndex(errorCode, errorDescription)
                             }
                             break
                         default:

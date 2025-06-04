@@ -52,7 +52,7 @@
 }
 
 .right {
-    margin-top: 38px;
+    margin-top: 30px;
     margin-left: 10px;
 
     .data {
