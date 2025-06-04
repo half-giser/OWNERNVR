@@ -687,10 +687,12 @@ export default defineComponent({
                     // 先清除所有区域
                     const sendClearXML = OCX_XML_DeletePolygonArea('clearAll')
                     plugin.ExecuteCmd(sendClearXML)
+
                     // 再绘制当前区域
                     const polygonAreas = [cloneDeep(boundaryInfoList[curIndex])]
                     const sendAreaXML = OCX_XML_AddPolygonArea(polygonAreas, curIndex, true)
                     plugin.ExecuteCmd(sendAreaXML)
+
                     // 然后再绘制所有区域（结合上面绘制的当前区域会让当前区域有加粗效果）
                     const sendAllAreaXML = OCX_XML_AddPolygonArea(boundaryInfoList, curIndex, true)
                     plugin.ExecuteCmd(sendAllAreaXML)
@@ -894,7 +896,7 @@ export default defineComponent({
             }
 
             if (mode.value === 'ocx') {
-                const sendXML = OCX_XML_DeletePolygonArea(area.toString())
+                const sendXML = OCX_XML_DeletePolygonArea(area)
                 plugin.ExecuteCmd(sendXML)
             }
 

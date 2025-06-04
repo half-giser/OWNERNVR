@@ -21,6 +21,8 @@
                         v-if="tableData.length"
                         v-model="pageData.tableIndex"
                         :options="chlOptions"
+                        :persistent="true"
+                        popper-class="intersect-ocx"
                         @change="changeChl"
                     />
                     <el-select-v2
@@ -36,6 +38,8 @@
                         v-model="tableData[pageData.tableIndex].protocol"
                         :disabled="tableData[pageData.tableIndex].disabled"
                         :options="tableData[pageData.tableIndex].protocolOptions"
+                        :persistent="true"
+                        popper-class="intersect-ocx"
                     />
                     <el-select-v2
                         v-else
@@ -64,6 +68,8 @@
                         v-model="tableData[pageData.tableIndex].baudRate"
                         :disabled="tableData[pageData.tableIndex].disabled"
                         :options="tableData[pageData.tableIndex].baudRateOptions"
+                        :persistent="true"
+                        popper-class="intersect-ocx"
                     />
                     <el-select-v2
                         v-else

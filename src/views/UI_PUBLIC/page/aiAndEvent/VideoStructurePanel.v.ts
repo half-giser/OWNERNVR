@@ -571,23 +571,19 @@ export default defineComponent({
             if (pageData.value.tab === 'param') {
                 setAreaView(currAreaType)
                 if (mode.value === 'h5') {
-                    setTimeout(() => {
-                        drawer.setEnable(true)
-                        drawer.setOSDEnable(false)
-                        drawer.init(true)
-                    }, 10)
+                    drawer.setEnable(true)
+                    drawer.setOSDEnable(false)
+                    drawer.init(true)
                 }
 
                 if (mode.value === 'ocx') {
-                    setTimeout(() => {
-                        const sendXML1 = OCX_XML_SetVsdAreaInfo(noneOSD, 'vsd')
-                        plugin.ExecuteCmd(sendXML1)
+                    const sendXML1 = OCX_XML_SetVsdAreaInfo(noneOSD, 'vsd')
+                    plugin.ExecuteCmd(sendXML1)
 
-                        const sendXML2 = OCX_XML_SetVsdAreaAction('EDIT_ON')
-                        plugin.ExecuteCmd(sendXML2)
+                    const sendXML2 = OCX_XML_SetVsdAreaAction('EDIT_ON')
+                    plugin.ExecuteCmd(sendXML2)
 
-                        play()
-                    }, 100)
+                    play()
                 }
 
                 if (pageData.value.isShowAllArea) {
@@ -602,18 +598,16 @@ export default defineComponent({
                 }
 
                 if (mode.value === 'ocx') {
-                    setTimeout(() => {
-                        const sendXML1 = OCX_XML_SetVsdAreaInfo(noneOSD, 'vsd')
-                        plugin.ExecuteCmd(sendXML1)
+                    const sendXML1 = OCX_XML_SetVsdAreaInfo(noneOSD, 'vsd')
+                    plugin.ExecuteCmd(sendXML1)
 
-                        const sendXML2 = OCX_XML_SetVsdAreaAction('NONE')
-                        plugin.ExecuteCmd(sendXML2)
+                    const sendXML2 = OCX_XML_SetVsdAreaAction('NONE')
+                    plugin.ExecuteCmd(sendXML2)
 
-                        const sendXML3 = OCX_XML_SetVsdAreaAction('EDIT_OFF')
-                        plugin.ExecuteCmd(sendXML3)
+                    const sendXML3 = OCX_XML_SetVsdAreaAction('EDIT_OFF')
+                    plugin.ExecuteCmd(sendXML3)
 
-                        play()
-                    }, 100)
+                    play()
                 }
 
                 showAllArea(false)
@@ -626,46 +620,40 @@ export default defineComponent({
                 }
 
                 if (mode.value === 'ocx') {
-                    setTimeout(() => {
-                        const sendXML1 = OCX_XML_SetVsdAreaInfo(noneOSD, 'vsd')
-                        plugin.ExecuteCmd(sendXML1)
+                    const sendXML1 = OCX_XML_SetVsdAreaInfo(noneOSD, 'vsd')
+                    plugin.ExecuteCmd(sendXML1)
 
-                        const sendXML2 = OCX_XML_SetVsdAreaAction('NONE')
-                        plugin.ExecuteCmd(sendXML2)
+                    const sendXML2 = OCX_XML_SetVsdAreaAction('NONE')
+                    plugin.ExecuteCmd(sendXML2)
 
-                        const sendXML3 = OCX_XML_SetVsdAreaAction('EDIT_OFF')
-                        plugin.ExecuteCmd(sendXML3)
+                    const sendXML3 = OCX_XML_SetVsdAreaAction('EDIT_OFF')
+                    plugin.ExecuteCmd(sendXML3)
 
-                        play()
-                    }, 100)
+                    play()
                 }
 
                 showAllArea(false)
             } else if (pageData.value.tab === 'osd') {
                 if (mode.value === 'h5') {
-                    setTimeout(() => {
-                        drawer.clear()
-                        drawer.setEnable(false)
-                        drawer.setOSDEnable(formData.value.countOSD.switch)
-                        drawer.setOSD(formData.value.countOSD)
-                        drawer.init(true)
-                    }, 10)
+                    drawer.clear()
+                    drawer.setEnable(false)
+                    drawer.setOSDEnable(formData.value.countOSD.switch)
+                    drawer.setOSD(formData.value.countOSD)
+                    drawer.init(true)
                 }
 
                 if (mode.value === 'ocx') {
                     const osdData = formData.value.countOSD ? formData.value.countOSD : noneOSD
-                    setTimeout(() => {
-                        const sendXML1 = OCX_XML_SetVsdAreaInfo(osdData, 'vsd')
-                        plugin.ExecuteCmd(sendXML1)
+                    const sendXML1 = OCX_XML_SetVsdAreaInfo(osdData, 'vsd')
+                    plugin.ExecuteCmd(sendXML1)
 
-                        const sendXML2 = OCX_XML_SetVsdAreaAction('NONE')
-                        plugin.ExecuteCmd(sendXML2)
+                    const sendXML2 = OCX_XML_SetVsdAreaAction('NONE')
+                    plugin.ExecuteCmd(sendXML2)
 
-                        const sendXML3 = OCX_XML_SetVsdAreaAction('EDIT_OFF')
-                        plugin.ExecuteCmd(sendXML3)
+                    const sendXML3 = OCX_XML_SetVsdAreaAction('EDIT_OFF')
+                    plugin.ExecuteCmd(sendXML3)
 
-                        play()
-                    }, 100)
+                    play()
                 }
             }
         }

@@ -24,6 +24,8 @@
                         v-if="tableData.length"
                         v-model="pageData.tableIndex"
                         :options="chlOptions"
+                        :persistent="true"
+                        popper-class="intersect-ocx"
                         @change="changeChl"
                     />
                     <el-select-v2
@@ -37,6 +39,8 @@
                         v-model="formData.type"
                         :options="pageData.typeOptions"
                         :disabled="!tableData.length"
+                        :persistent="true"
+                        popper-class="intersect-ocx"
                         @change="changeType"
                     />
                 </el-form-item>
@@ -46,6 +50,8 @@
                 >
                     <el-select-v2
                         v-model="formData.editIndex"
+                        :persistent="true"
+                        popper-class="intersect-ocx"
                         :options="getNameOption(tableData[pageData.tableIndex], formData.type)"
                         :disabled="!tableData.length"
                     />

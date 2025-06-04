@@ -23,7 +23,7 @@
                         />
                     </div>
                 </template>
-                <el-scrollbar :max-height="height">
+                <el-scrollbar :max-height="140">
                     <div class="alarm-chl-list">
                         <div
                             v-for="item in list"

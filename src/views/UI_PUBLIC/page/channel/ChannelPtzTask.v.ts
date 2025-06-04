@@ -237,7 +237,12 @@ export default defineComponent({
          */
         const getNameOption = (row: ChannelPtzTaskChlDto, type: string) => {
             if (typeof row === 'undefined') {
-                return []
+                return [
+                    {
+                        value: 0,
+                        label: '',
+                    },
+                ]
             }
 
             switch (type) {
@@ -262,7 +267,12 @@ export default defineComponent({
                         },
                     ]
                 default:
-                    return []
+                    return [
+                        {
+                            value: 0,
+                            label: '',
+                        },
+                    ]
             }
         }
 

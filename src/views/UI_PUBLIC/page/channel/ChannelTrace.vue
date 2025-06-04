@@ -34,8 +34,9 @@
                     <el-select-v2
                         v-if="tableData.length"
                         v-model="pageData.tableIndex"
-                        :height="170"
                         :options="chlOptions"
+                        :persistent="true"
+                        popper-class="intersect-ocx"
                         @change="changeChl"
                     />
                     <el-select-v2
@@ -51,7 +52,8 @@
                         :props="{
                             label: 'index',
                         }"
-                        :height="170"
+                        :persistent="true"
+                        popper-class="intersect-ocx"
                     />
                     <el-tooltip :content="Translate('IDCS_TRACK_PLAY')">
                         <div

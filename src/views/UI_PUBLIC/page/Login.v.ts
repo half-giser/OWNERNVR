@@ -201,9 +201,9 @@ export default defineComponent({
                     ${
                         dualInfo
                             ? rawXml`
-                            <dualAuthUserName>${wrapCDATA(dualInfo.userName)}</dualAuthUserName>
-                            <dualAuthPassword>${wrapCDATA(dualInfo.password)}</dualAuthPassword>
-                        `
+                                <dualAuthUserName>${wrapCDATA(dualInfo.username)}</dualAuthUserName>
+                                <dualAuthPassword>${wrapCDATA(dualInfo.password)}</dualAuthPassword>
+                            `
                             : ''
                     }
                     <rsaPublic>${reqData.rsaPublic}</rsaPublic>

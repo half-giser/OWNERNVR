@@ -2209,7 +2209,7 @@ export const OCX_XML_SetTripwireLineInfo = (data: { switch: boolean; osdFormat: 
             <info>${data.osdFormat}</info>
             <X>${data.X}</X>
             <Y>${data.Y}</Y>
-            <onlyOSD>${onlyOSD as boolean}</onlyOSD>
+            ${typeof onlyOSD === 'boolean' ? `<onlyOSD>${onlyOSD}</onlyOSD>` : ''}
         </cmd>
     `)
 }

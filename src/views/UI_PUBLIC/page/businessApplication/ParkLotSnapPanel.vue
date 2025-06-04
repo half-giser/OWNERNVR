@@ -9,20 +9,21 @@
         :class="{ 'search-box': layout === 'search' }"
     >
         <div class="tab">
-            <div
-                class="tab-item"
-                :class="{ active: pageData.tabIndex === 0 }"
-                @click="pageData.tabIndex = 0"
+            <el-radio-group
+                v-model="pageData.tabIndex"
+                :style="{
+                    '--form-radio-button-width': '160px',
+                }"
             >
-                {{ current.type === 'nonEnter-nonExit' ? Translate('IDCS_NOT_HAVE_IN') : Translate('IDCS_VEHICLE_IN') }}
-            </div>
-            <div
-                class="tab-item"
-                :class="{ active: pageData.tabIndex === 1 }"
-                @click="pageData.tabIndex = 1"
-            >
-                {{ current.type === 'out-nonEnter-nonExit' ? Translate('IDCS_VEHICLE_NOT_OUT_TIPS') : Translate('IDCS_VEHICLE_OUT') }}
-            </div>
+                <el-radio-button
+                    :value="0"
+                    :label="current.type === 'nonEnter-nonExit' ? Translate('IDCS_NOT_HAVE_IN') : Translate('IDCS_VEHICLE_IN')"
+                />
+                <el-radio-button
+                    :value="1"
+                    :label="current.type === 'out-nonEnter-nonExit' ? Translate('IDCS_VEHICLE_NOT_OUT_TIPS') : Translate('IDCS_VEHICLE_OUT')"
+                />
+            </el-radio-group>
         </div>
         <div
             class="left"
@@ -161,7 +162,8 @@
 
 .tab {
     display: flex;
-    height: 32px;
+    height: 27px;
+    margin-bottom: 2px;
 
     &-item {
         min-width: 130px;

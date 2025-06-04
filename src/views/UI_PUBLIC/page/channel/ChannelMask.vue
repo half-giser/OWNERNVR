@@ -35,6 +35,8 @@
                     <el-select-v2
                         v-model="selectedChlId"
                         :options="chlOptions"
+                        :persistent="true"
+                        popper-class="intersect-ocx"
                         @change="handleChlSel"
                     />
                 </el-form-item>
@@ -46,6 +48,8 @@
                         v-model="formData.preset"
                         :disabled="formData.disabled"
                         :options="formData.presetList"
+                        :persistent="true"
+                        popper-class="intersect-ocx"
                         @change="playPreset(formData.id, formData.preset, 4)"
                     />
                     <BaseImgSprite
