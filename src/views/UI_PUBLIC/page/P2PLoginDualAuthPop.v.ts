@@ -7,6 +7,10 @@ import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
+        visible: {
+            type: Boolean,
+            default: false,
+        },
         errMsg: {
             type: String,
             default: ' ',
@@ -19,18 +23,19 @@ export default defineComponent({
         close() {
             return true
         },
+        destroy() {
+            return true
+        },
     },
     setup(_prop, ctx) {
         const { Translate } = useP2PLang()
 
         const formRef = useFormRef()
         const formData = ref(new UserDualAuthLoginForm())
-        const userSession = useUserSessionStore()
-        const layoutStore = useLayoutStore()
 
         // 校验规则
         const rules = reactive<FormRules>({
-            userName: [
+            username: [
                 {
                     validator: (_rule, value: string, callback) => {
                         if (!value.length) {
@@ -68,28 +73,24 @@ export default defineComponent({
         const verify = () => {
             formRef.value!.validate((valid) => {
                 if (valid) {
-                    const nonce = userSession.nonce ? userSession.nonce : ''
                     ctx.emit('confirm', {
-                        userName: formData.value.userName,
-                        password: sha512_encrypt(MD5_encrypt(formData.value.password) + '#' + nonce),
+                        username: formData.value.username,
+                        password: formData.value.password,
                     })
                 }
             })
         }
 
         /**
-         * @description 开启弹窗
-         */
-        const open = () => {
-            layoutStore.isAuth = true
-        }
-
-        /**
          * @description 关闭弹窗
          */
         const close = () => {
+            formRef.value?.resetFields()
             ctx.emit('close')
-            layoutStore.isAuth = false
+        }
+
+        const destroy = () => {
+            ctx.emit('destroy')
         }
 
         return {
@@ -100,6 +101,7 @@ export default defineComponent({
             close,
             verify,
             rules,
+            destroy,
         }
     },
 })

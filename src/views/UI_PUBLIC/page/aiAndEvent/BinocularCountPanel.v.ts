@@ -87,19 +87,11 @@ export default defineComponent({
             reqFail: false,
             // 排程
             schedule: '',
-            // 线/区域
-            lineAreaTxt: Translate('IDCS_LINE') + '/' + Translate('IDCS_AREA'),
             // 排程管理
             isSchedulePop: false,
             scheduleList: [] as SelectOption<string, string>[],
             // 选择的功能:param,target,trigger
             tab: 'param',
-            noneOSD: {
-                switch: false,
-                X: 0,
-                Y: 0,
-                osdFormat: '',
-            },
             // 是否启用侦测
             detectionEnable: false,
             // 用于对比
@@ -153,10 +145,18 @@ export default defineComponent({
                 }),
             imgOsdTypeList: [] as SelectOption<string, string>[],
             moreDropDown: false,
+            lastTab: '',
         })
 
         const formData = ref(new AlarmBinocularCountDto())
         const watchEdit = useWatchEditData(formData)
+
+        const noneOSD = {
+            switch: false,
+            X: 0,
+            Y: 0,
+            osdFormat: '',
+        }
 
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
@@ -746,7 +746,6 @@ export default defineComponent({
                 if (formData.value.detectionEnable) {
                     formData.value.originalEnable = true
                 }
-                changeTab()
                 refreshInitPage()
                 watchEdit.update()
             } else {
@@ -896,13 +895,20 @@ export default defineComponent({
                 }
 
                 if (mode.value === 'ocx') {
-                    clearOCXData(pageData.value.noneOSD, false)
-                }
-                setOcxData()
+                    clearOCXData()
 
-                if (pageData.value.isShowAllArea) {
-                    showAllArea(true)
+                    if (pageData.value.detectType === 1) {
+                        const sendXML = OCX_XML_SetPeaAreaAction('EDIT_ON')
+                        plugin.ExecuteCmd(sendXML)
+                    } else {
+                        const sendEnableXML = OCX_XML_SetTripwireLineAction('EDIT_ON')
+                        plugin.ExecuteCmd(sendEnableXML)
+                    }
                 }
+
+                setTimeout(() => {
+                    setOcxData()
+                }, 150)
             } else if (pageData.value.tab === 'calibration') {
                 const modeType = formData.value.calibration.modeType
                 if (mode.value === 'h5') {
@@ -920,20 +926,23 @@ export default defineComponent({
 
                 if (mode.value === 'ocx') {
                     // 切到其他AI事件页面时清除一下插件显示的（线条/点/矩形/多边形）数据
-                    clearOCXData(pageData.value.noneOSD, false)
-                    if (modeType === 'auto') {
-                        const sendXML2 = OCX_XML_SetVfdAreaAction('EDIT_ON')
-                        plugin.ExecuteCmd(sendXML2)
+                    clearOCXData()
 
-                        const sendXML1 = OCX_XML_AddPolygonArea([], 0, false)
-                        plugin.ExecuteCmd(sendXML1)
+                    setTimeout(() => {
+                        if (modeType === 'auto') {
+                            const sendXML = OCX_XML_AddPolygonArea([], 0, false)
+                            plugin.ExecuteCmd(sendXML)
 
-                        const sendXML3 = OCX_XML_SetVfdArea(formData.value.calibration.regionInfo, 'regionArea', 'green', OCX_AI_EVENT_TYPE_VFD_BLOCK)
-                        plugin.ExecuteCmd(sendXML3)
-                    }
+                            const sendXML2 = OCX_XML_SetVfdAreaAction('EDIT_ON')
+                            plugin.ExecuteCmd(sendXML2)
+
+                            const sendXML3 = OCX_XML_SetVfdArea(formData.value.calibration.regionInfo, 'regionArea', 'green', OCX_AI_EVENT_TYPE_PLATE_DETECTION)
+                            plugin.ExecuteCmd(sendXML3)
+                        }
+                    }, 150)
                 }
             } else if (pageData.value.tab === 'imageOSD') {
-                const countOSD = formData.value.countOSD || pageData.value.noneOSD
+                const countOSD = formData.value.countOSD || noneOSD
                 const onlyOSD = formData.value.countOSD.switch
                 if (mode.value === 'h5') {
                     drawer.clear()
@@ -942,7 +951,12 @@ export default defineComponent({
                 }
 
                 if (mode.value === 'ocx') {
-                    clearOCXData(countOSD, onlyOSD)
+                    clearOCXData()
+
+                    setTimeout(() => {
+                        const sendClearOsdXML = OCX_XML_SetTripwireLineInfo(countOSD, onlyOSD)
+                        plugin.ExecuteCmd(sendClearOsdXML)
+                    }, 150)
                 }
             } else if (pageData.value.tab === 'heightFilter') {
                 if (mode.value === 'h5') {
@@ -953,9 +967,11 @@ export default defineComponent({
                 }
 
                 if (mode.value === 'ocx') {
-                    clearOCXData(pageData.value.noneOSD, false)
+                    clearOCXData()
                 }
             }
+
+            pageData.value.lastTab = pageData.value.tab
         }
 
         /**
@@ -975,8 +991,8 @@ export default defineComponent({
 
             // 警戒区域
             const boundaryInfoList = formData.value.boundaryInfo
-            pageData.value.warnAreaChecked = [] as number[]
-            pageData.value.drawAreaChecked = [] as string[]
+            pageData.value.warnAreaChecked = []
+            pageData.value.drawAreaChecked = []
             boundaryInfoList.forEach((ele, idx) => {
                 if ((ele.rectA.point && ele.rectA.point.length > 0) || (ele.rectB.point && ele.rectB.point.length > 0)) {
                     pageData.value.warnAreaChecked.push(idx)
@@ -1013,7 +1029,36 @@ export default defineComponent({
          * @description 切换线/区域
          */
         const changeLineArea = () => {
-            setOcxData()
+            if (pageData.value.detectType === 0) {
+                if (mode.value === 'h5') {
+                    drawer.clear()
+                }
+
+                // 清除多边形绘制区域
+                const sendClearXML = OCX_XML_DeletePolygonArea('clearAll')
+                plugin.ExecuteCmd(sendClearXML)
+
+                const sendEnableXML = OCX_XML_SetTripwireLineAction('EDIT_ON')
+                plugin.ExecuteCmd(sendEnableXML)
+            } else {
+                if (mode.value === 'h5') {
+                    drawer.clear()
+                }
+
+                // 清除箭头绘制
+                const sendClearPointXML = OCX_XML_SetTripwireLineAction('NONE')
+                plugin.ExecuteCmd(sendClearPointXML)
+
+                const sendEnableXML = OCX_XML_SetTripwireLineAction('EDIT_OFF')
+                plugin.ExecuteCmd(sendEnableXML)
+
+                const sendXML = OCX_XML_SetPeaAreaAction('EDIT_ON')
+                plugin.ExecuteCmd(sendXML)
+            }
+
+            setTimeout(() => {
+                setOcxData()
+            }, 200)
         }
 
         /**
@@ -1085,7 +1130,8 @@ export default defineComponent({
                     // 绘制矩形区域
                     const sendXML1 = OCX_XML_SetVfdAreaAction('EDIT_ON')
                     plugin.ExecuteCmd(sendXML1)
-                    const sendXML2 = OCX_XML_SetVfdArea(formData.value.calibration.regionInfo, 'regionArea', '#00ff00', OCX_AI_EVENT_TYPE_VFD_BLOCK)
+
+                    const sendXML2 = OCX_XML_SetVfdArea(formData.value.calibration.regionInfo, 'regionArea', 'green', OCX_AI_EVENT_TYPE_PLATE_DETECTION)
                     plugin.ExecuteCmd(sendXML2)
                 }
             }
@@ -1250,6 +1296,7 @@ export default defineComponent({
          */
         const showAllArea = (isShowAll: boolean) => {
             if (pageData.value.tab !== 'param') return
+
             if (mode.value === 'h5') {
                 drawer.setEnableShowAll(isShowAll)
             }
@@ -1272,11 +1319,12 @@ export default defineComponent({
                     const area = pageData.value.warnAreaIndex // 警戒区域
                     const drawArea = pageData.value.drawAreaIndex // 绘制区域
                     // 画点
-                    const boundaryInfo: CanvasBinicularPoint[] = []
                     const boundaryInfoList = formData.value.boundaryInfo
-                    boundaryInfoList.forEach((ele, idx) => {
-                        boundaryInfo[idx].rectA = ele.rectA.point ? ele.rectA.point : []
-                        boundaryInfo[idx].rectB = ele.rectB.point ? ele.rectB.point : []
+                    const boundaryInfo = boundaryInfoList.map((ele) => {
+                        return {
+                            rectA: ele.rectA?.point ? ele.rectA.point : [],
+                            rectB: ele.rectB?.point ? ele.rectB.point : [],
+                        }
                     })
 
                     if (mode.value === 'h5') {
@@ -1294,10 +1342,10 @@ export default defineComponent({
                             polygonAreas[area] = {
                                 [drawArea]: (boundaryInfoList[area][drawArea] && boundaryInfoList[area][drawArea].point) || [],
                             }
-                            // polygonAreas[area][drawArea] = (boundaryInfoList[area][drawArea] && boundaryInfoList[area][drawArea].point) || []
                         }
                         const sendAreaXML = OCX_XML_AddPolygonAreaBinicular(polygonAreas, area, false, drawArea)
                         plugin.ExecuteCmd(sendAreaXML)
+
                         // 然后再绘制所有区域（结合上面绘制的当前区域会让当前区域有加粗效果）
                         const sendAllAreaXML = OCX_XML_AddPolygonAreaBinicular(boundaryInfo, area, true, drawArea)
                         plugin.ExecuteCmd(sendAllAreaXML)
@@ -1360,20 +1408,11 @@ export default defineComponent({
                         lineOcxData = formData.value.lineInfo[lineIndex]
                     }
 
-                    // 清除矩形绘制
-                    // const sendClearRectXML = OCX_XML_SetVfdAreaAction('NONE', 'vfdArea')
-                    // plugin.ExecuteCmd(sendClearRectXML)
-                    // const sendEnableRectXML = OCX_XML_SetVfdAreaAction('EDIT_OFF')
-                    // plugin.ExecuteCmd(sendEnableRectXML)
-                    // 绘制箭头
-                    // setTimeout(function () {
-                    // const sendClearOsdXML = OCX_XML_SetTripwireLineInfo(pageData.value.noneOSD, false)
-                    // plugin.ExecuteCmd(sendClearOsdXML)
+                    const sendClearXML = OCX_XML_DeletePolygonArea('clearAll')
+                    plugin.ExecuteCmd(sendClearXML)
+
                     const sendXML = OCX_XML_SetTripwireLine(lineOcxData)
                     plugin.ExecuteCmd(sendXML)
-                    const sendEnableXML = OCX_XML_SetTripwireLineAction('EDIT_ON')
-                    plugin.ExecuteCmd(sendEnableXML)
-                    // }, 300)
                 }
             } else {
                 // 绘制警戒区域
@@ -1391,6 +1430,7 @@ export default defineComponent({
                     // 先清除所有区域
                     const sendClearXML = OCX_XML_DeletePolygonArea('clearAll')
                     plugin.ExecuteCmd(sendClearXML)
+
                     // 再绘制当前区域
                     const polygonAreas = {
                         [area]: {
@@ -1500,25 +1540,68 @@ export default defineComponent({
         /**
          * @description 清空插件绘制的OSD信息
          */
-        const clearOCXData = (osdData: { switch: boolean; osdFormat: string; X: number; Y: number }, onlyOSD: boolean | undefined) => {
-            // 清除多边形绘制区域
-            const sendClearXML = OCX_XML_DeletePolygonArea('clearAll')
-            plugin.ExecuteCmd(sendClearXML)
-            // 清除箭头绘制
-            const sendClearPointXML = OCX_XML_SetTripwireLineAction('NONE')
-            plugin.ExecuteCmd(sendClearPointXML)
-            const sendEnableXML = OCX_XML_SetTripwireLineAction('EDIT_OFF')
-            plugin.ExecuteCmd(sendEnableXML)
-            // 清除矩形绘制
-            const sendClearRectXML = OCX_XML_SetVfdAreaAction('NONE', 'vfdArea')
-            plugin.ExecuteCmd(sendClearRectXML)
-            const sendEnableRectXML = OCX_XML_SetVfdAreaAction('EDIT_OFF')
-            plugin.ExecuteCmd(sendEnableRectXML)
-            setTimeout(() => {
-                // 清除OSD绘制
-                const sendClearOsdXML = OCX_XML_SetTripwireLineInfo(osdData, onlyOSD)
+        const clearOCXData = () => {
+            // if (pageData.value.tab !== 'imageOSD') {
+            if (pageData.value.lastTab === 'param') {
+                if (pageData.value.detectType === 0) {
+                    // 清除箭头绘制
+                    const sendClearPointXML = OCX_XML_SetTripwireLineAction('NONE')
+                    plugin.ExecuteCmd(sendClearPointXML)
+
+                    const sendEnableXML = OCX_XML_SetTripwireLineAction('EDIT_OFF')
+                    plugin.ExecuteCmd(sendEnableXML)
+                } else {
+                    // 清除多边形绘制区域
+                    const sendClearXML = OCX_XML_DeletePolygonArea('clearAll')
+                    plugin.ExecuteCmd(sendClearXML)
+                }
+            }
+
+            if (pageData.value.lastTab === 'calibration') {
+                // 清除矩形绘制
+                const sendClearRectXML = OCX_XML_SetVfdAreaAction('NONE', 'vfdArea')
+                plugin.ExecuteCmd(sendClearRectXML)
+
+                const sendEnableRectXML = OCX_XML_SetVfdAreaAction('EDIT_OFF')
+                plugin.ExecuteCmd(sendEnableRectXML)
+            }
+
+            if (pageData.value.lastTab === 'imageOSD') {
+                const sendClearOsdXML = OCX_XML_SetTripwireLineInfo(noneOSD)
                 plugin.ExecuteCmd(sendClearOsdXML)
-            }, 100)
+                // setTimeout(() => {
+                //     const sendClearOsdXML = OCX_XML_SetTripwireLineInfo(noneOSD)
+                //     plugin.ExecuteCmd(sendClearOsdXML)
+                // }, 100)
+            }
+            // }
+
+            // if (pageData.value.tab === 'imageOSD') {
+            // 清除多边形绘制区域
+            // const sendClearXML = OCX_XML_DeletePolygonArea('clearAll')
+            // plugin.ExecuteCmd(sendClearXML)
+
+            // // 清除箭头绘制
+            // const sendClearPointXML = OCX_XML_SetTripwireLineAction('NONE')
+            // plugin.ExecuteCmd(sendClearPointXML)
+
+            // const sendEnableXML = OCX_XML_SetTripwireLineAction('EDIT_OFF')
+            // plugin.ExecuteCmd(sendEnableXML)
+
+            // // 清除矩形绘制
+            // const sendClearRectXML = OCX_XML_SetVfdAreaAction('NONE', 'vfdArea')
+            // plugin.ExecuteCmd(sendClearRectXML)
+
+            // const sendEnableRectXML = OCX_XML_SetVfdAreaAction('EDIT_OFF')
+            // plugin.ExecuteCmd(sendEnableRectXML)
+            // // }
+
+            // if (pageData.value.tab !== 'imageOSD') {
+            //     setTimeout(() => {
+            //         const sendClearOsdXML = OCX_XML_SetTripwireLineInfo(noneOSD)
+            //         plugin.ExecuteCmd(sendClearOsdXML)
+            //     }, 200)
+            // }
         }
 
         /**
@@ -1530,6 +1613,13 @@ export default defineComponent({
                 if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_SetVfdAreaAction('NONE', 'vfdArea')
                     plugin.ExecuteCmd(sendXML)
+                }
+
+                formData.value.calibration.regionInfo = {
+                    X1: 0,
+                    X2: 0,
+                    Y1: 0,
+                    Y2: 0,
                 }
             } else {
                 // 清除警戒线
@@ -1547,6 +1637,7 @@ export default defineComponent({
                     const area = pageData.value.warnAreaIndex
                     const drawArea = pageData.value.drawAreaIndex
                     formData.value.boundaryInfo[area][drawArea].point = []
+
                     if (mode.value === 'ocx') {
                         const sendXML = OCX_XML_DeletePolygonArea(area, drawArea)
                         plugin.ExecuteCmd(sendXML)
@@ -1567,21 +1658,40 @@ export default defineComponent({
          * @description 清空所有区域
          */
         const clearAllArea = () => {
-            const boundaryInfoList = formData.value.boundaryInfo
-            // 画点-警戒区域
-            boundaryInfoList.forEach((ele) => {
-                ele.rectA.point = []
-                ele.rectB.point = []
-            })
+            if (pageData.value.detectType === 0) {
+                formData.value.lineInfo.forEach((item) => {
+                    item.startPoint = { X: 0, Y: 0 }
+                    item.endPoint = { X: 0, Y: 0 }
+                })
 
-            if (mode.value === 'h5') {
-                drawer.clear()
-            }
+                if (mode.value === 'h5') {
+                    drawer.clear()
+                }
 
-            if (mode.value === 'ocx') {
-                // 画点
-                const sendXML = OCX_XML_DeletePolygonArea('clearAll')
-                plugin.ExecuteCmd(sendXML)
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_SetAllArea({ lineInfoList: [] }, 'WarningLine', OCX_AI_EVENT_TYPE_TRIPWIRE_LINE, undefined, pageData.value.isShowAllArea)
+                    plugin.ExecuteCmd(sendXML)
+
+                    const sendXML2 = OCX_XML_SetTripwireLineAction('NONE')
+                    plugin.ExecuteCmd(sendXML2)
+                }
+            } else {
+                const boundaryInfoList = formData.value.boundaryInfo
+                // 画点-警戒区域
+                boundaryInfoList.forEach((ele) => {
+                    ele.rectA.point = []
+                    ele.rectB.point = []
+                })
+
+                if (mode.value === 'h5') {
+                    drawer.clear()
+                }
+
+                if (mode.value === 'ocx') {
+                    // 画点
+                    const sendXML = OCX_XML_DeletePolygonArea('clearAll')
+                    plugin.ExecuteCmd(sendXML)
+                }
             }
 
             if (pageData.value.isShowAllArea) {
@@ -1616,7 +1726,7 @@ export default defineComponent({
                     X: $('statenotify/endPoint').attr('X').num(),
                     Y: $('statenotify/endPoint').attr('Y').num(),
                 }
-            } else {
+            } else if (stateType === 'PeaArea') {
                 // 绘制警戒区域
                 if ($('statenotify/points').length) {
                     const point = $('statenotify/points/item').map((item) => {
@@ -1628,6 +1738,16 @@ export default defineComponent({
                     const area = pageData.value.warnAreaIndex
                     const drawArea = pageData.value.drawAreaIndex
                     formData.value.boundaryInfo[area][drawArea].point = point
+                }
+
+                const errorCode = $('statenotify/errorCode').text().num()
+                // 处理错误码
+                if (errorCode === 517) {
+                    // 517-区域已闭合
+                    clearCurrentArea()
+                } else if (errorCode === 515) {
+                    // 515-区域有相交直线，不可闭合
+                    openMessageBox(Translate('IDCS_INTERSECT'))
                 }
             }
         }

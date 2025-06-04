@@ -21,6 +21,8 @@
                         v-if="tableData.length"
                         v-model="pageData.tableIndex"
                         :options="chlOptions"
+                        :persistent="true"
+                        popper-class="intersect-ocx"
                         @change="changeChl"
                     />
                     <el-select-v2
@@ -35,6 +37,8 @@
                         v-if="tableData[pageData.tableIndex]"
                         v-model="tableData[pageData.tableIndex].switch"
                         :disabled="tableData[pageData.tableIndex].disabled"
+                        :persistent="true"
+                        popper-class="intersect-ocx"
                         :options="pageData.switchOptions"
                     />
                     <el-select-v2

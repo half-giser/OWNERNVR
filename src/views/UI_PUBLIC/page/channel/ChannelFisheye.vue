@@ -20,6 +20,8 @@
                     <el-select-v2
                         v-model="selectedChlId"
                         :options="chlOptions"
+                        :persistent="true"
+                        popper-class="intersect-ocx"
                         @change="handleChlSel"
                     />
                 </el-form-item>
@@ -28,6 +30,8 @@
                         v-model="formData.fishEyeMode"
                         :disabled="formData.disabled || formData.reqCfgFail"
                         :options="formData.fishEyeModeList"
+                        :persistent="true"
+                        popper-class="intersect-ocx"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_FISHEYE_MODE')">
@@ -35,6 +39,8 @@
                         v-model="formData.installType"
                         :disabled="formData.disabled || formData.reqCfgFail"
                         :options="installTypeOption"
+                        :persistent="true"
+                        popper-class="intersect-ocx"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ENABLE')">

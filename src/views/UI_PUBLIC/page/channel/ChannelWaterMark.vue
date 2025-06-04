@@ -20,6 +20,8 @@
                     <el-select-v2
                         v-model="pageData.currChlId"
                         :options="chlOptions"
+                        :persistent="true"
+                        popper-class="intersect-ocx"
                         @change="handleChlChange"
                     />
                 </el-form-item>
@@ -28,6 +30,8 @@
                         v-model="pageData.chlData.switch"
                         :disabled="pageData.switchDisabled"
                         :options="pageData.options"
+                        :persistent="true"
+                        popper-class="intersect-ocx"
                         @change="handleSwitchChange"
                     />
                 </el-form-item>

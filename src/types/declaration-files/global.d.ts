@@ -179,13 +179,20 @@ declare global {
 
     type UserChlAuth = _UserChlAuth
 
+    /**
+     * P2P /config/index.js
+     */
     declare const natIp: string
     declare const natPort: string
     declare const natIp_2_0: string
     declare const natPort_2_0: string
     declare const ISOLATION: string
     declare const CUSTOMER_ID: string
+    declare const HOSTNAME_CSS_MAP: Record<string, string>
 
+    /**
+     * OCX ClientPluVerFile.js
+     */
     declare const ClientPluVer: string
     declare const P2PClientPluVer: string
     declare const MacP2PClientPluVer: string

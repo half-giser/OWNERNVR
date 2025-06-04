@@ -20,6 +20,8 @@
                     <el-select-v2
                         v-model="pageData.activeChannelIndex"
                         :options="chlOptions"
+                        :persistent="true"
+                        popper-class="intersect-ocx"
                         @change="changeChl"
                     />
                 </el-form-item>
@@ -30,6 +32,8 @@
                     <el-select-v2
                         v-model="tableData[pageData.activeChannelIndex].switch"
                         :options="pageData.channelOptions"
+                        :persistent="true"
+                        popper-class="intersect-ocx"
                     />
                 </el-form-item>
             </el-form>

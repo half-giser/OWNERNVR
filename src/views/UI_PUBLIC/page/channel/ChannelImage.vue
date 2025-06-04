@@ -21,6 +21,8 @@
                     <el-select-v2
                         v-model="selectedChlId"
                         :options="chlOptions"
+                        :persistent="true"
+                        popper-class="intersect-ocx"
                         @change="handleChlSel"
                     />
                 </el-form-item>
@@ -32,6 +34,8 @@
                         v-model="formData.paletteCode"
                         :disabled="formData.disabled"
                         :options="formData.paletteList"
+                        :persistent="true"
+                        popper-class="intersect-ocx"
                         @change="changePaletteCode()"
                     />
                 </el-form-item>
