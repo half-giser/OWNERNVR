@@ -136,6 +136,10 @@ const calculateEventLeft = (timestamp: number) => {
 
 const div = ref<HTMLDivElement>()
 const handleClick = (e: MouseEvent) => {
+    if (props.disabled) {
+        return
+    }
+
     const length = props.endTime - props.startTime
     const rect = div.value!.getBoundingClientRect()
     if (length > 0) {

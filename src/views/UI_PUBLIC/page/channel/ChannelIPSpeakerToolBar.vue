@@ -76,6 +76,10 @@ export default defineComponent({
             }
         })
 
+        onBeforeUnmount(() => {
+            layoutStore.isIpSpeakerAddPop = false
+        })
+
         return {
             msg,
             search,

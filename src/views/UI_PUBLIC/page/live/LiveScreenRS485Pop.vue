@@ -11,6 +11,7 @@
             :width="Math.ceil(pageData.list.length / 9) * 110"
             popper-class="no-padding"
             :disabled="!pageData.switch"
+            :offset="10"
         >
             <template #reference>
                 <BaseImgSpriteBtn

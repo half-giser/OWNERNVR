@@ -10,46 +10,48 @@
             @mousemove="handleMouseMove"
             @mouseup="handleMouseUp"
         >
-            <img :src="pageData.emap" />
-            <canvas
-                ref="canvas"
-                :width="pageData.width"
-                :height="pageData.height"
-                class="canvas"
-            ></canvas>
-            <div class="map-area">
-                <div
-                    v-for="(item, key) in pageData.points"
-                    v-show="pageData.isEdit || item.count"
-                    :key
-                    class="map-point"
-                    :class="`map-point-${key}`"
-                    @mousedown="handleMouseDown($event, key)"
-                >
+            <div>
+                <img :src="pageData.emap" />
+                <canvas
+                    ref="canvas"
+                    :width="pageData.width"
+                    :height="pageData.height"
+                    class="canvas"
+                ></canvas>
+                <div class="map-area">
                     <div
-                        v-show="!pageData.isEdit"
-                        class="badge"
+                        v-for="(item, key) in pageData.points"
+                        v-show="pageData.isEdit || item.count"
+                        :key
+                        class="map-point"
+                        :class="`map-point-${key}`"
+                        @mousedown="handleMouseDown($event, key)"
                     >
-                        <BaseImgSprite
-                            file="num_background"
-                            :index="1"
-                            :chunk="4"
+                        <div
+                            v-show="!pageData.isEdit"
+                            class="badge"
+                        >
+                            <BaseImgSprite
+                                file="num_background"
+                                :index="1"
+                                :chunk="4"
+                            />
+                            <span>{{ item.count }}</span>
+                        </div>
+                        <BaseImgSprite :file="pageData.playStatus !== 'stop' && data[pageData.playingIndex] === item.hotPointId ? 'track_camera_on_play' : 'track_camera'" />
+                        <div
+                            class="chlname text-ellipsis"
+                            :style="{ color: pageData.fontColor }"
+                        >
+                            {{ item.chlName }}
+                        </div>
+                        <BaseImgSpriteBtn
+                            v-show="pageData.isEdit"
+                            class="close"
+                            file="list_close"
+                            @click="deletePoint(key)"
                         />
-                        <span>{{ item.count }}</span>
                     </div>
-                    <BaseImgSprite :file="pageData.playStatus !== 'stop' && data[pageData.playingIndex] === item.hotPointId ? 'track_camera_on_play' : 'track_camera'" />
-                    <div
-                        class="chlname text-ellipsis"
-                        :style="{ color: pageData.fontColor }"
-                    >
-                        {{ item.chlName }}
-                    </div>
-                    <BaseImgSpriteBtn
-                        v-show="pageData.isEdit"
-                        class="close"
-                        file="list_close"
-                        @click="deletePoint(key)"
-                    />
                 </div>
             </div>
         </div>
@@ -116,7 +118,6 @@
 <style lang="scss" scoped>
 .track {
     width: 100%;
-    height: 100%;
     display: flex;
     flex-direction: column;
     border: 1px solid var(--content-border);
@@ -125,9 +126,9 @@
 .map {
     position: relative;
     width: 100%;
-    height: 100%;
+    height: calc(100vh - 360px);
     border: 1px solid var(--content-border);
-    overflow: scroll;
+    overflow: auto;
 
     img {
         width: 1248px;

@@ -34,13 +34,19 @@
                 <div v-show="pageData.tab === 'param'">
                     <div class="base-btn-box space-between">
                         <el-checkbox
+                            v-show="formData.detectAreaInfo.length > 1"
                             v-model="pageData.isShowAllArea"
                             :label="Translate('IDCS_DISPLAY_ALL_AREA')"
                             @change="showAllArea"
                         />
                         <div>
                             <el-button @click="clearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
-                            <el-button @click="clearAllArea">{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button>
+                            <el-button
+                                v-show="formData.detectAreaInfo.length > 1"
+                                @click="clearAllArea"
+                            >
+                                {{ Translate('IDCS_FACE_CLEAR_ALL') }}
+                            </el-button>
                         </div>
                     </div>
                     <div class="base-ai-tip">{{ Translate('IDCS_DRAW_AREA_TIP').formatForLang(6) }}</div>

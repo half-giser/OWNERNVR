@@ -160,7 +160,7 @@ const getSwitch = async () => {
         const result = await queryREIDCfg()
         const $ = queryXml(result)
 
-        closeLoading()
+        closeAllLoading()
 
         const switchType = $('content/switch').text().bool()
         if (!switchType) {
@@ -186,7 +186,7 @@ const setDetectImg = async () => {
             imgData: base64Img, // 图片base64
         }
         await getDetectResultInfos([detectImg])
-        closeLoading()
+        closeAllLoading()
     } catch {
         handleDetectResultFail('snapFail')
     }
@@ -368,7 +368,7 @@ const getDetectResultInfos = async (detectImgInfos: TargetImgInfo[]) => {
 
 // 获取"通道抓拍图"-失败 或者 根据"通道抓拍图"获取"目标检索框"-失败
 const handleDetectResultFail = (failType: string) => {
-    closeLoading()
+    closeAllLoading()
 
     if (failType === 'snapFail') {
         pageData.value.isFailTip = true
@@ -452,7 +452,7 @@ const search = async (detectImgInfo: TargetImgInfo, targetItem: TargetListDto) =
     const $ = queryXml(result)
     const img = await cropImage(detectImgInfo, targetItem)
 
-    closeLoading()
+    closeAllLoading()
 
     const extractResultInfos = [
         {

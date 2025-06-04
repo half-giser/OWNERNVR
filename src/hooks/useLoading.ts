@@ -29,7 +29,7 @@ export const openLoading = (target: string | HTMLElement = 'FullScreen', text?: 
     // 没有打开全屏loading时，局部loading间可同时打开，不处理相互覆盖的情况
     const inst = ElLoading.service({
         fullscreen: target === LoadingTarget.FullScreen ? true : false,
-        target: getTarget(target),
+        target: getTarget(target) as string | HTMLElement,
         lock: true,
         text: typeof text === 'undefined' ? Translate('IDCS_LOADING') : text,
         svg: ' ',
@@ -78,6 +78,6 @@ const getTarget = (target: string | HTMLElement) => {
         case LoadingTarget.ConfigContent:
             return '#layout2Content'
         default:
-            return target
+            return document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || target
     }
 }

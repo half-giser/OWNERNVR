@@ -40,7 +40,7 @@
                     <div class="base-btn-box space-between">
                         <div>
                             <el-checkbox
-                                v-if="pageData.showAllAreaVisible"
+                                v-if="formData.lineInfo.length > 1"
                                 v-model="pageData.isShowAllArea"
                                 :label="Translate('IDCS_DISPLAY_ALL_AREA')"
                                 @change="toggleShowAllArea"
@@ -49,7 +49,7 @@
                         <div>
                             <el-button @click="clearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
                             <el-button
-                                v-if="pageData.clearAllVisible"
+                                v-if="formData.lineInfo.length > 1"
                                 @click="clearAllArea"
                             >
                                 {{ Translate('IDCS_FACE_CLEAR_ALL') }}

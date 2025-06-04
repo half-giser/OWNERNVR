@@ -8,6 +8,8 @@ import { type XMLQuery } from '@/utils/xmlParse'
 import type { TableInstance } from 'element-plus'
 import dayjs from 'dayjs'
 import { VALUE_NAME_MAPPING } from '@/utils/const/snap'
+import { type ElSelectV2 } from 'element-plus'
+import { type ComponentInstance } from 'vue'
 
 export default defineComponent({
     emits: {
@@ -23,11 +25,10 @@ export default defineComponent({
     },
     setup(_props, ctx) {
         const { Translate } = useLangStore()
-        const browserInfo = getBrowserInfo()
-        const systemInfo = getSystemInfo()
         const dateTime = useDateTimeStore()
         const systemCaps = useCababilityStore()
         const route = useRoute()
+        const selectRef = ref<ComponentInstance<typeof ElSelectV2>>()
 
         let context: ReturnType<typeof CanvasBase>
         const canvasRef = ref<HTMLCanvasElement>()
@@ -130,7 +131,7 @@ export default defineComponent({
             // 播放状态: play pause stop ready nodata
             playStatus: 'stop',
             // 是否开启目标检索
-            enableREID: false,
+            // enableREID: false,
             isDetectTarget: false,
             // 目标检索的图片
             detectTargetImg: '',
@@ -207,14 +208,14 @@ export default defineComponent({
         })
 
         // 插件区域鼠标移出定时器
-        const pluginMouseoutTimer: NodeJS.Timeout | number = 0
+        // const pluginMouseoutTimer: NodeJS.Timeout | number = 0
 
         // 是否是轨迹详情
         const isTrail = ref(false)
         // 搜索页面当前选择抓拍图的index
         const currentIndex = ref('')
         // 当前数据源：需根据isTrail区分是普通抓拍数据还是轨迹数据
-        const detailData = ref<IntelTargetDataItem[] | IntelTargetIndexItem[]>([] as IntelTargetDataItem[])
+        const detailData = ref<(IntelTargetDataItem | IntelTargetIndexItem)[]>([])
         // 当前选择的抓拍图数据
         const currDetailData = ref<IntelTargetDataItem | IntelTargetIndexItem>(new IntelTargetDataItem())
         // 人脸库图片信息
@@ -281,7 +282,9 @@ export default defineComponent({
             }
         }
 
-        const init = (dataObj: { isTrail: boolean; currentIndex: string; detailData: any }) => {
+        const init = (dataObj: { isTrail: boolean; currentIndex: string; detailData: (IntelTargetDataItem | IntelTargetIndexItem)[] }) => {
+            console.log(detailData)
+
             isTrail.value = dataObj.isTrail
             currentIndex.value = dataObj.currentIndex
             detailData.value = cloneDeep(dataObj.detailData)
@@ -296,9 +299,7 @@ export default defineComponent({
                 pageData.value.detailTypeOptions[0].isVisible = true
             }
             // detailData为当前页的全部抓怕图数据，需要通过currentIndex筛选出当前页面数据
-            const data = detailData.value
-                .map((item: IntelTargetDataItem | IntelTargetIndexItem, index: number) => ({ value: item, index }))
-                .filter((item: { value: { index: string } }) => item.value.index === currentIndex.value)
+            const data = detailData.value.map((item, index) => ({ value: item, index })).filter((item) => item.value.index === currentIndex.value)
             currDetailData.value = cloneDeep(data[0].value)
             pageData.value.detailIndex = data[0].index
             if ((currDetailData.value as IntelTargetDataItem).isDelete || (currDetailData.value as IntelTargetDataItem).isNoData) {
@@ -1008,7 +1009,6 @@ export default defineComponent({
             // 只在插件回放视频时执行此处理
             if (mode.value !== 'ocx' && pageData.value.detailType !== 'record') return
             pageData.value.mouseIsOnPreNextDiv = mouseOver
-            setOCXTransparent(mouseOver)
         }
 
         /**
@@ -1038,15 +1038,6 @@ export default defineComponent({
             currDetailData.value = detailData.value[pageData.value.detailIndex]
             initPageData()
             ctx.emit('changeItem', currDetailData.value.index)
-        }
-
-        /**
-         * @description hover倍速模块
-         * @param {boolean} enable
-         */
-        const hoverRecSpeed = (enable: boolean) => {
-            pageData.value.isHoverSpeed = enable
-            clearTimeout(pluginMouseoutTimer)
         }
 
         /**
@@ -1178,20 +1169,22 @@ export default defineComponent({
          * @description 点击目标检测按钮
          */
         const handleSearchTarget = () => {
-            const enableREID = !pageData.value.enableREID
-            pageData.value.isDetectTarget = !pageData.value.enableREID
-            if (!pageData.value.isDetectTarget && enableREID) {
-                pause()
-                pageData.value.isDetectTarget = enableREID
-            } else if (pageData.value.isDetectTarget && !enableREID) {
-                if (pageData.value.playStatus === 'pause') {
-                    resume()
+            if (pageData.value.isDetectTarget) {
+                pageData.value.isDetectTarget = false
+                if (pageData.value.detailType === 'record') {
+                    if (pageData.value.playStatus === 'pause') {
+                        resume()
+                    }
                 }
-                pageData.value.isDetectTarget = enableREID
-            }
+            } else {
+                pageData.value.isDetectTarget = true
+                if (pageData.value.detailType === 'record') {
+                    pause()
+                }
 
-            if (!pageData.value.isFullScreen) {
-                handleFullScreen()
+                if (!pageData.value.isFullScreen) {
+                    handleFullScreen()
+                }
             }
         }
 
@@ -1320,7 +1313,7 @@ export default defineComponent({
         }
 
         /**
-         * @description 全屏显示
+         * @description 全屏显示 / 退出全屏
          */
         const handleFullScreen = () => {
             const fullScreenElement = document.getElementById('intelDetail-center')
@@ -1343,7 +1336,7 @@ export default defineComponent({
                     } else if (document.mozCancelFullScreen) {
                         document.mozCancelFullScreen()
                     } else {
-                        alert("Exit fullscreen doesn't work")
+                        openMessageBox("Exit fullscreen doesn't work")
                     }
                 }
             }
@@ -1555,52 +1548,10 @@ export default defineComponent({
          * @param {boolean} enable
          */
         const setOCXTransparent = (enable: boolean) => {
-            // 获取浏览器的缩放比率
-            const ratio = window.devicePixelRatio
-            const browserType = browserInfo.type // 浏览器类型
-
-            const pluginSizeModeMapping: Record<string | symbol, string> = {
-                ie: 'relativeToScreen',
-                lowEdge: 'relativeToScreen', // relativeToScreen：显示器左上角为0, 0
-                firefox: 'relativeToBrowser', // relativeToBrowser: 浏览器左上角为0, 0;
-                other: 'relativeToDom', // relativeToDom：文档流里左上角为0, 0;
-            }
-            const posType = pluginSizeModeMapping[browserType] || pluginSizeModeMapping.other
-
-            let menuH = 0 // 浏览器工具栏高度（包含了地址栏、书签栏）
-            if (browserInfo.type === 'firefox') {
-                const offset = (window.outerWidth - window.innerWidth) / 2 // 外宽和内宽偏差值
-                let diffVersion = 0 // 火狐版本偏差值
-                if (window.screenTop < 0) {
-                    // 火狐最大化时
-                    if (systemInfo.version === 'Win7' || browserInfo.majorVersion <= 100) {
-                        // 小于100版本时取0, 大于100版本时取window.screenTop
-                        diffVersion = 0
-                    } else {
-                        diffVersion = window.screenTop
-                    }
-                }
-                menuH = (window.outerHeight - window.innerHeight - offset + diffVersion) * ratio
-            }
-            // 上下按钮区域的起始坐标
-            const btnsDom = document.querySelector('.btns')
-            const startPoint = btnsDom ? btnsDom.getBoundingClientRect() : { left: 0, right: 0, top: 0, bottom: 0, width: 0, height: 0 }
-            const startX = Math.ceil(startPoint.left) * ratio
-            const startY = Math.ceil(startPoint.top) * ratio + menuH
-            const widthBtn = Math.ceil(startPoint.width) * ratio
-            const heightBtn = Math.ceil(startPoint.height) * ratio
-            const points = [
-                { X: startX, Y: startY },
-                { X: startX + widthBtn, Y: startY },
-                { X: startX + widthBtn, Y: startY + heightBtn },
-                { X: startX, Y: startY + heightBtn },
-            ]
-            if (enable) {
-                // 显示透明区域
-                plugin?.ExecuteCmd(OCX_XML_setTransparentArea(points, posType, 'false'))
-            } else {
-                // 隐藏透明区域
-                plugin?.ExecuteCmd(OCX_XML_RestoreTransparentArea(points, posType, 'true'))
+            const element = document.querySelector('.base-intel-target-btns')
+            if (element) {
+                const rect = element.getBoundingClientRect()
+                plugin.SetOCXTransparent(enable, rect)
             }
         }
 
@@ -1670,17 +1621,37 @@ export default defineComponent({
 
             // ScreenMouseover
             if (stateType === 'ScreenMouseover') {
+                selectRef.value?.blur()
+
+                if (pageData.value.isShowPrevNextBtn) {
+                    return
+                }
                 pageData.value.isShowPrevNextBtn = true
-                pageData.value.mouseIsOnPreNextDiv = true
                 nextTick(() => {
                     setOCXTransparent(true)
                 })
-            } else if (stateType === 'ScreenMouseout') {
-                if (pageData.value.mouseIsOnPreNextDiv) return
-                // 隐藏上一个、下一个按钮
-                setOCXTransparent(false)
-                pageData.value.isShowPrevNextBtn = false
             }
+
+            if (stateType === 'ScreenMouseout') {
+                setTimeout(() => {
+                    if (pageData.value.mouseIsOnPreNextDiv) return
+                    // 隐藏上一个、下一个按钮
+                    setOCXTransparent(false)
+                    nextTick(() => {
+                        pageData.value.isShowPrevNextBtn = false
+                    })
+                }, 10)
+            }
+
+            if (stateType === 'ESC') {
+                if (pageData.value.isFullScreen) {
+                    handleFullScreen()
+                }
+            }
+        }
+
+        const handleSpeedPopoverBeforeEnter = () => {
+            selectRef.value?.blur()
         }
 
         onUnmounted(() => {
@@ -1737,7 +1708,6 @@ export default defineComponent({
             handleSliderMouseUp,
             handleSliderChange,
             changeRecPlayTime,
-            hoverRecSpeed,
             changeRecSpeed,
             handleJump,
             handleSearchTarget,
@@ -1751,6 +1721,8 @@ export default defineComponent({
             clearTargetDetect,
             marks,
             searchTargetRouteType,
+            selectRef,
+            handleSpeedPopoverBeforeEnter,
         }
     },
 })

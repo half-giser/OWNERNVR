@@ -105,6 +105,7 @@
             font-size: 13px;
             line-height: var(--el-component-size);
             background-color: var(--input-bg);
+            transition: none;
 
             &.el-popper {
                 box-shadow: 0 0 0 1px var(--input-border) inset;
@@ -626,9 +627,16 @@
         background-color: var(--popover-bg);
         border-color: var(--table-border);
         width: fit-content;
+        transition: none;
 
         &.no-padding {
             padding: 0;
+        }
+
+        &.no-border {
+            border: none;
+            min-width: unset;
+            background-color: transparent;
         }
 
         &.selector {
@@ -836,6 +844,10 @@
                 display: none;
             }
         }
+    }
+
+    .el-picker__popper {
+        transition: none;
     }
 
     // $width: 250px;
