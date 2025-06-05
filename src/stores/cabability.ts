@@ -307,6 +307,7 @@ export const useCababilityStore = defineStore(
             showOpenSourceLicense,
             supportSuperResolution,
             supportREID,
+            supportN1,
             updateHotStandbyMode,
             hotStandBy,
         }
