@@ -474,17 +474,17 @@ rowDatas.forEach((row) => editRows.remove(row)) // 提交数据后重置侦听
     </el-table-column>
 </el-table>
 <!-- v-title写法（比较简洁） -->
-<el-table 
+<el-table
     v-title
     :data="data"
 >
-    <el-table-column 
-        prop="name" 
+    <el-table-column
+        prop="name"
         :label="Tranlate('IDCS_NAME')"
     />
-    <el-table-column 
-        prop="password" 
-        :label="Tranlate('IDCS_PASSWORD')" 
+    <el-table-column
+        prop="password"
+        :label="Tranlate('IDCS_PASSWORD')"
     />
 </el-table>
 ```

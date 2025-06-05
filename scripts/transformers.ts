@@ -38,6 +38,8 @@ export function minifyXmlTemplateStrings(): Plugin {
         name: 'minify-raw-xml',
         enforce: 'pre',
         // apply: 'build',
+        // 每个传入模块(单文件)被请求时，会被调用，操作粒度为模块级别
+        // transform hook(sequential hook) -> 发生在模块代码 load 之后，依赖模块加载的结果进行转换 payload
         transform(code) {
             let shouldTransform = false
             const templates = ParseLiterals.parseLiterals(code)
@@ -80,6 +82,8 @@ export function postMinifyCodes(option: MinifyWorkerOption): Plugin {
     return {
         name: 'post-minify-codes',
         apply: 'build',
+        // wirteBundle hook: 代表打包过程中的写入阶段，操作粒度为 chunk 级别
+        // 主要目标是压缩 chunk 代码，并生成文件
         async writeBundle() {
             console.log(Chalk.green.bold('SUCCESS'), Chalk.blueBright(new Date().toLocaleString('zh-CN')), Chalk.white('Minified begin'))
             const files = await globby(option.src, {

@@ -135,33 +135,12 @@ export default defineConfig(({ mode }) => {
              * 自动导入 API ，不用每次都 import
              */
             AutoImport({
-                imports: [
-                    'vue',
-                    'vue-router',
-                    'pinia',
-                    // {
-                    //     from: 'vue-router',
-                    //     imports: [
-                    //         'RouteLocationRaw',
-                    //         'RouteMeta',
-                    //         'RouteRecordRaw',
-                    //         'RouteLocationMatched',
-                    //         'createRouter',
-                    //         'createWebHistory',
-                    //         'RouteLocationNormalized',
-                    //         'RouteLocationNormalizedLoaded',
-                    //     ],
-                    //     type: true,
-                    // },
-                    // {
-                    //     from: 'element-plus',
-                    //     imports: ['FormInstance', 'FormRules'],
-                    //     type: true,
-                    // },
-                ],
-                //按需自动导入ElementPlus
+                imports: ['vue', 'vue-router', 'pinia'],
+                // 按需自动导入ElementPlus
                 resolvers: [ElementPlusResolver()],
                 dts: TYPE_AUTO_IMPORT_FILE_PATH,
+                // 配合 auto import 插件自动生成 ESlint 校验规则，把自动导入的 API 声明成全局变量，这样能避免在全局使用自动导入的API时，出现"未定义变量"的报错
+                // 但是也是在首次运行之后，才能到达上述效果，所以不进行配置也影响不大。
                 // eslintrc: {
                 //     enabled: true,
                 //     filepath: './.eslintrc-auto-import.json',
@@ -169,7 +148,7 @@ export default defineConfig(({ mode }) => {
                 // },
                 defaultExportByFilename: false,
                 dirsScanOptions: {
-                    types: false, // Enable auto import the types under the directories
+                    types: false, // Disable auto import the types under the directories
                 },
                 dirs: [
                     // 添加需要自动导入的模块
