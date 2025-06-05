@@ -172,13 +172,6 @@ export const queryWorkMachineStatus = () => fetch('queryWorkMachineStatus', '')
 export const queryHotStandbyStatus = () => fetch('queryHotStandbyStatus', '')
 
 /**
- * @description 测试工作机
- * @param {string} data
- * @returns
- */
-export const testRecorder = (data: string) => fetch('testRecorder', data)
-
-/**
  * @description 添加工作机
  * @param {string} data
  * @returns

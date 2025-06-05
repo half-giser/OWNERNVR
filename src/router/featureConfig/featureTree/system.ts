@@ -116,20 +116,6 @@ const systemRoutes: FeatureItem = {
                 auth: 'remoteSysCfgAndMaintain',
             },
         },
-        // 热备机配置 2.1.0
-        hotStandbySettings: {
-            path: 'hotStandby',
-            component: 'system/HotStandbySettings.vue',
-            meta: {
-                sort: 70,
-                lk: 'IDCS_HOT_STANDBY_SETTING',
-                group: 'basicConfig',
-                auth: 'remoteSysCfgAndMaintain',
-                hasCap(systemCaps) {
-                    return systemCaps.supportN1
-                },
-            },
-        },
         // RS485 1.4.13
         rs485: {
             path: 'rs485',
@@ -140,6 +126,22 @@ const systemRoutes: FeatureItem = {
                 group: 'basicConfig',
                 hasCap(systemCaps) {
                     return systemCaps.supportRS485
+                },
+            },
+        },
+        // 热备机配置 2.1.0
+        hotStandbySettings: {
+            path: 'hotStandby',
+            component: 'system/HotStandbySettings.vue',
+            meta: {
+                sort: 80,
+                lk: 'IDCS_HOT_STANDBY_SETTING',
+                group: 'basicConfig',
+                auth: 'remoteSysCfgAndMaintain',
+                inHome: 'self',
+                homeSort: 40,
+                hasCap(systemCaps) {
+                    return systemCaps.supportN1
                 },
             },
         },

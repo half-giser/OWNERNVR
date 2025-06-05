@@ -59,7 +59,7 @@ export const useP2PTransport = defineStore('p2pTransport', () => {
     }
 
     // P2P websocket请求, 二进制形式: xml元数据长度 + xml元数据 + 负载数据(websocket标准二进制结构报文)
-    const wsRequest = (option: { buffer: ArrayBuffer | Uint8Array<ArrayBuffer>; identify: number }) => {
+    const wsRequest = (option: { buffer: ArrayBuffer; identify: number }) => {
         const buffer = option.buffer
         const identify = option.identify
         const payLoadData = buffer
