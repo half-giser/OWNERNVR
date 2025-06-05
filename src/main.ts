@@ -19,7 +19,7 @@ export const app = createApp(App)
 
 // 如果用<link>加载CSS 自签名证书Chrome会报错net::ERR_TOO_MANY_RETRIES
 if (import.meta.env.PROD) {
-    const id = import.meta.url.split('/').at(-1)!.split('.')[0]
+    const id = 'css_' + import.meta.url.split('/').at(-1)!.split('.')[0]
     const style = document.head.querySelector(`#${id}`)
     if (style) document.head.removeChild(style)
     fetch('./style.css?v=' + id)
