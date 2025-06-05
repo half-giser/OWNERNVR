@@ -291,7 +291,7 @@ const getSingletonPlugin = () => {
                         //SN掉线，重新连接
                         case ErrorCode.USER_ERROR_NODE_NET_DISCONNECT:
                             setVideoPluginStatus('Reconnecting')
-                            openLoading()
+                            openLoading(p2pLang.Translate('IDCS_LOADING'))
                             VideoPluginReconnectTimeoutId = setTimeout(() => {
                                 videoPluginLogin()
                             }, VideoPluginReconnectTimeout)
@@ -313,7 +313,7 @@ const getSingletonPlugin = () => {
                             closeLoading()
                             p2pDualAuthLoginPop = openP2PDualAuthLoginPop({
                                 confirm(data) {
-                                    openLoading()
+                                    openLoading(p2pLang.Translate('IDCS_LOADING'))
                                     // 双重认证登录(p2p插件使用明文传输，并且双重认证后p2p界面刷新逻辑保持跟账号密码登录后刷新逻辑一致（账密登录不返回sessionid，刷新界面仍然是通过账密登录，目前只有授权码登录后才会返回sessionid）)
                                     userSession.setDualAuthInfo(data)
                                     p2pDualAuthLogin()

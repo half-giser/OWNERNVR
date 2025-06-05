@@ -25,7 +25,6 @@ export const useOCXLang = defineStore('ocxLang', () => {
 
     const requestLangItems = () => {
         langItems.value = allLangItems.value[lang.langId] ?? allLangItems.value['0x0409']
-        console.log(langItems.value)
     }
 
     const getLangContent = async () => {
