@@ -89,15 +89,12 @@ export const useP2PLang = defineStore('p2pLang', () => {
      */
     const requestLangItems = () => {
         const find = langTypes.value.find((item) => item.id === langId.value)
-        if (find) {
-            return fetch(`${import.meta.env.VITE_P2P_BASE_URL}/public/LanguageInfo/${find.dir}.js?v=${import.meta.env.VITE_PACKAGE_VER}`)
-                .then((res) => res.json())
-                .then((res: LanguageItemResult) => {
-                    langItems.value = res.text
-                })
-        } else {
-            return Promise.reject()
-        }
+        const dir = find ? find.dir : 'English (United States)'
+        return fetch(`${import.meta.env.VITE_P2P_BASE_URL}/public/LanguageInfo/${dir}.js?v=${import.meta.env.VITE_PACKAGE_VER}`)
+            .then((res) => res.json())
+            .then((res: LanguageItemResult) => {
+                langItems.value = res.text
+            })
     }
 
     /**
@@ -106,8 +103,11 @@ export const useP2PLang = defineStore('p2pLang', () => {
      * @return {string}
      */
     const Translate = (key: string): string => {
-        const res = langItems.value[key] || key
-        return convertToTextEntities(res)
+        const res = key ? langItems.value[key] || key : key
+        if (res) {
+            return convertToTextEntities(res)
+        }
+        return res
     }
 
     /**
