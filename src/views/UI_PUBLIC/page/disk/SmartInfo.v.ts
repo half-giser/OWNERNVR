@@ -12,6 +12,7 @@ export default defineComponent({
             hotplug: Translate('IDCS_DISK'),
             esata: Translate('IDCS_ESATA'),
             sata: Translate('IDCS_DISK'),
+            sas: Translate('IDCS_SAS'),
         }
 
         // SMART状态与文本的映射

@@ -68,7 +68,7 @@
                 </el-form-item>
             </template>
             <!-- 解码卡选项 -->
-            <!-- <template
+            <template
                 v-for="item in formData.decoderResolution"
                 :key="item.id"
             >
@@ -84,7 +84,7 @@
                         />
                     </el-form-item>
                 </template>
-            </template> -->
+            </template>
             <el-form-item
                 v-if="systemCaps.supportHdmiVgaSeparate"
                 :label="Translate('IDCS_OUTPUT_CONFIG')"
@@ -107,12 +107,6 @@
                     :label="Translate('IDCS_MOBILE_STREAM_ADAPTION')"
                 />
             </el-form-item>
-            <el-form-item v-if="systemCaps.supportZeroOprAdd">
-                <el-checkbox
-                    v-model="formData.zeroOrAddIpc"
-                    :label="Translate('IDCS_ENABLE_ZERO_CFG_ADD')"
-                />
-            </el-form-item>
             <el-form-item>
                 <el-checkbox
                     v-model="formData.enableAutoDwell"
@@ -126,12 +120,12 @@
                     :options="pageData.waitTimeOption"
                 />
             </el-form-item>
-            <!-- <el-form-item v-if="pageData.isZeroOrAddIpc">
+            <el-form-item v-if="systemCaps.supportZeroOprAdd">
                 <el-checkbox
                     v-model="formData.zeroOrAddIpc"
-                    :label="Translate('IDCS_ZERO_OP_ADD_IPC')"
+                    :label="Translate('IDCS_ENABLE_ZERO_CFG_ADD')"
                 />
-            </el-form-item> -->
+            </el-form-item>
             <div class="base-btn-box">
                 <el-button @click="verify">{{ Translate('IDCS_APPLY') }}</el-button>
             </div>

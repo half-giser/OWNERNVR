@@ -58,6 +58,7 @@ const hanedleActivationStatus = async (checkActivationStatus: boolean) => {
                 await systemCaps.updateCabability()
                 await systemCaps.updateDiskMode()
                 await systemCaps.updateBaseConfig()
+                await systemCaps.updateHotStandbyMode()
                 generateAsyncRoutes()
                 if (route.name === 'login') {
                     router.replace('/live')

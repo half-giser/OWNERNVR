@@ -43,6 +43,7 @@ export default defineComponent({
 
         const pageTabs = [
             {
+                disabled: systemCaps.hotStandBy,
                 value: 'ipcAudio',
                 label: Translate('IDCS_CAMERA_AUDIO_ALARM'),
             },
@@ -52,7 +53,7 @@ export default defineComponent({
                 label: Translate('IDCS_NVR_AUDIO_ALARM'),
             },
             {
-                disabled: !systemCaps.supportAlarmAudioConfig,
+                disabled: !systemCaps.supportAlarmAudioConfig || systemCaps.hotStandBy,
                 value: 'ipSpeaker',
                 label: Translate('IDCS_IPSPEAKER_X').formatForLang(Translate('IDCS_AUDIO')),
             },
@@ -77,7 +78,7 @@ export default defineComponent({
         const pageData = ref({
             alarmOutIndex: 0,
             deviceIndex: 0,
-            audioTab: 'ipcAudio',
+            audioTab: pageTabs.filter((item) => !item.disabled)[0]?.value || '',
             ipcAudioTab: 'audioAlarm',
             isImportAudioDialog: false,
             isSchedulePop: false,
@@ -420,10 +421,10 @@ export default defineComponent({
                         ${Object.entries(scheduleMap.value)
                             .map((item) => {
                                 return rawXml`
-                                <item id="${item[0]}">
-                                    <schedule id="${item[1]}">${pageData.value.scheduleList.find((schedule) => schedule.value === item[1])?.label || Translate('IDCS_NULL')}</schedule>
-                                </item>
-                            `
+                                    <item id="${item[0]}">
+                                        <schedule id="${item[1]}">${pageData.value.scheduleList.find((schedule) => schedule.value === item[1])?.label || Translate('IDCS_NULL')}</schedule>
+                                    </item>
+                                `
                             })
                             .join('')}
                     </triggerChannelAudioInfos>
@@ -786,18 +787,25 @@ export default defineComponent({
 
             pageData.value.scheduleList = await buildScheduleList()
             await getScheduleData()
-            await getAudioAlarmData()
-            await getAudioDeviceData()
+
+            if (!systemCaps.hotStandBy) {
+                await getAudioAlarmData()
+                await getAudioDeviceData()
+            }
+
             if (systemCaps.supportAlarmAudioConfig) {
                 await getOnlintIpSpeakerList()
                 await getIpSpeakerList()
             }
 
             closeLoading()
-            await changeAlarmOutChl()
-            await changeDeviceChl()
-            if (pageData.value.ipSpeakerId) {
-                await changeIPSpeaker()
+
+            if (!systemCaps.hotStandBy) {
+                await changeAlarmOutChl()
+                await changeDeviceChl()
+                if (pageData.value.ipSpeakerId) {
+                    await changeIPSpeaker()
+                }
             }
         })
 

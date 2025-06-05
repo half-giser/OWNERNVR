@@ -56,7 +56,7 @@
                     v-model="pageData.configSwitch"
                 />
             </div>
-            <!-- <div
+            <div
                 v-if="pageData.tabId !== -1"
                 class="top-hdmi"
             >
@@ -65,7 +65,7 @@
                     v-model="formData.decoder[pageData.tabId].ShowHdmiIn"
                     :options="hdmiInOptions"
                 />
-            </div> -->
+            </div>
         </div>
         <main class="main">
             <div class="left">
@@ -115,7 +115,7 @@
                             v-model="pageData.configSwitch"
                         />
                     </div>
-                    <!-- <div
+                    <div
                         v-if="pageData.tabId !== -1"
                         class="top-hdmi"
                     >
@@ -124,7 +124,7 @@
                             v-model="formData.decoder[pageData.tabId].ShowHdmiIn"
                             :options="hdmiInOptions"
                         />
-                    </div> -->
+                    </div>
                 </div>
                 <div class="panel">
                     <div class="panel-top">

@@ -30,6 +30,7 @@
             />
             <!-- 远程录像 -->
             <BaseImgSpriteBtn
+                v-show="!systemCaps.hotStandBy"
                 :file="remote ? 'remote_recing' : 'remote_rec'"
                 :title="remote ? Translate('IDCS_REMOTE_MANUAL_RECORD_OFF') : Translate('IDCS_REMOTE_MANUAL_RECORD_ON')"
                 :active="remote"
@@ -109,7 +110,10 @@
             />
         </div>
         <!-- 码流控制 -->
-        <div class="stream-menu">
+        <div
+            v-show="!systemCaps.hotStandBy"
+            class="stream-menu"
+        >
             <!-- RTSP通道无子码流 -->
             <el-radio-group
                 class="nowrap"
@@ -128,7 +132,7 @@
         </div>
 
         <div
-            v-show="winData.streamType === 2 && winData.PLAY_STATUS === 'play'"
+            v-show="winData.streamType === 2 && winData.PLAY_STATUS === 'play' && !systemCaps.hotStandBy"
             class="stream-param"
         >
             <el-form

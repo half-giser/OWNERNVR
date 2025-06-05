@@ -43,6 +43,14 @@ export default defineComponent({
             }
         }
 
+        const plClass = computed(() => {
+            if (configModules.value.length === 7) {
+                return ['md2', 'md2', 'md2', 'md3', 'md3', 'md1', 'md3']
+            } else {
+                return Array(configModules.value.length).fill('md2')
+            }
+        })
+
         /**
          * @description 点击主菜单，跳转默认子菜单
          * @param {RouteRecordRawExtends} moduleItem
@@ -150,6 +158,7 @@ export default defineComponent({
             changeMainMenu,
             hoverMainMenu,
             getMenuDisabled,
+            plClass,
         }
     },
 })

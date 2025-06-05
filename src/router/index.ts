@@ -102,7 +102,6 @@ export const getMenuItem = (item: RouteRecordRawExtends) => {
             noMenu: item.meta!.noMenu,
             default: item.meta!.default,
             homeDefault: item.meta!.homeDefault,
-            plClass: item.meta!.plClass,
             groups: item.meta!.groups,
             homeSort: item.meta!.homeSort,
             sort: item.meta!.sort,

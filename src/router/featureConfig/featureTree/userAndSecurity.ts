@@ -9,7 +9,6 @@ const userAndSecurityRoutes: FeatureItem = {
     meta: {
         sort: 60,
         lk: 'IDCS_ACCOUNT_AND_SECURITY',
-        plClass: 'md1',
         icon: 'user',
         auth: 'securityMgr',
         groups: {

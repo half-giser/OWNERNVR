@@ -9,7 +9,6 @@ const recordRoutes: FeatureItem = {
     meta: {
         sort: 20,
         lk: 'IDCS_RECORD',
-        plClass: 'md2',
         icon: 'rec',
         auth: 'rec',
         groups: {
@@ -31,6 +30,9 @@ const recordRoutes: FeatureItem = {
                 lk: 'IDCS_RECORD_STATE',
                 icon: 'recStatus_s',
             },
+        },
+        hasCap(systemCaps) {
+            return !systemCaps.hotStandBy
         },
     },
     children: {

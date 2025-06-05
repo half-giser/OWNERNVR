@@ -134,11 +134,11 @@ export class SystemFactoryDefaultForm {
     exceptNetworkConfigSwitch = 'false'
 }
 
-// class SystemGeneralSettingDecoderResolution {
-//     id = 0
-//     onlineStatus = false
-//     decoder: { index: number; value: string }[] = []
-// }
+class SystemGeneralSettingDecoderResolution {
+    id = 0
+    onlineStatus = false
+    decoder: { index: number; value: string }[] = []
+}
 
 /**
  * @description 全局配置表单
@@ -157,8 +157,8 @@ export class SystemGeneralSettingForm {
     waitTime = 0 // 等待时长
     zeroOrAddIpc = false //
     superResolution = false
-    // decoderResolution: SystemGeneralSettingDecoderResolution[] = []
-    // decoder: Record<number, Record<number, string>> = {}
+    decoderResolution: SystemGeneralSettingDecoderResolution[] = []
+    decoder: Record<number, Record<number, string>> = {}
 }
 
 /**
