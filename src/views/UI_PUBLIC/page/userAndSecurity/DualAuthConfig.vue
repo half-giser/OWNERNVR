@@ -1,6 +1,11 @@
+<!--
+ * @Date: 2025-05-06 09:12:00
+ * @Description: 
+ * @Author: yejiahao yejiahao@tvt.net.cn
+-->
 <template>
     <div class="base-flex-box">
-        <el-form>
+        <el-form class="no-padding">
             <el-form-item>
                 <el-checkbox
                     v-model="formData.switch"
@@ -89,14 +94,6 @@
 <script lang="ts" src="./DualAuthConfig.v.ts"></script>
 
 <style lang="scss" scoped>
-.base-flex-box {
-    #n9web & {
-        :deep(.el-form-item) {
-            padding: 0;
-        }
-    }
-}
-
 .header {
     margin: 0 0 10px;
 }

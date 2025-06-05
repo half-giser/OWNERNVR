@@ -210,20 +210,17 @@ export const useCababilityStore = defineStore(
         }
 
         const updateHotStandbyMode = async () => {
-            console.log('updateHotStandbyMode')
             if (supportN1.value) {
                 const result = await queryHotStandbyCfg()
                 const $ = queryXml(result)
                 if ($('content/switch').text().bool()) {
                     hotStandBy.value = $('content/workMode').text() === 'hotStandbyMode'
-                    console.log($('content/workMode').text())
                 } else {
                     hotStandBy.value = false
                 }
             } else {
                 hotStandBy.value = false
             }
-            console.log(hotStandBy.value)
         }
 
         return {
