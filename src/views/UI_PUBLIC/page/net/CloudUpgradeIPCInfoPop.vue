@@ -7,6 +7,7 @@
     <el-dialog
         :title="Translate('IDCS_DETAIL')"
         width="600"
+        @open="open"
     >
         <el-form class="stripe">
             <el-form-item :label="Translate('IDCS_CHANNEL_NAME')">
@@ -31,13 +32,13 @@
         </el-form>
         <div class="base-btn-box">
             <el-button
-                :disabled="activeIndex <= 0"
+                :disabled="pageData.index <= 0"
                 @click="prev"
             >
                 {{ Translate('IDCS_PREVIOUS') }}
             </el-button>
             <el-button
-                :disabled="activeIndex >= data.length - 1"
+                :disabled="pageData.index >= data.length - 1"
                 @click="next"
             >
                 {{ Translate('IDCS_NEXT') }}
@@ -47,6 +48,6 @@
     </el-dialog>
 </template>
 
-<script lang="ts" src="./IpcInfoDetailPop.v.ts"></script>
+<script lang="ts" src="./CloudUpgradeIPCInfoPop.v.ts"></script>
 
 <style lang="scss" scoped></style>

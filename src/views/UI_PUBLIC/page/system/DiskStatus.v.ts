@@ -32,6 +32,7 @@ export default defineComponent({
             hotplug: Translate('IDCS_DISK'),
             esata: Translate('IDCS_ESATA'),
             sata: Translate('IDCS_DISK'),
+            sas: Translate('IDCS_SAS'),
         }
 
         // 磁盘类型与显示文案的映射
@@ -39,9 +40,13 @@ export default defineComponent({
             hotplug: Translate('IDCS_NORMAL_DISK'),
             esata: Translate('IDCS_NORMAL_DISK'),
             sata: Translate('IDCS_NORMAL_DISK'),
+            sas: Translate('IDCS_NORMAL_DISK'),
             raid: Translate('IDCS_ARRAY'),
             removable: 'UDISK',
         }
+
+        // 数组中包含的硬盘类型表示：开启raid模式的时候，这些类型的硬盘的数据需要从diskList里面获取
+        const DIST_TYPE_LIST = ['esata', 'sas']
 
         const excludeFlag = 'locked'
 
@@ -82,7 +87,7 @@ export default defineComponent({
                 const $item = queryXml(item.element)
                 const diskInterfaceType = $item('diskInterfaceType').text()
                 // 移动U盘不显示
-                if (diskInterfaceType === 'removable' || (raidSwitch && diskInterfaceType !== 'esata')) {
+                if (diskInterfaceType === 'removable' || (raidSwitch && !DIST_TYPE_LIST.includes(diskInterfaceType))) {
                     // NTA1-665 开启raid后，磁盘信息页面显示eSATA盘
                     return
                 }
