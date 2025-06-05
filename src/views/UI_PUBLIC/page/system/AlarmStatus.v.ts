@@ -89,7 +89,6 @@ export default defineComponent({
         }, refreshInterval)
 
         const pageData = ref({
-            isInw48: systemCaps.CustomerID === 100,
             activeIndex: -1,
             activeRow: [] as string[],
             // 是否打开回放弹窗
@@ -162,7 +161,7 @@ export default defineComponent({
                     index: 1,
                 },
             ]
-            if (systemCaps.ipChlMaxCount > 0 && !pageData.value.isInw48) {
+            if (systemCaps.ipChlMaxCount > 0 && systemCaps.CustomerID !== 100 && !systemCaps.hotStandBy) {
                 // 智能分析
                 rowData.push({
                     id: 'intelligents',

@@ -75,8 +75,6 @@ declare global {
             inHome?: 'self' | 'group' | null | 'hidden' | string
             /** 菜单在功能面板的排序 */
             homeSort?: number
-            /** 功能面板上显示样式类，只有配置模块项有效，即config的下一级 */
-            plClass?: string
             /** 分组 */
             group?: string
             /** 面包屑导航项列表（路由项的name） */
@@ -130,7 +128,6 @@ declare global {
             group: string
             noMenu?: boolean
             default?: boolean
-            plClass?: string
             groups?: Record<string, FeatureItemGroupMeta>
             homeSort?: number
             sort?: number

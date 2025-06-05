@@ -9,7 +9,6 @@ const netRoutes: FeatureItem = {
     meta: {
         sort: 50,
         lk: 'IDCS_NETWORK',
-        plClass: 'md3',
         icon: 'net',
         auth: 'net',
         groups: {
@@ -196,6 +195,9 @@ const netRoutes: FeatureItem = {
                 lk: 'IDCS_NETWORK_STREAM_CONFIG',
                 group: 'netStream',
                 default: true,
+                hasCap(systemCaps) {
+                    return !systemCaps.hotStandBy
+                },
             },
         },
         // ONVIF

@@ -9,7 +9,6 @@ const diskRoutes: FeatureItem = {
     meta: {
         sort: 40,
         lk: 'IDCS_DISK',
-        plClass: 'md3',
         icon: 'disk',
         auth: 'diskMgr',
         groups: {
@@ -103,6 +102,9 @@ const diskRoutes: FeatureItem = {
                 inHome: 'group',
                 homeSort: 20,
                 auth: 'diskMgr',
+                hasCap(systemCaps) {
+                    return !systemCaps.hotStandBy
+                },
             },
         },
         // 查看磁盘信息

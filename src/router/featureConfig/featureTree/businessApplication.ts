@@ -27,6 +27,9 @@ const businessApplicationRoutes: FeatureItem = {
         sort: 40,
         lk: 'IDCS_BUSINESS_APPLICATION',
         icon: 'business_menu',
+        hasCap(systemCaps) {
+            return !systemCaps.hotStandBy
+        },
     },
     children: {
         // 停车场管理
