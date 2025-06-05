@@ -42,11 +42,11 @@ export const useP2PLang = defineStore('p2pLang', () => {
      */
     const requestLangTypes = () => {
         if (!langType.value) {
-            langType.value = localStorage.getItem(LocalCacheKey.KEY_LANG_TYPE) || ''
+            langType.value = localStorage.getItem(LocalCacheKey.KEY_LANG_TYPE) || 'en-us'
         }
 
         if (!langId.value) {
-            langId.value = localStorage.getItem(LocalCacheKey.KEY_LANG_ID) || ''
+            langId.value = localStorage.getItem(LocalCacheKey.KEY_LANG_ID) || '0x0409'
         }
 
         return fetch(`${import.meta.env.VITE_P2P_BASE_URL}/public/LanguageInfo/LanguageIndex.js?v=${import.meta.env.VITE_PACKAGE_VER}`)

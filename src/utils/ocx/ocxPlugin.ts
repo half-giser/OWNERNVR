@@ -1523,10 +1523,6 @@ const getSingletonPlugin = () => {
                                 return
                             }
 
-                            if (element.style.display !== 'none') {
-                                console.log(element)
-                            }
-
                             hasPop = element.style.display !== 'none' && element.querySelector('.PluginPlayer') === null
                         }
                     })
