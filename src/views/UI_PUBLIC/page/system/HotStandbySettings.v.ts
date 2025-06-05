@@ -329,8 +329,8 @@ export default defineComponent({
                 } else {
                     if ($('content/curWorkMode').text() !== 'network_fault_tolerance') {
                         openMessageBox(Translate('IDCS_ENTER_HOT_STANDBY_MODE_LIMIT') + Translate('IDCS_CHANGE_NETWORK_SETTINGS_BEFORE_RETRY'))
+                        return
                     }
-                    return
                 }
             }
 
@@ -477,7 +477,6 @@ export default defineComponent({
                 `
                 const result = await editHotStandbyCfg(sendXml)
                 const $ = queryXml(result)
-                commSaveResponseHandler(result)
                 closeLoading()
 
                 if ($('status').text() === 'success') {
@@ -507,7 +506,6 @@ export default defineComponent({
                 `
                 const result = await deleteWorkMachine(sendXml)
                 const $ = queryXml(result)
-                commSaveResponseHandler(result)
                 closeLoading()
 
                 if ($('status').text() === 'success') {
@@ -537,7 +535,6 @@ export default defineComponent({
                 `
                 const result = await deleteWorkMachine(sendXml)
                 const $ = queryXml(result)
-                commSaveResponseHandler(result)
                 closeLoading()
 
                 if ($('status').text() === 'success') {
