@@ -4,14 +4,18 @@
  * @Description: 云升级
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
+import CloudUpgradeIPCInfoPop from './CloudUpgradeIPCInfoPop.vue'
 
 export default defineComponent({
     components: {
         BaseCheckAuthPop,
+        CloudUpgradeIPCInfoPop,
     },
     setup() {
         const { Translate } = useLangStore()
+
         const RELATIVE_PROGRESS: number = 10000 // 万分比进度
+
         const CLOUD_UPGRADE_STATE_MAPPING: Record<string, string> = {
             latest: Translate('IDCS_ONLINE_UPGRADE_TIP_LATEST'), // 当前为最新版本
             newVersion: Translate('IDCS_ONLINE_UPGRADE_LATEST_INFO_NEW_VER'), // 有新版本
@@ -33,6 +37,7 @@ export default defineComponent({
             installFailNodeDisconnect: Translate('IDCS_UPGRADE_FAIL_TIP'), // 升级失败，通道离线所致
             installFailNodeInvalid: Translate('IDCS_UPGRADE_FAIL_TIP'), // 升级失败，通道被删除或POE通道被拔出所致
         }
+
         const CLOUD_UPGRADE_FAILSTATE_ENUM: string[] = [
             'downloadFail',
             'downloadNetException',
@@ -60,107 +65,127 @@ export default defineComponent({
             ] as SelectOption<string, string>[],
             // 升级类型
             upgradeType: '',
-            // 是否接受通知（upgradeType === 'notify'表示接受通知）
-            isUpdateNotify: false,
             // tab项（设备升级/通道升级）
-            tab: 'dev',
-            // 设备升级信息
-            devInfoObj: {
-                state: '', // 设备当前升级状态
-                version: '', // 设备当前版本
-                newVersion: '', // 新版本版本号
-                newVersionNote: '', // 新版本功能信息
-                newVersionGUID: '', // 新版本GUID
-                progress: '', // 进度
-            },
-            // IPC升级信息（表格数据）
-            ipcInfoList: [] as NetIpcUpgradeInfoList[],
+            tab: 'nvr',
             // 是否显示鉴权弹窗
             isCheckAuthPop: false,
             // 是否打开ipc升级信息详情弹窗
             isDetailPop: false,
             // 当前查看的ipc升级信息详情索引
-            activeTableIndex: 0,
+            detailIndex: 0,
+            detailList: [] as NetCloudUpgradeIPCInfoList[],
         })
 
+        const formData = ref(new NetCloudUpgradeForm())
+
+        const nvrFormData = ref({
+            state: '', // 设备当前升级状态
+            version: '', // 设备当前版本
+            newVersion: '', // 新版本版本号
+            newVersionNote: '', // 新版本功能信息
+            newVersionGUID: '', // 新版本GUID
+            progress: '', // 进度
+        })
+
+        const ipcTableData = ref<NetCloudUpgradeIPCInfoList[]>([])
+
         // 获取数据定时器
-        const getDataTimer = useClock(() => {
+        const timer = useRefreshTimer(() => {
             getData()
         }, 3000)
+
+        const isUpdateNotify = computed(() => {
+            return pageData.value.upgradeType === 'notify'
+        })
+
+        const getCloudUpgradeConfig = async () => {
+            const result = await queryCloudUpgradeCfg()
+            const $ = queryXml(result)
+            pageData.value.upgradeType = $('content/cloudUpgrade/nvrItem/upgradeType').text()
+            formData.value.upgradeType = pageData.value.upgradeType
+        }
 
         /**
          * @description 获取数据
          */
         const getData = async () => {
-            // 查询协议 - 通过queryCloudUpgradeCfg协议获取升级类型
-            if (!pageData.value.upgradeType) {
-                const upgradeCfgResult = await queryCloudUpgradeCfg()
-                const $upgradeCfgContent = queryXml(queryXml(upgradeCfgResult)('content')[0].element)
-                // 数据赋值 - pageData
-                pageData.value.upgradeType = $upgradeCfgContent('cloudUpgrade/nvrItem/upgradeType').text()
-                pageData.value.isUpdateNotify = pageData.value.upgradeType === 'notify'
+            timer.stop()
+
+            try {
+                // 通过getCloudUpgradeInfo协议获取设备和ipc的升级信息
+                const result = await getCloudUpgradeInfo()
+                const $ = queryXml(result)
+
+                if ($('status').text() === 'success') {
+                    // NVR/IPC的新版本信息
+                    const newVersionInfo = {} as Record<string, { newVersion: string; newVersionNote: string }>
+                    $('content/newVersionInfo/item').forEach((item) => {
+                        const $item = queryXml(item.element)
+                        const newVersion = $item('version').text()
+                        const newVersionNote = $item('newVersionNote').text()
+                        const newVersionGUID = item.attr('id')
+                        newVersionInfo[newVersionGUID] = {
+                            newVersion: newVersion,
+                            newVersionNote: newVersionNote,
+                        }
+                    })
+
+                    // NVR
+                    nvrFormData.value.state = $('content/devInfo/state').text()
+                    nvrFormData.value.version = $('content/devInfo/version').text()
+                    const newVersionGUID = $('content/devInfo/newVersionGUID').text()
+                    if (newVersionGUID && newVersionInfo[newVersionGUID]) {
+                        nvrFormData.value.newVersion = newVersionInfo[newVersionGUID].newVersion
+                        nvrFormData.value.newVersionNote = newVersionInfo[newVersionGUID].newVersionNote
+                        nvrFormData.value.newVersionGUID = newVersionGUID
+                    } else {
+                        nvrFormData.value.newVersion = ''
+                        nvrFormData.value.newVersionNote = ''
+                        nvrFormData.value.newVersionGUID = ''
+                    }
+                    nvrFormData.value.progress = getRealProgress($('content/devInfo/progress').text())
+
+                    // IPC
+                    ipcTableData.value = []
+                    if (isUpdateNotify.value) {
+                        $('content/chlsInfo/item').forEach((item) => {
+                            const $item = queryXml(item.element)
+                            let newVersion = ''
+                            let newVersionNote = ''
+                            const newVersionGUID = $item('newVersionGUID').text()
+                            if (newVersionGUID && newVersionInfo[newVersionGUID]) {
+                                newVersion = newVersionInfo[newVersionGUID].newVersion
+                                newVersionNote = newVersionInfo[newVersionGUID].newVersionNote
+                            }
+                            const tempObj: NetCloudUpgradeIPCInfoList = {
+                                ip: item.attr('ip'),
+                                chlId: item.attr('id'),
+                                chlName: item.attr('name'),
+                                state: $item('state').text(),
+                                version: $item('version').text(),
+                                newVersion: newVersion,
+                                newVersionNote: newVersionNote,
+                                newVersionGUID: newVersionGUID,
+                                progress: getRealProgress($item('progress').text()),
+                            }
+
+                            // 1. 无新版本的IPC设备（无newVersionGUID），界面不展示；
+                            // 2. IPC处于版本检测中，界面不展示；
+                            // 3. IPC版本小于5.2.0则不支持云升级，界面不展示；
+                            if (newVersionGUID && tempObj.state !== 'checkingVersion' && compareIpcVersion(tempObj.version.split('.').slice(0, 3), ['5', '2', '0']) >= 0) {
+                                ipcTableData.value.push(tempObj)
+                            }
+                        })
+                    }
+
+                    if (isUpdateNotify.value) {
+                        timer.repeat()
+                    }
+                } else {
+                }
+            } catch (e) {
+                openMessageBox(Translate('IDCS_OCX_NET_DISCONNECT'))
             }
-
-            // 查询协议 - 通过getCloudUpgradeInfo协议获取设备和ipc的升级信息
-            const upgradeInfoResult = await getCloudUpgradeInfo()
-            const $upgradeInfoContent = queryXml(queryXml(upgradeInfoResult)('content')[0].element)
-            // 设备/ipc的新版本信息
-            const newVersionInfo = {} as Record<string, { newVersion: string; newVersionNote: string }>
-            $upgradeInfoContent('newVersionInfo/item').forEach((item) => {
-                const $item = queryXml(item.element)
-                const newVersion = $item('version').text()
-                const newVersionNote = $item('newVersionNote').text()
-                const newVersionGUID = item.attr('id')
-                newVersionInfo[newVersionGUID] = {
-                    newVersion: newVersion,
-                    newVersionNote: newVersionNote,
-                }
-            })
-
-            // 数据赋值 - pageData(devInfoObj)
-            pageData.value.devInfoObj.state = $upgradeInfoContent('devInfo/state').text()
-            pageData.value.devInfoObj.version = $upgradeInfoContent('devInfo/version').text()
-            const newVersionGUID = $upgradeInfoContent('devInfo/newVersionGUID').text()
-            if (newVersionGUID && newVersionInfo[newVersionGUID]) {
-                pageData.value.devInfoObj.newVersion = newVersionInfo[newVersionGUID].newVersion
-                pageData.value.devInfoObj.newVersionNote = newVersionInfo[newVersionGUID].newVersionNote
-                pageData.value.devInfoObj.newVersionGUID = newVersionGUID
-            }
-            pageData.value.devInfoObj.progress = getRealProgress($upgradeInfoContent('devInfo/progress').text())
-
-            // 数据赋值 - pageData(ipcInfoList)
-            pageData.value.ipcInfoList = []
-            $upgradeInfoContent('chlsInfo/item').forEach((item) => {
-                const $item = queryXml(item.element)
-                let newVersion = ''
-                let newVersionNote = ''
-                const newVersionGUID = $item('newVersionGUID').text()
-                if (newVersionGUID && newVersionInfo[newVersionGUID]) {
-                    newVersion = newVersionInfo[newVersionGUID].newVersion
-                    newVersionNote = newVersionInfo[newVersionGUID].newVersionNote
-                }
-                const tempObj = {
-                    ip: item.attr('ip'),
-                    chlId: item.attr('id'),
-                    chlName: item.attr('name'),
-                    state: $item('state').text(),
-                    formatState: '',
-                    version: $item('version').text(),
-                    newVersion: newVersion,
-                    formatNewVersion: '',
-                    newVersionNote: newVersionNote,
-                    newVersionGUID: newVersionGUID,
-                    progress: getRealProgress($item('progress').text()),
-                } as NetIpcUpgradeInfoList
-                tempObj.formatState = formatIpcUpgradeState(tempObj)
-                tempObj.formatNewVersion = formatIpcNewVersion(tempObj)
-                // 1. 无新版本的IPC设备（无newVersionGUID），界面不展示；2. IPC处于版本检测中，界面不展示；3. IPC版本小于5.2.0则不支持云升级，界面不展示；
-                if (!(!newVersionGUID || tempObj.state === 'checkingVersion' || compareIpcVersion(tempObj.version.split('.').slice(0, 3), ['5', '2', '0']) < 0)) {
-                    pageData.value.ipcInfoList.push(tempObj)
-                }
-            })
-
-            getDataTimer.repeat()
         }
 
         /**
@@ -195,7 +220,7 @@ export default defineComponent({
         /**
          * @description 执行设备云升级 - 打开鉴权弹窗
          */
-        const devUpgrade = () => {
+        const handleNVRUpgrade = () => {
             pageData.value.isCheckAuthPop = true
         }
 
@@ -203,11 +228,11 @@ export default defineComponent({
          * @description 执行设备云升级 - 确认执行操作
          * @param e
          */
-        const confirmDevUpgrade = async (e: UserCheckAuthForm) => {
-            getDataTimer.stop()
+        const confirmNVRUpgrade = async (e: UserCheckAuthForm) => {
+            timer.stop()
             const sendXml = rawXml`
                 <condition>
-                    <versionGUID>${pageData.value.devInfoObj.newVersionGUID}</versionGUID>
+                    <versionGUID>${nvrFormData.value.newVersionGUID}</versionGUID>
                 </condition>
                 <auth>
                     <userName>${e.userName}</userName>
@@ -218,66 +243,101 @@ export default defineComponent({
             const $ = queryXml(result)
             if ($('status').text() === 'success') {
                 pageData.value.isCheckAuthPop = false
-                getDataTimer.repeat()
+                timer.repeat()
             } else {
                 const errorCode = $('errorCode').text().num()
-                let errorInfo = ''
-                switch (errorCode) {
-                    case ErrorCode.USER_ERROR_PWD_ERR:
-                        errorInfo = Translate('IDCS_USER_OR_PASSWORD_ERROR')
-                        break
-                    case ErrorCode.USER_ERROR_NO_USER:
-                        errorInfo = Translate('IDCS_DEVICE_USER_NOTEXIST')
-                        break
-                    case ErrorCode.USER_ERROR_DEVICE_BUSY:
-                        errorInfo = Translate('IDCS_DEVICE_BUSY')
-                        break
-                    case ErrorCode.USER_ERROR_NO_AUTH:
-                        errorInfo = Translate('IDCS_NO_AUTH')
-                        break
-                    case ErrorCode.USER_ERROR_FILE_MISMATCHING:
-                        errorInfo = Translate('IDCS_NO_DISK')
-                        break
-                    case ErrorCode.USER_ERROR_SERVER_NO_EXISTS:
-                        errorInfo = Translate('IDCS_LOGIN_OVERTIME')
-                        break
-                    case ErrorCode.USER_ERROR_UNSUPPORTED_FUNC:
-                        errorInfo = Translate('IDCS_DEVICE_NOT_ALLOW_UPGRADE')
-                        break
-                    default:
-                        errorInfo = Translate('IDCS_CLOUD_UPGRADE_FAIED')
-                        break
-                }
-                openMessageBox(errorInfo)
-                getDataTimer.repeat()
+                timer.repeat()
+                handleError(errorCode)
             }
+        }
+
+        const handleError = (errorCode: number) => {
+            let errorInfo = ''
+            switch (errorCode) {
+                case ErrorCode.USER_ERROR_PWD_ERR:
+                    errorInfo = Translate('IDCS_USER_OR_PASSWORD_ERROR')
+                    break
+                case ErrorCode.USER_ERROR_NO_USER:
+                    errorInfo = Translate('IDCS_DEVICE_USER_NOTEXIST')
+                    break
+                case ErrorCode.USER_ERROR_DEVICE_BUSY:
+                case 536871060:
+                    errorInfo = Translate('IDCS_DEVICE_BUSY')
+                    break
+                case ErrorCode.USER_ERROR_NO_AUTH:
+                    errorInfo = Translate('IDCS_NO_AUTH')
+                    break
+                case ErrorCode.USER_ERROR_FILE_MISMATCHING:
+                    errorInfo = Translate('IDCS_NO_DISK')
+                    break
+                case ErrorCode.USER_ERROR_SERVER_NO_EXISTS:
+                    timer.stop()
+                    openMessageBox(Translate('IDCS_LOGIN_OVERTIME')).then(() => {
+                        Logout()
+                    })
+                    return
+                case ErrorCode.USER_ERROR_UNSUPPORTED_FUNC:
+                    errorInfo = Translate('IDCS_DEVICE_NOT_ALLOW_UPGRADE')
+                    break
+                case ErrorCode.USER_ERROR_FAIL: // 云升级IPC失败
+                case 536871082: // 无新版本
+                case 536871083: // 云升级版本不存在
+                case ErrorCode.USER_ERROR_NO_READY: // 云升级关闭
+                default:
+                    errorInfo = Translate('IDCS_CLOUD_UPGRADE_FAIED')
+                    break
+            }
+            openMessageBox(errorInfo)
         }
 
         /**
          * @description 执行ipc云升级 - 单个升级/批量升级
-         * @param ipcInfoList: NetIpcUpgradeInfoList
+         * @param ipcInfoList: NetCloudUpgradeIPCInfoList
          */
-        const ipcUpgrade = (ipcInfoList: NetIpcUpgradeInfoList[]) => {
+        const handleIPCUpgrade = (ipcInfoList: NetCloudUpgradeIPCInfoList[]) => {
             openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_IPC_UPGRADE_FINISH_RESTART'),
             }).then(() => {
-                confirmIpcUpgrade(ipcInfoList)
+                confirmIPCUpgrade(ipcInfoList)
             })
         }
 
         /**
-         * @description 执行ipc云升级 - 确认执行操作
-         * @param ipcInfoList: NetIpcUpgradeInfoList
+         * @description 执行ipc云升级-批量升级
          */
-        const confirmIpcUpgrade = async (ipcInfoList: NetIpcUpgradeInfoList[]) => {
+        const batchIPCUpgrade = () => {
+            const ipcList = ipcTableData.value.filter((item) => {
+                return !disabledIPCUpgrade(item)
+            })
+            if (ipcList.length) {
+                handleIPCUpgrade(ipcList)
+            }
+        }
+
+        /**
+         * @description 执行ipc云升级 - 确认执行操作
+         * @param ipcInfoList: NetCloudUpgradeIPCInfoList
+         */
+        const confirmIPCUpgrade = async (ipcInfoList: NetCloudUpgradeIPCInfoList[]) => {
             const sendXml = rawXml`
-                    <condition>
-                        <chls type="list">${ipcInfoList.map((item) => `<item id="${item.chlId}">${item.newVersionGUID}</item>`).join('')}</chls>
-                    </condition>
-                `
+                <condition>
+                    <chls type="list">${ipcInfoList.map((item) => `<item id="${item.chlId}">${item.newVersionGUID}</item>`).join('')}</chls>
+                </condition>
+            `
             const result = await cloudUpgradeNode(sendXml)
-            commSaveResponseHandler(result)
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                const chls = ipcInfoList.map((item) => item.chlId)
+                ipcTableData.value.forEach((item) => {
+                    if (chls.includes(item.chlId)) {
+                        item.state = 'waitingForUpgrade'
+                    }
+                })
+            } else {
+                const errorCode = $('errorCode').text().num()
+                handleError(errorCode)
+            }
         }
 
         /**
@@ -319,6 +379,7 @@ export default defineComponent({
             const result = await editCloudUpgradeCfg(sendXml)
             commSaveResponseHandler(result)
             closeLoading()
+            await getCloudUpgradeConfig()
             getData()
         }
 
@@ -327,31 +388,17 @@ export default defineComponent({
          * @param {Number} index
          */
         const showDetail = (index: number) => {
+            pageData.value.detailList = ipcTableData.value.filter((item) => !disabledIPCDetail(item))
+            pageData.value.detailIndex = pageData.value.detailList.findIndex((item) => item.chlId === ipcTableData.value[index].chlId)
             pageData.value.isDetailPop = true
-            pageData.value.activeTableIndex = index
-        }
-
-        /**
-         * @description 切换日志详情选中
-         * @param index
-         */
-        const changeDetail = (index: number) => {
-            pageData.value.activeTableIndex = index
-        }
-
-        /**
-         * @description 关闭日志详情弹窗
-         */
-        const closeDetail = () => {
-            pageData.value.isDetailPop = false
         }
 
         /**
          * @description 格式化ipc云升级通道的新版本信息
          */
-        const formatIpcNewVersion = (ipcInfo: NetIpcUpgradeInfoList) => {
+        const formatIpcNewVersion = (ipcInfo: NetCloudUpgradeIPCInfoList) => {
             let newVersion = ipcInfo.newVersion
-            if (['installSuccess', 'latest'].indexOf(ipcInfo.state) > -1 && !ipcInfo.newVersionGUID) {
+            if (['installSuccess', 'latest'].includes(ipcInfo.state) && !ipcInfo.newVersionGUID) {
                 newVersion = Translate('IDCS_ONLINE_UPGRADE_TIP_LATEST')
             }
             return newVersion || '--'
@@ -360,7 +407,7 @@ export default defineComponent({
         /**
          * @description 格式化ipc云升级通道的状态变迁
          */
-        const formatIpcUpgradeState = (ipcInfo: NetIpcUpgradeInfoList) => {
+        const formatIpcUpgradeState = (ipcInfo: NetCloudUpgradeIPCInfoList) => {
             let stateFormat = ''
             switch (ipcInfo.state) {
                 case 'latest': // 当前为最新版本
@@ -372,7 +419,7 @@ export default defineComponent({
                     break
                 default:
                     // 下载失败、升级失败并且还有新版本的情况下，状态显示‘--’
-                    if (CLOUD_UPGRADE_FAILSTATE_ENUM.indexOf(ipcInfo.state) > -1 && ipcInfo.newVersionGUID) {
+                    if (CLOUD_UPGRADE_FAILSTATE_ENUM.includes(ipcInfo.state) && ipcInfo.newVersionGUID) {
                         stateFormat = '--'
                     } else {
                         stateFormat = CLOUD_UPGRADE_STATE_MAPPING[ipcInfo.state] || '--'
@@ -386,8 +433,8 @@ export default defineComponent({
          * @description 升级文件下载进度比转换（万分比）
          */
         const getRealProgress = (progress: string) => {
-            if (progress === undefined || progress === '') return ''
-            return parseInt(((Number(progress) / RELATIVE_PROGRESS) * 100) as unknown as string) + '%'
+            if (progress === '') return ''
+            return Math.floor(Number(progress) / RELATIVE_PROGRESS) * 100 + '%'
         }
 
         /**
@@ -409,60 +456,54 @@ export default defineComponent({
         /**
          * @description ipc单个升级按钮是否置灰
          */
-        const disabledIpcSingleUpgrade = (ipcInfo: NetIpcUpgradeInfoList) => {
-            return ipcInfo.state === 'latest' || ipcInfo.state === 'installing' || ipcInfo.state === 'downloading' || ipcInfo.state === 'waitingForUpgrade' || !ipcInfo.newVersionGUID
+        const disabledIPCUpgrade = (ipcInfo: NetCloudUpgradeIPCInfoList) => {
+            return ['latest', 'installing', 'downloading', 'waitingForUpgrade'].includes(ipcInfo.state) || !ipcInfo.newVersionGUID
         }
 
         /**
          * @description ipc单个详情按钮是否置灰
          */
-        const disabledIpcSingleDetail = (ipcInfo: NetIpcUpgradeInfoList) => {
+        const disabledIPCDetail = (ipcInfo: NetCloudUpgradeIPCInfoList) => {
             return ipcInfo.state === 'latest' || !ipcInfo.newVersionGUID
         }
 
-        // 手动检测按钮是否置灰
-        const disabledCheckVersion = computed(() => {
-            return !pageData.value.isUpdateNotify
-        })
-
         // 设备升级按钮是否置灰
-        const disabledDevUpgrade = computed(() => {
+        const disabledNVRUpgrade = computed(() => {
             return (
-                !pageData.value.isUpdateNotify ||
-                pageData.value.devInfoObj.state === 'downloading' ||
-                pageData.value.devInfoObj.state === 'downloadSuccess' ||
-                pageData.value.devInfoObj.state === 'installing' ||
-                !pageData.value.devInfoObj.newVersionGUID
+                !isUpdateNotify.value ||
+                nvrFormData.value.state === 'downloading' ||
+                nvrFormData.value.state === 'downloadSuccess' ||
+                nvrFormData.value.state === 'installing' ||
+                !nvrFormData.value.newVersionGUID
             )
-        })
-
-        // ipc批量升级按钮是否置灰
-        const disabledIpcUpgrade = computed(() => {
-            return !pageData.value.isUpdateNotify
         })
 
         onMounted(async () => {
             openLoading()
+            await getCloudUpgradeConfig()
             await getData()
             closeLoading()
         })
 
         return {
             pageData,
+            formData,
             getData,
             getVersion,
-            devUpgrade,
-            confirmDevUpgrade,
-            ipcUpgrade,
+            handleNVRUpgrade,
+            confirmNVRUpgrade,
+            handleIPCUpgrade,
+            batchIPCUpgrade,
             setData,
             showDetail,
-            changeDetail,
-            closeDetail,
-            disabledIpcSingleUpgrade,
-            disabledIpcSingleDetail,
-            disabledCheckVersion,
-            disabledDevUpgrade,
-            disabledIpcUpgrade,
+            disabledIPCUpgrade,
+            disabledIPCDetail,
+            disabledNVRUpgrade,
+            isUpdateNotify,
+            nvrFormData,
+            ipcTableData,
+            formatIpcUpgradeState,
+            formatIpcNewVersion,
         }
     },
 })
