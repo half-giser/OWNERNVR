@@ -18,11 +18,10 @@ export class NetTcpIpForm {
         toeEnable: false,
         curWorkMode: '',
     }
-    // ipGroupSwitch = false
-    // ipGroupMode = ''
-    // ipDefaultBond = ''
-    ipGroupConfig = new NetTcpIpGroupList()
-    // bonds: NetTcpIpBondsList[] = []
+    ipGroupSwitch = false
+    ipGroupMode = ''
+    ipDefaultBond = ''
+    bonds: NetTcpIpBondsList[] = []
     nicConfigs: NetTcpIpNicConfigList[] = []
 }
 
@@ -46,14 +45,12 @@ export class NetTcpIpDhcpList {
 /**
  * @description TCP/IP Bond列表项
  */
-export class NetTcpIpGroupList extends NetTcpIpDhcpList {
-    // index = 0
-    // id = ''
-    switch = false
-    mode = ''
+export class NetTcpIpBondsList extends NetTcpIpDhcpList {
+    index = 0
+    id = ''
     dhcpSwitch = false
     primaryNIC = ''
-    // NICs = ''
+    NICs = ''
     // ip = ''
     // gateway = ''
     // mask = ''
