@@ -144,12 +144,12 @@
 
     #n9web & {
         :deep(.el-form) {
-            margin-top: 13px;
+            margin-top: 18px;
         }
 
         .el-input {
-            width: 254px;
-            height: 50px;
+            width: 244px;
+            height: 40px;
         }
 
         :deep(.el-input__wrapper) {
@@ -166,7 +166,7 @@
         :deep(.el-form-item) {
             margin: 0 0 0 428px;
             font-size: 16px;
-            padding: 0 0 28px;
+            padding: 0 0 38px;
 
             &:last-child {
                 padding-bottom: 0;

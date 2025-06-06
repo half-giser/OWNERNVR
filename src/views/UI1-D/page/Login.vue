@@ -109,12 +109,12 @@
 
     #n9web & {
         :deep(.el-form) {
-            margin-top: 53px;
+            margin-top: 56px;
         }
 
         .el-input {
-            width: 313px;
-            height: 42px;
+            width: 306px;
+            height: 36px;
         }
 
         :deep(.el-input__wrapper) {
@@ -131,14 +131,11 @@
         :deep(.el-form-item) {
             margin: 0 0 0 419px;
             font-size: 16px;
-            padding: 0 0 22px;
+            padding: 0 0 30px;
         }
 
         :deep(.el-radio-group) {
-            // padding-left: 367px;
-            // width: 365px;
             font-size: 18px;
-            // padding-bottom: 22px;
         }
 
         .login-submit {

@@ -108,13 +108,13 @@
 
     #n9web & {
         :deep(.el-form) {
-            margin-top: 13px;
+            margin-top: 18px;
             position: relative;
         }
 
         .el-input {
-            width: 264px;
-            height: 50px;
+            width: 254px;
+            height: 40px;
         }
 
         :deep(.el-input__wrapper) {
@@ -130,9 +130,9 @@
         }
 
         :deep(.el-form-item) {
-            margin: 0 0 0 438px;
+            margin: 0 0 0 444px;
             font-size: 16px;
-            padding: 0 0 28px;
+            padding: 0 0 38px;
 
             &.no-padding {
                 padding-bottom: 0;
