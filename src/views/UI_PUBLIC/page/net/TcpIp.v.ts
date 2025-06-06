@@ -754,6 +754,12 @@ export default defineComponent({
                     case ErrorCode.USER_ERROR_AREA_EXISTED_CHILD_NODE:
                         errorInfo = Translate('IDCS_ERROR_IP_SAME_NETWORK_SEGMAENT')
                         break
+                    case ErrorCode.HTTPS_PKCS12_CREATE_FAILED:
+                        errorInfo = Translate('IDCS_CHANGE_NETWORK_FAILED_IN_HOT_STANDBY_MODE')
+                        break
+                    case ErrorCode.HTTPS_HTTPS_PKCS12_LOAD_FAILED:
+                        errorInfo = Translate('IDCS_CHANGE_NETWORK_FAILED_IN_WORK_MACHINE_MODE')
+                        break
                     default:
                         errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                         break
