@@ -27,7 +27,7 @@
                     min-width="150"
                 >
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_AUDIO') }}
                             </BaseTableDropdownLink>
@@ -42,10 +42,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<AlarmExceptionDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.sysAudio"
                             :options="pageData.audioList"
                         />
@@ -54,7 +54,7 @@
                 <!-- 消息推送   -->
                 <el-table-column min-width="150">
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_PUSH') }}
                             </BaseTableDropdownLink>
@@ -69,10 +69,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<AlarmExceptionDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.msgPush"
                             :options="pageData.enableList"
                         />
@@ -106,7 +106,7 @@
                 <!-- 蜂鸣器   -->
                 <el-table-column min-width="150">
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_BUZZER') }}
                             </BaseTableDropdownLink>
@@ -121,10 +121,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<AlarmExceptionDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.beeper"
                             :options="pageData.enableList"
                         />
@@ -133,7 +133,7 @@
                 <!-- 消息框弹出   -->
                 <el-table-column min-width="150">
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_MESSAGEBOX_POPUP') }}
                             </BaseTableDropdownLink>
@@ -148,10 +148,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<AlarmExceptionDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.msgBoxPopup"
                             :options="pageData.enableList"
                         />
@@ -160,7 +160,7 @@
                 <!-- email   -->
                 <el-table-column min-width="150">
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink> Email </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
@@ -173,10 +173,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<AlarmExceptionDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.email"
                             :disabled="row.emailDisable"
                             :options="pageData.enableList"

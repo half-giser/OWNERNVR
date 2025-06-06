@@ -47,7 +47,7 @@
                 />
             </div>
             <div class="base-intel-row">
-                <el-dropdown v-show="formData.event[0] === 'faceMatchWhiteList'">
+                <BaseDropdown v-show="formData.event[0] === 'faceMatchWhiteList'">
                     <BaseTableDropdownLink effect="plain">
                         {{ pageData.chartType === 'chart' ? Translate('IDCS_COLIMNAR_CHART') : Translate('IDCS_DETAIL_CHART') }}
                     </BaseTableDropdownLink>
@@ -61,7 +61,7 @@
                             >
                         </el-dropdown-menu>
                     </template>
-                </el-dropdown>
+                </BaseDropdown>
                 <el-text v-show="formData.event[0] !== 'faceMatchWhiteList'">{{ Translate('IDCS_COLIMNAR_CHART') }}</el-text>
             </div>
             <div

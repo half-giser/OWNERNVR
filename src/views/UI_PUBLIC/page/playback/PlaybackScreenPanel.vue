@@ -124,7 +124,7 @@
                 @click="$emit('nextFrame'), $emit('trigger', false)"
             />
             <!-- 跳转播放 -->
-            <el-select-v2
+            <BaseSelect
                 v-model="pageData.forwardValue"
                 class="fw-select"
                 :options="pageData.forwardOptions"

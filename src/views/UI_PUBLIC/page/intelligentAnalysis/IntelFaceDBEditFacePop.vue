@@ -22,7 +22,7 @@
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_SEX')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="formData.sex"
                         :disabled
                         :options="pageData.genderOptions"
@@ -43,7 +43,7 @@
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ID_TYPE')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="formData.certificateType"
                         :disabled
                         :options="pageData.idTypeOptions"
@@ -82,7 +82,7 @@
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ADD_FACE_GROUP')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="formData.groupId"
                         :options="pageData.groupList"
                         :props="{

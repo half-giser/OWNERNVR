@@ -7,7 +7,7 @@
     <div class="base-flex-box">
         <el-form v-title>
             <el-form-item :label="Translate('IDCS_MODE')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.autoMode"
                     :options="pageData.recSubResAdaptive"
                 />
@@ -46,7 +46,7 @@
                 >
                     <template #header>
                         <div v-if="RecordSubResAdaptive">{{ Translate('IDCS_VIDEO_ENCT') }}</div>
-                        <el-dropdown v-else>
+                        <BaseDropdown v-else>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_VIDEO_ENCT') }}
                             </BaseTableDropdownLink>
@@ -61,12 +61,12 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<number>">
                         <div v-if="RecordSubResAdaptive">{{ displayStreamType(tableData[row].videoEncodeType) }}</div>
                         <div v-else-if="tableData[row].isRTSPChl || !tableData[row].videoEncodeType">--</div>
-                        <el-select-v2
+                        <BaseSelect
                             v-else
                             v-model="tableData[row].videoEncodeType"
                             :disabled="tableData[row].disabled"
@@ -105,7 +105,7 @@
                                 >
                                     <el-table-column width="220">
                                         <template #default="{ row }: TableColumn<RecordStreamResolutionDto>">
-                                            <el-select-v2
+                                            <BaseSelect
                                                 v-model="row.res"
                                                 :options="row.resGroup"
                                                 @visible-change="handleResolutionVisibleChange"
@@ -142,7 +142,7 @@
                     <template #default="{ row }: TableColumn<number>">
                         <div v-if="RecordSubResAdaptive">{{ tableData[row].resolution || '--' }}</div>
                         <div v-else-if="tableData[row].isRTSPChl || !tableData[row].resolution">--</div>
-                        <el-select-v2
+                        <BaseSelect
                             v-else
                             v-model="tableData[row].resolution"
                             :disabled="tableData[row].disabled"
@@ -158,9 +158,9 @@
                 >
                     <template #header>
                         <div v-if="RecordSubResAdaptive">{{ Translate('IDCS_FRAME_RATE') }}</div>
-                        <el-dropdown
+                        <BaseDropdown
                             v-else
-                            max-height="400"
+                            :max-height="400"
                         >
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_FRAME_RATE') }}
@@ -176,12 +176,12 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<number>">
                         <div v-if="RecordSubResAdaptive">{{ tableData[row].frameRate || '--' }}</div>
                         <div v-else-if="tableData[row].isRTSPChl || !tableData[row].frameRate">--</div>
-                        <el-select-v2
+                        <BaseSelect
                             v-else
                             v-model="tableData[row].frameRate"
                             :disabled="tableData[row].disabled"
@@ -197,7 +197,7 @@
                 >
                     <template #header>
                         <div v-if="RecordSubResAdaptive">{{ Translate('IDCS_VIDEO_QUALITY') }}</div>
-                        <el-dropdown v-else>
+                        <BaseDropdown v-else>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_VIDEO_QUALITY') }}
                             </BaseTableDropdownLink>
@@ -212,14 +212,14 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<number>">
                         <!-- 在码率上限中不可修改情况下，有数据的行不可选项也要设置为-- -->
                         <div v-if="RecordSubResAdaptive && isVideoQualityDisabled(row)">--</div>
                         <div v-else-if="RecordSubResAdaptive">{{ tableData[row].videoQuality ? `${tableData[row].videoQuality}Kbps` : '--' }}</div>
                         <div v-else-if="tableData[row].isRTSPChl || !tableData[row].videoQuality">--</div>
-                        <el-select-v2
+                        <BaseSelect
                             v-else
                             v-model="tableData[row].videoQuality"
                             :disabled="isVideoQualityDisabled(row)"

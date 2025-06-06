@@ -143,7 +143,7 @@
                 }"
             >
                 <el-form-item :label="Translate('IDCS_RESOLUTION_RATE')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="streamFormData.resolution"
                         :disabled="streamOptionDisabled"
                         :options="pageData.resolutionOptions"
@@ -151,14 +151,14 @@
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_FRAME_RATE')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="streamFormData.frameRate"
                         :disabled="streamOptionDisabled"
                         :options="fpsOptions"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_VIDEO_QUALITY')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="streamFormData.quality"
                         :disabled="streamOptionDisabled || streamQualityDisabled"
                         :options="displayQualityOptions"

@@ -33,6 +33,9 @@ const langStore = useLangStore()
 const session = useUserSessionStore()
 const plugin = usePlugin()
 const systemCaps = useCababilityStore()
+const popperObserver = usePopperObserver()
+
+popperObserver.create()
 
 /**
  * @description 如果未激活，跳转开机向导，否则，根据登录状态，跳转登录或现场预览

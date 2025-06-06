@@ -85,7 +85,7 @@
                 <span class="text-tips">{{ Translate('IDCS_ALARM_SWITCH_TIP') }}</span>
             </el-form-item>
             <el-form-item :label="Translate('IDCS_INPUT_SOURCE')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.inputSource"
                     :props="{
                         value: 'id',
@@ -198,7 +198,7 @@
                 </el-table-column>
                 <el-table-column min-width="120">
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_DELETE') }}
                             </BaseTableDropdownLink>
@@ -209,7 +209,7 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<AlarmSystemDisarmDto>">
                         <el-button @click="deleteItem(row)">

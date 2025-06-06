@@ -65,14 +65,15 @@
                             <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
                             <!-- 持续时间 -->
                             <el-form-item :label="Translate('IDCS_DURATION')">
-                                <el-select-v2
+                                <BaseSelect
                                     v-model="formData.holdTime"
                                     :options="formData.holdTimeList"
+                                    empty-text=""
                                 />
                             </el-form-item>
                             <!-- 温度单位 -->
                             <el-form-item :label="Translate('IDCS_TEMPERATURE_UNIT')">
-                                <el-select-v2
+                                <BaseSelect
                                     v-model="formData.tempUnits"
                                     :options="tempUnitsList"
                                     @change="changeTempUnits"
@@ -83,7 +84,7 @@
                                 v-if="formData.isShowDistance"
                                 :label="Translate('IDCS_DISTANCE_UNIT')"
                             >
-                                <el-select-v2
+                                <BaseSelect
                                     v-model="formData.distanceUnits"
                                     :options="distanceUnitList"
                                     @change="changeDistanceUnits"
@@ -175,7 +176,7 @@
                                     :label="Translate('IDCS_TYPE')"
                                 >
                                     <template #default="{ row }: TableColumn<AlarmTemperatureDetectionBoundryDto>">
-                                        <el-select-v2
+                                        <BaseSelect
                                             v-model="row.ruleType"
                                             :options="ruleShapeTypeList"
                                             @change="changeRuleType(row)"
@@ -246,7 +247,7 @@
                                     :label="Translate('IDCS_ALARM_RULES')"
                                 >
                                     <template #default="{ row }: TableColumn<AlarmTemperatureDetectionBoundryDto>">
-                                        <el-select-v2
+                                        <BaseSelect
                                             v-model="row.alarmRule"
                                             :options="getRuleTypeList(row.ruleType)"
                                         />
@@ -290,7 +291,7 @@
                         v-title
                     >
                         <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="formData.sysAudio"
                                 :options="pageData.voiceList"
                             />

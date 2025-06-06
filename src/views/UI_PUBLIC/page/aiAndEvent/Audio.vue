@@ -34,7 +34,7 @@
                 <template v-if="pageData.ipcAudioTab === 'audioAlarm'">
                     <!-- 通道 -->
                     <el-form-item :label="Translate('IDCS_CHANNEL')">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="pageData.alarmOutIndex"
                             :disabled="!alarmOutList.length || alarmOutList[pageData.alarmOutIndex].id === ''"
                             :options="alarmOutList"
@@ -43,6 +43,7 @@
                                 label: 'name',
                                 disabled: 'none',
                             }"
+                            empty-text=""
                             @change="changeAlarmOutChl"
                         />
                         <span
@@ -62,23 +63,25 @@
                     </el-form-item>
                     <!-- 语音 -->
                     <el-form-item :label="Translate('IDCS_ALERT_VOICE')">
-                        <el-select-v2
+                        <BaseSelect
                             v-if="alarmOutFormData.languageType !== 'customize'"
                             v-model="alarmOutFormData.audioType"
                             :disabled="alarmOutFormData.disabled || !alarmOutFormData.audioSwitch"
                             :options="alarmOutFormData.audioTypeList[alarmOutFormData.languageType] || []"
+                            empty-text=""
                         />
-                        <el-select-v2
+                        <BaseSelect
                             v-else-if="alarmOutFormData.customizeAudioType === 0"
                             model-value=""
                             :options="[]"
                             :disabled="alarmOutFormData.disabled || !alarmOutFormData.audioSwitch"
                         />
-                        <el-select-v2
+                        <BaseSelect
                             v-else
                             v-model="alarmOutFormData.customizeAudioType"
                             :disabled="alarmOutFormData.disabled || !alarmOutFormData.audioSwitch"
                             :options="alarmOutFormData.audioTypeList.customize"
+                            empty-text=""
                         />
                         <div class="state">
                             <el-button
@@ -122,7 +125,7 @@
                     </el-form-item>
                     <!-- 语言 -->
                     <el-form-item :label="Translate('IDCS_LANGUAGE')">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="alarmOutFormData.languageType"
                             :disabled="!alarmOutFormData.audioSwitch || alarmOutFormData.audioType >= 100"
                             :options="alarmOutFormData.langArr"
@@ -149,7 +152,7 @@
                 <template v-if="pageData.ipcAudioTab === 'audioDevice'">
                     <!-- 通道 -->
                     <el-form-item :label="Translate('IDCS_CHANNEL')">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="pageData.deviceIndex"
                             :options="deviceList"
                             :disabled="!deviceList.length || deviceFormData.id === ''"
@@ -158,6 +161,7 @@
                                 label: 'name',
                                 disabled: 'none',
                             }"
+                            empty-text=""
                             @change="changeDeviceChl"
                         />
                         <span v-show="deviceFormData.id && deviceFormData.disabled">{{ Translate('IDCS_OFFLINE') }}</span>
@@ -172,7 +176,7 @@
                     </el-form-item>
                     <!-- 音频输入设备 -->
                     <el-form-item :label="Translate('IDCS_DEVICE_AUDIO_IN')">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="deviceFormData.audioInput"
                             :options="deviceFormData.audioInputType"
                             :disabled="!deviceFormData.audioInSwitch || !deviceFormData.audioInput"
@@ -197,7 +201,7 @@
                     </el-form-item>
                     <!-- 扬声器（内置） -->
                     <el-form-item :label="Translate('IDCS_DEVICE_SPEAKER_BUILT_IN')">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="deviceFormData.loudSpeaker"
                             :disabled="!deviceFormData.audioInSwitch || !deviceFormData.loudSpeaker || deviceFormData.audioOutputswitch"
                             :options="deviceFormData.audioOutputType"
@@ -211,7 +215,7 @@
                     </el-form-item>
                     <!-- LOUT（外置） -->
                     <el-form-item :label="Translate('IDCS_DEVICE_SPEAKER_LINE_OUT')">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="deviceFormData.audioOutput"
                             :options="deviceFormData.audioOutputType"
                             :disabled="!deviceFormData.audioInSwitch || !deviceFormData.audioOutput || deviceFormData.loudSpeakerswitch"
@@ -234,14 +238,14 @@
                     </el-form-item>
                     <!-- 音频输入编码 -->
                     <el-form-item :label="Translate('IDCS_ENCODE_AUDIO_IN')">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="deviceFormData.audioEncode"
                             :options="deviceFormData.audioEncodeType"
                             :disabled="!deviceFormData.audioInSwitch || !deviceFormData.audioEncode"
                         />
                     </el-form-item>
                     <el-form-item :label="Translate('IDCS_ENCODE_AUDIO_IN')">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="deviceFormData.audioDenoise"
                             :options="deviceFormData.audioDenoiseType"
                             :disabled="!deviceFormData.audioInSwitch || !deviceFormData.audioDenoiseEnabled"
@@ -289,7 +293,7 @@
                 class="stripe"
             >
                 <el-form-item :label="Translate('IDCS_IPSPEAKER')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="pageData.ipSpeakerId"
                         :options="ipSepeakerList"
                         @change="changeIPSpeaker"

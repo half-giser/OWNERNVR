@@ -83,7 +83,7 @@
                 </el-form>
             </div>
             <div class="authCodeLogin-lang">
-                <el-select-v2
+                <BaseSelect
                     v-model="pageData.langId"
                     :options="lang.langTypes"
                     :props="{
@@ -93,7 +93,7 @@
                     append-to=".authCodeLogin"
                     @change="changeLang"
                 />
-                <el-select-v2
+                <BaseSelect
                     v-show="pageData.calendarOptions.length"
                     v-model="formData.calendarType"
                     :options="pageData.calendarOptions"

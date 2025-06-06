@@ -31,14 +31,15 @@
                             <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
                             <!-- 持续时间 -->
                             <el-form-item :label="Translate('IDCS_DURATION')">
-                                <el-select-v2
+                                <BaseSelect
                                     v-model="formData.holdTime"
                                     :options="formData.holdTimeList"
+                                    empty-text=""
                                 />
                             </el-form-item>
                             <!-- 场景变更 -->
                             <el-form-item :label="Translate('IDCS_SCENE_CHANGE')">
-                                <el-select-v2
+                                <BaseSelect
                                     v-model="formData.sceneChangeSwitch"
                                     :disabled="formData.sceneChangeSwitch === ''"
                                     :options="pageData.enableList"
@@ -46,7 +47,7 @@
                             </el-form-item>
                             <!-- 视频模糊 -->
                             <el-form-item :label="Translate('IDCS_VIDEO_BLUR')">
-                                <el-select-v2
+                                <BaseSelect
                                     v-model="formData.clarityAbnormalSwitch"
                                     :options="pageData.enableList"
                                     :disabled="formData.clarityAbnormalSwitch === ''"
@@ -54,7 +55,7 @@
                             </el-form-item>
                             <!-- 视频偏色 -->
                             <el-form-item :label="Translate('IDCS_VIDEO_COLOR')">
-                                <el-select-v2
+                                <BaseSelect
                                     v-model="formData.colorAbnormalSwitch"
                                     :options="pageData.enableList"
                                     :disabled="formData.colorAbnormalSwitch === ''"
@@ -80,7 +81,7 @@
                         v-title
                     >
                         <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="formData.sysAudio"
                                 :options="voiceList"
                             />

@@ -64,7 +64,7 @@
                     width="80"
                 >
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_EDIT') }}
                             </BaseTableDropdownLink>
@@ -73,7 +73,7 @@
                                     <el-dropdown-item @click="handleDelDateAll">{{ Translate('IDCS_DELETE_ALL') }}</el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<{ date: string }>">
                         <BaseImgSpriteBtn

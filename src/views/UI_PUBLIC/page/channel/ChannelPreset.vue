@@ -32,27 +32,23 @@
                 :model="formData"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select-v2
-                        v-if="chlOptions.length"
+                    <BaseSelect
                         v-model="pageData.tableIndex"
                         :options="chlOptions"
                         :persistent="true"
-                        popper-class="intersect-ocx"
+                        :disabled="!chlOptions.length"
+                        empty-text=""
                         @change="changeChl"
-                    />
-                    <el-select-v2
-                        v-else
-                        model-value=""
-                        :options="[]"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_PRESET')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="formData.presetIndex"
                         :options="presetOptions"
                         :props="{
                             label: 'index',
                         }"
+                        empty-text=""
                     />
                 </el-form-item>
                 <el-form-item

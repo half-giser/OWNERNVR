@@ -17,21 +17,19 @@
                 class="stripe"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="pageData.currChlId"
                         :options="chlOptions"
                         :persistent="true"
-                        popper-class="intersect-ocx"
                         @change="handleChlChange"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_WATER_MARK')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="pageData.chlData.switch"
                         :disabled="pageData.switchDisabled"
                         :options="pageData.options"
                         :persistent="true"
-                        popper-class="intersect-ocx"
                         @change="handleSwitchChange"
                     />
                 </el-form-item>
@@ -74,7 +72,7 @@
                     <!-- 水印开关   -->
                     <el-table-column>
                         <template #header>
-                            <el-dropdown>
+                            <BaseDropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_WATER_MARK') }}
                                 </BaseTableDropdownLink>
@@ -89,10 +87,10 @@
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
-                            </el-dropdown>
+                            </BaseDropdown>
                         </template>
                         <template #default="{ row }: TableColumn<ChannelWaterMarkDto>">
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="row.switch"
                                 :disabled="row.disabled"
                                 :placeholder="Translate('IDCS_ON')"

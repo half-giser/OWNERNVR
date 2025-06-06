@@ -19,7 +19,7 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_DDNS_SERVER_TYPE')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.serverType"
                     :options="pageData.serverTypeOptions"
                     :disabled="!formData.switch"

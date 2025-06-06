@@ -194,14 +194,14 @@
                         :disabled="pageData.iconDisabled"
                         @click="resume"
                     />
-                    <el-select-v2
+                    <BaseSelect
                         ref="selectRef"
                         v-model="pageData.recPlayTime"
                         class="btn"
                         :options="pageData.recPlayTimeList"
                         :disabled="pageData.iconDisabled"
                         :persistent="true"
-                        :popper-class="`intersect-ocx ${pageData.isFullScreen ? 'fullscreen-select' : ''}`"
+                        :popper-class="pageData.isFullScreen ? 'fullscreen-select' : ''"
                         :append-to="pageData.isFullScreen ? '.btn-bar' : undefined"
                         @change="changeRecPlayTime"
                     />

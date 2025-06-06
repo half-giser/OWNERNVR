@@ -6,16 +6,16 @@
 <template>
     <div class="authCodeLogin">
         <div class="authCodeLogin-lang">
-            <el-select-v2
+            <BaseSelect
                 v-model="pageData.langId"
-                :options="lang.langTypes.value"
+                :options="lang.langTypes"
                 :props="{
                     label: 'name',
                     value: 'id',
                 }"
                 @change="changeLang"
             />
-            <el-select-v2
+            <BaseSelect
                 v-show="pageData.calendarOptions.length"
                 v-model="formData.calendarType"
                 :options="pageData.calendarOptions"

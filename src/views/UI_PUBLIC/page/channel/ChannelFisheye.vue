@@ -17,40 +17,37 @@
                 class="stripe"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="selectedChlId"
                         :options="chlOptions"
                         :persistent="true"
-                        popper-class="intersect-ocx"
                         @change="handleChlSel"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_FISHEYE_STREAM_MODE')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="formData.fishEyeMode"
                         :disabled="formData.disabled || formData.reqCfgFail"
                         :options="formData.fishEyeModeList"
                         :persistent="true"
-                        popper-class="intersect-ocx"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_FISHEYE_MODE')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="formData.installType"
                         :disabled="formData.disabled || formData.reqCfgFail"
                         :options="installTypeOption"
                         :persistent="true"
-                        popper-class="intersect-ocx"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ENABLE')">
-                    <el-select-v2
+                    <BaseSelect
                         v-if="!formData.reqCfgFail"
                         model-value=""
                         :options="[]"
                         disabled
                     />
-                    <el-select-v2
+                    <BaseSelect
                         v-else
                         v-model="formData.fishEyeEnable"
                         :options="switchOptions"
@@ -91,7 +88,7 @@
                         min-width="180"
                     >
                         <template #header>
-                            <el-dropdown>
+                            <BaseDropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_FISHEYE_STREAM_MODE') }}
                                 </BaseTableDropdownLink>
@@ -106,10 +103,10 @@
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
-                            </el-dropdown>
+                            </BaseDropdown>
                         </template>
                         <template #default="{ row }: TableColumn<ChannelFisheyeDto>">
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="row.fishEyeMode"
                                 :disabled="row.disabled || row.reqCfgFail || row.HIKVISION"
                                 :options="row.fishEyeModeList"
@@ -121,7 +118,7 @@
                         min-width="180"
                     >
                         <template #header>
-                            <el-dropdown>
+                            <BaseDropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_FISHEYE_MODE') }}
                                 </BaseTableDropdownLink>
@@ -136,10 +133,10 @@
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
-                            </el-dropdown>
+                            </BaseDropdown>
                         </template>
                         <template #default="{ row }: TableColumn<ChannelFisheyeDto>">
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="row.installType"
                                 :disabled="row.disabled || row.reqCfgFail || row.HIKVISION"
                                 :options="installTypeOption"
@@ -151,7 +148,7 @@
                         min-width="120"
                     >
                         <template #header>
-                            <el-dropdown>
+                            <BaseDropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_ENABLE') }}
                                 </BaseTableDropdownLink>
@@ -166,16 +163,16 @@
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
-                            </el-dropdown>
+                            </BaseDropdown>
                         </template>
                         <template #default="{ row }: TableColumn<ChannelFisheyeDto>">
-                            <el-select-v2
+                            <BaseSelect
                                 v-if="!row.reqCfgFail"
                                 model-value=""
                                 :options="[]"
                                 disabled
                             />
-                            <el-select-v2
+                            <BaseSelect
                                 v-else
                                 v-model="row.fishEyeEnable"
                                 :disabled="row.isPrivateProtocol"

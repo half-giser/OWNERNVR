@@ -88,9 +88,10 @@
                                 </el-form-item>
                                 <!-- 持续时间 -->
                                 <el-form-item :label="Translate('IDCS_DURATION')">
-                                    <el-select-v2
+                                    <BaseSelect
                                         v-model="formData.holdTime"
                                         :options="formData.holdTimeList"
+                                        empty-text=""
                                     />
                                 </el-form-item>
                                 <!-- 警戒面 -->
@@ -115,7 +116,7 @@
                                     <!-- 方向 -->
                                     <div :class="pageData.objectFilterMode === 'mode2' ? 'rectangleBorder' : ''">
                                         <el-form-item :label="Translate('IDCS_DIRECTION')">
-                                            <el-select-v2
+                                            <BaseSelect
                                                 v-model="formData.direction"
                                                 :options="formData.directionList"
                                                 @change="changeDirection"
@@ -133,9 +134,10 @@
                                             v-if="formData.detectTargetList.length"
                                             :label="Translate('IDCS_TARGET')"
                                         >
-                                            <el-select-v2
+                                            <BaseSelect
                                                 v-model="formData.detectTarget"
                                                 :options="formData.detectTargetList"
+                                                empty-text=""
                                                 @change="showDisplayRange"
                                             />
                                         </el-form-item>
@@ -340,7 +342,7 @@
                         <div>
                             <el-form v-if="pageData.supportAlarmAudioConfig">
                                 <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
-                                    <el-select-v2
+                                    <BaseSelect
                                         v-model="formData.sysAudio"
                                         :options="voiceList"
                                     />

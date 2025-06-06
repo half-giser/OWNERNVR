@@ -123,13 +123,13 @@
                                             '--form-input-width': '121px',
                                         }"
                                     >
-                                        <el-select-v2
+                                        <BaseSelect
                                             v-model="detectionPageData.continentValue"
                                             :disabled="!detectionPageData.continentOption.length"
                                             :options="detectionPageData.continentOption"
                                             @change="changeContinent"
                                         />
-                                        <el-select-v2
+                                        <BaseSelect
                                             v-model="detectionFormData.plateSupportArea"
                                             :disabled="!plateAreaOption.length"
                                             :options="plateAreaOption"
@@ -214,7 +214,7 @@
                                 }"
                             >
                                 <el-form-item :label="Translate('IDCS_RECOGNITION_MODE')">
-                                    <el-select-v2
+                                    <BaseSelect
                                         v-model="detectionFormData.direction"
                                         :options="detectionPageData.directionOption"
                                         :persistent="true"

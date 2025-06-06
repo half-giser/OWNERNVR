@@ -16,7 +16,7 @@
                 <div class="box_title">{{ Translate('IDCS_FACE_MATCH_SELECT_CHL') }}</div>
                 <el-form v-title>
                     <el-form-item :label="Translate('IDCD_RULE')">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="pageData.rule"
                             :options="pageData.ruleOptions"
                         />
@@ -40,15 +40,17 @@
                 <div class="box_title">{{ Translate('IDCS_MATCH_START_AND_END') }}</div>
                 <el-form v-title>
                     <el-form-item :label="Translate('IDCS_PREALARM_BEFORE')">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="pageData.duration"
                             :options="pageData.durationOptions"
+                            empty-text=""
                         />
                     </el-form-item>
                     <el-form-item :label="Translate('IDCS_PREALARM_AFTER')">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="pageData.delay"
                             :options="pageData.durationOptions"
+                            empty-text=""
                         />
                     </el-form-item>
                 </el-form>

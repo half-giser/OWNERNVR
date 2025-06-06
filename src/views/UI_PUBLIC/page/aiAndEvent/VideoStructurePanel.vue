@@ -127,9 +127,10 @@
                                         </div>
                                         <!-- 目标 -->
                                         <el-form-item :label="Translate('IDCS_TARGET')">
-                                            <el-select-v2
+                                            <BaseSelect
                                                 v-model="formData.detectTarget"
                                                 :options="formData.detectTargetList"
+                                                empty-text=""
                                                 @change="showDisplayRange"
                                             />
                                         </el-form-item>
@@ -333,7 +334,7 @@
                                 <div class="base-ai-subheading">{{ Translate('IDCS_IMAGE_OSD') }}</div>
                                 <!-- 类型 -->
                                 <el-form-item :label="Translate('IDCS_TYPE')">
-                                    <el-select-v2
+                                    <BaseSelect
                                         v-model="formData.osdType"
                                         :options="pageData.imgOsdTypeList"
                                     />
@@ -408,7 +409,7 @@
                             </el-form-item>
                             <!-- 模式 -->
                             <el-form-item :label="Translate('IDCS_MODE')">
-                                <el-select-v2
+                                <BaseSelect
                                     v-model="pageData.timeType"
                                     :disabled="!pageData.autoReset"
                                     :options="pageData.countCycleTypeList"
@@ -423,14 +424,14 @@
                                     '--form-input-width': '121px',
                                 }"
                             >
-                                <el-select-v2
+                                <BaseSelect
                                     v-if="pageData.timeType === 'week'"
                                     v-model="formData.countPeriod.week.date"
                                     :options="pageData.weekOption"
                                     :disabled="!pageData.autoReset"
                                     :teleported="false"
                                 />
-                                <el-select-v2
+                                <BaseSelect
                                     v-if="pageData.timeType === 'month'"
                                     v-model="formData.countPeriod.month.date"
                                     :options="pageData.monthOption"

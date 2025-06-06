@@ -13,6 +13,7 @@ import type { ScheduleWeekReturnsType } from '@/components/BaseScheduleWeek.vue'
 import type { TimelineReturnsType } from '@/components/player/BaseTimeline.vue'
 import type { LivePopReturnsType } from '@/components/player/BaseLivePop.vue'
 import type { HeatMapReturnsType } from '@/components/chart/BaseHeatMapChart.vue'
+import type { BaseSelectReturnsType } from '@/components/form/BaseSelect.vue'
 
 export {}
 
@@ -178,6 +179,8 @@ declare global {
     type HeatMapInstance = HeatMapReturnsType
 
     type UserChlAuth = _UserChlAuth
+
+    type SelectInstance = BaseSelectReturnsType
 
     /**
      * P2P /config/index.js

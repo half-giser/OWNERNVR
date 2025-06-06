@@ -50,7 +50,7 @@
                 v-if="supportAlarmAudioConfig"
                 :label="Translate('IDCS_VOICE_PROMPT')"
             >
-                <el-select-v2
+                <BaseSelect
                     v-model="taskData.sysAudio"
                     :options="voiceList"
                 />

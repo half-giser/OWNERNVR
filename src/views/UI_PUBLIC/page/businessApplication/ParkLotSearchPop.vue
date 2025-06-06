@@ -115,7 +115,7 @@
                             />
                         </div>
                         <div class="base-btn-box">
-                            <el-dropdown
+                            <BaseDropdown
                                 placement="top-end"
                                 :disabled="!hasSelected"
                             >
@@ -133,7 +133,7 @@
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
-                            </el-dropdown>
+                            </BaseDropdown>
                         </div>
                     </div>
                     <BaseImgSpriteBtn

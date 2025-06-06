@@ -54,9 +54,10 @@
                         <el-form v-title>
                             <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
                             <el-form-item :label="Translate('IDCS_DURATION')">
-                                <el-select-v2
+                                <BaseSelect
                                     v-model="formData.duration"
                                     :options="formData.durationList"
+                                    empty-text=""
                                 />
                             </el-form-item>
                             <el-form-item :label="Translate('IDCS_WARN_AREA')">

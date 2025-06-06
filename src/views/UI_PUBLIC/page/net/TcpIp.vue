@@ -12,7 +12,7 @@
                 v-show="formData.netConfig.curWorkMode !== 'work_mode_none'"
                 :label="Translate('IDCS_WORK_PATTERN')"
             >
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.netConfig.curWorkMode"
                     :disabled="pageData.pppoeSwitch || !(formData.netConfig.supportNetworkMultiAddrSetting && formData.netConfig.supportNetworkFaultTolerance)"
                     :options="pageData.workModeOptions"
@@ -24,7 +24,7 @@
                 v-show="formData.netConfig.curWorkMode === 'network_fault_tolerance' && formData.bonds.length > 1"
                 :label="Translate('IDCS_BONDS')"
             >
-                <el-select-v2
+                <BaseSelect
                     v-model="pageData.bondIndex"
                     :disabled="pageData.pppoeSwitch"
                     :options="bondsOptions"
@@ -102,7 +102,7 @@
                             v-show="isPoe"
                             :label="Translate('IDCS_POE_MODE')"
                         >
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="formData.netConfig.poeMode"
                                 :disabled="!poeEnabled"
                                 :options="pageData.poeModeOptions"
@@ -211,7 +211,7 @@
                 v-show="formData.netConfig.curWorkMode === 'network_fault_tolerance'"
                 :label="Translate('IDCS_PRIMARY_NETWORK_CARD')"
             >
-                <el-select-v2
+                <BaseSelect
                     :model-value="current.primaryNIC || ''"
                     :options="nicConfigOptions"
                     @update:model-value="changeData($event, 'primaryNIC')"
@@ -241,7 +241,7 @@
                 v-show="formData.netConfig.curWorkMode === 'network_fault_tolerance'"
                 :label="Translate('IDCS_PROMPT_DEFAULT_NIC')"
             >
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.ipDefaultBond"
                     :disabled="pageData.pppoeSwitch"
                     :options="bondsOptions"
@@ -251,7 +251,7 @@
                 v-show="formData.netConfig.curWorkMode === 'multiple_address_setting'"
                 :label="Translate('IDCS_PROMPT_DEFAULT_NIC')"
             >
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.netConfig.defaultNic"
                     :disabled="pageData.pppoeSwitch"
                     :options="nicConfigOptions"

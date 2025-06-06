@@ -21,7 +21,7 @@
                 :label="Translate('IDCS_PRESET_NAME')"
                 prop="name"
             >
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.name"
                     :options="pageData.nameOptions"
                     :props="{
@@ -30,13 +30,13 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_DURATION')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.holdTime"
                     :options="pageData.timeOptions"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_SPEED')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.speed"
                     :options="pageData.speedOptions"
                 />

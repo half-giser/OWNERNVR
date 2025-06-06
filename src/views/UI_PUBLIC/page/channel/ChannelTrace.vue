@@ -31,29 +31,25 @@
                 :model="formData"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select-v2
-                        v-if="tableData.length"
+                    <BaseSelect
                         v-model="pageData.tableIndex"
                         :options="chlOptions"
                         :persistent="true"
-                        popper-class="intersect-ocx"
+                        empty-text=""
+                        :disabled="!chlOptions.length"
                         @change="changeChl"
-                    />
-                    <el-select-v2
-                        v-else
-                        model-value=""
-                        :options="[]"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_PTZ_TRACE')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="formData.traceIndex"
                         :options="traceOptions"
                         :props="{
                             label: 'index',
                         }"
                         :persistent="true"
-                        popper-class="intersect-ocx"
+                        empty-text=""
+                        :disabled="!chlOptions.length"
                     />
                     <el-tooltip :content="Translate('IDCS_TRACK_PLAY')">
                         <div

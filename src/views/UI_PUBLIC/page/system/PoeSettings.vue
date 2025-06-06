@@ -26,7 +26,7 @@
                 />
                 <el-table-column>
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_ENABLE') }}
                             </BaseTableDropdownLink>
@@ -41,10 +41,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<SystemPoeList>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.switch"
                             :options="pageData.switchOptions"
                         />

@@ -30,7 +30,7 @@
                 :label="Translate('IDCS_TYPE')"
             >
                 <template #default="{ row, $index }: TableColumn<AlarmCombinedItemDto>">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="row.alarmSourceType"
                         :options="pageData.alarmSourceTypeList[$index]"
                         @change="changeType(row, $index)"
@@ -43,7 +43,7 @@
                 :label="Translate('IDCS_ALARM_SOURCE')"
             >
                 <template #default="{ row, $index }: TableColumn<AlarmCombinedItemDto>">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="row.alarmSourceEntity.value"
                         :options="pageData.alarmSourceEntityList[$index]"
                         @change="changeEntity(row)"

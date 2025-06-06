@@ -104,7 +104,7 @@
                                 class="hide"
                                 disabled
                             />
-                            <el-dropdown>
+                            <BaseDropdown>
                                 <el-button class="btn">
                                     {{ Translate('IDCS_MANUAL_OPEN_BARRIER') }}
                                 </el-button>
@@ -119,7 +119,7 @@
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
-                            </el-dropdown>
+                            </BaseDropdown>
                         </el-form-item>
                     </el-form>
                     <div class="data-box">

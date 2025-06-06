@@ -16,7 +16,7 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_WORK_PATTERN')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.workMode"
                     :options="pageData.options"
                     :disabled="!formData.switch"
@@ -116,7 +116,7 @@
                         width="100"
                     >
                         <template #header>
-                            <el-dropdown>
+                            <BaseDropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_DELETE') }}
                                 </BaseTableDropdownLink>
@@ -125,7 +125,7 @@
                                         <el-dropdown-item @click="delAllWorkMachine">{{ Translate('IDCS_DELETE_ALL') }}</el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
-                            </el-dropdown>
+                            </BaseDropdown>
                         </template>
                         <template #default="{ row }: TableColumn<SystemWorkMachineDto>">
                             <BaseImgSpriteBtn

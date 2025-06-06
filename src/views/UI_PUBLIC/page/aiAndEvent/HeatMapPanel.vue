@@ -103,9 +103,10 @@
                                             </div>
                                             <!-- 目标 -->
                                             <el-form-item :label="Translate('IDCS_TARGET')">
-                                                <el-select-v2
+                                                <BaseSelect
                                                     v-model="formData.detectTarget"
                                                     :options="formData.detectTargetList"
+                                                    empty-text=""
                                                     @change="showDisplayRange"
                                                 />
                                             </el-form-item>

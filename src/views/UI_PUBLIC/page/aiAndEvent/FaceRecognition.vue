@@ -84,14 +84,15 @@
                                         <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
                                         <!-- 持续时间 -->
                                         <el-form-item :label="Translate('IDCS_DURATION')">
-                                            <el-select-v2
+                                            <BaseSelect
                                                 v-model="detectionFormData.holdTime"
                                                 :options="detectionFormData.holdTimeList"
+                                                empty-text=""
                                             />
                                         </el-form-item>
                                         <!-- 抓拍间隔 -->
                                         <el-form-item :label="Translate('IDCS_SNAPSHOT_INTERVAL')">
-                                            <el-select-v2
+                                            <BaseSelect
                                                 v-model="detectionFormData.snapInterval"
                                                 :options="detectionPageData.snapList"
                                                 :disabled="detectionFormData.snapInterval === ''"
@@ -170,7 +171,7 @@
                                     v-show="supportAlarmAudioConfig"
                                     :label="Translate('IDCS_VOICE_PROMPT')"
                                 >
-                                    <el-select-v2
+                                    <BaseSelect
                                         v-model="detectionFormData.sysAudio"
                                         :options="pageData.voiceList"
                                     />

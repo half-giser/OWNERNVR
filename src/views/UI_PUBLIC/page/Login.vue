@@ -9,12 +9,12 @@
         :style="{ opacity }"
     >
         <div class="login-lang">
-            <el-select-v2
+            <BaseSelect
                 v-model="pageData.langId"
                 :options="pageData.langTypes"
                 @change="changeLang"
             />
-            <el-select-v2
+            <BaseSelect
                 v-show="calendarOptions.length"
                 v-model="formData.calendarType"
                 :options="calendarOptions"

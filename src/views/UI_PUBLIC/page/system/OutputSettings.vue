@@ -61,7 +61,7 @@
                 class="top-hdmi"
             >
                 <span>{{ Translate('IDCS_HDMI_IN_EXPORT_TO') }}</span>
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.decoder[pageData.tabId].ShowHdmiIn"
                     :options="hdmiInOptions"
                 />
@@ -120,7 +120,7 @@
                         class="top-hdmi"
                     >
                         <span>{{ Translate('IDCS_HDMI_IN_EXPORT_TO') }}</span>
-                        <el-select-v2
+                        <BaseSelect
                             v-model="formData.decoder[pageData.tabId].ShowHdmiIn"
                             :options="hdmiInOptions"
                         />
@@ -217,11 +217,12 @@
                                     @click="changeSplit(seg)"
                                 />
                             </div>
-                            <el-select-v2
+                            <BaseSelect
                                 v-show="isDwell && (pageData.tabId !== -1 || pageData.outputIdx !== -1)"
                                 :model-value="currentTimeInterval"
                                 :options="pageData.dwellTimeOptions"
                                 class="panel-dwell-time"
+                                empty-text=""
                                 @change="changeTimeInterval"
                             />
                             <el-tooltip :content="Translate('IDCS_CLEAR_AWAY')">

@@ -51,7 +51,7 @@
                         :label="Translate('IDCS_DELAY')"
                     >
                         <template #header>
-                            <el-dropdown :disabled>
+                            <BaseDropdown :disabled>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_DELAY') }}
                                 </BaseTableDropdownLink>
@@ -66,10 +66,10 @@
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
-                            </el-dropdown>
+                            </BaseDropdown>
                         </template>
                         <template #default="{ row }: TableColumn<LiveAlarmList>">
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="row.delay"
                                 :disabled
                                 :options="pageData.delayList"
@@ -78,7 +78,7 @@
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_CLEAR_AWAY')">
                         <template #header>
-                            <el-dropdown :disabled>
+                            <BaseDropdown :disabled>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_CLEAR_AWAY') }}
                                 </BaseTableDropdownLink>
@@ -87,7 +87,7 @@
                                         <el-dropdown-item @click="clearAllStatus">{{ Translate('IDCS_CLEAR_ALL') }}</el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
-                            </el-dropdown>
+                            </BaseDropdown>
                         </template>
                         <template #default="{ row, $index }: TableColumn<LiveAlarmList>">
                             <el-button

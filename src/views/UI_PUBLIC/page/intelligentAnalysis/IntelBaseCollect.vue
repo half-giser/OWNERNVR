@@ -5,7 +5,7 @@
 -->
 <template>
     <div class="collect">
-        <el-dropdown>
+        <BaseDropdown>
             <BaseImgSprite
                 file="collect"
                 :hover-index="0"
@@ -28,7 +28,7 @@
                     </el-dropdown-item>
                 </el-dropdown-menu>
             </template>
-        </el-dropdown>
+        </BaseDropdown>
         <el-dialog
             v-model="pageData.isPop"
             :title="Translate('IDCS_ADD_TO_FAVORITE')"

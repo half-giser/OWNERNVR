@@ -36,7 +36,7 @@
                     width="140"
                 >
                     <template #header>
-                        <el-dropdown :max-height="400">
+                        <BaseDropdown :max-height="400">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_VIDEO_ENCT') }}
                             </BaseTableDropdownLink>
@@ -51,10 +51,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ $index }: TableColumn<number>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="tableData[$index].videoEncodeType"
                             :disabled="tableData[$index].disabled"
                             :options="tableData[$index].subCaps.supEnct"
@@ -86,7 +86,7 @@
                             >
                                 <el-table-column>
                                     <template #default="{ row }: TableColumn<NetSubStreamResolutionList>">
-                                        <el-select-v2
+                                        <BaseSelect
                                             v-model="row.value"
                                             :options="row.resolution"
                                             @visible-change="handleResolutionVisibleChange"
@@ -122,7 +122,7 @@
                         </el-popover>
                     </template>
                     <template #default="{ $index }: TableColumn<number>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="tableData[$index].resolution"
                             :disabled="tableData[$index].disabled"
                             :options="tableData[$index].subCaps.res"
@@ -136,7 +136,7 @@
                     width="140"
                 >
                     <template #header>
-                        <el-dropdown :max-height="400">
+                        <BaseDropdown :max-height="400">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_FRAME_RATE') }}
                             </BaseTableDropdownLink>
@@ -151,21 +151,15 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
 
                     <template #default="{ $index }: TableColumn<number>">
-                        <el-select-v2
-                            v-if="!tableData[$index].frameRate"
-                            model-value=""
-                            disabled
-                            :options="[]"
-                        />
-                        <el-select-v2
-                            v-else
+                        <BaseSelect
                             v-model="tableData[$index].frameRate"
                             :disabled="tableData[$index].disabled"
                             :options="getFpsOptions($index)"
+                            empty-text=""
                         />
                     </template>
                 </el-table-column>
@@ -175,7 +169,7 @@
                     width="140"
                 >
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_BITRATE_TYPE') }}
                             </BaseTableDropdownLink>
@@ -190,12 +184,12 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
 
                     <template #default="{ $index }: TableColumn<number>">
                         <el-text v-if="!tableData[$index].subCaps.bitType.length">--</el-text>
-                        <el-select-v2
+                        <BaseSelect
                             v-else
                             v-model="tableData[$index].bitType"
                             :disabled="isBitTypeDisabled($index)"
@@ -210,7 +204,7 @@
                     width="140"
                 >
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_IMAGE_QUALITY') }}
                             </BaseTableDropdownLink>
@@ -225,13 +219,14 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ $index }: TableColumn<number>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="tableData[$index].level"
                             :disabled="isLevelDisabled($index)"
-                            :options="pageData.levelList"
+                            :empty-text="Translate('IDCS_LOWEST')"
+                            :options="isLevelDisabled($index) ? [] : pageData.levelList"
                         />
                     </template>
                 </el-table-column>
@@ -241,7 +236,7 @@
                     width="140"
                 >
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_VIDEO_QUALITY') }}
                             </BaseTableDropdownLink>
@@ -256,16 +251,16 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ $index }: TableColumn<number>">
-                        <el-select-v2
+                        <BaseSelect
                             v-if="isVideoQualityDisabled($index)"
                             :model-value="tableData[$index].videoQuality === 0 ? '' : tableData[$index].videoQuality"
                             disabled
                             :options="[]"
                         />
-                        <el-select-v2
+                        <BaseSelect
                             v-else
                             v-model="tableData[$index].videoQuality"
                             :options="getVideoQualityOptions($index)"
