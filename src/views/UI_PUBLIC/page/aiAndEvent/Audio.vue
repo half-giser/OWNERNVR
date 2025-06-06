@@ -46,7 +46,7 @@
                             @change="changeAlarmOutChl"
                         />
                         <span
-                            v-show="alarmOutFormData.disabled"
+                            v-show="alarmOutFormData.disabled && alarmOutList.length"
                             class="state"
                         >
                             {{ Translate('IDCS_QUERY_DATA_FAIL').replace(/，/g, '') }}
@@ -132,6 +132,7 @@
                         <BaseScheduleSelect
                             v-model="alarmOutFormData.schedule"
                             :options="pageData.scheduleList"
+                            :disabled="!alarmOutList.length || alarmOutList[pageData.alarmOutIndex].id === ''"
                             @edit="pageData.isSchedulePop = true"
                         />
                     </el-form-item>
