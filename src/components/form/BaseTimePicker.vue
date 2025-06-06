@@ -178,7 +178,7 @@ const handleClose = () => {
     $picker.value?.handleClose()
 }
 
-const hide = popperObserver.observe(handleClose, 'el-time-pane')
+const hide = popperObserver.observe(handleClose, 'el-picker__popper')
 
 const expose = {
     handleOpen,

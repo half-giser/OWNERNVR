@@ -55,7 +55,6 @@ export const openP2PDualAuthLoginPop = (option: { confirm?: (data: UserDualAuthL
         setErrorMsg(msg: string) {
             if (typeof vNode?.component?.props.errMsg === 'string') {
                 vNode.component.props.errMsg = msg
-                console.log(vNode.component.props.errMsg)
             }
         },
     }

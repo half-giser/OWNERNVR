@@ -60,18 +60,17 @@
                         :disabled="!presetOptions.length"
                         :maxlength="tableData[pageData.tableIndex]?.nameMaxByteLen || 63"
                     />
-                    <el-tooltip :content="Translate('IDCS_SAVE_CHANGE')">
-                        <div
-                            class="base-chl-icon-btn"
-                            :class="{ disabled: !formData.name.trim() || !presetOptions.length }"
-                        >
-                            <BaseImgSpriteBtn
-                                file="save"
-                                :disabled="!formData.name.trim() || !presetOptions.length"
-                                @click="saveName"
-                            />
-                        </div>
-                    </el-tooltip>
+                    <div
+                        class="base-chl-icon-btn"
+                        :title="Translate('IDCS_SAVE_CHANGE')"
+                        :class="{ disabled: !formData.name.trim() || !presetOptions.length }"
+                    >
+                        <BaseImgSpriteBtn
+                            file="save"
+                            :disabled="!formData.name.trim() || !presetOptions.length"
+                            @click="saveName"
+                        />
+                    </div>
                 </el-form-item>
                 <div class="base-btn-box">
                     <el-button

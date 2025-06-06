@@ -71,12 +71,11 @@
                                 >
                                     {{ expireTime }}
                                 </div>
-                                <el-tooltip :content="Translate('IDCS_AUTHCODE_RECV_TIP')">
-                                    <div
-                                        v-show="pageData.expireTime > 0"
-                                        class="authCodeLogin-question"
-                                    ></div>
-                                </el-tooltip>
+                                <div
+                                    v-show="pageData.expireTime > 0"
+                                    class="authCodeLogin-question"
+                                    :title="Translate('IDCS_AUTHCODE_RECV_TIP')"
+                                ></div>
                             </div>
                         </div>
                     </el-form-item>

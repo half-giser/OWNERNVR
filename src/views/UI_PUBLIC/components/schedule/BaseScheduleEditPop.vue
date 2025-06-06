@@ -44,7 +44,7 @@
                     </el-radio-group>
                 </el-form-item>
                 <div class="btn-panel">
-                    <el-popover
+                    <BasePopover
                         v-model:visible="pageData.manualTimeInputShow"
                         width="250"
                     >
@@ -88,7 +88,7 @@
                                 <el-button @click="manualTimeInputClose">{{ Translate('IDCS_CANCEL') }}</el-button>
                             </div>
                         </div>
-                    </el-popover>
+                    </BasePopover>
                     <a
                         @click="scheduleWeekRef?.resetSameValue([['00:00', '23:59']])"
                         v-text="Translate('IDCS_SELECT_ALL')"

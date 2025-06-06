@@ -213,8 +213,8 @@
                         :disabled="pageData.playStatus !== 'pause'"
                         @click="nextFrame"
                     />
-                    <el-popover
-                        width="34px"
+                    <BasePopover
+                        width="34"
                         :popper-class="`no-border no-padding ${pageData.isFullScreen ? 'fullscreen-popover' : ''} ${isTrail ? 'trail' : ''}`"
                         trigger="hover"
                         :append-to="pageData.isFullScreen ? '.btn-bar' : undefined"
@@ -245,7 +245,7 @@
                                 @click="changeRecSpeed(4)"
                             />
                         </div>
-                    </el-popover>
+                    </BasePopover>
                     <BaseImgSpriteBtn
                         class="btn"
                         file="fw10s"

@@ -68,7 +68,7 @@
                     width="170"
                 >
                     <template #header>
-                        <el-popover
+                        <BasePopover
                             v-model:visible="pageData.isResolutionPop"
                             :width="400"
                             popper-class="no-padding"
@@ -119,7 +119,7 @@
                                 <el-button @click="changeAllResolution">{{ Translate('IDCS_OK') }}</el-button>
                                 <el-button @click="pageData.isResolutionPop = false">{{ Translate('IDCS_CANCEL') }}</el-button>
                             </div>
-                        </el-popover>
+                        </BasePopover>
                     </template>
                     <template #default="{ $index }: TableColumn<number>">
                         <BaseSelect
@@ -281,7 +281,7 @@
                     width="140"
                 >
                     <template #header>
-                        <el-popover
+                        <BasePopover
                             v-model:visible="pageData.isGOPPop"
                             :width="250"
                             popper-class="no-padding"
@@ -311,7 +311,7 @@
                                     <el-button @click="pageData.isGOPPop = false">{{ Translate('IDCS_CANCEL') }}</el-button>
                                 </div>
                             </el-form>
-                        </el-popover>
+                        </BasePopover>
                     </template>
                     <template #default="{ $index }: TableColumn<number>">
                         <BaseNumberInput

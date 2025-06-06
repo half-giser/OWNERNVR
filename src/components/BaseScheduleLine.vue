@@ -50,7 +50,7 @@
                 class="btn-panel"
             >
                 <slot name="customerControlPanel"></slot>
-                <el-popover
+                <BasePopover
                     v-model:visible="manualTimeInputShow"
                     width="300"
                     :teleported="false"
@@ -74,7 +74,7 @@
                         />
                         <el-button @click="manualTimeInputOk">{{ Translate('IDCS_OK') }}</el-button>
                     </div>
-                </el-popover>
+                </BasePopover>
                 <a
                     @click="resetValue([['00:00', '23:59']])"
                     v-text="Translate('IDCS_SELECT_ALL')"

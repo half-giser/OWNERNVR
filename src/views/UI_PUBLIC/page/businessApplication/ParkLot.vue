@@ -36,14 +36,13 @@
                     <div>{{ Translate('IDCS_TODAY_VEHICLE_OUT_NUM') }}</div>
                 </div>
                 <div class="back">
-                    <el-tooltip :content="Translate('IDCS_PLATFORM_OPERATE_RETURN')">
-                        <BaseImgSpriteBtn
-                            file="park_back"
-                            :index="[0, 1, 1, 0]"
-                            :chunk="2"
-                            @click="goBack"
-                        />
-                    </el-tooltip>
+                    <BaseImgSpriteBtn
+                        file="park_back"
+                        :index="[0, 1, 1, 0]"
+                        :chunk="2"
+                        :title="Translate('IDCS_PLATFORM_OPERATE_RETURN')"
+                        @click="goBack"
+                    />
                 </div>
             </div>
             <div class="center">
@@ -166,12 +165,11 @@
             </div>
             <div class="base-btn-box space-between padding">
                 <div>{{ Translate('IDCS_MORE_VEHICLE_RECORD') }}</div>
-                <el-tooltip :content="Translate('IDCS_VEHICLE_RECORD_REARCH')">
-                    <BaseImgSpriteBtn
-                        file="park_record"
-                        @click="search"
-                    />
-                </el-tooltip>
+                <BaseImgSpriteBtn
+                    file="park_record"
+                    :title="Translate('IDCS_VEHICLE_RECORD_REARCH')"
+                    @click="search"
+                />
             </div>
             <div class="base-table-box">
                 <el-table

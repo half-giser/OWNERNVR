@@ -5,7 +5,7 @@
 -->
 <template>
     <div class="backup">
-        <el-popover
+        <BasePopover
             :visible="pageData.visible"
             :width="1000"
             placement="top-end"
@@ -125,7 +125,7 @@
                 <BaseImgSprite file="caution" />
                 <span>{{ Translate('IDCS_BACKUP_NOTICE').formatForLang(Translate('IDCS_REPLAY')) }}</span>
             </div>
-        </el-popover>
+        </BasePopover>
     </div>
 </template>
 

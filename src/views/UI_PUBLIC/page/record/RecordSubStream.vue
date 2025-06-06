@@ -82,7 +82,7 @@
                 >
                     <template #header>
                         <div v-if="RecordSubResAdaptive">{{ Translate('IDCS_RESOLUTION_RATE') }}</div>
-                        <el-popover
+                        <BasePopover
                             v-else
                             v-model:visible="pageData.resolutionHeaderVisble"
                             width="430"
@@ -137,7 +137,7 @@
                                     <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
                                 </div>
                             </div>
-                        </el-popover>
+                        </BasePopover>
                     </template>
                     <template #default="{ row }: TableColumn<number>">
                         <div v-if="RecordSubResAdaptive">{{ tableData[row].resolution || '--' }}</div>

@@ -21,7 +21,6 @@ export const usePopperObserver = defineStore('PopperObserver', () => {
     }
 
     const trigger = (e: Event) => {
-        console.log(e)
         const target = e.target as HTMLElement
         event.emit(target)
     }

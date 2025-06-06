@@ -1,6 +1,6 @@
 <!--
  * @Date: 2025-06-06 18:20:27
- * @Description: 
+ * @Description: 扩展el-dropdown，监听鼠标滑轮并自动关闭
  * @Author: yejiahao yejiahao@tvt.net.cn
 -->
 <template>

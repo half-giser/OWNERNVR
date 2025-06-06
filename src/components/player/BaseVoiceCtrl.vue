@@ -5,14 +5,13 @@
 -->
 <template>
     <div class="VoiceCtrl">
-        <el-tooltip :content="mute ? Translate('IDCS_AUDIO_ON') : Translate('IDCS_AUDIO_OFF')">
-            <BaseImgSpriteBtn
-                class="icon"
-                :file="iconFile"
-                :disabled="disabled"
-                @click="handleSwitchMute"
-            />
-        </el-tooltip>
+        <BaseImgSpriteBtn
+            class="icon"
+            :file="iconFile"
+            :disabled="disabled"
+            :title="mute ? Translate('IDCS_AUDIO_ON') : Translate('IDCS_AUDIO_OFF')"
+            @click="handleSwitchMute"
+        />
         <div class="bar">
             <el-slider
                 v-model="sliderValue"

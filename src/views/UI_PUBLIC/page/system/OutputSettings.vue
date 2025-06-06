@@ -200,14 +200,13 @@
                         </div>
                         <!-- 分屏切换按钮 -->
                         <div class="panel-btns">
-                            <el-tooltip :content="Translate('IDCS_FAVOURITE')">
-                                <BaseImgSpriteBtn
-                                    v-show="pageData.tabId === -1 && pageData.outputIdx === -1"
-                                    class="panel-collect"
-                                    file="collect_view"
-                                    @click="collectView"
-                                />
-                            </el-tooltip>
+                            <BaseImgSpriteBtn
+                                v-show="pageData.tabId === -1 && pageData.outputIdx === -1"
+                                class="panel-collect"
+                                file="collect_view"
+                                :title="Translate('IDCS_FAVOURITE')"
+                                @click="collectView"
+                            />
                             <div class="panel-seg">
                                 <BaseImgSpriteBtn
                                     v-for="seg in segList"
@@ -225,13 +224,12 @@
                                 empty-text=""
                                 @change="changeTimeInterval"
                             />
-                            <el-tooltip :content="Translate('IDCS_CLEAR_AWAY')">
-                                <BaseImgSpriteBtn
-                                    class="panel-clear"
-                                    file="clear"
-                                    @click="clearAllSplitData"
-                                />
-                            </el-tooltip>
+                            <BaseImgSpriteBtn
+                                class="panel-clear"
+                                file="clear"
+                                :title="Translate('IDCS_CLEAR_AWAY')"
+                                @click="clearAllSplitData"
+                            />
                         </div>
                     </div>
                     <div v-show="isHDMIShadow">

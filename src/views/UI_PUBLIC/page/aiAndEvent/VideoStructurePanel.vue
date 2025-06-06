@@ -366,7 +366,7 @@
                     </el-tab-pane>
                 </el-tabs>
                 <!-- 高级设置 -->
-                <el-popover
+                <BasePopover
                     v-model:visible="advancedVisible"
                     width="400"
                     popper-class="no-padding"
@@ -465,7 +465,7 @@
                             </div>
                         </el-form>
                     </div>
-                </el-popover>
+                </BasePopover>
             </div>
             <div class="base-btn-box fixed">
                 <el-button

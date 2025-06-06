@@ -199,7 +199,7 @@
                         </el-tab-pane>
                     </el-tabs>
                     <!-- 高级设置 -->
-                    <el-popover
+                    <BasePopover
                         v-model:visible="pageData.isAdvance"
                         width="300"
                         popper-class="no-padding"
@@ -246,7 +246,7 @@
                                 </div>
                             </el-form>
                         </div>
-                    </el-popover>
+                    </BasePopover>
                 </div>
                 <div class="base-btn-box fixed">
                     <el-button
@@ -314,9 +314,8 @@
                                     </el-table-column>
                                     <el-table-column>
                                         <template #header>
-                                            <el-popover
-                                                ref="similarityRef"
-                                                :hide-on-click="false"
+                                            <BasePopover
+                                                v-model="recognitionPageData.isSimilarityPop"
                                                 width="300"
                                             >
                                                 <template #reference>
@@ -342,7 +341,7 @@
                                                     <el-button @click="changeAllSimilarity">{{ Translate('IDCS_OK') }}</el-button>
                                                     <el-button @click="recognitionPageData.isSimilarityPop = false">{{ Translate('IDCS_CANCEL') }}</el-button>
                                                 </div>
-                                            </el-popover>
+                                            </BasePopover>
                                         </template>
                                         <template #default="{ row }: TableColumn<AlarmFaceGroupDto>">
                                             <BaseNumberInput

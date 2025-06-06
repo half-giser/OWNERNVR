@@ -5,7 +5,7 @@
 -->
 <template>
     <div>
-        <el-popover
+        <BasePopover
             v-model:visible="pageData.isAlarmPop"
             placement="top"
             width="600"
@@ -100,7 +100,7 @@
                     </el-table-column>
                 </el-table>
             </div>
-        </el-popover>
+        </BasePopover>
     </div>
 </template>
 

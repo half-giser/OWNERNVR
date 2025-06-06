@@ -132,7 +132,6 @@ export default defineComponent({
 
         const changeAlarmOutChl = async () => {
             if (alarmOutList.value[pageData.value.alarmOutIndex]) {
-                console.log('here')
                 editAlarmOutFormData.reset()
                 openLoading()
                 alarmOutFormData.value = cloneDeep(alarmOutList.value[pageData.value.alarmOutIndex])
@@ -609,7 +608,6 @@ export default defineComponent({
         }
 
         const handleSelectionChange = (data: AlarmLocalAudioFileDto[]) => {
-            console.log('selection change')
             pageData.value.selectedLocalAudio = data.map((item) => item.id)
         }
 

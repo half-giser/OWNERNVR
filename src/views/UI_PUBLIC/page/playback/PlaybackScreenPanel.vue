@@ -17,7 +17,7 @@
                 />
             </template>
             <template v-else-if="mode === 'ocx'">
-                <el-popover
+                <BasePopover
                     placement="bottom-start"
                     trigger="hover"
                     :width="pageData.ocxSeg.length * 45 + 22"
@@ -38,7 +38,7 @@
                             @click="$emit('update:split', seg.split, seg.type), $emit('trigger', true)"
                         />
                     </div>
-                </el-popover>
+                </BasePopover>
             </template>
             <!-- OSD按钮 -->
             <BaseImgSpriteBtn
@@ -214,7 +214,7 @@
                 :title="Translate('IDCS_PLAY_STRATEGY')"
                 @click="openStrategyPop"
             />
-            <el-popover
+            <BasePopover
                 trigger="hover"
                 popper-class="no-padding"
             >
@@ -254,7 +254,7 @@
                         <span class="detail-btns-text">{{ Translate('IDCS_BACKUP_STATE') }}</span>
                     </div>
                 </div>
-            </el-popover>
+            </BasePopover>
         </div>
         <el-dialog
             v-model="pageData.isStrategyPop"

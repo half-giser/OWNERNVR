@@ -3,14 +3,13 @@
         <!-- 头部操作区域 -->
         <div class="top">
             <div class="top-left">
-                <el-tooltip :content="Translate('IDCS_REID')">
-                    <BaseImgSpriteBtn
-                        class="btn"
-                        :hover-index="-1"
-                        :active-index="0"
-                        file="target_retrieval"
-                    />
-                </el-tooltip>
+                <BaseImgSpriteBtn
+                    class="btn"
+                    :hover-index="-1"
+                    :active-index="0"
+                    file="target_retrieval"
+                    :title="Translate('IDCS_REID')"
+                />
                 <div class="top-left-label">{{ Translate('IDCS_REID') }}</div>
             </div>
             <div class="top-right">

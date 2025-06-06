@@ -152,7 +152,7 @@
                 </el-table-column>
                 <el-table-column min-width="120">
                     <template #header>
-                        <el-popover
+                        <BasePopover
                             v-model:visible="pageData.popoverVisible"
                             width="fit-content"
                             popper-class="no-padding"
@@ -188,7 +188,7 @@
                                     </el-button>
                                 </div>
                             </div>
-                        </el-popover>
+                        </BasePopover>
                     </template>
                     <template #default="{ $index }: TableColumn<AlarmSystemDisarmDto>">
                         <el-button @click="disarmCfg($index)">

@@ -105,7 +105,7 @@
                         :label="Translate('IDCS_INFORMATION')"
                     >
                         <template #header>
-                            <el-popover
+                            <BasePopover
                                 v-model:visible="pageData.informationPop"
                                 placement="bottom"
                                 width="200"
@@ -126,7 +126,7 @@
                                         <el-button @click="handleSetCancel">{{ Translate('IDCS_CANCEL') }}</el-button>
                                     </div>
                                 </div>
-                            </el-popover>
+                            </BasePopover>
                         </template>
                     </el-table-column>
                 </el-table>

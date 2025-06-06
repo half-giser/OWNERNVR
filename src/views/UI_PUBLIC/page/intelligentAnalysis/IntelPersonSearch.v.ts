@@ -914,7 +914,6 @@ export default defineComponent({
         const chooseFace = (e: IntelFaceDBFaceInfo[]) => {
             pageData.value.picType = 'face'
             pageData.value.featureFace = e
-            console.log(pageData.value.featureFace)
             setCurrPicCacheList(e)
         }
 
@@ -1255,7 +1254,6 @@ export default defineComponent({
 
             if (pageData.value.isDetailOpen) {
                 const list = getCurrTargetDatas()
-                console.log(list)
                 if (pageData.value.isTrail) {
                     if (list.length) {
                         showDetail(list[0])

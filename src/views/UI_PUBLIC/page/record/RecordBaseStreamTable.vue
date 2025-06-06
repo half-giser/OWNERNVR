@@ -70,7 +70,7 @@
                     width="145"
                 >
                     <template #header>
-                        <el-popover
+                        <BasePopover
                             v-model:visible="pageData.resolutionHeaderVisble"
                             width="430"
                         >
@@ -126,7 +126,7 @@
                                     <el-button @click="cancelSetAllResolution">{{ Translate('IDCS_CANCEL') }}</el-button>
                                 </div>
                             </div>
-                        </el-popover>
+                        </BasePopover>
                     </template>
                     <template #default="{ row }: TableColumn<number>">
                         <BaseSelect
@@ -316,7 +316,7 @@
                     width="95"
                 >
                     <template #header>
-                        <el-popover
+                        <BasePopover
                             v-model:visible="pageData.gopHeaderVisble"
                             width="300"
                             placement="bottom-end"
@@ -347,7 +347,7 @@
                                     </div>
                                 </el-form>
                             </div>
-                        </el-popover>
+                        </BasePopover>
                     </template>
                     <template #default="{ row }: TableColumn<number>">
                         <BaseNumberInput

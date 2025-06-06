@@ -188,7 +188,7 @@
                         </el-tab-pane>
                     </el-tabs>
                     <!-- 高级设置 -->
-                    <el-popover
+                    <BasePopover
                         v-model:visible="detectionPageData.isAdvancePop"
                         width="300"
                         popper-class="no-padding"
@@ -225,7 +225,7 @@
                                 <el-button @click="detectionPageData.isAdvancePop = false">{{ Translate('IDCS_CLOSE') }}</el-button>
                             </div>
                         </div>
-                    </el-popover>
+                    </BasePopover>
                 </div>
                 <div class="base-btn-box fixed">
                     <el-button

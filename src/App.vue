@@ -76,7 +76,7 @@ const hanedleActivationStatus = async (checkActivationStatus: boolean) => {
 
     // layoutStore.isInitial = true
     // generateAsyncRoutes()
-    // router.replace('/guide')
+    // router.replace('/live')
 }
 
 if (session.appType === 'STANDARD') {
@@ -135,33 +135,4 @@ body {
     opacity: 0;
     transition: opacity 0.5s ease 0.5s;
 }
-
-// .page-view {
-//     &-enter-from {
-//         opacity: 0;
-//         position: absolute;
-//         top: 0;
-//         left: 0;
-//         width: 100vw;
-//     }
-
-//     &-leave-to {
-//         opacity: 0;
-//         position: absolute;
-//         top: 0;
-//         left: 0;
-//         width: 100vw;
-//         z-index: 1;
-//     }
-
-//     &-enter-active {
-//         width: 100vw;
-//         transition: opacity 0.3s linear;
-//     }
-
-//     &-leave-active {
-//         width: 100vw;
-//         transition: opacity 0.3s linear;
-//     }
-// }
 </style>

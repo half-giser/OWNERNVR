@@ -70,18 +70,17 @@
                         :formatter="formatInputMaxLength"
                         :parser="formatInputMaxLength"
                     />
-                    <el-tooltip :content="Translate('IDCS_SAVE_CHANGE')">
-                        <div
-                            class="base-chl-icon-btn"
-                            :class="{ disabled: !formData.name.trim() || !cruiseOptions.length }"
-                        >
-                            <BaseImgSpriteBtn
-                                file="save"
-                                :disabled="!formData.name.trim() || !cruiseOptions.length"
-                                @click="saveName"
-                            />
-                        </div>
-                    </el-tooltip>
+                    <div
+                        class="base-chl-icon-btn"
+                        :class="{ disabled: !formData.name.trim() || !cruiseOptions.length }"
+                        :title="Translate('IDCS_SAVE_CHANGE')"
+                    >
+                        <BaseImgSpriteBtn
+                            file="save"
+                            :disabled="!formData.name.trim() || !cruiseOptions.length"
+                            @click="saveName"
+                        />
+                    </div>
                 </el-form-item>
             </el-form>
             <div class="base-table-box">
