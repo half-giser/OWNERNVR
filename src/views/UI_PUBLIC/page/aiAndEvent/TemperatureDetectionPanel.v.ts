@@ -173,7 +173,7 @@ export default defineComponent({
             isSchedulePop: false,
             // 声音列表
             voiceList: prop.voiceList,
-            triggerList: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch', 'popMsgSwitch'],
+            triggerList: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'popMsgSwitch'],
             // 表格的提示信息
             errorMessage: '',
             // 高级弹出框的提示信息
@@ -1172,7 +1172,7 @@ export default defineComponent({
                                     .join('')}
                                 </chls>
                             </triggerAudioDevice>
-                            <snapSwitch>${formData.value.trigger.includes('snapSwitch')}</snapSwitch>
+                            <snapSwitch>${formData.value.snap.length > 0}</snapSwitch>
                             <msgPushSwitch>${formData.value.trigger.includes('msgPushSwitch')}</msgPushSwitch>
                             <buzzerSwitch>${formData.value.trigger.includes('buzzerSwitch')}</buzzerSwitch>
                             <popVideoSwitch>${formData.value.trigger.includes('popVideoSwitch')}</popVideoSwitch>
