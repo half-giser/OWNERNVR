@@ -129,6 +129,22 @@ const systemRoutes: FeatureItem = {
                 },
             },
         },
+        // 热备机配置 2.1.0
+        hotStandbySettings: {
+            path: 'hotStandby',
+            component: 'system/HotStandbySettings.vue',
+            meta: {
+                sort: 80,
+                lk: 'IDCS_HOT_STANDBY_SETTING',
+                group: 'basicConfig',
+                auth: 'remoteSysCfgAndMaintain',
+                inHome: 'self',
+                homeSort: 40,
+                hasCap(systemCaps) {
+                    return systemCaps.supportN1
+                },
+            },
+        },
         // 查看日志
         viewLog: {
             path: 'log',

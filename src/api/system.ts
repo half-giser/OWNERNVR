@@ -141,6 +141,58 @@ export const queryDevOsdDisplayCfg = () => fetch('queryDevOsdDisplayCfg', '')
 export const editDevOsdDisplayCfg = (data: string) => fetch('editDevOsdDisplayCfg', data)
 
 /**
+ * @description 获取热备配置
+ * @returns
+ */
+export const queryHotStandbyCfg = () => fetch('queryHotStandbyCfg', '')
+
+/**
+ * @description 更新热备配置
+ * @param {string} data
+ * @returns
+ */
+export const editHotStandbyCfg = (data: string) => fetch('editHotStandbyCfg', data)
+
+/**
+ * @description 获取工作机列表
+ * @returns
+ */
+export const queryWorkMachineList = () => fetch('queryWorkMachineList', '')
+
+/**
+ * @description 获取工作机状态
+ * @returns
+ */
+export const queryWorkMachineStatus = () => fetch('queryWorkMachineStatus', '')
+
+/**
+ * @description 获取热备机状态
+ * @returns
+ */
+export const queryHotStandbyStatus = () => fetch('queryHotStandbyStatus', '')
+
+/**
+ * @description 添加工作机
+ * @param {string} data
+ * @returns
+ */
+export const increaseWorkMachine = (data: string) => fetch('addWorkMachine', data)
+
+/**
+ * @description 编辑工作机
+ * @param {string} data
+ * @returns
+ */
+export const modifyWorkMachine = (data: string) => fetch('modifyWorkMachine', data)
+
+/**
+ * @description 删除工作机
+ * @param {string} data
+ * @returns
+ */
+export const deleteWorkMachine = (data: string) => fetch('deleteWorkMachine', data)
+
+/**
  * @description 获取磁盘信息
  * @param {boolean} status
  * @returns
@@ -364,9 +416,3 @@ export const editCustomOperateList = (data: string) => fetch('editCustomOperateL
  * @returns
  */
 export const querySecurityCode = (data: string) => fetch('querySecurityCode', data)
-
-/**
- * @description 查询热备机配置
- * @returns
- */
-export const queryHotStandbyCfg = () => fetch('queryHotStandbyCfg', '')

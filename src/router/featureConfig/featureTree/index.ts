@@ -71,7 +71,7 @@ export default {
             live: {
                 component: 'topFeature/Live.vue',
                 meta: {
-                    minWidth: 1260,
+                    minWidth: 1300,
                     minHeight: 850,
                     sort: 10,
                     lk: 'IDCS_LIVE_PREVIEW',

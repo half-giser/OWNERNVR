@@ -254,6 +254,24 @@ export class SystemRecorderOSDSettingsForm {
 }
 
 /**
+ * @description 热备机配置提交表单
+ */
+export class HotStandbySettingsForm {
+    switch = false
+    workMode = ''
+}
+
+/**
+ * @description 工作机配置提交表单
+ */
+export class WorkMachineSettingsForm {
+    ip = ''
+    port = 0
+    userName = 'admin'
+    password = ''
+}
+
+/**
  * @description 系统升级表单
  */
 export class SystemUpgradeForm {
@@ -598,4 +616,19 @@ export class SystemRS485Dto {
     code = ''
     operate = ''
     settingInfos = ''
+}
+
+/**
+ * @description 热备机模式下的工作机列表
+ */
+export class SystemWorkMachineDto {
+    ip = ''
+    port = 0
+    index = 0
+    connectStatus = ''
+    workStatus = ''
+    statusCode = 0
+    syncErrorCode = 0
+    networkErrorCode = 0
+    syncVideoProgress = 0
 }

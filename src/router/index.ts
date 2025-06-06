@@ -30,6 +30,7 @@ let authRoutes: RouteRecordRawExtends[] = []
 export const generateAsyncRoutes = () => {
     const systemCaps = useCababilityStore()
     const userSession = useUserSessionStore()
+    const routes = buildRouter()
 
     const asyncRoute = (routes as RouteRecordRawExtends[]).filter((item) => {
         return item.meta?.noToken === undefined
