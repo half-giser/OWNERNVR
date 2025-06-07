@@ -47,11 +47,10 @@ const hanedleActivationStatus = async (checkActivationStatus: boolean) => {
         const auInfo = session.auInfo_N9K
         if (!checkActivationStatus) {
             router.replace('/guide')
+            session.urlLoginAuth = ''
         } else {
             if (!auInfo) {
-                if (getLoginInfoByURL()) {
-                    // router.replace('/urllogin')
-                } else if (session.urlLoginAuth) {
+                if (session.urlLoginAuth) {
                     router.replace('/urllogin')
                 } else {
                     router.replace('/login')
@@ -80,15 +79,19 @@ const hanedleActivationStatus = async (checkActivationStatus: boolean) => {
 }
 
 if (session.appType === 'STANDARD') {
-    // 标准登录此处请求语言翻译和时间日期配置，P2P登录则延后至插件连接成功后请求
-    langStore
-        .getLangTypes()
-        .then(() => langStore.getLangItems(true))
-        .then(() => queryActivationStatus())
-        .then((result) => {
-            const checkActivationStatus = queryXml(result)('content/activated').text().bool()
-            hanedleActivationStatus(checkActivationStatus)
-        })
+    if (getLoginInfoByURL()) {
+        // DO nothing
+    } else {
+        // 标准登录此处请求语言翻译和时间日期配置，P2P登录则延后至插件连接成功后请求
+        langStore
+            .getLangTypes()
+            .then(() => langStore.getLangItems(true))
+            .then(() => queryActivationStatus())
+            .then((result) => {
+                const checkActivationStatus = queryXml(result)('content/activated').text().bool()
+                hanedleActivationStatus(checkActivationStatus)
+            })
+    }
 } else {
     session.getP2PSessionInfo()
 }

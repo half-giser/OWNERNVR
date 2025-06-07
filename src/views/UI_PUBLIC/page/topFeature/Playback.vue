@@ -231,7 +231,7 @@
     font-size: 12px;
 
     div {
-        margin: 0 10px;
+        margin: 0 5px;
         display: flex;
         align-items: center;
         height: 100%;

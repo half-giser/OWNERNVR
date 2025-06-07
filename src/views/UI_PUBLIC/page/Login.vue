@@ -11,7 +11,7 @@
         <div class="login-lang">
             <BaseSelect
                 v-model="pageData.langId"
-                :options="pageData.langTypes"
+                :options="langOptions"
                 @change="changeLang"
             />
             <BaseSelect
@@ -153,7 +153,7 @@
             width: 314px;
             height: 50px;
             font-size: 18px;
-            margin-left: -50px;
+            margin-left: -56px;
             background: var(--img-login-btn);
             transition: none;
 

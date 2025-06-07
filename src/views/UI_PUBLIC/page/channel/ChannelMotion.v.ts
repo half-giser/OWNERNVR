@@ -493,22 +493,24 @@ export default defineComponent({
                 plugin.RetryStartChlView(rowData.id, rowData.name)
             }
 
-            if (rowData.column) {
-                const motion = {
-                    column: rowData.column,
-                    row: rowData.row,
-                    areaInfo: rowData.areaInfo,
-                }
+            nextTick(() => {
+                if (rowData.column) {
+                    const motion = {
+                        column: rowData.column,
+                        row: rowData.row,
+                        areaInfo: rowData.areaInfo,
+                    }
 
-                if (mode.value === 'h5') {
-                    drawer.setOption(motion)
-                }
+                    if (mode.value === 'h5') {
+                        drawer.setOption(motion)
+                    }
 
-                if (mode.value === 'ocx') {
-                    const sendXML = OCX_XML_SetMotionArea(motion)
-                    plugin.ExecuteCmd(sendXML)
+                    if (mode.value === 'ocx') {
+                        const sendXML = OCX_XML_SetMotionArea(motion)
+                        plugin.ExecuteCmd(sendXML)
+                    }
                 }
-            }
+            })
         }
 
         // 首次加载成功 播放视频

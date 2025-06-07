@@ -178,13 +178,14 @@ export default defineComponent({
                     .map((item) => {
                         const $item = queryXml(item.element)
                         const isAdmin = $item('userType').text() === USER_TYPE_DEFAULT_ADMIN
+                        const userType = $item('userType').text()
 
                         return {
                             id: item.attr('id'),
                             userName: $item('userName').text(),
                             password: $item('password').text(),
                             bindMacSwitch: $item('bindMacSwitch').text(),
-                            userType: $item('userType').text(),
+                            userType: userType,
                             mac: $item('mac').text(),
                             email: $item('email').text(),
                             comment: $item('comment').text(),
@@ -193,7 +194,7 @@ export default defineComponent({
 
                             authGroupId: isAdmin ? '' : $item('authGroup').attr('id'),
                             authGroupName: isAdmin ? '' : $item('authGroup').text(),
-                            del: !(isAdmin || $item('userName').text() === currentUserName),
+                            del: !(isAdmin || $item('userName').text() === currentUserName) && userType !== 'debug',
                             edit: !(isAdmin && currentUserType !== USER_TYPE_DEFAULT_ADMIN) && currentUserType !== 'debug',
                         }
                     })
@@ -219,6 +220,11 @@ export default defineComponent({
          * @param row
          */
         const changeUser = (row: UserList) => {
+            if (row.userType === 'debug') {
+                tableRef.value?.setCurrentRow(userList.value[pageData.value.activeUser])
+                return
+            }
+
             if (userList.value[pageData.value.activeUser] === row) {
                 return
             }
@@ -235,6 +241,10 @@ export default defineComponent({
          * @param row
          */
         const openEditUserPop = (row: UserList) => {
+            if (row.userType === 'debug') {
+                return
+            }
+
             pageData.value.editUserId = row.id
             pageData.value.editUserName = row.userName
             pageData.value.isEditUser = true

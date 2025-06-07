@@ -355,7 +355,7 @@ export default defineComponent({
 
             for (const item of editRows.toArray()) {
                 if (!item.reqCfgFail) {
-                    const res = await editIPChlORChlFishEye(getSaveData(item, true))
+                    const res = await editIPChlORChlFishEye(getSaveData(item, rebootPrompt))
                     const $ = queryXml(res)
                     const success = $('status').text() === 'success'
                     if (success) {
