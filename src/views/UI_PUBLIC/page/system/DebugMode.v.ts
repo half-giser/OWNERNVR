@@ -29,7 +29,7 @@ export default defineComponent({
 
         const formData = ref({
             debugModeSwitch: false,
-            timeLen: 1,
+            timeLen: 7, // 有效期默认为7天
             userName: '',
             password: '',
             startTime: 0,
@@ -120,7 +120,7 @@ export default defineComponent({
         }
 
         const calculateTimeLen = () => {
-            return (formData.value.endTime - formData.value.startTime) / 1000 / 3600 / 24 || 1
+            return (formData.value.endTime - formData.value.startTime) / 1000 / 3600 / 24 || 7
         }
 
         const displayTime = computed(() => {
