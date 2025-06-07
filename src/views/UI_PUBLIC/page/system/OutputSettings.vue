@@ -61,7 +61,7 @@
                 class="top-hdmi"
             >
                 <span>{{ Translate('IDCS_HDMI_IN_EXPORT_TO') }}</span>
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.decoder[pageData.tabId].ShowHdmiIn"
                     :options="hdmiInOptions"
                 />
@@ -120,7 +120,7 @@
                         class="top-hdmi"
                     >
                         <span>{{ Translate('IDCS_HDMI_IN_EXPORT_TO') }}</span>
-                        <el-select-v2
+                        <BaseSelect
                             v-model="formData.decoder[pageData.tabId].ShowHdmiIn"
                             :options="hdmiInOptions"
                         />
@@ -200,14 +200,13 @@
                         </div>
                         <!-- 分屏切换按钮 -->
                         <div class="panel-btns">
-                            <el-tooltip :content="Translate('IDCS_FAVOURITE')">
-                                <BaseImgSpriteBtn
-                                    v-show="pageData.tabId === -1 && pageData.outputIdx === -1"
-                                    class="panel-collect"
-                                    file="collect_view"
-                                    @click="collectView"
-                                />
-                            </el-tooltip>
+                            <BaseImgSpriteBtn
+                                v-show="pageData.tabId === -1 && pageData.outputIdx === -1"
+                                class="panel-collect"
+                                file="collect_view"
+                                :title="Translate('IDCS_FAVOURITE')"
+                                @click="collectView"
+                            />
                             <div class="panel-seg">
                                 <BaseImgSpriteBtn
                                     v-for="seg in segList"
@@ -217,20 +216,20 @@
                                     @click="changeSplit(seg)"
                                 />
                             </div>
-                            <el-select-v2
+                            <BaseSelect
                                 v-show="isDwell && (pageData.tabId !== -1 || pageData.outputIdx !== -1)"
                                 :model-value="currentTimeInterval"
                                 :options="pageData.dwellTimeOptions"
                                 class="panel-dwell-time"
+                                empty-text=""
                                 @change="changeTimeInterval"
                             />
-                            <el-tooltip :content="Translate('IDCS_CLEAR_AWAY')">
-                                <BaseImgSpriteBtn
-                                    class="panel-clear"
-                                    file="clear"
-                                    @click="clearAllSplitData"
-                                />
-                            </el-tooltip>
+                            <BaseImgSpriteBtn
+                                class="panel-clear"
+                                file="clear"
+                                :title="Translate('IDCS_CLEAR_AWAY')"
+                                @click="clearAllSplitData"
+                            />
                         </div>
                     </div>
                     <div v-show="isHDMIShadow">

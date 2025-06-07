@@ -17,23 +17,22 @@
                 class="stripe"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="pageData.activeChannelIndex"
                         :options="chlOptions"
                         :persistent="true"
-                        popper-class="intersect-ocx"
+                        :disabled="!chlOptions.length"
+                        empty-text=""
                         @change="changeChl"
                     />
                 </el-form-item>
-                <el-form-item
-                    v-if="tableData[pageData.activeChannelIndex]"
-                    :label="Translate('IDCS_PREVIEW')"
-                >
-                    <el-select-v2
-                        v-model="tableData[pageData.activeChannelIndex].switch"
-                        :options="pageData.channelOptions"
+                <el-form-item :label="Translate('IDCS_PREVIEW')">
+                    <BaseSelect
+                        :model-value="tableData[pageData.activeChannelIndex]?.switch || ''"
+                        :options="pageData.switchOptions"
                         :persistent="true"
-                        popper-class="intersect-ocx"
+                        empty-text=""
+                        @update:model-value="tableData[pageData.activeChannelIndex].switch = $event"
                     />
                 </el-form-item>
             </el-form>
@@ -54,14 +53,14 @@
                     />
                     <el-table-column :label="Translate('IDCS_PREVIEW')">
                         <template #header>
-                            <el-dropdown>
+                            <BaseDropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_PREVIEW') }}
                                 </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item
-                                            v-for="opt in pageData.channelOptions"
+                                            v-for="opt in pageData.switchOptions"
                                             :key="opt.value"
                                             @click="changeAllChannel(opt.value)"
                                         >
@@ -69,12 +68,12 @@
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
-                            </el-dropdown>
+                            </BaseDropdown>
                         </template>
                         <template #default="{ row }: TableColumn<UserPreviewOnLogoutChannelList>">
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="row.switch"
-                                :options="pageData.channelOptions"
+                                :options="pageData.switchOptions"
                             />
                         </template>
                     </el-table-column>

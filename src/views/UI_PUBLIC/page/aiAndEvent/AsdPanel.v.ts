@@ -117,7 +117,6 @@ export default defineComponent({
             tooltip: {
                 trigger: 'axis',
                 formatter: (params) => {
-                    console.log('params', params)
                     if (Array.isArray(params)) {
                         let res = ''
                         for (let i = 0; i < params.length; i++) {

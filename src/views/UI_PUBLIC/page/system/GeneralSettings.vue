@@ -33,7 +33,7 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_VIDEO_FORMAT')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.videoFormat"
                     :options="pageData.videoFormatOption"
                     @change="hanelChangeVideoFormat"
@@ -52,7 +52,7 @@
                 :key
             >
                 <el-form-item :label="displayResolutionLabel(key)">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="formData.resolution[key]"
                         :disabled="getResolutionDisabled(key)"
                         :options="getResolutionOptions(key, item)"
@@ -78,7 +78,7 @@
                         :key="decoder.index"
                         :label="displayDecoderLabel(item.id, decoder.index)"
                     >
-                        <el-select-v2
+                        <BaseSelect
                             v-model="decoder.value"
                             :options="pageData.decoderOptions[item.id][decoder.index]"
                         />
@@ -89,7 +89,7 @@
                 v-if="systemCaps.supportHdmiVgaSeparate"
                 :label="Translate('IDCS_OUTPUT_CONFIG')"
             >
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.outputConfig"
                     :options="pageData.outputConfigOption"
                     @change="handleChangeOutputConfig"
@@ -114,10 +114,11 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_WAIT_TIME')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.waitTime"
                     :disabled="!formData.enableAutoDwell"
                     :options="pageData.waitTimeOption"
+                    empty-text=""
                 />
             </el-form-item>
             <el-form-item v-if="systemCaps.supportZeroOprAdd">

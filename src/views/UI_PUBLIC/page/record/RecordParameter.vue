@@ -25,7 +25,7 @@
                 />
             </el-form-item>
             <el-form-item>
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.doubleStreamRecSwitch"
                     :options="pageData.chkDoubleStreamRec"
                 />
@@ -52,7 +52,7 @@
                     min-width="180"
                 >
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_BEFOREHAND_RECORD_TIME') }}
                             </BaseTableDropdownLink>
@@ -67,10 +67,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<RecordParamDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.per"
                             :options="pageData.perList"
                         />
@@ -82,7 +82,7 @@
                     min-width="180"
                 >
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_RECORD_TIME_DELAY') }}
                             </BaseTableDropdownLink>
@@ -97,10 +97,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<RecordParamDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.post"
                             :options="pageData.postList"
                         />
@@ -113,7 +113,7 @@
                     min-width="180"
                 >
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_OFFLINE_RECORDING') }}
                             </BaseTableDropdownLink>
@@ -128,10 +128,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<RecordParamDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.ANRSwitch"
                             :disabled="!row.manufacturerEnable"
                             :options="pageData.switchOption"
@@ -145,7 +145,7 @@
                     min-width="180"
                 >
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_EXPIRE_TIME') }}
                             </BaseTableDropdownLink>
@@ -160,10 +160,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<RecordParamDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.expirationDisplay"
                             :options="pageData.expirationList"
                             @change="changeExpirationList(row)"

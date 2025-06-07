@@ -13,7 +13,7 @@
                 }"
             >
                 <el-form-item :label="Translate('IDCS_VIEW_WAY')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="pageData.viewOption"
                         :options="viewOptions"
                     />

@@ -3,14 +3,13 @@
         <!-- 头部操作区域 -->
         <div class="top">
             <div class="top-left">
-                <el-tooltip :content="Translate('IDCS_REID')">
-                    <BaseImgSpriteBtn
-                        class="btn"
-                        :hover-index="-1"
-                        :active-index="0"
-                        file="target_retrieval"
-                    />
-                </el-tooltip>
+                <BaseImgSpriteBtn
+                    class="btn"
+                    :hover-index="-1"
+                    :active-index="0"
+                    file="target_retrieval"
+                    :title="Translate('IDCS_REID')"
+                />
                 <div class="top-left-label">{{ Translate('IDCS_REID') }}</div>
             </div>
             <div class="top-right">
@@ -114,7 +113,7 @@
                 <!-- 抓拍图/轨迹tab、排序、全选 -->
                 <div class="base-btn-box collapse">
                     <!-- 排序、全选 -->
-                    <el-dropdown>
+                    <BaseDropdown>
                         <BaseTableDropdownLink>
                             {{ Translate('IDCS_SORT') }}
                         </BaseTableDropdownLink>
@@ -136,7 +135,7 @@
                                 </el-dropdown-item>
                             </el-dropdown-menu>
                         </template>
-                    </el-dropdown>
+                    </BaseDropdown>
                     <el-checkbox
                         v-model="pageData.isCheckedAll"
                         :label="Translate('IDCS_SELECT_ALL')"
@@ -178,7 +177,7 @@
                     <el-button @click="handleBackupAll">
                         {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
                     </el-button>
-                    <el-dropdown placement="top-end">
+                    <BaseDropdown placement="top-end">
                         <el-button :disabled="!isEnableBackup">
                             {{ Translate('IDCS_BACKUP') }}
                         </el-button>
@@ -193,7 +192,7 @@
                                 </el-dropdown-item>
                             </el-dropdown-menu>
                         </template>
-                    </el-dropdown>
+                    </BaseDropdown>
                 </div>
                 <!-- 打开/关闭详情按钮 -->
                 <BaseImgSpriteBtn

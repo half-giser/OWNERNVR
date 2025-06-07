@@ -20,27 +20,22 @@
                 :model="formData"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select-v2
-                        v-if="tableData.length"
+                    <BaseSelect
                         v-model="pageData.tableIndex"
                         :options="chlOptions"
                         :persistent="true"
-                        popper-class="intersect-ocx"
+                        :disabled="!chlOptions.length"
+                        empty-text=""
                         @change="changeChl"
-                    />
-                    <el-select-v2
-                        v-else
-                        model-value=""
-                        :options="[]"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_CRUISE')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="formData.cruiseIndex"
                         :options="cruiseOptions"
                         :props="{ label: 'index' }"
                         :persistent="true"
-                        popper-class="intersect-ocx"
+                        empty-text=""
                     />
                     <div
                         class="base-chl-icon-btn"
@@ -75,18 +70,17 @@
                         :formatter="formatInputMaxLength"
                         :parser="formatInputMaxLength"
                     />
-                    <el-tooltip :content="Translate('IDCS_SAVE_CHANGE')">
-                        <div
-                            class="base-chl-icon-btn"
-                            :class="{ disabled: !formData.name.trim() || !cruiseOptions.length }"
-                        >
-                            <BaseImgSpriteBtn
-                                file="save"
-                                :disabled="!formData.name.trim() || !cruiseOptions.length"
-                                @click="saveName"
-                            />
-                        </div>
-                    </el-tooltip>
+                    <div
+                        class="base-chl-icon-btn"
+                        :class="{ disabled: !formData.name.trim() || !cruiseOptions.length }"
+                        :title="Translate('IDCS_SAVE_CHANGE')"
+                    >
+                        <BaseImgSpriteBtn
+                            file="save"
+                            :disabled="!formData.name.trim() || !cruiseOptions.length"
+                            @click="saveName"
+                        />
+                    </div>
                 </el-form-item>
             </el-form>
             <div class="base-table-box">
@@ -122,7 +116,7 @@
                     </el-table-column>
                     <el-table-column>
                         <template #header>
-                            <el-dropdown>
+                            <BaseDropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_EDIT') }}
                                 </BaseTableDropdownLink>
@@ -131,7 +125,7 @@
                                         <el-dropdown-item @click="deleteAllPreset">{{ Translate('IDCS_DELETE_ALL') }}</el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
-                            </el-dropdown>
+                            </BaseDropdown>
                         </template>
                         <template #default="{ $index }: TableColumn<ChannelPtzCruisePresetDto>">
                             <div class="base-cell-box">

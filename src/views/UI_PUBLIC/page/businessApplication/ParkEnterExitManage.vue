@@ -26,7 +26,7 @@
                     :label="Translate('IDCS_DIRECTION')"
                 >
                     <template #default="{ row }: TableColumn<BusinessParkEnterExitManageList>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.direction"
                             :options="row.directionList"
                         />
@@ -52,17 +52,17 @@
                 >
                     <template #default="{ row }: TableColumn<BusinessParkEnterExitManageList>">
                         <!-- 不支持【报警输出】的摄像机（例如：9823型号），报警输出字段置灰不可编辑 -->
-                        <el-select-v2
-                            v-if="pageData.supportAudioAlarmOutChlList.includes(row.id)"
+                        <BaseSelect
                             v-model="row.relateAlarmOuts"
                             :options="pageData.relateAlarmOutsList"
+                            :disabled="!pageData.supportAudioAlarmOutChlList.includes(row.id)"
                         />
-                        <el-select-v2
+                        <!-- <BaseSelect
                             v-else
                             model-value=""
                             :options="[]"
                             disabled
-                        />
+                        /> -->
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -81,7 +81,7 @@
                     :label="Translate('IDCS_RELATION_LED_SCREEN')"
                 >
                     <template #default="{ row }: TableColumn<BusinessParkEnterExitManageList>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.LEDScreenType"
                             :options="pageData.screenList"
                             :disabled="!row.LEDScreenTypeValid"

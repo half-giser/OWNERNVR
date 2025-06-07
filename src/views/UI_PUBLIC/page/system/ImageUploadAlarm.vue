@@ -10,7 +10,7 @@
             class="no-padding"
         >
             <el-form-item :label="Translate('IDCS_ALARM_TYPE')">
-                <el-select-v2
+                <BaseSelect
                     v-model="pageData.alarmType"
                     :options="pageData.alarmTypeList"
                 />
@@ -37,7 +37,7 @@
                 <!-- 预截图时间 -->
                 <el-table-column min-width="27%">
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_PRE_SNAP_TIME') }}
                             </BaseTableDropdownLink>
@@ -52,10 +52,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<SystemImageUploadAlarmItem>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.preTime"
                             :disabled="row.rowDisable"
                             :options="pageData.pretimeList"
@@ -65,7 +65,7 @@
                 <!-- 截图持续时间 -->
                 <el-table-column min-width="27%">
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SNAP_DURATION') }}
                             </BaseTableDropdownLink>
@@ -80,10 +80,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<SystemImageUploadAlarmItem>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.saveTime"
                             :disabled="row.rowDisable"
                             :options="pageData.saveTimeList"

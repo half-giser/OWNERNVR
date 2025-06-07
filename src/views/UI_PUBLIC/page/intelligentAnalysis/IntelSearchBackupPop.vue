@@ -19,13 +19,13 @@
             class="stripe"
         >
             <el-form-item :label="Translate('IDCS_DESTINATION')">
-                <el-select-v2
+                <BaseSelect
                     v-model="pageData.destination"
                     :options="pageData.destinationList"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_FORMAT')">
-                <el-select-v2
+                <BaseSelect
                     v-model="pageData.format"
                     :options="pageData.formatList"
                 />

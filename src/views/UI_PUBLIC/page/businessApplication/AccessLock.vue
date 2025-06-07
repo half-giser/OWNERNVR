@@ -10,7 +10,7 @@
             class="stripe"
         >
             <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                <el-select-v2
+                <BaseSelect
                     v-model="pageData.chlId"
                     :options="pageData.chlList"
                     :disabled="!pageData.chlList.length"
@@ -19,7 +19,7 @@
             </el-form-item>
             <div class="base-business-subheading">{{ Translate('IDCS_DOOR_LOCK') }}</div>
             <el-form-item label=" ">
-                <el-select-v2
+                <BaseSelect
                     v-model="pageData.accessLockCurrentIndex"
                     :disabled="!pageData.accessLockEnabled"
                     :props="{
@@ -37,7 +37,7 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_UNLOCKING_GROUP')">
-                <el-select-v2
+                <BaseSelect
                     v-model="accessLockformData.accessListType"
                     :disabled="!accessLockformData.accessListType"
                     :options="pageData.accessListTypeEnum"
@@ -60,14 +60,14 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_DOOR_LOCK_SETTING')">
-                <el-select-v2
+                <BaseSelect
                     v-model="accessLockformData.doorLock[pageData.accessLockCurrentIndex].doorLockConfig"
                     :disabled="!accessLockformData.doorLock[pageData.accessLockCurrentIndex].doorLockConfig"
                     :options="pageData.doorLockTypeEnum"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_ALARM_LINKAGE_TYPE')">
-                <el-select-v2
+                <BaseSelect
                     v-model="accessLockformData.doorLock[pageData.accessLockCurrentIndex].alarmAction"
                     :disabled="!accessLockformData.doorLock[pageData.accessLockCurrentIndex].alarmAction"
                     :options="pageData.doorLockActionEnum"
@@ -75,14 +75,14 @@
             </el-form-item>
             <div class="base-business-subheading">{{ Translate('IDCS_WIEGAND_CONFIG') }}</div>
             <el-form-item :label="Translate('IDCS_TRANSPORT_DIR')">
-                <el-select-v2
+                <BaseSelect
                     v-model="wiegandFormData.IOType"
                     :disabled="!wiegandFormData.IOType"
                     :options="pageData.wiegandIOTypeEnum"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_WIEGAND_MODE')">
-                <el-select-v2
+                <BaseSelect
                     v-model="wiegandFormData.mode"
                     :disabled="!wiegandFormData.mode"
                     :options="pageData.wiegandModeEnum"

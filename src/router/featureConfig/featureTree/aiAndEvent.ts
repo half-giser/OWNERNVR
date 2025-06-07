@@ -287,7 +287,7 @@ const aiAndEventRoutes: FeatureItem = {
                 sort: 60,
                 lk: 'IDCS_MORE',
                 group: 'aiEvent',
-                minWidth: 1560,
+                minWidth: 1800,
                 minHeight: 850,
                 hasCap(systemCaps) {
                     return !systemCaps.IntelAndFaceConfigHide && !systemCaps.hotStandBy

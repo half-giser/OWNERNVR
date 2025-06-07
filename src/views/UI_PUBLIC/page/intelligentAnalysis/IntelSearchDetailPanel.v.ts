@@ -8,8 +8,6 @@ import { type XMLQuery } from '@/utils/xmlParse'
 import type { TableInstance } from 'element-plus'
 import dayjs from 'dayjs'
 import { VALUE_NAME_MAPPING } from '@/utils/const/snap'
-import { type ElSelectV2 } from 'element-plus'
-import { type ComponentInstance } from 'vue'
 
 export default defineComponent({
     emits: {
@@ -28,7 +26,7 @@ export default defineComponent({
         const dateTime = useDateTimeStore()
         const systemCaps = useCababilityStore()
         const route = useRoute()
-        const selectRef = ref<ComponentInstance<typeof ElSelectV2>>()
+        const selectRef = ref<SelectInstance>()
 
         let context: ReturnType<typeof CanvasBase>
         const canvasRef = ref<HTMLCanvasElement>()
@@ -283,8 +281,6 @@ export default defineComponent({
         }
 
         const init = (dataObj: { isTrail: boolean; currentIndex: string; detailData: (IntelTargetDataItem | IntelTargetIndexItem)[] }) => {
-            console.log(detailData)
-
             isTrail.value = dataObj.isTrail
             currentIndex.value = dataObj.currentIndex
             detailData.value = cloneDeep(dataObj.detailData)

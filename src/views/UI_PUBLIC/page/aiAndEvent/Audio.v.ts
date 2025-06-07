@@ -131,14 +131,16 @@ export default defineComponent({
         }
 
         const changeAlarmOutChl = async () => {
-            editAlarmOutFormData.reset()
-            openLoading()
-            alarmOutFormData.value = cloneDeep(alarmOutList.value[pageData.value.alarmOutIndex])
-            await getScheduleData()
-            await getAudioAlarmItem()
-            alarmOutFormData.value.schedule = scheduleMap.value[alarmOutFormData.value.id]
-            closeLoading()
-            editAlarmOutFormData.listen()
+            if (alarmOutList.value[pageData.value.alarmOutIndex]) {
+                editAlarmOutFormData.reset()
+                openLoading()
+                alarmOutFormData.value = cloneDeep(alarmOutList.value[pageData.value.alarmOutIndex])
+                await getScheduleData()
+                await getAudioAlarmItem()
+                alarmOutFormData.value.schedule = scheduleMap.value[alarmOutFormData.value.id]
+                closeLoading()
+                editAlarmOutFormData.listen()
+            }
         }
 
         /**
@@ -177,39 +179,7 @@ export default defineComponent({
                     const value = element.text().num()
                     const label = element.attr('value')
                     // 5.1.4以下（老版本）仅支持简体中文、英文
-                    // if (!language) {
-                    //     language = 'customize'
-                    // if (!item.audioTypeList['zh-cn']) {
-                    //     item.audioTypeList['zh-cn'] = []
-                    // }
-
-                    // if (!item.audioTypeList['en-us']) {
-                    //     item.audioTypeList['en-us'] = []
-                    // }
-
-                    // if (!item.audioTypeList.customize) {
-                    //     item.audioTypeList.customize = []
-                    // }
-
-                    // if (value >= 100) {
-                    //     item.audioTypeList.customize.push({
-                    //         value,
-                    //         label,
-                    //     })
-                    // }
-                    // else {
-                    //     item.audioTypeList['zh-cn'].push({
-                    //         value,
-                    //         label,
-                    //     })
-                    //     item.audioTypeList['en-us'].push({
-                    //         value,
-                    //         label,
-                    //     })
-                    // }
-                    // }
                     // 5.1.4及其以上IPC设备的广播声音列表名称根据语言进行切换
-                    // else {
                     if (!item.audioTypeList[language]) {
                         item.audioTypeList[language] = []
                     }
@@ -225,7 +195,6 @@ export default defineComponent({
                             label,
                         })
                     }
-                    // }
                 })
 
                 item.languageType = $param('languageType').text()
@@ -466,12 +435,14 @@ export default defineComponent({
         }
 
         const changeDeviceChl = async () => {
-            editDeviceFormData.reset()
-            openLoading()
-            deviceFormData.value = cloneDeep(deviceList.value[pageData.value.deviceIndex])
-            await getAudioDeviceItem()
-            closeLoading()
-            editDeviceFormData.listen()
+            if (deviceList.value[pageData.value.deviceIndex]) {
+                editDeviceFormData.reset()
+                openLoading()
+                deviceFormData.value = cloneDeep(deviceList.value[pageData.value.deviceIndex])
+                await getAudioDeviceItem()
+                closeLoading()
+                editDeviceFormData.listen()
+            }
         }
 
         /**
@@ -637,7 +608,6 @@ export default defineComponent({
         }
 
         const handleSelectionChange = (data: AlarmLocalAudioFileDto[]) => {
-            console.log('selection change')
             pageData.value.selectedLocalAudio = data.map((item) => item.id)
         }
 

@@ -296,7 +296,6 @@ export default defineComponent({
             }
 
             if (item.dhcpSwitch) {
-                console.log('here', dhcp, item.ipV6Switch)
                 item.ip = dhcp.ip || ''
                 item.mask = dhcp.mask
                 item.gateway = dhcp.gateway

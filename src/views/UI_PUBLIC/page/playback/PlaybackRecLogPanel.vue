@@ -5,7 +5,7 @@
 -->
 <template>
     <div class="log">
-        <el-popover
+        <BasePopover
             v-model:visible="pageData.visible"
             :width="950"
             popper-class="no-padding"
@@ -44,7 +44,7 @@
                     width="180"
                 >
                     <template #header>
-                        <el-popover
+                        <BasePopover
                             v-model:visible="pageData.eventVisible"
                             popper-class="no-padding"
                             width="fit-content"
@@ -80,7 +80,7 @@
                                     />
                                 </el-checkbox-group>
                             </el-scrollbar>
-                        </el-popover>
+                        </BasePopover>
                     </template>
 
                     <template #default="{ row }: TableColumn<PlaybackRecLogList>">
@@ -121,7 +121,7 @@
                     </template>
                 </el-table-column>
             </el-table>
-        </el-popover>
+        </BasePopover>
     </div>
 </template>
 

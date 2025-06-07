@@ -77,9 +77,10 @@
                                     </el-form-item>
                                     <!-- 持续时间 -->
                                     <el-form-item :label="Translate('IDCS_DURATION')">
-                                        <el-select-v2
+                                        <BaseSelect
                                             v-model="formData.holdTime"
                                             :options="formData.holdTimeList"
+                                            empty-text=""
                                         />
                                     </el-form-item>
                                     <!-- 时间阈值 -->
@@ -136,9 +137,10 @@
                                             </div>
                                             <!-- 目标 -->
                                             <el-form-item :label="Translate('IDCS_TARGET')">
-                                                <el-select-v2
+                                                <BaseSelect
                                                     v-model="formData.detectTarget"
                                                     :options="formData.detectTargetList"
+                                                    empty-text=""
                                                     @change="showDisplayRange"
                                                 />
                                             </el-form-item>
@@ -403,7 +405,7 @@
                     >
                         <el-form v-if="pageData.supportAlarmAudioConfig">
                             <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
-                                <el-select-v2
+                                <BaseSelect
                                     v-model="formData.sysAudio"
                                     :options="voiceList"
                                 />
@@ -439,7 +441,7 @@
                     </el-button>
                 </div>
                 <!-- 更多按钮 -->
-                <el-popover
+                <BasePopover
                     v-model:visible="pageData.moreDropDown"
                     width="400"
                     popper-class="no-padding"
@@ -483,7 +485,7 @@
                             </el-form-item>
                             <!-- 模式 -->
                             <el-form-item :label="Translate('IDCS_MODE')">
-                                <el-select-v2
+                                <BaseSelect
                                     v-model="pageData.timeType"
                                     :options="formData.countCycleTypeList"
                                     :disabled="!pageData.autoReset"
@@ -498,13 +500,13 @@
                                     '--form-input-width': '121px',
                                 }"
                             >
-                                <el-select-v2
+                                <BaseSelect
                                     v-if="pageData.timeType === 'week'"
                                     v-model="formData.countPeriod.week.date"
                                     :options="pageData.weekOption"
                                     :disabled="!pageData.autoReset"
                                 />
-                                <el-select-v2
+                                <BaseSelect
                                     v-if="pageData.timeType === 'month'"
                                     v-model="formData.countPeriod.month.date"
                                     :options="pageData.monthOption"
@@ -542,7 +544,7 @@
                             </div>
                         </el-form>
                     </div>
-                </el-popover>
+                </BasePopover>
             </div>
         </div>
         <BaseScheduleManagePop

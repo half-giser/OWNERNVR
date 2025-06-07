@@ -36,7 +36,7 @@
             <el-form-item prop="port">
                 <template #label>
                     <span v-if="data.connectionType !== 'UDP'">{{ Translate('IDCS_POS_PORT') }}</span>
-                    <el-select-v2
+                    <BaseSelect
                         v-else
                         v-model="formData.posPortType"
                         :options="pageData.posPortOptions"

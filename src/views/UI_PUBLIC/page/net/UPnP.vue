@@ -17,7 +17,7 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_MAP_TYPE')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.mappingType"
                     :disabled="!formData.switch || pageData.wirelessSwitch"
                     :options="pageData.mapTypeOptions"

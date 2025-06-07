@@ -160,7 +160,7 @@
                 <!-- 移动侦测 -->
                 <el-table-column :label="Translate('IDCS_MOTION_DETECTION')">
                     <template #header>
-                        <el-dropdown :disabled="!formData.switch">
+                        <BaseDropdown :disabled="!formData.switch">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_MOTION_DETECTION') }}
                             </BaseTableDropdownLink>
@@ -175,10 +175,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<NetFTPList>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.motion"
                             :disabled="!formData.switch"
                             :options="pageData.switchOptions"
@@ -188,7 +188,7 @@
                 <!-- 智能 -->
                 <el-table-column>
                     <template #header>
-                        <el-dropdown :disabled="!formData.switch">
+                        <BaseDropdown :disabled="!formData.switch">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_INTELLIGENT') }}
                             </BaseTableDropdownLink>
@@ -203,10 +203,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<NetFTPList>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.inteligence"
                             :options="pageData.switchOptions"
                             :disabled="!formData.switch"
@@ -216,7 +216,7 @@
                 <!-- 传感器 -->
                 <el-table-column>
                     <template #header>
-                        <el-dropdown :disabled="!formData.switch">
+                        <BaseDropdown :disabled="!formData.switch">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SENSOR') }}
                             </BaseTableDropdownLink>
@@ -231,10 +231,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<NetFTPList>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.sensor"
                             :disabled="!formData.switch"
                             :options="pageData.switchOptions"
@@ -244,7 +244,7 @@
                 <!-- 码流类型 -->
                 <el-table-column>
                     <template #header>
-                        <el-dropdown :disabled="!formData.switch">
+                        <BaseDropdown :disabled="!formData.switch">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_CODE_STREAM_TYPE') }}
                             </BaseTableDropdownLink>
@@ -259,10 +259,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<NetFTPList>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.streamType"
                             :disabled="!formData.switch"
                             :options="pageData.streamTypeOptions"
@@ -274,7 +274,7 @@
                 <!-- 抓图 -->
                 <el-table-column>
                     <template #header>
-                        <el-dropdown :disabled="!formData.switch">
+                        <BaseDropdown :disabled="!formData.switch">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SNAP') }}
                             </BaseTableDropdownLink>
@@ -289,10 +289,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<NetFTPList>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.ftpSnapSwitch"
                             :disabled="!formData.switch"
                             :options="pageData.switchOptions"
@@ -304,7 +304,7 @@
                 <!-- 报警信息 -->
                 <el-table-column>
                     <template #header>
-                        <el-dropdown :disabled="!formData.switch">
+                        <BaseDropdown :disabled="!formData.switch">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_ALARM_INFO') }}
                             </BaseTableDropdownLink>
@@ -319,10 +319,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<NetFTPList>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.ftpAlarmInfoSwitch"
                             :disabled="!formData.switch"
                             :options="pageData.switchOptions"

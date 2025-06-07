@@ -29,7 +29,7 @@
                 <el-checkbox v-model="formData.switch" />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_MODE')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.resetMode"
                     :options="pageData.resetModeOptions"
                     :disabled="!formData.switch"
@@ -42,7 +42,7 @@
                     '--form-input-width': '121px',
                 }"
             >
-                <el-select-v2
+                <BaseSelect
                     v-if="['WEEK', 'MONTH'].includes(formData.resetMode)"
                     v-model="formData.resetDay"
                     :options="formData.resetMode === 'WEEK' ? pageData.weekOption : pageData.monthOption"

@@ -4,7 +4,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
 -->
 <template>
-    <el-select-v2
+    <BaseSelect
         :model-value="modelValue"
         :options="scheduleList"
         :disabled="disabled"

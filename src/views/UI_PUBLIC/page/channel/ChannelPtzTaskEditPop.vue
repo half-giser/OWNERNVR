@@ -18,7 +18,7 @@
             class="stripe"
         >
             <el-form-item :label="Translate('IDCS_FUNCTION')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.type"
                     :options="pageData.typeOptions"
                     @change="changeType"
@@ -28,7 +28,7 @@
                 :label="Translate('IDCS_NAME')"
                 prop="name"
             >
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.editIndex"
                     :options="nameOption"
                 />

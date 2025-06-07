@@ -5,7 +5,7 @@
 -->
 <template>
     <div>
-        <el-popover
+        <BasePopover
             v-model:visible="pageData.isDropdown"
             width="fit-content"
             popper-class="no-padding"
@@ -25,7 +25,7 @@
                 @confirm="confirmAll"
                 @close="closeAll"
             />
-        </el-popover>
+        </BasePopover>
         <BaseTransferPop
             :model-value="pageData.isPop"
             header-title="IDCS_TRIGGER_ALARM_OUT"

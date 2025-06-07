@@ -13,7 +13,7 @@
             class="stripe"
         >
             <el-form-item :label="Translate('IDCS_ACCESS_TYPE')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.accessType"
                     :options="pageData.platformTypeList"
                 />
