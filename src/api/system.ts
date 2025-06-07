@@ -105,7 +105,7 @@ export const querySystemWorkMode = () => fetch('querySystemWorkMode', '')
  * @param data
  * @returns
  */
-export const editSystemWorkMode = (data: string) => fetch('querySystemWorkMode', data)
+export const editSystemWorkMode = (data: string) => fetch('editSystemWorkMode', data)
 
 /**
  * @description

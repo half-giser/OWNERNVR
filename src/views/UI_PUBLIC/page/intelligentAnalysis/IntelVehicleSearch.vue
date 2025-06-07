@@ -222,7 +222,7 @@
 
 <style lang="scss" scoped>
 .base-intel-box {
-    height: calc(var(--content-height) + 20px);
+    height: calc(var(--content-height) + 22px);
 }
 
 .base-intel-left-form {

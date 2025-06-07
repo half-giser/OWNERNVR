@@ -205,7 +205,7 @@
 }
 
 .bottom {
-    height: 170px;
+    height: 172px;
     display: flex;
 }
 
