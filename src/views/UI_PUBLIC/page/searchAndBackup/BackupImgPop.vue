@@ -11,7 +11,7 @@
     >
         <el-form v-title>
             <el-form-item :label="Translate('IDCS_DESTINATION')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.destination"
                     :options="pageData.destinationOptions"
                 />
@@ -23,7 +23,7 @@
                 v-show="formData.destination === 'remote'"
                 :label="Translate('IDCS_DEVICE_NAME')"
             >
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.remoteDeviceName"
                     :options="pageData.remoteDeviceOptions"
                     :props="{

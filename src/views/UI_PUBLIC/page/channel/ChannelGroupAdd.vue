@@ -25,9 +25,10 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_STAY_TIME')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.dwellTime"
                     :options="timeList"
+                    empty-text=""
                 />
             </el-form-item>
         </el-form>

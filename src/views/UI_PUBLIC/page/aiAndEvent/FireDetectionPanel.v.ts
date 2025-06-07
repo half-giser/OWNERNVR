@@ -10,6 +10,7 @@ import AlarmBasePresetSelector from './AlarmBasePresetSelector.vue'
 import AlarmBaseIPSpeakerSelector from './AlarmBaseIPSpeakerSelector.vue'
 import AlarmBaseSnapSelector from './AlarmBaseSnapSelector.vue'
 import { type XMLQuery } from '@/utils/xmlParse'
+import AlarmBaseErrorPanel from './AlarmBaseErrorPanel.vue'
 
 export default defineComponent({
     components: {
@@ -19,6 +20,7 @@ export default defineComponent({
         AlarmBasePresetSelector,
         AlarmBaseIPSpeakerSelector,
         AlarmBaseSnapSelector,
+        AlarmBaseErrorPanel,
     },
     props: {
         /**
@@ -78,10 +80,6 @@ export default defineComponent({
             maskAreaChecked: [] as number[],
             // 是否显示全部区域绑定值
             isShowAllArea: false,
-            // 控制显示展示全部区域的checkbox
-            showAllAreaVisible: true,
-            // 控制显示清除全部区域按钮 >=2才显示
-            clearAllVisible: true,
             // 当前画点规则 regulation==1：画矩形，regulation==0或空：画点 - (regulation=='1'则currentRegulation为true：画矩形，否则currentRegulation为false：画点)
             currentRegulation: false,
         })
@@ -263,7 +261,7 @@ export default defineComponent({
                     trigger: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch', 'popMsgSwitch'].filter((item) => {
                         return $trigger(item).text().bool()
                     }),
-                    triggerList: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch', 'popMsgSwitch'],
+                    triggerList: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'popMsgSwitch'],
                     sysAudio: $trigger('sysAudio').attr('id'),
                     record: $trigger('sysRec/chls/item').map((item) => {
                         return {
@@ -294,14 +292,13 @@ export default defineComponent({
                             },
                         }
                     }),
+                    ipSpeaker: $trigger('triggerAudioDevice/chls/item').map((item) => {
+                        return {
+                            ipSpeakerId: item.attr('id'),
+                            audioID: item.attr('audioID'),
+                        }
+                    }),
                 }
-
-                formData.value.ipSpeaker = $trigger('triggerAudioDevice/chls/item').map((item) => {
-                    return {
-                        ipSpeakerId: item.attr('id'),
-                        audioID: item.attr('audioID'),
-                    }
-                })
 
                 if (formData.value.audioSuport && props.chlData.supportAudio) {
                     formData.value.triggerList.push('triggerAudio')
@@ -342,29 +339,29 @@ export default defineComponent({
                         ${
                             formData.value.supportMaskArea
                                 ? rawXml`
-                                <maskArea type="list" count="${formData.value.maskAreaInfo.length}">
-                                ${formData.value.maskAreaInfo
-                                    .map((element) => {
-                                        return rawXml`
-                                                <item>
-                                                    <point type="list" maxCount="${element.maxCount}" count="${element.point.length}">
-                                                        ${element.point
-                                                            .map((point) => {
-                                                                return rawXml`
-                                                                    <item>
-                                                                        <X>${Math.floor(point.X)}</X>
-                                                                        <Y>${Math.floor(point.Y)}</Y>
-                                                                    </item>
-                                                                `
-                                                            })
-                                                            .join('')}
-                                                    </point>
-                                                </item>
-                                            `
-                                    })
-                                    .join('')}
-                                </maskArea>
-                            `
+                                    <maskArea type="list" count="${formData.value.maskAreaInfo.length}">
+                                    ${formData.value.maskAreaInfo
+                                        .map((element) => {
+                                            return rawXml`
+                                                    <item>
+                                                        <point type="list" maxCount="${element.maxCount}" count="${element.point.length}">
+                                                            ${element.point
+                                                                .map((point) => {
+                                                                    return rawXml`
+                                                                        <item>
+                                                                            <X>${Math.floor(point.X)}</X>
+                                                                            <Y>${Math.floor(point.Y)}</Y>
+                                                                        </item>
+                                                                    `
+                                                                })
+                                                                .join('')}
+                                                        </point>
+                                                    </item>
+                                                `
+                                        })
+                                        .join('')}
+                                    </maskArea>
+                                `
                                 : ''
                         }
                         </param>
@@ -407,7 +404,7 @@ export default defineComponent({
                                     .join('')}
                                 </chls>
                             </triggerAudioDevice>
-                            <snapSwitch>${formData.value.trigger.includes('snapSwitch')}</snapSwitch>
+                            <snapSwitch>${formData.value.snap.length > 0}</snapSwitch>
                             <msgPushSwitch>${formData.value.trigger.includes('msgPushSwitch')}</msgPushSwitch>
                             <buzzerSwitch>${formData.value.trigger.includes('buzzerSwitch')}</buzzerSwitch>
                             <popVideoSwitch>${formData.value.trigger.includes('popVideoSwitch')}</popVideoSwitch>
@@ -461,7 +458,7 @@ export default defineComponent({
             if (!pageData.value.currentRegulation) {
                 const allRegionList: CanvasBasePoint[][] = []
                 const maskAreaInfoList = formData.value.maskAreaInfo
-                maskAreaInfoList.forEach(function (ele) {
+                maskAreaInfoList.forEach((ele) => {
                     allRegionList.push(ele.point)
                 })
                 for (const i in allRegionList) {
@@ -490,15 +487,6 @@ export default defineComponent({
                 }
                 return -1
             })
-
-            // 是否显示全部区域切换按钮和清除全部按钮（区域数量大于等于2时才显示）
-            if (maskAreaInfoList && maskAreaInfoList.length > 1) {
-                pageData.value.showAllAreaVisible = true
-                pageData.value.clearAllVisible = true
-            } else {
-                pageData.value.showAllAreaVisible = false
-                pageData.value.clearAllVisible = false
-            }
         }
 
         /**
@@ -520,15 +508,11 @@ export default defineComponent({
                 }
 
                 if (mode.value === 'ocx') {
-                    setTimeout(() => {
-                        const sendXML = OCX_XML_SetVsdAreaAction('EDIT_ON')
-                        plugin.ExecuteCmd(sendXML)
-                    }, 100)
+                    const sendXML = OCX_XML_SetVsdAreaAction('EDIT_ON')
+                    plugin.ExecuteCmd(sendXML)
                 }
+
                 setOcxData()
-                if (pageData.value.isShowAllArea) {
-                    showAllArea(true)
-                }
             } else if (pageData.value.tab === 'target') {
                 showAllArea(false)
                 if (mode.value === 'h5') {
@@ -537,13 +521,11 @@ export default defineComponent({
                 }
 
                 if (mode.value === 'ocx') {
-                    setTimeout(() => {
-                        const sendXML1 = OCX_XML_SetVsdAreaAction('NONE')
-                        plugin.ExecuteCmd(sendXML1)
+                    const sendXML1 = OCX_XML_SetVsdAreaAction('NONE')
+                    plugin.ExecuteCmd(sendXML1)
 
-                        const sendXML2 = OCX_XML_SetVsdAreaAction('EDIT_OFF')
-                        plugin.ExecuteCmd(sendXML2)
-                    }, 100)
+                    const sendXML2 = OCX_XML_SetVsdAreaAction('EDIT_OFF')
+                    plugin.ExecuteCmd(sendXML2)
                 }
             }
         }
@@ -578,12 +560,11 @@ export default defineComponent({
          */
         const changeArea = (points: CanvasBaseArea | CanvasBasePoint[]) => {
             const index = pageData.value.maskAreaIndex
-            formData.value.maskAreaInfo[index].point = points
+            formData.value.maskAreaInfo[index].point = points as CanvasBasePoint[]
 
             if (pageData.value.isShowAllArea) {
                 showAllArea(true)
             }
-            refreshInitPage()
         }
 
         /**
@@ -683,7 +664,7 @@ export default defineComponent({
          * @param {CanvasBasePoint} poinObjtList
          */
         const setClosed = (poinObjtList: CanvasBasePoint[]) => {
-            poinObjtList.forEach(function (element) {
+            poinObjtList.forEach((element) => {
                 element.isClosed = true
             })
         }
@@ -696,7 +677,7 @@ export default defineComponent({
             if (mode.value === 'h5' && !pageData.value.currentRegulation) {
                 const maskAreaInfoList = formData.value.maskAreaInfo
                 if (maskAreaInfoList && maskAreaInfoList.length > 0) {
-                    maskAreaInfoList.forEach(function (maskAreaInfo) {
+                    maskAreaInfoList.forEach((maskAreaInfo) => {
                         const poinObjtList = maskAreaInfo.point
                         if (poinObjtList.length >= 4 && drawer.judgeAreaCanBeClosed(poinObjtList)) {
                             setClosed(poinObjtList)
@@ -791,7 +772,6 @@ export default defineComponent({
                     })
                     const index = pageData.value.maskAreaIndex
                     formData.value.maskAreaInfo[index].point = points
-                    refreshInitPage()
                 }
 
                 const errorCode = $('statenotify/errorCode').text().num()

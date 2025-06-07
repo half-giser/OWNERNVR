@@ -10,14 +10,14 @@
             class="stripe"
         >
             <el-form-item :label="Translate('IDCS_USER_TYPE')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.userType"
                     :options="pageData.userTypeList"
                     @change="changeUserType"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_OPERATE_TYPE')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.operationType"
                     :options="pageData.operationTypeList"
                     @change="changeOperationType"
@@ -93,7 +93,7 @@
             class="no-padding"
         >
             <el-form-item :label="Translate('IDCS_OPERATE_FAULT_TYPE')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.faultType"
                     :options="pageData.faultTypeList"
                 />
@@ -124,7 +124,7 @@
             class="no-padding"
         >
             <el-form-item :label="Translate('IDCS_MAINTENSIGN_ITEM')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.maintenance"
                     :options="pageData.maintenanceList"
                 />
@@ -177,7 +177,7 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_REPAIRSIGN_RESULT')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.repair"
                     :options="pageData.repairList"
                 />

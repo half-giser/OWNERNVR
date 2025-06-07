@@ -29,7 +29,7 @@ export default defineComponent({
 
         // 校验规则
         const rules = reactive<FormRules>({
-            userName: [
+            username: [
                 {
                     validator: (_rule, value: string, callback) => {
                         if (!value.length) {
@@ -69,7 +69,7 @@ export default defineComponent({
                 if (valid) {
                     const nonce = userSession.nonce ? userSession.nonce : ''
                     ctx.emit('confirm', {
-                        userName: formData.value.userName,
+                        username: formData.value.username,
                         password: sha512_encrypt(MD5_encrypt(formData.value.password) + '#' + nonce),
                     })
                 }

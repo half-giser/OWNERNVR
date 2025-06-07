@@ -65,12 +65,11 @@
                             active: item.id === pageData.currentRunningSystem,
                         }"
                     >
-                        <el-tooltip :content="Translate('IDCS_PRIORITY_BOOT_SYSTEM')">
-                            <BaseImgSprite
-                                v-show="pageData.currentRunningSystem === item.id"
-                                file="systemStatus"
-                            />
-                        </el-tooltip>
+                        <BaseImgSprite
+                            v-show="pageData.currentRunningSystem === item.id"
+                            :title="Translate('IDCS_PRIORITY_BOOT_SYSTEM')"
+                            file="systemStatus"
+                        />
                         <span>{{ item.label }}</span>
                         <span>{{ item.value }}</span>
                     </div>

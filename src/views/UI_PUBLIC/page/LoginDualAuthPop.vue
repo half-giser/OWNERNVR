@@ -19,10 +19,10 @@
             class="stripe"
         >
             <el-form-item
-                prop="userName"
+                prop="username"
                 :label="Translate('IDCS_USER_NAME')"
             >
-                <el-input v-model="formData.userName" />
+                <el-input v-model="formData.username" />
             </el-form-item>
             <el-form-item
                 prop="password"

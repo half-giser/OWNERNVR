@@ -33,7 +33,7 @@
                 <BaseIpInput v-model="formData.ip" />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_PROTOCOL')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.protocolType"
                     :options="pageData.protocolTypeOptions"
                 />
@@ -68,7 +68,7 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_IPSPEAKER_ASSOCIATION')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.associatedDeviceID"
                     :options="pageData.devList"
                 />

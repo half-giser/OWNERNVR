@@ -2045,7 +2045,7 @@ const play = (params: PlayerPlayParams) => {
             if (!enablePos) return
             handlePos(posFrame, posLength, params.chlID, winIndex)
         },
-        onparam: function (type, data: PlayerDetectTargetDto) {
+        onparam: (type, data: PlayerDetectTargetDto) => {
             if (!isGetDetect(winIndex)) {
                 clearCacheDetect(winIndex)
                 return

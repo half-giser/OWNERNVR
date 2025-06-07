@@ -30,6 +30,7 @@
             />
             <!-- 远程录像 -->
             <BaseImgSpriteBtn
+                v-show="!systemCaps.hotStandBy"
                 :file="remote ? 'remote_recing' : 'remote_rec'"
                 :title="remote ? Translate('IDCS_REMOTE_MANUAL_RECORD_OFF') : Translate('IDCS_REMOTE_MANUAL_RECORD_ON')"
                 :active="remote"
@@ -109,7 +110,10 @@
             />
         </div>
         <!-- 码流控制 -->
-        <div class="stream-menu">
+        <div
+            v-show="!systemCaps.hotStandBy"
+            class="stream-menu"
+        >
             <!-- RTSP通道无子码流 -->
             <el-radio-group
                 class="nowrap"
@@ -128,7 +132,7 @@
         </div>
 
         <div
-            v-show="winData.streamType === 2 && winData.PLAY_STATUS === 'play'"
+            v-show="winData.streamType === 2 && winData.PLAY_STATUS === 'play' && !systemCaps.hotStandBy"
             class="stream-param"
         >
             <el-form
@@ -139,7 +143,7 @@
                 }"
             >
                 <el-form-item :label="Translate('IDCS_RESOLUTION_RATE')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="streamFormData.resolution"
                         :disabled="streamOptionDisabled"
                         :options="pageData.resolutionOptions"
@@ -147,14 +151,14 @@
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_FRAME_RATE')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="streamFormData.frameRate"
                         :disabled="streamOptionDisabled"
                         :options="fpsOptions"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_VIDEO_QUALITY')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="streamFormData.quality"
                         :disabled="streamOptionDisabled || streamQualityDisabled"
                         :options="displayQualityOptions"

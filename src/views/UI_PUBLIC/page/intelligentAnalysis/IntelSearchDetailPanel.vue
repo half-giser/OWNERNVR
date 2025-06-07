@@ -116,10 +116,14 @@
                     />
                     <BaseTargetSearchPanel
                         v-model:visible="pageData.isDetectTarget"
-                        type="image"
+                        :type="pageData.detailType === 'record' ? 'record' : 'image'"
                         :mode="mode"
                         :pic="pageData.detectTargetImg"
                         :route-type="searchTargetRouteType"
+                        :win-index="0"
+                        :start-time="currDetailData.startTime * 1000"
+                        :end-time="currDetailData.endTime * 1000"
+                        :chl-id="currDetailData.chlID"
                         @search="handleGoToSearchTargetPage"
                     />
                 </div>
@@ -158,7 +162,7 @@
                 :start-time="pageData.startTimeStamp"
                 :end-time="pageData.endTimeStamp"
                 :highlight="[currDetailData.startTime, currDetailData.endTime]"
-                :disabled="pageData.iconDisabled"
+                :disabled="pageData.iconDisabled || pageData.isDetectTarget"
                 :marks="marks"
                 enable-highlight
                 @mousedown="handleSliderMouseDown"
@@ -175,58 +179,56 @@
                     v-show="pageData.detailType === 'record'"
                     class="left-wrap"
                 >
-                    <el-tooltip :content="Translate('IDCS_PAUSE')">
-                        <BaseImgSpriteBtn
-                            v-show="pageData.playStatus === 'play'"
-                            class="btn"
-                            file="pauseRec"
-                            @click="pause"
-                        />
-                    </el-tooltip>
-                    <el-tooltip :content="Translate('IDCS_PLAY')">
-                        <BaseImgSpriteBtn
-                            v-show="pageData.playStatus !== 'play'"
-                            class="btn"
-                            file="playRec"
-                            :disabled="pageData.iconDisabled"
-                            @click="resume"
-                        />
-                    </el-tooltip>
-                    <el-select-v2
+                    <BaseImgSpriteBtn
+                        v-show="pageData.playStatus === 'play'"
+                        class="btn"
+                        file="pauseRec"
+                        :title="Translate('IDCS_PAUSE')"
+                        @click="pause"
+                    />
+                    <BaseImgSpriteBtn
+                        v-show="pageData.playStatus !== 'play'"
+                        class="btn"
+                        file="playRec"
+                        :title="Translate('IDCS_PLAY')"
+                        :disabled="pageData.iconDisabled"
+                        @click="resume"
+                    />
+                    <BaseSelect
+                        ref="selectRef"
                         v-model="pageData.recPlayTime"
                         class="btn"
                         :options="pageData.recPlayTimeList"
                         :disabled="pageData.iconDisabled"
+                        :persistent="true"
+                        :popper-class="pageData.isFullScreen ? 'fullscreen-select' : ''"
+                        :append-to="pageData.isFullScreen ? '.btn-bar' : undefined"
                         @change="changeRecPlayTime"
                     />
-                    <el-tooltip :content="Translate('IDCS_PLAY_NEXT_FRAME')">
-                        <BaseImgSpriteBtn
-                            v-show="isTrail"
-                            class="btn"
-                            file="next_frame"
-                            :disabled="pageData.playStatus !== 'pause'"
-                            @click="nextFrame"
-                        />
-                    </el-tooltip>
-                    <div
-                        class="speedWrap"
-                        @mouseenter="hoverRecSpeed(true)"
-                        @mouseleave="hoverRecSpeed(false)"
+                    <BaseImgSpriteBtn
+                        v-show="isTrail"
+                        class="btn"
+                        file="next_frame"
+                        :title="Translate('IDCS_PLAY_NEXT_FRAME')"
+                        :disabled="pageData.playStatus !== 'pause'"
+                        @click="nextFrame"
+                    />
+                    <BasePopover
+                        width="34"
+                        :popper-class="`no-border no-padding ${pageData.isFullScreen ? 'fullscreen-popover' : ''} ${isTrail ? 'trail' : ''}`"
+                        trigger="hover"
+                        :append-to="pageData.isFullScreen ? '.btn-bar' : undefined"
+                        @before-enter="handleSpeedPopoverBeforeEnter"
                     >
-                        <el-tooltip
-                            :content="pageData.speedBtnTitle"
-                            placement="right"
-                        >
+                        <template #reference>
                             <BaseImgSpriteBtn
                                 class="btn"
                                 :file="pageData.speedBtn"
+                                :title="pageData.speedBtnTitle"
                                 :disabled="pageData.iconDisabled"
                             />
-                        </el-tooltip>
-                        <div
-                            v-show="pageData.isHoverSpeed"
-                            class="speedBtnList"
-                        >
+                        </template>
+                        <div class="speedBtnList">
                             <BaseImgSpriteBtn
                                 class="btn"
                                 file="X1"
@@ -243,81 +245,73 @@
                                 @click="changeRecSpeed(4)"
                             />
                         </div>
-                    </div>
-                    <el-tooltip :content="Translate('IDCS_PLAY_DEC_10_SECONDS')">
-                        <BaseImgSpriteBtn
-                            class="btn"
-                            file="fw10s"
-                            :disabled="pageData.iconDisabled"
-                            @click="handleJump(-10)"
-                        />
-                    </el-tooltip>
-                    <el-tooltip :content="Translate('IDCS_PLAY_INC_10_SECONDS')">
-                        <BaseImgSpriteBtn
-                            class="btn"
-                            file="bk10s"
-                            :disabled="pageData.iconDisabled"
-                            @click="handleJump(10)"
-                        />
-                    </el-tooltip>
+                    </BasePopover>
+                    <BaseImgSpriteBtn
+                        class="btn"
+                        file="fw10s"
+                        :title="Translate('IDCS_PLAY_DEC_10_SECONDS')"
+                        :disabled="pageData.iconDisabled"
+                        @click="handleJump(-10)"
+                    />
+                    <BaseImgSpriteBtn
+                        class="btn"
+                        file="bk10s"
+                        :title="Translate('IDCS_PLAY_INC_10_SECONDS')"
+                        :disabled="pageData.iconDisabled"
+                        @click="handleJump(10)"
+                    />
                 </div>
                 <!-- 右侧按钮模块 -->
                 <div class="right-wrap">
-                    <el-tooltip :content="Translate('IDCS_REID')">
-                        <BaseImgSpriteBtn
-                            v-show="systemCaps.supportREID"
-                            class="btn"
-                            file="target_retrieval"
-                            :active="pageData.enableREID"
-                            :disabled="pageData.iconDisabled"
-                            @click="handleSearchTarget"
-                        />
-                    </el-tooltip>
-                    <el-tooltip :content="pageData.enableAI ? Translate('IDCS_INTELLIGENT_INFO_OFF') : Translate('IDCS_INTELLIGENT_INFO_ON')">
-                        <BaseImgSpriteBtn
-                            v-show="pageData.detailType === 'record'"
-                            class="btn"
-                            file="showAImsg"
-                            :active="pageData.enableAI"
-                            :disabled="pageData.iconDisabled"
-                            @click="handleShowAIMsg"
-                        />
-                    </el-tooltip>
-                    <el-tooltip :content="Translate('IDCS_AUDIO')">
-                        <BaseImgSpriteBtn
-                            v-show="pageData.detailType === 'record'"
-                            class="btn"
-                            :file="pageData.enableAudio ? 'soundOpen' : 'soundClose'"
-                            :disabled="pageData.iconDisabled"
-                            @click="handleVoice"
-                        />
-                    </el-tooltip>
-                    <el-tooltip :content="pageData.enablePos ? Translate('IDCS_CANCEL_POS') : Translate('IDCS_VIEW_POS')">
-                        <BaseImgSpriteBtn
-                            v-show="pageData.detailType === 'record' && systemCaps.supportPOS"
-                            class="btn"
-                            file="POS_rec"
-                            :active="pageData.enablePos"
-                            :disabled="pageData.iconDisabled"
-                            @click="handlePos"
-                        />
-                    </el-tooltip>
-                    <el-tooltip :content="Translate('IDCS_EXPORT')">
-                        <BaseImgSpriteBtn
-                            class="btn"
-                            file="export_btn"
-                            :disabled="pageData.iconDisabled"
-                            @click="handleExport"
-                        />
-                    </el-tooltip>
-                    <el-tooltip :content="pageData.isFullScreen ? Translate('IDCS_EXIT_FULLSCREEN') : Translate('IDCS_FULLSCREEN')">
-                        <BaseImgSpriteBtn
-                            class="btn"
-                            :file="pageData.isFullScreen ? 'exit_full_screen' : 'full_screen'"
-                            :disabled="pageData.iconDisabled"
-                            @click="handleFullScreen"
-                        />
-                    </el-tooltip>
+                    <BaseImgSpriteBtn
+                        v-show="systemCaps.supportREID"
+                        class="btn"
+                        file="target_retrieval"
+                        :active="pageData.isDetectTarget"
+                        :disabled="pageData.iconDisabled"
+                        :title="Translate('IDCS_REID')"
+                        @click="handleSearchTarget"
+                    />
+                    <BaseImgSpriteBtn
+                        v-show="pageData.detailType === 'record'"
+                        class="btn"
+                        file="showAImsg"
+                        :active="pageData.enableAI"
+                        :disabled="pageData.iconDisabled"
+                        :title="pageData.enableAI ? Translate('IDCS_INTELLIGENT_INFO_OFF') : Translate('IDCS_INTELLIGENT_INFO_ON')"
+                        @click="handleShowAIMsg"
+                    />
+                    <BaseImgSpriteBtn
+                        v-show="pageData.detailType === 'record'"
+                        class="btn"
+                        :file="pageData.enableAudio ? 'soundOpen' : 'soundClose'"
+                        :disabled="pageData.iconDisabled"
+                        :title="Translate('IDCS_AUDIO')"
+                        @click="handleVoice"
+                    />
+                    <BaseImgSpriteBtn
+                        v-show="pageData.detailType === 'record' && systemCaps.supportPOS"
+                        class="btn"
+                        file="POS_rec"
+                        :active="pageData.enablePos"
+                        :disabled="pageData.iconDisabled"
+                        :title="pageData.enablePos ? Translate('IDCS_CANCEL_POS') : Translate('IDCS_VIEW_POS')"
+                        @click="handlePos"
+                    />
+                    <BaseImgSpriteBtn
+                        class="btn"
+                        file="export_btn"
+                        :disabled="pageData.iconDisabled"
+                        :title="Translate('IDCS_EXPORT')"
+                        @click="handleExport"
+                    />
+                    <BaseImgSpriteBtn
+                        class="btn"
+                        :title="pageData.isFullScreen ? Translate('IDCS_EXIT_FULLSCREEN') : Translate('IDCS_FULLSCREEN')"
+                        :file="pageData.isFullScreen ? 'exit_full_screen' : 'full_screen'"
+                        :disabled="pageData.iconDisabled"
+                        @click="handleFullScreen"
+                    />
                 </div>
             </div>
         </div>
@@ -430,7 +424,7 @@
     </div>
 </template>
 
-<script lang="ts" src="./IntelSearchDetail.v.ts"></script>
+<script lang="ts" src="./IntelSearchDetailPanel.v.ts"></script>
 
 <style lang="scss" scoped>
 .intelDetail {
@@ -448,7 +442,7 @@
 
     .pageCenter {
         position: relative;
-        width: 98%;
+        width: 100%;
         height: 520px;
         margin-top: 2px;
         flex-shrink: 0;
@@ -577,24 +571,6 @@
                     height: 20px;
                     line-height: 20px;
                     margin-left: 4px;
-                }
-
-                .speedWrap {
-                    position: relative;
-                    width: 34px;
-                    height: 34px;
-                    cursor: pointer;
-                    margin-right: 4px;
-
-                    .speedBtnList {
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: flex-start;
-                        align-items: center;
-                        position: absolute;
-                        top: 34px;
-                        z-index: 5;
-                    }
                 }
 
                 > .btn {
@@ -741,6 +717,28 @@
             height: 100%;
             text-align: center;
         }
+    }
+}
+
+.speedBtnList {
+    width: 34px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+</style>
+
+<style lang="scss">
+.fullscreen-select {
+    left: 42px !important;
+}
+
+.fullscreen-popover {
+    left: 136px !important;
+
+    &.trail {
+        left: 174px !important;
     }
 }
 </style>

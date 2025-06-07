@@ -5,12 +5,7 @@
 -->
 <template>
     <div>
-        <div
-            v-if="pageData.reqFail"
-            class="base-ai-not-support-box"
-        >
-            {{ Translate('IDCS_QUERY_DATA_FAIL') }}
-        </div>
+        <AlarmBaseErrorPanel v-if="pageData.reqFail" />
         <div v-if="pageData.tab">
             <!-- 检测开启 -->
             <div class="base-btn-box flex-start padding collapse">
@@ -103,9 +98,10 @@
                                     </el-form-item>
                                     <!-- 持续时间 -->
                                     <el-form-item :label="Translate('IDCS_DURATION')">
-                                        <el-select-v2
+                                        <BaseSelect
                                             v-model="formData.holdTime"
                                             :options="formData.holdTimeList"
+                                            empty-text=""
                                         />
                                     </el-form-item>
                                     <!-- 侦测灵敏度 -->
@@ -113,9 +109,10 @@
                                         v-if="chlData.supportCpc"
                                         :label="Translate('IDCS_SENSITIVITY')"
                                     >
-                                        <el-select-v2
+                                        <BaseSelect
                                             v-model="formData.detectSensitivity"
                                             :options="formData.detectSensitivityList"
+                                            empty-text=""
                                         />
                                     </el-form-item>
                                     <!-- 侦测灵敏度 -->
@@ -123,7 +120,7 @@
                                         v-if="chlData.supportCpc"
                                         :label="Translate('IDCS_STATISTICALCYCLE')"
                                     >
-                                        <el-select-v2
+                                        <BaseSelect
                                             v-model="formData.statisticalPeriod"
                                             :options="formData.statisticalPeriodList"
                                         />
@@ -166,9 +163,10 @@
                                         v-if="chlData.supportPassLine"
                                         :label="Translate('IDCS_DIRECTION')"
                                     >
-                                        <el-select-v2
+                                        <BaseSelect
                                             v-model="pageData.direction"
                                             :options="pageData.directionList"
+                                            empty-text=""
                                             @change="changeDirection"
                                         />
                                     </el-form-item>
@@ -186,9 +184,10 @@
                                             </div>
                                             <!-- 目标 -->
                                             <el-form-item :label="Translate('IDCS_TARGET')">
-                                                <el-select-v2
+                                                <BaseSelect
                                                     v-model="formData.detectTarget"
                                                     :options="formData.detectTargetList"
+                                                    empty-text=""
                                                     @change="showDisplayRange"
                                                 />
                                             </el-form-item>
@@ -413,23 +412,23 @@
                                             />
                                         </template>
                                     </el-form-item>
-                                    <el-form-item v-if="formData.countOSD.supportOsdWelcomeName">
-                                        <template #label>{{ Translate('IDCS_BELOW_THRESHOLD') }}</template>
-                                        <template #default>
-                                            <input
-                                                v-model="formData.countOSD.osdWelcomeName"
-                                                :maxlength="formData.countOSD.osdWelcomeNameMaxLen"
-                                            />
-                                        </template>
+                                    <el-form-item
+                                        v-if="formData.countOSD.supportOsdWelcomeName"
+                                        :label="Translate('IDCS_BELOW_THRESHOLD')"
+                                    >
+                                        <input
+                                            v-model="formData.countOSD.osdWelcomeName"
+                                            :maxlength="formData.countOSD.osdWelcomeNameMaxLen"
+                                        />
                                     </el-form-item>
-                                    <el-form-item v-if="formData.countOSD.supportOsdAlarmName">
-                                        <template #label>{{ Translate('IDCS_OVER_THRESHOLD') }}</template>
-                                        <template #default>
-                                            <input
-                                                v-model="formData.countOSD.osdAlarmName"
-                                                :maxlength="formData.countOSD.osdAlarmNameMaxLen"
-                                            />
-                                        </template>
+                                    <el-form-item
+                                        v-if="formData.countOSD.supportOsdAlarmName"
+                                        :label="Translate('IDCS_OVER_THRESHOLD')"
+                                    >
+                                        <input
+                                            v-model="formData.countOSD.osdAlarmName"
+                                            :maxlength="formData.countOSD.osdAlarmNameMaxLen"
+                                        />
                                     </el-form-item>
                                 </el-form>
                             </div>
@@ -443,7 +442,7 @@
                     >
                         <el-form v-if="pageData.supportAlarmAudioConfig">
                             <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
-                                <el-select-v2
+                                <BaseSelect
                                     v-model="formData.sysAudio"
                                     :options="voiceList"
                                 />

@@ -21,7 +21,7 @@
         >
             <el-form-item>
                 <el-form-item :label="Translate('IDCS_PROTOCOL_LOGO')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="currentProtocolLogo"
                         :options="protocolManageList"
                         :props="{
@@ -34,7 +34,7 @@
             </el-form-item>
             <el-form-item>
                 <el-form-item :label="Translate('IDCS_STATE')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="formData.enabled"
                         :options="pageData.enabledOptions"
                     />
@@ -73,7 +73,7 @@
                 min-width="130"
             >
                 <template #default="{ row }: TableColumn<ChannelResourcesPathDto>">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="row.protocol"
                         :disabled="!formData.enabled"
                         :options="pageData.protocolOptions"
@@ -85,7 +85,7 @@
                 min-width="130"
             >
                 <template #default="{ row }: TableColumn<ChannelResourcesPathDto>">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="row.transportProtocol"
                         :disabled="!formData.enabled"
                         :options="pageData.transferProtocolOptions"

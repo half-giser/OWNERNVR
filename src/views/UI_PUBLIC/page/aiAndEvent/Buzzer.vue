@@ -9,9 +9,10 @@
         class="stripe"
     >
         <el-form-item :label="Translate('IDCS_DELAY')">
-            <el-select-v2
+            <BaseSelect
                 v-model="formData.buzzerDuration"
                 :options="pageData.buzzerDurationOption"
+                empty-text=""
             />
         </el-form-item>
         <div class="base-btn-box">

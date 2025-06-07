@@ -29,13 +29,6 @@ export default defineComponent({
 
         const formRef = useFormRef()
         const formData = ref(new ChannelGroupDto())
-        // const timeList = [5, 10, 20, 30, 60, 120, 300, 600].map((value) => {
-        //     return {
-        //         label: value + Translate('IDCS_SECONDS'),
-        //         value,
-        //     }
-        // })
-
         const timeList = ref<SelectOption<number, string>[]>([])
 
         const rules = ref<FormRules>({

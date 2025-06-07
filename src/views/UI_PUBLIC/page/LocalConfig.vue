@@ -13,7 +13,7 @@
             class="stripe"
         >
             <el-form-item :label="Translate('IDCS_SNAP_COUNT')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.snapCount"
                     :disabled="pageData.disabled"
                     :options="pageData.snapOptions"

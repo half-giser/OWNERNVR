@@ -36,7 +36,7 @@ export class UserAuthCodeLoginForm {
  * @description 双重验证用户登录表单
  */
 export class UserDualAuthLoginForm {
-    userName = ''
+    username = ''
     password = ''
 }
 

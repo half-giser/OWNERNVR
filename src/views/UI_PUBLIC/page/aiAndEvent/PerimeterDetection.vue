@@ -16,12 +16,10 @@
             v-title
             class="base-ai-menu-tabs"
         >
-            <div
-                v-if="pageData.notSupport"
-                class="base-ai-not-support-box"
-            >
-                {{ Translate('IDCS_CURRENT_INTEL_EVENT_UNSUPORT') }}
-            </div>
+            <AlarmBaseErrorPanel
+                v-show="pageData.notSupport"
+                type="not-support"
+            />
             <!-- tripwire -->
             <el-tab-pane
                 :disabled="!chlData.supportTripwire && !chlData.supportBackTripwire && !chlData.supportPeaTrigger"

@@ -55,6 +55,7 @@ export default defineComponent({
     }>,
     setup(prop) {
         const { Translate } = useLangStore()
+        const systemCaps = useCababilityStore()
 
         const pageData = ref({
             // 是否显示右侧视图
@@ -111,6 +112,10 @@ export default defineComponent({
             }
 
             if (!prop.supportAz) {
+                return false
+            }
+
+            if (systemCaps.hotStandBy) {
                 return false
             }
 

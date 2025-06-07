@@ -92,7 +92,7 @@
                     :label="Translate('IDCS_ADD_FACE_GROUP')"
                     prop="groupId"
                 >
-                    <el-select-v2
+                    <BaseSelect
                         v-model="formData.groupId"
                         :options="pageData.groupList"
                     />
@@ -109,7 +109,7 @@
                 class="no-padding"
             >
                 <el-form-item :label="Translate('IDCS_ADD_FACE_GROUP')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="formData.groupId"
                         :options="pageData.groupList"
                     />

@@ -13,13 +13,14 @@
             }"
         >
             <el-form-item :label="Translate('IDCS_DISK')">
-                <el-select-v2
+                <BaseSelect
                     v-model="pageData.diskIndex"
                     :options="pageData.diskList"
                     :props="{
                         value: 'index',
                         label: 'diskNum',
                     }"
+                    empty-text=""
                     @change="getDetail"
                 />
             </el-form-item>

@@ -15,10 +15,12 @@ import AsdPanel from './AsdPanel.vue'
 import HeatMapPanel from './HeatMapPanel.vue'
 import CrowdGatherPanel from './CrowdGatherPanel.vue'
 import BinocularCountPanel from './BinocularCountPanel.vue'
+import AlarmBaseErrorPanel from './AlarmBaseErrorPanel.vue'
 
 export default defineComponent({
     components: {
         AlarmBaseChannelSelector,
+        AlarmBaseErrorPanel,
         FireDetectionPanel,
         AreaStatisPanel,
         PassLinePanel,

@@ -575,7 +575,7 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
             sendData(data)
             clearTimeout(websocketTimer)
         } else {
-            websocketTimer = setTimeout(function () {
+            websocketTimer = setTimeout(() => {
                 p2pStart(data)
             }, 200)
         }

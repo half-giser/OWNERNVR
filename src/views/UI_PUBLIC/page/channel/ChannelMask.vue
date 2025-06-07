@@ -32,9 +32,10 @@
                 class="stripe odd"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="selectedChlId"
                         :options="chlOptions"
+                        :persistent="true"
                         @change="handleChlSel"
                     />
                 </el-form-item>
@@ -42,10 +43,11 @@
                     v-if="formData.isPtz"
                     :label="Translate('IDCS_PRESET')"
                 >
-                    <el-select-v2
+                    <BaseSelect
                         v-model="formData.preset"
                         :disabled="formData.disabled"
                         :options="formData.presetList"
+                        :persistent="true"
                         @change="playPreset(formData.id, formData.preset, 4)"
                     />
                     <BaseImgSprite
@@ -86,7 +88,7 @@
                     />
                     <el-table-column min-width="180">
                         <template #header>
-                            <el-dropdown>
+                            <BaseDropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_ENABLE') }}
                                 </BaseTableDropdownLink>
@@ -101,10 +103,10 @@
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
-                            </el-dropdown>
+                            </BaseDropdown>
                         </template>
                         <template #default="{ row }: TableColumn<ChannelPrivacyMaskDto>">
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="row.switch"
                                 :options="switchOptions"
                                 @change="changeMaskSwitch"
@@ -142,7 +144,7 @@
                     />
                     <el-table-column min-width="180">
                         <template #header>
-                            <el-dropdown>
+                            <BaseDropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_ENABLE') }}
                                 </BaseTableDropdownLink>
@@ -157,10 +159,10 @@
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
-                            </el-dropdown>
+                            </BaseDropdown>
                         </template>
                         <template #default="{ row }: TableColumn<ChannelMaskDto>">
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="row.switch"
                                 :disabled="row.disabled || !row.mask.length"
                                 :options="switchOptions"

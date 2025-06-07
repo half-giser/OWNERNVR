@@ -13,7 +13,7 @@
                 }"
             >
                 <el-form-item :label="Translate('IDCS_VIEW_WAY')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="pageData.viewOption"
                         :options="viewOptions"
                     />
@@ -56,6 +56,7 @@
                     :chl-name="chl.chlName"
                     :pic="chl.imgUrl"
                     :active="pageData.select?.chlId === chl.chlId"
+                    :show-time="false"
                     time=""
                     @click="handleSelect(chl)"
                     @dblclick="handleOpen()"

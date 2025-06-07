@@ -65,7 +65,7 @@
                     @click="lastPage"
                 />
             </div>
-            <el-select-v2
+            <BaseSelect
                 :model-value="pageSize"
                 :options="arrayToOptions(pageSizes)"
                 @update:model-value="changePageSize"

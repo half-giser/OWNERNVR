@@ -5,12 +5,7 @@
 -->
 <template>
     <div>
-        <div
-            v-if="pageData.reqFail"
-            class="base-ai-not-support-box"
-        >
-            {{ Translate('IDCS_QUERY_DATA_FAIL') }}
-        </div>
+        <AlarmBaseErrorPanel v-if="pageData.reqFail" />
         <div
             v-if="pageData.tab"
             class="base-btn-box flex-start padding collapse"
@@ -70,14 +65,15 @@
                             <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
                             <!-- 持续时间 -->
                             <el-form-item :label="Translate('IDCS_DURATION')">
-                                <el-select-v2
+                                <BaseSelect
                                     v-model="formData.holdTime"
                                     :options="formData.holdTimeList"
+                                    empty-text=""
                                 />
                             </el-form-item>
                             <!-- 温度单位 -->
                             <el-form-item :label="Translate('IDCS_TEMPERATURE_UNIT')">
-                                <el-select-v2
+                                <BaseSelect
                                     v-model="formData.tempUnits"
                                     :options="tempUnitsList"
                                     @change="changeTempUnits"
@@ -88,7 +84,7 @@
                                 v-if="formData.isShowDistance"
                                 :label="Translate('IDCS_DISTANCE_UNIT')"
                             >
-                                <el-select-v2
+                                <BaseSelect
                                     v-model="formData.distanceUnits"
                                     :options="distanceUnitList"
                                     @change="changeDistanceUnits"
@@ -180,7 +176,7 @@
                                     :label="Translate('IDCS_TYPE')"
                                 >
                                     <template #default="{ row }: TableColumn<AlarmTemperatureDetectionBoundryDto>">
-                                        <el-select-v2
+                                        <BaseSelect
                                             v-model="row.ruleType"
                                             :options="ruleShapeTypeList"
                                             @change="changeRuleType(row)"
@@ -251,7 +247,7 @@
                                     :label="Translate('IDCS_ALARM_RULES')"
                                 >
                                     <template #default="{ row }: TableColumn<AlarmTemperatureDetectionBoundryDto>">
-                                        <el-select-v2
+                                        <BaseSelect
                                             v-model="row.alarmRule"
                                             :options="getRuleTypeList(row.ruleType)"
                                         />
@@ -272,7 +268,7 @@
                                             @out-of-range="
                                                 blurValue(
                                                     formData.tempUnits === 'centigrade' ? row.alarmTemper.min : row.alarmTemper.fmin,
-                                                    formData.tempUnits === 'centigrade' ? row.alarmTemper.max : row.alarmTemper.fma,
+                                                    formData.tempUnits === 'centigrade' ? row.alarmTemper.max : row.alarmTemper.fmax,
                                                 )
                                             "
                                         />
@@ -295,7 +291,7 @@
                         v-title
                     >
                         <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="formData.sysAudio"
                                 :options="pageData.voiceList"
                             />
@@ -334,7 +330,7 @@
             </el-button>
         </div>
         <!-- 更多按钮 -->
-        <el-popover
+        <BasePopover
             v-model:visible="pageData.moreDropDown"
             width="400"
             popper-class="no-padding"
@@ -421,7 +417,7 @@
                     </div>
                 </el-form>
             </div>
-        </el-popover>
+        </BasePopover>
         <!-- 排程管理弹窗 -->
         <BaseScheduleManagePop
             v-model="pageData.isSchedulePop"

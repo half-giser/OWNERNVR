@@ -20,23 +20,22 @@
                 class="stripe"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select-v2
-                        v-if="tableData.length"
+                    <BaseSelect
                         v-model="pageData.tableIndex"
                         :options="chlOptions"
+                        :persistent="true"
+                        :disabled="!chlOptions.length"
+                        empty-text=""
                         @change="changeChl"
-                    />
-                    <el-select-v2
-                        v-else
-                        model-value=""
-                        :options="[]"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_FUNCTION')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="formData.type"
                         :options="pageData.typeOptions"
                         :disabled="!tableData.length"
+                        :persistent="true"
+                        empty-text=""
                         @change="changeType"
                     />
                 </el-form-item>
@@ -44,10 +43,12 @@
                     :label="Translate('IDCS_NAME')"
                     prop="editIndex"
                 >
-                    <el-select-v2
+                    <BaseSelect
                         v-model="formData.editIndex"
+                        :persistent="true"
                         :options="getNameOption(tableData[pageData.tableIndex], formData.type)"
                         :disabled="!tableData.length"
+                        empty-text=""
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_START_TIME')">
@@ -116,7 +117,7 @@
                                 />
                                 <el-table-column :label="Translate('IDCS_ENABLE')">
                                     <template #header>
-                                        <el-dropdown>
+                                        <BaseDropdown>
                                             <BaseTableDropdownLink>
                                                 {{ Translate('IDCS_ENABLE') }}
                                             </BaseTableDropdownLink>
@@ -127,7 +128,7 @@
                                                     </el-dropdown-item>
                                                 </el-dropdown-menu>
                                             </template>
-                                        </el-dropdown>
+                                        </BaseDropdown>
                                     </template>
                                     <template #default>
                                         {{ data.row.status ? Translate('IDCS_ON') : Translate('IDCS_OFF') }}
@@ -155,7 +156,7 @@
                                 </el-table-column>
                                 <el-table-column>
                                     <template #header>
-                                        <el-dropdown>
+                                        <BaseDropdown>
                                             <BaseTableDropdownLink>
                                                 {{ Translate('IDCS_OPERATION') }}
                                             </BaseTableDropdownLink>
@@ -164,7 +165,7 @@
                                                     <el-dropdown-item @click="deleteAllTask(data)">{{ Translate('IDCS_DELETE_ALL') }}</el-dropdown-item>
                                                 </el-dropdown-menu>
                                             </template>
-                                        </el-dropdown>
+                                        </BaseDropdown>
                                     </template>
                                     <template #default="{ row, $index }: TableColumn<ChannelPtzTaskDto>">
                                         <div class="base-cell-box">

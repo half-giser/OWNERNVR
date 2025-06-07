@@ -33,7 +33,7 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_VIDEO_FORMAT')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.videoFormat"
                     :options="pageData.videoFormatOption"
                     @change="hanelChangeVideoFormat"
@@ -52,7 +52,7 @@
                 :key
             >
                 <el-form-item :label="displayResolutionLabel(key)">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="formData.resolution[key]"
                         :disabled="getResolutionDisabled(key)"
                         :options="getResolutionOptions(key, item)"
@@ -68,7 +68,7 @@
                 </el-form-item>
             </template>
             <!-- 解码卡选项 -->
-            <!-- <template
+            <template
                 v-for="item in formData.decoderResolution"
                 :key="item.id"
             >
@@ -78,18 +78,18 @@
                         :key="decoder.index"
                         :label="displayDecoderLabel(item.id, decoder.index)"
                     >
-                        <el-select-v2
+                        <BaseSelect
                             v-model="decoder.value"
                             :options="pageData.decoderOptions[item.id][decoder.index]"
                         />
                     </el-form-item>
                 </template>
-            </template> -->
+            </template>
             <el-form-item
                 v-if="systemCaps.supportHdmiVgaSeparate"
                 :label="Translate('IDCS_OUTPUT_CONFIG')"
             >
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.outputConfig"
                     :options="pageData.outputConfigOption"
                     @change="handleChangeOutputConfig"
@@ -107,12 +107,6 @@
                     :label="Translate('IDCS_MOBILE_STREAM_ADAPTION')"
                 />
             </el-form-item>
-            <el-form-item v-if="systemCaps.supportZeroOprAdd">
-                <el-checkbox
-                    v-model="formData.zeroOrAddIpc"
-                    :label="Translate('IDCS_ENABLE_ZERO_CFG_ADD')"
-                />
-            </el-form-item>
             <el-form-item>
                 <el-checkbox
                     v-model="formData.enableAutoDwell"
@@ -120,18 +114,19 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_WAIT_TIME')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.waitTime"
                     :disabled="!formData.enableAutoDwell"
                     :options="pageData.waitTimeOption"
+                    empty-text=""
                 />
             </el-form-item>
-            <!-- <el-form-item v-if="pageData.isZeroOrAddIpc">
+            <el-form-item v-if="systemCaps.supportZeroOprAdd">
                 <el-checkbox
                     v-model="formData.zeroOrAddIpc"
-                    :label="Translate('IDCS_ZERO_OP_ADD_IPC')"
+                    :label="Translate('IDCS_ENABLE_ZERO_CFG_ADD')"
                 />
-            </el-form-item> -->
+            </el-form-item>
             <div class="base-btn-box">
                 <el-button @click="verify">{{ Translate('IDCS_APPLY') }}</el-button>
             </div>

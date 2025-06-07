@@ -5,12 +5,7 @@
 -->
 <template>
     <div>
-        <div
-            v-if="pageData.reqFail"
-            class="base-ai-not-support-box"
-        >
-            {{ Translate('IDCS_QUERY_DATA_FAIL') }}
-        </div>
+        <AlarmBaseErrorPanel v-if="pageData.reqFail" />
         <div v-if="pageData.tab">
             <!-- 检测开启及ai按钮 -->
             <div class="base-btn-box flex-start collapse padding">
@@ -43,7 +38,7 @@
                                 <div class="base-btn-box space-between">
                                     <div>
                                         <el-checkbox
-                                            v-show="pageData.showAllAreaVisible"
+                                            v-show="formData.maskAreaInfo.length > 1"
                                             v-model="pageData.isShowAllArea"
                                             :label="Translate('IDCS_DISPLAY_ALL_AREA')"
                                             @change="toggleShowAllArea"
@@ -52,7 +47,7 @@
                                     <div>
                                         <el-button @click="clearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
                                         <el-button
-                                            v-if="pageData.clearAllVisible"
+                                            v-show="formData.maskAreaInfo.length > 1"
                                             @click="clearAllArea"
                                         >
                                             {{ Translate('IDCS_FACE_CLEAR_ALL') }}
@@ -80,9 +75,10 @@
                                 </div>
                                 <!-- 持续时间 -->
                                 <el-form-item :label="Translate('IDCS_DURATION')">
-                                    <el-select-v2
+                                    <BaseSelect
                                         v-model="formData.holdTime"
                                         :options="formData.holdTimeList"
+                                        empty-text=""
                                     />
                                 </el-form-item>
                                 <!-- 触发报警条件 -->
@@ -90,7 +86,7 @@
                                     v-if="formData.fireAlarmMode"
                                     :label="Translate('IDCS_FIRE_TRIGGER_ALARM_CONDITION')"
                                 >
-                                    <el-select-v2
+                                    <BaseSelect
                                         v-model="formData.fireAlarmMode"
                                         :options="formData.fireAlarmModeList"
                                     />
@@ -153,7 +149,7 @@
                         v-title
                     >
                         <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="formData.sysAudio"
                                 :options="voiceList"
                             />

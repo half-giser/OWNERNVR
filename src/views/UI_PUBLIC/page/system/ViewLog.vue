@@ -78,7 +78,7 @@
                     prop="subType"
                 >
                     <template #header>
-                        <el-popover
+                        <BasePopover
                             popper-class="no-padding"
                             width="fit-content"
                         >
@@ -101,7 +101,7 @@
                                     />
                                 </el-checkbox-group>
                             </el-scrollbar>
-                        </el-popover>
+                        </BasePopover>
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -184,10 +184,11 @@
 .detail-info {
     width: 100%;
     display: flex;
+    align-items: center;
 
     div {
         width: 100%;
-        height: 23px;
+        height: 46px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;

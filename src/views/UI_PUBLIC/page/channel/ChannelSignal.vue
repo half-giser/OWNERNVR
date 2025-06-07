@@ -24,7 +24,7 @@
                     min-width="220"
                 >
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_ANALOG_IP') }}
                             </BaseTableDropdownLink>
@@ -39,10 +39,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<ChannelSignalDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.analogIp"
                             :options="analogIpOptions"
                             @change="handleAnalogIpChange(row)"
@@ -54,7 +54,7 @@
                     min-width="220"
                 >
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SIGNAL') }}
                             </BaseTableDropdownLink>
@@ -83,10 +83,10 @@
                                     </template>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<ChannelSignalDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-if="row.showSignal"
                             v-model="row.signal"
                             :options="chlSupSignalTypeList"
@@ -103,7 +103,7 @@
                     min-width="220"
                 >
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SUPPORT_LITE') }}
                             </BaseTableDropdownLink>
@@ -118,10 +118,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<ChannelSignalDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-if="row.showLite"
                             v-model="row.lite"
                             :options="switchOptions"

@@ -8,7 +8,7 @@ import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
 import IntelBaseProfileSelector from './IntelBaseProfileSelector.vue'
 import IntelBasePlateColorPop from './IntelBasePlateColorPop.vue'
 import IntelBaseSnapItem from './IntelBaseSnapItem.vue'
-import IntelSearchDetail from './IntelSearchDetail.vue'
+import IntelSearchDetailPanel from './IntelSearchDetailPanel.vue'
 import IntelSearchBackupPop, { type IntelSearchBackUpExpose } from './IntelSearchBackupPop.vue'
 import IntelLicencePlateDBAddPlatePop from './IntelLicencePlateDBAddPlatePop.vue'
 import { type CheckboxValueType } from 'element-plus'
@@ -20,7 +20,7 @@ export default defineComponent({
         IntelBaseProfileSelector,
         IntelBasePlateColorPop,
         IntelBaseSnapItem,
-        IntelSearchDetail,
+        IntelSearchDetailPanel,
         IntelSearchBackupPop,
         IntelLicencePlateDBAddPlatePop,
     },
@@ -194,7 +194,7 @@ export default defineComponent({
                     <chls type="list">${pageData.value.chlIdList.map((item) => `<item id="${item}"></item>`).join('')}</chls>
                     ${
                         pageData.value.searchType !== 'byPlateNumber'
-                            ? ` <byAttrParams>
+                            ? rawXml`<byAttrParams>
                                     <attrs type="list">
                                     ${currAttrObjToList
                                         .map((element) => {
@@ -204,9 +204,7 @@ export default defineComponent({
                                                     <attrValues type="list">
                                                         ${element.attrValue
                                                             .map((attr) => {
-                                                                return rawXml`
-                                                                    <item>${attr}</item>
-                                                                `
+                                                                return `<item>${attr}</item>`
                                                             })
                                                             .join('')}
                                                     </attrValues>
@@ -220,7 +218,7 @@ export default defineComponent({
                     }
                     ${
                         pageData.value.searchType === 'byPlateNumber'
-                            ? ` <byPlateParams>
+                            ? rawXml`<byPlateParams>
                                     <licencePlate>${pageData.value.plateNumber}</licencePlate>
                                     <attrs type="list">
                                         <item>
@@ -228,9 +226,7 @@ export default defineComponent({
                                             <attrValues type="list">
                                                 ${pageData.value.plateColors
                                                     .map((color) => {
-                                                        return rawXml`
-                                                            <item>${color}</item>
-                                                        `
+                                                        return `<item>${color}</item>`
                                                     })
                                                     .join('')}
                                             </attrValues>
@@ -941,6 +937,16 @@ export default defineComponent({
          */
         const switchDetail = () => {
             pageData.value.isDetailOpen = !pageData.value.isDetailOpen
+
+            if (pageData.value.isDetailOpen) {
+                const list = getCurrTargetDatas()
+                const find = list.find((item) => item.index === openDetailIndex.value)
+                if (find) {
+                    showDetail(find)
+                } else if (list.length) {
+                    showDetail(list[0])
+                }
+            }
         }
 
         /**

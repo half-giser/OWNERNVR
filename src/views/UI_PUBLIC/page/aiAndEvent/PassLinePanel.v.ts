@@ -10,6 +10,7 @@ import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
 import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
 import AlarmBasePresetSelector from './AlarmBasePresetSelector.vue'
 import AlarmBaseIPSpeakerSelector from './AlarmBaseIPSpeakerSelector.vue'
+import AlarmBaseErrorPanel from './AlarmBaseErrorPanel.vue'
 
 export default defineComponent({
     components: {
@@ -19,6 +20,7 @@ export default defineComponent({
         AlarmBaseTriggerSelector,
         AlarmBasePresetSelector,
         AlarmBaseIPSpeakerSelector,
+        AlarmBaseErrorPanel,
     },
     props: {
         /**
@@ -87,6 +89,13 @@ export default defineComponent({
             person: Translate('IDCS_DETECTION_PERSON'),
             car: Translate('IDCS_DETECTION_VEHICLE'),
             motor: Translate('IDCS_NON_VEHICLE'),
+        }
+
+        const noneOSD = {
+            switch: false,
+            X: 0,
+            Y: 0,
+            osdFormat: '',
         }
 
         const pageData = ref({
@@ -451,27 +460,20 @@ export default defineComponent({
             if (pageData.value.tab === 'param') {
                 if (props.chlData.supportPassLine) {
                     if (mode.value === 'h5') {
-                        setPassLineOcxData()
                         passLineDrawer.setEnable('line', true)
                         passLineDrawer.setEnable('osd', false)
                         passLineDrawer.setOSD(formData.value.countOSD)
                     }
 
                     if (mode.value === 'ocx') {
-                        setTimeout(() => {
-                            const alarmLine = pageData.value.surfaceIndex
-                            const plugin = playerRef.value!.plugin
+                        const sendXML2 = OCX_XML_SetTripwireLineAction('EDIT_ON')
+                        plugin.ExecuteCmd(sendXML2)
 
-                            const sendXML1 = OCX_XML_SetTripwireLine(formData.value.line[alarmLine])
-                            plugin.ExecuteCmd(sendXML1)
-
-                            const sendXML2 = OCX_XML_SetTripwireLineAction('EDIT_ON')
-                            plugin.ExecuteCmd(sendXML2)
-
-                            const sendXML3 = OCX_XML_SetTripwireLineInfo(formData.value.countOSD)
-                            plugin.ExecuteCmd(sendXML3)
-                        }, 100)
+                        const sendXML3 = OCX_XML_SetTripwireLineInfo(noneOSD)
+                        plugin.ExecuteCmd(sendXML3)
                     }
+
+                    setPassLineOcxData()
                 } else if (props.chlData.supportCpc) {
                     setCpcOcxData()
                     cpcDrawer.setEnable(true)
@@ -487,16 +489,14 @@ export default defineComponent({
                     }
 
                     if (mode.value === 'ocx') {
-                        setTimeout(() => {
-                            const sendXML1 = OCX_XML_SetTripwireLineAction('NONE')
-                            plugin.ExecuteCmd(sendXML1)
+                        const sendXML1 = OCX_XML_SetTripwireLineAction('NONE')
+                        plugin.ExecuteCmd(sendXML1)
 
-                            const sendXML2 = OCX_XML_SetTripwireLineAction('EDIT_OFF')
-                            plugin.ExecuteCmd(sendXML2)
+                        const sendXML2 = OCX_XML_SetTripwireLineAction('EDIT_OFF')
+                        plugin.ExecuteCmd(sendXML2)
 
-                            const sendXML3 = OCX_XML_SetTripwireLineInfo(formData.value.countOSD)
-                            plugin.ExecuteCmd(sendXML3)
-                        }, 100)
+                        const sendXML3 = OCX_XML_SetTripwireLineInfo(formData.value.countOSD)
+                        plugin.ExecuteCmd(sendXML3)
                     }
                 } else if (props.chlData.supportCpc) {
                     cpcDrawer.clear()
@@ -967,26 +967,29 @@ export default defineComponent({
                                 <switch>${formData.value.countOSD.switch}</switch>
                                 <X>${Math.round(formData.value.countOSD.X)}</X>
                                 <Y>${Math.round(formData.value.countOSD.Y)}</Y>
-                            ${
-                                formData.value.countOSD.supportOsdEntranceName
-                                    ? `<showEnterOsd>${formData.value.countOSD.showEnterOsd}</showEnterOsd>
-                                <osdEntranceName>${formData.value.countOSD.osdEntranceName}</osdEntranceName>`
-                                    : ''
-                            }
-                             ${
-                                 formData.value.countOSD.supportOsdExitName
-                                     ? `<showExitOsd>${formData.value.countOSD.showExitOsd}</showExitOsd>
-                                <osdExitName>${formData.value.countOSD.osdExitName}</osdExitName>`
-                                     : ''
-                             }
-                             ${
-                                 formData.value.countOSD.supportOsdStayName
-                                     ? `<showStayOsd>${formData.value.countOSD.showStayOsd}</showStayOsd>
-                                <osdStayName>${formData.value.countOSD.osdStayName}</osdStayName>`
-                                     : ''
-                             }
-                             ${formData.value.countOSD.supportOsdAlarmName ? `<osdAlarmName>${formData.value.countOSD.osdAlarmName}</osdAlarmName>` : ''}
-                             ${formData.value.countOSD.supportOsdWelcomeName ? `<osdWelcomeName>${formData.value.countOSD.osdWelcomeName}</osdWelcomeName>` : ''}
+                                ${
+                                    formData.value.countOSD.supportOsdEntranceName
+                                        ? rawXml`
+                                            <showEnterOsd>${formData.value.countOSD.showEnterOsd}</showEnterOsd>
+                                            <osdEntranceName>${formData.value.countOSD.osdEntranceName}</osdEntranceName>`
+                                        : ''
+                                }
+                                ${
+                                    formData.value.countOSD.supportOsdExitName
+                                        ? rawXml`
+                                            <showExitOsd>${formData.value.countOSD.showExitOsd}</showExitOsd>
+                                            <osdExitName>${formData.value.countOSD.osdExitName}</osdExitName>`
+                                        : ''
+                                }
+                                ${
+                                    formData.value.countOSD.supportOsdStayName
+                                        ? rawXml`
+                                            <showStayOsd>${formData.value.countOSD.showStayOsd}</showStayOsd>
+                                            <osdStayName>${formData.value.countOSD.osdStayName}</osdStayName>`
+                                        : ''
+                                }
+                                ${formData.value.countOSD.supportOsdAlarmName ? `<osdAlarmName>${formData.value.countOSD.osdAlarmName}</osdAlarmName>` : ''}
+                                ${formData.value.countOSD.supportOsdWelcomeName ? `<osdWelcomeName>${formData.value.countOSD.osdWelcomeName}</osdWelcomeName>` : ''}
                             </countOSD>
                             ${formData.value.audioSuport && props.chlData.supportAudio ? `<triggerAudio>${formData.value.trigger.includes('triggerAudio')}</triggerAudio>` : ''}
                             ${formData.value.lightSuport && props.chlData.supportWhiteLight ? `<triggerWhiteLight>${formData.value.trigger.includes('triggerWhiteLight')}</triggerWhiteLight>` : ''}
@@ -1017,10 +1020,10 @@ export default defineComponent({
                             </line>
                             ${setParamObjectFilterData()}
                         </param>
-                       <trigger>
+                        <trigger>
                             <sysRec>
                                 <chls type="list">
-                                    ${formData.value.recordChls.map((element: { value: any; label: string }) => `<item id="${element.value}">${wrapCDATA(element.label)}</item>`).join('')}
+                                    ${formData.value.recordChls.map((element) => `<item id="${element.value}">${wrapCDATA(element.label)}</item>`).join('')}
                                 </chls>
                             </sysRec>
                             <alarmOut>
@@ -1033,11 +1036,11 @@ export default defineComponent({
                                     ${formData.value.presets
                                         .map((item) => {
                                             return rawXml`
-                                            <item>
-                                                <index>${item.index}</index>
-                                                <name>${wrapCDATA(item.name)}</name>
-                                                <chl id='${item.chl.value}'>${wrapCDATA(item.chl.label)}</chl>
-                                            </item>`
+                                                <item>
+                                                    <index>${item.index}</index>
+                                                    <name>${wrapCDATA(item.name)}</name>
+                                                    <chl id='${item.chl.value}'>${wrapCDATA(item.chl.label)}</chl>
+                                                </item>`
                                         })
                                         .join('')}
                                 </presets>
@@ -1046,7 +1049,7 @@ export default defineComponent({
                                 <chls type="list">
                                 ${formData.value.ipSpeaker
                                     .map((item) => {
-                                        return rawXml`<item id='${item.ipSpeakerId}' audioID='${item.audioID}'/>`
+                                        return `<item id='${item.ipSpeakerId}' audioID='${item.audioID}'/>`
                                     })
                                     .join('')}
                                 </chls>
@@ -1317,17 +1320,21 @@ export default defineComponent({
                     const areaList = [1, 2]
                     const sendXMLClear = OCX_XML_DeleteRectangleArea(areaList)
                     plugin.ExecuteCmd(sendXMLClear)
-                    const minRegionForPlugin = cloneDeep(minRegionInfo.region[0])
-                    minRegionForPlugin.ID = 1
-                    minRegionForPlugin.text = 'Min'
-                    minRegionForPlugin.LineColor = 'yellow'
-                    const maxRegionForPlugin = cloneDeep(maxRegionInfo.region[0])
-                    maxRegionForPlugin.ID = 2
-                    maxRegionForPlugin.text = 'Max'
-                    maxRegionForPlugin.LineColor = 'yellow'
-                    const rectangles = []
-                    rectangles.push(minRegionForPlugin)
-                    rectangles.push(maxRegionForPlugin)
+
+                    const rectangles = [
+                        {
+                            ...minRegionInfo.region[0],
+                            ID: 1,
+                            text: 'Min',
+                            LineColor: 'yellow',
+                        },
+                        {
+                            ...maxRegionInfo.region[0],
+                            ID: 2,
+                            text: 'Max',
+                            LineColor: 'yellow',
+                        },
+                    ]
                     const sendXML = OCX_XML_AddRectangleArea(rectangles)
                     plugin.ExecuteCmd(sendXML)
                 }
@@ -1449,18 +1456,6 @@ export default defineComponent({
 
                 if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_SetTripwireLine(line)
-                    plugin.ExecuteCmd(sendXML)
-                }
-            }
-
-            if (formData.value.countOSD.switch) {
-                if (mode.value === 'h5') {
-                    passLineDrawer.setEnable('osd', true)
-                    passLineDrawer.setOSD(formData.value.countOSD)
-                }
-
-                if (mode.value === 'ocx') {
-                    const sendXML = OCX_XML_SetTripwireLineInfo(formData.value.countOSD)
                     plugin.ExecuteCmd(sendXML)
                 }
             }

@@ -28,9 +28,10 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_BAUD_RATE')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.baudrate"
                     :options="baudRateTypeList"
+                    empty-text=""
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_ADDRESS')">
@@ -41,7 +42,7 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_PROTOCOL')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.protocol"
                     :options="protocolTypeList"
                 />
@@ -50,7 +51,7 @@
                 v-if="formData.protocol !== 'CUSTOMIZE'"
                 :label="Translate('IDCS_CONTROL')"
             >
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.operate"
                     :options="operateTypeList"
                 />

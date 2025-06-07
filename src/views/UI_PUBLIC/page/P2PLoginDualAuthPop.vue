@@ -5,11 +5,11 @@
 -->
 <template>
     <el-dialog
+        :model-value="visible"
         :title="Translate('IDCS_DOUBLE_VERIFICATION_USER')"
         width="470"
-        @open="open"
-        @close="close"
-        @closed="formRef?.resetFields()"
+        :show-close="false"
+        @closed="close"
     >
         <el-form
             ref="formRef"
@@ -19,10 +19,10 @@
             class="stripe"
         >
             <el-form-item
-                prop="userName"
+                prop="username"
                 :label="Translate('IDCS_USER_NAME')"
             >
-                <el-input v-model="formData.userName" />
+                <el-input v-model="formData.username" />
             </el-form-item>
             <el-form-item
                 prop="password"
@@ -36,9 +36,9 @@
         </div>
         <div class="base-btn-box">
             <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
-            <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+            <el-button @click="destroy">{{ Translate('IDCS_CANCEL') }}</el-button>
         </div>
     </el-dialog>
 </template>
 
-<script src="./P2PLoginDualAuth.v.ts" lang="ts"></script>
+<script src="./P2PLoginDualAuthPop.v.ts" lang="ts"></script>

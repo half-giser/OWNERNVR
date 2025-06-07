@@ -5,6 +5,7 @@
 -->
 <template>
     <el-time-picker
+        ref="$picker"
         :model-value="modelValue"
         :value-format="unit === 'second' ? 'HH:mm:ss' : 'HH:mm'"
         :format="unit === 'second' ? dateTime.timeFormat : dateTime.hourMinuteFormat"
@@ -15,6 +16,7 @@
         :teleported
         @update:model-value="update"
         @change="change"
+        @visible-change="handleVisibleChange"
     />
 </template>
 
@@ -48,7 +50,7 @@ const props = withDefaults(
     }>(),
     {
         unit: 'second',
-        isRange: false,
+        // isRange: false,
         disabled: false,
         range: () => [null, null],
         teleported: true,
@@ -57,10 +59,13 @@ const props = withDefaults(
 
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string): void
+    (e: 'visibleChange', bool: boolean): void
     (e: 'change', value: string): void
 }>()
 
 const dateTime = useDateTimeStore()
+const popperObserver = usePopperObserver()
+const $picker = ref()
 
 /**
  * @description 时间值改变
@@ -164,4 +169,37 @@ const disabledSeconds = (hour: number, minute: number) => {
 
     return []
 }
+
+const handleOpen = () => {
+    $picker.value?.handleOpen()
+}
+
+const handleClose = () => {
+    $picker.value?.handleClose()
+}
+
+const hide = popperObserver.observe(handleClose, 'el-picker__popper')
+
+const expose = {
+    handleOpen,
+    handleClose,
+}
+
+export type BaseTimePickerReturnsType = typeof expose
+
+defineExpose(expose)
+
+const handleVisibleChange = (bool: boolean) => {
+    if (bool) {
+        popperObserver.addListener(hide)
+    } else {
+        popperObserver.removeListener(hide)
+    }
+
+    emits('visibleChange', bool)
+}
+
+onBeforeUnmount(() => {
+    popperObserver.removeListener(hide)
+})
 </script>

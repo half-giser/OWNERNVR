@@ -17,31 +17,23 @@
                 class="stripe"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select-v2
-                        v-if="tableData.length"
+                    <BaseSelect
                         v-model="pageData.tableIndex"
                         :options="chlOptions"
+                        :persistent="true"
+                        :disabled="!chlOptions.length"
+                        empty-text=""
                         @change="changeChl"
-                    />
-                    <el-select-v2
-                        v-else
-                        model-value=""
-                        :options="[]"
-                        disabled
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_PROTOCOL')">
-                    <el-select-v2
-                        v-if="tableData[pageData.tableIndex]"
-                        v-model="tableData[pageData.tableIndex].protocol"
-                        :disabled="tableData[pageData.tableIndex].disabled"
-                        :options="tableData[pageData.tableIndex].protocolOptions"
-                    />
-                    <el-select-v2
-                        v-else
-                        model-value=""
-                        :options="[]"
-                        disabled
+                    <BaseSelect
+                        :model-value="tableData[pageData.tableIndex]?.protocol || ''"
+                        :disabled="!tableData[pageData.tableIndex] || tableData[pageData.tableIndex].disabled"
+                        :options="tableData[pageData.tableIndex]?.protocolOptions || []"
+                        :persistent="true"
+                        empty-text=""
+                        @update:model-value="tableData[pageData.tableIndex].protocol = $event"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ADDRESS')">
@@ -59,17 +51,13 @@
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_BAUD_RATE')">
-                    <el-select-v2
-                        v-if="tableData[pageData.tableIndex]"
-                        v-model="tableData[pageData.tableIndex].baudRate"
-                        :disabled="tableData[pageData.tableIndex].disabled"
-                        :options="tableData[pageData.tableIndex].baudRateOptions"
-                    />
-                    <el-select-v2
-                        v-else
-                        model-value=""
-                        :options="[]"
-                        disabled
+                    <BaseSelect
+                        :model-value="tableData[pageData.tableIndex]?.baudRate || ''"
+                        :disabled="!tableData[pageData.tableIndex] || tableData[pageData.tableIndex].disabled"
+                        :options="tableData[pageData.tableIndex]?.baudRateOptions || []"
+                        :persistent="true"
+                        empty-text=""
+                        @update:model-value="tableData[pageData.tableIndex].baudRate = $event"
                     />
                 </el-form-item>
             </el-form>
@@ -100,7 +88,7 @@
                     />
                     <el-table-column :label="Translate('IDCS_PROTOCOL')">
                         <template #default="{ row }: TableColumn<ChannelPtzProtocolDto>">
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="row.protocol"
                                 :disabled="row.disabled"
                                 :options="row.protocolOptions"
@@ -119,7 +107,7 @@
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_BAUD_RATE')">
                         <template #default="{ row }: TableColumn<ChannelPtzProtocolDto>">
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="row.baudRate"
                                 :disabled="row.disabled"
                                 :options="row.baudRateOptions"

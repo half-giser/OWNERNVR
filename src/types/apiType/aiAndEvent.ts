@@ -69,9 +69,6 @@ export class AlarmWhiteLightDto extends TableRowStatus {
     enable = false
     durationTime = 0
     frequencyType = ''
-    // enableDisable = true
-    // durationTimeDisable = false
-    // frequencyTypeDisable = false
 }
 
 /**
@@ -660,7 +657,7 @@ export class AlarmTripwireDto {
         endPoint: { X: number; Y: number }
     }[] = []
     // 检测目标列表
-    detectTargetList: SelectOption<string, string>[] = []
+    detectTargetList: SelectOption<AlarmDetectTarget, string>[] = []
     // 检测目标
     detectTarget: AlarmDetectTarget = 'person'
     // 方向
@@ -731,7 +728,7 @@ export class AlarmObjectFilterCfgDto {
  */
 export class AlarmTargetCfgDto {
     supportAlarmThreshold = false
-    stayAlarmThreshold? = new AlarmNumberInputDto()
+    stayAlarmThreshold = new AlarmNumberInputDto()
     // 是否支持配置灵敏度
     supportSensitivity = false
     // 是否支持配置灵敏度开关
@@ -797,7 +794,7 @@ export class AlarmLoiterDto {
     // 持续时间列表
     holdTimeList: SelectOption<number, string>[] = []
     // 检测目标列表
-    detectTargetList: SelectOption<string, string>[] = []
+    detectTargetList: SelectOption<AlarmDetectTarget, string>[] = []
     // 检测目标
     detectTarget: AlarmDetectTarget = 'person'
     // 是否支持配置时间阈值
@@ -1225,7 +1222,7 @@ export class AlarmPassLinesDto {
     // 方向列表
     directionList: SelectOption<string, string>[] = []
     // 检测目标列表
-    detectTargetList: SelectOption<string, string>[] = []
+    detectTargetList: SelectOption<AlarmDetectTarget, string>[] = []
     // 检测目标
     detectTarget: AlarmDetectTarget = 'person'
     // 是否支持配置时间阈值
@@ -1600,7 +1597,7 @@ export class AlarmVideoStructureDto {
     saveSourcePicture = false
     saveTargetPicture = false
     // 检测目标列表
-    detectTargetList: SelectOption<string, string>[] = []
+    detectTargetList: SelectOption<AlarmDetectTarget, string>[] = []
     // 检测目标
     detectTarget: AlarmDetectTarget = 'person'
     // 屏蔽区域
@@ -1767,4 +1764,14 @@ export class AlarmTriggerWhiteLightPopDto {
         switch: false,
         chls: [] as SelectOption<string, string>[],
     }
+}
+
+export class AlarmDetectTargetDto {
+    chlId = ''
+    chlName = ''
+    workMode = ''
+    enable = false
+    online = false
+    front: boolean[] = []
+    back: boolean[] = []
 }

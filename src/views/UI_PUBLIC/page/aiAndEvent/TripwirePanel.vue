@@ -5,12 +5,7 @@
 -->
 <template>
     <div>
-        <div
-            v-if="pageData.reqFail"
-            class="base-ai-not-support-box"
-        >
-            {{ Translate('IDCS_QUERY_DATA_FAIL') }}
-        </div>
+        <AlarmBaseErrorPanel v-if="pageData.reqFail" />
         <div v-if="pageData.tab">
             <!-- nvr/ipc检测开启及ai按钮 -->
             <div
@@ -45,7 +40,7 @@
                     <div class="base-btn-box space-between">
                         <div>
                             <el-checkbox
-                                v-if="pageData.showAllAreaVisible"
+                                v-if="formData.lineInfo.length > 1"
                                 v-model="pageData.isShowAllArea"
                                 :label="Translate('IDCS_DISPLAY_ALL_AREA')"
                                 @change="toggleShowAllArea"
@@ -54,7 +49,7 @@
                         <div>
                             <el-button @click="clearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
                             <el-button
-                                v-if="pageData.clearAllVisible"
+                                v-if="formData.lineInfo.length > 1"
                                 @click="clearAllArea"
                             >
                                 {{ Translate('IDCS_FACE_CLEAR_ALL') }}
@@ -93,9 +88,10 @@
                                 </el-form-item>
                                 <!-- 持续时间 -->
                                 <el-form-item :label="Translate('IDCS_DURATION')">
-                                    <el-select-v2
+                                    <BaseSelect
                                         v-model="formData.holdTime"
                                         :options="formData.holdTimeList"
+                                        empty-text=""
                                     />
                                 </el-form-item>
                                 <!-- 警戒面 -->
@@ -120,7 +116,7 @@
                                     <!-- 方向 -->
                                     <div :class="pageData.objectFilterMode === 'mode2' ? 'rectangleBorder' : ''">
                                         <el-form-item :label="Translate('IDCS_DIRECTION')">
-                                            <el-select-v2
+                                            <BaseSelect
                                                 v-model="formData.direction"
                                                 :options="formData.directionList"
                                                 @change="changeDirection"
@@ -138,9 +134,10 @@
                                             v-if="formData.detectTargetList.length"
                                             :label="Translate('IDCS_TARGET')"
                                         >
-                                            <el-select-v2
+                                            <BaseSelect
                                                 v-model="formData.detectTarget"
                                                 :options="formData.detectTargetList"
+                                                empty-text=""
                                                 @change="showDisplayRange"
                                             />
                                         </el-form-item>
@@ -345,7 +342,7 @@
                         <div>
                             <el-form v-if="pageData.supportAlarmAudioConfig">
                                 <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
-                                    <el-select-v2
+                                    <BaseSelect
                                         v-model="formData.sysAudio"
                                         :options="voiceList"
                                     />
@@ -382,7 +379,7 @@
                     </el-button>
                 </div>
                 <!-- 更多按钮 -->
-                <el-popover
+                <BasePopover
                     v-model:visible="pageData.moreDropDown"
                     width="300"
                     popper-class="no-padding"
@@ -421,7 +418,7 @@
                             </div>
                         </el-form>
                     </div>
-                </el-popover>
+                </BasePopover>
             </div>
         </div>
         <BaseScheduleManagePop

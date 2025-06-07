@@ -83,7 +83,7 @@
                     width="100"
                 >
                     <template #header>
-                        <el-dropdown :disabled="!pageData.switch">
+                        <BaseDropdown :disabled="!pageData.switch">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_DELETE') }}
                             </BaseTableDropdownLink>
@@ -94,7 +94,7 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<SystemRS485Dto>">
                         <BaseImgSpriteBtn

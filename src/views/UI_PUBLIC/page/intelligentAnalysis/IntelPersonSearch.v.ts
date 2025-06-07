@@ -9,7 +9,7 @@ import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
 import IntelBaseProfileSelector from './IntelBaseProfileSelector.vue'
 import IntelFaceSearchChooseFacePop from './IntelFaceSearchChooseFacePop.vue'
 import IntelBaseSnapItem from './IntelBaseSnapItem.vue'
-import IntelSearchDetail from './IntelSearchDetail.vue'
+import IntelSearchDetailPanel from './IntelSearchDetailPanel.vue'
 import IntelSearchBackupPop, { type IntelSearchBackUpExpose } from './IntelSearchBackupPop.vue'
 import IntelFaceDBSnapRegisterPop from './IntelFaceDBSnapRegisterPop.vue'
 import { type CheckboxValueType } from 'element-plus'
@@ -22,7 +22,7 @@ export default defineComponent({
         IntelBaseProfileSelector,
         IntelFaceSearchChooseFacePop,
         IntelBaseSnapItem,
-        IntelSearchDetail,
+        IntelSearchDetailPanel,
         IntelSearchBackupPop,
         IntelFaceDBSnapRegisterPop,
     },
@@ -215,7 +215,7 @@ export default defineComponent({
                     <chls type="list">${pageData.value.chlIdList.map((item) => `<item id="${item}"></item>`).join('')}</chls>
                     ${
                         pageData.value.searchType === 'byPersonAttribute'
-                            ? ` <byAttrParams>
+                            ? rawXml`<byAttrParams>
                                     <attrs type="list">
                                     ${currAttrObjToList
                                         .map((element) => {
@@ -232,7 +232,7 @@ export default defineComponent({
                                                             .join('')}
                                                     </attrValues>
                                                 </item>
-                                                `
+                                            `
                                         })
                                         .join('')}
                                     </attrs>
@@ -241,7 +241,7 @@ export default defineComponent({
                     }
                     ${
                         currPicCacheList.length > 0
-                            ? ` <byPicParams>
+                            ? rawXml`<byPicParams>
                                     <similarity>${pageData.value.searchType === 'byFace' ? pageData.value.similarityForFace : pageData.value.similarityForBody}</similarity>
                                     <picInfos type="list">
                                     ${currPicCacheList
@@ -879,23 +879,6 @@ export default defineComponent({
         }
 
         /**
-         * @description 获取当前界面的排序下拉框引用
-         */
-        // const getCurrDropdownRef = () => {
-        //     switch (pageData.value.searchType) {
-        //         case 'byFace':
-        //             return faceSortDropdown
-        //         case 'byBody':
-        //             return bodySortDropdown
-        //         case 'byPersonAttribute':
-        //             return personAttributeSortDropdown
-        //         default:
-        //             // 返回空的引用
-        //             return ref()
-        //     }
-        // }
-
-        /**
          * @description 打开图片选择弹框
          */
         const openChoosePicPop = () => {
@@ -931,7 +914,6 @@ export default defineComponent({
         const chooseFace = (e: IntelFaceDBFaceInfo[]) => {
             pageData.value.picType = 'face'
             pageData.value.featureFace = e
-            console.log(pageData.value.featureFace)
             setCurrPicCacheList(e)
         }
 
@@ -979,8 +961,6 @@ export default defineComponent({
          * @description 手动排序: 时间排序、通道排序、相似度排序
          */
         const handleSort = (sortType: string) => {
-            // const dropdownRef = getCurrDropdownRef()
-            // dropdownRef.value?.handleClose()
             if (sortType === 'time') {
                 if (pageData.value.sortType === 'time') {
                     // 时间排序升序降序切换
@@ -1271,7 +1251,35 @@ export default defineComponent({
          */
         const switchDetail = () => {
             pageData.value.isDetailOpen = !pageData.value.isDetailOpen
+
+            if (pageData.value.isDetailOpen) {
+                const list = getCurrTargetDatas()
+                if (pageData.value.isTrail) {
+                    if (list.length) {
+                        showDetail(list[0])
+                    }
+                } else {
+                    const find = list.find((item) => item.index === openDetailIndex.value)
+                    if (find) {
+                        showDetail(find)
+                    } else if (list.length) {
+                        showDetail(list[0])
+                    }
+                }
+            }
         }
+
+        watch(
+            () => pageData.value.isTrail,
+            (trail) => {
+                if (trail && pageData.value.isDetailOpen) {
+                    const list = getCurrTargetDatas()
+                    if (list.length) {
+                        showDetail(list[0])
+                    }
+                }
+            },
+        )
 
         /**
          * @description 打开详情
@@ -1553,7 +1561,7 @@ export default defineComponent({
             if (item.pic) {
                 const img = new Image()
                 img.src = item.pic
-                img.onload = function () {
+                img.onload = () => {
                     item.picWidth = img.width
                     item.picHeight = img.height
                 }
@@ -1610,6 +1618,10 @@ export default defineComponent({
             return pageData.value.targetIndexDatasForFace.toSorted((a, b) => a.timeStamp - b.timeStamp).map((item) => item.chlID)
         })
 
+        const changeSearchType = () => {
+            pageData.value.listType = 'snap'
+        }
+
         // 单张人脸才可显示轨迹
         watchEffect(() => {
             pageData.value.isTrail = pageData.value.listType === 'track'
@@ -1654,6 +1666,7 @@ export default defineComponent({
             setCurrPageIndex,
             getCurrPageIndex,
             getCurrTargetIndexDatas,
+            changeSearchType,
         }
     },
 })

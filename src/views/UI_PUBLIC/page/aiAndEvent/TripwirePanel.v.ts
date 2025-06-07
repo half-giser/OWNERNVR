@@ -11,6 +11,7 @@ import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
 import AlarmBasePresetSelector from './AlarmBasePresetSelector.vue'
 import AlarmBaseIPSpeakerSelector from './AlarmBaseIPSpeakerSelector.vue'
 import AlarmBaseResourceData from './AlarmBaseResourceData.vue'
+import AlarmBaseErrorPanel from './AlarmBaseErrorPanel.vue'
 
 export default defineComponent({
     components: {
@@ -21,6 +22,7 @@ export default defineComponent({
         AlarmBasePresetSelector,
         AlarmBaseIPSpeakerSelector,
         AlarmBaseResourceData,
+        AlarmBaseErrorPanel,
     },
     props: {
         /**
@@ -86,10 +88,6 @@ export default defineComponent({
             surfaceChecked: [] as number[],
             // 是否显示全部区域绑定值
             isShowAllArea: false,
-            // 控制显示展示全部区域的checkbox
-            showAllAreaVisible: false,
-            // 控制显示清除全部区域按钮 >=2才显示
-            clearAllVisible: false,
             // 控制显示最值区域
             isShowDisplayRange: false,
             // 云台speed
@@ -676,22 +674,15 @@ export default defineComponent({
         const changeTab = async () => {
             if (pageData.value.tab === 'param') {
                 if (mode.value === 'h5') {
-                    setTripwireOcxData()
                     drawer.setEnable('line', true)
                 }
 
                 if (mode.value === 'ocx') {
-                    const surface = pageData.value.surfaceIndex
-                    const sendXML1 = OCX_XML_SetTripwireLine(formData.value.lineInfo[surface])
-                    plugin.ExecuteCmd(sendXML1)
-
                     const sendXML2 = OCX_XML_SetTripwireLineAction('EDIT_ON')
                     plugin.ExecuteCmd(sendXML2)
                 }
 
-                if (pageData.value.isShowAllArea) {
-                    showAllArea(true)
-                }
+                setTripwireOcxData()
             } else if (pageData.value.tab === 'trigger') {
                 showAllArea(false)
 
@@ -722,14 +713,6 @@ export default defineComponent({
                     return -1
                 }
             })
-
-            if (formData.value.lineInfo.length > 1) {
-                pageData.value.showAllAreaVisible = true
-                pageData.value.clearAllVisible = true
-            } else {
-                pageData.value.showAllAreaVisible = false
-                pageData.value.clearAllVisible = false
-            }
         }
 
         /**
@@ -751,9 +734,6 @@ export default defineComponent({
          */
         const changeSurface = () => {
             formData.value.direction = formData.value.lineInfo[pageData.value.surfaceIndex].direction
-            const surfaceIndex = pageData.value.surfaceIndex
-            const detectTarget = formData.value.detectTarget
-            console.log(formData.value.lineInfo[surfaceIndex].objectFilter[detectTarget])
             setTripwireOcxData()
             showDisplayRange()
         }
@@ -869,7 +849,6 @@ export default defineComponent({
             if (pageData.value.isShowAllArea) {
                 showAllArea(true)
             }
-            refreshInitPage()
         }
 
         /**
@@ -935,17 +914,21 @@ export default defineComponent({
                     const areaList = [1, 2]
                     const sendXMLClear = OCX_XML_DeleteRectangleArea(areaList)
                     plugin.ExecuteCmd(sendXMLClear)
-                    const minRegionForPlugin = cloneDeep(minRegionInfo.region[0])
-                    minRegionForPlugin.ID = 1
-                    minRegionForPlugin.text = 'Min'
-                    minRegionForPlugin.LineColor = 'yellow'
-                    const maxRegionForPlugin = cloneDeep(maxRegionInfo.region[0])
-                    maxRegionForPlugin.ID = 2
-                    maxRegionForPlugin.text = 'Max'
-                    maxRegionForPlugin.LineColor = 'yellow'
-                    const rectangles = []
-                    rectangles.push(minRegionForPlugin)
-                    rectangles.push(maxRegionForPlugin)
+
+                    const rectangles = [
+                        {
+                            ...minRegionInfo.region[0],
+                            ID: 1,
+                            text: 'Min',
+                            LineColor: 'yellow',
+                        },
+                        {
+                            ...maxRegionInfo.region[0],
+                            ID: 2,
+                            text: 'Max',
+                            LineColor: 'yellow',
+                        },
+                    ]
                     const sendXML = OCX_XML_AddRectangleArea(rectangles)
                     plugin.ExecuteCmd(sendXML)
                 }
@@ -1079,7 +1062,6 @@ export default defineComponent({
                     X: $('statenotify/endPoint').attr('X').num(),
                     Y: $('statenotify/endPoint').attr('Y').num(),
                 }
-                refreshInitPage()
             }
         }
 

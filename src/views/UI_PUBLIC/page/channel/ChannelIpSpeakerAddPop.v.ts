@@ -69,11 +69,11 @@ export default defineComponent({
             ],
             isSetDefaultPwdPop: false,
             devList: [] as SelectOption<string, string>[],
-            sortType: 'asc',
+            sortType: 'desc',
         })
 
         const open = async () => {
-            pageData.value.sortType = 'asc'
+            pageData.value.sortType = 'desc'
             formData.value = new ChannelIpSpeakerAddDto()
             await getLanFreeDeviceList()
             sort()

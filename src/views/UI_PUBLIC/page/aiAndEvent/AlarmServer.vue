@@ -76,7 +76,7 @@
             </el-form-item>
             <!-- protocol -->
             <el-form-item :label="Translate('IDCS_PROTOCOL')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.protocol"
                     :disabled="!formData.enable"
                     :options="pageData.protocolOptions"

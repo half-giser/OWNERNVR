@@ -8,13 +8,13 @@ import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
 import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
 import AlarmBasePresetSelector from './AlarmBasePresetSelector.vue'
 import AlarmBaseIPSpeakerSelector from './AlarmBaseIPSpeakerSelector.vue'
-import { isNotSupportWebsocket } from '@/utils/tools'
 import VChart from 'vue-echarts'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { LineChart } from 'echarts/charts'
 import { TitleComponent, TooltipComponent, GridComponent } from 'echarts/components'
 import { type EChartsOption, type LineSeriesOption } from 'echarts'
+import AlarmBaseErrorPanel from './AlarmBaseErrorPanel.vue'
 
 export default defineComponent({
     components: {
@@ -24,6 +24,7 @@ export default defineComponent({
         AlarmBasePresetSelector,
         AlarmBaseIPSpeakerSelector,
         VChart,
+        AlarmBaseErrorPanel,
     },
     props: {
         /**
@@ -116,7 +117,6 @@ export default defineComponent({
             tooltip: {
                 trigger: 'axis',
                 formatter: (params) => {
-                    console.log('params', params)
                     if (Array.isArray(params)) {
                         let res = ''
                         for (let i = 0; i < params.length; i++) {

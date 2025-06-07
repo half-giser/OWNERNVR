@@ -87,7 +87,7 @@
                         :label="Translate('IDCS_WEEKLY_REPORT')"
                     />
                     <!-- 周几 -->
-                    <el-select-v2
+                    <BaseSelect
                         v-model="pageData.data.sendEmailData.weeklyReportDate"
                         :options="pageData.weekOption"
                         :disabled="pageData.data.sendEmailData.enableSwitch ? !pageData.data.sendEmailData.weeklyReportSwitch : true"
@@ -99,7 +99,7 @@
                         :label="Translate('IDCS_MONTHLY_REPORT')"
                     />
                     <!-- 几号 -->
-                    <el-select-v2
+                    <BaseSelect
                         v-model="pageData.data.sendEmailData.mouthlyReportDate"
                         :disabled="pageData.data.sendEmailData.enableSwitch ? !pageData.data.sendEmailData.mouthlyReportSwitch : true"
                         :options="pageData.monthOption"

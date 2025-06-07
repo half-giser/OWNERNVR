@@ -30,6 +30,7 @@ let authRoutes: RouteRecordRawExtends[] = []
 export const generateAsyncRoutes = () => {
     const systemCaps = useCababilityStore()
     const userSession = useUserSessionStore()
+    const routes = buildRouter()
 
     const asyncRoute = (routes as RouteRecordRawExtends[]).filter((item) => {
         return item.meta?.noToken === undefined
@@ -45,10 +46,15 @@ export const generateAsyncRoutes = () => {
             if (item.children) {
                 item.children = getAuthRoute(item.children)
 
-                // 设置路由重定向 （满足能力集和用户权限）
-                const redirect = item.children.find((item) => !item.meta.auth || userSession.hasAuth(item.meta.auth))
-                if (redirect) {
-                    item.redirect = redirect.meta.fullPath
+                if (!item.redirect) {
+                    // 设置路由重定向 （满足能力集和用户权限）
+                    const redirect = item.children.find((item) => {
+                        return !item.meta.auth || userSession.hasAuth(item.meta.auth)
+                    })
+
+                    if (redirect) {
+                        item.redirect = redirect.meta.fullPath
+                    }
                 }
             }
 
@@ -97,7 +103,6 @@ export const getMenuItem = (item: RouteRecordRawExtends) => {
             noMenu: item.meta!.noMenu,
             default: item.meta!.default,
             homeDefault: item.meta!.homeDefault,
-            plClass: item.meta!.plClass,
             groups: item.meta!.groups,
             homeSort: item.meta!.homeSort,
             sort: item.meta!.sort,

@@ -11,16 +11,17 @@
     >
         <div class="base-head-box">{{ Translate('IDCS_POPUP_VIDEO') }}</div>
         <el-form-item :label="Translate('IDCS_DURATION')">
-            <el-select-v2
+            <BaseSelect
                 v-model="videoFormData.popVideoDuration"
                 :options="pageData.popVideoDurationOption"
+                empty-text=""
             />
         </el-form-item>
         <el-form-item
             v-show="pageData.popVideoOutputOption.length >= 2"
             :label="Translate('IDCS_OUTPUT')"
         >
-            <el-select-v2
+            <BaseSelect
                 v-model="videoFormData.popVideoOutput"
                 :options="pageData.popVideoOutputOption"
             />
@@ -39,9 +40,10 @@
             />
         </el-form-item>
         <el-form-item :label="Translate('IDCS_DURATION')">
-            <el-select-v2
+            <BaseSelect
                 v-model="msgFormData.popMsgDuration"
                 :options="pageData.popMsgDurationOption"
+                empty-text=""
             />
         </el-form-item>
         <div class="base-btn-box">

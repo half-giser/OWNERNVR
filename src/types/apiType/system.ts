@@ -134,11 +134,11 @@ export class SystemFactoryDefaultForm {
     exceptNetworkConfigSwitch = 'false'
 }
 
-// class SystemGeneralSettingDecoderResolution {
-//     id = 0
-//     onlineStatus = false
-//     decoder: { index: number; value: string }[] = []
-// }
+class SystemGeneralSettingDecoderResolution {
+    id = 0
+    onlineStatus = false
+    decoder: { index: number; value: string }[] = []
+}
 
 /**
  * @description 全局配置表单
@@ -157,8 +157,8 @@ export class SystemGeneralSettingForm {
     waitTime = 0 // 等待时长
     zeroOrAddIpc = false //
     superResolution = false
-    // decoderResolution: SystemGeneralSettingDecoderResolution[] = []
-    // decoder: Record<number, Record<number, string>> = {}
+    decoderResolution: SystemGeneralSettingDecoderResolution[] = []
+    decoder: Record<number, Record<number, string>> = {}
 }
 
 /**
@@ -251,6 +251,24 @@ export class SystemRecorderOSDSettingsForm {
     nameEnable = 'false'
     iconEnable = 'false'
     addressEnable = 'false'
+}
+
+/**
+ * @description 热备机配置提交表单
+ */
+export class HotStandbySettingsForm {
+    switch = false
+    workMode = ''
+}
+
+/**
+ * @description 工作机配置提交表单
+ */
+export class WorkMachineSettingsForm {
+    ip = ''
+    port = 0
+    userName = 'admin'
+    password = ''
 }
 
 /**
@@ -598,4 +616,19 @@ export class SystemRS485Dto {
     code = ''
     operate = ''
     settingInfos = ''
+}
+
+/**
+ * @description 热备机模式下的工作机列表
+ */
+export class SystemWorkMachineDto {
+    ip = ''
+    port = 0
+    index = 0
+    connectStatus = ''
+    workStatus = ''
+    statusCode = 0
+    syncErrorCode = 0
+    networkErrorCode = 0
+    syncVideoProgress = 0
 }

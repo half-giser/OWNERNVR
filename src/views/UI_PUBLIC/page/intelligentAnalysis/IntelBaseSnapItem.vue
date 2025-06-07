@@ -30,7 +30,10 @@
                 v-else-if="targetData.isDelete"
                 class="deleted_pic"
             >
-                <BaseImgSprite file="hasDeleted" />
+                <BaseImgSprite
+                    :scale="0.5"
+                    file="hasDeleted"
+                />
                 <span class="tip_text">{{ Translate('IDCS_DELETED') }}</span>
             </div>
             <div
@@ -72,6 +75,7 @@
                         :hover-index="1"
                         :title="Translate('IDCS_SEARCH')"
                         class="operate_icon"
+                        :scale="0.7"
                         @click.stop="handleSearch"
                     />
                     <BaseImgSprite
@@ -81,6 +85,7 @@
                         :hover-index="1"
                         :title="Translate('IDCS_EXPORT')"
                         class="operate_icon"
+                        :scale="0.7"
                         @click.stop="handleExport"
                     />
                     <BaseImgSprite
@@ -90,6 +95,7 @@
                         :hover-index="1"
                         class="operate_icon"
                         :title="Translate('IDCS_REGISTER')"
+                        :scale="0.7"
                         @click.stop="handleRegister"
                     />
                 </div>
@@ -219,28 +225,16 @@
 }
 
 .bottom_operate {
-    bottom: 0;
+    bottom: 4px;
 
     .operate_icon {
-        transform: scale(0.7);
-        margin-right: -4px;
+        margin-left: 4px;
     }
 }
 
 .snap_pic,
 .compare_pic {
     width: 100%;
-}
-
-.deleted_pic {
-    .Sprite {
-        transform: scale(0.5);
-    }
-
-    .tip_text {
-        position: relative;
-        top: -15px;
-    }
 }
 
 .info_show_container {

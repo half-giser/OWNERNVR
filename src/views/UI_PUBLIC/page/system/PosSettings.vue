@@ -18,7 +18,7 @@
                 <!-- 启用 -->
                 <el-table-column width="100">
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_ENABLE') }}
                             </BaseTableDropdownLink>
@@ -33,10 +33,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<SystemPosList>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.switch"
                             :options="pageData.switchOption"
                         />
@@ -45,7 +45,7 @@
                 <!-- 连接方式 -->
                 <el-table-column width="240">
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_CONNECTION') }}
                             </BaseTableDropdownLink>
@@ -60,10 +60,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<SystemPosList>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.connectionType"
                             :options="pageData.connectionTypeList"
                         />
@@ -81,7 +81,7 @@
                 <!-- 协议 -->
                 <el-table-column width="160">
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_PROTOCOL') }}
                             </BaseTableDropdownLink>
@@ -96,10 +96,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<SystemPosList>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.manufacturers"
                             :options="pageData.manufacturersList"
                         />
@@ -139,7 +139,7 @@
                 <!-- 编码格式 -->
                 <el-table-column width="200">
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_ENCODE_FORMAT') }}
                             </BaseTableDropdownLink>
@@ -154,10 +154,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<SystemPosList>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.encodeFormat"
                             :options="pageData.encodeList"
                         />

@@ -56,12 +56,11 @@
                                 >
                                     {{ expireTime }}
                                 </div>
-                                <el-tooltip :content="Translate('IDCS_AUTHCODE_RECV_TIP')">
-                                    <div
-                                        v-show="pageData.expireTime > 0"
-                                        class="authCodeLogin-question"
-                                    ></div>
-                                </el-tooltip>
+                                <div
+                                    v-show="pageData.expireTime > 0"
+                                    :title="Translate('IDCS_AUTHCODE_RECV_TIP')"
+                                    class="authCodeLogin-question"
+                                ></div>
                             </div>
                         </div>
                     </el-form-item>
@@ -83,19 +82,21 @@
                 </el-form>
             </div>
             <div class="authCodeLogin-lang">
-                <el-select-v2
+                <BaseSelect
                     v-model="pageData.langId"
                     :options="lang.langTypes"
                     :props="{
                         label: 'name',
                         value: 'id',
                     }"
+                    append-to=".authCodeLogin"
                     @change="changeLang"
                 />
-                <el-select-v2
+                <BaseSelect
                     v-show="pageData.calendarOptions.length"
                     v-model="formData.calendarType"
                     :options="pageData.calendarOptions"
+                    append-to=".authCodeLogin"
                 />
             </div>
             <!-- <div class="authCodeLogin-footer">
@@ -114,7 +115,14 @@
 <script lang="ts" src="./AuthCodeLogin.v.ts"></script>
 
 <style lang="scss" scoped>
+@use '@/scss/function' as *;
+
 .authCodeLogin {
+    #n9web.css_use114 & {
+        --primary: #1fb1a5;
+        --primary-light: #1fb1a5b5;
+    }
+
     position: relative;
     width: 100vw;
     height: 100vh;
@@ -187,9 +195,19 @@
     flex-shrink: 0;
     background: var(--img-authcodelogin-icon);
     border-right: 1px solid var(--color-black);
+    background-position: -1px -1px;
+    background-repeat: no-repeat;
+
+    .css_use114 & {
+        background-position: 4px 10px;
+    }
 
     &.icon-code {
-        background-position: 0 -134px;
+        background-position: 0 -130px;
+
+        .css_use114 & {
+            background-position: 5px -118px;
+        }
     }
 }
 
@@ -253,17 +271,17 @@
             --el-button-hover-text-color: var(--authcode-btn-text);
 
             width: 290px;
-            height: 50px;
+            height: 49px;
             font-size: 18px;
             transition: none;
-            background: var(--img-login-btn);
+            background: var(--img-authcodelogin-btn);
 
             &:hover {
-                background-position: 0 -50px;
+                background-position: 0 -51px;
             }
 
             &.is-disabled {
-                background-position: 0 -150px;
+                background-position: 0 -151px;
             }
         }
     }
@@ -305,26 +323,6 @@
     font-size: 18px;
     color: var(--primary);
 }
-
-// .authCodeLogin-footer {
-//     position: absolute;
-//     left: 0;
-//     bottom: 10px;
-//     width: 100%;
-//     color: var(--header-menu-text);
-
-//     p {
-//         width: 100%;
-//         margin: 0;
-//         padding: 0;
-//         text-align: center;
-//         font-size: 13px;
-//     }
-
-//     a {
-//         color: var(--primary);
-//     }
-// }
 
 .authCodeLogin-error {
     position: absolute;

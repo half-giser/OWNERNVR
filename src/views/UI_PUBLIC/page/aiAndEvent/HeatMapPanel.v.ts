@@ -8,6 +8,7 @@ import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
 import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
 import AlarmBasePresetSelector from './AlarmBasePresetSelector.vue'
+import AlarmBaseErrorPanel from './AlarmBaseErrorPanel.vue'
 import dayjs from 'dayjs'
 
 export default defineComponent({
@@ -16,6 +17,7 @@ export default defineComponent({
         AlarmBaseAlarmOutSelector,
         AlarmBaseTriggerSelector,
         AlarmBasePresetSelector,
+        AlarmBaseErrorPanel,
     },
     props: {
         /**
@@ -85,10 +87,6 @@ export default defineComponent({
             schedule: '',
             // 是否显示全部区域绑定值
             isShowAllArea: false,
-            // 控制显示展示全部区域的checkbox
-            showAllAreaVisible: true,
-            // 控制显示清除全部区域按钮 >=2才显示
-            clearAllVisible: true,
             // 控制显示最值区域
             isShowDisplayRange: false,
             // 画图相关
@@ -107,7 +105,6 @@ export default defineComponent({
             renderLevel: 100,
             imgOrigBase64: '',
             heatMapChartData: [] as AlarmHeatMapChartDto[],
-            legendGradient: 'linear-gradient(90deg, rgb(0,0,255) 25%, rgb(0,255,0) 55%, yellow 85%,  rgb(255,0,0) 100%) no-repeat',
         })
 
         const formData = ref(new AlarmHeatMapDto())
@@ -546,28 +543,16 @@ export default defineComponent({
          */
         const changeTab = () => {
             if (pageData.value.tab === 'param') {
-                const area = pageData.value.warnAreaIndex
-                const boundaryInfo = formData.value.boundaryInfo
                 if (mode.value === 'h5') {
                     drawer.setEnable(true)
-                    setOcxData()
                 }
 
                 if (mode.value === 'ocx') {
-                    setTimeout(() => {
-                        if (boundaryInfo[area].point.length) {
-                            const sendXML1 = OCX_XML_SetPeaArea(boundaryInfo[area].point, pageData.value.currentRegulation)
-                            plugin.ExecuteCmd(sendXML1)
-                        }
-
-                        const sendXML2 = OCX_XML_SetPeaAreaAction('EDIT_ON')
-                        plugin.ExecuteCmd(sendXML2)
-                    }, 100)
+                    const sendXML2 = OCX_XML_SetPeaAreaAction('EDIT_ON')
+                    plugin.ExecuteCmd(sendXML2)
                 }
 
-                if (pageData.value.isShowAllArea) {
-                    showAllArea(true)
-                }
+                setOcxData()
             }
         }
 
@@ -583,15 +568,6 @@ export default defineComponent({
                 }
                 return -1
             })
-
-            // 是否显示全部区域切换按钮和清除全部按钮（区域数量大于等于2时才显示）
-            if (boundaryInfoList && boundaryInfoList.length > 1) {
-                pageData.value.showAllAreaVisible = true
-                pageData.value.clearAllVisible = true
-            } else {
-                pageData.value.showAllAreaVisible = false
-                pageData.value.clearAllVisible = false
-            }
         }
 
         /**
@@ -683,7 +659,6 @@ export default defineComponent({
             if (pageData.value.isShowAllArea) {
                 showAllArea(true)
             }
-            refreshInitPage()
         }
 
         /**
@@ -869,7 +844,7 @@ export default defineComponent({
          * @param {CanvasBasePoint} poinObjtList
          */
         const setClosed = (poinObjtList: CanvasBasePoint[]) => {
-            poinObjtList.forEach(function (element) {
+            poinObjtList.forEach((element) => {
                 element.isClosed = true
             })
         }
@@ -882,7 +857,7 @@ export default defineComponent({
             if (mode.value === 'h5' && !pageData.value.currentRegulation) {
                 const boundaryInfoList = formData.value.boundaryInfo
                 if (boundaryInfoList && boundaryInfoList.length > 0) {
-                    boundaryInfoList.forEach(function (boundaryInfo) {
+                    boundaryInfoList.forEach((boundaryInfo) => {
                         const poinObjtList = boundaryInfo.point
                         if (poinObjtList.length >= 4 && drawer.judgeAreaCanBeClosed(poinObjtList)) {
                             setClosed(poinObjtList)
@@ -1054,7 +1029,6 @@ export default defineComponent({
                     })
                     const area = pageData.value.warnAreaIndex
                     formData.value.boundaryInfo[area].point = points
-                    refreshInitPage()
                 }
 
                 const errorCode = $('statenotify/errorCode').text().num()

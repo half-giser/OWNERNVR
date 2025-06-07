@@ -47,7 +47,7 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_PROTOCOL')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.protocolType"
                     :options="pageData.protocolTypeList"
                     :disabled="!formData.switch"
@@ -86,7 +86,7 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_CONNECTION')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.connectType"
                     :options="pageData.connectionTypeList"
                     :disabled="!formData.switch"

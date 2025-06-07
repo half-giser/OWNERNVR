@@ -46,6 +46,7 @@
                             <BaseImgSprite
                                 v-else
                                 file="empty"
+                                :scale="0.4"
                             />
                         </div>
                     </div>
@@ -59,6 +60,7 @@
                             <BaseImgSprite
                                 v-else
                                 file="empty"
+                                :scale="0.4"
                             />
                         </div>
                     </div>
@@ -143,10 +145,6 @@
     img {
         width: 100%;
         height: 100%;
-    }
-
-    .Sprite {
-        transform: scale(0.4);
     }
 }
 

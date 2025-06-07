@@ -10,13 +10,13 @@
             class="stripe"
         >
             <el-form-item :label="Translate('IDCS_NAME_ENABLE')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.nameEnable"
                     :options="pageData.options"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_ICON_ENABLE')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.iconEnable"
                     :options="pageData.options"
                 />
@@ -25,7 +25,7 @@
                 v-show="pageData.isAddress"
                 :label="Translate('IDCS_ADDRESS_ENABLE')"
             >
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.addressEnable"
                     :options="pageData.options"
                 />

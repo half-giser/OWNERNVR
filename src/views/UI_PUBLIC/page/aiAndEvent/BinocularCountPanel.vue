@@ -5,12 +5,7 @@
 -->
 <template>
     <div>
-        <div
-            v-if="pageData.reqFail"
-            class="base-ai-not-support-box"
-        >
-            {{ Translate('IDCS_QUERY_DATA_FAIL') }}
-        </div>
+        <AlarmBaseErrorPanel v-if="pageData.reqFail" />
         <div v-if="pageData.tab">
             <!-- nvr/ipc检测开启及ai按钮 -->
             <div class="base-btn-box space-between padding collapse">
@@ -20,10 +15,7 @@
                 />
             </div>
             <!-- 只存在一个播放器，因此放于tab区域外 -->
-            <div
-                v-show="pageData.tab !== 'trigger'"
-                class="base-ai-param-box-left fixed"
-            >
+            <div class="base-ai-param-box-left fixed">
                 <div class="player">
                     <BaseVideoPlayer
                         ref="playerRef"
@@ -35,7 +27,7 @@
                     <div class="base-btn-box space-between">
                         <div>
                             <el-checkbox
-                                v-show="pageData.tab === 'param' && pageData.showAllAreaVisible"
+                                v-show="pageData.tab === 'param' && isShowAllVisible"
                                 v-model="pageData.isShowAllArea"
                                 :label="Translate('IDCS_DISPLAY_ALL_AREA')"
                                 @change="toggleShowAllArea"
@@ -44,7 +36,7 @@
                         <div>
                             <el-button @click="clearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
                             <el-button
-                                v-if="pageData.tab === 'param' && pageData.clearAllVisible"
+                                v-if="pageData.tab === 'param' && isShowAllVisible"
                                 @click="clearAllArea"
                             >
                                 {{ Translate('IDCS_FACE_CLEAR_ALL') }}
@@ -57,7 +49,6 @@
                 </div>
             </div>
             <div class="base-ai-form">
-                <!-- 三种功能 -->
                 <el-tabs
                     v-model="pageData.tab"
                     class="base-ai-tabs"
@@ -84,11 +75,11 @@
                                     </el-form-item>
                                     <!-- 规则 -->
                                     <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
-                                    <!-- 持续时间 -->
-                                    <el-form-item :label="pageData.lineAreaTxt">
-                                        <el-select-v2
+                                    <el-form-item :label="`${Translate('IDCS_LINE')}/${Translate('IDCS_AREA')}`">
+                                        <BaseSelect
                                             v-model="pageData.detectType"
                                             :options="pageData.detectTypeList"
+                                            empty-text=""
                                             @change="changeLineArea"
                                         />
                                     </el-form-item>
@@ -118,9 +109,10 @@
                                         v-show="showLineCfg"
                                         :label="Translate('IDCS_DIRECTION')"
                                     >
-                                        <el-select-v2
+                                        <BaseSelect
                                             v-model="pageData.lineDirection"
                                             :options="pageData.lineDirectionList"
+                                            empty-text=""
                                             @change="changeLineDirection"
                                         />
                                     </el-form-item>
@@ -172,16 +164,18 @@
                                         v-show="showAreaCfg"
                                         :label="Translate('IDCS_DIRECTION')"
                                     >
-                                        <el-select-v2
+                                        <BaseSelect
                                             v-model="pageData.areaDirection"
                                             :options="pageData.areaDirectionList"
+                                            empty-text=""
                                             @change="changeAreaDirection"
                                         />
                                     </el-form-item>
                                     <!-- 持续时间 -->
                                     <el-form-item :label="Translate('IDCS_DURATION')">
-                                        <el-select-v2
+                                        <BaseSelect
                                             v-model="formData.holdTime"
+                                            empty-text=""
                                             :options="formData.holdTimeList"
                                         />
                                     </el-form-item>
@@ -219,7 +213,7 @@
                                     </div>
                                     <!-- 校正方法 -->
                                     <el-form-item :label="Translate('IDCS_CALIBRATION_MODE')">
-                                        <el-select-v2
+                                        <BaseSelect
                                             v-model="formData.calibration.modeType"
                                             :options="pageData.calibrationModeList"
                                             @change="changeCalibrationMode"
@@ -305,41 +299,29 @@
                                             />
                                         </template>
                                     </el-form-item>
-                                    <el-form-item>
-                                        <template #label>{{ Translate('IDCS_HUMAN_COUNT') }}</template>
-                                        <template #default>
-                                            <input
-                                                v-model="formData.countOSD.osdPersonName"
-                                                :maxlength="12"
-                                            />
-                                        </template>
+                                    <el-form-item :label="Translate('IDCS_HUMAN_COUNT')">
+                                        <input
+                                            v-model="formData.countOSD.osdPersonName"
+                                            :maxlength="12"
+                                        />
                                     </el-form-item>
-                                    <el-form-item>
-                                        <template #label>{{ Translate('IDCS_CHILD_COUNT') }}</template>
-                                        <template #default>
-                                            <input
-                                                v-model="formData.countOSD.osdChildName"
-                                                :maxlength="12"
-                                            />
-                                        </template>
+                                    <el-form-item :label="Translate('IDCS_CHILD_COUNT')">
+                                        <input
+                                            v-model="formData.countOSD.osdChildName"
+                                            :maxlength="12"
+                                        />
                                     </el-form-item>
-                                    <el-form-item>
-                                        <template #label>{{ Translate('IDCS_BELOW_THRESHOLD') }}</template>
-                                        <template #default>
-                                            <input
-                                                v-model="formData.countOSD.osdWelcomeName"
-                                                :maxlength="12"
-                                            />
-                                        </template>
+                                    <el-form-item :label="Translate('IDCS_BELOW_THRESHOLD')">
+                                        <input
+                                            v-model="formData.countOSD.osdWelcomeName"
+                                            :maxlength="12"
+                                        />
                                     </el-form-item>
-                                    <el-form-item>
-                                        <template #label>{{ Translate('IDCS_OVER_THRESHOLD') }}</template>
-                                        <template #default>
-                                            <input
-                                                v-model="formData.countOSD.osdAlarmName"
-                                                :maxlength="12"
-                                            />
-                                        </template>
+                                    <el-form-item :label="Translate('IDCS_OVER_THRESHOLD')">
+                                        <input
+                                            v-model="formData.countOSD.osdAlarmName"
+                                            :maxlength="12"
+                                        />
                                     </el-form-item>
                                 </el-form>
                             </div>
@@ -402,7 +384,7 @@
                     </el-button>
                 </div>
                 <!-- 更多按钮 -->
-                <el-popover
+                <BasePopover
                     v-model:visible="pageData.moreDropDown"
                     width="400"
                     popper-class="no-padding"
@@ -442,7 +424,7 @@
                             </el-form-item>
                             <!-- 模式 -->
                             <el-form-item :label="Translate('IDCS_MODE')">
-                                <el-select-v2
+                                <BaseSelect
                                     v-model="pageData.timeType"
                                     :disabled="!pageData.autoReset"
                                     :options="pageData.countCycleTypeList"
@@ -457,14 +439,14 @@
                                     '--form-input-width': '121px',
                                 }"
                             >
-                                <el-select-v2
+                                <BaseSelect
                                     v-if="pageData.timeType === 'week'"
                                     v-model="formData.countPeriod.week.date"
                                     :options="pageData.weekOption"
                                     :disabled="!pageData.autoReset"
                                     :teleported="false"
                                 />
-                                <el-select-v2
+                                <BaseSelect
                                     v-if="pageData.timeType === 'month'"
                                     v-model="formData.countPeriod.month.date"
                                     :options="pageData.monthOption"
@@ -498,7 +480,7 @@
                             </div>
                         </el-form>
                     </div>
-                </el-popover>
+                </BasePopover>
             </div>
         </div>
         <BaseScheduleManagePop

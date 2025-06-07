@@ -6,11 +6,11 @@
 <template>
     <div id="configHomeContainer">
         <div
-            v-for="moduleItem in configModules"
+            v-for="(moduleItem, index) in configModules"
             :key="moduleItem.meta.fullPath"
             class="moduleItem"
             :class="[
-                moduleItem.meta.plClass,
+                plClass[index],
                 {
                     disabled: getMenuDisabled(moduleItem),
                 },

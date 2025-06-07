@@ -823,6 +823,11 @@ input[type='number'] {
         right: 70px;
         bottom: 60px;
         z-index: 90;
+        pointer-events: none;
+
+        * {
+            pointer-events: auto;
+        }
     }
 
     &.space-between {
@@ -920,4 +925,8 @@ input[type='number'] {
 .base-label-box {
     display: flex;
     align-items: center;
+}
+
+.base-rich-text {
+    line-height: 1.4;
 }

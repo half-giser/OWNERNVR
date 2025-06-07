@@ -5,12 +5,7 @@
 -->
 <template>
     <div>
-        <div
-            v-if="pageData.reqFail"
-            class="base-ai-not-support-box"
-        >
-            {{ Translate('IDCS_QUERY_DATA_FAIL') }}
-        </div>
+        <AlarmBaseErrorPanel v-if="pageData.reqFail" />
         <div v-if="pageData.tab">
             <!-- nvr/ipc检测开启及ai按钮 -->
             <div class="base-btn-box space-between padding collapse">
@@ -78,9 +73,10 @@
                                     </div>
                                     <!-- 持续时间 -->
                                     <el-form-item :label="Translate('IDCS_DURATION')">
-                                        <el-select-v2
+                                        <BaseSelect
                                             v-model="formData.holdTime"
                                             :options="formData.holdTimeList"
+                                            empty-text=""
                                         />
                                     </el-form-item>
                                     <!-- 灵敏度 -->
@@ -137,7 +133,7 @@
                     >
                         <el-form v-if="pageData.supportAlarmAudioConfig">
                             <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
-                                <el-select-v2
+                                <BaseSelect
                                     v-model="formData.sysAudio"
                                     :options="voiceList"
                                 />

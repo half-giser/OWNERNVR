@@ -54,9 +54,10 @@
                         <el-form v-title>
                             <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
                             <el-form-item :label="Translate('IDCS_DURATION')">
-                                <el-select-v2
+                                <BaseSelect
                                     v-model="formData.duration"
                                     :options="formData.durationList"
+                                    empty-text=""
                                 />
                             </el-form-item>
                             <el-form-item :label="Translate('IDCS_WARN_AREA')">
@@ -135,20 +136,10 @@
                 </el-button>
             </div>
         </div>
-        <div
-            v-if="pageData.requestType === 'fail'"
-            class="base-ai-not-support-box"
-        >
-            <BaseImgSprite file="chl_error" />
-            <span>{{ Translate('IDCS_QUERY_DATA_FAIL') }}</span>
-        </div>
-        <div
-            v-if="pageData.requestType === 'not-support'"
-            class="base-ai-not-support-box"
-        >
-            <BaseImgSprite file="chl_error" />
-            <span>{{ Translate('IDCS_NOT_SUPPORTFUNC') }}</span>
-        </div>
+        <AlarmBaseErrorPanel
+            v-if="pageData.requestType === 'fail' || pageData.requestType === 'not-support'"
+            :type="pageData.requestType"
+        />
     </div>
 </template>
 

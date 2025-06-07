@@ -12,6 +12,8 @@
             :disabled
             :teleported
             @before-enter="open"
+            @show="focus"
+            @hide="blur"
         >
             <template #reference>
                 <el-input
@@ -254,6 +256,7 @@ const emits = defineEmits<{
 const dateTime = useDateTimeStore()
 const userSession = useUserSessionStore()
 const { Translate } = useLangStore()
+const popperObserver = usePopperObserver()
 
 const visible = ref(false)
 
@@ -591,8 +594,24 @@ const changeValue = () => {
     emits('update:modelValue', currentValue.value.calendar('gregory').format(props.valueFormat || (props.type === 'datetime' ? DEFAULT_DATE_FORMAT : DEFAULT_YMD_FORMAT)))
 }
 
+const blur = () => {
+    popperObserver.removeListener(hide)
+}
+
+const focus = () => {
+    popperObserver.addListener(hide)
+}
+
+const hide = popperObserver.observe(() => {
+    visible.value = false
+}, 'DatePicker')
+
 watch(visible, (val) => {
     emits('visibleChange', val)
+})
+
+onBeforeUnmount(() => {
+    popperObserver.removeListener(hide)
 })
 </script>
 

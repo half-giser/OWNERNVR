@@ -33,8 +33,6 @@ export default defineComponent({
             currrentVideoFormat: '',
             // 当前输入配置
             currentOutputConfig: '',
-            // 是否显示零操作添加IPC选项
-            // isZeroOrAddIpc: systemCaps.supportZeroOprAdd,
             // 分辨率选项
             resolutionOptions: [] as string[][],
             // 分辨率提示
@@ -45,7 +43,7 @@ export default defineComponent({
             langType: [] as string[],
             supportAI: false,
             // 解码器选项
-            // decoderOptions: {} as Record<number, Record<number, SelectOption<string, string>[]>>,
+            decoderOptions: {} as Record<number, Record<number, SelectOption<string, string>[]>>,
         })
 
         // 表单验证规则
@@ -262,35 +260,35 @@ export default defineComponent({
                 }
             })
 
-            // const decoderEnum: Record<number, Record<number, SelectOption<string, string>[]>> = {}
-            // $('types/DecoderResolution/decoder').forEach((item) => {
-            //     const $item = queryXml(item.element)
-            //     const id = item.attr('id').num()
-            //     decoderEnum[id] = {}
-            //     $item('output').forEach((output) => {
-            //         const $output = queryXml(output.element)
-            //         const index = output.attr('index').num()
-            //         decoderEnum[id][index] = $output('enum').map((value) => ({
-            //             label: value.text(),
-            //             value: value.text(),
-            //         }))
-            //     })
-            // })
-            // pageData.value.decoderOptions = decoderEnum
+            const decoderEnum: Record<number, Record<number, SelectOption<string, string>[]>> = {}
+            $('types/DecoderResolution/decoder').forEach((item) => {
+                const $item = queryXml(item.element)
+                const id = item.attr('id').num()
+                decoderEnum[id] = {}
+                $item('output').forEach((output) => {
+                    const $output = queryXml(output.element)
+                    const index = output.attr('index').num()
+                    decoderEnum[id][index] = $output('enum').map((value) => ({
+                        label: value.text(),
+                        value: value.text(),
+                    }))
+                })
+            })
+            pageData.value.decoderOptions = decoderEnum
 
-            // formData.value.decoderResolution = $('content/decoderResolution/decoder').map((item) => {
-            //     const $item = queryXml(item.element)
-            //     return {
-            //         id: item.attr('id').num(),
-            //         onlineStatus: item.attr('onlineStatus').bool(),
-            //         decoder: $item('item').map((decoder) => {
-            //             return {
-            //                 index: decoder.attr('index').num(),
-            //                 value: decoder.text(),
-            //             }
-            //         }),
-            //     }
-            // })
+            formData.value.decoderResolution = $('content/decoderResolution/decoder').map((item) => {
+                const $item = queryXml(item.element)
+                return {
+                    id: item.attr('id').num(),
+                    onlineStatus: item.attr('onlineStatus').bool(),
+                    decoder: $item('item').map((decoder) => {
+                        return {
+                            index: decoder.attr('index').num(),
+                            value: decoder.text(),
+                        }
+                    }),
+                }
+            })
 
             pageData.value.langType = $('types/langType/enum').map((item) => item.text())
             pageData.value.resolutionType = $('types/resolutionType/enum').map((item) => item.text())
@@ -331,6 +329,17 @@ export default defineComponent({
                     <bootWizardSwitch>${formData.value.enableGuide}</bootWizardSwitch>
                     <mobileStreamAdaption>${formData.value.mobileStreamAdaption}</mobileStreamAdaption>
                     ${systemCaps.supportZeroOprAdd ? `<bootZeroCfgAddSwitch>${formData.value.zeroOrAddIpc}</bootZeroCfgAddSwitch>` : ''}
+                    <decoderResolution>
+                        ${formData.value.decoderResolution
+                            .map((item) => {
+                                return rawXml`
+                                    <decoder id="${item.id}">
+                                        ${item.decoder.map((decoder) => (item.onlineStatus ? `<item index="${decoder.index}">${decoder.value}</item>` : '')).join('')}
+                                    </decoder>
+                                `
+                            })
+                            .join('')}
+                    </decoderResolution>
                     <autoDwell>${formData.value.enableAutoDwell}</autoDwell>
                     <autoDwellWaitTime>${formData.value.waitTime}</autoDwellWaitTime>
                     ${systemCaps.supportSuperResolution ? `<superResolution>${formData.value.superResolution}</superResolution>` : ''}

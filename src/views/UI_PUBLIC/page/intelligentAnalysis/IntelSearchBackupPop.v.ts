@@ -382,7 +382,7 @@ export default defineComponent({
                     const recordDataItem = indexDataItem as newIndexDataItem | oldIndexDataItem
                     recorder = WebsocketRecordBackup({
                         maxSingleSize: SINGLE_VIDEO_FILE_SIZE,
-                        onmessage: function (data) {
+                        onmessage(data) {
                             // data = { file, taskId, taskIndex, chlId, frameTime, firstFrameTime, finished }
                             if (data.file) {
                                 resolve({
@@ -394,7 +394,7 @@ export default defineComponent({
                                 recorder = null
                             }
                         },
-                        onerror: function () {},
+                        onerror() {},
                     })
                     const recordObj = {
                         chlID: recordDataItem.chlId as string,

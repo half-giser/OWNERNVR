@@ -23,23 +23,10 @@
 </template>
 
 <script lang="ts" setup>
-const lang = useLangStore()
 const pluginStore = usePluginStore()
 const plugin = usePlugin()
 const router = useRouter()
-
-/**
- * @description 获取语言配置
- * @param {String} langKey
- */
-const getPluginLoadLang = (langKey: keyof typeof OCX_Plugin_Notice_Map) => {
-    const langId = lang.langId
-    if (langId in OCX_Plugin_Notice_Map && langKey in OCX_Plugin_Load_Lang[langId]) {
-        let langValue = OCX_Plugin_Load_Lang[langId][langKey]
-        if (!langValue) langValue = OCX_Plugin_Load_Lang['0x0409'][langKey]
-        return langValue
-    } else return OCX_Plugin_Load_Lang['0x0409'][langKey]
-}
+const ocxLang = useOCXLang()
 
 /**
  * @description 获取语言配置
@@ -50,7 +37,7 @@ const getHTML = (langKey: string, downloadUrl?: string) => {
     const downloadName = downloadUrl ? downloadUrl.split('/').at(-1)! : ''
     return {
         warning: item.warning,
-        html: item.downloadUrl ? getPluginLoadLang(langKey).formatForLang(downloadUrl!).replace('<a href=', `<a download="${downloadName}" href=`) : getPluginLoadLang(langKey),
+        html: item.downloadUrl ? ocxLang.Translate(langKey).formatForLang(downloadUrl!).replace('<a href=', `<a download="${downloadName}" href=`) : ocxLang.Translate(langKey),
     }
 }
 
