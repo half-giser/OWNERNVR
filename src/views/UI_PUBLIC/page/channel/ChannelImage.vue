@@ -38,7 +38,7 @@
                     />
                 </el-form-item>
                 <el-form-item
-                    v-show="formData.paletteList.length || (!formData.brightMin && !formData.brightMax)"
+                    v-show="!formData.paletteList.length"
                     :label="Translate('IDCS_BRIGHTNESS')"
                 >
                     <BaseSliderInput
@@ -50,7 +50,7 @@
                     />
                 </el-form-item>
                 <el-form-item
-                    v-show="formData.paletteList.length || (!formData.contrastMin && !formData.contrastMax)"
+                    v-show="!formData.paletteList.length"
                     :label="Translate('IDCS_CONTRAST')"
                 >
                     <BaseSliderInput
@@ -62,7 +62,7 @@
                     />
                 </el-form-item>
                 <el-form-item
-                    v-show="formData.paletteList.length || (!formData.saturationMin && !formData.saturationMax)"
+                    v-show="!formData.paletteList.length"
                     :label="Translate('IDCS_SATURATION')"
                 >
                     <BaseSliderInput
@@ -74,7 +74,7 @@
                     />
                 </el-form-item>
                 <el-form-item
-                    v-show="formData.paletteList.length || (!formData.hueMin && !formData.hueMax)"
+                    v-show="!formData.paletteList.length"
                     :label="Translate('IDCS_TONE')"
                 >
                     <BaseSliderInput
@@ -981,6 +981,7 @@
                                                 <BaseSelect
                                                     v-model="row.imageFusion.switch"
                                                     :options="pageData.imageFusionSwitchOptions"
+                                                    @change="saveFusionConfig(row)"
                                                 />
                                             </el-form-item>
                                             <el-form-item
@@ -992,12 +993,14 @@
                                                     v-model="row.imageFusion.distance"
                                                     :min="row.imageFusion.distanceMin"
                                                     :max="row.imageFusion.distanceMax"
+                                                    @change="saveFusionConfig(row)"
                                                 />
                                                 <BaseSliderInput
                                                     v-else
                                                     v-model="row.imageFusion.distance"
                                                     :min="row.imageFusion.distanceFmin"
                                                     :max="row.imageFusion.distanceFmax"
+                                                    @change="saveFusionConfig(row)"
                                                 />
                                             </el-form-item>
                                             <el-form-item
@@ -1008,6 +1011,7 @@
                                                     v-model="row.imageFusion.poolid"
                                                     :min="row.imageFusion.poolidMin"
                                                     :max="row.imageFusion.poolidMax"
+                                                    @change="saveFusionConfig(row)"
                                                 />
                                             </el-form-item>
                                             <el-form-item
@@ -1041,6 +1045,7 @@
                                                     v-model="row.imageFusion.fusespeed"
                                                     :min="row.imageFusion.fusespeedMin"
                                                     :max="row.imageFusion.fusespeedMax"
+                                                    @change="saveFusionConfig(row)"
                                                 />
                                             </el-form-item>
                                         </el-form>
@@ -1079,6 +1084,8 @@
 
 .page_content {
     width: 100%;
+    display: flex;
+    justify-content: center;
 
     .el-scrollbar {
         width: 100%;
@@ -1096,6 +1103,10 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+}
+
+:deep(.BaseNumberInput) {
+    width: 43px !important;
 }
 
 .page_content_item3 {
