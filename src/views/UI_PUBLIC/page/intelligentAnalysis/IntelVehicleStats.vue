@@ -25,6 +25,7 @@
                 <div class="base-intel-left-form">
                     <IntelBaseChannelSelector
                         v-model="formData.chl"
+                        :keep-removed-chl="false"
                         @update:model-value="changeChl"
                         @ready="getChlMap"
                     />
@@ -57,7 +58,7 @@
                 </div>
             </div>
         </div>
-        <div class="base-intel-right">
+        <div class="base-intel-center">
             <div class="base-intel-row">
                 <BaseDateTab
                     :model-value="formData.dateRange"

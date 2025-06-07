@@ -153,7 +153,7 @@ export default defineComponent({
                 pageData.value.originalEventType = $('content/chl/enableEventType').text()
                 // 当前通道的智能模式列表（根据intelligentModeSortList的顺序保存当前通道支持的智能模式）
                 pageData.value.intelligentModeList = []
-                pageData.value.intelligentModeSortList.forEach(function (intelligentMode) {
+                pageData.value.intelligentModeSortList.forEach((intelligentMode) => {
                     $('types/eventType/enum').forEach((element) => {
                         if (element.text() === intelligentMode) {
                             pageData.value.intelligentModeList.push(eventTypeMapping[intelligentMode])
@@ -169,12 +169,12 @@ export default defineComponent({
                 message: Translate('IDCS_IPC_MODIFY_REBOOT_TIPS').formatForLang(Translate('IDCS_EVENT_ENABLEMENT')),
             }).then(async () => {
                 const sendXml = rawXml`
-                <content>
-                    <chl id="${pageData.value.currChlId}">
-                        <enableEventType type="eventType">${pageData.value.enableEventType}</enableEventType>
-                    </chl>
-                </content>
-            `
+                    <content>
+                        <chl id="${pageData.value.currChlId}">
+                            <enableEventType type="eventType">${pageData.value.enableEventType}</enableEventType>
+                        </chl>
+                    </content>
+                `
                 const result = await editInvokeEventTypeConfig(sendXml)
                 commSaveResponseHandler(result)
                 pageData.value.applyDisabled = true

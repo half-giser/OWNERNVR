@@ -1366,7 +1366,7 @@ const fullscreen = () => {
     } else if (el.msRequestFullscreen) {
         el.msRequestFullscreen()
     } else {
-        alert("This browser doesn't supporter fullscreen")
+        openMessageBox("This browser doesn't support fullscreen")
     }
 
     // safari全屏时不触发window.onresize事件，需要手动执行
@@ -2045,7 +2045,7 @@ const play = (params: PlayerPlayParams) => {
             if (!enablePos) return
             handlePos(posFrame, posLength, params.chlID, winIndex)
         },
-        onparam: function (type, data: PlayerDetectTargetDto) {
+        onparam: (type, data: PlayerDetectTargetDto) => {
             if (!isGetDetect(winIndex)) {
                 clearCacheDetect(winIndex)
                 return

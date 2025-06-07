@@ -10,28 +10,31 @@
         v-model="pageData.isShowDialog"
         :title="pageData.title"
         :show-close="pageData.isShowDialogClose"
-        :width=600
+        :width="500"
     >
         <el-form
             v-show="pageData.isShowForm"
-            v-title
             ref="formRef"
+            v-title
             class="stripe"
         >
             <el-form-item :label="Translate('IDCS_DESTINATION')">
-                <el-select-v2
+                <BaseSelect
                     v-model="pageData.destination"
                     :options="pageData.destinationList"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_FORMAT')">
-                <el-select-v2
+                <BaseSelect
                     v-model="pageData.format"
                     :options="pageData.formatList"
                 />
             </el-form-item>
         </el-form>
-        <div class="box" v-show="pageData.isShowProgress">
+        <div
+            v-show="pageData.isShowProgress"
+            class="box"
+        >
             <el-progress
                 :percentage="pageData.progress"
                 :stroke-width="8"
@@ -40,7 +43,12 @@
             <p class="tip">{{ Translate('IDCS_BACKUP_HOLD_ON') }}</p>
         </div>
         <div class="base-btn-box">
-            <el-button @click="handleBackup()" v-show="pageData.isShowOKBtn">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button
+                v-show="pageData.isShowOKBtn"
+                @click="handleBackup()"
+            >
+                {{ Translate('IDCS_OK') }}
+            </el-button>
             <el-button @click="pageData.isShowDialog = false">{{ Translate('IDCS_CANCEL') }}</el-button>
         </div>
     </el-dialog>

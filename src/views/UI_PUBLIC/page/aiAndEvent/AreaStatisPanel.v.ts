@@ -9,6 +9,7 @@ import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
 import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
 import AlarmBasePresetSelector from './AlarmBasePresetSelector.vue'
 import AlarmBaseIPSpeakerSelector from './AlarmBaseIPSpeakerSelector.vue'
+import AlarmBaseErrorPanel from './AlarmBaseErrorPanel.vue'
 import { type CheckboxValueType } from 'element-plus'
 
 export default defineComponent({
@@ -18,6 +19,7 @@ export default defineComponent({
         AlarmBaseTriggerSelector,
         AlarmBasePresetSelector,
         AlarmBaseIPSpeakerSelector,
+        AlarmBaseErrorPanel,
     },
     props: {
         /**
@@ -69,6 +71,16 @@ export default defineComponent({
             motor: Translate('IDCS_NON_VEHICLE'),
         }
 
+        const noneOSD = {
+            switch: false,
+            X: 0,
+            Y: 0,
+            osdPersonName: '',
+            osdCarName: '',
+            osdBikeName: '',
+            osdFormat: '',
+        }
+
         const pageData = ref({
             // 是否支持声音设置
             supportAlarmAudioConfig: true,
@@ -83,10 +95,6 @@ export default defineComponent({
             objectFilterMode: 'mode1',
             // 是否显示全部区域绑定值
             isShowAllArea: false,
-            // 控制显示展示全部区域的checkbox
-            showAllAreaVisible: false,
-            // 控制显示清除全部区域按钮 >=2才显示
-            clearAllVisible: false,
             // 控制显示最值区域
             isShowDisplayRange: false,
             // 是否启用自动重置
@@ -235,24 +243,17 @@ export default defineComponent({
                     drawer.setEnable(true)
                     drawer.setOSDEnable(false)
                     drawer.setOSD(formData.value.countOSD)
-                    setOcxData()
                 }
 
                 if (mode.value === 'ocx') {
-                    setTimeout(() => {
-                        const alarmLine = pageData.value.warnAreaIndex
-                        const plugin = playerRef.value!.plugin
+                    const sendXML2 = OCX_XML_SetPeaAreaAction('EDIT_ON')
+                    plugin.ExecuteCmd(sendXML2)
 
-                        const sendXML1 = OCX_XML_SetPeaArea(formData.value.boundaryInfo[alarmLine].point, pageData.value.currentRegulation)
-                        plugin.ExecuteCmd(sendXML1)
-
-                        const sendXML2 = OCX_XML_SetPeaAreaAction('EDIT_ON')
-                        plugin.ExecuteCmd(sendXML2)
-
-                        const sendXML3 = OCX_XML_SetAiOSDInfo(formData.value.countOSD, 'areaStatis')
-                        plugin.ExecuteCmd(sendXML3)
-                    }, 100)
+                    const sendXML3 = OCX_XML_SetAiOSDInfo(noneOSD, 'areaStatis')
+                    plugin.ExecuteCmd(sendXML3)
                 }
+
+                setOcxData()
             } else if (pageData.value.tab === 'imageOSD') {
                 showAllArea(false)
                 if (mode.value === 'h5') {
@@ -263,16 +264,14 @@ export default defineComponent({
                 }
 
                 if (mode.value === 'ocx') {
-                    setTimeout(() => {
-                        const sendXML1 = OCX_XML_SetPeaAreaAction('NONE')
-                        plugin.ExecuteCmd(sendXML1)
+                    const sendXML1 = OCX_XML_SetPeaAreaAction('NONE')
+                    plugin.ExecuteCmd(sendXML1)
 
-                        const sendXML2 = OCX_XML_SetPeaAreaAction('EDIT_OFF')
-                        plugin.ExecuteCmd(sendXML2)
+                    const sendXML2 = OCX_XML_SetPeaAreaAction('EDIT_OFF')
+                    plugin.ExecuteCmd(sendXML2)
 
-                        const sendXML3 = OCX_XML_SetAiOSDInfo(formData.value.countOSD, 'areaStatis')
-                        plugin.ExecuteCmd(sendXML3)
-                    }, 100)
+                    const sendXML3 = OCX_XML_SetAiOSDInfo(formData.value.countOSD, 'areaStatis')
+                    plugin.ExecuteCmd(sendXML3)
                 }
             } else if (pageData.value.tab === 'trigger') {
                 showAllArea(false)
@@ -436,11 +435,6 @@ export default defineComponent({
                     formData.value.onlyPerson = $param('sensitivity').text() !== ''
                     // NTA1-231：低配版IPC：4M S4L-C，越界/区域入侵目标类型只支持人
                     formData.value.sensitivity = formData.value.onlyPerson ? $('sensitivity').text().num() : 0
-
-                    if (formData.value.boundaryInfo.length > 1) {
-                        pageData.value.showAllAreaVisible = true
-                        pageData.value.clearAllVisible = true
-                    }
 
                     // 默认用line的第一个数据初始化检测目标
                     if (formData.value.boundaryInfo[0].objectFilter.detectTargetList.length) {
@@ -694,20 +688,23 @@ export default defineComponent({
                                 <Y>${Math.round(formData.value.countOSD.Y)}</Y>
                             ${
                                 formData.value.countOSD.supportOsdEntranceName
-                                    ? `<showEnterOsd>${formData.value.countOSD.showEnterOsd}</showEnterOsd>
-                                <osdEntranceName>${formData.value.countOSD.osdEntranceName}</osdEntranceName>`
+                                    ? rawXml`
+                                        <showEnterOsd>${formData.value.countOSD.showEnterOsd}</showEnterOsd>
+                                        <osdEntranceName>${formData.value.countOSD.osdEntranceName}</osdEntranceName>`
                                     : ''
                             }
                              ${
                                  formData.value.countOSD.supportOsdExitName
-                                     ? `<showExitOsd>${formData.value.countOSD.showExitOsd}</showExitOsd>
-                                <osdExitName>${formData.value.countOSD.osdExitName}</osdExitName>`
+                                     ? rawXml`
+                                        <showExitOsd>${formData.value.countOSD.showExitOsd}</showExitOsd>
+                                        <osdExitName>${formData.value.countOSD.osdExitName}</osdExitName>`
                                      : ''
                              }
                              ${
                                  formData.value.countOSD.supportOsdStayName
-                                     ? `<showStayOsd>${formData.value.countOSD.showStayOsd}</showStayOsd>
-                                <osdStayName>${formData.value.countOSD.osdStayName}</osdStayName>`
+                                     ? rawXml`
+                                        <showStayOsd>${formData.value.countOSD.showStayOsd}</showStayOsd>
+                                        <osdStayName>${formData.value.countOSD.osdStayName}</osdStayName>`
                                      : ''
                              }
                              ${formData.value.countOSD.supportOsdAlarmName ? `<osdAlarmName>${formData.value.countOSD.osdAlarmName}</osdAlarmName>` : ''}
@@ -738,7 +735,7 @@ export default defineComponent({
                                                         })
                                                         .join('')}
                                                 </point>
-                                                    ${setItemObjectFilterData(element)}
+                                                ${setItemObjectFilterData(element)}
                                             </item>
                                         `
                                     })
@@ -762,11 +759,11 @@ export default defineComponent({
                                     ${formData.value.presets
                                         .map((item) => {
                                             return rawXml`
-                                            <item>
-                                                <index>${item.index}</index>
-                                                <name>${wrapCDATA(item.name)}</name>
-                                                <chl id='${item.chl.value}'>${wrapCDATA(item.chl.label)}</chl>
-                                            </item>`
+                                                <item>
+                                                    <index>${item.index}</index>
+                                                    <name>${wrapCDATA(item.name)}</name>
+                                                    <chl id='${item.chl.value}'>${wrapCDATA(item.chl.label)}</chl>
+                                                </item>`
                                         })
                                         .join('')}
                                 </presets>
@@ -775,7 +772,7 @@ export default defineComponent({
                                 <chls type="list">
                                 ${formData.value.ipSpeaker
                                     .map((item) => {
-                                        return rawXml`<item id='${item.ipSpeakerId}' audioID='${item.audioID}'/>`
+                                        return `<item id='${item.ipSpeakerId}' audioID='${item.audioID}'/>`
                                     })
                                     .join('')}
                                 </chls>
@@ -966,17 +963,21 @@ export default defineComponent({
                     const areaList = [1, 2]
                     const sendXMLClear = OCX_XML_DeleteRectangleArea(areaList)
                     plugin.ExecuteCmd(sendXMLClear)
-                    const minRegionForPlugin = cloneDeep(minRegionInfo.region[0])
-                    minRegionForPlugin.ID = 1
-                    minRegionForPlugin.text = 'Min'
-                    minRegionForPlugin.LineColor = 'yellow'
-                    const maxRegionForPlugin = cloneDeep(maxRegionInfo.region[0])
-                    maxRegionForPlugin.ID = 2
-                    maxRegionForPlugin.text = 'Max'
-                    maxRegionForPlugin.LineColor = 'yellow'
-                    const rectangles = []
-                    rectangles.push(minRegionForPlugin)
-                    rectangles.push(maxRegionForPlugin)
+
+                    const rectangles = [
+                        {
+                            ...minRegionInfo.region[0],
+                            ID: 1,
+                            text: 'Min',
+                            LineColor: 'yellow',
+                        },
+                        {
+                            ...maxRegionInfo.region[0],
+                            ID: 2,
+                            text: 'Max',
+                            LineColor: 'yellow',
+                        },
+                    ]
                     const sendXML = OCX_XML_AddRectangleArea(rectangles)
                     plugin.ExecuteCmd(sendXML)
                 }
@@ -1053,7 +1054,7 @@ export default defineComponent({
                     formData.value.regionInfo[area] = points
                 }
             } else {
-                formData.value.boundaryInfo[area].point = points
+                formData.value.boundaryInfo[area].point = points as CanvasBasePoint[]
             }
 
             if (osdInfo) {
@@ -1064,7 +1065,6 @@ export default defineComponent({
             if (pageData.value.isShowAllArea) {
                 showAllArea(true)
             }
-            refreshInitPage()
         }
 
         /**
@@ -1223,7 +1223,7 @@ export default defineComponent({
          * @param {CanvasBasePoint} poinObjtList
          */
         const setClosed = (poinObjtList: CanvasBasePoint[]) => {
-            poinObjtList.forEach(function (element) {
+            poinObjtList.forEach((element) => {
                 element.isClosed = true
             })
         }
@@ -1236,7 +1236,7 @@ export default defineComponent({
             if (mode.value === 'h5' && !pageData.value.currentRegulation) {
                 const boundaryInfoList = formData.value.boundaryInfo
                 if (boundaryInfoList && boundaryInfoList.length > 0) {
-                    boundaryInfoList.forEach(function (boundaryInfo) {
+                    boundaryInfoList.forEach((boundaryInfo) => {
                         const poinObjtList = boundaryInfo.point
                         if (poinObjtList.length >= 4 && drawer.judgeAreaCanBeClosed(poinObjtList)) {
                             setClosed(poinObjtList)
@@ -1357,15 +1357,6 @@ export default defineComponent({
                     }
                     return -1
                 })
-
-                // 是否显示全部区域切换按钮和清除全部按钮（区域数量大于等于2时才显示）
-                if (regionInfoList && regionInfoList.length > 1) {
-                    pageData.value.showAllAreaVisible = true
-                    pageData.value.clearAllVisible = true
-                } else {
-                    pageData.value.showAllAreaVisible = false
-                    pageData.value.clearAllVisible = false
-                }
             } else {
                 // 画点-警戒区域
                 const boundaryInfoList = formData.value.boundaryInfo
@@ -1375,17 +1366,16 @@ export default defineComponent({
                     }
                     return -1
                 })
-
-                // 是否显示全部区域切换按钮和清除全部按钮（区域数量大于等于2时才显示）
-                if (boundaryInfoList && boundaryInfoList.length > 1) {
-                    pageData.value.showAllAreaVisible = true
-                    pageData.value.clearAllVisible = true
-                } else {
-                    pageData.value.showAllAreaVisible = false
-                    pageData.value.clearAllVisible = false
-                }
             }
         }
+
+        const isShowAllVisible = computed(() => {
+            if (pageData.value.currentRegulation) {
+                return formData.value.regionInfo.length > 1
+            } else {
+                return formData.value.boundaryInfo.length > 1
+            }
+        })
 
         const notify = ($: XMLQuery, stateType: string) => {
             if (stateType === 'PeaArea') {
@@ -1407,7 +1397,6 @@ export default defineComponent({
                     } else {
                         formData.value.boundaryInfo[area].point = points
                     }
-                    refreshInitPage()
                 }
 
                 const errorCode = $('statenotify/errorCode').text().num()
@@ -1479,6 +1468,7 @@ export default defineComponent({
             clearAllArea,
             resetData,
             applyData,
+            isShowAllVisible,
         }
     },
 })

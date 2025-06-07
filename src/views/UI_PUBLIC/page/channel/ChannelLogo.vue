@@ -17,31 +17,23 @@
                 class="stripe"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select-v2
-                        v-if="tableData.length"
+                    <BaseSelect
                         v-model="pageData.tableIndex"
                         :options="chlOptions"
+                        :persistent="true"
+                        :disabled="!chlOptions.length"
+                        empty-text=""
                         @change="changeChl"
-                    />
-                    <el-select-v2
-                        v-else
-                        model-value=""
-                        :options="[]"
-                        disabled
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_LOGO')">
-                    <el-select-v2
-                        v-if="tableData[pageData.tableIndex]"
-                        v-model="tableData[pageData.tableIndex].switch"
-                        :disabled="tableData[pageData.tableIndex].disabled"
+                    <BaseSelect
+                        :model-value="tableData[pageData.tableIndex]?.switch || ''"
+                        :disabled="!tableData[pageData.tableIndex] || tableData[pageData.tableIndex].disabled"
+                        :persistent="true"
+                        empty-text=""
                         :options="pageData.switchOptions"
-                    />
-                    <el-select-v2
-                        v-else
-                        model-value=""
-                        disabled
-                        :options="[]"
+                        @update:model-value="tableData[pageData.tableIndex].switch = $event"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_TRANSPARENCY')">
@@ -50,7 +42,7 @@
                         v-model="tableData[pageData.tableIndex].opacity"
                         :min="tableData[pageData.tableIndex].minOpacity"
                         :max="tableData[pageData.tableIndex].maxOpacity"
-                        :disabled="tableData[pageData.tableIndex].disabled"
+                        :disabled="!tableData[pageData.tableIndex] || tableData[pageData.tableIndex].disabled"
                     />
                     <BaseSliderInput
                         v-else
@@ -86,7 +78,7 @@
                     <!-- LOGO开关   -->
                     <el-table-column :label="Translate('IDCS_LOGO')">
                         <template #header>
-                            <el-dropdown>
+                            <BaseDropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_LOGO') }}
                                 </BaseTableDropdownLink>
@@ -101,10 +93,10 @@
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
-                            </el-dropdown>
+                            </BaseDropdown>
                         </template>
                         <template #default="{ row }: TableColumn<ChannelLogoSetDto>">
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="row.switch"
                                 :disabled="row.disabled"
                                 :options="pageData.switchOptions"

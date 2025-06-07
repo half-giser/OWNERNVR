@@ -48,6 +48,7 @@ const emit = defineEmits<{
     (e: 'visibleChange', bool: boolean): void
 }>()
 
+const popperObserver = usePopperObserver()
 const $select = ref<ComponentInstance<typeof ElSelectV2>>()
 
 const vFormat = {
@@ -92,15 +93,36 @@ const handleInput = () => {
 
 let cacheModelValue = ''
 
+const focus = () => {
+    $select.value?.focus()
+}
+
+const blur = () => {
+    $select.value?.blur()
+}
+
+const hide = popperObserver.observe(blur, 'el-select-dropdown')
+
 const handleVisibleChange = (bool: boolean) => {
     if (bool) {
         cacheModelValue = props.modelValue
+        popperObserver.addListener(hide)
     } else {
         if (!props.validate(props.modelValue)) {
             emit('update:modelValue', cacheModelValue)
         }
+        popperObserver.removeListener(hide)
     }
 
     emit('visibleChange', bool)
 }
+
+defineExpose({
+    focus,
+    blur,
+})
+
+onBeforeUnmount(() => {
+    popperObserver.removeListener(hide)
+})
 </script>

@@ -3,30 +3,32 @@
  * @Author: liyanqi a11219@tvt.net.cn
  * @Date: 2025-05-26 14:21:56
  */
-import IntelSearchDetail from './IntelSearchDetail.vue'
+import IntelSearchDetailPanel from './IntelSearchDetailPanel.vue'
+import { type TableInstance, type CheckboxValueType } from 'element-plus'
+import IntelSearchBackupPop, { type IntelSearchBackUpExpose } from './IntelSearchBackupPop.vue'
+
 export default defineComponent({
     components: {
-        IntelSearchDetail,
+        IntelSearchDetailPanel,
+        IntelSearchBackupPop,
     },
     setup() {
         const { Translate } = useLangStore()
+        const auth = useUserChlAuth(true)
         const router = useRouter()
+        const backupPopRef = ref<IntelSearchBackUpExpose>()
 
-        const tableRef = ref<TableInstance>()
-        // 排序下拉框的引用
-        const dropdownRef = ref<DropdownInstance>()
-        const tableData = ref<SelectOption<string, string>[]>([])
-        const selected = ref<SelectOption<string, string>[]>([])
         // 详情弹框
         const detailRef = ref()
+        const tableRef = ref<TableInstance>()
 
-        // 列表索引数据（根据分页索引pageIndex和分页大小pageSize从总数据targetIndexDatas中截取的当页列表数据）
-        const sliceTargetIndexDatas = ref<IntelTargetIndexItem[]>([])
+        const tableData = ref<SelectOption<string, string>[]>([])
+
         const pageData = ref({
             // 日期范围类型
             dateRangeType: 'date',
             // 目标特征参数
-            targetType: 'humanFace',
+            targetType: 'humanFace', // humanFace humanBody
             targetFeatureIndex: 0,
             targetFeatureData: '',
             // 检索目标图
@@ -36,12 +38,12 @@ export default defineComponent({
             // 是否打开详情
             isDetailOpen: false,
             // 排序类型（按时间/按通道）
-            sortType: 'time',
+            sortType: 'similarity',
             // 排序选项
             sortOptions: [
                 {
-                    label: Translate('IDCS_CHANNEL'),
-                    value: 'chl',
+                    label: Translate('IDCS_SIMILARITY'),
+                    value: 'similarity',
                     status: 'down',
                 },
                 {
@@ -49,49 +51,51 @@ export default defineComponent({
                     value: 'time',
                     status: 'down',
                 },
-                {
-                    label: Translate('IDCS_SIMILARITY'),
-                    value: 'similarity',
-                    status: 'down',
-                },
             ],
             // 选择的日期时间范围
             dateRange: [0, 0] as [number, number],
             // 选择的通道ID列表
             chlIdList: [] as string[],
-            // 分页器（人脸）
-            pageIndexForFace: 1,
-            pageSizeForFace: 12,
-            // 列表数据（人脸）
-            targetIndexDatasForFace: [] as IntelTargetIndexItem[],
-            // 当前打开的详情的索引index（特征值的base64）（人脸）
-            openDetailIndexForFace: '',
+            // 分页器（目标检索）
+            pageIndexForSearchTarget: 1,
+            pageSizeForSearchTarget: 12,
+            // 列表数据（目标检索）
+            targetIndexDatasForSearchTarget: [] as IntelTargetIndexItem[],
+            // 当前打开的详情的索引index（特征值的base64）（目标检索）
+            openDetailIndexForSearchTarget: '',
             // 是否是轨迹界面（人脸界面才有轨迹）
             isTrail: false,
-            // 详情数据（人脸）
-            targetDatasForFace: [] as IntelTargetDataItem[],
+            // 详情数据（目标检索）
+            targetDatasForSearchTarget: [] as IntelTargetDataItem[],
             // 备份类型选项
             backupTypeOptions: [
                 {
                     label: Translate('IDCS_BACKUP_PICTURE'),
-                    value: 'pic' as 'pic' | 'video' | 'picAndVideo',
+                    value: 'pic',
                 },
                 {
                     label: Translate('IDCS_BACKUP_RECORD'),
-                    value: 'video' as 'pic' | 'video' | 'picAndVideo',
+                    value: 'video',
                 },
                 {
                     label: Translate('IDCS_BACKUP_PICTURE_AND_RECORD'),
-                    value: 'picAndVideo' as 'pic' | 'video' | 'picAndVideo',
+                    value: 'pic+video',
                 },
             ],
+            // 选中的详情数据（目标检索）
+            selectedTargetDatasForSearchTarget: [] as IntelTargetDataItem[],
+            // 是否全选
+            isCheckedAll: false,
             // 是否支持备份（H5模式）
             isSupportBackUp: isBrowserSupportWasm() && !isHttpsLogin(),
         })
+        // 列表索引数据（根据分页索引pageIndex和分页大小pageSize从总数据targetIndexDatas中截取的当页列表数据）
+        const sliceTargetIndexDatas = ref<IntelTargetIndexItem[]>([])
 
         /**
-         * @description 获取通道数据
+         * @description 获取通道数据 - 通道ID与通道名称的映射
          */
+        const chlIdNameMap: Record<string, string> = {}
         const getChlData = async () => {
             const result = await getChlList({
                 isContainsDeletedItem: true,
@@ -107,12 +111,25 @@ export default defineComponent({
                         return null
                     }
                     pageData.value.chlIdList.push(id)
+                    chlIdNameMap[id] = text
                     return {
                         label: text,
                         value: id,
                     }
                 })
                 .filter((item) => item !== null) // NTA1-1294 不显示已删除通道
+
+            tableRef.value!.toggleAllSelection()
+        }
+
+        /**
+         * @description 返回
+         */
+        const handleExit = () => {
+            localStorage.setItem('extractResultInfos', '')
+            router.push({
+                path: '/intelligent-analysis/search/search-person',
+            })
         }
 
         /**
@@ -127,7 +144,6 @@ export default defineComponent({
             } else {
                 pageData.value.dateRangeType = type
             }
-            // getData()
         }
 
         /**
@@ -135,50 +151,155 @@ export default defineComponent({
          * @param {SelectOption<string, string>[]} row
          */
         const handleCurrentChange = (row: SelectOption<string, string>[]) => {
-            selected.value = row
+            pageData.value.chlIdList = row.map((item) => item.value)
         }
 
         /**
-         * @description 点击行 仅选中该行
-         * @param {SelectOption<string, string>} row
+         * @description 获取列表索引数据 - searchTargetIndex
          */
-        const handleRowClick = (row: SelectOption<string, string>) => {
-            tableRef.value!.clearSelection()
-            tableRef.value!.toggleRowSelection(row, true)
+        const getAllTargetIndexDatas = async () => {
+            resetSortStatus()
+            resetCurrSelectedTargetDatas()
+            setCurrTargetIndexDatas([])
+            setCurrTargetDatas([])
+            const sendXml = rawXml`
+                <resultLimit>10000</resultLimit>
+                <condition>
+                    <searchType>byFeature</searchType>
+                    <startTime isUTC="true">${localToUtc(pageData.value.dateRange[0], DEFAULT_DATE_FORMAT)}</startTime>
+                    <endTime isUTC="true">${localToUtc(pageData.value.dateRange[1], DEFAULT_DATE_FORMAT)}</endTime>
+                    <chls type="list">${pageData.value.chlIdList.map((item) => `<item id="${item}"></item>`).join('')}</chls>
+                    <byFeatureParams>
+                        <featureInfos type="list">
+                            <item>
+                                <index>${pageData.value.targetFeatureIndex}</index>
+                                <feature>${pageData.value.targetFeatureData}</feature>
+                            </item>
+                        </featureInfos>
+                        <targetType>${pageData.value.targetType}</targetType>
+                        <similarity>${pageData.value.similarity}</similarity>
+                        <onlyREIDResult>true</onlyREIDResult>
+                    </byFeatureParams>
+                </condition>
+            `
+            openLoading()
+            const result = await searchTargetIndex(sendXml)
+            const $ = queryXml(result)
+            closeLoading()
+
+            if ($('status').text() === 'success') {
+                const targetIndexDatas: IntelTargetIndexItem[] = $('content/results/item').map((item) => {
+                    const $item = queryXml(item.element)
+                    const checked = false
+                    const index = $item('index').text() // 索引信息,客户端原封不动返回取图
+                    const targetID = $item('targetID').text()
+                    const targetType = $item('targetType').text()
+                    const chlID = $item('chlID').text()
+                    const channelName = $item('channelName').text()
+                    const timeStamp = $item('timeStamp').text().num() // 这一帧的时间戳
+                    const timeStampUTC = $item('timeStampUTC').text() // 这一帧的时间戳 UTC
+                    const timeStamp100ns = ('0000000' + $item('timeStamp100ns').text()).slice(-7) // 这一帧的时间戳 100ns
+                    const quality = $item('quality').text() // quality
+                    const similarity = $item('similarity').text().num() // 相似度
+                    const eventType = $item('eventType').text() // eventType
+                    const libIndex = $item('libIndex').text().num() // 以图搜索表示是哪张图地搜索结果（用于对比图的展示）
+                    const startTime = $item('startTime').text().num() // 目标开始时间戳
+                    const startTimeUTC = $item('startTimeUTC').text() // 目标开始时间戳 UTC
+                    const endTime = $item('endTime').text().num() // 目标消失的时间戳
+                    const endTimeUTC = $item('endTimeUTC').text() // 目标消失的时间戳 UTC
+                    return {
+                        checked,
+                        index,
+                        targetID,
+                        targetType,
+                        chlID,
+                        channelName,
+                        timeStamp,
+                        timeStampUTC,
+                        timeStamp100ns,
+                        quality,
+                        similarity,
+                        eventType,
+                        libIndex,
+                        startTime,
+                        startTimeUTC,
+                        endTime,
+                        endTimeUTC,
+                    }
+                })
+
+                targetIndexDatas.sort((a, b) => {
+                    if (a.similarity !== b.similarity) {
+                        return b.similarity - a.similarity
+                    }
+
+                    if (a.timeStamp !== b.timeStamp) {
+                        return b.timeStamp - a.timeStamp
+                    }
+
+                    if (a.timeStamp100ns !== b.timeStamp100ns) {
+                        return Number(b.timeStamp100ns) - Number(a.timeStamp100ns)
+                    }
+
+                    if (a.chlID !== b.chlID) {
+                        const chlIdA = getChlId16(a.chlID)
+                        const chlIdB = getChlId16(b.chlID)
+                        return chlIdA - chlIdB
+                    }
+                    return Number(a.targetID) - Number(b.targetID)
+                })
+
+                if ($('content/IsMaxSearchResultNum').text() === 'true') {
+                    openMessageBox(Translate('IDCS_SEARCH_RESULT_LIMIT_TIPS'))
+                }
+
+                if (targetIndexDatas.length === 0) {
+                    openMessageBox(Translate('IDCS_NO_RECORD_DATA'))
+                } else {
+                    // 设置界面列表索引数据targetIndexDatas
+                    setCurrTargetIndexDatas(targetIndexDatas)
+                    // 初始化第一页数据
+                    handleChangePage(1)
+                }
+            } else {
+                openMessageBox(Translate('IDCS_NO_RECORD_DATA'))
+            }
         }
 
         /**
-         * @description 切换分页页码
+         * @description 设置界面列表索引数据targetIndexDatas
          */
-        const handleChangePage = (pageIndex: number) => {
-            // 设置分页pageIndex
-            setCurrPageIndex(pageIndex)
-            // 遍历列表索引数据的每一项，获取对应的详情数据
-            const tempPageIndex = getCurrPageIndex()
-            const tempPageSize = getCurrPageSize()
-            const tempTargetIndexDatas = getCurrTargetIndexDatas()
-            sliceTargetIndexDatas.value = tempTargetIndexDatas.slice((tempPageIndex - 1) * tempPageSize, tempPageIndex * tempPageSize)
-            getCurrPageTargetDatas(sliceTargetIndexDatas.value)
+        const setCurrTargetIndexDatas = (targetIndexDatas: IntelTargetIndexItem[]) => {
+            pageData.value.targetIndexDatasForSearchTarget = targetIndexDatas
+        }
+
+        /**
+         * @description 获取界面列表索引数据targetIndexDatas
+         */
+        const getCurrTargetIndexDatas = () => {
+            return pageData.value.targetIndexDatasForSearchTarget
         }
 
         /**
          * @description 获取列表详情数据 - requestTargetData
          */
         const getCurrPageTargetDatas = async (targetIndexDatas: IntelTargetIndexItem[]) => {
-            const tempTargetDatas: IntelTargetDataItem[] = []
-            closeLoading()
-            targetIndexDatas.forEach(async (item, index) => {
+            setCurrTargetDatas(targetIndexDatas)
+            const currTargetDatas = getCurrTargetDatas()
+
+            openLoading()
+            let reqCount = 0
+            currTargetDatas.forEach(async (item) => {
                 const sendXml = rawXml`
                     <condition>
                         <index>${item.index}</index>
                         <supportRegister>true</supportRegister>
-                        '<featureStatus>true</featureStatus>'
+                        <featureStatus>true</featureStatus>
                     </condition>
                 `
                 const result = await requestTargetData(sendXml)
                 const $ = queryXml(result)
 
-                const tempTargetData: IntelTargetDataItem = Object.assign({}, new IntelTargetDataItem(), cloneDeep(item))
                 if ($('status').text() === 'success') {
                     const isNoData = false
                     const isDelete = $('content/isDelete').text().bool()
@@ -266,14 +387,10 @@ export default defineComponent({
                         hat: $('content/humanAttrInfo/hat').text(),
                         glasses: $('content/humanAttrInfo/glasses').text(),
                         backpack: $('content/humanAttrInfo/backpack').text(),
-                        upperCloth: {
-                            upperClothType: $('content/humanAttrInfo/upperClothType').text(),
-                            upperClothColor: $('content/humanAttrInfo/upperClothColor').text(),
-                        },
-                        lowerCloth: {
-                            lowerClothType: $('content/humanAttrInfo/lowerClothType').text(),
-                            lowerClothColor: $('content/humanAttrInfo/lowerClothColor').text(),
-                        },
+                        upperClothType: $('content/humanAttrInfo/upperClothType').text(),
+                        upperClothColor: $('content/humanAttrInfo/upperClothColor').text(),
+                        lowerClothType: $('content/humanAttrInfo/lowerClothType').text(),
+                        lowerClothColor: $('content/humanAttrInfo/lowerClothColor').text(),
                         skirt: $('content/humanAttrInfo/skirt').text(),
                         direction: $('content/humanAttrInfo/direction').text(),
                     }
@@ -297,54 +414,121 @@ export default defineComponent({
                         vehicleType: $('content/plateAttrInfo/vehicleType').text(),
                         nonMotorizedVehicleType: $('content/plateAttrInfo/nonMotorizedVehicleType').text(),
                     }
+
                     // 组装数据
-                    tempTargetData.isNoData = isNoData
-                    tempTargetData.isDelete = isDelete
-                    tempTargetData.targetID = targetID
-                    tempTargetData.featureStatus = featureStatus
-                    tempTargetData.supportRegister = supportRegister
-                    tempTargetData.targetType = targetType
-                    tempTargetData.timeStamp = timeStamp
-                    tempTargetData.timeStampLocal = timeStampLocal
-                    tempTargetData.timeStampUTC = timeStampUTC
-                    tempTargetData.startTime = startTime
-                    tempTargetData.startTimeLocal = startTimeLocal
-                    tempTargetData.startTimeUTC = startTimeUTC
-                    tempTargetData.endTime = endTime
-                    tempTargetData.endTimeLocal = endTimeLocal
-                    tempTargetData.endTimeUTC = endTimeUTC
-                    tempTargetData.objPicData = objPicData
-                    tempTargetData.backgroundPicDatas = backgroundPicDatas
-                    tempTargetData.targetTrace = targetTrace
-                    tempTargetData.ruleInfos = ruleInfos
-                    tempTargetData.humanAttrInfo = humanAttrInfo
-                    tempTargetData.vehicleAttrInfo = vehicleAttrInfo
-                    tempTargetData.nonMotorVehicleAttrInfo = nonMotorVehicleAttrInfo
-                    tempTargetData.plateAttrInfo = plateAttrInfo
+                    item.isNoData = isNoData
+                    item.isDelete = isDelete
+                    item.targetID = targetID
+                    item.featureStatus = featureStatus
+                    item.supportRegister = supportRegister
+                    item.targetType = targetType
+                    item.timeStamp = timeStamp
+                    item.timeStampLocal = timeStampLocal
+                    item.timeStampUTC = timeStampUTC
+                    item.startTime = startTime
+                    item.startTimeLocal = startTimeLocal
+                    item.startTimeUTC = startTimeUTC
+                    item.endTime = endTime
+                    item.endTimeLocal = endTimeLocal
+                    item.endTimeUTC = endTimeUTC
+                    item.objPicData = objPicData
+                    item.backgroundPicDatas = backgroundPicDatas
+                    item.targetTrace = targetTrace
+                    item.ruleInfos = ruleInfos
+                    item.humanAttrInfo = humanAttrInfo
+                    item.vehicleAttrInfo = vehicleAttrInfo
+                    item.nonMotorVehicleAttrInfo = nonMotorVehicleAttrInfo
+                    item.plateAttrInfo = plateAttrInfo
+
+                    // 判断当前数据是否被选中
+                    const currSelectedTargetDatas = getCurrSelectedTargetDatas()
+                    const findIndex = currSelectedTargetDatas.findIndex((selectedItem) => selectedItem.index === item.index)
+                    if (findIndex > -1) item.checked = true
+                    judgeIsCheckedAll()
                 } else {
                     // 组装数据
-                    tempTargetData.isNoData = true
+                    item.isNoData = true
                 }
-                tempTargetDatas[index] = tempTargetData
 
-                // 设置当前界面展示的列表详情数据
-                setCurrTargetDatas(cloneDeep(tempTargetDatas))
+                reqCount++
+                if (reqCount >= targetIndexDatas.length) {
+                    closeLoading()
+                    // 切换分页后默认打开第一个详情
+                    if (pageData.value.isDetailOpen) {
+                        showDetail(currTargetDatas[0])
+                    }
+                }
             })
-            closeLoading()
         }
 
         /**
          * @description 设置界面列表详情数据targetDatas
          */
-        const setCurrTargetDatas = (targetDatas: IntelTargetDataItem[]) => {
-            pageData.value.targetDatasForFace = targetDatas
+        const setCurrTargetDatas = (targetIndexDatas: IntelTargetIndexItem[]) => {
+            pageData.value.targetDatasForSearchTarget = targetIndexDatas.map((item) => Object.assign({}, new IntelTargetDataItem(), cloneDeep(item)))
         }
 
         /**
-         * @description 全选
+         * @description 获取界面列表详情数据targetDatas
          */
-        const handleSelectAll = () => {
-            console.log('handleSelectAll')
+        const getCurrTargetDatas = () => {
+            return pageData.value.targetDatasForSearchTarget
+        }
+
+        /**
+         * @description 设置分页pageIndex
+         */
+        const setCurrPageIndex = (pageIndex: number) => {
+            pageData.value.pageIndexForSearchTarget = pageIndex
+        }
+
+        /**
+         * @description 获取分页pageIndex
+         */
+        const getCurrPageIndex = () => {
+            return pageData.value.pageIndexForSearchTarget
+        }
+
+        /**
+         * @description 获取分页pageSize
+         */
+        const getCurrPageSize = () => {
+            return pageData.value.pageSizeForSearchTarget
+        }
+
+        /**
+         * @description 记录当前打开详情的索引index
+         */
+        const setCurrOpenDetailIndex = (index: string) => {
+            pageData.value.openDetailIndexForSearchTarget = index
+        }
+
+        /**
+         * @description 获取当前选中的详情数据
+         */
+        const getCurrSelectedTargetDatas = () => {
+            return pageData.value.selectedTargetDatasForSearchTarget
+        }
+
+        /**
+         * @description 重置当前选中的详情数据
+         */
+        const resetCurrSelectedTargetDatas = () => {
+            pageData.value.selectedTargetDatasForSearchTarget = []
+        }
+
+        /**
+         * @description 切换分页页码
+         */
+        const handleChangePage = (pageIndex: number) => {
+            // 设置分页pageIndex
+            setCurrPageIndex(pageIndex)
+            // 遍历列表索引数据的每一项，获取对应的详情数据
+            const tempPageIndex = getCurrPageIndex()
+            const tempPageSize = getCurrPageSize()
+            const tempTargetIndexDatas = getCurrTargetIndexDatas()
+            sliceTargetIndexDatas.value = tempTargetIndexDatas.slice((tempPageIndex - 1) * tempPageSize, tempPageIndex * tempPageSize)
+            getCurrPageTargetDatas(sliceTargetIndexDatas.value)
         }
 
         /**
@@ -354,14 +538,13 @@ export default defineComponent({
             pageData.value.sortOptions.forEach((item) => {
                 item.status = 'down'
             })
-            pageData.value.sortType = 'time'
+            pageData.value.sortType = 'similarity'
         }
 
         /**
          * @description 手动排序: 时间排序、通道排序、相似度排序
          */
         const handleSort = (sortType: string) => {
-            dropdownRef.value?.handleClose()
             if (sortType === 'time') {
                 if (pageData.value.sortType === 'time') {
                     // 时间排序升序降序切换
@@ -586,7 +769,7 @@ export default defineComponent({
                     return Number(a.targetID) - Number(b.targetID)
                 })
             }
-            // setCurrTargetIndexDatas(targetIndexDatas)
+            setCurrTargetIndexDatas(targetIndexDatas)
             const tempPageIndex = getCurrPageIndex()
             const tempPageSize = getCurrPageSize()
             sliceTargetIndexDatas.value = targetIndexDatas.slice((tempPageIndex - 1) * tempPageSize, tempPageIndex * tempPageSize)
@@ -598,14 +781,56 @@ export default defineComponent({
          * @description 备份全部
          */
         const handleBackupAll = () => {
-            console.log('handleBackupAll')
+            backupPopRef.value?.startBackup({
+                isBackupPic: true,
+                isBackupVideo: false,
+                indexData: pageData.value.targetIndexDatasForSearchTarget.map((item) => {
+                    return {
+                        index: item.index,
+                        chlId: item.chlID,
+                        chlName: item.channelName,
+                        frameTime: item.timeStamp,
+                        startTime: item.startTime,
+                        endTime: item.endTime,
+                    }
+                }),
+            })
         }
 
         /**
          * @description 备份选中项
          */
-        const handleBackup = (backupType: 'pic' | 'video' | 'picAndVideo') => {
-            console.log(backupType)
+        const handleBackup = (type: string) => {
+            backupPopRef.value?.startBackup({
+                isBackupPic: type.includes('pic'),
+                isBackupVideo: type.includes('video'),
+                indexData: pageData.value.selectedTargetDatasForSearchTarget.map((item) => {
+                    return {
+                        index: item.index,
+                        chlId: item.chlID,
+                        chlName: item.channelName,
+                        frameTime: item.timeStamp,
+                        startTime: item.startTime,
+                        endTime: item.endTime,
+                    }
+                }),
+            })
+        }
+
+        const handleBackupCurrentTarget = (item: IntelTargetDataItem | IntelTargetIndexItem, type = 'pic') => {
+            backupPopRef.value?.startBackup({
+                isBackupPic: type.includes('pic'),
+                isBackupVideo: type.includes('video'),
+                isBackupPlateCsv: type.includes('csv'),
+                indexData: [
+                    {
+                        index: item.index,
+                        chlId: item.chlID,
+                        chlName: item.channelName,
+                        frameTime: item.timeStamp,
+                    },
+                ],
+            })
         }
 
         /**
@@ -613,6 +838,16 @@ export default defineComponent({
          */
         const switchDetail = () => {
             pageData.value.isDetailOpen = !pageData.value.isDetailOpen
+
+            if (pageData.value.isDetailOpen) {
+                const list = getCurrTargetDatas()
+                const find = list.find((item) => item.index === pageData.value.openDetailIndexForSearchTarget)
+                if (find) {
+                    showDetail(find)
+                } else if (list.length) {
+                    showDetail(list[0])
+                }
+            }
         }
 
         /**
@@ -622,9 +857,9 @@ export default defineComponent({
             pageData.value.isDetailOpen = true
             setCurrOpenDetailIndex(targetDataItem.index)
             // 初始化详情
-            const isTrail = false
+            const isTrail = pageData.value.isTrail
             const currentIndex = targetDataItem.index
-            const detailData = pageData.value.targetDatasForFace
+            const detailData = pageData.value.targetDatasForSearchTarget
             detailRef?.value.init({
                 isTrail,
                 currentIndex,
@@ -647,354 +882,69 @@ export default defineComponent({
         }
 
         /**
-         * @description 设置界面列表索引数据targetIndexDatas
+         * @description 勾选/取消勾选
          */
-        const setCurrTargetIndexDatas = (targetIndexDatas: IntelTargetIndexItem[]) => {
-            pageData.value.targetIndexDatasForFace = targetIndexDatas
-        }
-
-        /**
-         * @description 获取界面列表索引数据targetIndexDatas
-         */
-        const getCurrTargetIndexDatas = () => {
-            return pageData.value.targetIndexDatasForFace
-        }
-
-        /**
-         * @description 记录当前打开详情的索引index
-         */
-        const setCurrOpenDetailIndex = (index: string) => {
-            pageData.value.openDetailIndexForFace = index
-        }
-
-        /**
-         * @description 设置分页pageIndex
-         */
-        const setCurrPageIndex = (pageIndex: number) => {
-            pageData.value.pageIndexForFace = pageIndex
-        }
-
-        /**
-         * @description 获取分页pageIndex
-         */
-        const getCurrPageIndex = () => {
-            return pageData.value.pageIndexForFace
-        }
-
-        /**
-         * @description 获取分页pageSize
-         */
-        const getCurrPageSize = () => {
-            return pageData.value.pageSizeForFace
-        }
-
-        /**
-         * @description 以图搜图
-         */
-        const handleSearch = async (targetDataItem: IntelTargetDataItem) => {
-            const imgDataItem = new IntelFaceDBSnapFaceList()
-            imgDataItem.chlId = targetDataItem.chlID
-            imgDataItem.featureIndex = targetDataItem.index
-            imgDataItem.pic = targetDataItem.objPicData.data
-            imgDataItem.picWidth = targetDataItem.objPicData.picWidth
-            imgDataItem.picHeight = targetDataItem.objPicData.picHeight
-
-            openLoading()
-            try {
-                const imgBase64 = targetDataItem.objPicData.data
-                const picWidth = targetDataItem.objPicData.picWidth
-                const picHeight = targetDataItem.objPicData.picHeight
-                const targetData = await getDetectResultInfos(imgBase64, picWidth, picHeight) // 获取"目标"数据
-                const featureData = await extractTragetInfos(targetData) // 获取目标的"BASE64特征数据"
-                imgDataItem.featureData = featureData
-            } catch {
-                openMessageBox(Translate('IDCS_UNQUALIFIED_PICTURE'))
-            }
-            closeLoading()
-
-            // 关闭详情
-            hideDetail()
-        }
-
-        /**
-         * @description 根据"通道抓拍图"信息数据，去侦测"目标"
-         */
-        const getDetectResultInfos = async (imgData: string, imgWidth: number, imgHeight: number) => {
-            if (!imgData || !imgWidth || !imgHeight) {
-                return
-            }
-
-            imgData = imgData.includes(';base64,') ? imgData.split(',')[1] : imgData
-            const sendXml = rawXml`
-                <content>
-                    <detectImgInfos>
-                        <item index="1">
-                            <imgWidth>${imgWidth}</imgWidth>
-                            <imgHeight>${imgHeight}</imgHeight>
-                            <imgFormat>jpg</imgFormat>
-                            <imgData>${imgData}</imgData>
-                        </item>
-                    </detectImgInfos>
-                </content>
-            `
-            const result = await detectTarget(sendXml)
-            const $ = queryXml(result)
-            const detectResultInfos = $('content/detectResultInfos/Item').map((item) => {
-                const $item = queryXml(item.element)
-                const detectIndex = item.attr('index').num()
-                return {
-                    detectIndex: detectIndex,
-                    detectImgInfo: {
-                        detectIndex: 1,
-                        imgData,
-                        imgWidth,
-                        imgHeight,
-                        imgFormat: 'jpg',
-                    },
-                    targetList: $item('targetList/item').map((el) => {
-                        const $el = queryXml(el.element)
-                        return {
-                            targetId: el.attr('id').num(),
-                            targetType: $el('targetType').text(),
-                            rect: {
-                                leftTop: {
-                                    x: $el('rect/leftTop/x').text().num(),
-                                    y: $el('rect/leftTop/y').text().num(),
-                                },
-                                rightBottom: {
-                                    x: $el('rect/rightBottom/x').text().num(),
-                                    y: $el('rect/rightBottom/y').text().num(),
-                                },
-                                scaleWidth: $el('rect/scaleWidth').text().num(),
-                                scaleHeight: $el('rect/scaleHeight').text().num(),
-                            },
-                            featurePointInfos: $el('featurePointInfos/item').map((point) => {
-                                const $point = queryXml(point.element)
-                                return {
-                                    faceFeatureIndex: point.attr('index'),
-                                    x: $point('x').text().num(),
-                                    y: $point('y').text().num(),
-                                }
-                            }),
-                        }
-                    }),
-                }
-            })
-
-            if (detectResultInfos.length) {
-                // 先判断当前图片是否合格（对于以图搜图来说）
-                const isDetectHumanFace = true
-                let targetListLength = 0
-                let humanFaceTargetListLength = 0
-                detectResultInfos.forEach((item1) => {
-                    item1.targetList.forEach((item2) => {
-                        targetListLength++
-
-                        if (item2.targetType === 'humanFace') {
-                            humanFaceTargetListLength++
-                        }
-                    })
-                })
-                if (targetListLength > 0) {
-                    if (isDetectHumanFace) {
-                        if (humanFaceTargetListLength !== 1) {
-                            throw new Error('')
-                        }
-                    } else {
-                        throw new Error('')
-                    }
-                } else {
-                    throw new Error('')
-                }
-
-                // 获取目标信息
-                const find = detectResultInfos[0].targetList.find((item) => item.targetType === 'humanFace' || item.targetType === 'humanBody') // humanFace humanBody
-                if (find) {
-                    return {
-                        detectImgInfo: detectResultInfos[0].detectImgInfo,
-                        targetItem: find,
-                    }
-                } else {
-                    throw new Error('')
-                }
-            }
-
-            throw new Error('')
-        }
-
-        /**
-         * @description 根据"通道抓拍图"和侦测到的"目标"综合信息数据，去提取目标的"BASE64特征数据"
-         */
-        const extractTragetInfos = async (data: Awaited<ReturnType<typeof getDetectResultInfos>>) => {
-            const detectImgInfo = data!.detectImgInfo
-            const targetItem = data!.targetItem
-            const sendXml = rawXml`
-                <content>
-                    <extractImgInfos>
-                            <item index="${detectImgInfo.detectIndex}">
-                                <imgWidth>${detectImgInfo.imgWidth}</imgWidth>
-                                <imgHeight>${detectImgInfo.imgHeight}</imgHeight>
-                                <imgFormat>${detectImgInfo.imgFormat}</imgFormat>
-                                <imgData>${detectImgInfo.imgData}</imgData>
-                                <rect>
-                                    <leftTop>
-                                        <x>${targetItem.rect.leftTop.x}</x>
-                                        <y>${targetItem.rect.leftTop.y}</y>
-                                    </leftTop>
-                                    <rightBottom>
-                                        <x>${targetItem.rect.rightBottom.x}</x>
-                                        <y>${targetItem.rect.rightBottom.y}</y>
-                                    </rightBottom>
-                                    <scaleWidth>${targetItem.rect.scaleWidth}</scaleWidth>
-                                    <scaleHeight>${targetItem.rect.scaleHeight}</scaleHeight>
-                                </rect>
-                                <targetType>${targetItem.targetType}</targetType>
-                                <featurePointInfos>
-                                    ${targetItem.featurePointInfos
-                                        .map((point) => {
-                                            return rawXml`
-                                                <item index="${point.faceFeatureIndex}">
-                                                    <x>${point.x}</x>
-                                                    <y>${point.y}</y>
-                                                </item>
-                                            `
-                                        })
-                                        .join('')}
-                                </featurePointInfos>
-                            </item>
-                    </extractImgInfos>
-                </content>
-            `
-            const result = await extractTraget(sendXml)
-            const $ = queryXml(result)
-            return $('extractResultInfos/item/featureData').text()
-        }
-
-        /**
-         * @description 获取列表索引数据 - searchTargetIndex
-         */
-        const getData = async () => {
-            resetSortStatus()
-            const sendXml = rawXml`
-                <resultLimit>10000</resultLimit>
-                <condition>
-                    <searchType>byFeature</searchType>
-                    <startTime isUTC="true">${localToUtc(pageData.value.dateRange[0], DEFAULT_DATE_FORMAT)}</startTime>
-                    <endTime isUTC="true">${localToUtc(pageData.value.dateRange[1], DEFAULT_DATE_FORMAT)}</endTime>
-                    <chls type="list">${pageData.value.chlIdList.map((item) => `<item id="${item}"></item>`).join('')}</chls>
-                    <byFeatureParams>
-                        <featureInfos type="list">
-                            <item>
-                                    <index>${pageData.value.targetFeatureIndex}</index>
-                                    <feature>${pageData.value.targetFeatureData}</feature>
-                            </item>
-                        </featureInfos>
-                        <targetType>humanBody</targetType>
-                        <similarity>${pageData.value.similarity}</similarity>
-                        <onlyREIDResult>true</onlyREIDResult>
-                    </byFeatureParams>
-                </condition>
-            `
-            openLoading()
-            const result = await searchTargetIndex(sendXml)
-            const $ = queryXml(result)
-            closeLoading()
-            if ($('status').text() === 'success') {
-                const targetIndexDatas: IntelTargetIndexItem[] = $('content/results/item').map((item) => {
-                    const $item = queryXml(item.element)
-                    const index = $item('index').text() // 索引信息,客户端原封不动返回取图
-                    const targetID = $item('targetID').text()
-                    const targetType = $item('targetType').text()
-                    const chlID = $item('chlID').text()
-                    const channelName = $item('channelName').text()
-                    const timeStamp = $item('timeStamp').text().num() // 这一帧的时间戳
-                    const timeStampUTC = $item('timeStampUTC').text() // 这一帧的时间戳 UTC
-                    const timeStamp100ns = ('0000000' + $item('timeStamp100ns').text()).slice(-7) // 这一帧的时间戳 100ns
-                    const quality = $item('quality').text() // quality
-                    const similarity = $item('similarity').text().num() // 相似度
-                    const eventType = $item('eventType').text() // eventType
-                    const libIndex = $item('libIndex').text().num() // 以图搜索表示是哪张图地搜索结果（用于对比图的展示）
-                    const startTime = $item('startTime').text().num() // 目标开始时间戳
-                    const startTimeUTC = $item('startTimeUTC').text() // 目标开始时间戳 UTC
-                    const endTime = $item('endTime').text().num() // 目标消失的时间戳
-                    const endTimeUTC = $item('endTimeUTC').text() // 目标消失的时间戳 UTC
-                    return {
-                        index,
-                        targetID,
-                        targetType,
-                        chlID,
-                        channelName,
-                        timeStamp,
-                        timeStampUTC,
-                        timeStamp100ns,
-                        quality,
-                        similarity,
-                        eventType,
-                        libIndex,
-                        startTime,
-                        startTimeUTC,
-                        endTime,
-                        endTimeUTC,
-                    }
-                })
-                targetIndexDatas.sort((a, b) => {
-                    if (a.similarity !== b.similarity) {
-                        return b.similarity - a.similarity
-                    }
-
-                    if (a.timeStamp !== b.timeStamp) {
-                        return b.timeStamp - a.timeStamp
-                    }
-
-                    if (a.timeStamp100ns !== b.timeStamp100ns) {
-                        return Number(b.timeStamp100ns) - Number(a.timeStamp100ns)
-                    }
-
-                    if (a.chlID !== b.chlID) {
-                        const chlIdA = getChlId16(a.chlID)
-                        const chlIdB = getChlId16(b.chlID)
-                        return chlIdA - chlIdB
-                    }
-                    return Number(a.targetID) - Number(b.targetID)
-                })
-                if ($('content/IsMaxSearchResultNum').text() === 'true') {
-                    openMessageBox(Translate('IDCS_SEARCH_RESULT_LIMIT_TIPS'))
-                }
-
-                if (targetIndexDatas.length === 0) {
-                    openMessageBox(Translate('IDCS_NO_RECORD_DATA'))
-                } else {
-                    // 设置界面列表索引数据targetIndexDatas
-                    setCurrTargetIndexDatas(targetIndexDatas)
-                    // 初始化第一页数据
-                    handleChangePage(1)
-                }
+        const handleChecked = (targetDataItem: IntelTargetDataItem) => {
+            const currSelectedTargetDatas = getCurrSelectedTargetDatas()
+            const findIndex = currSelectedTargetDatas.findIndex((item) => item.index === targetDataItem.index)
+            if (targetDataItem.checked) {
+                if (findIndex === -1) currSelectedTargetDatas.push(targetDataItem)
             } else {
-                openMessageBox(Translate('IDCS_NO_RECORD_DATA'))
+                if (findIndex > -1) currSelectedTargetDatas.splice(findIndex, 1)
             }
+            judgeIsCheckedAll()
         }
 
         /**
-         * @description 返回
+         * @description 勾选/取消勾选 - 全选
          */
-        const hanbleExit = () => {
-            localStorage.setItem('extractResultInfos', '')
-            router.back()
+        const handleCheckedAll = (checked: CheckboxValueType) => {
+            const currTargetDatas = getCurrTargetDatas()
+            currTargetDatas.forEach((item) => {
+                item.checked = checked as boolean
+                handleChecked(item)
+            })
         }
 
-        onMounted(async () => {
+        /**
+         * @description 判断是否全选
+         */
+        const judgeIsCheckedAll = () => {
+            const currTargetDatas = getCurrTargetDatas()
+            pageData.value.isCheckedAll = currTargetDatas.every((item) => item?.checked)
+        }
+
+        // 备份按钮置灰/可用状态
+        const isEnableBackup = computed(() => {
+            const currSelectedTargetDatas = getCurrSelectedTargetDatas()
+            return currSelectedTargetDatas.length > 0
+        })
+
+        const setDefaultData = () => {
             if (localStorage.getItem('extractResultInfos')) {
-                const extractResultInfos = JSON.parse(localStorage.getItem('extractResultInfos'))
+                const extractResultInfos = JSON.parse(localStorage.getItem('extractResultInfos') || '')
                 pageData.value.targetType = extractResultInfos[0].targetType
                 pageData.value.targetFeatureIndex = extractResultInfos[0].targetFeatureIndex
                 pageData.value.targetFeatureData = extractResultInfos[0].targetFeatureData
                 const img = extractResultInfos[0].imgBase64
                 pageData.value.pic = img.startsWith('data:image/png;base64,') ? img : 'data:image/png;base64,' + img
             }
+        }
 
+        const handleRefresh = () => {
+            resetSortStatus()
+            resetCurrSelectedTargetDatas()
+            setCurrTargetIndexDatas([])
+            setCurrTargetDatas([])
+            pageData.value.pageIndexForSearchTarget = 1
+            pageData.value.selectedTargetDatasForSearchTarget = []
+            pageData.value.isDetailOpen = false
+            setDefaultData()
+        }
+
+        onMounted(async () => {
+            setDefaultData()
             getChlData()
-
-            await getData()
         })
 
         onBeforeUnmount(() => {
@@ -1006,22 +956,25 @@ export default defineComponent({
             tableData,
             tableRef,
             detailRef,
-            dropdownRef,
-            getData,
-            hanbleExit,
+            handleExit,
             changeDateRange,
             handleCurrentChange,
-            handleRowClick,
-            handleSearch,
-            handleBackupAll,
-            handleSort,
+            getAllTargetIndexDatas,
             handleChangePage,
-            handleSelectAll,
+            handleCheckedAll,
+            handleSort,
+            handleBackupAll,
             handleBackup,
             switchDetail,
             showDetail,
             hideDetail,
             handleChangeItem,
+            handleChecked,
+            isEnableBackup,
+            handleBackupCurrentTarget,
+            auth,
+            backupPopRef,
+            handleRefresh,
         }
     },
 })

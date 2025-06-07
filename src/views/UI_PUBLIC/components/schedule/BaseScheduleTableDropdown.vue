@@ -4,7 +4,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
 -->
 <template>
-    <el-dropdown :disabled>
+    <BaseDropdown :disabled>
         <BaseTableDropdownLink>
             <slot v-if="$slots.default"></slot>
             <template v-else>
@@ -22,7 +22,7 @@
                 </el-dropdown-item>
             </el-dropdown-menu>
         </template>
-    </el-dropdown>
+    </BaseDropdown>
 </template>
 
 <script lang="ts" src="./BaseScheduleTableDropdown.v.ts"></script>

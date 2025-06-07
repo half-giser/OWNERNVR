@@ -32,12 +32,6 @@ export default defineComponent({
         // 用于控制下拉菜单的打开关闭
         const resolutionTableRef = ref<TableInstance>()
 
-        // type ResolutionGroupReturnsType = {
-        //     res: string
-        //     resGroup: SelectOption<string, string>[]
-        //     chls: { expand: boolean; data: SelectOption<string, string>[] }
-        // }
-
         type ChlItem = {
             id: string
             addType: string
@@ -180,12 +174,17 @@ export default defineComponent({
             const $ = queryXml(result)
 
             if ($('status').text() === 'success') {
+                const videoQualityList: number[] = []
+                const videoEcodeTypeList: string[] = []
+                const bitTypeList: string[] = []
+
                 tableData.value = $('content/item').map((ele) => {
                     const $item = queryXml(ele.element)
                     const item = new RecordStreamInfoDto()
                     item.id = ele.attr('id').trim()
                     item.name = $item('name').text()
                     item.chlType = $item('chlType').text()
+                    item.isRTSPChl = ele.attr('isRTSPChl').bool()
                     item.mainCaps = {
                         supEnct: $item('mainCaps')
                             .attr('supEnct')
@@ -221,7 +220,7 @@ export default defineComponent({
                     setAttr($item('me'), item.me)
 
                     item.streamType = 'main'
-                    item.disabled = item.chlType === 'recorder' || !item.mainCaps.res.length
+                    item.disabled = item.isRTSPChl || item.chlType === 'recorder' || !item.mainCaps.res.length
 
                     // 获取码率类型
                     $item('mainStreamQualityCaps/item').forEach((element) => {
@@ -232,27 +231,18 @@ export default defineComponent({
                             analogDefault: element.attr('analogDefault').num(),
                             value: element.text().array(),
                         })
-                        if (element.attr('enct') === 'h264' && element.attr('res') === '0x0') {
-                            element
-                                .text()
-                                .array()
-                                .forEach((ele) => {
-                                    const value = Number(ele)
-                                    pageData.value.maxQoI = Math.max(value, pageData.value.maxQoI)
-                                    if (pageData.value.poeModeNode === 10 && value <= 6144) {
-                                        //为长线模式时，过滤掉6M以上的码率
-                                        pageData.value.videoQualityList.push({
-                                            value,
-                                            label: ele + 'Kbps',
-                                        })
-                                    } else if (!pageData.value.poeModeNode || pageData.value.poeModeNode === 100) {
-                                        pageData.value.videoQualityList.push({
-                                            value,
-                                            label: ele + 'Kbps',
-                                        })
-                                    }
-                                })
-                        }
+                        element
+                            .text()
+                            .array()
+                            .forEach((ele) => {
+                                const value = Number(ele)
+                                if (pageData.value.poeModeNode === 10 && value <= 6144) {
+                                    //为长线模式时，过滤掉6M以上的码率
+                                    videoQualityList.push(value)
+                                } else if (!pageData.value.poeModeNode || pageData.value.poeModeNode === 100) {
+                                    videoQualityList.push(value)
+                                }
+                            })
                     })
 
                     item.levelNote = $item('levelNote')
@@ -265,20 +255,13 @@ export default defineComponent({
                                 label: Translate(DEFAULT_IMAGE_LEVEL_MAPPING[item]),
                             }
                         })
-                    pageData.value.levelList = [...item.levelNote]
 
-                    //遍历item['mainCaps']['supEnct']，获取编码类型并集
-                    item.mainCaps.supEnct.forEach((element) => {
-                        if (!pageData.value.videoEncodeTypeList.some((find) => find.value === element.value)) {
-                            pageData.value.videoEncodeTypeList.push(element)
-                        }
-                    })
+                    if (!pageData.value.levelList.length) {
+                        pageData.value.levelList = [...item.levelNote]
+                    }
 
-                    item.mainCaps.bitType.forEach((element) => {
-                        if (!pageData.value.bitTypeList.includes(element)) {
-                            pageData.value.bitTypeList.push(element)
-                        }
-                    })
+                    videoEcodeTypeList.push(...$item('mainCaps').attr('supEnct').array())
+                    bitTypeList.push(...item.mainCaps.bitType)
 
                     if (item.mainCaps.res.length > 1) {
                         item.mainCaps.res.sort((a, b) => {
@@ -290,6 +273,23 @@ export default defineComponent({
 
                     return item
                 })
+
+                pageData.value.maxQoI = Math.max.apply([], Array.from(videoQualityList))
+                pageData.value.videoQualityList = Array.from(new Set(videoQualityList)).map((quality) => {
+                    return {
+                        label: quality + 'Kbps',
+                        value: quality,
+                    }
+                })
+                pageData.value.bitTypeList = Array.from(new Set(bitTypeList))
+                pageData.value.videoEncodeTypeList = Array.from(new Set(videoEcodeTypeList))
+                    .toSorted()
+                    .map((item) => {
+                        return {
+                            value: item,
+                            label: Translate(DEFAULT_STREAM_TYPE_MAPPING[item]),
+                        }
+                    })
             }
         }
 
@@ -514,27 +514,25 @@ export default defineComponent({
         }
 
         /**
+         * @description 设置默认码率
+         * @param {Object} item
+         */
+        const setDefaultVideoQuality = (item: RecordStreamInfoDto) => {
+            if (item.bitType === 'CBR') {
+                item.videoQuality = getVideoQuality(item)
+            }
+        }
+
+        /**
          * @description 设置videoQuality
          * @param {RecordStreamInfoDto} rowData
          */
-        const setQuality = (rowData: RecordStreamInfoDto) => {
-            rowData.mainStreamQualityCaps.forEach((element) => {
-                if (rowData.resolution === element.res && rowData.videoEncodeType === element.enct) {
-                    if (rowData.chlType === 'digital') {
-                        if (pageData.value.poeModeNode === 10 && element.digitalDefault > 6144) {
-                            rowData.videoQuality = 6144
-                        } else {
-                            rowData.videoQuality = element.digitalDefault
-                        }
-                    } else {
-                        if (pageData.value.poeModeNode === 10 && element.analogDefault > 6144) {
-                            rowData.videoQuality = 6144
-                        } else {
-                            rowData.videoQuality = element.analogDefault
-                        }
-                    }
-                }
-            })
+        const getVideoQuality = (rowData: RecordStreamInfoDto) => {
+            return getCBRDefaultVideoQuality(
+                rowData.videoEncodeType,
+                rowData.resolution,
+                getQualityList(rowData).map((item) => item.value),
+            )
         }
 
         /**
@@ -564,9 +562,7 @@ export default defineComponent({
         const changeVideoEncodeType = (rowData: RecordStreamInfoDto) => {
             const isDisabled = DEFAULT_VIDEO_ENCODE_TYPE_ARRAY.includes(rowData.videoEncodeType)
             if (!isDisabled) {
-                if (rowData.bitType === 'CBR') {
-                    setQuality(rowData)
-                }
+                setDefaultVideoQuality(rowData)
             }
         }
 
@@ -588,19 +584,7 @@ export default defineComponent({
          * @param {RecordStreamInfoDto} rowData
          */
         const changeResolution = (rowData: RecordStreamInfoDto) => {
-            if (rowData.bitType === 'CBR') {
-                rowData.mainStreamQualityCaps.forEach((element) => {
-                    if (rowData.chlType === 'digital') {
-                        if (rowData.resolution === element.res && rowData.videoEncodeType === element.enct) {
-                            rowData.videoQuality = element.digitalDefault
-                        }
-                    } else {
-                        if (rowData.resolution === element.res && rowData.videoEncodeType === element.enct) {
-                            rowData.videoQuality = element.analogDefault
-                        }
-                    }
-                })
-            }
+            setDefaultVideoQuality(rowData)
         }
 
         /**
@@ -625,17 +609,7 @@ export default defineComponent({
 
                 // 生成码率范围
                 changeRows.forEach((element) => {
-                    if (element.bitType === 'CBR') {
-                        element.mainStreamQualityCaps.forEach((ele) => {
-                            if (element.resolution === ele.res && element.videoEncodeType === ele.enct) {
-                                if (element.chlType === 'digital') {
-                                    element.videoQuality = ele.digitalDefault
-                                } else {
-                                    element.videoQuality = ele.analogDefault
-                                }
-                            }
-                        })
-                    }
+                    setDefaultVideoQuality(element)
                 })
             })
             pageData.value.resolutionHeaderVisble = false
@@ -695,10 +669,7 @@ export default defineComponent({
          * @param {RecordStreamInfoDto} rowData
          */
         const changeBitType = (rowData: RecordStreamInfoDto) => {
-            const isCBR = rowData.bitType === 'CBR'
-            if (isCBR) {
-                setQuality(rowData)
-            }
+            setDefaultVideoQuality(rowData)
         }
 
         /**
@@ -706,13 +677,9 @@ export default defineComponent({
          * @param {string} bitType
          */
         const changeAllBitType = (bitType: string) => {
-            const isCBR = bitType === 'CBR'
             tableData.value.forEach((rowData, index) => {
                 if (rowData.mainCaps.bitType.includes(bitType) && rowData.bitType.length !== 0 && !isBitTypeDisabled(index)) {
-                    rowData.bitType = bitType
-                    if (isCBR) {
-                        setQuality(rowData)
-                    }
+                    setDefaultVideoQuality(rowData)
                 }
             })
         }

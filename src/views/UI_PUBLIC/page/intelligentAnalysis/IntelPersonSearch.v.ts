@@ -9,9 +9,10 @@ import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
 import IntelBaseProfileSelector from './IntelBaseProfileSelector.vue'
 import IntelFaceSearchChooseFacePop from './IntelFaceSearchChooseFacePop.vue'
 import IntelBaseSnapItem from './IntelBaseSnapItem.vue'
-import IntelSearchDetail from './IntelSearchDetail.vue'
-import { type DropdownInstance, type CheckboxValueType } from 'element-plus'
-import IntelSearchBackupPop from './IntelSearchBackupPop.vue'
+import IntelSearchDetailPanel from './IntelSearchDetailPanel.vue'
+import IntelSearchBackupPop, { type IntelSearchBackUpExpose } from './IntelSearchBackupPop.vue'
+import IntelFaceDBSnapRegisterPop from './IntelFaceDBSnapRegisterPop.vue'
+import { type CheckboxValueType } from 'element-plus'
 
 export default defineComponent({
     components: {
@@ -21,8 +22,9 @@ export default defineComponent({
         IntelBaseProfileSelector,
         IntelFaceSearchChooseFacePop,
         IntelBaseSnapItem,
-        IntelSearchDetail,
-        IntelSearchBackupPop
+        IntelSearchDetailPanel,
+        IntelSearchBackupPop,
+        IntelFaceDBSnapRegisterPop,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -30,10 +32,11 @@ export default defineComponent({
         const dateTime = useDateTimeStore()
         const auth = useUserChlAuth(true)
         // 三个排序下拉框的引用
-        const faceSortDropdown = ref<DropdownInstance>()
-        const bodySortDropdown = ref<DropdownInstance>()
-        const personAttributeSortDropdown = ref<DropdownInstance>()
-        const IntelSearchBackupPopRef = ref()
+        // const faceSortDropdown = ref<DropdownInstance>()
+        // const bodySortDropdown = ref<DropdownInstance>()
+        // const personAttributeSortDropdown = ref<DropdownInstance>()
+        const backupPopRef = ref<IntelSearchBackUpExpose>()
+        const detailRef = ref()
 
         // key对应界面tab类型，value对应协议需要下发的searchType字段
         const SEARCH_TYPE_MAPPING: Record<string, string> = {
@@ -52,12 +55,12 @@ export default defineComponent({
             attrValue: string[]
         }
 
-        const detailRef = ref()
-
         // 界面数据
         const pageData = ref({
             // 搜索类型（byFace/byBody/byPersonAttribute）
-            searchType: 'byFace',
+            searchType: 'byFace' as 'byFace' | 'byBody' | 'byPersonAttribute',
+            isRegisterPop: false,
+            registerPic: '',
             // 搜索选项
             searchOptions: [
                 {
@@ -116,15 +119,13 @@ export default defineComponent({
             chlIdList: [] as string[],
             // 选择的属性列表（人属性）
             attributeForPersonAttribute: {} as Record<string, Record<string, string[]>>,
+            pageSize: 12,
             // 分页器（人脸）
             pageIndexForFace: 1,
-            pageSizeForFace: 12,
             // 分页器（人体）
             pageIndexForBody: 1,
-            pageSizeForBody: 12,
             // 分页器（人属性）
             pageIndexForPersonAttribute: 1,
-            pageSizeForPersonAttribute: 12,
             // 列表数据（人脸）
             targetIndexDatasForFace: [] as IntelTargetIndexItem[],
             // 列表数据（人体）
@@ -169,15 +170,15 @@ export default defineComponent({
             backupTypeOptions: [
                 {
                     label: Translate('IDCS_BACKUP_PICTURE'),
-                    value: 'pic' as 'pic' | 'video' | 'picAndVideo',
+                    value: 'pic',
                 },
                 {
                     label: Translate('IDCS_BACKUP_RECORD'),
-                    value: 'video' as 'pic' | 'video' | 'picAndVideo',
+                    value: 'video',
                 },
                 {
                     label: Translate('IDCS_BACKUP_PICTURE_AND_RECORD'),
-                    value: 'picAndVideo' as 'pic' | 'video' | 'picAndVideo',
+                    value: 'pic+video',
                 },
             ],
             // 选中的详情数据（人脸）
@@ -193,15 +194,6 @@ export default defineComponent({
         })
         // 列表索引数据（根据分页索引pageIndex和分页大小pageSize从总数据targetIndexDatas中截取的当页列表数据）
         const sliceTargetIndexDatas = ref<IntelTargetIndexItem[]>([])
-
-        /**
-         * @description 获取通道ID与通道名称的映射
-         * @param {Record<string, string>} e
-         */
-        let chlIdNameMap: Record<string, string> = {}
-        const getChlIdNameMap = (e: Record<string, string>) => {
-            chlIdNameMap = e
-        }
 
         /**
          * @description 获取列表索引数据 - searchTargetIndex
@@ -223,7 +215,7 @@ export default defineComponent({
                     <chls type="list">${pageData.value.chlIdList.map((item) => `<item id="${item}"></item>`).join('')}</chls>
                     ${
                         pageData.value.searchType === 'byPersonAttribute'
-                            ? ` <byAttrParams>
+                            ? rawXml`<byAttrParams>
                                     <attrs type="list">
                                     ${currAttrObjToList
                                         .map((element) => {
@@ -240,7 +232,7 @@ export default defineComponent({
                                                             .join('')}
                                                     </attrValues>
                                                 </item>
-                                                `
+                                            `
                                         })
                                         .join('')}
                                     </attrs>
@@ -249,7 +241,7 @@ export default defineComponent({
                     }
                     ${
                         currPicCacheList.length > 0
-                            ? ` <byPicParams>
+                            ? rawXml`<byPicParams>
                                     <similarity>${pageData.value.searchType === 'byFace' ? pageData.value.similarityForFace : pageData.value.similarityForBody}</similarity>
                                     <picInfos type="list">
                                     ${currPicCacheList
@@ -258,31 +250,31 @@ export default defineComponent({
                                                 <item>
                                                     ${
                                                         element.featureData
-                                                            ? `<searchAttr>
+                                                            ? rawXml`<searchAttr>
                                                                     <snapsLib>
                                                                         <featureData>${element.featureData}</featureData>
                                                                     </snapsLib>
                                                                 </searchAttr>`
                                                             : element.featureIndex
-                                                              ? `<searchAttr>
+                                                              ? rawXml`<searchAttr>
                                                                     <snapsLib>
                                                                         <index>${element.featureIndex}</index>
                                                                     </snapsLib>
                                                                 </searchAttr>`
                                                               : element.imgId || element.imgId === 0
-                                                                ? `<searchAttr>
-                                                                    <snapsLib>
-                                                                        <imgId>${element.imgId}</imgId>
-                                                                        <chlId>${element.chlId}</chlId>
-                                                                        <frameTime>${element.frameTime}</frameTime>
-                                                                    </snapsLib>
-                                                                </searchAttr>`
+                                                                ? rawXml`<searchAttr>
+                                                                        <snapsLib>
+                                                                            <imgId>${element.imgId}</imgId>
+                                                                            <chlId>${element.chlId!}</chlId>
+                                                                            <frameTime>${element.frameTime!}</frameTime>
+                                                                        </snapsLib>
+                                                                    </searchAttr>`
                                                                 : element.id || element.id === '0'
-                                                                  ? `<searchAttr>
-                                                                    <snapsLib>
-                                                                        <faceLiraryID>${element.id}</faceLiraryID>
-                                                                    </snapsLib>
-                                                                </searchAttr>`
+                                                                  ? rawXml`<searchAttr>
+                                                                        <snapsLib>
+                                                                            <faceLiraryID>${element.id}</faceLiraryID>
+                                                                        </snapsLib>
+                                                                    </searchAttr>`
                                                                   : ''
                                                     }
                                                     <index>${element.libIndex || 0}</index>
@@ -324,6 +316,33 @@ export default defineComponent({
                     const startTimeUTC = $item('startTimeUTC').text() // 目标开始时间戳 UTC
                     const endTime = $item('endTime').text().num() // 目标消失的时间戳
                     const endTimeUTC = $item('endTimeUTC').text() // 目标消失的时间戳 UTC
+
+                    const personInfoData = new IntelDetailPersonInfo()
+                    let isFaceFeature = false
+
+                    if (currPicCacheList[libIndex]) {
+                        if (
+                            typeof (currPicCacheList[libIndex] as IntelBodyDBSnapBodyList).searchByImageIndex === 'undefined' &&
+                            typeof (currPicCacheList[libIndex] as IntelFaceDBSnapFaceList).faceFeatureId === 'undefined'
+                        ) {
+                            const person = currPicCacheList[libIndex] as IntelFaceDBFaceInfo
+                            personInfoData.name = person.name
+                            personInfoData.similarity = similarity + ''
+                            personInfoData.sex = person.sex
+                            personInfoData.number = person.number
+                            personInfoData.mobile = person.mobile
+                            personInfoData.birthday = person.birthday
+                            personInfoData.nativePlace = person.nativePlace
+                            personInfoData.certificateType = person.certificateType
+                            personInfoData.certificateNum = person.certificateNum
+                            personInfoData.groupName = person.groupId
+                            personInfoData.groups = [person.groupId]
+                            personInfoData.note = person.note
+
+                            isFaceFeature = true
+                        }
+                    }
+
                     return {
                         checked,
                         index,
@@ -342,6 +361,8 @@ export default defineComponent({
                         startTimeUTC,
                         endTime,
                         endTimeUTC,
+                        personInfoData,
+                        isFaceFeature,
                     }
                 })
 
@@ -544,14 +565,10 @@ export default defineComponent({
                         hat: $('content/humanAttrInfo/hat').text(),
                         glasses: $('content/humanAttrInfo/glasses').text(),
                         backpack: $('content/humanAttrInfo/backpack').text(),
-                        upperCloth: {
-                            upperClothType: $('content/humanAttrInfo/upperClothType').text(),
-                            upperClothColor: $('content/humanAttrInfo/upperClothColor').text(),
-                        },
-                        lowerCloth: {
-                            lowerClothType: $('content/humanAttrInfo/lowerClothType').text(),
-                            lowerClothColor: $('content/humanAttrInfo/lowerClothColor').text(),
-                        },
+                        upperClothType: $('content/humanAttrInfo/upperClothType').text(),
+                        upperClothColor: $('content/humanAttrInfo/upperClothColor').text(),
+                        lowerClothType: $('content/humanAttrInfo/lowerClothType').text(),
+                        lowerClothColor: $('content/humanAttrInfo/lowerClothColor').text(),
                         skirt: $('content/humanAttrInfo/skirt').text(),
                         direction: $('content/humanAttrInfo/direction').text(),
                     }
@@ -603,7 +620,7 @@ export default defineComponent({
 
                     // 判断当前数据是否被选中
                     const currSelectedTargetDatas = getCurrSelectedTargetDatas()
-                    const findIndex = currSelectedTargetDatas.findIndex((item) => item.index === item.index)
+                    const findIndex = currSelectedTargetDatas.findIndex((selectedItem) => selectedItem.index === item.index)
                     if (findIndex > -1) item.checked = true
                     judgeIsCheckedAll()
                 } else {
@@ -693,22 +710,6 @@ export default defineComponent({
         }
 
         /**
-         * @description 获取分页pageSize
-         */
-        const getCurrPageSize = () => {
-            switch (pageData.value.searchType) {
-                case 'byFace':
-                    return pageData.value.pageSizeForFace
-                case 'byBody':
-                    return pageData.value.pageSizeForBody
-                case 'byPersonAttribute':
-                    return pageData.value.pageSizeForPersonAttribute
-                default:
-                    return 1
-            }
-        }
-
-        /**
          * @description 记录当前打开详情的索引index
          */
         const setCurrOpenDetailIndex = (index: string) => {
@@ -727,6 +728,18 @@ export default defineComponent({
             }
         }
 
+        const openDetailIndex = computed(() => {
+            switch (pageData.value.searchType) {
+                case 'byFace':
+                    return pageData.value.openDetailIndexForFace
+                case 'byBody':
+                    return pageData.value.openDetailIndexForBody
+                case 'byPersonAttribute':
+                default:
+                    return pageData.value.openDetailIndexForPersonAttribute
+            }
+        })
+
         /**
          * @description 设置当前界面选择的图片信息列表（只在每次点击搜索的时候更新一次，避免修改、删除所选图片时影响抓拍列表中的对比图展示）
          */
@@ -742,6 +755,17 @@ export default defineComponent({
                     break
             }
         }
+
+        const choosePics = computed(() => {
+            switch (pageData.value.searchType) {
+                case 'byFace':
+                    return pageData.value.choosePicsForFace
+                case 'byBody':
+                    return pageData.value.choosePicsForBody
+                default:
+                    return []
+            }
+        })
 
         /**
          * @description 设置当前界面选择的图片信息列表
@@ -820,22 +844,6 @@ export default defineComponent({
         }
 
         /**
-         * @description 获取当前索引数据
-         */
-        const getIndexTargetDatas = () => {
-            switch (pageData.value.searchType) {
-                case 'byFace':
-                    return pageData.value.targetIndexDatasForFace
-                case 'byBody':
-                    return pageData.value.targetIndexDatasForBody
-                case 'byPersonAttribute':
-                    return pageData.value.targetIndexDatasForPersonAttribute
-                default:
-                    return []
-            }
-        }
-
-        /**
          * @description 获取当前选中的详情数据
          */
         const getCurrSelectedTargetDatas = () => {
@@ -867,23 +875,6 @@ export default defineComponent({
                     break
                 default:
                     break
-            }
-        }
-
-        /**
-         * @description 获取当前界面的排序下拉框引用
-         */
-        const getCurrDropdownRef = () => {
-            switch (pageData.value.searchType) {
-                case 'byFace':
-                    return faceSortDropdown
-                case 'byBody':
-                    return bodySortDropdown
-                case 'byPersonAttribute':
-                    return personAttributeSortDropdown
-                default:
-                    // 返回空的引用
-                    return ref()
             }
         }
 
@@ -951,9 +942,8 @@ export default defineComponent({
             setCurrPageIndex(pageIndex)
             // 遍历列表索引数据的每一项，获取对应的详情数据
             const tempPageIndex = getCurrPageIndex()
-            const tempPageSize = getCurrPageSize()
             const tempTargetIndexDatas = getCurrTargetIndexDatas()
-            sliceTargetIndexDatas.value = tempTargetIndexDatas.slice((tempPageIndex - 1) * tempPageSize, tempPageIndex * tempPageSize)
+            sliceTargetIndexDatas.value = tempTargetIndexDatas.slice((tempPageIndex - 1) * pageData.value.pageSize, tempPageIndex * pageData.value.pageSize)
             getCurrPageTargetDatas(sliceTargetIndexDatas.value)
         }
 
@@ -971,8 +961,6 @@ export default defineComponent({
          * @description 手动排序: 时间排序、通道排序、相似度排序
          */
         const handleSort = (sortType: string) => {
-            const dropdownRef = getCurrDropdownRef()
-            dropdownRef.value?.handleClose()
             if (sortType === 'time') {
                 if (pageData.value.sortType === 'time') {
                     // 时间排序升序降序切换
@@ -1086,8 +1074,7 @@ export default defineComponent({
             }
             setCurrTargetIndexDatas(targetIndexDatas)
             const tempPageIndex = getCurrPageIndex()
-            const tempPageSize = getCurrPageSize()
-            sliceTargetIndexDatas.value = targetIndexDatas.slice((tempPageIndex - 1) * tempPageSize, tempPageIndex * tempPageSize)
+            sliceTargetIndexDatas.value = targetIndexDatas.slice((tempPageIndex - 1) * pageData.value.pageSize, tempPageIndex * pageData.value.pageSize)
             openLoading()
             getCurrPageTargetDatas(sliceTargetIndexDatas.value)
         }
@@ -1139,8 +1126,7 @@ export default defineComponent({
             }
             setCurrTargetIndexDatas(targetIndexDatas)
             const tempPageIndex = getCurrPageIndex()
-            const tempPageSize = getCurrPageSize()
-            sliceTargetIndexDatas.value = targetIndexDatas.slice((tempPageIndex - 1) * tempPageSize, tempPageIndex * tempPageSize)
+            sliceTargetIndexDatas.value = targetIndexDatas.slice((tempPageIndex - 1) * pageData.value.pageSize, tempPageIndex * pageData.value.pageSize)
             openLoading()
             getCurrPageTargetDatas(sliceTargetIndexDatas.value)
         }
@@ -1199,8 +1185,7 @@ export default defineComponent({
             }
             setCurrTargetIndexDatas(targetIndexDatas)
             const tempPageIndex = getCurrPageIndex()
-            const tempPageSize = getCurrPageSize()
-            sliceTargetIndexDatas.value = targetIndexDatas.slice((tempPageIndex - 1) * tempPageSize, tempPageIndex * tempPageSize)
+            sliceTargetIndexDatas.value = targetIndexDatas.slice((tempPageIndex - 1) * pageData.value.pageSize, tempPageIndex * pageData.value.pageSize)
             openLoading()
             getCurrPageTargetDatas(sliceTargetIndexDatas.value)
         }
@@ -1209,25 +1194,55 @@ export default defineComponent({
          * @description 备份全部
          */
         const handleBackupAll = () => {
-            IntelSearchBackupPopRef.value.startBackup({
+            backupPopRef.value?.startBackup({
                 isBackupPic: true,
                 isBackupVideo: false,
-                indexData: getIndexTargetDatas(),
-                allChlAuth: auth,
-                chlAuthMapping: []
+                indexData: getCurrTargetIndexDatas().map((item) => {
+                    return {
+                        index: item.index,
+                        chlId: item.chlID,
+                        chlName: item.channelName,
+                        frameTime: item.timeStamp,
+                        startTime: item.startTime,
+                        endTime: item.endTime,
+                    }
+                }),
             })
         }
 
         /**
          * @description 备份选中项
          */
-        const handleBackup = (backupType: 'pic' | 'video' | 'picAndVideo') => {
-            IntelSearchBackupPopRef.value.startBackup({
-                isBackupPic: backupType === 'pic' || backupType === 'picAndVideo',
-                isBackupVideo: backupType === 'video' || backupType === 'picAndVideo',
-                indexData: getCurrSelectedTargetDatas(),
-                allChlAuth: auth,
-                chlAuthMapping: []
+        const handleBackup = (backupType: string) => {
+            backupPopRef.value?.startBackup({
+                isBackupPic: backupType.includes('pic'),
+                isBackupVideo: backupType.includes('video'),
+                indexData: getCurrSelectedTargetDatas().map((item) => {
+                    return {
+                        index: item.index,
+                        chlId: item.chlID,
+                        chlName: item.channelName,
+                        frameTime: item.timeStamp,
+                        startTime: item.startTime,
+                        endTime: item.endTime,
+                    }
+                }),
+            })
+        }
+
+        const handleBackupCurrentTarget = (item: IntelTargetDataItem | IntelTargetIndexItem, type = 'pic') => {
+            backupPopRef.value?.startBackup({
+                isBackupPic: type.includes('pic'),
+                isBackupVideo: type.includes('video'),
+                isBackupPlateCsv: type.includes('csv'),
+                indexData: [
+                    {
+                        index: item.index,
+                        chlId: item.chlID,
+                        chlName: item.channelName,
+                        frameTime: item.timeStamp,
+                    },
+                ],
             })
         }
 
@@ -1236,7 +1251,35 @@ export default defineComponent({
          */
         const switchDetail = () => {
             pageData.value.isDetailOpen = !pageData.value.isDetailOpen
+
+            if (pageData.value.isDetailOpen) {
+                const list = getCurrTargetDatas()
+                if (pageData.value.isTrail) {
+                    if (list.length) {
+                        showDetail(list[0])
+                    }
+                } else {
+                    const find = list.find((item) => item.index === openDetailIndex.value)
+                    if (find) {
+                        showDetail(find)
+                    } else if (list.length) {
+                        showDetail(list[0])
+                    }
+                }
+            }
         }
+
+        watch(
+            () => pageData.value.isTrail,
+            (trail) => {
+                if (trail && pageData.value.isDetailOpen) {
+                    const list = getCurrTargetDatas()
+                    if (list.length) {
+                        showDetail(list[0])
+                    }
+                }
+            },
+        )
 
         /**
          * @description 打开详情
@@ -1461,37 +1504,37 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <extractImgInfos>
-                            <item index="${detectImgInfo.detectIndex}">
-                                <imgWidth>${detectImgInfo.imgWidth}</imgWidth>
-                                <imgHeight>${detectImgInfo.imgHeight}</imgHeight>
-                                <imgFormat>${detectImgInfo.imgFormat}</imgFormat>
-                                <imgData>${detectImgInfo.imgData}</imgData>
-                                <rect>
-                                    <leftTop>
-                                        <x>${targetItem.rect.leftTop.x}</x>
-                                        <y>${targetItem.rect.leftTop.y}</y>
-                                    </leftTop>
-                                    <rightBottom>
-                                        <x>${targetItem.rect.rightBottom.x}</x>
-                                        <y>${targetItem.rect.rightBottom.y}</y>
-                                    </rightBottom>
-                                    <scaleWidth>${targetItem.rect.scaleWidth}</scaleWidth>
-                                    <scaleHeight>${targetItem.rect.scaleHeight}</scaleHeight>
-                                </rect>
-                                <targetType>${targetItem.targetType}</targetType>
-                                <featurePointInfos>
-                                    ${targetItem.featurePointInfos
-                                        .map((point) => {
-                                            return rawXml`
-                                                <item index="${point.faceFeatureIndex}">
-                                                    <x>${point.x}</x>
-                                                    <y>${point.y}</y>
-                                                </item>
-                                            `
-                                        })
-                                        .join('')}
-                                </featurePointInfos>
-                            </item>
+                        <item index="${detectImgInfo.detectIndex}">
+                            <imgWidth>${detectImgInfo.imgWidth}</imgWidth>
+                            <imgHeight>${detectImgInfo.imgHeight}</imgHeight>
+                            <imgFormat>${detectImgInfo.imgFormat}</imgFormat>
+                            <imgData>${detectImgInfo.imgData}</imgData>
+                            <rect>
+                                <leftTop>
+                                    <x>${targetItem.rect.leftTop.x}</x>
+                                    <y>${targetItem.rect.leftTop.y}</y>
+                                </leftTop>
+                                <rightBottom>
+                                    <x>${targetItem.rect.rightBottom.x}</x>
+                                    <y>${targetItem.rect.rightBottom.y}</y>
+                                </rightBottom>
+                                <scaleWidth>${targetItem.rect.scaleWidth}</scaleWidth>
+                                <scaleHeight>${targetItem.rect.scaleHeight}</scaleHeight>
+                            </rect>
+                            <targetType>${targetItem.targetType}</targetType>
+                            <featurePointInfos>
+                                ${targetItem.featurePointInfos
+                                    .map((point) => {
+                                        return rawXml`
+                                            <item index="${point.faceFeatureIndex}">
+                                                <x>${point.x}</x>
+                                                <y>${point.y}</y>
+                                            </item>
+                                        `
+                                    })
+                                    .join('')}
+                            </featurePointInfos>
+                        </item>
                     </extractImgInfos>
                 </content>
             `
@@ -1518,7 +1561,7 @@ export default defineComponent({
             if (item.pic) {
                 const img = new Image()
                 img.src = item.pic
-                img.onload = function () {
+                img.onload = () => {
                     item.picWidth = img.width
                     item.picHeight = img.height
                 }
@@ -1554,6 +1597,31 @@ export default defineComponent({
             return currSelectedTargetDatas.length > 0
         })
 
+        const handleRegister = (item: IntelTargetDataItem) => {
+            pageData.value.isRegisterPop = true
+            pageData.value.registerPic = item.objPicData.data
+        }
+
+        const snapItemGrid = computed(() => {
+            if (pageData.value.isDetailOpen) {
+                return showCompare.value ? 2 : 4
+            } else {
+                return showCompare.value ? 3 : 6
+            }
+        })
+
+        const snapItemRatio = computed(() => {
+            return showCompare.value ? '66.7%' : '133%'
+        })
+
+        const trackChlId = computed(() => {
+            return pageData.value.targetIndexDatasForFace.toSorted((a, b) => a.timeStamp - b.timeStamp).map((item) => item.chlID)
+        })
+
+        const changeSearchType = () => {
+            pageData.value.listType = 'snap'
+        }
+
         // 单张人脸才可显示轨迹
         watchEffect(() => {
             pageData.value.isTrail = pageData.value.listType === 'track'
@@ -1561,14 +1629,9 @@ export default defineComponent({
         })
 
         return {
-            faceSortDropdown,
-            bodySortDropdown,
-            personAttributeSortDropdown,
             pageData,
             detailRef,
-            getChlIdNameMap,
             getAllTargetIndexDatas,
-            getCurrTargetDatas,
             openChoosePicPop,
             chooseFaceSnap,
             chooseBodySnap,
@@ -1590,7 +1653,20 @@ export default defineComponent({
             showPicChooser,
             showCompare,
             isEnableBackup,
-            IntelSearchBackupPopRef
+            backupPopRef,
+            auth,
+            handleBackupCurrentTarget,
+            handleRegister,
+            snapItemGrid,
+            snapItemRatio,
+            trackChlId,
+            getCurrTargetDatas,
+            openDetailIndex,
+            choosePics,
+            setCurrPageIndex,
+            getCurrPageIndex,
+            getCurrTargetIndexDatas,
+            changeSearchType,
         }
     },
 })

@@ -9,7 +9,6 @@ const aiAndEventRoutes: FeatureItem = {
     meta: {
         sort: 30,
         lk: 'IDCS_AI_AND_EVENT',
-        plClass: 'md2',
         icon: 'alarm',
         auth: 'alarmMgr',
         groups: {
@@ -117,7 +116,7 @@ const aiAndEventRoutes: FeatureItem = {
                 minHeight: 800,
             },
         },
-        // 闪动
+        // 闪灯
         alarmLight: {
             path: 'whiteLightAlarmOut',
             component: 'aiAndEvent/Light.vue',
@@ -125,6 +124,9 @@ const aiAndEventRoutes: FeatureItem = {
                 sort: 70,
                 lk: 'IDCS_LIGHT',
                 group: 'eventNotify',
+                hasCap(systemCaps) {
+                    return !systemCaps.hotStandBy
+                },
             },
         },
         // 报警服务器
@@ -149,6 +151,9 @@ const aiAndEventRoutes: FeatureItem = {
                 sort: 10,
                 lk: 'IDCS_EVENT_ENABLEMENT',
                 group: 'aiEvent',
+                hasCap(systemCaps) {
+                    return !systemCaps.hotStandBy
+                },
             },
         },
         // 周界防范
@@ -165,7 +170,7 @@ const aiAndEventRoutes: FeatureItem = {
                 minWidth: 1560,
                 minHeight: 850,
                 hasCap(systemCaps) {
-                    return !systemCaps.IntelAndFaceConfigHide
+                    return !systemCaps.IntelAndFaceConfigHide && !systemCaps.hotStandBy
                 },
             },
             async beforeEnter(to, from, next) {
@@ -196,7 +201,7 @@ const aiAndEventRoutes: FeatureItem = {
                 minWidth: 1560,
                 minHeight: 850,
                 hasCap(systemCaps) {
-                    return !systemCaps.IntelAndFaceConfigHide
+                    return !systemCaps.IntelAndFaceConfigHide && !systemCaps.hotStandBy
                 },
             },
             async beforeEnter(to, from, next) {
@@ -227,7 +232,7 @@ const aiAndEventRoutes: FeatureItem = {
                 minWidth: 1560,
                 minHeight: 850,
                 hasCap(systemCaps) {
-                    return !systemCaps.IntelAndFaceConfigHide
+                    return !systemCaps.IntelAndFaceConfigHide && !systemCaps.hotStandBy
                 },
             },
             async beforeEnter(to, from, next) {
@@ -244,7 +249,6 @@ const aiAndEventRoutes: FeatureItem = {
                     }
                 }
             },
-            alias: '/intelligent-analysis/sample-data-base/sample-data-base-licence-plate',
         },
         // 视频结构化 1.4.13
         videoStructure: {
@@ -256,6 +260,9 @@ const aiAndEventRoutes: FeatureItem = {
                 group: 'aiEvent',
                 minWidth: 1560,
                 minHeight: 850,
+                hasCap(systemCaps) {
+                    return !systemCaps.IntelAndFaceConfigHide && !systemCaps.hotStandBy
+                },
             },
             async beforeEnter(to, from, next) {
                 const { Translate } = useLangStore()
@@ -280,10 +287,10 @@ const aiAndEventRoutes: FeatureItem = {
                 sort: 60,
                 lk: 'IDCS_MORE',
                 group: 'aiEvent',
-                minWidth: 1560,
+                minWidth: 1800,
                 minHeight: 850,
                 hasCap(systemCaps) {
-                    return !systemCaps.IntelAndFaceConfigHide
+                    return !systemCaps.IntelAndFaceConfigHide && !systemCaps.hotStandBy
                 },
             },
             async beforeEnter(to, from, next) {
@@ -309,6 +316,9 @@ const aiAndEventRoutes: FeatureItem = {
                 sort: 10,
                 lk: 'IDCS_PICTURE_COMPARSION',
                 group: 'target',
+                hasCap(systemCaps) {
+                    return !systemCaps.hotStandBy
+                },
             },
         },
         // 移动侦测
@@ -322,6 +332,9 @@ const aiAndEventRoutes: FeatureItem = {
                 default: true,
                 inHome: 'self',
                 homeSort: 60,
+                hasCap(systemCaps) {
+                    return !systemCaps.hotStandBy
+                },
             },
         },
         // 传感器
@@ -334,6 +347,9 @@ const aiAndEventRoutes: FeatureItem = {
                 group: 'generalEvent',
                 inHome: 'self',
                 homeSort: 40,
+                hasCap(systemCaps) {
+                    return !systemCaps.hotStandBy
+                },
             },
         },
         // 组合报警
@@ -344,6 +360,9 @@ const aiAndEventRoutes: FeatureItem = {
                 sort: 30,
                 lk: 'IDCS_COMBINATION_ALARM',
                 group: 'generalEvent',
+                hasCap(systemCaps) {
+                    return !systemCaps.hotStandBy
+                },
             },
         },
         // 前端掉线
@@ -355,7 +374,7 @@ const aiAndEventRoutes: FeatureItem = {
                 lk: 'IDCS_FRONT_OFFLINE',
                 group: 'generalEvent',
                 hasCap(systemCaps) {
-                    return !!systemCaps.ipChlMaxCount
+                    return !!systemCaps.ipChlMaxCount && !systemCaps.hotStandBy
                 },
             },
         },
@@ -394,6 +413,9 @@ const aiAndEventRoutes: FeatureItem = {
                 lk: 'IDCS_SYSTEM_ARM',
                 group: 'systemDisarm',
                 default: true,
+                hasCap(systemCaps) {
+                    return !systemCaps.hotStandBy
+                },
             },
             // 撤防布防界面，若没有开启远程权限，提示开启权限，页面不跳转
             async beforeEnter(to, from, next) {

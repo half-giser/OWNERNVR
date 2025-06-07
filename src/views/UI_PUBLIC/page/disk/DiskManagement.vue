@@ -46,7 +46,7 @@
                 />
                 <el-table-column>
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_OPERATION') }}
                             </BaseTableDropdownLink>
@@ -55,7 +55,7 @@
                                     <el-dropdown-item @click="formatAllDisk">{{ Translate('IDCS_FORMAT_ALL') }}</el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ $index }: TableColumn<DiskManagememtList>">
                         <el-button @click="formatCurrentDisk($index)">{{ Translate('IDCS_FORMATTING') }}</el-button>

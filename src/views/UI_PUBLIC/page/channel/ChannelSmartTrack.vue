@@ -17,31 +17,23 @@
                 class="stripe"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select-v2
-                        v-if="tableData.length"
+                    <BaseSelect
                         v-model="pageData.tableIndex"
                         :options="chlOptions"
+                        :persistent="true"
+                        :disabled="!chlOptions.length"
+                        empty-text=""
                         @change="changeChl"
-                    />
-                    <el-select-v2
-                        v-else
-                        model-value=""
-                        :options="[]"
-                        disabled
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_AUTO_TRACK_MODE')">
-                    <el-select-v2
-                        v-if="tableData.length"
-                        v-model="tableData[pageData.tableIndex].ptzControlMode"
-                        :disabled="tableData[pageData.tableIndex].disabled"
+                    <BaseSelect
+                        :model-value="tableData[pageData.tableIndex]?.ptzControlMode || ''"
+                        :disabled="!tableData[pageData.tableIndex] || tableData[pageData.tableIndex].disabled"
                         :options="pageData.trackModeOptions"
-                    />
-                    <el-select-v2
-                        v-else
-                        model-value=""
-                        :options="[]"
-                        disabled
+                        :persistent="true"
+                        empty-text=""
+                        @update:model-value="tableData[pageData.tableIndex].ptzControlMode = $event"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_HOMING_AFTER_TARGET_STATIONARY')">
@@ -88,7 +80,7 @@
                     />
                     <el-table-column :label="Translate('IDCS_HOMING_AFTER_TARGET_STATIONARY')">
                         <template #header>
-                            <el-dropdown>
+                            <BaseDropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_HOMING_AFTER_TARGET_STATIONARY') }}
                                 </BaseTableDropdownLink>
@@ -103,10 +95,10 @@
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
-                            </el-dropdown>
+                            </BaseDropdown>
                         </template>
                         <template #default="{ row }: TableColumn<ChannelPtzSmartTrackDto>">
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="row.autoBackSwitch"
                                 :options="pageData.autoBackOptions"
                                 :disabled="row.disabled"

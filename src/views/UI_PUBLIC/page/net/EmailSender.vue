@@ -47,14 +47,14 @@
                 <el-button @click="setDefaultPort">{{ Translate('IDCS_USE_DEFAULT') }}</el-button>
             </el-form-item>
             <el-form-item :label="Translate('IDCS_SECURITY_LINK')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.ssl"
                     :options="pageData.secureConnectOptions"
                     @change="changeSecurityConnection"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_ATTACH_IMAGE')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.attachImg"
                     :options="pageData.attachImgOptions"
                 />
@@ -74,7 +74,7 @@
                 v-if="formData.attachImg === 2"
                 :label="Translate('IDCS_IMAGE_NUMBER')"
             >
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.imageNumber"
                     :options="pageData.imageNumberOptions"
                 />

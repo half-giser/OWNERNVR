@@ -9,15 +9,15 @@
         :style="{ opacity }"
     >
         <div class="login-lang">
-            <el-select-v2
+            <BaseSelect
                 v-model="pageData.langId"
                 :options="pageData.langTypes"
                 @change="changeLang"
             />
-            <el-select-v2
-                v-show="pageData.calendarOptions.length"
+            <BaseSelect
+                v-show="calendarOptions.length"
                 v-model="formData.calendarType"
-                :options="pageData.calendarOptions"
+                :options="calendarOptions"
             />
         </div>
         <div class="login-main">
@@ -144,12 +144,12 @@
 
     #n9web & {
         :deep(.el-form) {
-            margin-top: 13px;
+            margin-top: 18px;
         }
 
         .el-input {
-            width: 254px;
-            height: 50px;
+            width: 244px;
+            height: 40px;
         }
 
         :deep(.el-input__wrapper) {
@@ -166,7 +166,7 @@
         :deep(.el-form-item) {
             margin: 0 0 0 428px;
             font-size: 16px;
-            padding: 0 0 28px;
+            padding: 0 0 38px;
 
             &:last-child {
                 padding-bottom: 0;

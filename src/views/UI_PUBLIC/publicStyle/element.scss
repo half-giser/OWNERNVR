@@ -105,6 +105,9 @@
             font-size: 13px;
             line-height: var(--el-component-size);
             background-color: var(--input-bg);
+            transform: none !important;
+            transition-timing-function: linear;
+            transition-duration: 0.1s;
 
             &.el-popper {
                 box-shadow: 0 0 0 1px var(--input-border) inset;
@@ -146,17 +149,6 @@
             }
         }
     }
-
-    // .el-input-number {
-    //     width: 100%;
-
-    //     &.is-without-controls {
-    //         .el-input__wrapper {
-    //             padding-left: 5px;
-    //             padding-right: 5px;
-    //         }
-    //     }
-    // }
 
     .el-textarea {
         --el-input-bg-color: var(--input-bg);
@@ -626,109 +618,22 @@
         background-color: var(--popover-bg);
         border-color: var(--table-border);
         width: fit-content;
+        transition-duration: 0.1s;
 
         &.no-padding {
             padding: 0;
+        }
+
+        &.no-border {
+            border: none;
+            min-width: unset;
+            background-color: transparent;
         }
 
         &.selector {
             background-color: var(--main-bg);
         }
     }
-
-    // .el-calendar {
-    //     --el-calendar-border: 1px solid var(--calendar-border);
-    //     --el-calendar-cell-width: unset;
-    //     --el-calendar-selected-bg-color: var(--calendar-bg-hover); // var(--primary);
-
-    //     background-color: var(--calendar-bg);
-
-    //     &__header {
-    //         background-color: var(--calendar-header-bg);
-    //         color: var(--config-menu-text);
-    //         padding: 0 5px;
-    //     }
-
-    //     &__body {
-    //         padding: 0;
-    //     }
-
-    //     &-table {
-    //         thead {
-    //             background-color: var(--calendar-thead-bg);
-    //             font-size: 12px;
-
-    //             th {
-    //                 padding: 3px 0;
-    //             }
-    //         }
-
-    //         th {
-    //             color: var(--main-text);
-    //         }
-
-    //         &:not(.is-range) td.next,
-    //         &:not(.is-range) td.prev {
-    //             color: var(--calendar-text-disabled);
-    //         }
-
-    //         td.is-today {
-    //             color: var(--main-text);
-    //             background-color: var(--calendar-bg-today);
-    //         }
-
-    //         tbody {
-    //             display: flex;
-    //             flex-direction: column;
-    //             width: 250px;
-    //             height: 120px;
-    //         }
-
-    //         &__row {
-    //             width: 100%;
-    //             flex: 1;
-    //             display: flex;
-
-    //             td {
-    //                 width: 36px;
-    //             }
-    //         }
-    //     }
-
-    //     &-day {
-    //         font-size: 12px;
-    //         padding: 0;
-    //         text-align: center;
-    //         position: relative;
-    //         height: 100%;
-
-    //         div {
-    //             display: flex;
-    //             justify-content: center;
-    //             align-items: center;
-    //             height: 100%;
-    //             width: 100%;
-
-    //             &.active {
-    //                 background-color: var(--primary);
-    //                 color: var(--color-white);
-    //             }
-
-    //             &.badge {
-    //                 &::after {
-    //                     position: absolute;
-    //                     width: 4px;
-    //                     height: 4px;
-    //                     border-radius: 100%;
-    //                     background-color: var(--color-error);
-    //                     content: '';
-    //                     top: 2px;
-    //                     right: 2px;
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
 
     .el-progress {
         &__text {
@@ -838,155 +743,9 @@
         }
     }
 
-    // $width: 250px;
-
-    // .el-date-picker {
-    //     width: $width;
-    //     --el-text-color-regular: var(--datepicker-text);
-    //     --el-datepicker-icon-color: var(--datepicker-text);
-
-    //     .el-input {
-    //         --el-input-border-color: var(--datepicker-input-border);
-
-    //         &__wrapper {
-    //             background-color: var(--datepicker-input-bg);
-    //         }
-
-    //         &__inner {
-    //             color: var(--datepicker-input-text);
-    //         }
-    //     }
-
-    //     &__time-header {
-    //         border-bottom: 1px solid var(--datepicker-border);
-    //         padding: 3px;
-    //         line-height: 21px;
-    //     }
-
-    //     &__header {
-    //         padding: 0 3px;
-
-    //         &-label {
-    //             font-size: 12px;
-    //         }
-    //     }
-
-    //     &__editor-wrap {
-    //         padding: 0 2px;
-    //     }
-
-    //     .el-picker-panel__content {
-    //         width: $width;
-    //         margin: 0;
-    //     }
-
-    //     .el-date-table {
-    //         tbody tr:first-child {
-    //             height: 20px;
-    //             background-color: var(--datepicker-header-bg);
-    //         }
-
-    //         th {
-    //             font-weight: bolder;
-    //             padding-block: 0;
-    //             padding-inline: 0;
-    //             line-height: 20px;
-    //             border-top: 1px solid var(--datepicker-border);
-    //             border-bottom: 1px solid var(--datepicker-border);
-    //         }
-
-    //         td {
-    //             padding: 0;
-    //             height: 20px;
-
-    //             .el-date-table-cell {
-    //                 height: 20px;
-    //                 padding: 0;
-    //             }
-
-    //             .el-date-table-cell .el-date-table-cell__text {
-    //                 height: 18px;
-    //                 line-height: 18px;
-    //                 border-radius: 0;
-    //                 border: 1px solid transparent;
-    //                 width: calc($width / 8);
-    //             }
-
-    //             &.current:not(.disabled) .el-date-table-cell .el-date-table-cell__text {
-    //                 color: var(--datepicker-text-hover);
-    //                 border-color: var(--datepicker-border-hover);
-    //                 background-color: var(--datepicker-bg-hover);
-    //                 font-weight: normal;
-    //             }
-
-    //             &:not(.disabled) .el-date-table-cell .el-date-table-cell__text:hover {
-    //                 color: var(--datepicker-text-hover);
-    //                 border-color: var(--datepicker-border-hover);
-    //                 background-color: var(--datepicker-bg-hover);
-    //                 font-weight: normal;
-    //             }
-    //         }
-    //     }
-
-    //     .el-date-picker__header--bordered {
-    //         border-bottom: 1px solid var(--datepicker-border);
-    //     }
-
-    //     .el-month-table,
-    //     .el-year-table {
-    //         .el-date-table-cell .el-date-table-cell__text {
-    //             border-radius: 0;
-    //             border: 1px solid transparent;
-    //             width: calc($width / 5);
-    //         }
-
-    //         td {
-    //             width: calc($width / 5);
-    //             padding: 0;
-    //         }
-
-    //         td.current:not(.disabled) .el-date-table-cell__text {
-    //             color: var(--datepicker-text-hover);
-    //             border-color: var(--datepicker-border-hover);
-    //             background-color: var(--datepicker-bg-hover);
-    //             font-weight: normal;
-    //         }
-
-    //         td:not(.disabled) .el-date-table-cell .el-date-table-cell__text:hover {
-    //             color: var(--datepicker-text-hover);
-    //             border-color: var(--datepicker-border-hover);
-    //             background-color: var(--datepicker-bg-hover);
-    //             font-weight: normal;
-    //         }
-    //     }
-
-    //     .el-picker-panel__footer {
-    //         border-top: 1px solid var(--datepicker-border);
-    //         padding: 0 3px;
-    //         height: 30px;
-
-    //         .el-button,
-    //         .el-button.is-text {
-    //             line-height: 20px;
-    //             height: 20px;
-    //             min-width: unset;
-    //             width: unset;
-    //             border: 1px solid var(--datepicker-btn-border);
-    //             background-color: var(--datepicker-btn-bg);
-    //             color: var(--datepicker-btn-text);
-
-    //             &:hover {
-    //                 border-color: var(--datepicker-btn-border);
-    //                 background-color: var(--datepicker-btn-bg);
-    //                 color: var(--datepicker-btn-text);
-    //             }
-    //         }
-    //     }
-    // }
-
-    // .el-popper:has(> .el-date-picker) {
-    //     border-color: var(--datepicker-border);
-    // }
+    .el-picker__popper {
+        transition: none;
+    }
 
     .el-time {
         &-panel {

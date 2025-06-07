@@ -101,7 +101,7 @@
                         />
                         <el-table-column min-width="150">
                             <template #header>
-                                <el-popover popper-class="no-padding">
+                                <BasePopover popper-class="no-padding">
                                     <template #reference>
                                         <BaseTableDropdownLink>{{ Translate('IDCS_TYPE') }}</BaseTableDropdownLink>
                                     </template>
@@ -122,7 +122,7 @@
                                             </el-checkbox-group>
                                         </el-form-item>
                                     </el-form>
-                                </el-popover>
+                                </BasePopover>
                             </template>
                             <template #default="{ row }: TableColumn<PlaybackRecLogList>">
                                 <span>{{ displayEvent(row) }}</span>

@@ -87,6 +87,9 @@ export default defineComponent({
          * @returns {String}
          */
         const displayTitle = (i: number) => {
+            if (isNetworkFaultTolerance.value) {
+                return Translate('IDCS_FAULT_ETH_NAME').formatForLang(i + 1)
+            }
             return Translate('IDCS_ETH_NAME').formatForLang(i + 1)
         }
 
@@ -100,7 +103,7 @@ export default defineComponent({
             formData.value = new NetTcpIpAdvanceForm()
 
             if (isNetworkFaultTolerance.value) {
-                formData.value.mtu = [prop.data.ipGroupConfig.mtu] //bonds.map((item) => item.mtu)
+                formData.value.mtu = prop.data.bonds.map((item) => item.mtu)
             } else {
                 formData.value.mtu = prop.data.nicConfigs
                     .filter((item, index) => {

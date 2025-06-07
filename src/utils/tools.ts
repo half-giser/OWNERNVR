@@ -1519,7 +1519,7 @@ export const getObjectFilterData = (objectMode: string, itemObjectFilter: { elem
     const supportPersonMaxMin = $itemNodeObj('person/minDetectTarget').length > 0 ? true : false
     const supportCarMaxMin = $itemNodeObj('car/minDetectTarget').length > 0 ? true : false
     const supportMotorMaxMin = $itemNodeObj('motor/minDetectTarget').length > 0 ? true : false
-    const detectTargetList = []
+    const detectTargetList: AlarmDetectTarget[] = []
     if (supportPersonMaxMin) detectTargetList.push('person')
     if (supportCarMaxMin) detectTargetList.push('car')
     if (supportMotorMaxMin) detectTargetList.push('motor')
@@ -1535,16 +1535,17 @@ export const getObjectFilterData = (objectMode: string, itemObjectFilter: { elem
         car = new AlarmTargetCfgDto(),
         motor = new AlarmTargetCfgDto()
     if (supportPerson) {
-        person = getDetectTargetData('person', objectMode, $itemNodeObj, $paramNodeObj)
+        person = getDetectTargetData('person', objectMode, $itemNodeObj, $paramNodeObj!)
     }
 
     if (supportCar) {
-        car = getDetectTargetData('car', objectMode, $itemNodeObj, $paramNodeObj)
+        car = getDetectTargetData('car', objectMode, $itemNodeObj, $paramNodeObj!)
     }
 
     if (supportMotor) {
-        motor = getDetectTargetData('motor', objectMode, $itemNodeObj, $paramNodeObj)
+        motor = getDetectTargetData('motor', objectMode, $itemNodeObj, $paramNodeObj!)
     }
+
     objectFilter.value = {
         supportPerson: supportPerson,
         supportCar: supportCar,
@@ -1705,6 +1706,10 @@ export interface AttrObjDto {
     children: Record<string, string>[]
 }
 
+/**
+ * @description 获取智能搜索属性
+ * @returns
+ */
 export const getSearchOptions = async () => {
     const Translate = useLangStore().Translate
     const result = await querySearchOptions()
@@ -1770,7 +1775,7 @@ const handleSort = (attrList: Record<string, string>[], targetSort: string[]) =>
     if (!(targetSort && targetSort.length > 0)) return attrList
     const list: Record<string, string>[] = []
     targetSort.forEach((attrValue) => {
-        const attrItem = attrList.find(function (item) {
+        const attrItem = attrList.find((item) => {
             return item.value === attrValue
         })
         if (attrItem) list.push(attrItem)
@@ -1796,4 +1801,94 @@ export const getTextWidth = (str: string, fontSize: number) => {
     document.body.removeChild(_span)
     // 返回span宽度
     return width
+}
+
+/**
+ * @description 获取CBR下默认码率上线值
+ */
+export const getCBRDefaultVideoQuality = (videoEncodeType: string, resolution: string, qualitys: number[]) => {
+    const split = resolution.split('x')
+    if (!videoEncodeType || !split || split.length === 0) {
+        return 0
+    }
+
+    const row = Number(split[0])
+    const column = Number(split[1])
+    const isH264 = videoEncodeType.indexOf('h264') > -1
+    const isH265 = videoEncodeType.indexOf('h265') > -1
+    const product = row * column
+
+    const range = [
+        // D1及以下
+        {
+            range: [-Infinity, 5e5],
+            h264: 768,
+            h265: 512,
+        },
+        // (D1, 720p]
+        {
+            range: [5e5, 1e6],
+            h264: 1536,
+            h265: 1024,
+        },
+        // (720p, 2MP]
+        {
+            range: [1e6, 2e6],
+            h264: 3072,
+            h265: 2048,
+        },
+        // (2MP, 3MP]
+        {
+            range: [2e6, 3e6],
+            h264: 4096,
+            h265: 3072,
+        },
+        // (3MP, 4MP]
+        {
+            range: [3e6, 4e6],
+            h264: 5120,
+            h265: 4096,
+        },
+        // (4MP, 6MP]
+        {
+            range: [4e6, 6e6],
+            h264: 6144,
+            h265: 5120,
+        },
+        // (6MP, 12MP]
+        {
+            range: [6e6, 12e6],
+            h264: 8192,
+            h265: 6144,
+        },
+        // 12MP以上
+        {
+            range: [12e6, Infinity],
+            h264: 8192,
+            h265: 8192,
+        },
+    ]
+
+    const find = range.find((item) => {
+        return product > item.range[0] && product <= item.range[1]
+    })
+
+    let videoQuality = 0
+    if (find) {
+        if (isH264) {
+            videoQuality = find.h264
+        } else if (isH265) {
+            videoQuality = find.h265
+        }
+    }
+
+    const findQuality = qualitys.find((item, index) => {
+        return item >= videoQuality || index === qualitys.length - 1
+    })
+
+    if (findQuality) {
+        videoQuality = findQuality
+    }
+
+    return videoQuality
 }

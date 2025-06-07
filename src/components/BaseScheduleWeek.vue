@@ -24,7 +24,7 @@
                     :width="width - 90"
                 >
                     <template #customerControlPanel>
-                        <el-popover
+                        <BasePopover
                             :visible="curCopyToPlIndex === index"
                             width="260"
                             @update:visible="
@@ -54,7 +54,7 @@
                                 <el-button @click="copyToOk(index)">{{ Translate('IDCS_OK') }}</el-button>
                                 <el-button @click="copyToClose">{{ Translate('IDCS_CANCEL') }}</el-button>
                             </div>
-                        </el-popover>
+                        </BasePopover>
                     </template>
                 </BaseScheduleLine>
             </div>

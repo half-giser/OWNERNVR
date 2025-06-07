@@ -11,6 +11,7 @@ import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
 import AlarmBasePresetSelector from './AlarmBasePresetSelector.vue'
 import AlarmBaseIPSpeakerSelector from './AlarmBaseIPSpeakerSelector.vue'
 import AlarmBaseSnapSelector from './AlarmBaseSnapSelector.vue'
+import AlarmBaseErrorPanel from './AlarmBaseErrorPanel.vue'
 
 export default defineComponent({
     components: {
@@ -20,6 +21,7 @@ export default defineComponent({
         AlarmBasePresetSelector,
         AlarmBaseSnapSelector,
         AlarmBaseIPSpeakerSelector,
+        AlarmBaseErrorPanel,
     },
     props: {
         /**
@@ -171,7 +173,7 @@ export default defineComponent({
             isSchedulePop: false,
             // 声音列表
             voiceList: prop.voiceList,
-            triggerList: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch', 'popMsgSwitch'],
+            triggerList: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'popMsgSwitch'],
             // 表格的提示信息
             errorMessage: '',
             // 高级弹出框的提示信息
@@ -296,7 +298,7 @@ export default defineComponent({
         const changeArea = (points: CanvasBasePoint[] | CanvasBaseArea) => {
             if (currAreaType === 'maskArea') {
                 const index = pageData.value.maskAreaIndex
-                formData.value.maskAreaInfo[index].points = points
+                formData.value.maskAreaInfo[index].points = points as CanvasBasePoint[]
             } else {
                 pageData.value.currRowData.points = points as CanvasBasePoint[]
             }
@@ -748,15 +750,6 @@ export default defineComponent({
                 }
                 return -1
             })
-
-            // 是否显示全部区域切换按钮和清除全部按钮（区域数量大于等于2时才显示）
-            if (maskAreaInfoList && maskAreaInfoList.length > 1) {
-                pageData.value.showAllAreaVisible = true
-                pageData.value.clearAllVisible = true
-            } else {
-                pageData.value.showAllAreaVisible = false
-                pageData.value.clearAllVisible = false
-            }
         }
 
         const getRuleTypeList = (ruleType: string) => {
@@ -1004,11 +997,16 @@ export default defineComponent({
          */
         const setOtherAreaClosed = () => {
             if (mode.value === 'h5') {
-                const allInfoList = [...formData.value.boundaryData, ...formData.value.maskAreaInfo]
+                const allInfoList: (AlarmTemperatureDetectionBoundryDto | { points: CanvasBasePoint[]; maxCount: number })[] = [...formData.value.boundaryData, ...formData.value.maskAreaInfo]
                 // 画点-区域
                 if (allInfoList && allInfoList.length > 0) {
                     allInfoList.forEach((item) => {
-                        if (item.ruleType === 'area' && item.points.length >= 4 && drawer.judgeAreaCanBeClosed(item.points)) {
+                        if (
+                            (item as AlarmTemperatureDetectionBoundryDto).ruleType &&
+                            (item as AlarmTemperatureDetectionBoundryDto).ruleType === 'area' &&
+                            item.points.length >= 4 &&
+                            drawer.judgeAreaCanBeClosed(item.points)
+                        ) {
                             setClosed(item.points)
                         }
                     })
@@ -1031,7 +1029,7 @@ export default defineComponent({
             // 屏蔽区域为多边形
             const allRegionList: CanvasBasePoint[][] = []
             const maskAreaInfoList = formData.value.maskAreaInfo
-            maskAreaInfoList.forEach(function (ele) {
+            maskAreaInfoList.forEach((ele) => {
                 allRegionList.push(ele.points)
             })
             for (const i in allRegionList) {
@@ -1114,7 +1112,7 @@ export default defineComponent({
                                     .map((element) => {
                                         return rawXml`
                                                 <item>
-                                                    <point type="list" maxCount="${element.maxCount}" count="${element.point.length}">
+                                                    <point type="list" maxCount="${element.maxCount}" count="${element.points.length}">
                                                         ${element.points
                                                             .map((point) => {
                                                                 return rawXml`
@@ -1174,7 +1172,7 @@ export default defineComponent({
                                     .join('')}
                                 </chls>
                             </triggerAudioDevice>
-                            <snapSwitch>${formData.value.trigger.includes('snapSwitch')}</snapSwitch>
+                            <snapSwitch>${formData.value.snap.length > 0}</snapSwitch>
                             <msgPushSwitch>${formData.value.trigger.includes('msgPushSwitch')}</msgPushSwitch>
                             <buzzerSwitch>${formData.value.trigger.includes('buzzerSwitch')}</buzzerSwitch>
                             <popVideoSwitch>${formData.value.trigger.includes('popVideoSwitch')}</popVideoSwitch>
@@ -1209,6 +1207,7 @@ export default defineComponent({
                 }).finally(() => {
                     // 保存成功后刷新视频区域，四个点时区域没有闭合但保存后也可以闭合（四点已经可以画面）
                     setAreaView()
+                    refreshInitPage()
                     watchEdit.update()
                 })
             } else {
@@ -1260,15 +1259,15 @@ export default defineComponent({
                         pageData.value.currRowData.points
                     }
                 }
+            }
 
-                const errorCode = $('statenotify/errorCode').text().num()
-                if (errorCode === 517) {
-                    // 517-区域已闭合
-                    clearCurrentArea()
-                } else if (errorCode === 515) {
-                    // 515-区域有相交直线，不可闭合
-                    openMessageBox(Translate('IDCS_INTERSECT'))
-                }
+            const errorCode = $('statenotify/errorCode').text().num()
+            if (errorCode === 517) {
+                // 517-区域已闭合
+                clearCurrentArea()
+            } else if (errorCode === 515) {
+                // 515-区域有相交直线，不可闭合
+                openMessageBox(Translate('IDCS_INTERSECT'))
             }
         }
 

@@ -230,7 +230,7 @@ export default defineComponent({
 
         // 是否禁用本地录像
         const localRecordDisabled = computed(() => {
-            return !userSession.hasAuth('rec') || disabled.value
+            return !userSession.hasAuth('rec') || systemCaps.hotStandBy || disabled.value
         })
 
         /**
@@ -384,76 +384,9 @@ export default defineComponent({
                     .value.split(',')
                     .map((item) => Number(item))
 
-                streamFormData.value.quality =
-                    getVideoQuality({
-                        videoEncodeType: pageData.value.enct,
-                        resolution: streamFormData.value.resolution,
-                        qualitys: qualitys,
-                    }) + ''
+                streamFormData.value.quality = getCBRDefaultVideoQuality(pageData.value.enct, streamFormData.value.resolution, qualitys) + ''
             }
         })
-
-        const getVideoQuality = (rowData: { videoEncodeType: string; resolution: string; qualitys: number[] }) => {
-            const videoEncodeType = rowData.videoEncodeType // h264、h265
-            const resolution = rowData.resolution // 2MP
-            const split = resolution.split('x')
-            if (!videoEncodeType || !split || split.length === 0) {
-                return 0
-            }
-
-            const row = Number(split[0])
-            const column = Number(split[1])
-            const isH264 = videoEncodeType.indexOf('h264') > -1
-            const isH265 = videoEncodeType.indexOf('h265') > -1
-            const product = row * column
-
-            let videoQuality = 0
-
-            // D1及以下
-            if (product <= 5e5) {
-                videoQuality = isH264 ? 768 : isH265 ? 512 : 0
-            }
-            // (D1, 720p]
-            else if (product > 5e5 && product <= 1e6) {
-                videoQuality = isH264 ? 1536 : isH265 ? 1024 : 0
-            }
-            // (720p, 2MP]
-            else if (product > 1e6 && product <= 2e6) {
-                videoQuality = isH264 ? 3072 : isH265 ? 2048 : 0
-            }
-            // (2MP, 3MP]
-            else if (product > 2e6 && product <= 3e6) {
-                videoQuality = isH264 ? 4096 : isH265 ? 3072 : 0
-            }
-            // (3MP, 4MP]
-            else if (product > 3e6 && product <= 4e6) {
-                videoQuality = isH264 ? 5120 : isH265 ? 4096 : 0
-            }
-            // (4MP, 6MP]
-            else if (product > 4e6 && product <= 6e6) {
-                videoQuality = isH264 ? 6144 : isH265 ? 5120 : 0
-            }
-            // (6MP, 12MP]
-            else if (product > 6e6 && product <= 12e6) {
-                videoQuality = isH264 ? 8192 : isH265 ? 6144 : 0
-            }
-            // 12MP以上
-            else if (product > 12e6) {
-                videoQuality = isH264 ? 8192 : isH265 ? 8192 : 0
-            }
-
-            if (rowData.qualitys.length > 1) {
-                // 找一个小的最接近的区间值
-                for (let i = rowData.qualitys.length - 1; i >= 0; i--) {
-                    if (videoQuality >= rowData.qualitys[i]) {
-                        videoQuality = rowData.qualitys[i]
-                        break
-                    }
-                }
-            }
-
-            return videoQuality
-        }
 
         /**
          * @description 更新码流
@@ -713,6 +646,7 @@ export default defineComponent({
             wiperDisabled,
             runWiper,
             stopWiper,
+            systemCaps,
         }
     },
 })

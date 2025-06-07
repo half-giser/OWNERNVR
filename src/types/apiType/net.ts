@@ -18,11 +18,10 @@ export class NetTcpIpForm {
         toeEnable: false,
         curWorkMode: '',
     }
-    // ipGroupSwitch = false
-    // ipGroupMode = ''
-    // ipDefaultBond = ''
-    ipGroupConfig = new NetTcpIpGroupList()
-    // bonds: NetTcpIpBondsList[] = []
+    ipGroupSwitch = false
+    ipGroupMode = ''
+    ipDefaultBond = ''
+    bonds: NetTcpIpBondsList[] = []
     nicConfigs: NetTcpIpNicConfigList[] = []
 }
 
@@ -46,14 +45,12 @@ export class NetTcpIpDhcpList {
 /**
  * @description TCP/IP Bond列表项
  */
-export class NetTcpIpGroupList extends NetTcpIpDhcpList {
-    // index = 0
-    // id = ''
-    switch = false
-    mode = ''
+export class NetTcpIpBondsList extends NetTcpIpDhcpList {
+    index = 0
+    id = ''
     dhcpSwitch = false
     primaryNIC = ''
-    // NICs = ''
+    NICs = ''
     // ip = ''
     // gateway = ''
     // mask = ''
@@ -391,6 +388,20 @@ export class NetCloudUpgradeForm {
     upgradeType = 'close'
 }
 
+export class NetCloudUpgradeIPCInfoList {
+    ip = ''
+    chlId = ''
+    chlName = ''
+    state = ''
+    // formatState = ''
+    version = ''
+    newVersion = ''
+    // formatNewVersion = ''
+    newVersionNote = ''
+    newVersionGUID = ''
+    progress = ''
+}
+
 /**
  * @description 网络码流通道列表项
  */
@@ -426,7 +437,6 @@ export class NetSubStreamListBitRange {
  * @description 网络子码流列表项
  */
 export class NetSubStreamList extends TableRowStatus {
-    [key: string]: any
     id = ''
     name = ''
     chlType = ''
@@ -444,8 +454,6 @@ export class NetSubStreamList extends TableRowStatus {
     bitType = ''
     level = ''
     videoQuality = 0
-    // bitRange: null | NetSubStreamListBitRange = null
-    // audio = ''
 }
 
 /**
@@ -532,24 +540,6 @@ export class NetPlatformSipCodeList {
  */
 export class NetDetectionForm {
     address = ''
-}
-
-/**
- * @description 云升级ipc升级信息列表项
- */
-export class NetIpcUpgradeInfoList {
-    [key: string]: any
-    ip = ''
-    chlId = ''
-    chlName = ''
-    state = ''
-    formatState = ''
-    version = ''
-    newVersion = ''
-    formatNewVersion = ''
-    newVersionNote = ''
-    newVersionGUID = ''
-    progress = ''
 }
 
 /**

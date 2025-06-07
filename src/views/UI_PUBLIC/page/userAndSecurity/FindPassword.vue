@@ -51,7 +51,7 @@
                         v-model="qaFormData.question"
                         :placeholder="Translate('IDCS_QUESTION_TIP')"
                     />
-                    <el-select-v2
+                    <BaseSelect
                         v-else
                         v-model="qaFormData.id"
                         :options="pageData.questionOptions"

@@ -25,6 +25,7 @@
                 </template>
             </el-table-column>
             <el-table-column
+                v-if="!systemCaps.hotStandBy"
                 :label="Translate('IDCS_MOTION_DETECTION')"
                 min-width="150"
             >
@@ -33,7 +34,7 @@
                 </template>
             </el-table-column>
             <el-table-column
-                v-if="systemCaps.ipChlMaxCount > 0"
+                v-if="systemCaps.ipChlMaxCount > 0 && !systemCaps.hotStandBy"
                 :label="Translate('IDCS_AI')"
                 min-width="150"
             >

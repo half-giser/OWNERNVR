@@ -48,7 +48,7 @@
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_DELETE')">
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_DELETE') }}
                             </BaseTableDropdownLink>
@@ -57,7 +57,7 @@
                                     <el-dropdown-item @click="deleteAllUser">{{ Translate('IDCS_DELETE_ALL') }} </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<NetOnvifUserList>">
                         <BaseImgSpriteBtn

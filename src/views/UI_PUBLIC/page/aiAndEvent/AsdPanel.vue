@@ -5,12 +5,7 @@
 -->
 <template>
     <div>
-        <div
-            v-if="pageData.reqFail"
-            class="base-ai-not-support-box"
-        >
-            {{ Translate('IDCS_QUERY_DATA_FAIL') }}
-        </div>
+        <AlarmBaseErrorPanel v-if="pageData.reqFail" />
         <div v-if="pageData.tab">
             <!-- nvr/ipc检测开启及ai按钮 -->
             <div class="base-btn-box space-between padding collapse">
@@ -24,29 +19,25 @@
                 v-show="pageData.tab !== 'trigger'"
                 class="base-ai-param-box-left fixed"
             >
-                <!-- <div
-                    ref="asdChartRef"
-                    class="voiceChartDiv"
-                >
-                    
-                </div> -->
-                <v-chart
-                    class="voiceChartDiv"
-                    :option="options"
-                    autoresize
-                />
+                <div class="chart">
+                    <v-chart
+                        v-if="pageData.isSupportWebsocket"
+                        class="chart"
+                        :option="options"
+                        autoresize
+                    />
+                </div>
                 <div class="legend">
-                    <div class="legendItem">
-                        <span class="circle red"></span>
-                        <span> {{ Translate('IDCS_SOUND_INTENSITY') }} </span>
-                    </div>
-                    <div class="legendItem">
-                        <span class="circle blue"></span>
-                        <span> {{ Translate('IDCS_BACK_GROUND_SOUND_INTENSITY') }} </span>
-                    </div>
-                    <div class="legendItem">
-                        <span class="circle green"></span>
-                        <span> {{ Translate('IDCS_SOUND_RISE_THRESHOLD') }} </span>
+                    <div
+                        v-for="item in pageData.legendOptions"
+                        :key="item.name"
+                        class="legendItem"
+                    >
+                        <span
+                            class="asd-circle"
+                            :style="{ backgroundColor: item.color }"
+                        ></span>
+                        <span> {{ item.name }} </span>
                     </div>
                 </div>
             </div>
@@ -82,9 +73,10 @@
                                     </div>
                                     <!-- 持续时间 -->
                                     <el-form-item :label="Translate('IDCS_DURATION')">
-                                        <el-select-v2
+                                        <BaseSelect
                                             v-model="formData.holdTime"
                                             :options="formData.holdTimeList"
+                                            empty-text=""
                                         />
                                     </el-form-item>
                                     <!-- 灵敏度 -->
@@ -141,7 +133,7 @@
                     >
                         <el-form v-if="pageData.supportAlarmAudioConfig">
                             <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
-                                <el-select-v2
+                                <BaseSelect
                                     v-model="formData.sysAudio"
                                     :options="voiceList"
                                 />
@@ -188,9 +180,10 @@
 <script lang="ts" src="./AsdPanel.v.ts"></script>
 
 <style lang="scss" scoped>
-.voiceChartDiv {
+.chart {
     width: 440px;
     height: 300px;
+    background-color: #686e7a;
 }
 
 .legendItem {
@@ -208,15 +201,15 @@
     vertical-align: middle;
 }
 
-.asd-circle.red {
-    background-color: #f00;
-}
+// .asd-circle.red {
+//     background-color: #f00;
+// }
 
-.asd-circle.blue {
-    background-color: #00f;
-}
+// .asd-circle.blue {
+//     background-color: #00f;
+// }
 
-.asd-circle.green {
-    background-color: #61a0a8;
-}
+// .asd-circle.green {
+//     background-color: #61a0a8;
+// }
 </style>

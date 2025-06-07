@@ -5,12 +5,7 @@
 -->
 <template>
     <div>
-        <div
-            v-if="pageData.reqFail"
-            class="base-ai-not-support-box"
-        >
-            {{ Translate('IDCS_QUERY_DATA_FAIL') }}
-        </div>
+        <AlarmBaseErrorPanel v-if="pageData.reqFail" />
         <div v-if="pageData.tab">
             <div class="base-ai-param-box-left fixed">
                 <div
@@ -39,13 +34,19 @@
                 <div v-show="pageData.tab === 'param'">
                     <div class="base-btn-box space-between">
                         <el-checkbox
+                            v-show="formData.detectAreaInfo.length > 1"
                             v-model="pageData.isShowAllArea"
                             :label="Translate('IDCS_DISPLAY_ALL_AREA')"
                             @change="showAllArea"
                         />
                         <div>
                             <el-button @click="clearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
-                            <el-button @click="clearAllArea">{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button>
+                            <el-button
+                                v-show="formData.detectAreaInfo.length > 1"
+                                @click="clearAllArea"
+                            >
+                                {{ Translate('IDCS_FACE_CLEAR_ALL') }}
+                            </el-button>
                         </div>
                     </div>
                     <div class="base-ai-tip">{{ Translate('IDCS_DRAW_AREA_TIP').formatForLang(6) }}</div>
@@ -126,9 +127,10 @@
                                         </div>
                                         <!-- 目标 -->
                                         <el-form-item :label="Translate('IDCS_TARGET')">
-                                            <el-select-v2
+                                            <BaseSelect
                                                 v-model="formData.detectTarget"
                                                 :options="formData.detectTargetList"
+                                                empty-text=""
                                                 @change="showDisplayRange"
                                             />
                                         </el-form-item>
@@ -276,6 +278,49 @@
                             </el-form>
                         </div>
                     </el-tab-pane>
+                    <!-- OSD -->
+                    <el-tab-pane
+                        v-if="formData.countOSD.supportCountOSD"
+                        :label="Translate('IDCS_OSD')"
+                        name="osd"
+                        class="base-ai-param-box"
+                    >
+                        <div class="base-ai-param-box-left"></div>
+                        <div class="base-ai-param-box-right">
+                            <el-form v-title>
+                                <!-- 图片叠加 -->
+                                <div class="base-ai-subheading">{{ Translate('IDCS_OSD') }}</div>
+                                <el-form-item>
+                                    <el-checkbox
+                                        v-model="formData.countOSD.switch"
+                                        :label="Translate('IDCS_STATIST_OSD')"
+                                        @change="setEnableOSD"
+                                    />
+                                </el-form-item>
+                                <el-form-item :label="Translate('IDCS_HUMAN_COUNT')">
+                                    <el-input
+                                        v-model="formData.countOSD.osdPersonName"
+                                        maxlength="10"
+                                        :disabled="!formData.countOSD.supportOsdPersonName"
+                                    />
+                                </el-form-item>
+                                <el-form-item :label="Translate('IDCS_VEHICLE_COUNT')">
+                                    <el-input
+                                        v-model="formData.countOSD.osdCarName"
+                                        maxlength="10"
+                                        :disabled="!formData.countOSD.supportOsdCarName"
+                                    />
+                                </el-form-item>
+                                <el-form-item :label="Translate('IDCS_BIKE_COUNT')">
+                                    <el-input
+                                        v-model="formData.countOSD.osdBikeName"
+                                        maxlength="10"
+                                        :disabled="!formData.countOSD.supportBikeName"
+                                    />
+                                </el-form-item>
+                            </el-form>
+                        </div>
+                    </el-tab-pane>
                     <!-- 图片叠加 -->
                     <el-tab-pane
                         :label="Translate('IDCS_IMAGE_OSD')"
@@ -289,7 +334,7 @@
                                 <div class="base-ai-subheading">{{ Translate('IDCS_IMAGE_OSD') }}</div>
                                 <!-- 类型 -->
                                 <el-form-item :label="Translate('IDCS_TYPE')">
-                                    <el-select-v2
+                                    <BaseSelect
                                         v-model="formData.osdType"
                                         :options="pageData.imgOsdTypeList"
                                     />
@@ -321,7 +366,7 @@
                     </el-tab-pane>
                 </el-tabs>
                 <!-- 高级设置 -->
-                <el-popover
+                <BasePopover
                     v-model:visible="advancedVisible"
                     width="400"
                     popper-class="no-padding"
@@ -364,7 +409,7 @@
                             </el-form-item>
                             <!-- 模式 -->
                             <el-form-item :label="Translate('IDCS_MODE')">
-                                <el-select-v2
+                                <BaseSelect
                                     v-model="pageData.timeType"
                                     :disabled="!pageData.autoReset"
                                     :options="pageData.countCycleTypeList"
@@ -379,14 +424,14 @@
                                     '--form-input-width': '121px',
                                 }"
                             >
-                                <el-select-v2
+                                <BaseSelect
                                     v-if="pageData.timeType === 'week'"
                                     v-model="formData.countPeriod.week.date"
                                     :options="pageData.weekOption"
                                     :disabled="!pageData.autoReset"
                                     :teleported="false"
                                 />
-                                <el-select-v2
+                                <BaseSelect
                                     v-if="pageData.timeType === 'month'"
                                     v-model="formData.countPeriod.month.date"
                                     :options="pageData.monthOption"
@@ -420,7 +465,7 @@
                             </div>
                         </el-form>
                     </div>
-                </el-popover>
+                </BasePopover>
             </div>
             <div class="base-btn-box fixed">
                 <el-button

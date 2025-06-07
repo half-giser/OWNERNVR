@@ -135,8 +135,11 @@ export const useLangStore = defineStore(
          * @return {string}
          */
         const Translate = (key: string): string => {
-            const res = langItems.value[key] || key
-            return convertToTextEntities(res)
+            const res = key ? langItems.value[key] || key : key
+            if (res) {
+                return convertToTextEntities(res)
+            }
+            return res
         }
 
         /**

@@ -70,6 +70,8 @@
 
     --slider-btn-border: #808080;
     --slider-btn-border-disabled: #dcdcdc;
+    --slider-bar-event-bg: #ff7e7e;
+    --slider-bar-mark-bg: red;
 
     --upload-bg-text: #000;
     --upload-bg: #eee;
@@ -309,4 +311,10 @@
 
     --tooltip-border: #111;
     --tooltip-text: #333;
+
+    --target-title-bg: #f00;
+    --target-attr-bg: rgb(0 0 0 / 60%);
+    --target-bullet-bg: #46e3ff;
+    --target-face-bg: #f00;
+    --target-human-bg: #ff0;
 }

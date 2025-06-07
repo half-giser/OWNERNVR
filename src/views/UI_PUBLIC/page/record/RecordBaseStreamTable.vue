@@ -38,7 +38,7 @@
                     width="130"
                 >
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_VIDEO_ENCT') }}
                             </BaseTableDropdownLink>
@@ -53,10 +53,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<number>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="tableData[row].videoEncodeType"
                             :disabled="tableData[row].disabled"
                             :options="tableData[row].mainCaps.supEnct"
@@ -70,7 +70,7 @@
                     width="145"
                 >
                     <template #header>
-                        <el-popover
+                        <BasePopover
                             v-model:visible="pageData.resolutionHeaderVisble"
                             width="430"
                         >
@@ -93,7 +93,7 @@
                                 >
                                     <el-table-column width="220">
                                         <template #default="{ row }: TableColumn<RecordStreamResolutionDto>">
-                                            <el-select-v2
+                                            <BaseSelect
                                                 v-model="row.res"
                                                 :options="row.resGroup"
                                                 @visible-change="changeResolutionVisible"
@@ -126,10 +126,10 @@
                                     <el-button @click="cancelSetAllResolution">{{ Translate('IDCS_CANCEL') }}</el-button>
                                 </div>
                             </div>
-                        </el-popover>
+                        </BasePopover>
                     </template>
                     <template #default="{ row }: TableColumn<number>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="tableData[row].resolution"
                             max-height="400"
                             :disabled="tableData[row].disabled"
@@ -144,7 +144,7 @@
                     width="95"
                 >
                     <template #header>
-                        <el-dropdown max-height="400">
+                        <BaseDropdown :max-height="400">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_FRAME_RATE') }}
                             </BaseTableDropdownLink>
@@ -159,20 +159,14 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<number>">
-                        <el-select-v2
-                            v-if="!tableData[row].frameRate"
-                            model-value=""
-                            disabled
-                            :options="[]"
-                        />
-                        <el-select-v2
-                            v-else
+                        <BaseSelect
                             v-model="tableData[row].frameRate"
                             :disabled="tableData[row].disabled"
                             :options="getFrameRateSingleList(tableData[row])"
+                            empty-text=""
                         />
                     </template>
                 </el-table-column>
@@ -182,7 +176,7 @@
                     width="145"
                 >
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_BITRATE_TYPE') }}
                             </BaseTableDropdownLink>
@@ -197,10 +191,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<number>">
-                        <el-select-v2
+                        <BaseSelect
                             v-if="!tableData[row].disabled"
                             v-model="tableData[row].bitType"
                             :disabled="isBitTypeDisabled(row)"
@@ -216,7 +210,7 @@
                     width="145"
                 >
                     <template #header>
-                        <el-dropdown :disabled="isAllLevelDisabled()">
+                        <BaseDropdown :disabled="isAllLevelDisabled()">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_IMAGE_QUALITY') }}
                             </BaseTableDropdownLink>
@@ -231,14 +225,14 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<number>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="tableData[row].level"
-                            :placeholder="Translate('IDCS_LOWEST')"
+                            :empty-text="Translate('IDCS_LOWEST')"
                             :disabled="isLevelDisabled(row)"
-                            :options="tableData[row].levelNote"
+                            :options="isLevelDisabled(row) ? [] : tableData[row].levelNote"
                         />
                     </template>
                 </el-table-column>
@@ -248,7 +242,7 @@
                     width="145"
                 >
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_VIDEO_QUALITY') }}
                             </BaseTableDropdownLink>
@@ -263,13 +257,14 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<number>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="tableData[row].videoQuality"
                             :disabled="isVideoQualityDisabled(row)"
-                            :options="getQualityList(tableData[row])"
+                            :options="tableData[row].videoQuality === 0 ? [] : getQualityList(tableData[row])"
+                            empty-text=""
                         />
                     </template>
                 </el-table-column>
@@ -289,7 +284,7 @@
                     width="100"
                 >
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_AUDIO_FREQUENCY') }}
                             </BaseTableDropdownLink>
@@ -304,10 +299,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<number>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="tableData[row].audio"
                             :placeholder="Translate('IDCS_ON')"
                             :disabled="isAudioDisabled(row)"
@@ -315,47 +310,13 @@
                         />
                     </template>
                 </el-table-column>
-                <!-- 原代码中写死了不显示 recordStream -->
-                <!-- <el-table-column
-                    v-if="pageData.recordStreamVisible"
-                    :label="Translate('IDCS_RECORD_CODE_STREAM')"
-                    min-width="9%"
-                >
-                    <template #header>
-                        <el-dropdown >
-                            <BaseTableDropdownLink>
-                                {{ Translate('IDCS_RECORD_CODE_STREAM') }}
-                            </BaseTableDropdownLink>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <el-dropdown-item
-                                        v-for="item in recordStreams"
-                                        :key="item.value"
-                                        @click="handleRecordStreamChangeAll(item.value)"
-                                    >
-                                        {{ item.label }}
-                                    </el-dropdown-item>
-                                </el-dropdown-menu>
-                            </template>
-                        </el-dropdown>
-                    </template>
-                    <template #default="{ row }: TableColumn<number>">
-                        <el-select-v2
-                            v-model="tableData[row].recordStream"
-                            placeholder="主码流"
-                            :disabled="tableData[row].recordStreamDisable"
-                            :options="recordStreams"
-                            @change="handleRecordStreamChange(tableData[row])"
-                        />
-                    </template>
-                </el-table-column> -->
                 <!-- GOP -->
                 <el-table-column
                     :label="Translate('IDCS_GOP')"
                     width="95"
                 >
                     <template #header>
-                        <el-popover
+                        <BasePopover
                             v-model:visible="pageData.gopHeaderVisble"
                             width="300"
                             placement="bottom-end"
@@ -386,7 +347,7 @@
                                     </div>
                                 </el-form>
                             </div>
-                        </el-popover>
+                        </BasePopover>
                     </template>
                     <template #default="{ row }: TableColumn<number>">
                         <BaseNumberInput

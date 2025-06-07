@@ -20,7 +20,10 @@
                     }"
                     @click="item.selected = !item.selected"
                 >
-                    <BaseImgSprite :file="item.icon" />
+                    <BaseImgSprite
+                        :file="item.icon"
+                        :scale="0.4"
+                    />
                     <span class="event-normal-item-text">{{ item.name }}</span>
                 </div>
             </div>
@@ -29,14 +32,13 @@
                 class="event-type"
             >
                 <PlaybackEventSelector v-model="pageData.eventList" />
-                <div class="event-type-btn-box">
-                    <BaseImgSprite
-                        file="setFilterTypeIcon"
-                        :hover-index="0"
-                        class="event-type-btn"
-                        @click="pageData.isFilterPop = true"
-                    />
-                </div>
+                <BaseImgSprite
+                    file="setFilterTypeIcon"
+                    :hover-index="0"
+                    :scale="0.2"
+                    class="event-type-btn"
+                    @click="pageData.isFilterPop = true"
+                />
             </div>
             <BaseImgSpriteBtn
                 class="btn"
@@ -45,7 +47,7 @@
             />
         </div>
         <div class="popover">
-            <el-popover
+            <BasePopover
                 v-model:visible="pageData.isPlayModePop"
                 popper-class="no-padding"
                 width="207"
@@ -67,12 +69,13 @@
                             file="check_mark"
                             :index="0"
                             :chunk="4"
+                            :scale="0.5"
                         />
                         <span>{{ item.label }}</span>
                     </div>
                 </div>
-            </el-popover>
-            <el-popover
+            </BasePopover>
+            <BasePopover
                 v-model:visible="pageData.isFilterPop"
                 width="207"
             >
@@ -111,7 +114,7 @@
                         <el-button @click="pageData.isFilterPop = false">{{ Translate('IDCS_CLOSE') }}</el-button>
                     </div>
                 </div>
-            </el-popover>
+            </BasePopover>
         </div>
         <el-input
             v-show="systemCaps.supportPOS"
@@ -173,14 +176,13 @@ fieldset {
         }
 
         .Sprite {
-            transform: scale(0.4);
             background-color: var(--color-white);
-            border-radius: 4px;
-            margin-left: -10px;
+            border-radius: 2px;
+            margin-left: 2px;
         }
 
         &-text {
-            margin-left: -10px;
+            margin-left: 2px;
         }
     }
 }
@@ -192,19 +194,12 @@ fieldset {
     align-items: center;
 
     &-btn {
-        transform: scale(0.2);
+        flex-shrink: 0;
+        margin: 0 5px;
 
         &:hover {
             opacity: 0.7;
         }
-    }
-
-    &-btn-box {
-        width: 25px;
-        height: 25px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
     }
 }
 
@@ -212,12 +207,13 @@ fieldset {
     &-item {
         display: flex;
         width: 100%;
+        height: 30px;
         cursor: pointer;
         align-items: center;
 
         .Sprite {
             opacity: 0;
-            transform: scale(0.5);
+            margin: 0 5px;
         }
 
         &:not(:last-child) {

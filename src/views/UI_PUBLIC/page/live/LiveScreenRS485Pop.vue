@@ -5,11 +5,13 @@
 -->
 <template>
     <div>
-        <el-popover
+        <BasePopover
             v-model:visible="pageData.isRS485Pop"
             placement="top"
             :width="Math.ceil(pageData.list.length / 9) * 110"
             popper-class="no-padding"
+            :disabled="!pageData.switch"
+            :offset="10"
         >
             <template #reference>
                 <BaseImgSpriteBtn
@@ -17,6 +19,7 @@
                     file="custom_operate"
                     :title="pageData.name"
                     :active="pageData.isRS485Pop"
+                    :disabled="!pageData.switch"
                 />
             </template>
             <div>
@@ -31,7 +34,7 @@
                     </el-button>
                 </div>
             </div>
-        </el-popover>
+        </BasePopover>
     </div>
 </template>
 

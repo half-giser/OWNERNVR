@@ -81,7 +81,7 @@
                                 :label="item.label"
                             >
                                 <template #header>
-                                    <el-dropdown>
+                                    <BaseDropdown>
                                         <BaseTableDropdownLink>
                                             {{ item.label }}
                                         </BaseTableDropdownLink>
@@ -96,10 +96,10 @@
                                                 </el-dropdown-item>
                                             </el-dropdown-menu>
                                         </template>
-                                    </el-dropdown>
+                                    </BaseDropdown>
                                 </template>
                                 <template #default="{ $index }">
-                                    <el-select-v2
+                                    <BaseSelect
                                         v-model="channelAuthList[$index][item.value]"
                                         :options="pageData.channelOption"
                                     />
@@ -124,7 +124,7 @@
                                 :label="item.label"
                             >
                                 <template #header>
-                                    <el-dropdown>
+                                    <BaseDropdown>
                                         <BaseTableDropdownLink>
                                             {{ item.label }}
                                         </BaseTableDropdownLink>
@@ -139,10 +139,10 @@
                                                 </el-dropdown-item>
                                             </el-dropdown-menu>
                                         </template>
-                                    </el-dropdown>
+                                    </BaseDropdown>
                                 </template>
                                 <template #default="{ $index }">
-                                    <el-select-v2
+                                    <BaseSelect
                                         v-model="channelAuthList[$index][item.value]"
                                         :options="pageData.channelOption"
                                     />

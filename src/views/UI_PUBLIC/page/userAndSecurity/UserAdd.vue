@@ -50,7 +50,7 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_RIGHT_GROUP')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.authGroup"
                     :options="authGroupOptions"
                 />

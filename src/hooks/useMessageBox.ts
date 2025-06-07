@@ -72,6 +72,8 @@ export const openMessageBox = (opt: MessageTipBoxOption | string) => {
         msgContent.innerText = optionObj.message
     }
 
+    const appendTo = (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement) as HTMLElement
+
     layoutStore.messageBoxCount++
     return ElMessageBox({
         title: optionObj.title,
@@ -85,6 +87,7 @@ export const openMessageBox = (opt: MessageTipBoxOption | string) => {
         confirmButtonText: optionObj.confirmButtonText,
         cancelButtonText: optionObj.cancelButtonText,
         beforeClose: optionObj.beforeClose,
+        appendTo: appendTo || undefined,
     })
         .then((e) => {
             layoutStore.messageBoxCount--

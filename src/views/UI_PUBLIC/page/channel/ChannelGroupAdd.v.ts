@@ -34,12 +34,6 @@ export default defineComponent({
         const tableData = ref<ChannelInfoDto[]>([])
         const selNum = ref(0)
         const timeList = ref<SelectOption<number, string>[]>([])
-        // [5, 10, 20, 30, 60, 120, 300, 600].map((value) => {
-        //     return {
-        //         label: getTranslateForSecond(value),
-        //         value,
-        //     }
-        // })
         const chlGroupCountLimit = 16 // 通道组个数上限
 
         const handleRowClick = (rowData: ChannelInfoDto) => {

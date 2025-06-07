@@ -55,8 +55,6 @@ export default defineComponent({
          * @description 打开修改密码弹窗
          */
         const showChangePwdPop = () => {
-            // pageData.value.passwordDialogTitle = 'IDCS_CHANGE_PWD'
-            // mustBeModifiedPassword.value = false
             pageData.value.isPasswordDialogVisible = true
         }
 

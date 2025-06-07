@@ -21,39 +21,6 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
 
-        // const EVENT_TYPE_MAPPING: Record<string, string> = {
-        //     // 常规回放
-        //     human: Translate('IDCS_DETECTION_PERSON'), // 人
-        //     vehicle: Translate('IDCS_DETECTION_VEHICLE'), // 车
-        //     nonMotorizedVehicle: Translate('IDCS_DETECTION_MOTORCYCLE'), // 非机动车
-        //     // 事件回放
-        //     motion: Translate('IDCS_MOTION_DETECTION'), // 移动侦测
-        //     smdPerson: Translate('IDCS_MOTION_DETECTION'), // SMD-人
-        //     smdCar: Translate('IDCS_MOTION_DETECTION'), // SMD-车
-        //     manual: Translate('IDCS_MANUAL'), // 手动
-        //     pos: Translate('IDCS_POS'), // pos
-        //     sensor: Translate('IDCS_SENSOR'), // 传感器
-        //     intrusion: Translate('IDCS_INVADE_DETECTION'), // 区域入侵
-        //     smartEntry: Translate('IDCS_SMART_AOI_ENTRY_DETECTION'), // 区域进入
-        //     smartLeave: Translate('IDCS_SMART_AOI_LEAVE_DETECTION'), // 区域离开
-        //     tripwire: Translate('IDCS_BEYOND_DETECTION'), // 越界
-        //     vfd: Translate('IDCS_FACE_DETECTION'), // 人脸侦测
-        //     faceMatch: Translate('IDCS_FACE_MATCH'), // 人脸识别
-        //     plateMatch: Translate('IDCS_VEHICLE_DETECTION'), // 车牌识别
-        //     loitering: Translate('IDCS_LOITERING_DETECTION'), // 徘徊检测
-        //     pvd: Translate('IDCS_PARKING_DETECTION'), // 停车检测
-        //     threshold: Translate('IDCS_SMART_STATISTIC_THRESHOLD_ALARM'), // 统计阈值
-        //     cdd: Translate('IDCS_CROWD_DENSITY_DETECTION'), // 人群密度检测
-        //     osc: Translate('IDCS_WATCH_DETECTION'), // 物品遗留与看护
-        //     asd: Translate('IDCS_AUDIO_EXCEPTION_DETECTION'), // 声音异常
-        //     avd: Translate('IDCS_ABNORMAL_DETECTION'), // 视频异常
-        //     smartCroedGather: Translate('IDCS_CROWD_GATHERING'), // 人员聚集
-        //     cpc: Translate('IDCS_PASS_LINE_COUNT_DETECTION'), // 人流量统计
-        //     firePoint: Translate('IDCS_FIRE_POINT_DETECTION'), // 火点检测
-        //     temperatureAlarm: Translate('IDCS_TEMPERATURE_DETECTION'), // 温度检测
-        //     schedule: Translate('IDCS_SCHEDULE'), // 排程
-        // }
-
         const TYPE_MASK_MAP: Record<string, string[]> = {
             // 常规回放
             human: ['target_human'],

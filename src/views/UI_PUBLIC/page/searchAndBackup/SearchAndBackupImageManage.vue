@@ -118,7 +118,7 @@
 
                 <el-table-column :label="Translate('IDCS_EXPORT')">
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_EXPORT') }}
                             </BaseTableDropdownLink>
@@ -127,7 +127,7 @@
                                     <el-dropdown-item @click="exportSelectedImg">{{ Translate('IDCS_EXPORT_SELECT') }}</el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<PlaybackSearchImgList>">
                         <BaseImgSpriteBtn
@@ -138,7 +138,7 @@
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_DELETE')">
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_DELETE') }}
                             </BaseTableDropdownLink>
@@ -147,7 +147,7 @@
                                     <el-dropdown-item @click="deleteSelectedImg">{{ Translate('IDCS_DELETE_SELECT') }}</el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<PlaybackSearchImgList>">
                         <BaseImgSpriteBtn

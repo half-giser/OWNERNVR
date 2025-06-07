@@ -12,6 +12,8 @@ import type { ScheduleLineReturnsType } from '@/components/BaseScheduleLine.vue'
 import type { ScheduleWeekReturnsType } from '@/components/BaseScheduleWeek.vue'
 import type { TimelineReturnsType } from '@/components/player/BaseTimeline.vue'
 import type { LivePopReturnsType } from '@/components/player/BaseLivePop.vue'
+import type { HeatMapReturnsType } from '@/components/chart/BaseHeatMapChart.vue'
+import type { BaseSelectReturnsType } from '@/components/form/BaseSelect.vue'
 
 export {}
 
@@ -117,6 +119,9 @@ declare global {
         webkitRequestFullscreen: () => void
         mozRequestFullScreen: () => void
         msRequestFullscreen: () => void
+        exitFullscreen?: () => void
+        readonly webkitFullscreenElement: Element | null
+        readonly mozFullScreenElement: Element | null
     }
 
     interface ElementExtends {
@@ -171,15 +176,26 @@ declare global {
 
     type ScheduleLineInstance = ScheduleLineReturnsType
 
+    type HeatMapInstance = HeatMapReturnsType
+
     type UserChlAuth = _UserChlAuth
 
+    type SelectInstance = BaseSelectReturnsType
+
+    /**
+     * P2P /config/index.js
+     */
     declare const natIp: string
     declare const natPort: string
     declare const natIp_2_0: string
     declare const natPort_2_0: string
     declare const ISOLATION: string
     declare const CUSTOMER_ID: string
+    declare const HOSTNAME_CSS_MAP: Record<string, string>
 
+    /**
+     * OCX ClientPluVerFile.js
+     */
     declare const ClientPluVer: string
     declare const P2PClientPluVer: string
     declare const MacP2PClientPluVer: string

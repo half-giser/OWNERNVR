@@ -4,10 +4,16 @@
  * 四种模式：箭头、多边形、矩形、OSD
  * @Author: yejiahao yejiahao@tvt.net.cn
  */
-import { type AlarmBinoCountBoundaryDto } from '@/types/apiType/aiAndEvent'
+// import { type AlarmBinoCountBoundaryDto } from '@/types/apiType/aiAndEvent'
 import type { CanvasBaseArea, CanvasBasePoint } from './canvasBase'
 import { type CanvasPasslinePassline, type CanvasPasslineOsdInfo, type CanvasPasslineLineItem, type CanvasPasslineRect } from './canvasPassline'
 import { type CanvasPolygonAreaType } from './canvasPolygon'
+
+export interface CanvasBinicularPoint {
+    [key: string]: CanvasBasePoint[]
+    rectA: CanvasBasePoint[]
+    rectB: CanvasBasePoint[]
+}
 
 interface CanvasBinicularOption {
     el?: HTMLCanvasElement
@@ -90,8 +96,9 @@ export const CanvasBinocular = (option: CanvasBinicularOption = {}) => {
     let regulation = option.regulation || false
     let enablePolygon = false
     let currAreaIndex = 0
+    let currDrawIndex = 'rectA'
     let pointList: CanvasBasePoint[] = []
-    let detectAreaInfo: AlarmBinoCountBoundaryDto[][] = []
+    let detectAreaInfo: CanvasBinicularPoint[] = []
     let maskAreaInfo: CanvasBasePoint[][] = []
     let regionInfoList: CanvasBaseArea[] = []
     let area = {
@@ -101,7 +108,7 @@ export const CanvasBinocular = (option: CanvasBinicularOption = {}) => {
     let isClosed = false
     let lineInfoList: CanvasPasslineLineItem[] = []
     let currentSurfaceOrAlarmLine = 0
-    // let currDrawIndex = 0
+
     let osdRect: CanvasPasslineRect = {
         // osd所在矩形区域 {x,y,width,height}
         x: 0,
@@ -221,7 +228,7 @@ export const CanvasBinocular = (option: CanvasBinicularOption = {}) => {
      * @property {Boolean} isFoucusClosePath 是否强制闭合
      */
     const drawAllPolygon = (
-        newDetectAreaInfo: AlarmBinoCountBoundaryDto[][],
+        newDetectAreaInfo: CanvasBinicularPoint[],
         newMaskAreaInfo: CanvasBasePoint[][],
         currAreaType: CanvasPolygonAreaType,
         currAreaIndex: number,
@@ -426,13 +433,13 @@ export const CanvasBinocular = (option: CanvasBinicularOption = {}) => {
                 if (regulation) {
                     regionInfoList[currAreaIndex] = area
                 } else if (currAreaType === 'detectionArea') {
-                    detectAreaInfo[currAreaIndex] = pointList
+                    detectAreaInfo[currAreaIndex][currDrawIndex] = pointList
                 } else if (currAreaType === 'maskArea') {
                     maskAreaInfo[currAreaIndex] = pointList
                 } else if (currAreaType === 'regionArea') {
                     regionInfoList[currAreaIndex] = area
                 }
-                drawAllPolygon(detectAreaInfo, maskAreaInfo, currAreaType, currAreaIndex, true)
+                drawAllPolygon(detectAreaInfo, maskAreaInfo, currAreaType, currAreaIndex, currDrawIndex, true)
                 drawAllRegion(regionInfoList, currAreaIndex)
             }
         }
@@ -806,9 +813,6 @@ export const CanvasBinocular = (option: CanvasBinicularOption = {}) => {
             document.addEventListener('mouseup', onMouseUp)
         } else {
             if (regulation) {
-                // const onMouseDown  = () => {
-                // }
-                // $(this.canvas).off('mousedown.binocularMousedown').on('mousedown.binocularMousedown', function (e) {
                 if (!enable || !regulation || hoverOnMaxMinFlag) {
                     return
                 }
@@ -1003,8 +1007,9 @@ export const CanvasBinocular = (option: CanvasBinicularOption = {}) => {
     }
 
     // 设置当前区域 索引/类型
-    const setCurrAreaIndex = (index: number, _drawArea: string, type: CanvasPolygonAreaType) => {
+    const setCurrAreaIndex = (index: number, drawArea: string, type: CanvasPolygonAreaType) => {
         currAreaIndex = index // 当前警戒区域索引
+        currDrawIndex = drawArea
         currAreaType = type // 当前区域类型 - 侦测/屏蔽/矩形
         clearRect() // 清空画布
     }

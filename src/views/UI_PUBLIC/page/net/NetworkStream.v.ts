@@ -133,6 +133,9 @@ export default defineComponent({
         }
 
         const getFpsOptions = (index: number) => {
+            if (tableData.value[index].frameRate === 0 && !tableData.value[index].disabled) {
+                return [{ label: 0, value: 0 }]
+            }
             const maxFps = getMaxFps(index)
             return arrayToOptions(maxFps)
         }
@@ -154,26 +157,6 @@ export default defineComponent({
                 }
             })
         }
-
-        // 分析代码后发现 本页面并没有用到此接口的数据
-        // const getChannelList = async () => {
-        //     const result = await getChlList()
-        //     commLoadResponseHandler(result, ($) => {
-        //         pageData.value.chlList = $('content/item').map((item) => {
-        //             const $item = queryXml(item.element)
-        //             return {
-        //                 id: item.attr('id'),
-        //                 addType: $item('addType').text(),
-        //                 chlType: $item('chlType').text(),
-        //                 chlIndex: $item('chlIndex').text(),
-        //                 name: $item('name').text(),
-        //                 poeIndex: $item('poeIndex').text(),
-        //                 productModel: $item('productModel').text(),
-        //                 factoryName: $item('productModel').attr('factoryName'),
-        //             }
-        //         })
-        //     })
-        // }
 
         /**
          * @description 当前码率类型是否禁用
@@ -256,65 +239,11 @@ export default defineComponent({
         }
 
         const getVideoQuality = (rowData: NetSubStreamList) => {
-            const videoEncodeType = rowData.videoEncodeType // h264、h265
-            const resolution = rowData.resolution // 2MP
-            const split = resolution.split('x')
-            if (!videoEncodeType || !split || split.length === 0) {
-                return 0
-            }
-
-            const row = Number(split[0])
-            const column = Number(split[1])
-            const isH264 = videoEncodeType.indexOf('h264') > -1
-            const isH265 = videoEncodeType.indexOf('h265') > -1
-            const product = row * column
-
-            let videoQuality = 0
-
-            // D1及以下
-            if (product <= 5e5) {
-                videoQuality = isH264 ? 768 : isH265 ? 512 : 0
-            }
-            // (D1, 720p]
-            else if (product > 5e5 && product <= 1e6) {
-                videoQuality = isH264 ? 1536 : isH265 ? 1024 : 0
-            }
-            // (720p, 2MP]
-            else if (product > 1e6 && product <= 2e6) {
-                videoQuality = isH264 ? 3072 : isH265 ? 2048 : 0
-            }
-            // (2MP, 3MP]
-            else if (product > 2e6 && product <= 3e6) {
-                videoQuality = isH264 ? 4096 : isH265 ? 3072 : 0
-            }
-            // (3MP, 4MP]
-            else if (product > 3e6 && product <= 4e6) {
-                videoQuality = isH264 ? 5120 : isH265 ? 4096 : 0
-            }
-            // (4MP, 6MP]
-            else if (product > 4e6 && product <= 6e6) {
-                videoQuality = isH264 ? 6144 : isH265 ? 5120 : 0
-            }
-            // (6MP, 12MP]
-            else if (product > 6e6 && product <= 12e6) {
-                videoQuality = isH264 ? 8192 : isH265 ? 6144 : 0
-            }
-            // 12MP以上
-            else if (product > 12e6) {
-                videoQuality = isH264 ? 8192 : isH265 ? 8192 : 0
-            }
-
-            if (rowData.qualitys.length > 1) {
-                // 找一个小的最接近的区间值
-                for (let i = rowData.qualitys.length - 1; i >= 0; i--) {
-                    if (videoQuality >= rowData.qualitys[i]) {
-                        videoQuality = rowData.qualitys[i]
-                        break
-                    }
-                }
-            }
-
-            return videoQuality
+            return getCBRDefaultVideoQuality(
+                rowData.videoEncodeType,
+                rowData.resolution,
+                getVideoQualityOptionsByItem(rowData).map((item) => item.value),
+            )
         }
 
         /**
@@ -350,14 +279,19 @@ export default defineComponent({
             }
         }
 
+        const getVideoQualityOptions = (index: number) => {
+            const item = tableData.value[index]
+            return getVideoQualityOptionsByItem(item)
+        }
+
         /**
          * @description 获取码率选项
          * @param {Number} index
          */
-        const getVideoQualityOptions = (index: number) => {
-            const qualityOptions = tableData.value[index].subStreamQualityCaps
-            const enct = tableData.value[index].videoEncodeType
-            const resolution = tableData.value[index].resolution
+        const getVideoQualityOptionsByItem = (rowData: NetSubStreamList) => {
+            const qualityOptions = rowData.subStreamQualityCaps
+            const enct = rowData.videoEncodeType
+            const resolution = rowData.resolution
             let isQualityCapsMatch = false
             let isQualityCapsEmpty = true
             const options: SelectOption<number, string>[] = []
@@ -590,12 +524,14 @@ export default defineComponent({
                 pageData.value.maxQoI = Math.max.apply([], Array.from(videoQualityList))
                 pageData.value.videoEcodeTypeList = Array.from(new Set(pageData.value.videoEcodeTypeList)).toSorted()
                 pageData.value.bitTypeList = Array.from(new Set(pageData.value.bitTypeList))
-                pageData.value.videoQualityList = Array.from(videoQualityList).map((quality) => {
-                    return {
-                        label: quality + 'Kbps',
-                        value: quality,
-                    }
-                })
+                pageData.value.videoQualityList = Array.from(videoQualityList)
+                    .toSorted()
+                    .map((quality) => {
+                        return {
+                            label: quality + 'Kbps',
+                            value: quality,
+                        }
+                    })
 
                 pageData.value.maxFps = Math.max(MAIN_STREAM_LIMIT_FPS, Math.max.apply([], tableData.value.map((item) => item.subCaps.res.map((item) => item.fps)).flat()))
 

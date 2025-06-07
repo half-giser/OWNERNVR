@@ -29,60 +29,41 @@
                 :data="tableData"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select-v2
-                        v-if="chlOptions.length"
+                    <BaseSelect
                         v-model="pageData.tableIndex"
-                        :height="170"
                         :options="chlOptions"
+                        :persistent="true"
+                        :disabled="!chlOptions.length"
+                        empty-text=""
                         @change="changeChl"
-                    />
-                    <el-select-v2
-                        v-else
-                        model-value=""
-                        :options="[]"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ENABLE')">
-                    <el-select-v2
-                        v-if="tableData[pageData.tableIndex]"
-                        v-model="tableData[pageData.tableIndex].enable"
-                        :disabled="tableData[pageData.tableIndex].disabled"
+                    <BaseSelect
+                        :model-value="tableData[pageData.tableIndex]?.enable || ''"
+                        :disabled="!tableData[pageData.tableIndex] || tableData[pageData.tableIndex].disabled"
                         :options="pageData.switchOptions"
-                    />
-                    <el-select-v2
-                        v-else
-                        model-value=""
-                        :options="[]"
-                        disabled
+                        empty-text=""
+                        @update:model-value="tableData[pageData.tableIndex].enable = $event"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_HOME_POSITION_TYPE')">
-                    <el-select-v2
-                        v-if="tableData[pageData.tableIndex]"
-                        v-model="tableData[pageData.tableIndex].location"
-                        :disabled="tableData[pageData.tableIndex].disabled"
+                    <BaseSelect
+                        :model-value="tableData[pageData.tableIndex]?.location || ''"
+                        :disabled="!tableData[pageData.tableIndex] || tableData[pageData.tableIndex].disabled"
                         :options="pageData.locationOptions"
+                        empty-text=""
+                        @update:model-value="tableData[pageData.tableIndex].location = $event"
                         @change="changeLocationPosition(tableData[pageData.tableIndex])"
-                    />
-                    <el-select-v2
-                        v-else
-                        model-value=""
-                        :options="[]"
-                        disabled
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_NAME')">
-                    <el-select-v2
-                        v-if="tableData[pageData.tableIndex]"
-                        v-model="tableData[pageData.tableIndex].number"
-                        :disabled="tableData[pageData.tableIndex].disabled"
-                        :options="getNameOption(tableData[pageData.tableIndex])"
-                    />
-                    <el-select-v2
-                        v-else
-                        model-value=""
-                        :options="[]"
-                        disabled
+                    <BaseSelect
+                        :model-value="tableData[pageData.tableIndex]?.number || ''"
+                        :disabled="!tableData[pageData.tableIndex] || tableData[pageData.tableIndex].disabled"
+                        :options="tableData[pageData.tableIndex] ? getNameOption(tableData[pageData.tableIndex]) : []"
+                        empty-text=""
+                        @update:model-value="tableData[pageData.tableIndex].number = $event"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_WAITTING_TIME')">
@@ -127,7 +108,7 @@
                     />
                     <el-table-column>
                         <template #header>
-                            <el-dropdown>
+                            <BaseDropdown>
                                 <BaseTableDropdownLink>{{ Translate('IDCS_ENABLE') }}</BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
@@ -140,16 +121,16 @@
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
-                            </el-dropdown>
+                            </BaseDropdown>
                         </template>
                         <template #default="{ row }: TableColumn<ChannelPtzGuardDto>">
-                            <el-select-v2
+                            <BaseSelect
                                 v-if="row.disabled"
                                 model-value=""
                                 :options="[]"
                                 disabled
                             />
-                            <el-select-v2
+                            <BaseSelect
                                 v-else
                                 v-model="row.enable"
                                 :options="pageData.switchOptions"
@@ -158,7 +139,7 @@
                     </el-table-column>
                     <el-table-column>
                         <template #header>
-                            <el-dropdown>
+                            <BaseDropdown>
                                 <BaseTableDropdownLink>{{ Translate('IDCS_HOME_POSITION') }}</BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
@@ -171,16 +152,16 @@
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
-                            </el-dropdown>
+                            </BaseDropdown>
                         </template>
                         <template #default="{ row }: TableColumn<ChannelPtzGuardDto>">
-                            <el-select-v2
+                            <BaseSelect
                                 v-if="row.disabled"
                                 model-value=""
                                 :options="[]"
                                 disabled
                             />
-                            <el-select-v2
+                            <BaseSelect
                                 v-else
                                 v-model="row.location"
                                 :options="pageData.locationOptions"
@@ -190,13 +171,13 @@
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_NAME')">
                         <template #default="{ row }: TableColumn<ChannelPtzGuardDto>">
-                            <el-select-v2
+                            <BaseSelect
                                 v-if="row.disabled"
                                 model-value=""
                                 :options="[]"
                                 disabled
                             />
-                            <el-select-v2
+                            <BaseSelect
                                 v-else
                                 v-model="row.number"
                                 :options="getNameOption(row)"

@@ -56,7 +56,7 @@
                 />
                 <el-table-column
                     :label="Translate('IDCS_TEST')"
-                    width="100"
+                    width="120"
                 >
                     <template #default="{ row }: TableColumn<SystemRS485Dto>">
                         <el-button
@@ -83,7 +83,7 @@
                     width="100"
                 >
                     <template #header>
-                        <el-dropdown :disabled="!pageData.switch">
+                        <BaseDropdown :disabled="!pageData.switch">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_DELETE') }}
                             </BaseTableDropdownLink>
@@ -94,7 +94,7 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<SystemRS485Dto>">
                         <BaseImgSpriteBtn

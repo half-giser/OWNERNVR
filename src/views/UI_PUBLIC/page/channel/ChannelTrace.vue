@@ -31,52 +31,48 @@
                 :model="formData"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select-v2
-                        v-if="tableData.length"
+                    <BaseSelect
                         v-model="pageData.tableIndex"
-                        :height="170"
                         :options="chlOptions"
+                        :persistent="true"
+                        empty-text=""
+                        :disabled="!chlOptions.length"
                         @change="changeChl"
-                    />
-                    <el-select-v2
-                        v-else
-                        model-value=""
-                        :options="[]"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_PTZ_TRACE')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="formData.traceIndex"
                         :options="traceOptions"
                         :props="{
                             label: 'index',
                         }"
-                        :height="170"
+                        :persistent="true"
+                        empty-text=""
+                        :disabled="!chlOptions.length"
                     />
-                    <el-tooltip :content="Translate('IDCS_TRACK_PLAY')">
-                        <div
-                            class="base-chl-icon-btn"
-                            :class="{ disabled: !traceOptions.length }"
-                        >
-                            <BaseImgSpriteBtn
-                                file="play"
-                                :disabled="!traceOptions.length"
-                                @click="playTrace"
-                            />
-                        </div>
-                    </el-tooltip>
-                    <el-tooltip :content="Translate('IDCS_TRACK_STOP')">
-                        <div
-                            class="base-chl-icon-btn"
-                            :class="{ disabled: !tableData.length }"
-                        >
-                            <BaseImgSpriteBtn
-                                file="stop"
-                                :disabled="!tableData.length"
-                                @click="stopTrace"
-                            />
-                        </div>
-                    </el-tooltip>
+                    <div
+                        class="base-chl-icon-btn"
+                        :class="{ disabled: !traceOptions.length }"
+                        :title="Translate('IDCS_TRACK_PLAY')"
+                    >
+                        <BaseImgSpriteBtn
+                            file="play"
+                            :disabled="!traceOptions.length"
+                            @click="playTrace"
+                        />
+                    </div>
+                    <div
+                        class="base-chl-icon-btn"
+                        :class="{ disabled: !tableData.length }"
+                        :title="Translate('IDCS_TRACK_STOP')"
+                    >
+                        <BaseImgSpriteBtn
+                            file="stop"
+                            :disabled="!tableData.length"
+                            @click="stopTrace"
+                        />
+                    </div>
                 </el-form-item>
                 <el-form-item
                     :label="Translate('IDCS_TRACE_NAME')"
@@ -87,18 +83,17 @@
                         :disabled="!traceOptions.length"
                         :maxlength="tableData[pageData.tableIndex]?.nameMaxLen || 10"
                     />
-                    <el-tooltip :content="Translate('IDCS_SAVE_CHANGE')">
-                        <div
-                            class="base-chl-icon-btn"
-                            :class="{ disabled: !formData.name.trim() || !traceOptions.length }"
-                        >
-                            <BaseImgSpriteBtn
-                                file="save"
-                                :disabled="!formData.name.trim() || !traceOptions.length"
-                                @click="saveName"
-                            />
-                        </div>
-                    </el-tooltip>
+                    <div
+                        class="base-chl-icon-btn"
+                        :class="{ disabled: !formData.name.trim() || !traceOptions.length }"
+                        :title="Translate('IDCS_SAVE_CHANGE')"
+                    >
+                        <BaseImgSpriteBtn
+                            file="save"
+                            :disabled="!formData.name.trim() || !traceOptions.length"
+                            @click="saveName"
+                        />
+                    </div>
                 </el-form-item>
                 <div class="base-btn-box">
                     <el-button

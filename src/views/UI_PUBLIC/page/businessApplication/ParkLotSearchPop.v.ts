@@ -6,11 +6,13 @@
 import ParkLotSnapPanel from './ParkLotSnapPanel.vue'
 import ParkLotInfoPanel from './ParkLotInfoPanel.vue'
 import dayjs from 'dayjs'
+import IntelSearchBackupPop, { type IntelSearchBackUpExpose } from '../intelligentAnalysis/IntelSearchBackupPop.vue'
 
 export default defineComponent({
     components: {
         ParkLotSnapPanel,
         ParkLotInfoPanel,
+        IntelSearchBackupPop,
     },
     emits: {
         close() {
@@ -24,6 +26,8 @@ export default defineComponent({
         const REPEAR_REQUEST_IMG_TIMES = 2
         // 图像缓存，避免重复请求相同的图片
         const cachePic = new Map<string, IntelSnapVehicleImgDto>()
+
+        const backupPopRef = ref<IntelSearchBackUpExpose>()
 
         // 方向与文本映射
         const DIRECTION_MAPPING: Record<string | number, string> = {
@@ -53,15 +57,15 @@ export default defineComponent({
             backupTypeOptions: [
                 {
                     label: Translate('IDCS_BACKUP_PICTURE'),
-                    value: '',
+                    value: 'pic',
                 },
                 {
                     label: Translate('IDCS_BACKUP_ENTRY_EXIT_RECORDING'),
-                    value: '',
+                    value: 'csv',
                 },
                 {
                     label: Translate('IDCS_BACKUP_PICTURE_ENTRY_EXIT_RECORDING'),
-                    value: '',
+                    value: 'pic+csv',
                 },
             ],
             plateNumber: '',
@@ -161,53 +165,55 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('status').text() === 'success') {
-                tableData.value = $('content/i').map((item) => {
-                    const isDelSnap = item.attr('s') === 'd'
-                    const split = item.text().array()
-                    const guid = hexToDec(split[3])
-                    const chlId = getChlGuid16(split[3]).toUpperCase()
-                    const timestamp = hexToDec(split[0]) * 1000
+            tableData.value = $('content/i').map((item) => {
+                const isDelSnap = item.attr('s') === 'd'
+                const split = item.text().array()
+                const guid = hexToDec(split[3])
+                const chlId = getChlGuid16(split[3]).toUpperCase()
+                const timestamp = hexToDec(split[0]) * 1000
 
-                    return {
-                        isDelSnap: isDelSnap,
-                        isNoData: false,
-                        imgId: hexToDec(split[2]) + '',
-                        timestamp,
-                        frameTime: localToUtc(timestamp) + ':' + padStart(hexToDec(split[1]), 7),
-                        guid,
-                        chlId,
-                        chlName: chlIdNameMap[chlId] || Translate('IDCS_HISTORY_CHANNEL'),
-                        recStartTime: hexToDec(split[4]) * 1000,
-                        recEndTime: hexToDec(split[5]) * 1000,
-                        pathGUID: split[6],
-                        sectionNo: hexToDec(split[7]),
-                        fileIndex: hexToDec(split[8]),
-                        bolckNo: hexToDec(split[9]),
-                        offset: hexToDec(split[10]),
-                        eventTypeID: hexToDec(split[11]),
-                        direction: split[13],
-                        openType: split[12],
-                        plateNumber: '--',
-                        pic: '',
-                        panorama: '',
-                        eventType: '',
-                        targetType: '',
-                        width: 1,
-                        height: 1,
-                        X1: 0,
-                        Y1: 0,
-                        X2: 0,
-                        Y2: 0,
-                        attribute: {},
-                        owner: '',
-                        ownerPhone: '',
-                        isRelative: split[13] ? true : false,
-                        plateEndTime: '',
-                        plateStartTime: '',
-                        remark: '',
-                    }
-                })
+                return {
+                    isDelSnap: isDelSnap,
+                    isNoData: false,
+                    imgId: hexToDec(split[2]) + '',
+                    timestamp,
+                    frameTime: localToUtc(timestamp) + ':' + padStart(hexToDec(split[1]), 7),
+                    guid,
+                    chlId,
+                    chlName: chlIdNameMap[chlId] || Translate('IDCS_HISTORY_CHANNEL'),
+                    recStartTime: hexToDec(split[4]) * 1000,
+                    recEndTime: hexToDec(split[5]) * 1000,
+                    pathGUID: split[6],
+                    sectionNo: hexToDec(split[7]),
+                    fileIndex: hexToDec(split[8]),
+                    bolckNo: hexToDec(split[9]),
+                    offset: hexToDec(split[10]),
+                    eventTypeID: hexToDec(split[11]),
+                    direction: split[13],
+                    openType: split[12],
+                    plateNumber: '--',
+                    pic: '',
+                    panorama: '',
+                    eventType: '',
+                    targetType: '',
+                    width: 1,
+                    height: 1,
+                    X1: 0,
+                    Y1: 0,
+                    X2: 0,
+                    Y2: 0,
+                    attribute: {},
+                    owner: '',
+                    ownerPhone: '',
+                    isRelative: split[13] ? true : false,
+                    plateEndTime: '',
+                    plateStartTime: '',
+                    remark: '',
+                }
+            })
+
+            if (!tableData.value.length) {
+                openMessageBox(Translate('IDCS_NO_RECORD_DATA'))
             }
 
             changeSortType()
@@ -304,6 +310,10 @@ export default defineComponent({
                     closeLoading()
                 }
             })
+
+            if (!sliceTableData.value.length) {
+                closeLoading()
+            }
         }
 
         /**
@@ -418,38 +428,6 @@ export default defineComponent({
                     }
                 }
             }
-        }
-
-        /**
-         * @description 检查备份权限
-         * @returns {Boolean}
-         */
-        const checkBackUpAuth = () => {
-            if (auth.value.hasAll) {
-                return true
-            }
-            const find = peerSliceTableData.value.find((item) => {
-                return item.checked && !auth.value.bk[item.chlID]
-            })
-
-            if (find) {
-                openMessageBox(Translate('IDCS_CHANNEL_BACUP_NO_PERMISSION').formatForLang(find.channelName))
-                return false
-            }
-
-            return true
-        }
-
-        /**
-         * @description 备份
-         */
-        const backUp = (value: string) => {
-            if (!checkBackUpAuth()) {
-                return
-            }
-
-            // todo
-            console.log(value)
         }
 
         const showDetail = async (index: number) => {
@@ -641,6 +619,68 @@ export default defineComponent({
             showDetail(pageData.value.detailIndex + 1)
         }
 
+        /**
+         * @description 备份单个记录
+         * @param index
+         */
+        const backUpItem = (index: number) => {
+            const data = sliceTableData.value[index]
+            backupPopRef.value?.startBackup({
+                apiType: 'legacy',
+                isBackupPic: true,
+                isBackupPassRecordCsv: false,
+                indexData: [
+                    {
+                        chlId: data.chlId,
+                        chlName: chlIdNameMap[data.chlId],
+                        frameTime: Math.floor(data.timestamp / 1000),
+                        frameTimeStr: data.frameTime,
+                        imgId: data.imgId,
+                        pathGUID: data.pathGUID,
+                        sectionNo: data.sectionNo,
+                        fileIndex: data.fileIndex,
+                        blockNo: data.bolckNo,
+                        offset: data.offset,
+                        eventType: data.eventTypeID,
+                        startTime: Math.floor(data.recStartTime / 1000),
+                        endTime: Math.floor(data.recEndTime / 1000),
+                    },
+                ],
+            })
+        }
+
+        /**
+         * @description 备份
+         */
+        const backUp = (value: string) => {
+            const isBackupPic = value.includes('pic')
+            const isBackupPassRecordCsv = value.includes('csv')
+            backupPopRef.value?.startBackup({
+                apiType: 'legacy',
+                isBackupPic,
+                isBackupPassRecordCsv,
+                indexData: sliceTableData.value
+                    .filter((_item, index) => peerSliceTableData.value[index].checked)
+                    .map((data) => {
+                        return {
+                            chlId: data.chlId,
+                            chlName: chlIdNameMap[data.chlId],
+                            frameTime: Math.floor(data.timestamp / 1000),
+                            frameTimeStr: data.frameTime,
+                            imgId: data.imgId,
+                            pathGUID: data.pathGUID,
+                            sectionNo: data.sectionNo,
+                            fileIndex: data.fileIndex,
+                            blockNo: data.bolckNo,
+                            offset: data.offset,
+                            eventType: data.eventTypeID,
+                            startTime: Math.floor(data.recStartTime / 1000),
+                            endTime: Math.floor(data.recEndTime / 1000),
+                        }
+                    }),
+            })
+        }
+
         return {
             pageData,
             switchDetail,
@@ -657,6 +697,9 @@ export default defineComponent({
             handleNext,
             selectAll,
             hasSelected,
+            backUpItem,
+            backupPopRef,
+            auth,
         }
     },
 })

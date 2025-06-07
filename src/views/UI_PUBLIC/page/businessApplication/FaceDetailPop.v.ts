@@ -263,9 +263,9 @@ export default defineComponent({
                     tempTimes: null,
                 },
             }
+            localStorage.setItem('LiveToSearch', JSON.stringify(searchInfo))
             router.push({
-                path: '/intelligent-analysis/search/search-face',
-                state: searchInfo,
+                path: '/intelligent-analysis/search/search-person',
             })
         }
 
@@ -338,7 +338,7 @@ export default defineComponent({
         const getImgSize = async (src: string) => {
             return new Promise((resolve: (e: [number, number]) => void) => {
                 const img = new Image()
-                img.onload = function () {
+                img.onload = () => {
                     const width = img.width
                     const height = img.height
                     resolve([width, height])

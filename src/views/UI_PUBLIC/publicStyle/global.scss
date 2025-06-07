@@ -117,6 +117,8 @@
 
     --slider-btn-border: #808080; // Slider左右切换按钮颜色
     --slider-btn-border-disabled: #dcdcdc; // Slider左右切换按钮颜色 (disabled)
+    --slider-bar-event-bg: #ff7e7e; // Slider描绘事件的背景色
+    --slider-bar-mark-bg: red; // Slider描绘标记点的背景色
 
     /**
      * 按钮
@@ -458,34 +460,24 @@
     --tooltip-border: #111; // 提示框 边框颜色
     --tooltip-text: #333; // 提示框 文本颜色
 
-    // Success
-    // --success--01: #edf9eb;
-    // --success--02: #e4f2e1;
-    // --success--03: #b6e6b1;
-    // --success--05: #60cc5c;
-    // --success--06: #37bf37;
-    // --success--07: #259929;
-
-    // danger
-    // --danger--01: #fff3f0;
-    // --danger--02: #ffe2db;
-    // --danger--03: #ffbfb3;
-    // --danger--05: #ff7161;
-    // --danger--06: #f44336;
-    // --danger--07: #cf2923;
-
-    // --border-color9: #006400;
-    // --main-border0: #808080;
-    // --main-border1: #dcdcdc;
-    // --main-border2: #626262;
-    // --border-light: #e9efff;
-    // --table-split: #ebeef5; 表格分割线
-
     /**
-     * 抓拍上墙弹窗
+     * 目标框
      */
-    --attribute--title-bg: #f00; // 抓拍上墙弹窗属性框标题背景色
-    --attribute-item-bg: rgb(0 0 0 / 60%); // 抓拍上墙弹窗属性框item背景色
-    --preNext-btn-bg-active: #c8f0f9; // 抓拍上墙弹窗属性框上一页、下一页按钮背景色,选中
-    --tab-active-bg: #46e3ff; // 抓拍上墙弹窗切换tab选中背景色
+    --target-title-bg: #f00; // 目标框标题背景色
+    --target-attr-bg: rgb(0 0 0 / 60%); // 目标框属性背景色
+    --target-bullet-bg: #46e3ff; // 抓拍上墙弹窗切换tab选中背景色
+    --target-face-bg: #f00; // 目标框人脸背景色
+    --target-human-bg: #ff0; // 目标框人背景色
+}
+
+// use114 p2p
+#n9web.css_use114 {
+    --img-authcodelogin-bg: #{p2p-img-url('/css_use114/pictures/mainBg.png')};
+    --img-authcodelogin-mask: #{p2p-img-url('/css_use114/pictures/mainBgMask.png')};
+    --img-authcodelogin-icon: #{p2p-img-url('/css_use114/pictures/loginIcon.png')};
+
+    --img-authcodelogin-content: #{p2p-img-url('/css_use114/pictures/LoginContent.png')};
+    --img-authcodelogin-question: #{p2p-img-url('/css_use114/pictures/question.png')};
+    --img-authcodelogin-btn: #{p2p-img-url('/css_use114/pictures/loginBtn.png')};
+    --img-authcodelogin-logo: #{p2p-img-url('/css_use114/pictures/appName.png')};
 }

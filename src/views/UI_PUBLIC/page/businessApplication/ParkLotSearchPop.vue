@@ -89,7 +89,7 @@
                             />
                         </div>
                     </div>
-                    <div class="base-intel-center-center base-intel-pics-box">
+                    <div class="base-intel-pics-box">
                         <div class="base-intel-pics-content">
                             <IntelBaseSnapItem
                                 v-for="(item, index) in peerSliceTableData"
@@ -97,7 +97,10 @@
                                 :target-data="item"
                                 :detail-index="`${pageData.detailIndex}`"
                                 search-type="byPassRecord"
+                                :grid="pageData.isDetailOpen ? 2 : 3"
+                                ratio="60%"
                                 @detail="showDetail(index)"
+                                @backup="backUpItem(index)"
                             />
                         </div>
                     </div>
@@ -112,7 +115,7 @@
                             />
                         </div>
                         <div class="base-btn-box">
-                            <el-dropdown
+                            <BaseDropdown
                                 placement="top-end"
                                 :disabled="!hasSelected"
                             >
@@ -130,24 +133,21 @@
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
-                            </el-dropdown>
+                            </BaseDropdown>
                         </div>
                     </div>
-                    <!-- 打开/关闭详情按钮 -->
-                    <div class="resize_icon_left">
-                        <BaseImgSpriteBtn
-                            :file="pageData.isDetailOpen ? 'right_close' : 'left_open'"
-                            class="icon_left"
-                            @click="switchDetail"
-                        />
-                    </div>
-                    <div class="resize_icon_right">
-                        <BaseImgSpriteBtn
-                            :file="pageData.isDetailOpen ? 'right_close' : 'left_open'"
-                            class="icon_right"
-                            @click="switchDetail"
-                        />
-                    </div>
+                    <BaseImgSpriteBtn
+                        file="left_open"
+                        class="base-intel-toggle-left"
+                        :class="{ open: pageData.isDetailOpen }"
+                        @click="switchDetail"
+                    />
+                    <BaseImgSpriteBtn
+                        file="left_open"
+                        class="base-intel-toggle-right"
+                        :class="{ open: pageData.isDetailOpen }"
+                        @click="switchDetail"
+                    />
                 </div>
                 <!-- 详情容器 -->
                 <div
@@ -173,6 +173,10 @@
             </div>
         </div>
         <div class="copyright">{{ Translate('IDCS_COPYRIGHT') }}</div>
+        <IntelSearchBackupPop
+            ref="backupPopRef"
+            :auth="auth"
+        />
     </div>
 </template>
 
@@ -225,49 +229,8 @@
 }
 
 .base-intel-center {
-    position: relative;
-
-    .base-intel-row {
-        .el-radio-button {
-            :deep(.el-radio-button__inner) {
-                width: auto !important;
-            }
-        }
-
-        .el-dropdown {
-            margin-right: 30px;
-        }
-    }
-
-    .resize_icon_left,
-    .resize_icon_right {
-        cursor: pointer;
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        margin: auto;
-        width: 10px;
-        height: 60px;
-    }
-
-    .resize_icon_left {
-        left: -10px;
-    }
-
-    .resize_icon_right {
-        right: 0;
-    }
-
     &.detail_open {
         border-right: 1px solid var(--content-border);
-
-        .resize_icon_left {
-            left: 0;
-        }
-
-        .resize_icon_right {
-            right: -10px;
-        }
     }
 
     &-center {

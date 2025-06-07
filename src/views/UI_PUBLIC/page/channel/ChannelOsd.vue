@@ -33,9 +33,10 @@
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="selectedChlId"
                         :options="chlOptions"
+                        :persistent="true"
                         @change="handleChlSel"
                     />
                 </el-form-item>
@@ -54,7 +55,7 @@
                     {{ formData.supportTimeFormat ? timeFormatTip[formData.timeFormat] : '--' }}
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_WATER_MARK')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="formData.remarkSwitch"
                         :disabled="formData.remarkDisabled"
                         :options="switchOptions"
@@ -107,7 +108,7 @@
                     </el-table-column>
                     <el-table-column min-width="120">
                         <template #header>
-                            <el-dropdown>
+                            <BaseDropdown>
                                 <BaseTableDropdownLink>{{ `${Translate('IDCS_NAME')} OSD` }}</BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
@@ -120,10 +121,10 @@
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
-                            </el-dropdown>
+                            </BaseDropdown>
                         </template>
                         <template #default="{ row }: TableColumn<ChannelOsdDto>">
-                            <el-select-v2
+                            <BaseSelect
                                 v-show="!row.isSpeco"
                                 v-model="row.displayName"
                                 :disabled="row.disabled"
@@ -135,7 +136,7 @@
                     </el-table-column>
                     <el-table-column min-width="120">
                         <template #header>
-                            <el-dropdown>
+                            <BaseDropdown>
                                 <BaseTableDropdownLink>{{ `${Translate('IDCS_TIME')} OSD` }} </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
@@ -148,10 +149,10 @@
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
-                            </el-dropdown>
+                            </BaseDropdown>
                         </template>
                         <template #default="{ row }: TableColumn<ChannelOsdDto>">
-                            <el-select-v2
+                            <BaseSelect
                                 v-show="!row.isSpeco"
                                 v-model="row.displayTime"
                                 :disabled="row.disabled"
@@ -163,7 +164,7 @@
                     </el-table-column>
                     <el-table-column min-width="120">
                         <template #header>
-                            <el-dropdown>
+                            <BaseDropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_DATE_FORMAT') }}
                                 </BaseTableDropdownLink>
@@ -178,7 +179,7 @@
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
-                            </el-dropdown>
+                            </BaseDropdown>
                         </template>
                         <template #default="{ row }: TableColumn<ChannelOsdDto>">
                             {{ row.supportDateFormat ? dateFormatTip[row.dateFormat] : '--' }}
@@ -186,7 +187,7 @@
                     </el-table-column>
                     <el-table-column min-width="120">
                         <template #header>
-                            <el-dropdown>
+                            <BaseDropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_TIME_FORMAT') }}
                                 </BaseTableDropdownLink>
@@ -201,7 +202,7 @@
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
-                            </el-dropdown>
+                            </BaseDropdown>
                         </template>
                         <template #default="{ row }: TableColumn<ChannelOsdDto>">
                             {{ row.supportTimeFormat ? timeFormatTip[row.timeFormat] : '--' }}
@@ -214,7 +215,7 @@
                     />
                     <el-table-column min-width="120">
                         <template #header>
-                            <el-dropdown>
+                            <BaseDropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_WATER_MARK') }}
                                 </BaseTableDropdownLink>
@@ -229,10 +230,10 @@
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
-                            </el-dropdown>
+                            </BaseDropdown>
                         </template>
                         <template #default="{ row }: TableColumn<ChannelOsdDto>">
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="row.remarkSwitch"
                                 :disabled="row.remarkDisabled"
                                 :options="switchOptions"

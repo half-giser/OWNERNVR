@@ -62,7 +62,7 @@
             <div class="base-head-box">{{ Translate('IDCS_SNAP_SETTING') }}</div>
             <!-- 分辨率 -->
             <el-form-item :label="Translate('IDCS_RESOLUTION_RATE')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.resolution"
                     :disabled="!formData.enable"
                     :options="pageData.resolutionList"
@@ -70,7 +70,7 @@
             </el-form-item>
             <!-- 画质 -->
             <el-form-item :label="Translate('IDCS_SNAP_QUALITY')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.level"
                     :disabled="!formData.enable"
                     :options="pageData.levelList"
@@ -78,7 +78,7 @@
             </el-form-item>
             <!-- 间隔时间 -->
             <el-form-item :label="Translate('IDCS_SNAP_TIMEINTERVAL')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.holdTime"
                     :disabled="!formData.enable"
                     :options="pageData.holdTimeList"

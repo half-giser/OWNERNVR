@@ -8,7 +8,6 @@
         <AlarmBaseChannelSelector
             v-model="pageData.currChlId"
             :list="pageData.onlineChannelList"
-            :height="140"
             @change="changeChannel"
         />
         <el-tabs
@@ -17,12 +16,10 @@
             v-title
             class="base-ai-menu-tabs"
         >
-            <div
+            <AlarmBaseErrorPanel
                 v-show="pageData.notSupport"
-                class="base-ai-not-support-box"
-            >
-                {{ Translate('IDCS_ADD_INTEL_CHANNEL_TIP').formatForLang(Translate('IDCS_VSD_DETECTION')) }}
-            </div>
+                type="not-support"
+            />
             <!-- 视频结构化 -->
             <el-tab-pane
                 :disabled="!chlData.supportVideoMetadata"

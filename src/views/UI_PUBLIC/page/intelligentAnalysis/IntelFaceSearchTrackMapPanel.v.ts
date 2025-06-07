@@ -39,7 +39,7 @@ export default defineComponent({
 
         const canvas = ref<HTMLCanvasElement>()
         const arrowImg = new Image()
-        arrowImg.src = '/track_direction.png'
+        arrowImg.src = './track_direction.png'
 
         let context: CanvasRenderingContext2D
 

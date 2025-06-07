@@ -1,11 +1,13 @@
-/* stylelint-disable length-zero-no-unit */
 <!--
  * @Description:智能分析-详情
  * @Author: liyanqi a11219@tvt.net.cn
  * @Date: 2025-05-20 10:20:17
 -->
 <template>
-    <div class="intelDetail">
+    <div
+        v-if="pageData.showDeatilView"
+        class="intelDetail"
+    >
         <div class="pageHead">
             <el-radio-group
                 v-model="pageData.detailType"
@@ -23,7 +25,10 @@
                 />
             </el-radio-group>
         </div>
-        <div class="pageCenter">
+        <div
+            id="intelDetail-center"
+            class="pageCenter"
+        >
             <div
                 class="picVideoWrap"
                 @mouseenter="showSnap(true)"
@@ -32,11 +37,11 @@
                 <!--抓拍图+原图模块 -->
                 <div
                     v-show="pageData.detailType === 'snap'"
-                    class="target"
+                    class="pic"
                 >
                     <!-- 原图 -->
                     <img
-                        class="target-pano"
+                        class="pic-pano"
                         :src="pageData.panoramaImg"
                     />
                     <!-- 抓拍图 -->
@@ -44,13 +49,13 @@
                         v-show="pageData.isShowSnap"
                         ref="snapImg"
                         :src="pageData.snapImg"
-                        :class="isCoverTargetBoxTopRight ? 'target-snap-left' : 'target-snap-right'"
+                        :class="isCoverTargetBoxTopRight ? 'pic-snap-left' : 'pic-snap-right'"
                         @load="loadImg"
                     />
-                    <div class="target-wrap">
+                    <div class="pic-wrap">
                         <div
-                            id="target-wrap-box"
-                            class="target-wrap-box"
+                            id="pic-wrap-box"
+                            class="pic-wrap-box"
                         >
                             <canvas
                                 ref="canvasRef"
@@ -58,7 +63,7 @@
                                 :height="pageData.canvasHeight"
                             ></canvas>
                         </div>
-                        <div class="target-wrap-text">
+                        <div class="pic-wrap-text">
                             <div
                                 v-show="pageData.isShowTargetBoxTitle"
                                 v-title
@@ -68,7 +73,7 @@
                                     width: `${pageData.attributeTitleWidth}px`,
                                     height: `${pageData.attributeTitleHeight}px`,
                                 }"
-                                class="target-wrap-text-title"
+                                class="pic-wrap-text-title"
                             >
                                 {{ pageData.targetTypeTxt }}
                             </div>
@@ -79,13 +84,13 @@
                                     top: `${pageData.attributeRectTop}px`,
                                     maxHeight: `${pageData.canvasHeight}px`,
                                 }"
-                                class="target-wrap-text-attribute"
+                                class="pic-wrap-text-attribute"
                             >
                                 <div
                                     v-for="(item, index) in attributeData"
                                     :key="index"
                                     v-title
-                                    class="target-wrap-text-attribute-item"
+                                    class="pic-wrap-text-attribute-item"
                                 >
                                     {{ item.value }}
                                 </div>
@@ -105,21 +110,32 @@
                         @message="notify"
                         @time="handleTime"
                         @play-status="handlePlayerStatus"
-                        @ontime="handlePlayerOntime"
                         @success="handlePlayerSuccess"
                         @play-complete="handlePlayComplete"
                         @error="handlePlayerError"
+                    />
+                    <BaseTargetSearchPanel
+                        v-model:visible="pageData.isDetectTarget"
+                        :type="pageData.detailType === 'record' ? 'record' : 'image'"
+                        :mode="mode"
+                        :pic="pageData.detectTargetImg"
+                        :route-type="searchTargetRouteType"
+                        :win-index="0"
+                        :start-time="currDetailData.startTime * 1000"
+                        :end-time="currDetailData.endTime * 1000"
+                        :chl-id="currDetailData.chlID"
+                        @search="handleGoToSearchTargetPage"
                     />
                 </div>
                 <!--叠加在图片上的上一个、下一个按钮 -->
                 <div
                     v-show="pageData.isShowPrevNextBtn"
-                    class="btns"
+                    class="base-intel-target-btns"
                     @mouseenter="handleMouseMove(true)"
                     @mouseleave="handleMouseMove(false)"
                 >
                     <div
-                        class="btn"
+                        class="base-intel-target-btn"
                         :disabled="pageData.detailIndex === 0"
                         :class="{
                             disabled: pageData.detailIndex === 0,
@@ -129,8 +145,7 @@
                         {{ Translate('IDCS_PREVIOUS') }}
                     </div>
                     <div
-                        id="next"
-                        class="btn"
+                        class="base-intel-target-btn"
                         :disabled="pageData.detailIndex === detailData.length - 1"
                         :class="{
                             disabled: pageData.detailIndex === detailData.length - 1,
@@ -141,84 +156,79 @@
                     </div>
                 </div>
             </div>
-            <div
+            <BasePlayerControl
                 v-show="pageData.detailType === 'record'"
-                class="control-bar"
-            >
-                <span class="start-time">{{ displayTime(pageData.startTimeStamp) }}</span>
-                <el-slider
-                    v-model="pageData.progress"
-                    :show-tooltip="false"
-                    :min="pageData.startTimeStamp"
-                    :max="pageData.endTimeStamp"
-                    :disabled="pageData.iconDisabled"
-                    @mousedown="handleSliderMouseDown"
-                    @mouseup="handleSliderMouseUp"
-                    @change="handleSliderChange"
-                />
-                <span class="end-time">{{ displayTime(pageData.endTimeStamp) }}</span>
-            </div>
-
+                v-model="pageData.progress"
+                :start-time="pageData.startTimeStamp"
+                :end-time="pageData.endTimeStamp"
+                :highlight="[currDetailData.startTime, currDetailData.endTime]"
+                :disabled="pageData.iconDisabled || pageData.isDetectTarget"
+                :marks="marks"
+                enable-highlight
+                @mousedown="handleSliderMouseDown"
+                @mouseup="handleSliderMouseUp"
+                @change="handleSliderChange"
+            />
             <div class="btn-bar">
+                <div
+                    v-show="pageData.detailType === 'snap'"
+                    class="left-wrap"
+                ></div>
                 <!-- 视频底部左侧按钮模块 -->
                 <div
                     v-show="pageData.detailType === 'record'"
                     class="left-wrap"
                 >
-                    <el-tooltip :content="Translate('IDCS_PAUSE')">
-                        <BaseImgSpriteBtn
-                            v-show="pageData.playStatus === 'play'"
-                            class="btn"
-                            file="pauseRec"
-                            @click="pause"
-                        />
-                    </el-tooltip>
-                    <el-tooltip :content="Translate('IDCS_PLAY')">
-                        <BaseImgSpriteBtn
-                            v-show="pageData.playStatus !== 'play'"
-                            class="btn"
-                            file="playRec"
-                            :disabled="pageData.iconDisabled"
-                            @click="resume"
-                        />
-                    </el-tooltip>
-                    <el-select-v2
+                    <BaseImgSpriteBtn
+                        v-show="pageData.playStatus === 'play'"
+                        class="btn"
+                        file="pauseRec"
+                        :title="Translate('IDCS_PAUSE')"
+                        @click="pause"
+                    />
+                    <BaseImgSpriteBtn
+                        v-show="pageData.playStatus !== 'play'"
+                        class="btn"
+                        file="playRec"
+                        :title="Translate('IDCS_PLAY')"
+                        :disabled="pageData.iconDisabled"
+                        @click="resume"
+                    />
+                    <BaseSelect
+                        ref="selectRef"
                         v-model="pageData.recPlayTime"
                         class="btn"
                         :options="pageData.recPlayTimeList"
                         :disabled="pageData.iconDisabled"
+                        :persistent="true"
+                        :popper-class="pageData.isFullScreen ? 'fullscreen-select' : ''"
+                        :append-to="pageData.isFullScreen ? '.btn-bar' : undefined"
                         @change="changeRecPlayTime"
                     />
-                    <el-tooltip :content="Translate('IDCS_PLAY_NEXT_FRAME')">
-                        <BaseImgSpriteBtn
-                            v-show="isTrail"
-                            class="btn"
-                            file="next_frame"
-                            :disabled="pageData.playStatus !== 'pause'"
-                            @click="nextFrame"
-                        />
-                    </el-tooltip>
-                    <div
-                        class="speedWrap"
-                        @mouseenter="hoverRecSpeed(true)"
-                        @mouseleave="hoverRecSpeed(false)"
+                    <BaseImgSpriteBtn
+                        v-show="isTrail"
+                        class="btn"
+                        file="next_frame"
+                        :title="Translate('IDCS_PLAY_NEXT_FRAME')"
+                        :disabled="pageData.playStatus !== 'pause'"
+                        @click="nextFrame"
+                    />
+                    <BasePopover
+                        width="34"
+                        :popper-class="`no-border no-padding ${pageData.isFullScreen ? 'fullscreen-popover' : ''} ${isTrail ? 'trail' : ''}`"
+                        trigger="hover"
+                        :append-to="pageData.isFullScreen ? '.btn-bar' : undefined"
+                        @before-enter="handleSpeedPopoverBeforeEnter"
                     >
-                        <div class="speedBtnTitle">
-                            <el-tooltip
-                                :content="pageData.speedBtnTitle"
-                                placement="right"
-                            >
-                                <BaseImgSpriteBtn
-                                    class="btn"
-                                    :file="pageData.speedBtn"
-                                    :disabled="pageData.iconDisabled"
-                                />
-                            </el-tooltip>
-                        </div>
-                        <div
-                            v-show="pageData.isHoverSpeed"
-                            class="speedBtnList"
-                        >
+                        <template #reference>
+                            <BaseImgSpriteBtn
+                                class="btn"
+                                :file="pageData.speedBtn"
+                                :title="pageData.speedBtnTitle"
+                                :disabled="pageData.iconDisabled"
+                            />
+                        </template>
+                        <div class="speedBtnList">
                             <BaseImgSpriteBtn
                                 class="btn"
                                 file="X1"
@@ -235,101 +245,73 @@
                                 @click="changeRecSpeed(4)"
                             />
                         </div>
-                    </div>
-                    <el-tooltip :content="Translate('IDCS_PLAY_DEC_10_SECONDS')">
-                        <BaseImgSpriteBtn
-                            class="btn"
-                            file="fw10s"
-                            :title="Translate('IDCS_PLAY_DEC_10_SECONDS')"
-                            :disabled="pageData.iconDisabled"
-                            @click="handleJump(-10)"
-                        />
-                    </el-tooltip>
-                    <el-tooltip :content="Translate('IDCS_PLAY_INC_10_SECONDS')">
-                        <BaseImgSpriteBtn
-                            class="btn"
-                            file="bk10s"
-                            :disabled="pageData.iconDisabled"
-                            @click="handleJump(10)"
-                        />
-                    </el-tooltip>
+                    </BasePopover>
+                    <BaseImgSpriteBtn
+                        class="btn"
+                        file="fw10s"
+                        :title="Translate('IDCS_PLAY_DEC_10_SECONDS')"
+                        :disabled="pageData.iconDisabled"
+                        @click="handleJump(-10)"
+                    />
+                    <BaseImgSpriteBtn
+                        class="btn"
+                        file="bk10s"
+                        :title="Translate('IDCS_PLAY_INC_10_SECONDS')"
+                        :disabled="pageData.iconDisabled"
+                        @click="handleJump(10)"
+                    />
                 </div>
                 <!-- 右侧按钮模块 -->
                 <div class="right-wrap">
-                    <el-tooltip :content="Translate('IDCS_REID')">
-                        <BaseImgSpriteBtn
-                            v-show="systemCaps.supportREID"
-                            class="btn"
-                            file="target_retrieval"
-                            :active="pageData.enableREID"
-                            :disabled="pageData.iconDisabled"
-                            @click="handleSearchTarget"
-                        />
-                    </el-tooltip>
-                    <el-tooltip :content="pageData.enableAI ? Translate('IDCS_INTELLIGENT_INFO_OFF') : Translate('IDCS_INTELLIGENT_INFO_ON')">
-                        <BaseImgSpriteBtn
-                            v-show="pageData.detailType === 'record'"
-                            class="btn"
-                            file="showAImsg"
-                            :active="pageData.enableAI"
-                            :disabled="pageData.iconDisabled"
-                            @click="handleShowAIMsg"
-                        />
-                    </el-tooltip>
-                    <el-tooltip :content="Translate('IDCS_AUDIO')">
-                        <BaseImgSpriteBtn
-                            v-show="pageData.detailType === 'record' && !pageData.enableAudio"
-                            class="btn"
-                            file="soundClose"
-                            :disabled="pageData.iconDisabled"
-                            @click="handleVoice"
-                        />
-                    </el-tooltip>
-                    <el-tooltip :content="Translate('IDCS_AUDIO')">
-                        <BaseImgSpriteBtn
-                            v-show="pageData.detailType === 'record' && pageData.enableAudio"
-                            class="btn"
-                            file="soundOpen"
-                            :disabled="pageData.iconDisabled"
-                            @click="handleVoice"
-                        />
-                    </el-tooltip>
-                    <el-tooltip :content="pageData.enablePos ? Translate('IDCS_CANCEL_POS') : Translate('IDCS_VIEW_POS')">
-                        <BaseImgSpriteBtn
-                            v-show="pageData.detailType === 'record' && systemCaps.supportPOS"
-                            class="btn"
-                            file="POS_rec"
-                            :active="pageData.enablePos"
-                            :disabled="pageData.iconDisabled"
-                            @click="handlePos"
-                        />
-                    </el-tooltip>
-                    <el-tooltip :content="Translate('IDCS_EXPORT')">
-                        <BaseImgSpriteBtn
-                            v-show="pageData.detailType === 'snap'"
-                            class="btn"
-                            file="export_btn"
-                            :disabled="pageData.iconDisabled"
-                            @click="handleExportPic"
-                        />
-                    </el-tooltip>
-                    <el-tooltip :content="Translate('IDCS_EXPORT')">
-                        <BaseImgSpriteBtn
-                            v-show="pageData.detailType === 'record'"
-                            class="btn"
-                            file="export_btn"
-                            :disabled="pageData.iconDisabled"
-                            @click="handleExportVideo"
-                        />
-                    </el-tooltip>
-                    <el-tooltip :content="Translate('IDCS_FULLSCREEN')">
-                        <BaseImgSpriteBtn
-                            class="btn"
-                            file="full_screen"
-                            :disabled="pageData.iconDisabled"
-                            @click="handleFullScreen"
-                        />
-                    </el-tooltip>
+                    <BaseImgSpriteBtn
+                        v-show="systemCaps.supportREID"
+                        class="btn"
+                        file="target_retrieval"
+                        :active="pageData.isDetectTarget"
+                        :disabled="pageData.iconDisabled"
+                        :title="Translate('IDCS_REID')"
+                        @click="handleSearchTarget"
+                    />
+                    <BaseImgSpriteBtn
+                        v-show="pageData.detailType === 'record'"
+                        class="btn"
+                        file="showAImsg"
+                        :active="pageData.enableAI"
+                        :disabled="pageData.iconDisabled"
+                        :title="pageData.enableAI ? Translate('IDCS_INTELLIGENT_INFO_OFF') : Translate('IDCS_INTELLIGENT_INFO_ON')"
+                        @click="handleShowAIMsg"
+                    />
+                    <BaseImgSpriteBtn
+                        v-show="pageData.detailType === 'record'"
+                        class="btn"
+                        :file="pageData.enableAudio ? 'soundOpen' : 'soundClose'"
+                        :disabled="pageData.iconDisabled"
+                        :title="Translate('IDCS_AUDIO')"
+                        @click="handleVoice"
+                    />
+                    <BaseImgSpriteBtn
+                        v-show="pageData.detailType === 'record' && systemCaps.supportPOS"
+                        class="btn"
+                        file="POS_rec"
+                        :active="pageData.enablePos"
+                        :disabled="pageData.iconDisabled"
+                        :title="pageData.enablePos ? Translate('IDCS_CANCEL_POS') : Translate('IDCS_VIEW_POS')"
+                        @click="handlePos"
+                    />
+                    <BaseImgSpriteBtn
+                        class="btn"
+                        file="export_btn"
+                        :disabled="pageData.iconDisabled"
+                        :title="Translate('IDCS_EXPORT')"
+                        @click="handleExport"
+                    />
+                    <BaseImgSpriteBtn
+                        class="btn"
+                        :title="pageData.isFullScreen ? Translate('IDCS_EXIT_FULLSCREEN') : Translate('IDCS_FULLSCREEN')"
+                        :file="pageData.isFullScreen ? 'exit_full_screen' : 'full_screen'"
+                        :disabled="pageData.iconDisabled"
+                        @click="handleFullScreen"
+                    />
                 </div>
             </div>
         </div>
@@ -364,49 +346,48 @@
                         }"
                     >
                         <el-form-item
-                            :label="Translate('IDCS_NAME_PERSON')"
+                            :label="`${Translate('IDCS_NAME_PERSON')} ：`"
                             class="font-weight-bold"
                         >
-                            <el-text>{{ personInfoData.name }}</el-text>
+                            <el-text class="text-ellipsis">{{ personInfoData.name }}</el-text>
                             <a>&nbsp;|&nbsp;</a>
                             <el-text class="">{{ `${currDetailData.similarity}%` }}</el-text>
                         </el-form-item>
                         <el-divider />
-                        <el-form-item :label="Translate('IDCS_SEX')">
-                            <el-text>{{ personInfoData.sex }}</el-text>
+                        <el-form-item :label="`${Translate('IDCS_SEX')} ：`">
+                            <el-text>{{ displayGender(personInfoData.sex) }}</el-text>
                         </el-form-item>
-                        <el-form-item :label="Translate('IDCS_NUMBER')">
-                            <el-text>{{ personInfoData.number }}</el-text>
+                        <el-form-item :label="`${Translate('IDCS_NUMBER')} ：`">
+                            <el-text class="text-ellipsis">{{ personInfoData.number }}</el-text>
                         </el-form-item>
-                        <el-form-item :label="Translate('IDCS_PHONE_NUMBER')">
-                            <el-text>{{ personInfoData.mobile }}</el-text>
+                        <el-form-item :label="`${Translate('IDCS_PHONE_NUMBER')} ：`">
+                            <el-text class="text-ellipsis">{{ personInfoData.mobile }}</el-text>
                         </el-form-item>
-                        <el-form-item :label="Translate('IDCS_BIRTHDAY')">
-                            <el-text>{{ personInfoData.birthday }}</el-text>
+                        <el-form-item :label="`${Translate('IDCS_BIRTHDAY')} ：`">
+                            <el-text class="text-ellipsis">{{ personInfoData.birthday }}</el-text>
                         </el-form-item>
-                        <el-form-item :label="Translate('IDCS_NATIVE_PLACE')">
-                            <el-text>{{ personInfoData.nativePlace }}</el-text>
+                        <el-form-item :label="`${Translate('IDCS_NATIVE_PLACE')} ：`">
+                            <el-text class="text-ellipsis">{{ personInfoData.nativePlace }}</el-text>
                         </el-form-item>
-                        <el-form-item :label="Translate('IDCS_ADD_FACE_GROUP')">
-                            <el-text>{{ personInfoData.groupName || '--' }}</el-text>
+                        <el-form-item :label="`${Translate('IDCS_ADD_FACE_GROUP')} ：`">
+                            <el-text class="text-ellipsis">{{ personInfoData.groupName || '--' }}</el-text>
                         </el-form-item>
                         <el-divider />
-                        <el-form-item :label="Translate('IDCS_ID_TYPE')">
-                            <el-text>{{ personInfoData.certificateType }}</el-text>
+                        <el-form-item :label="`${Translate('IDCS_ID_TYPE')} ：`">
+                            <el-text class="text-ellipsis">{{ personInfoData.certificateType }}</el-text>
                         </el-form-item>
-                        <el-form-item :label="Translate('IDCS_ID_NUMBER')">
-                            <el-text>{{ personInfoData.certificateNum }}</el-text>
+                        <el-form-item :label="`${Translate('IDCS_ID_NUMBER')} ：`">
+                            <el-text class="text-ellipsis">{{ personInfoData.certificateNum }}</el-text>
                         </el-form-item>
-                        <el-form-item :label="Translate('IDCS_REMARK')">
-                            <el-text>{{ personInfoData.note }}</el-text>
+                        <el-form-item :label="`${Translate('IDCS_REMARK')} ：`">
+                            <el-text class="text-ellipsis">{{ personInfoData.note }}</el-text>
                         </el-form-item>
                     </el-form>
                 </div>
                 <!-- 目标事件 -->
-                <el-scrollbar
+                <div
                     v-if="pageData.targetMenuType === 'targetEvent'"
-                    vertical
-                    height="175"
+                    class="targetInfoWrap"
                 >
                     <div
                         v-for="(item, index) in pageData.targetEventDataNoSort"
@@ -430,7 +411,7 @@
                             >
                         </div>
                     </div>
-                </el-scrollbar>
+                </div>
             </div>
             <div
                 v-if="isTrail"
@@ -440,39 +421,39 @@
                 <div>{{ currDetailData.channelName }}</div>
             </div>
         </div>
-        <BaseTargetSearchPanel
-            v-model:visible="pageData.isDetectTarget"
-            type="image"
-            :mode="mode"
-            :pic="pageData.detectTargetImg"
-        />
     </div>
 </template>
 
-<script lang="ts" src="./IntelSearchDetail.v.ts"></script>
+<script lang="ts" src="./IntelSearchDetailPanel.v.ts"></script>
 
 <style lang="scss" scoped>
 .intelDetail {
-    height: 100%;
-    padding: 15px;
+    width: 100%;
+    height: calc(var(--content-height) - 10px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 
     .pageHead {
         height: 28px;
         position: relative;
+        flex-shrink: 0;
     }
 
     .pageCenter {
         position: relative;
-        width: 98%;
+        width: 100%;
         height: 520px;
         margin-top: 2px;
+        flex-shrink: 0;
+        background-color: var(--main-bg);
 
         .picVideoWrap {
             width: 100%;
             height: calc(100% - 90px);
             position: relative;
 
-            .target {
+            .pic {
                 float: left;
                 position: relative;
                 width: 100%;
@@ -483,6 +464,10 @@
                     height: 100%;
                     z-index: 0;
                     object-fit: fill;
+
+                    &[src=''] {
+                        opacity: 0;
+                    }
                 }
 
                 &-snap-right {
@@ -525,7 +510,7 @@
                         &-title {
                             position: absolute;
                             color: var(--btn-text-disabled);
-                            background-color: var(--attribute--title-bg);
+                            background-color: var(--target-title-bg);
                             box-sizing: border-box;
                             padding: 0 4px;
                         }
@@ -551,7 +536,7 @@
                                 text-overflow: ellipsis;
                                 white-space: nowrap;
                                 color: var(--main-text-active);
-                                background-color: var(--attribute-item-bg);
+                                background-color: var(--target-attr-bg);
                             }
                         }
                     }
@@ -562,121 +547,30 @@
                 width: 100%;
                 height: 100%;
                 border: 2px solid var(--subheading-bg);
-            }
-
-            .btns {
-                position: absolute;
-                width: 136px;
-                height: 48px;
-                left: 0;
-                bottom: 20px;
-                z-index: 11;
-                background-color: var(--color-white);
-
-                .btn {
-                    background-color: var(--color-white);
-                    color: var(--tooltip-text);
-                    border: 0;
-                    position: absolute;
-                    width: 55px;
-                    height: 22px;
-                    padding: 13px 5px;
-                    cursor: pointer;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                    text-align: center;
-
-                    &.disabled {
-                        cursor: default;
-                        color: var(--btn-bg-disabled);
-                    }
-
-                    &:hover:not(.disabled) {
-                        background-color: var(--preNext-btn-bg-active);
-                    }
-                }
-
-                #next {
-                    right: 0;
-                }
-            }
-        }
-
-        .control-bar {
-            align-items: center;
-            display: flex;
-            height: 22px;
-            margin-top: 10px;
-            width: 100%;
-
-            .start-time,
-            .end-time {
-                flex-shrink: 0;
-                font-size: 14px;
-                line-height: 1;
-                padding: 5px 0;
-                text-align: left;
-                width: 90px;
-            }
-
-            .end-time {
-                text-align: right;
+                box-sizing: border-box;
             }
         }
 
         .btn-bar {
-            position: absolute;
             width: 100%;
             height: 48px;
-            left: 5px;
-            bottom: 5px;
             user-select: none;
+            display: flex;
+            justify-content: space-between;
 
             .left-wrap {
-                position: absolute;
-                left: 0;
-                bottom: 0;
                 width: 50%;
                 height: 100%;
-                line-height: 58px;
                 text-align: left;
-                z-index: 6;
                 display: flex;
                 justify-content: flex-start;
                 align-items: center;
 
                 .el-select {
-                    width: 75px;
-                    display: inline-block;
+                    width: 90px;
                     height: 20px;
                     line-height: 20px;
                     margin-left: 4px;
-                    vertical-align: middle;
-                }
-
-                .speedWrap {
-                    position: relative;
-                    display: inline-block;
-                    width: 34px;
-                    height: 34px;
-                    vertical-align: middle;
-                    cursor: pointer;
-                    margin-right: 4px;
-
-                    .speedBtnTitle .Sprite {
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                    }
-
-                    .speedBtnList {
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: flex-start;
-                        align-items: center;
-                        position: absolute;
-                        top: 34px;
-                    }
                 }
 
                 > .btn {
@@ -686,13 +580,8 @@
 
             .right-wrap {
                 user-select: none;
-                position: absolute;
-                right: 3px;
-                bottom: 0;
                 width: 50%;
                 height: 100%;
-                line-height: 58px;
-                z-index: 9;
                 display: flex;
                 justify-content: flex-end;
                 align-items: center;
@@ -705,14 +594,15 @@
     }
 
     .pageFooter {
-        height: calc(100% - 569px);
+        width: 100%;
+        height: calc(100% - 560px);
 
         .picVideoMode {
+            width: 100%;
             height: 100%;
 
             .el-divider--horizontal {
-                /* stylelint-disable-next-line length-zero-no-unit */
-                margin: 0px;
+                margin: 0;
             }
 
             .el-radio-group.tab_container {
@@ -750,7 +640,8 @@
             }
 
             .personInfoWrap {
-                height: calc(100% - 50px);
+                width: 100%;
+                height: calc(100% - 15px);
                 overflow-y: auto;
 
                 .font-weight-bold {
@@ -772,6 +663,12 @@
                 .el-divider--horizontal {
                     border-width: 2px;
                 }
+            }
+
+            .targetInfoWrap {
+                width: 100%;
+                height: calc(100% - 15px);
+                overflow-y: auto;
             }
 
             .targetList {
@@ -820,6 +717,28 @@
             height: 100%;
             text-align: center;
         }
+    }
+}
+
+.speedBtnList {
+    width: 34px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+</style>
+
+<style lang="scss">
+.fullscreen-select {
+    left: 42px !important;
+}
+
+.fullscreen-popover {
+    left: 136px !important;
+
+    &.trail {
+        left: 174px !important;
     }
 }
 </style>

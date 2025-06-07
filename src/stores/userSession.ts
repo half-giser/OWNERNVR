@@ -80,7 +80,7 @@ export const useUserSessionStore = defineStore(
          * @returns {string[]}
          */
         const getAuthInfo = () => {
-            if (import.meta.env.VITE_P2P_IS_TEST) return [import.meta.env.VITE_P2P_ADMIN, import.meta.env.VITE_P2P_PASSWORD, import.meta.env.VITE_P2P_SN]
+            if (import.meta.env.VITE_P2P_IS_TEST === 'true') return [import.meta.env.VITE_P2P_ADMIN, import.meta.env.VITE_P2P_PASSWORD, import.meta.env.VITE_P2P_SN]
             if (!auInfo_N9K.value) return null
             if (!unmask.value) return null
 
@@ -94,7 +94,7 @@ export const useUserSessionStore = defineStore(
 
             const auInfo_password = decryptUnicode(auInfo_N9K_New.password, unmask.value)
             if (auInfo_password && auInfo_password !== 'null') {
-                userInfoArr.push(auInfo_username)
+                userInfoArr.push(auInfo_password)
             }
 
             const auInfo_sn = decryptUnicode(auInfo_N9K_New.sn, unmask.value)
@@ -239,6 +239,7 @@ export const useUserSessionStore = defineStore(
 
             // 从磁盘信息获取Raid
             await cababilityStore.updateDiskMode()
+            await cababilityStore.updateHotStandbyMode()
 
             generateAsyncRoutes()
         }

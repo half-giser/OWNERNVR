@@ -21,6 +21,7 @@
             <span class="filter-title">{{ Translate('IDCS_EVENT_FILTER') }}</span>
             <BaseImgSpriteBtn
                 file="filterBtn"
+                :scale="0.7"
                 :index="[0, 2, 2, 3]"
                 @click="pageData.isPop = true"
             />
@@ -93,13 +94,13 @@
     display: flex;
     align-items: center;
     margin-bottom: 10px;
+    font-size: 14px;
 
     &-title {
         flex-shrink: 0;
     }
 
     .Sprite {
-        transform: scale(0.7);
         flex-shrink: 0;
     }
 

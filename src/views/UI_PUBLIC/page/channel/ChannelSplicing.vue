@@ -19,7 +19,7 @@
                 }"
             >
                 <el-form-item :label="Translate('IDCS_TYPE')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="formData.spliceType"
                         :options="formData.spliceTypeList"
                         @visible-change="toggleOCX"
@@ -72,20 +72,10 @@
                 </el-button>
             </div>
         </div>
-        <div
-            v-if="pageData.requestType === 'fail'"
-            class="base-ai-not-support-box"
-        >
-            <BaseImgSprite file="chl_error" />
-            <span>{{ Translate('IDCS_QUERY_DATA_FAIL') }}</span>
-        </div>
-        <div
-            v-if="pageData.requestType === 'not-support'"
-            class="base-ai-not-support-box"
-        >
-            <BaseImgSprite file="chl_error" />
-            <span>{{ Translate('IDCS_NOT_SUPPORTFUNC') }}</span>
-        </div>
+        <AlarmBaseErrorPanel
+            v-if="pageData.requestType === 'fail' || pageData.requestType === 'not-support'"
+            :type="pageData.requestType"
+        />
     </div>
 </template>
 

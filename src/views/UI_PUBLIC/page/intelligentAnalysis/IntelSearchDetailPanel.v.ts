@@ -10,12 +10,23 @@ import dayjs from 'dayjs'
 import { VALUE_NAME_MAPPING } from '@/utils/const/snap'
 
 export default defineComponent({
+    emits: {
+        backup(data: IntelTargetDataItem | IntelTargetIndexItem, type: string) {
+            return !!data && typeof type === 'string'
+        },
+        changeItem(index: string) {
+            return typeof index === 'string'
+        },
+        search() {
+            return true
+        },
+    },
     setup(_props, ctx) {
         const { Translate } = useLangStore()
-        const browserInfo = getBrowserInfo()
-        const systemInfo = getSystemInfo()
         const dateTime = useDateTimeStore()
         const systemCaps = useCababilityStore()
+        const route = useRoute()
+        const selectRef = ref<SelectInstance>()
 
         let context: ReturnType<typeof CanvasBase>
         const canvasRef = ref<HTMLCanvasElement>()
@@ -57,8 +68,15 @@ export default defineComponent({
             vehicle: Translate('IDCS_DETECTION_VEHICLE'),
             nonMotorizedVehicle: Translate('IDCS_NON_VEHICLE'),
         }
+        // 性别与显示文本映射
+        const GENDER_MAPPING: Record<string, string> = {
+            male: Translate('IDCS_MALE'),
+            female: Translate('IDCS_FEMALE'),
+        }
 
         const pageData = ref({
+            // 是否显示详情页
+            showDeatilView: false,
             // 当前详情数据的索引
             detailIndex: 0,
             // 详情类型 （抓拍/回放）
@@ -111,7 +129,7 @@ export default defineComponent({
             // 播放状态: play pause stop ready nodata
             playStatus: 'stop',
             // 是否开启目标检索
-            enableREID: false,
+            // enableREID: false,
             isDetectTarget: false,
             // 目标检索的图片
             detectTargetImg: '',
@@ -188,14 +206,14 @@ export default defineComponent({
         })
 
         // 插件区域鼠标移出定时器
-        const pluginMouseoutTimer: NodeJS.Timeout | number = 0
+        // const pluginMouseoutTimer: NodeJS.Timeout | number = 0
 
         // 是否是轨迹详情
         const isTrail = ref(false)
         // 搜索页面当前选择抓拍图的index
         const currentIndex = ref('')
         // 当前数据源：需根据isTrail区分是普通抓拍数据还是轨迹数据
-        const detailData = ref<IntelTargetDataItem[] | IntelTargetIndexItem[]>([] as IntelTargetDataItem[])
+        const detailData = ref<(IntelTargetDataItem | IntelTargetIndexItem)[]>([])
         // 当前选择的抓拍图数据
         const currDetailData = ref<IntelTargetDataItem | IntelTargetIndexItem>(new IntelTargetDataItem())
         // 人脸库图片信息
@@ -217,10 +235,6 @@ export default defineComponent({
                 return ''
             }
             return playerRef.value!.mode
-        })
-
-        const showDeatilView = computed(() => {
-            return !((currDetailData.value as IntelTargetDataItem).isDelete || (currDetailData.value as IntelTargetDataItem).isNoData)
         })
 
         // 抓拍图是否遮挡了目标框的上右部分
@@ -266,10 +280,11 @@ export default defineComponent({
             }
         }
 
-        const init = (dataObj: { isTrail: boolean; currentIndex: string; detailData: any }) => {
+        const init = (dataObj: { isTrail: boolean; currentIndex: string; detailData: (IntelTargetDataItem | IntelTargetIndexItem)[] }) => {
             isTrail.value = dataObj.isTrail
             currentIndex.value = dataObj.currentIndex
             detailData.value = cloneDeep(dataObj.detailData)
+            pageData.value.showDeatilView = true
             if (isTrail.value) {
                 // 轨迹详情只显示录像菜单，且自动播放回放视频
                 pageData.value.detailType = 'record'
@@ -280,11 +295,13 @@ export default defineComponent({
                 pageData.value.detailTypeOptions[0].isVisible = true
             }
             // detailData为当前页的全部抓怕图数据，需要通过currentIndex筛选出当前页面数据
-            const data = detailData.value
-                .map((item: IntelTargetDataItem | IntelTargetIndexItem, index: number) => ({ value: item, index }))
-                .filter((item: { value: { index: string } }) => item.value.index === currentIndex.value)
+            const data = detailData.value.map((item, index) => ({ value: item, index })).filter((item) => item.value.index === currentIndex.value)
             currDetailData.value = cloneDeep(data[0].value)
             pageData.value.detailIndex = data[0].index
+            if ((currDetailData.value as IntelTargetDataItem).isDelete || (currDetailData.value as IntelTargetDataItem).isNoData) {
+                pageData.value.iconDisabled = true
+                return
+            }
             personInfoData.value = (currDetailData.value as IntelTargetDataItem).personInfoData
 
             initPageData()
@@ -323,7 +340,7 @@ export default defineComponent({
             } else {
                 pageData.value.snapImg = (currDetailData.value as IntelTargetDataItem).objPicData.data
                 pageData.value.panoramaImg = (currDetailData.value as IntelTargetDataItem).backgroundPicDatas[0].data
-                pageData.value.detectTargetImg = (currDetailData.value as IntelTargetDataItem).backgroundPicDatas[0].data.split(',').pop()
+                pageData.value.detectTargetImg = (currDetailData.value as IntelTargetDataItem).backgroundPicDatas[0].data.split(',').pop() || ''
                 getAttributeData()
                 if (pageData.value.targetMenuType === 'targetEvent') {
                     getTargetEventData()
@@ -357,83 +374,72 @@ export default defineComponent({
          * @description 根据targetType获取属性信息
          */
         const getAttributeData = () => {
-            if ((currDetailData.value as IntelTargetDataItem).isDelete || (currDetailData.value as IntelTargetDataItem).isNoData) return
-            const targetType = currDetailData.value.targetType
-            const dataList = [] as IntelAttributeList[]
             // 只有视频结构化、车牌侦测才有属性信息
-            let attrTextMaxWidth = 0
-            let attrTextMaxHeight = 0
-            let attrObj: IntelHumanAttrInfoItem | IntelVehicleAttrInfoItem | IntelNonMotorVehicleAttrInfoItem | IntelPlateAttrInfoItem
+            let targetTypeTxt = TARGET_TYPE_MAPPING[currDetailData.value.targetType]
 
             /**
              * NTA1-3770 当前只有人体、汽车、非机动车、车牌有属性信息
              * 当目标类型为上述类型之一时，去对应的属性节点下获取属性信息显示到页面上
              */
+            const targetType = currDetailData.value.targetType
             if (targetType === 'humanBody') {
-                attrObj = (currDetailData.value as IntelTargetDataItem).humanAttrInfo
+                const attrObj = (currDetailData.value as IntelTargetDataItem).humanAttrInfo
+                getStructInfo(attrObj)
             } else if (targetType === 'vehicle') {
-                attrObj = (currDetailData.value as IntelTargetDataItem).vehicleAttrInfo
+                const attrObj = (currDetailData.value as IntelTargetDataItem).vehicleAttrInfo
+                getStructInfo(attrObj)
             } else if (targetType === 'nonMotorizedVehicle') {
-                attrObj = (currDetailData.value as IntelTargetDataItem).nonMotorVehicleAttrInfo
+                const attrObj = (currDetailData.value as IntelTargetDataItem).nonMotorVehicleAttrInfo
+                getStructInfo(attrObj)
             } else if (targetType === 'vehiclePlate') {
-                attrObj = (currDetailData.value as IntelTargetDataItem).plateAttrInfo
+                const attrObj = (currDetailData.value as IntelTargetDataItem).plateAttrInfo
+                getStructInfo(attrObj)
+                // NTA1-3504 当目标类型为车牌号时，title信息来源于vehicleStyle，没有则不显示
+                targetTypeTxt = (attrObj as IntelPlateAttrInfoItem).vehicleStyle ? VEHICLE_STYLE_MAPPING[(attrObj as IntelPlateAttrInfoItem).vehicleStyle] : ''
             }
+            pageData.value.targetTypeTxt = targetTypeTxt
+        }
 
-            if (targetType !== 'humanFace') {
+        /**
+         * @description 获取属性信息
+         * @param {IntelHumanAttrInfoItem} attrObj 属性信息
+         */
+        const getStructInfo = (attrObj: IntelHumanAttrInfoItem | IntelVehicleAttrInfoItem | IntelNonMotorVehicleAttrInfoItem | IntelPlateAttrInfoItem) => {
+            // 只有视频结构化、车牌侦测才有属性信息
+            const dataList = [] as IntelAttributeList[]
+            let attrTextMaxWidth = 0
+            let attrTextMaxHeight = 0
+            for (const attr in attrObj) {
                 let content = ''
-                for (const attr in attrObj) {
-                    // 车牌号、车牌颜色、车辆颜色、需要处理后再显示
-                    if (attr === 'plateNumber') {
-                        content = attrObj[attr]
-                    } else if (attr === 'plateColor' && attrObj[attr]) {
-                        content = Translate('IDCS_PLATE_COLOR_XXX').formatForLang(Translate(VALUE_NAME_MAPPING[attrObj[attr]]))
-                    } else if (currDetailData.value.targetType === 'vehiclePlate' && attr === 'vehicleColor' && attrObj[attr]) {
-                        // NTA1-3632 车牌号才拼接车身颜色
-                        content = Translate('IDCS_VEHICLE_COLOR_XXX').formatForLang(Translate(VALUE_NAME_MAPPING[attrObj[attr]]))
-                    } else if (attr === 'upperCloth' || attr === 'lowerCloth') {
-                        // 服装这里存在以下场景：全部返回衣服类型和颜色、只返回颜色、只返回衣服类型
-                        const clothType = attr === 'upperCloth' ? 'upperClothType' : 'lowerClothType'
-                        const clothColor = attr === 'upperCloth' ? 'upperClothColor' : 'lowerClothColor'
-                        let clothTypeLang = ''
-                        if (attrObj[attr][clothType]) {
-                            switch (attrObj[attr][clothType]) {
-                                case 'longSleeve':
-                                    clothTypeLang = 'IDCS_COLOR_LONG_SLEEVE'
-                                    break
-                                case 'shortSleeve':
-                                    clothTypeLang = 'IDCS_COLOR_SHORT_SLEEVE'
-                                    break
-                                case 'longPants':
-                                    clothTypeLang = 'IDCS_COLOR_LONG_TROUSER'
-                                    break
-                                case 'shortPants':
-                                    clothTypeLang = 'IDCS_COLOR_SHORT_TROUSER'
-                                    break
-                            }
-                        }
+                // 车牌号、车牌颜色、车辆颜色、需要处理后再显示
+                const attrValue = attrObj[attr as keyof typeof attrObj]
+                if (attr === 'plateNumber') {
+                    content = attrValue
+                } else if (attr === 'plateColor' && attrValue) {
+                    content = Translate('IDCS_PLATE_COLOR_XXX').formatForLang(Translate(VALUE_NAME_MAPPING[attrValue]))
+                } else if (currDetailData.value.targetType === 'vehiclePlate' && attr === 'vehicleColor' && attrValue) {
+                    // NTA1-3632 车牌号才拼接车身颜色
+                    content = Translate('IDCS_VEHICLE_COLOR_XXX').formatForLang(Translate(VALUE_NAME_MAPPING[attrValue]))
+                } else if (attr.indexOf('ClothType') > -1) {
+                    // 拼接服装属性
+                    content = getClothWithColor(attr, attrObj as IntelHumanAttrInfoItem)
+                } else if (attr.indexOf('Color') > -1) {
+                    // 返回颜色时肯定会有衣服类型，在处理衣服类型时已经拼接上颜色，所以无需再重复显示颜色
+                    content = ''
+                } else {
+                    content = VALUE_NAME_MAPPING[attrValue] && Translate(VALUE_NAME_MAPPING[attrValue])
+                }
 
-                        if (attrObj[attr][clothType] && attrObj[attr][clothColor]) {
-                            content = Translate(clothTypeLang).formatForLang(Translate(VALUE_NAME_MAPPING[attrObj[attr][clothColor]]))
-                        } else if (attrObj[attr][clothType]) {
-                            content = Translate(clothTypeLang).formatForLang('')
-                        } else if (attrObj[attr][clothColor]) {
-                            content = Translate(VALUE_NAME_MAPPING[attrObj[attr][clothColor]])
-                        }
-                    } else {
-                        content = VALUE_NAME_MAPPING[attrObj[attr]]
+                if (checkValidStr(content)) {
+                    dataList.push({
+                        name: content,
+                        value: content,
+                    })
+                    const currAttrTextWidth = getTextWidth(content, 12)
+                    if (currAttrTextWidth > attrTextMaxWidth) {
+                        attrTextMaxWidth = currAttrTextWidth
                     }
-
-                    if (checkValidStr(content)) {
-                        dataList.push({
-                            name: content,
-                            value: content,
-                        })
-                        const currAttrTextWidth = getTextWidth(content, 12)
-                        if (currAttrTextWidth > attrTextMaxWidth) {
-                            attrTextMaxWidth = currAttrTextWidth
-                        }
-                        attrTextMaxHeight += 25 // 包含margin
-                    }
+                    attrTextMaxHeight += 25 // 包含margin
                 }
             }
             attrTextMaxWidth += 20 // 包含padding
@@ -445,14 +451,38 @@ export default defineComponent({
             if (attrTextMaxHeight > pageData.value.attrTextMaxHeight) {
                 pageData.value.attrTextMaxHeight = attrTextMaxHeight
             }
-
-            let targetTypeTxt = TARGET_TYPE_MAPPING[currDetailData.value.targetType]
-            // NTA1-3504 当目标类型为车牌号时，title信息来源于vehicleStyle，没有则不显示
-            if (currDetailData.value.targetType === 'vehiclePlate') {
-                targetTypeTxt = attrObj.vehicleStyle ? VEHICLE_STYLE_MAPPING[attrObj.vehicleStyle] : ''
-            }
             attributeData.value = cloneDeep(dataList)
-            pageData.value.targetTypeTxt = targetTypeTxt
+        }
+
+        /**
+         * @description 获取衣服+颜色属性
+         * @param {string} clothType 服装类型：upperClothType lowerClothType
+         * @param {IntelHumanAttrInfoItem} attrObj 属性信息
+         */
+        const getClothWithColor = (clothType: string, attrObj: IntelHumanAttrInfoItem) => {
+            const clothTypeVal = attrObj[clothType as keyof typeof attrObj]
+            const colorKey = clothType === 'upperClothType' ? 'upperClothColor' : 'lowerClothColor'
+            const colorVal = attrObj[colorKey as keyof typeof attrObj]
+            // 服装这里存在以下场景：全部返回衣服类型和颜色、只返回颜色、只返回衣服类型
+            let clothTypeLang = ''
+            switch (clothTypeVal) {
+                case 'longSleeve':
+                    clothTypeLang = 'IDCS_COLOR_LONG_SLEEVE'
+                    break
+                case 'shortSleeve':
+                    clothTypeLang = 'IDCS_COLOR_SHORT_SLEEVE'
+                    break
+                case 'longPants':
+                    clothTypeLang = 'IDCS_COLOR_LONG_TROUSER'
+                    break
+                case 'shortPants':
+                    clothTypeLang = 'IDCS_COLOR_SHORT_TROUSER'
+                    break
+            }
+
+            const colorTxt = colorVal ? Translate(VALUE_NAME_MAPPING[colorVal as keyof typeof attrObj]) : ''
+            const clothAttr = clothTypeVal ? Translate(clothTypeLang).formatForLang(colorTxt) : colorTxt
+            return clothAttr
         }
 
         /**
@@ -528,7 +558,7 @@ export default defineComponent({
                 return
             }
 
-            if (pageData.value.playStatus !== 'stop' && pageData.value.playStatus !== 'READAY') {
+            if (pageData.value.playStatus !== 'stop') {
                 if (mode.value === 'h5') {
                     player.resume(0)
                 }
@@ -667,7 +697,7 @@ export default defineComponent({
             // 放入文本
             _span.innerText = str
             // 设置文字大小
-            _span.style.fontSize = fontSize + 'px'
+            _span.style.fontSize = fontSize + 'px !important'
             // span元素转块级
             _span.style.position = 'absolute'
             // span放入body中
@@ -689,15 +719,19 @@ export default defineComponent({
         /**
          * @description 渲染矩形目标框绘制和属性信息
          */
-        const renderCanvas = () => {
-            if (!context) {
-                return
+        const renderCanvas = async () => {
+            if (!context && canvasRef.value) {
+                context = CanvasBase(canvasRef.value)
             }
+
+            context.ClearRect(0, 0, pageData.value.canvasWidth, pageData.value.canvasHeight)
             pageData.value.canvasWidth = document.querySelector('.picVideoWrap')?.clientWidth || 791
             pageData.value.canvasHeight = document.querySelector('.picVideoWrap')?.clientHeight || 430
+            context.getCanvas().width = pageData.value.canvasWidth
+            context.getCanvas().height = pageData.value.canvasHeight
+            await nextTick()
             const attrTextMaxWidth = pageData.value.attrTextMaxWidth
             const attrTextMaxHeight = pageData.value.attrTextMaxHeight
-            context.ClearRect(0, 0, pageData.value.canvasWidth, pageData.value.canvasHeight)
             const X1 = (currDetailData.value as IntelTargetDataItem).targetTrace.X1 * pageData.value.canvasWidth
             const X2 = (currDetailData.value as IntelTargetDataItem).targetTrace.X2 * pageData.value.canvasWidth
             const Y1 = (currDetailData.value as IntelTargetDataItem).targetTrace.Y1 * pageData.value.canvasHeight
@@ -707,7 +741,7 @@ export default defineComponent({
                 strokeStyle: '#0000ff',
             })
 
-            //绘制属性信息
+            // 绘制属性信息
             // 目标框距离容器顶部位置
             const targetBoxRectTop = Y1
             // 目标框距离容器左侧位置
@@ -876,6 +910,7 @@ export default defineComponent({
          * @description 切换抓拍、回放详情显示
          */
         const changeDetailMenu = () => {
+            if ((currDetailData.value as IntelTargetDataItem).isDelete || (currDetailData.value as IntelTargetDataItem).isNoData) return
             if (pageData.value.detailType === 'record') {
                 nextTick(() => {
                     play()
@@ -883,6 +918,7 @@ export default defineComponent({
             } else {
                 pageData.value.iconDisabled = false
             }
+            clearTargetDetect()
         }
 
         /**
@@ -906,15 +942,6 @@ export default defineComponent({
         }
 
         /**
-         * @description WASM播放器实时播放回调
-         * @param {number} index
-         * @param {TVTPlayerWinDataListItem} data
-         */
-        const handlePlayerOntime = (index: number, data: TVTPlayerWinDataListItem) => {
-            console.log('PlayerOntime:', data)
-        }
-
-        /**
          * @description 播放器播放状态回调（H5）
          * @param {TVTPlayerWinDataListItem} data
          */
@@ -928,8 +955,7 @@ export default defineComponent({
          * @param {number} index
          * @param {TVTPlayerWinDataListItem} data
          */
-        const handlePlayerSuccess = (index: number, data: TVTPlayerWinDataListItem) => {
-            console.log('PlayerSuccess:', data)
+        const handlePlayerSuccess = (_index: number, data: TVTPlayerWinDataListItem) => {
             pageData.value.playStatus = data.PLAY_STATUS
             pageData.value.iconDisabled = false
         }
@@ -944,7 +970,6 @@ export default defineComponent({
             // NTA1-3729 轨迹页面自动播放下一个录像直至结束
             if (isTrail.value) {
                 handleNext()
-                return
             }
         }
 
@@ -955,8 +980,6 @@ export default defineComponent({
          * @param {string} error
          */
         const handlePlayerError = (_index: number, data: TVTPlayerWinDataListItem, error?: string) => {
-            console.log('PlayerError:', data)
-
             // 不支持打开音频
             if (error === 'notSupportAudio') {
                 openMessageBox(Translate('IDCS_AUDIO_NOT_SUPPORT'))
@@ -979,8 +1002,9 @@ export default defineComponent({
          */
 
         const handleMouseMove = (mouseOver: boolean) => {
+            // 只在插件回放视频时执行此处理
+            if (mode.value !== 'ocx' && pageData.value.detailType !== 'record') return
             pageData.value.mouseIsOnPreNextDiv = mouseOver
-            !mouseOver && setOCXTransparent(false)
         }
 
         /**
@@ -1013,15 +1037,6 @@ export default defineComponent({
         }
 
         /**
-         * @description hover倍速模块
-         * @param {boolean} enable
-         */
-        const hoverRecSpeed = (enable: boolean) => {
-            pageData.value.isHoverSpeed = enable
-            clearTimeout(pluginMouseoutTimer)
-        }
-
-        /**
          * @description 切换回放倍速
          * @param {number} speed
          */
@@ -1031,6 +1046,7 @@ export default defineComponent({
             pageData.value.speedBtn = 'X' + speed
             pageData.value.speedBtnTitle = speed === 1 ? Translate('IDCS_ONE_SPEED') : Translate('IDCS_XXX_SPEED').formatForLang(speed)
             setPlaySpeed(speed)
+            setVoiceStatus(pageData.value.speedValue)
         }
 
         /**
@@ -1073,8 +1089,12 @@ export default defineComponent({
                 pageData.value.startTimeStamp = startTimeOrigin - playTimeStart
                 pageData.value.endTimeStamp = endTimeOrigin + playTimeEnd
             }
-            pageData.value.startTime = dayjs(pageData.value.startTimeStamp).calendar('gregory').format(DEFAULT_DATE_FORMAT)
-            pageData.value.endTime = dayjs(pageData.value.endTimeStamp).calendar('gregory').format(DEFAULT_DATE_FORMAT)
+            pageData.value.startTime = dayjs(pageData.value.startTimeStamp * 1000)
+                .calendar('gregory')
+                .format(DEFAULT_DATE_FORMAT)
+            pageData.value.endTime = dayjs(pageData.value.endTimeStamp * 1000)
+                .calendar('gregory')
+                .format(DEFAULT_DATE_FORMAT)
             play()
         }
 
@@ -1106,11 +1126,9 @@ export default defineComponent({
                 if (!pageData.value.supportAudio) return
                 if (pageData.value.enableAudio) {
                     voiceON()
-                    // pageData.value.disabledAudio = false
                 }
             } else {
                 voiceOFF()
-                // pageData.value.disabledAudio = true
             }
         }
 
@@ -1147,17 +1165,30 @@ export default defineComponent({
          * @description 点击目标检测按钮
          */
         const handleSearchTarget = () => {
-            const enableREID = !pageData.value.enableREID
-            pageData.value.isDetectTarget = !pageData.value.enableREID
-            if (!pageData.value.isDetectTarget && enableREID) {
-                pause()
-                pageData.value.isDetectTarget = enableREID
-            } else if (pageData.value.isDetectTarget && !enableREID) {
-                if (pageData.value.playStatus === 'pause') {
-                    resume()
+            if (pageData.value.isDetectTarget) {
+                pageData.value.isDetectTarget = false
+                if (pageData.value.detailType === 'record') {
+                    if (pageData.value.playStatus === 'pause') {
+                        resume()
+                    }
                 }
-                pageData.value.isDetectTarget = enableREID
+            } else {
+                pageData.value.isDetectTarget = true
+                if (pageData.value.detailType === 'record') {
+                    pause()
+                }
+
+                if (!pageData.value.isFullScreen) {
+                    handleFullScreen()
+                }
             }
+        }
+
+        const handleGoToSearchTargetPage = () => {
+            if (pageData.value.isFullScreen) {
+                handleFullScreen()
+            }
+            ctx.emit('search')
         }
 
         const clearTargetDetect = (isResume = true) => {
@@ -1273,30 +1304,70 @@ export default defineComponent({
         /**
          * @description 导出图片
          */
-        const handleExportPic = () => {
-            // setBackupData("backupPic");
+        const handleExport = () => {
+            ctx.emit('backup', currDetailData.value, pageData.value.detailType === 'snap' ? 'pic' : 'video')
         }
 
         /**
-         * @description 导出音频
-         */
-        const handleExportVideo = () => {
-            // setBackupData("backupVideo");
-        }
-
-        /**
-         * @description 全屏显示
+         * @description 全屏显示 / 退出全屏
          */
         const handleFullScreen = () => {
-            if (mode.value === 'h5') {
-                player.fullscreen()
-            }
-
-            if (mode.value === 'ocx') {
-                const sendXML = OCX_XML_FullScreen()
-                plugin.ExecuteCmd(sendXML)
+            const fullScreenElement = document.getElementById('intelDetail-center')
+            if (fullScreenElement) {
+                if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement) {
+                    if (fullScreenElement.requestFullscreen) {
+                        fullScreenElement.requestFullscreen()
+                    } else if (fullScreenElement.webkitRequestFullscreen) {
+                        fullScreenElement.webkitRequestFullscreen()
+                    } else if (fullScreenElement.mozRequestFullScreen) {
+                        fullScreenElement.mozRequestFullScreen()
+                    } else {
+                        openMessageBox("This browser doesn't support fullscreen")
+                    }
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen()
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen()
+                    } else if (document.mozCancelFullScreen) {
+                        document.mozCancelFullScreen()
+                    } else {
+                        openMessageBox("Exit fullscreen doesn't work")
+                    }
+                }
             }
         }
+
+        const handleFullScreenChange = () => {
+            if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement) {
+                pageData.value.isFullScreen = true
+
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_SetESCHook(true)
+                    plugin.ExecuteCmd(sendXML)
+                }
+            } else {
+                pageData.value.isFullScreen = false
+                pageData.value.isDetectTarget = false
+
+                if (pageData.value.detailType === 'record' && pageData.value.playStatus === 'play') {
+                    play()
+                }
+
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_SetESCHook(false)
+                    plugin.ExecuteCmd(sendXML)
+                }
+            }
+
+            setTimeout(() => {
+                renderCanvas()
+            }, 50)
+        }
+
+        useEventListener(document, 'fullscreenchange', handleFullScreenChange, false)
+        useEventListener(document, 'webkitfullscreenchange', handleFullScreenChange, false)
+        useEventListener(document, 'mozfullscreenchange', handleFullScreenChange, false)
 
         /**
          * @description 点击表格行，回放当前行录像
@@ -1347,6 +1418,16 @@ export default defineComponent({
         const displayDate = (timestamp: number): string => {
             if (timestamp === 0) return ''
             return formatDate(timestamp * 1000, dateTime.dateFormat)
+        }
+
+        /**
+         * @description 获取性别
+         * @param {string} str
+         * @returns {String}
+         */
+        const displayGender = (str: string | undefined | null) => {
+            if (!str) return ''
+            return GENDER_MAPPING[str]
         }
 
         /**
@@ -1420,6 +1501,10 @@ export default defineComponent({
             }
         }
 
+        const searchTargetRouteType = computed(() => {
+            return route.path.includes('search-target') ? 'refresh' : 'navigate'
+        })
+
         /**
          * @description 设置插件播放状态
          * @param {string} status
@@ -1445,65 +1530,26 @@ export default defineComponent({
             }
         }
 
+        const marks = computed(() => {
+            return pageData.value.targetEventDataNoSort.map((item) => {
+                return {
+                    value: item.timeStamp,
+                    label: EVENT_TYPE_MAPPING[item.eventType],
+                }
+            })
+        })
+
         /**
          * @description 设置插件显示/隐藏透明区域，用于防止$dom元素被插件遮挡
          * @param {boolean} enable
          */
         const setOCXTransparent = (enable: boolean) => {
-            // 获取浏览器的缩放比率
-            const ratio = window.devicePixelRatio
-            const browserType = browserInfo.type // 浏览器类型
-
-            const pluginSizeModeMapping: Record<string | symbol, string> = {
-                ie: 'relativeToScreen',
-                lowEdge: 'relativeToScreen', // relativeToScreen：显示器左上角为0, 0
-                firefox: 'relativeToBrowser', // relativeToBrowser: 浏览器左上角为0, 0;
-                other: 'relativeToDom', // relativeToDom：文档流里左上角为0, 0;
-            }
-            const posType = pluginSizeModeMapping[browserType] || pluginSizeModeMapping.other
-
-            let menuH = 0 // 浏览器工具栏高度（包含了地址栏、书签栏）
-            if (browserInfo.type === 'firefox') {
-                const offset = (window.outerWidth - window.innerWidth) / 2 // 外宽和内宽偏差值
-                let diffVersion = 0 // 火狐版本偏差值
-                if (window.screenTop < 0) {
-                    // 火狐最大化时
-                    if (systemInfo.version === 'Win7' || browserInfo.majorVersion <= 100) {
-                        // 小于100版本时取0, 大于100版本时取window.screenTop
-                        diffVersion = 0
-                    } else {
-                        diffVersion = window.screenTop
-                    }
-                }
-                menuH = (window.outerHeight - window.innerHeight - offset + diffVersion) * ratio
-            }
-            // 上下按钮区域的起始坐标
-            const btnsDom = document.querySelector('.btns')
-            const startPoint = btnsDom ? btnsDom.getBoundingClientRect() : { left: 0, right: 0, top: 0, bottom: 0, width: 0, height: 0 }
-            const startX = Math.ceil(startPoint.left) * ratio
-            const startY = Math.ceil(startPoint.top) * ratio + menuH
-            const widthBtn = Math.ceil(startPoint.width) * ratio
-            const heightBtn = Math.ceil(startPoint.height) * ratio
-            const points = [
-                { X: startX, Y: startY },
-                { X: startX + widthBtn, Y: startY },
-                { X: startX + widthBtn, Y: startY + heightBtn },
-                { X: startX, Y: startY + heightBtn },
-            ]
-            if (enable) {
-                // 显示透明区域
-                plugin?.ExecuteCmd(OCX_XML_setTransparentArea(points, posType, 'false'))
-            } else {
-                // 隐藏透明区域
-                plugin?.ExecuteCmd(OCX_XML_RestoreTransparentArea(points, posType, 'true'))
+            const element = document.querySelector('.base-intel-target-btns')
+            if (element) {
+                const rect = element.getBoundingClientRect()
+                plugin.SetOCXTransparent(enable, rect)
             }
         }
-
-        onMounted(() => {
-            if (!context) {
-                context = CanvasBase(canvasRef.value!)
-            }
-        })
 
         /**
          * @description 重置播放器
@@ -1532,10 +1578,12 @@ export default defineComponent({
                 // 规避连播时播放按钮状态不对的问题
                 setStatus(playStatus)
                 if (playStatus === 'STOP') {
-                    pageData.value.playStatus = 'stop'
                     pageData.value.iconDisabled = false
+                    // NTA1-3729 轨迹页面自动播放下一个录像直至结束
+                    if (isTrail.value) {
+                        handleNext()
+                    }
                 } else if (playStatus === 'NO_DATA') {
-                    pageData.value.playStatus = 'nodata'
                     pageData.value.iconDisabled = true
                 }
             }
@@ -1552,9 +1600,9 @@ export default defineComponent({
                 const chlId = $('statenotify/chlId').text()
                 const winIndex = $('statenotify/winIndex').text().num()
                 if (status.trim() === 'success') {
-                    // NTA1-3813 开启回放之后还早在此下发开启声音的指令，插件开启声音才会生效
+                    // NTA1-3813 开启回放之后还需再次下发开启声音的指令，插件开启声音才会生效
                     if (pageData.value.enableAudio) {
-                        handleVoice()
+                        voiceON()
                     }
 
                     if (systemCaps.supportPOS) {
@@ -1569,24 +1617,47 @@ export default defineComponent({
 
             // ScreenMouseover
             if (stateType === 'ScreenMouseover') {
+                selectRef.value?.blur()
+
+                if (pageData.value.isShowPrevNextBtn) {
+                    return
+                }
                 pageData.value.isShowPrevNextBtn = true
-                pageData.value.mouseIsOnPreNextDiv = true
                 nextTick(() => {
                     setOCXTransparent(true)
                 })
-            } else if (stateType === 'ScreenMouseout') {
-                if (pageData.value.mouseIsOnPreNextDiv) return
-                // 隐藏上一个、下一个按钮
-                setOCXTransparent(false)
-                pageData.value.isShowPrevNextBtn = false
+            }
+
+            if (stateType === 'ScreenMouseout') {
+                setTimeout(() => {
+                    if (pageData.value.mouseIsOnPreNextDiv) return
+                    // 隐藏上一个、下一个按钮
+                    setOCXTransparent(false)
+                    nextTick(() => {
+                        pageData.value.isShowPrevNextBtn = false
+                    })
+                }, 10)
+            }
+
+            if (stateType === 'ESC') {
+                if (pageData.value.isFullScreen) {
+                    handleFullScreen()
+                }
             }
         }
 
+        const handleSpeedPopoverBeforeEnter = () => {
+            selectRef.value?.blur()
+        }
+
         onUnmounted(() => {
-            stop()
             if (mode.value === 'ocx') {
                 plugin?.ExecuteCmd(OCX_XML_SetScreenMouseEvent(false))
             }
+        })
+
+        onBeforeRouteLeave(() => {
+            stop()
         })
 
         ctx.expose({
@@ -1605,7 +1676,6 @@ export default defineComponent({
             currDetailData,
             attributeData,
             personInfoData,
-            showDeatilView,
             isTrail,
             EVENT_TYPE_MAPPING,
             isCoverTargetBoxTopRight,
@@ -1618,11 +1688,11 @@ export default defineComponent({
             displayDate,
             displayTime,
             displayDateTime,
+            displayGender,
             handlePlayerReady,
             changeDetailMenu,
             changeTargetMenu,
             handleTime,
-            handlePlayerOntime,
             handlePlayerStatus,
             handlePlayerSuccess,
             handlePlayComplete,
@@ -1634,18 +1704,21 @@ export default defineComponent({
             handleSliderMouseUp,
             handleSliderChange,
             changeRecPlayTime,
-            hoverRecSpeed,
             changeRecSpeed,
             handleJump,
             handleSearchTarget,
+            handleGoToSearchTargetPage,
             handleShowAIMsg,
             handleVoice,
             handlePos,
-            handleExportPic,
-            handleExportVideo,
+            handleExport,
             handleFullScreen,
             handleClickTarget,
             clearTargetDetect,
+            marks,
+            searchTargetRouteType,
+            selectRef,
+            handleSpeedPopoverBeforeEnter,
         }
     },
 })
