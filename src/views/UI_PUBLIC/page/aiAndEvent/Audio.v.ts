@@ -545,6 +545,7 @@ export default defineComponent({
                             ${item.audioOutput ? `<audioOutput>${item.audioOutput}</audioOutput>` : ''}
                             ${item.loudSpeaker ? `<loudSpeaker>${item.loudSpeaker}</loudSpeaker>` : ''}
                             ${item.audioEncode ? `<audioEncode>${item.audioEncode}</audioEncode>` : ''}
+                            ${item.audioDenoiseEnabled ? `<audioDenoise>${item.audioDenoise}</audioDenoise>` : ''}
                             <volume>
                                 ${item.micOrLinEnabled ? `<micInVolume>${item.micInVolume}</micInVolume>` : ''}
                                 ${item.micOrLinEnabled ? `<linInVolume>${item.linInVolume}</linInVolume>` : ''}

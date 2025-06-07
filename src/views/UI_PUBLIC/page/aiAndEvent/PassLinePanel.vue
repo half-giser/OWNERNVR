@@ -134,6 +134,7 @@
                                             v-model="formData.duration.value"
                                             :min="formData.duration.min"
                                             :max="formData.duration.max"
+                                            mode="blur"
                                             @out-of-range="blurDuration(formData.duration.min, formData.duration.max)"
                                         />
                                     </el-form-item>
