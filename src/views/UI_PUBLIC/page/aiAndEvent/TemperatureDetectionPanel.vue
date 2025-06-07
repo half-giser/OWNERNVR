@@ -113,7 +113,7 @@
                             </el-form-item>
                             <!-- 碼流上疊加溫度訊息 -->
                             <div
-                                v-if="formData.isShowThermal || formData.isShowOptical"
+                                v-if="formData.isShowThermal && formData.isShowOptical"
                                 class="base-ai-subheading"
                             >
                                 {{ Translate('IDCS_BITSTREAM_OVERLAYS_TEMPERATURE_INFO') }}
@@ -195,6 +195,7 @@
                                             :max="row.emissivity.max"
                                             :precision="2"
                                             :step="0.01"
+                                            mode="blur"
                                             @out-of-range="blurValue(row.emissivity.min, row.emissivity.max)"
                                         />
                                     </template>
@@ -211,6 +212,7 @@
                                             :max="formData.distanceUnits === 'Meter' ? row.distance.max : row.distance.fmax"
                                             :precision="2"
                                             :step="0.01"
+                                            mode="blur"
                                             @out-of-range="
                                                 blurValue(
                                                     formData.distanceUnits === 'Meter' ? row.distance.min : row.distance.fmin,
@@ -232,6 +234,7 @@
                                             :max="formData.tempUnits === 'centigrade' ? row.reflectTemper.max : row.reflectTemper.fmax"
                                             :precision="2"
                                             :step="0.01"
+                                            mode="blur"
                                             @out-of-range="
                                                 blurValue(
                                                     formData.tempUnits === 'centigrade' ? row.reflectTemper.min : row.reflectTemper.fmin,
@@ -265,6 +268,7 @@
                                             :step="0.01"
                                             :min="formData.tempUnits === 'centigrade' ? row.alarmTemper.min : row.alarmTemper.fmin"
                                             :max="formData.tempUnits === 'centigrade' ? row.alarmTemper.max : row.alarmTemper.fmax"
+                                            mode="blur"
                                             @out-of-range="
                                                 blurValue(
                                                     formData.tempUnits === 'centigrade' ? row.alarmTemper.min : row.alarmTemper.fmin,
@@ -368,6 +372,7 @@
                             :step="0.01"
                             :min="formData.tempInfo.emissivity.min"
                             :max="formData.tempInfo.emissivity.max"
+                            mode="blur"
                             @out-of-range="blurValue(formData.tempInfo.emissivity.min, formData.tempInfo.emissivity.max)"
                         />
                     </el-form-item>
@@ -378,6 +383,7 @@
                             :step="0.01"
                             :min="tempInfoDistanceMin"
                             :max="tempInfoDistanceMax"
+                            mode="blur"
                             @out-of-range="blurValue(tempInfoDistanceMin, tempInfoDistanceMax)"
                         />
                     </el-form-item>
@@ -391,6 +397,7 @@
                             :step="0.01"
                             :min="tempInfoReflectMin"
                             :max="tempInfoReflectMax"
+                            mode="blur"
                             @out-of-range="blurValue(tempInfoReflectMin, tempInfoReflectMax)"
                         />
                     </el-form-item>

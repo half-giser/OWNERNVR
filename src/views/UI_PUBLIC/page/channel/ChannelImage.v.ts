@@ -1878,6 +1878,7 @@ export default defineComponent({
             floatErrorMessage,
             floatLensMessage,
             saveFusionOffset,
+            saveFusionConfig,
         }
     },
 })

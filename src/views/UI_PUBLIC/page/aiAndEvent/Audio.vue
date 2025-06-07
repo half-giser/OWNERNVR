@@ -244,7 +244,8 @@
                             :disabled="!deviceFormData.audioInSwitch || !deviceFormData.audioEncode"
                         />
                     </el-form-item>
-                    <el-form-item :label="Translate('IDCS_ENCODE_AUDIO_IN')">
+                    <!-- 环境降噪模式 -->
+                    <el-form-item :label="Translate('IDCS_ENVIRONMENTAL_NOISE_FILTER')">
                         <BaseSelect
                             v-model="deviceFormData.audioDenoise"
                             :options="deviceFormData.audioDenoiseType"
