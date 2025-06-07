@@ -50,7 +50,7 @@
                     :label="Translate('IDCS_LANGUAGE')"
                     class="no-padding"
                 >
-                    <el-select-v2
+                    <BaseSelect
                         v-model="pageData.langId"
                         :options="pageData.langTypes"
                         @change="changeLang"
@@ -60,7 +60,7 @@
                     label=" "
                     class="no-padding"
                 >
-                    <el-select-v2
+                    <BaseSelect
                         v-show="calendarOptions.length"
                         v-model="formData.calendarType"
                         :options="calendarOptions"

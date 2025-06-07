@@ -18,7 +18,7 @@
                 v-show="type === 'multiple'"
                 :label="Translate('IDCS_PRODUCT_MODEL')"
             >
-                <el-select-v2
+                <BaseSelect
                     v-model="selectedProductModel"
                     :options="productModelOptionList"
                 />

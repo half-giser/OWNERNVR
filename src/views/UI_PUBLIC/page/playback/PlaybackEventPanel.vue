@@ -47,7 +47,7 @@
             />
         </div>
         <div class="popover">
-            <el-popover
+            <BasePopover
                 v-model:visible="pageData.isPlayModePop"
                 popper-class="no-padding"
                 width="207"
@@ -74,8 +74,8 @@
                         <span>{{ item.label }}</span>
                     </div>
                 </div>
-            </el-popover>
-            <el-popover
+            </BasePopover>
+            <BasePopover
                 v-model:visible="pageData.isFilterPop"
                 width="207"
             >
@@ -114,7 +114,7 @@
                         <el-button @click="pageData.isFilterPop = false">{{ Translate('IDCS_CLOSE') }}</el-button>
                     </div>
                 </div>
-            </el-popover>
+            </BasePopover>
         </div>
         <el-input
             v-show="systemCaps.supportPOS"

@@ -56,12 +56,11 @@
                                 >
                                     {{ expireTime }}
                                 </div>
-                                <el-tooltip :content="Translate('IDCS_AUTHCODE_RECV_TIP')">
-                                    <div
-                                        v-show="pageData.expireTime > 0"
-                                        class="authCodeLogin-question"
-                                    ></div>
-                                </el-tooltip>
+                                <div
+                                    v-show="pageData.expireTime > 0"
+                                    :title="Translate('IDCS_AUTHCODE_RECV_TIP')"
+                                    class="authCodeLogin-question"
+                                ></div>
                             </div>
                         </div>
                     </el-form-item>
@@ -83,7 +82,7 @@
                 </el-form>
             </div>
             <div class="authCodeLogin-lang">
-                <el-select-v2
+                <BaseSelect
                     v-model="pageData.langId"
                     :options="lang.langTypes"
                     :props="{
@@ -93,7 +92,7 @@
                     append-to=".authCodeLogin"
                     @change="changeLang"
                 />
-                <el-select-v2
+                <BaseSelect
                     v-show="pageData.calendarOptions.length"
                     v-model="formData.calendarType"
                     :options="pageData.calendarOptions"

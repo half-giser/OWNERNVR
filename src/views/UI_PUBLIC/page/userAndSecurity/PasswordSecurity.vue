@@ -10,13 +10,13 @@
             class="stripe"
         >
             <el-form-item :label="Translate('IDCS_MINIMUM_PASSWORD_LEVEL')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.passwordStrength"
                     :options="pageData.passwordStrengthOptions"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_PASSWORD_EXPIRATION_TIME')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.expirationTime"
                     :options="pageData.expirationTimeOptions"
                 />

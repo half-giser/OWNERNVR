@@ -5,7 +5,7 @@
 -->
 <template>
     <div class="backup">
-        <el-popover
+        <BasePopover
             :visible="pageData.visible"
             :width="1000"
             placement="top-end"
@@ -73,7 +73,7 @@
                 />
                 <el-table-column width="110">
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_OPERATION') }}
                             </BaseTableDropdownLink>
@@ -83,7 +83,7 @@
                                     <el-dropdown-item @click="resumeAllTask">{{ Translate('IDCS_RESUME_ALL') }}</el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<PlaybackBackUpTaskList>">
                         <el-button
@@ -105,7 +105,7 @@
                     width="110"
                 >
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_DELETE') }}
                             </BaseTableDropdownLink>
@@ -114,7 +114,7 @@
                                     <el-dropdown-item @click="deleteAllTask">{{ Translate('IDCS_DELETE_ALL') }}</el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<PlaybackBackUpTaskList>">
                         <el-button @click="deleteTask(row)">{{ Translate('IDCS_DELETE') }}</el-button>
@@ -125,7 +125,7 @@
                 <BaseImgSprite file="caution" />
                 <span>{{ Translate('IDCS_BACKUP_NOTICE').formatForLang(Translate('IDCS_REPLAY')) }}</span>
             </div>
-        </el-popover>
+        </BasePopover>
     </div>
 </template>
 

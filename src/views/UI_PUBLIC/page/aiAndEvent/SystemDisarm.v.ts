@@ -78,7 +78,6 @@ export default defineComponent({
 
         const hasSupportIpSpeaker = computed(() => {
             const ids = Object.keys(chlsMap.value)
-            console.log(ids, pageData.value.ipSpeakersList)
             return pageData.value.ipSpeakersList.some((item) => ids.includes(item.chlId))
         })
 

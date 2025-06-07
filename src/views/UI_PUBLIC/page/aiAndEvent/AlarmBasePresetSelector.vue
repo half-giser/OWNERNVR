@@ -24,7 +24,7 @@
                 :label="Translate('IDCS_PRESET_NAME')"
             >
                 <template #default="{ row }: TableColumn<SelectOption<string, string>>">
-                    <el-select-v2
+                    <BaseSelect
                         :key="key"
                         :model-value="selected[row.value]"
                         :options="pageData.presetList[row.value]"

@@ -5,7 +5,7 @@
 -->
 <template>
     <div>
-        <el-popover
+        <BasePopover
             v-model:visible="pageData.isRS485Pop"
             placement="top"
             :width="Math.ceil(pageData.list.length / 9) * 110"
@@ -34,7 +34,7 @@
                     </el-button>
                 </div>
             </div>
-        </el-popover>
+        </BasePopover>
     </div>
 </template>
 

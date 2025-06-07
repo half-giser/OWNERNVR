@@ -10,7 +10,7 @@
             class="no-padding"
         >
             <el-form-item :label="Translate('IDCS_UPGRADE_OPTIONS')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.upgradeType"
                     :options="pageData.upgradeOptions"
                 />

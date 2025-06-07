@@ -24,7 +24,7 @@
                 :label="Translate('IDCS_AUDIO')"
             >
                 <template #default="{ row }: TableColumn<AlarmIPSpeakerItem>">
-                    <el-select-v2
+                    <BaseSelect
                         :model-value="row.audioID"
                         :options="pageData.audioList"
                         @update:model-value="change(row, $event)"

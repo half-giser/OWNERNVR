@@ -261,7 +261,7 @@ export default defineComponent({
                     trigger: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch', 'popMsgSwitch'].filter((item) => {
                         return $trigger(item).text().bool()
                     }),
-                    triggerList: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch', 'popMsgSwitch'],
+                    triggerList: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'popMsgSwitch'],
                     sysAudio: $trigger('sysAudio').attr('id'),
                     record: $trigger('sysRec/chls/item').map((item) => {
                         return {
@@ -339,29 +339,29 @@ export default defineComponent({
                         ${
                             formData.value.supportMaskArea
                                 ? rawXml`
-                                <maskArea type="list" count="${formData.value.maskAreaInfo.length}">
-                                ${formData.value.maskAreaInfo
-                                    .map((element) => {
-                                        return rawXml`
-                                                <item>
-                                                    <point type="list" maxCount="${element.maxCount}" count="${element.point.length}">
-                                                        ${element.point
-                                                            .map((point) => {
-                                                                return rawXml`
-                                                                    <item>
-                                                                        <X>${Math.floor(point.X)}</X>
-                                                                        <Y>${Math.floor(point.Y)}</Y>
-                                                                    </item>
-                                                                `
-                                                            })
-                                                            .join('')}
-                                                    </point>
-                                                </item>
-                                            `
-                                    })
-                                    .join('')}
-                                </maskArea>
-                            `
+                                    <maskArea type="list" count="${formData.value.maskAreaInfo.length}">
+                                    ${formData.value.maskAreaInfo
+                                        .map((element) => {
+                                            return rawXml`
+                                                    <item>
+                                                        <point type="list" maxCount="${element.maxCount}" count="${element.point.length}">
+                                                            ${element.point
+                                                                .map((point) => {
+                                                                    return rawXml`
+                                                                        <item>
+                                                                            <X>${Math.floor(point.X)}</X>
+                                                                            <Y>${Math.floor(point.Y)}</Y>
+                                                                        </item>
+                                                                    `
+                                                                })
+                                                                .join('')}
+                                                        </point>
+                                                    </item>
+                                                `
+                                        })
+                                        .join('')}
+                                    </maskArea>
+                                `
                                 : ''
                         }
                         </param>
@@ -404,7 +404,7 @@ export default defineComponent({
                                     .join('')}
                                 </chls>
                             </triggerAudioDevice>
-                            <snapSwitch>${formData.value.trigger.includes('snapSwitch')}</snapSwitch>
+                            <snapSwitch>${formData.value.snap.length > 0}</snapSwitch>
                             <msgPushSwitch>${formData.value.trigger.includes('msgPushSwitch')}</msgPushSwitch>
                             <buzzerSwitch>${formData.value.trigger.includes('buzzerSwitch')}</buzzerSwitch>
                             <popVideoSwitch>${formData.value.trigger.includes('popVideoSwitch')}</popVideoSwitch>

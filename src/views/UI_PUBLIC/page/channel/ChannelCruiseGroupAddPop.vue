@@ -20,7 +20,7 @@
                 prop="name"
                 :label="Translate('IDCS_CRUISE_NAME')"
             >
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.name"
                     :options="pageData.cruiseOptions"
                 />

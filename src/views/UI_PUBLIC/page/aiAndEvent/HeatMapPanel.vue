@@ -103,9 +103,10 @@
                                             </div>
                                             <!-- 目标 -->
                                             <el-form-item :label="Translate('IDCS_TARGET')">
-                                                <el-select-v2
+                                                <BaseSelect
                                                     v-model="formData.detectTarget"
                                                     :options="formData.detectTargetList"
+                                                    empty-text=""
                                                     @change="showDisplayRange"
                                                 />
                                             </el-form-item>
@@ -346,7 +347,7 @@
                     </el-button>
                 </div>
                 <!-- 更多按钮 -->
-                <el-popover
+                <BasePopover
                     v-model:visible="pageData.moreDropDown"
                     width="300"
                     popper-class="no-padding"
@@ -385,7 +386,7 @@
                             </div>
                         </el-form>
                     </div>
-                </el-popover>
+                </BasePopover>
             </div>
         </div>
         <BaseScheduleManagePop

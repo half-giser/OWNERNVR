@@ -25,16 +25,17 @@
             />
             <img :src="pic" />
         </div>
-        <el-tooltip :content="chlName">
-            <div class="item-text text-ellipsis">
-                <BaseImgSprite
-                    v-show="mode === 'icon'"
-                    file="chl_s"
-                    :chunk="2"
-                />
-                <span class="text-ellipsis">{{ chlName }}</span>
-            </div>
-        </el-tooltip>
+        <div
+            class="item-text text-ellipsis"
+            :title="chlName"
+        >
+            <BaseImgSprite
+                v-show="mode === 'icon'"
+                file="chl_s"
+                :chunk="2"
+            />
+            <span class="text-ellipsis">{{ chlName }}</span>
+        </div>
     </div>
 </template>
 

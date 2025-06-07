@@ -75,9 +75,10 @@
                                 </div>
                                 <!-- 持续时间 -->
                                 <el-form-item :label="Translate('IDCS_DURATION')">
-                                    <el-select-v2
+                                    <BaseSelect
                                         v-model="formData.holdTime"
                                         :options="formData.holdTimeList"
+                                        empty-text=""
                                     />
                                 </el-form-item>
                                 <!-- 触发报警条件 -->
@@ -85,7 +86,7 @@
                                     v-if="formData.fireAlarmMode"
                                     :label="Translate('IDCS_FIRE_TRIGGER_ALARM_CONDITION')"
                                 >
-                                    <el-select-v2
+                                    <BaseSelect
                                         v-model="formData.fireAlarmMode"
                                         :options="formData.fireAlarmModeList"
                                     />
@@ -148,7 +149,7 @@
                         v-title
                     >
                         <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="formData.sysAudio"
                                 :options="voiceList"
                             />

@@ -26,16 +26,15 @@
                 class="stripe"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="selectedChlId"
                         :options="chlOptions"
                         :persistent="true"
-                        popper-class="intersect-ocx"
                         @change="handleChlSel"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ENABLE')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="formData.switch"
                         :disabled="formData.disabled"
                         :options="switchOptions"
@@ -50,17 +49,18 @@
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_DURATION')">
-                    <el-select-v2
+                    <BaseSelect
                         v-if="formData.isOnvifChl"
                         model-value=""
                         disabled
                         :options="[]"
                     />
-                    <el-select-v2
+                    <BaseSelect
                         v-else
                         v-model="formData.holdTime"
                         :disabled="formData.disabled"
                         :options="formData.holdTimeList"
+                        empty-text=""
                     />
                 </el-form-item>
                 <el-form-item
@@ -116,7 +116,7 @@
                         min-width="120"
                     >
                         <template #header>
-                            <el-dropdown>
+                            <BaseDropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_ENABLE') }}
                                 </BaseTableDropdownLink>
@@ -131,10 +131,10 @@
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
-                            </el-dropdown>
+                            </BaseDropdown>
                         </template>
                         <template #default="{ row }: TableColumn<ChannelMotionDto>">
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="row.switch"
                                 :disabled="row.disabled"
                                 :options="switchOptions"
@@ -160,7 +160,7 @@
                         min-width="180"
                     >
                         <template #header>
-                            <el-dropdown>
+                            <BaseDropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_DURATION') }}
                                 </BaseTableDropdownLink>
@@ -175,16 +175,16 @@
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
-                            </el-dropdown>
+                            </BaseDropdown>
                         </template>
                         <template #default="{ row }: TableColumn<ChannelMotionDto>">
-                            <el-select-v2
+                            <BaseSelect
                                 v-if="row.isOnvifChl"
                                 model-value=""
                                 :options="[]"
                                 disabled
                             />
-                            <el-select-v2
+                            <BaseSelect
                                 v-else
                                 v-model="row.holdTime"
                                 :disabled="row.disabled"

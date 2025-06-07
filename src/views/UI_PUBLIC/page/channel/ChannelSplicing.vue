@@ -19,7 +19,7 @@
                 }"
             >
                 <el-form-item :label="Translate('IDCS_TYPE')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="formData.spliceType"
                         :options="formData.spliceTypeList"
                         @visible-change="toggleOCX"

@@ -66,6 +66,9 @@ const prop = withDefaults(
          * @property 点击事件是否阻止冒泡
          */
         stopPropagation?: boolean
+        /**
+         * @property 缩放比例
+         */
         scale?: number
     }>(),
     {

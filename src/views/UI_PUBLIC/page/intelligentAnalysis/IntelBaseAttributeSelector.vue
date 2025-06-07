@@ -5,7 +5,7 @@
 -->
 <template>
     <div>
-        <el-popover
+        <BasePopover
             v-model:visible="pageData.isPop"
             width="388"
             popper-class="selector"
@@ -68,7 +68,7 @@
                 <el-button @click="reset">{{ Translate('IDCS_RESET') }}</el-button>
                 <el-button @click="confirm">{{ Translate('IDCS_OK') }}</el-button>
             </div>
-        </el-popover>
+        </BasePopover>
     </div>
 </template>
 

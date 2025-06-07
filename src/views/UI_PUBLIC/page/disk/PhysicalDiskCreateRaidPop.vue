@@ -32,7 +32,7 @@
                 :label="Translate('IDCS_RAID_TYPE')"
                 prop="type"
             >
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.type"
                     :options="raidType"
                     @change="getRaidCapacity"

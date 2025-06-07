@@ -69,9 +69,6 @@ export class AlarmWhiteLightDto extends TableRowStatus {
     enable = false
     durationTime = 0
     frequencyType = ''
-    // enableDisable = true
-    // durationTimeDisable = false
-    // frequencyTypeDisable = false
 }
 
 /**

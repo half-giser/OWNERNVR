@@ -105,7 +105,7 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_SECURITY_LEVEL')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.securityLevel"
                     :options="pageData.securityLevelOptions"
                     :disabled="!formData.snmpv3Switch"
@@ -113,7 +113,7 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_AUTH_TYPE')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.authType"
                     :options="pageData.authTypeOptions"
                     :disabled="!formData.snmpv3Switch || formData.securityLevel === 0"
@@ -137,7 +137,7 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_PRIVACY_TYPE')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.privType"
                     :options="pageData.privTypeOptions"
                     :disabled="!formData.snmpv3Switch || formData.securityLevel !== 2"

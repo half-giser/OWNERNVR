@@ -15,7 +15,7 @@ export default defineComponent({
 
         const pageData = ref({
             // 通道选项
-            channelOptions: getTranslateOptions(DEFAULT_SWITCH_OPTIONS),
+            switchOptions: getTranslateOptions(DEFAULT_SWITCH_OPTIONS),
             // 当前选中的通道
             activeChannelIndex: 0,
         })

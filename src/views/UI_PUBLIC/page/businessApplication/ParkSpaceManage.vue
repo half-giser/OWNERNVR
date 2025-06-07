@@ -26,7 +26,7 @@
                     :label="Translate('IDCS_PARKING_TYPE')"
                 >
                     <template #default="{ row }: TableColumn<BusinessParkSpaceManageList>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.parkingType"
                             :options="pageData.parkingTypeList"
                         />

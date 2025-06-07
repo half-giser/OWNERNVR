@@ -7,7 +7,7 @@
     <div>
         <el-form v-title>
             <el-form-item :label="Translate('IDCS_STORAGE_MODE')">
-                <el-select-v2
+                <BaseSelect
                     disabled
                     :model-value="Translate('IDCS_REEL_GROUP')"
                     :options="[]"

@@ -120,7 +120,7 @@
                         }"
                     >
                         <el-form-item :label="Translate('IDCS_PICTURE')">
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="pageData.sliceType"
                                 :disabled="modeItem.disabled"
                                 :options="modeItem.options"

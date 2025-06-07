@@ -66,7 +66,7 @@
                                 </div>
                             </template>
                             <template v-else-if="item2.showType === 'select'">
-                                <el-select-v2
+                                <BaseSelect
                                     v-model="selected[item1.value][item2.value][0]"
                                     :options="item2.children"
                                 />

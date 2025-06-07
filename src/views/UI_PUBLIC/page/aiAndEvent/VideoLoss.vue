@@ -57,7 +57,7 @@
                 <!-- 消息推送   -->
                 <el-table-column width="170">
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_PUSH') }}
                             </BaseTableDropdownLink>
@@ -72,10 +72,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<AlarmEventDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.msgPush"
                             :options="pageData.enableList"
                             :disabled="row.disabled"
@@ -110,7 +110,6 @@
                 </el-table-column>
                 <!-- 预置点名称   -->
                 <el-table-column
-                    align="center"
                     width="195"
                     :label="Translate('IDCS_PRESET_NAME')"
                 >
@@ -130,41 +129,10 @@
                         </div>
                     </template>
                 </el-table-column>
-                <!-- FTPSnap   -->
-                <!-- <el-table-column
-                v-if="pageData.supportFTP"
-                width="175"
-            >
-                <template #header>
-                    <el-dropdown >
-                        <BaseTableDropdownLink>
-                            {{ Translate('IDCS_SNAP_TO_FTP') }}
-                        </BaseTableDropdownLink>
-                        <template #dropdown>
-                            <el-dropdown-menu>
-                                <el-dropdown-item
-                                    v-for="item in pageData.enableList"
-                                    :key="item.value"
-                                    @click="changeAllFtpSnap(item.value)"
-                                >
-                                    {{ item.label }}
-                                </el-dropdown-item>
-                            </el-dropdown-menu>
-                        </template>
-                    </el-dropdown>
-                </template>
-                <template #default="{ row }: TableColumn<AlarmEventDto>">
-                    <el-select-v2
-                        v-model="row.ftpSnap"
-                        :disabled="row.disabled"
-                        :options="pageData.enableList"
-                    />
-                </template>
-            </el-table-column> -->
                 <!-- 蜂鸣器   -->
                 <el-table-column width="124">
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_BUZZER') }}
                             </BaseTableDropdownLink>
@@ -179,10 +147,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<AlarmEventDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.beeper"
                             :options="pageData.enableList"
                             :disabled="row.disabled"
@@ -192,7 +160,7 @@
                 <!-- 视频弹出   -->
                 <el-table-column width="140">
                     <template #header>
-                        <el-dropdown max-height="400">
+                        <BaseDropdown :max-height="400">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_VIDEO_POPUP') }}
                             </BaseTableDropdownLink>
@@ -207,10 +175,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<AlarmEventDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.videoPopupInfo.chl.value"
                             :options="row.videoPopupList"
                             :disabled="row.disabled"
@@ -220,7 +188,7 @@
                 <!-- 消息框弹出   -->
                 <el-table-column width="175">
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_MESSAGEBOX_POPUP') }}
                             </BaseTableDropdownLink>
@@ -235,10 +203,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<AlarmEventDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.msgBoxPopup"
                             :options="pageData.enableList"
                             :disabled="row.disabled"
@@ -248,7 +216,7 @@
                 <!-- email   -->
                 <el-table-column width="115">
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink> Email </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
@@ -261,10 +229,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<AlarmEventDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.email"
                             :options="pageData.enableList"
                             :disabled="row.disabled"

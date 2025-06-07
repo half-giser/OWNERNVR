@@ -36,10 +36,11 @@
                 v-if="systemCaps.needP2pVersion1 && systemCaps.showNatServerAddress"
                 :label="Translate('IDCS_ACCESS_TYPE')"
             >
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.index"
                     :options="pageData.natServerTypeOptions"
                     :disabled="!pageData.editable"
+                    empty-text=""
                 />
             </el-form-item>
             <el-form-item
