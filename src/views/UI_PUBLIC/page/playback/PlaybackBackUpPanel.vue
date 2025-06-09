@@ -15,10 +15,6 @@
         >
             <template #reference>
                 <span></span>
-                <!-- <BaseImgSpriteBtn
-                    file="backUpTask"
-                    :title="Translate('IDCS_BACKUP_TASKS')"
-                /> -->
             </template>
             <el-table
                 v-title

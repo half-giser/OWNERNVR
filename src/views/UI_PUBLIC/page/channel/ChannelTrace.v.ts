@@ -158,6 +158,7 @@ export default defineComponent({
                 row.traceCount = tableData.value[index].trace.length
                 row.traceMaxHoldTime = $('content/traceMaxHoldTime').text().num() || 180
                 row.nameMaxLen = $('content/traces/itemType').attr('maxLen').num() || 10
+                row.disabled = false
             }
         }
 
@@ -194,6 +195,9 @@ export default defineComponent({
                             traceMaxHoldTime: 180,
                             minSpeed: $('supportPtz').attr('MinPtzCtrlSpeed').num(),
                             maxSpeed: $('supportPtz').attr('MaxPtzCtrlSpeed').num(),
+                            disabled: true,
+                            status: '',
+                            statusTip: '',
                         }
                     })
             }

@@ -722,14 +722,13 @@ export class ChannelMotionDto extends TableRowStatus {
 /**
  * @description 预置点 通道列表项
  */
-export class ChannelPtzPresetChlDto {
+export class ChannelPtzPresetChlDto extends TableRowStatus {
     chlId = ''
     chlName = ''
     presetCount = 0
     maxCount = 128
     presets: ChannelPtzPresetDto[] = []
     nameMaxByteLen = 63
-    disabled = false
     supportPtz = false
     supportAZ = false
     supportIris = false
@@ -749,7 +748,7 @@ export class ChannelPtzPresetDto {
 /**
  * @description 轨迹 通道列表项
  */
-export class ChannelPtzTraceChlDto {
+export class ChannelPtzTraceChlDto extends TableRowStatus {
     chlId = ''
     chlName = ''
     traceCount = 0
@@ -769,7 +768,7 @@ export class ChannelPtzTraceDto extends ChannelPtzPresetDto {}
 /**
  * @description 巡航线 通道列表项
  */
-export class ChannelPtzCruiseChlDto {
+export class ChannelPtzCruiseChlDto extends TableRowStatus {
     chlId = ''
     chlName = ''
     cruiseCount = 0
@@ -813,7 +812,7 @@ export class ChannelPtzCruisePresetForm {
 /**
  * @description 巡航线组 列表项
  */
-export class ChannelPtzCruiseGroupChlDto {
+export class ChannelPtzCruiseGroupChlDto extends TableRowStatus {
     chlId = ''
     chlName = ''
     cruiseCount = 0

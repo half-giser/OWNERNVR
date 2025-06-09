@@ -617,6 +617,8 @@ export default defineComponent({
                     plateNumber: item.info!.plate || '',
                     info: item.info,
                     attribute,
+                    thermal_scene_pic: item.thermal_scene_pic ? wrapBase64Img(item.thermal_scene_pic) : '',
+                    optical_scene_pic: item.optical_scene_pic ? wrapBase64Img(item.optical_scene_pic) : '',
                 }
             })
             pageData.value.isSnapPop = true

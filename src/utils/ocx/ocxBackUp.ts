@@ -285,7 +285,7 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
      */
     const addTask = (list: PlaybackBackUpRecList[], path: string, format: string, groupby = 'chlId') => {
         // 本地Creator
-        const LOCAL_CREATOR = userSession.getAuthInfo() ? userSession.getAuthInfo()![0] : ''
+        const LOCAL_CREATOR = userSession.userName
         list.forEach((item) => {
             chlIndex++
             localTableData.value.push({
