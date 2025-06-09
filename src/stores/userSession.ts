@@ -61,21 +61,6 @@ export const useUserSessionStore = defineStore(
         const p2pVersion = ref<'1.0' | '2.0'>(sessionStorage.getItem(LocalCacheKey.KEY_P2P_VERSION) === '1.0' ? '1.0' : '2.0')
 
         /**
-         * @description 加密本地存储用户信息
-         * @param authInfo
-         */
-        const setAuthInfo = (authInfo: string) => {
-            if (!unmask.value) return
-            const unmaskNum = unmask.value
-            const userInfoMaskedArr = []
-            for (let i = 0; i < authInfo.length; i++) {
-                userInfoMaskedArr.push(authInfo.charCodeAt(i) ^ unmaskNum)
-            }
-            const userInfoMasked = userInfoMaskedArr.join(' ')
-            auInfo_N9K.value = base64Encode(userInfoMasked)
-        }
-
-        /**
          * @description 获取AuthInfo
          * @returns {string[]}
          */
@@ -159,11 +144,12 @@ export const useUserSessionStore = defineStore(
          * @returns {boolean}
          */
         const hasAuth = (authName: string) => {
+            const mask = authMask.value
             if (!authEffective.value) {
                 return true
             }
             const authIndex = SYSTEM_AUTH_LIST.indexOf(authName)
-            return authIndex !== -1 && (authMask.value & Math.pow(2, authIndex)) !== 0
+            return authIndex !== -1 && (mask & Math.pow(2, authIndex)) !== 0
         }
 
         /**
@@ -199,7 +185,11 @@ export const useUserSessionStore = defineStore(
             userName.value = loginFormData.userName
             // 加盐存储用户名的掩码，用于解决右上角显示用户名问题
             unmask.value = Math.floor(Math.random() * 10000)
-            setAuthInfo(JSON.stringify({ username: loginFormData.userName, password: '', sn: '' }))
+            auInfo_N9K.value = JSON.stringify({
+                username: setUnicode(loginFormData.userName, unmask.value),
+                password: '',
+                sn: '',
+            })
 
             const ciphertext = $('content/sessionKey').text()
             // const aesKey = loginReqData!.passwordMd5
@@ -327,6 +317,7 @@ export const useUserSessionStore = defineStore(
             setDualAuthInfo,
             daTokenLoginAuth,
             urlLoginAuth,
+            authMask,
         }
     },
     {

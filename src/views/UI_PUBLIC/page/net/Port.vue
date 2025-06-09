@@ -89,7 +89,7 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_ENCRYPTION_TYPE')">
-                <el-select-v2
+                <BaseSelect
                     v-model="apiServerFormData.authenticationType"
                     :disabled="!apiServerFormData.apiserverSwitch || pageData.wirelessSwitch"
                     :options="pageData.apiVerificationOptions"
@@ -121,7 +121,7 @@
                 v-show="!pageData.isAppServer"
                 :label="Translate('IDCS_ENCRYPTION_TYPE')"
             >
-                <el-select-v2
+                <BaseSelect
                     v-model="rtspServerFormData.rtspAuthType"
                     :disabled="!rtspServerFormData.rtspServerSwitch || pageData.wirelessSwitch"
                     :options="pageData.rtspAuthenticationOptions"

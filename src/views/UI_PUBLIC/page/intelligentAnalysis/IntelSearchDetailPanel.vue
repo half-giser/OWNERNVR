@@ -106,6 +106,7 @@
                         type="record"
                         :enable-pos="systemCaps.supportPOS"
                         :enable-detect="true"
+                        :enable-draw="false"
                         @ready="handlePlayerReady"
                         @message="notify"
                         @time="handleTime"
@@ -194,14 +195,14 @@
                         :disabled="pageData.iconDisabled"
                         @click="resume"
                     />
-                    <el-select-v2
+                    <BaseSelect
                         ref="selectRef"
                         v-model="pageData.recPlayTime"
                         class="btn"
                         :options="pageData.recPlayTimeList"
                         :disabled="pageData.iconDisabled"
                         :persistent="true"
-                        :popper-class="`intersect-ocx ${pageData.isFullScreen ? 'fullscreen-select' : ''}`"
+                        :popper-class="pageData.isFullScreen ? 'fullscreen-select' : ''"
                         :append-to="pageData.isFullScreen ? '.btn-bar' : undefined"
                         @change="changeRecPlayTime"
                     />
@@ -213,8 +214,8 @@
                         :disabled="pageData.playStatus !== 'pause'"
                         @click="nextFrame"
                     />
-                    <el-popover
-                        width="34px"
+                    <BasePopover
+                        width="34"
                         :popper-class="`no-border no-padding ${pageData.isFullScreen ? 'fullscreen-popover' : ''} ${isTrail ? 'trail' : ''}`"
                         trigger="hover"
                         :append-to="pageData.isFullScreen ? '.btn-bar' : undefined"
@@ -245,7 +246,7 @@
                                 @click="changeRecSpeed(4)"
                             />
                         </div>
-                    </el-popover>
+                    </BasePopover>
                     <BaseImgSpriteBtn
                         class="btn"
                         file="fw10s"

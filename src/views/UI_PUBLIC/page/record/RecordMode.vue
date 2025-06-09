@@ -8,7 +8,7 @@
         <div class="base-head-box">{{ Translate('IDCS_RECORD_MODE') }}</div>
         <el-form v-title>
             <el-form-item :label="Translate('IDCS_MODE')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.mode"
                     :options="pageData.recModeTypeList"
                     @change="setData(false)"
@@ -223,9 +223,10 @@
         <div class="base-head-box">{{ Translate('IDCS_MANUAL_RECORD_OPTION') }}</div>
         <el-form v-title>
             <el-form-item :label="Translate('IDCS_MANUAL_RECORD_OPTION')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.urgencyRecDuration"
                     :options="pageData.urgencyRecDurationList"
+                    empty-text=""
                 />
             </el-form-item>
         </el-form>

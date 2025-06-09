@@ -333,6 +333,7 @@ export const useLangStore = defineStore(
         return {
             langId,
             langType,
+            langTypes,
             elLocale,
             langItems,
             getLangTypes,

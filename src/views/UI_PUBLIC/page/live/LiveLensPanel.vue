@@ -45,7 +45,7 @@
                 </div>
             </div>
             <el-form-item :label="Translate('IDCS_FOCUS_MODE')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.focusType"
                     :options="pageData.focusOptions"
                 />
@@ -54,9 +54,10 @@
                 v-show="formData.focusType === 'auto'"
                 :label="Translate('IDCS_FOCUS_TIME')"
             >
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.focusTime"
                     :options="pageData.timeIntervalOptions"
+                    empty-text=""
                 />
             </el-form-item>
             <div

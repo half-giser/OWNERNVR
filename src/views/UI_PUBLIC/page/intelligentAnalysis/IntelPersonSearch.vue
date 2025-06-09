@@ -156,7 +156,7 @@
                 </div>
                 <div>
                     <!-- 排序 -->
-                    <el-dropdown>
+                    <BaseDropdown>
                         <BaseTableDropdownLink>
                             {{ Translate('IDCS_SORT') }}
                         </BaseTableDropdownLink>
@@ -183,7 +183,7 @@
                                 </template>
                             </el-dropdown-menu>
                         </template>
-                    </el-dropdown>
+                    </BaseDropdown>
                     <!-- 全选 -->
                     <el-checkbox
                         v-model="pageData.isCheckedAll"
@@ -238,7 +238,7 @@
                 <el-button @click="handleBackupAll">
                     {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
                 </el-button>
-                <el-dropdown placement="top-end">
+                <BaseDropdown placement="top-end">
                     <el-button :disabled="!isEnableBackup">
                         {{ Translate('IDCS_BACKUP') }}
                     </el-button>
@@ -253,7 +253,7 @@
                             </el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
-                </el-dropdown>
+                </BaseDropdown>
             </div>
             <!-- 人脸 - 轨迹容器 -->
             <IntelFaceSearchTrackMapPanel
@@ -315,7 +315,7 @@
 
 <style lang="scss" scoped>
 .base-intel-box {
-    height: calc(var(--content-height) + 20px);
+    height: calc(var(--content-height) + 22px);
 }
 
 .add_pic {

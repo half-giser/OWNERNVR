@@ -6,7 +6,7 @@
 <template>
     <el-form v-title>
         <el-form-item :label="Translate('IDCS_CHANNEL_NAME')">
-            <el-popover
+            <BasePopover
                 v-model:visible="pageData.isPop"
                 width="430"
                 popper-class="no-padding"
@@ -39,7 +39,7 @@
                         </div>
                     </div>
                 </el-scrollbar>
-            </el-popover>
+            </BasePopover>
         </el-form-item>
     </el-form>
 </template>

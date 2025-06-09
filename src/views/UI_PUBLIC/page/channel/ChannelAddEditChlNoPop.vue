@@ -16,12 +16,12 @@
         >
             <el-form-item :label="Translate('IDCS_IP_ADDRESS')">
                 <el-input
-                    :model-data="data.ip"
+                    :model-value="data.ip"
                     disabled
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_CHANNEL_NO')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.chlNum"
                     :options="options"
                 />

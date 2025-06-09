@@ -23,6 +23,7 @@
                     :split="pageData.split"
                     :enable-pos="systemCaps.supportPOS"
                     :enable-draw="false"
+                    model="Interactive"
                     @ready="handlePlayerReady"
                     @select="handlePlayerSelect"
                     @success="handlePlayerSuccess"

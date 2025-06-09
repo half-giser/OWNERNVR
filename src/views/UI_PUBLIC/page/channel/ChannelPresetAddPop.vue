@@ -18,7 +18,7 @@
             class="stripe"
         >
             <el-form-item :label="Translate('IDCS_PRESET')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.index"
                     :options="pageData.presetOptions"
                 />

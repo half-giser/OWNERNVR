@@ -69,7 +69,7 @@
                 <!-- 类型 -->
                 <el-table-column width="100">
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_TYPE') }}
                             </BaseTableDropdownLink>
@@ -84,10 +84,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<AlarmSensorEventDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.type"
                             :options="pageData.typeList"
                             :disabled="!row.type || row.alarmInType === 'virtual' || !row.isEditable || row.disabled"
@@ -98,7 +98,7 @@
                 <!-- 启用 -->
                 <el-table-column width="100">
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_ENABLE') }}
                             </BaseTableDropdownLink>
@@ -113,10 +113,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<AlarmSensorEventDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.switch"
                             :options="pageData.switchList"
                             :disabled="row.disabled || !row.switch || !row.isEditable"
@@ -127,7 +127,7 @@
                 <!-- 持续时间 -->
                 <el-table-column width="120">
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_DURATION') }}
                             </BaseTableDropdownLink>
@@ -142,10 +142,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<AlarmSensorEventDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.holdTime"
                             :options="pageData.durationList"
                             :disabled="row.disabled || !row.holdTime || !row.isEditable"
@@ -213,7 +213,7 @@
                     width="190"
                 >
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_AUDIO') }}
                             </BaseTableDropdownLink>
@@ -228,10 +228,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<AlarmSensorEventDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.sysAudio"
                             :options="pageData.audioList"
                             :disabled="row.disabled"
@@ -242,7 +242,7 @@
                 <!-- 推送 -->
                 <el-table-column width="100">
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_PUSH') }}
                             </BaseTableDropdownLink>
@@ -257,10 +257,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<AlarmSensorEventDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.msgPushSwitch"
                             :disabled="row.disabled"
                             :options="pageData.switchList"
@@ -320,7 +320,7 @@
                 <!-- 蜂鸣器 -->
                 <el-table-column width="100">
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_BUZZER') }}
                             </BaseTableDropdownLink>
@@ -335,10 +335,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<AlarmSensorEventDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.buzzerSwitch"
                             :disabled="row.disabled"
                             :options="pageData.switchList"
@@ -349,7 +349,7 @@
                 <!-- 视频弹出 -->
                 <el-table-column width="125">
                     <template #header>
-                        <el-dropdown max-height="400">
+                        <BaseDropdown :max-height="400">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_VIDEO_POPUP') }}
                             </BaseTableDropdownLink>
@@ -364,10 +364,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<AlarmSensorEventDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.popVideo"
                             :disabled="row.disabled"
                             :options="pageData.videoPopupChlList"
@@ -378,7 +378,7 @@
                 <!-- 消息框弹出 -->
                 <el-table-column width="170">
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_MESSAGEBOX_POPUP') }}
                             </BaseTableDropdownLink>
@@ -393,10 +393,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<AlarmSensorEventDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.popMsgSwitch"
                             :disabled="row.disabled"
                             :options="pageData.switchList"
@@ -406,7 +406,7 @@
                 <!-- Email -->
                 <el-table-column width="100">
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink> Email </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
@@ -419,10 +419,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<AlarmSensorEventDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.emailSwitch"
                             :disabled="row.disabled"
                             :options="pageData.switchList"

@@ -8,8 +8,6 @@ import { type XMLQuery } from '@/utils/xmlParse'
 import type { TableInstance } from 'element-plus'
 import dayjs from 'dayjs'
 import { VALUE_NAME_MAPPING } from '@/utils/const/snap'
-import { type ElSelectV2 } from 'element-plus'
-import { type ComponentInstance } from 'vue'
 
 export default defineComponent({
     emits: {
@@ -28,7 +26,7 @@ export default defineComponent({
         const dateTime = useDateTimeStore()
         const systemCaps = useCababilityStore()
         const route = useRoute()
-        const selectRef = ref<ComponentInstance<typeof ElSelectV2>>()
+        const selectRef = ref<SelectInstance>()
 
         let context: ReturnType<typeof CanvasBase>
         const canvasRef = ref<HTMLCanvasElement>()
@@ -283,8 +281,6 @@ export default defineComponent({
         }
 
         const init = (dataObj: { isTrail: boolean; currentIndex: string; detailData: (IntelTargetDataItem | IntelTargetIndexItem)[] }) => {
-            console.log(detailData)
-
             isTrail.value = dataObj.isTrail
             currentIndex.value = dataObj.currentIndex
             detailData.value = cloneDeep(dataObj.detailData)
@@ -302,11 +298,11 @@ export default defineComponent({
             const data = detailData.value.map((item, index) => ({ value: item, index })).filter((item) => item.value.index === currentIndex.value)
             currDetailData.value = cloneDeep(data[0].value)
             pageData.value.detailIndex = data[0].index
+            personInfoData.value = (currDetailData.value as IntelTargetDataItem).personInfoData
             if ((currDetailData.value as IntelTargetDataItem).isDelete || (currDetailData.value as IntelTargetDataItem).isNoData) {
                 pageData.value.iconDisabled = true
                 return
             }
-            personInfoData.value = (currDetailData.value as IntelTargetDataItem).personInfoData
 
             initPageData()
         }
@@ -325,14 +321,17 @@ export default defineComponent({
             pageData.value.recPlayTime = pageData.value.recTimeOrigin
             pageData.value.startTimeStamp = startTimestamp
             pageData.value.endTimeStamp = endTimestamp
+            pageData.value.snapImg = (currDetailData.value as IntelTargetDataItem).objPicData.data
+            pageData.value.panoramaImg = (currDetailData.value as IntelTargetDataItem).backgroundPicDatas[0].data
+            pageData.value.detectTargetImg = (currDetailData.value as IntelTargetDataItem).backgroundPicDatas[0].data.split(',').pop() || ''
             initRecPlayTime()
 
             // 不是人脸库比对图片则隐藏个人信息列表
             if (!(currDetailData.value as IntelTargetDataItem).isFaceFeature) {
                 pageData.value.targetMenuTypeOptions[0].isVisible = false
-                pageData.value.targetMenuType === 'targetEvent'
+                pageData.value.targetMenuType = 'targetEvent'
             } else {
-                pageData.value.targetMenuType === 'personInfo'
+                pageData.value.targetMenuType = 'personInfo'
                 pageData.value.targetMenuTypeOptions[0].isVisible = true
             }
 
@@ -342,17 +341,14 @@ export default defineComponent({
                     play()
                 })
             } else {
-                pageData.value.snapImg = (currDetailData.value as IntelTargetDataItem).objPicData.data
-                pageData.value.panoramaImg = (currDetailData.value as IntelTargetDataItem).backgroundPicDatas[0].data
-                pageData.value.detectTargetImg = (currDetailData.value as IntelTargetDataItem).backgroundPicDatas[0].data.split(',').pop() || ''
                 getAttributeData()
                 if (pageData.value.targetMenuType === 'targetEvent') {
                     getTargetEventData()
                 }
-                nextTick(() => {
-                    renderCanvas()
-                })
             }
+            nextTick(() => {
+                renderCanvas()
+            })
         }
 
         /**

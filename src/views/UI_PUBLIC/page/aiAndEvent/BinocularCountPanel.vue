@@ -76,9 +76,10 @@
                                     <!-- 规则 -->
                                     <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
                                     <el-form-item :label="`${Translate('IDCS_LINE')}/${Translate('IDCS_AREA')}`">
-                                        <el-select-v2
+                                        <BaseSelect
                                             v-model="pageData.detectType"
                                             :options="pageData.detectTypeList"
+                                            empty-text=""
                                             @change="changeLineArea"
                                         />
                                     </el-form-item>
@@ -108,9 +109,10 @@
                                         v-show="showLineCfg"
                                         :label="Translate('IDCS_DIRECTION')"
                                     >
-                                        <el-select-v2
+                                        <BaseSelect
                                             v-model="pageData.lineDirection"
                                             :options="pageData.lineDirectionList"
+                                            empty-text=""
                                             @change="changeLineDirection"
                                         />
                                     </el-form-item>
@@ -162,16 +164,18 @@
                                         v-show="showAreaCfg"
                                         :label="Translate('IDCS_DIRECTION')"
                                     >
-                                        <el-select-v2
+                                        <BaseSelect
                                             v-model="pageData.areaDirection"
                                             :options="pageData.areaDirectionList"
+                                            empty-text=""
                                             @change="changeAreaDirection"
                                         />
                                     </el-form-item>
                                     <!-- 持续时间 -->
                                     <el-form-item :label="Translate('IDCS_DURATION')">
-                                        <el-select-v2
+                                        <BaseSelect
                                             v-model="formData.holdTime"
+                                            empty-text=""
                                             :options="formData.holdTimeList"
                                         />
                                     </el-form-item>
@@ -209,7 +213,7 @@
                                     </div>
                                     <!-- 校正方法 -->
                                     <el-form-item :label="Translate('IDCS_CALIBRATION_MODE')">
-                                        <el-select-v2
+                                        <BaseSelect
                                             v-model="formData.calibration.modeType"
                                             :options="pageData.calibrationModeList"
                                             @change="changeCalibrationMode"
@@ -380,7 +384,7 @@
                     </el-button>
                 </div>
                 <!-- 更多按钮 -->
-                <el-popover
+                <BasePopover
                     v-model:visible="pageData.moreDropDown"
                     width="400"
                     popper-class="no-padding"
@@ -420,7 +424,7 @@
                             </el-form-item>
                             <!-- 模式 -->
                             <el-form-item :label="Translate('IDCS_MODE')">
-                                <el-select-v2
+                                <BaseSelect
                                     v-model="pageData.timeType"
                                     :disabled="!pageData.autoReset"
                                     :options="pageData.countCycleTypeList"
@@ -435,14 +439,14 @@
                                     '--form-input-width': '121px',
                                 }"
                             >
-                                <el-select-v2
+                                <BaseSelect
                                     v-if="pageData.timeType === 'week'"
                                     v-model="formData.countPeriod.week.date"
                                     :options="pageData.weekOption"
                                     :disabled="!pageData.autoReset"
                                     :teleported="false"
                                 />
-                                <el-select-v2
+                                <BaseSelect
                                     v-if="pageData.timeType === 'month'"
                                     v-model="formData.countPeriod.month.date"
                                     :options="pageData.monthOption"
@@ -476,7 +480,7 @@
                             </div>
                         </el-form>
                     </div>
-                </el-popover>
+                </BasePopover>
             </div>
         </div>
         <BaseScheduleManagePop

@@ -31,19 +31,19 @@
                 </el-button>
             </el-form-item>
             <el-form-item :label="Translate('IDCS_DATE_FORMAT')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.dateFormat"
                     :options="pageData.dateFormatOptions"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_TIME_FORMAT')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.timeFormat"
                     :options="pageData.timeFormatOptions"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_SYNC_WAY')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.syncType"
                     :options="pageData.syncTypeOptions"
                     @change="handleSyncTypeChange"
@@ -85,11 +85,10 @@
             </el-form-item>
             <div class="base-head-box">{{ Translate('IDCS_TIMEZONE_DST') }}</div>
             <el-form-item :label="Translate('IDCS_TIME_ZONE')">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.timeZone"
                     :options="pageData.timeZoneOption"
                     :props="{ value: 'timeZone' }"
-                    :persistent="true"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_DST')">

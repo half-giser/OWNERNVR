@@ -14,7 +14,7 @@
                 />
             </el-form-item>
             <el-form-item :label="`${Translate('IDCS_VALIDITY_PERIOD')}(${Translate('IDCS_DAY_TIME')})`">
-                <el-select-v2
+                <BaseSelect
                     v-model="formData.timeLen"
                     :options="pageData.periodOptions"
                     :disabled="!formData.debugModeSwitch"

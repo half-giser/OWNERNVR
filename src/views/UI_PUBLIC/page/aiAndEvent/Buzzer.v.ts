@@ -16,16 +16,6 @@ export default defineComponent({
             commLoadResponseHandler(result, ($) => {
                 formData.value.buzzerDuration = $('content/buzzerDuration').text().num()
                 pageData.value.buzzerDurationOption = getAlarmHoldTimeList($('content/buzzerDurationNote').text(), formData.value.buzzerDuration)
-                // pageData.value.buzzerDurationOption = $('content/buzzerDurationNote')
-                //     .text()
-                //     .array()
-                //     .map((item) => {
-                //         const value = Number(item)
-                //         return {
-                //             value: value,
-                //             label: getTranslateForSecond(value),
-                //         }!
-                //     })
             })
         }
 

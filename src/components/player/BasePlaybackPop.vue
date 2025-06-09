@@ -38,6 +38,7 @@
                         ref="playerRef"
                         type="record"
                         :enable-pos="systemCaps.supportPOS"
+                        :enable-draw="false"
                         @ready="handleReady"
                         @time="handleTime"
                         @success="handleSuccess"
@@ -60,31 +61,28 @@
                 </div>
                 <div class="control-btns">
                     <span class="current-time">{{ currentTime }}</span>
-                    <el-tooltip :content="Translate('IDCS_PAUSE')">
-                        <BaseImgSpriteBtn
-                            v-show="!pageData.paused"
-                            class="btn"
-                            file="image_preview_pause"
-                            @click="pause"
-                        />
-                    </el-tooltip>
-                    <el-tooltip :content="Translate('IDCS_PLAY')">
-                        <BaseImgSpriteBtn
-                            v-show="pageData.paused"
-                            class="btn"
-                            file="image_preview_play"
-                            :disabled="pageData.iconDisabled"
-                            @click="resume"
-                        />
-                    </el-tooltip>
-                    <el-tooltip :content="Translate('IDCS_STOP')">
-                        <BaseImgSpriteBtn
-                            file="image_preview_stop"
-                            class="btn"
-                            :disabled="pageData.iconDisabled"
-                            @click="stop"
-                        />
-                    </el-tooltip>
+                    <BaseImgSpriteBtn
+                        v-show="!pageData.paused"
+                        class="btn"
+                        file="image_preview_pause"
+                        :title="Translate('IDCS_PAUSE')"
+                        @click="pause"
+                    />
+                    <BaseImgSpriteBtn
+                        v-show="pageData.paused"
+                        class="btn"
+                        :title="Translate('IDCS_PLAY')"
+                        file="image_preview_play"
+                        :disabled="pageData.iconDisabled"
+                        @click="resume"
+                    />
+                    <BaseImgSpriteBtn
+                        file="image_preview_stop"
+                        class="btn"
+                        :title="Translate('IDCS_STOP')"
+                        :disabled="pageData.iconDisabled"
+                        @click="stop"
+                    />
                 </div>
             </div>
         </div>

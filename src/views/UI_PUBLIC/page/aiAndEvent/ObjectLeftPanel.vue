@@ -73,14 +73,15 @@
                             <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
                             <!-- 持续时间 -->
                             <el-form-item :label="Translate('IDCS_DURATION')">
-                                <el-select-v2
+                                <BaseSelect
                                     v-model="formData.holdTime"
                                     :options="formData.holdTimeList"
+                                    empty-text=""
                                 />
                             </el-form-item>
                             <!-- 类型 -->
                             <el-form-item :label="Translate('IDCS_TYPE')">
-                                <el-select-v2
+                                <BaseSelect
                                     v-model="formData.oscType"
                                     :options="formData.oscTypeList"
                                 />
@@ -130,7 +131,7 @@
                         v-title
                     >
                         <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="formData.sysAudio"
                                 :options="pageData.voiceList"
                             />

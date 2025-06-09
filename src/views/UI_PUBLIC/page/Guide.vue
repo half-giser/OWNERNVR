@@ -93,7 +93,7 @@
                         }"
                     >
                         <el-form-item :label="Translate('IDCS_TIME_ZONE')">
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="dateTimeFormData.timeZone"
                                 :options="pageData.timeZoneOption"
                                 :props="{
@@ -112,13 +112,13 @@
                             />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_DATE_FORMAT')">
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="dateTimeFormData.dateFormat"
                                 :options="pageData.dateFormatOptions"
                             />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_TIME_FORMAT')">
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="dateTimeFormData.timeFormat"
                                 :options="pageData.timeFormatOptions"
                             />
@@ -131,7 +131,7 @@
                             />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_SYNC_WAY')">
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="dateTimeFormData.syncType"
                                 :options="pageData.syncTypeOptions"
                             />
@@ -164,11 +164,12 @@
                                 :min="dateTimeFormData.ntpIntervalMin"
                                 :max="dateTimeFormData.ntpIntervalMax"
                                 :disabled="dateTimeFormData.syncType !== 'NTP'"
+                                mode="blur"
                                 @out-of-range="handleNtpIntervalOutOfRange"
                             />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_VIDEO_FORMAT')">
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="dateTimeFormData.videoType"
                                 :options="pageData.videoTypeOptions"
                             />
@@ -368,7 +369,7 @@
                                         v-if="!isDefeultQuestion"
                                         v-model="qaFormData.question"
                                     />
-                                    <el-select-v2
+                                    <BaseSelect
                                         v-else
                                         v-model="qaFormData.id"
                                         :options="questionOptions"

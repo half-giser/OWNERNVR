@@ -5,7 +5,7 @@
 -->
 <template>
     <div>
-        <el-popover
+        <BasePopover
             v-model:visible="pageData.isPop"
             width="409"
             popper-class="selector"
@@ -55,7 +55,7 @@
                     <el-button @click="confirmCheckbox">{{ Translate('IDCS_OK') }}</el-button>
                 </div>
             </template>
-        </el-popover>
+        </BasePopover>
     </div>
 </template>
 

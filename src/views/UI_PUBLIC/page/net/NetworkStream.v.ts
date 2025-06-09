@@ -133,6 +133,9 @@ export default defineComponent({
         }
 
         const getFpsOptions = (index: number) => {
+            if (tableData.value[index].frameRate === 0 && !tableData.value[index].disabled) {
+                return [{ label: 0, value: 0 }]
+            }
             const maxFps = getMaxFps(index)
             return arrayToOptions(maxFps)
         }

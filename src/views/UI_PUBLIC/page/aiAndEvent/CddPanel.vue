@@ -64,16 +64,18 @@
                                 <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
                                 <!-- 持续时间 -->
                                 <el-form-item :label="Translate('IDCS_DURATION')">
-                                    <el-select-v2
+                                    <BaseSelect
                                         v-model="formData.holdTime"
                                         :options="formData.holdTimeList"
+                                        empty-text=""
                                     />
                                 </el-form-item>
                                 <!-- 刷新频率 -->
                                 <el-form-item :label="Translate('IDCS_REFRESH_FREQUENCY')">
-                                    <el-select-v2
+                                    <BaseSelect
                                         v-model="formData.refreshFrequency"
                                         :options="formData.refreshFrequencyList"
+                                        empty-text=""
                                     />
                                 </el-form-item>
                                 <!-- 报警阈值 -->
@@ -98,7 +100,7 @@
                         v-title
                     >
                         <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="formData.sysAudio"
                                 :options="voiceList"
                             />

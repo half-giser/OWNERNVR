@@ -140,7 +140,7 @@
                 >
                     <template #default="{ row, $index }: TableColumn<ChannelManualAddDto>">
                         <div class="base-cell-box">
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="row.addrType"
                                 :options="manualAddTypeOptions"
                                 @change="addManualAddRow($index)"
@@ -210,7 +210,7 @@
                     min-width="150"
                 >
                     <template #default="{ row }: TableColumn<ChannelManualAddDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.chlNum"
                             :options="chlNumOptions"
                         />
@@ -221,7 +221,7 @@
                     min-width="200"
                 >
                     <template #default="{ row, $index }: TableColumn<ChannelManualAddDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.manufacturer"
                             :options="allManufatureList"
                             @change="changeManufacturer($index, row)"
@@ -390,13 +390,13 @@
                     @click="setDefaultPwd"
                     >{{ Translate('IDCS_DEV_DEFAULT_PWD') }}</el-button
                 >
-                <el-dropdown v-show="activeTab === tabKeys.quickAdd">
+                <BaseDropdown v-show="activeTab === tabKeys.quickAdd">
                     <el-button>{{ Translate('IDCS_MORE') }}</el-button>
                     <template #dropdown>
                         <el-dropdown-item @click="pageData.isIpPlanningPop = true">{{ Translate('IDCS_DEV_CHANNEL_IP_PLANNING') }}</el-dropdown-item>
                         <el-dropdown-item @click="setDefaultPwd">{{ Translate('IDCS_DEV_DEFAULT_PWD') }}</el-dropdown-item>
                     </template>
-                </el-dropdown>
+                </BaseDropdown>
                 <el-button
                     v-show="activeTab === tabKeys.addRecorder"
                     @click="addRecorder"

@@ -45,7 +45,7 @@
                 <!-- 延时 -->
                 <el-table-column>
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_DELAY') }}
                             </BaseTableDropdownLink>
@@ -60,13 +60,14 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<AlarmOutDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.delayTime"
                             :disabled="row.disabled"
                             :options="pageData.delayList"
+                            empty-text=""
                         />
                     </template>
                 </el-table-column>
@@ -91,7 +92,7 @@
                 <!-- 类型 -->
                 <el-table-column :formatter="displayAlarmOutType">
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_TYPE') }}
                             </BaseTableDropdownLink>
@@ -106,7 +107,7 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                 </el-table-column>
             </el-table>

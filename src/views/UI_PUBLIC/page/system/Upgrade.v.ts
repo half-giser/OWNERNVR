@@ -132,12 +132,13 @@ export default defineComponent({
                         `
                         queryUpgradeFileHead(sendXml).then((result) => {
                             const $$ = queryXml(result)
-                            const errorCode = $$('errorCode').text().num()
+                            const errorCode = $$('content/errorCode').text().num()
                             if ($$('status').text() === 'success') {
                                 if (errorCode !== 0) handleErrorMsg(errorCode)
                             }
                             // 若errorCode为0，即正常低升高版本
                             if (errorCode === 0) upgrade(true)
+                            closeLoading()
                         })
                     }
                 } else {

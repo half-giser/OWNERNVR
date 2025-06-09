@@ -734,9 +734,6 @@ export default defineComponent({
          */
         const changeSurface = () => {
             formData.value.direction = formData.value.lineInfo[pageData.value.surfaceIndex].direction
-            const surfaceIndex = pageData.value.surfaceIndex
-            const detectTarget = formData.value.detectTarget
-            console.log(formData.value.lineInfo[surfaceIndex].objectFilter[detectTarget])
             setTripwireOcxData()
             showDisplayRange()
         }

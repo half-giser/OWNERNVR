@@ -17,7 +17,7 @@
                 />
             </template>
             <template v-else-if="mode === 'ocx'">
-                <el-popover
+                <BasePopover
                     placement="right-start"
                     trigger="hover"
                     :width="(pageData.ocxSeg.length + pageData.ocxRotateSeg.length) * 45 + 22"
@@ -49,7 +49,7 @@
                             @click="changeSplit(seg.split, seg.type)"
                         />
                     </div>
-                </el-popover>
+                </BasePopover>
             </template>
             <!-- OSD按钮 -->
             <BaseImgSpriteBtn

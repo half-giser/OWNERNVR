@@ -177,14 +177,14 @@
                                 '--form-input-width': '250px',
                             }"
                         >
-                            <el-select-v2
+                            <BaseSelect
                                 v-model="pageData.colorTableIndex"
                                 :options="colorTableList"
                                 :props="{
                                     value: 'index',
                                     label: 'name',
                                 }"
-                                popper-class="intersect-ocx"
+                                empty-text=""
                                 :persistent="true"
                                 @change="play"
                             />
@@ -217,7 +217,7 @@
                                 {{ Translate('IDCS_SELECT_CHANNEL_TIP') }}
                             </el-form-item>
                             <el-form-item :label="Translate('IDCS_PRINT_METHOD')">
-                                <el-select-v2
+                                <BaseSelect
                                     v-model="colorTableList[pageData.colorTableIndex].printMode"
                                     :options="pageData.printOption"
                                 />

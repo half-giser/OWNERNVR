@@ -177,6 +177,8 @@
     position: absolute;
     top: 0;
     left: 0;
+    bottom: 0;
+    margin: auto;
     width: 100%;
     height: 200px;
     display: flex;

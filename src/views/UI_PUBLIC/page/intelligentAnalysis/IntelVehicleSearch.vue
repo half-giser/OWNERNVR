@@ -95,7 +95,7 @@
                 </div>
                 <!-- 排序、全选 -->
                 <div>
-                    <el-dropdown>
+                    <BaseDropdown>
                         <BaseTableDropdownLink>
                             {{ Translate('IDCS_SORT') }}
                         </BaseTableDropdownLink>
@@ -117,7 +117,7 @@
                                 </el-dropdown-item>
                             </el-dropdown-menu>
                         </template>
-                    </el-dropdown>
+                    </BaseDropdown>
                     <el-checkbox
                         v-model="pageData.isCheckedAll"
                         :label="Translate('IDCS_SELECT_ALL')"
@@ -160,7 +160,7 @@
                 <el-button @click="handleBackupAll">
                     {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
                 </el-button>
-                <el-dropdown placement="top-end">
+                <BaseDropdown placement="top-end">
                     <el-button :disabled="!isEnableBackup">
                         {{ Translate('IDCS_BACKUP') }}
                     </el-button>
@@ -175,7 +175,7 @@
                             </el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
-                </el-dropdown>
+                </BaseDropdown>
             </div>
             <BaseImgSpriteBtn
                 file="left_open"
@@ -222,7 +222,7 @@
 
 <style lang="scss" scoped>
 .base-intel-box {
-    height: calc(var(--content-height) + 20px);
+    height: calc(var(--content-height) + 22px);
 }
 
 .base-intel-left-form {

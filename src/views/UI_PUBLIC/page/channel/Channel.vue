@@ -106,7 +106,7 @@
                     width="80"
                 >
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_EDIT') }}
                             </BaseTableDropdownLink>
@@ -115,7 +115,7 @@
                                     <el-dropdown-item @click="editIPCPwd">{{ Translate('IDCS_MODIFY_IPC_PASSWORD') }}</el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ $index }: TableColumn<number>">
                         <BaseImgSpriteBtn
@@ -129,7 +129,7 @@
                     width="80"
                 >
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_DELETE') }}
                             </BaseTableDropdownLink>
@@ -138,7 +138,7 @@
                                     <el-dropdown-item @click="delAllChannel">{{ Translate('IDCS_DELETE_ALL') }}</el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ $index }: TableColumn<number>">
                         <BaseImgSpriteBtn
@@ -166,7 +166,7 @@
                     width="80"
                 >
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_UPGRADE') }}
                             </BaseTableDropdownLink>
@@ -175,7 +175,7 @@
                                     <el-dropdown-item @click="upgradeIPCBatch">{{ Translate('IDCS_IPC_BATCH_UPGRADE') }}</el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ $index }: TableColumn<ChannelInfoDto>">
                         <BaseImgSpriteBtn

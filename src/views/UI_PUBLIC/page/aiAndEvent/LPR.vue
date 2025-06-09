@@ -123,13 +123,13 @@
                                             '--form-input-width': '121px',
                                         }"
                                     >
-                                        <el-select-v2
+                                        <BaseSelect
                                             v-model="detectionPageData.continentValue"
                                             :disabled="!detectionPageData.continentOption.length"
                                             :options="detectionPageData.continentOption"
                                             @change="changeContinent"
                                         />
-                                        <el-select-v2
+                                        <BaseSelect
                                             v-model="detectionFormData.plateSupportArea"
                                             :disabled="!plateAreaOption.length"
                                             :options="plateAreaOption"
@@ -188,7 +188,7 @@
                         </el-tab-pane>
                     </el-tabs>
                     <!-- 高级设置 -->
-                    <el-popover
+                    <BasePopover
                         v-model:visible="detectionPageData.isAdvancePop"
                         width="300"
                         popper-class="no-padding"
@@ -214,7 +214,7 @@
                                 }"
                             >
                                 <el-form-item :label="Translate('IDCS_RECOGNITION_MODE')">
-                                    <el-select-v2
+                                    <BaseSelect
                                         v-model="detectionFormData.direction"
                                         :options="detectionPageData.directionOption"
                                         :persistent="true"
@@ -225,7 +225,7 @@
                                 <el-button @click="detectionPageData.isAdvancePop = false">{{ Translate('IDCS_CLOSE') }}</el-button>
                             </div>
                         </div>
-                    </el-popover>
+                    </BasePopover>
                 </div>
                 <div class="base-btn-box fixed">
                     <el-button

@@ -115,7 +115,7 @@
                             />
                         </div>
                         <div class="base-btn-box">
-                            <el-dropdown
+                            <BaseDropdown
                                 placement="top-end"
                                 :disabled="!hasSelected"
                             >
@@ -133,7 +133,7 @@
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
-                            </el-dropdown>
+                            </BaseDropdown>
                         </div>
                     </div>
                     <BaseImgSpriteBtn
@@ -199,7 +199,7 @@
 
     &-wrap {
         margin: 20px;
-        width: 1880px;
+        width: calc(100% - 40px);
         height: calc(100% - 70px);
         box-sizing: border-box;
         border: 1px solid var(--content-border);

@@ -78,7 +78,7 @@
                     prop="subType"
                 >
                     <template #header>
-                        <el-popover
+                        <BasePopover
                             popper-class="no-padding"
                             width="fit-content"
                         >
@@ -101,7 +101,7 @@
                                     />
                                 </el-checkbox-group>
                             </el-scrollbar>
-                        </el-popover>
+                        </BasePopover>
                     </template>
                 </el-table-column>
                 <el-table-column

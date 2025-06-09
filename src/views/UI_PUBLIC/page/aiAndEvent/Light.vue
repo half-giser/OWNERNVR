@@ -27,7 +27,7 @@
                 <!-- 启用 -->
                 <el-table-column>
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_ENABLE') }}
                             </BaseTableDropdownLink>
@@ -42,10 +42,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<AlarmWhiteLightDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.enable"
                             :placeholder="Translate('IDCS_ON')"
                             :disabled="row.disabled"
@@ -73,7 +73,7 @@
                 <!-- 闪烁频率 -->
                 <el-table-column>
                     <template #header>
-                        <el-dropdown>
+                        <BaseDropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_FLASHING_FREQUENCY') }}
                             </BaseTableDropdownLink>
@@ -88,10 +88,10 @@
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </BaseDropdown>
                     </template>
                     <template #default="{ row }: TableColumn<AlarmWhiteLightDto>">
-                        <el-select-v2
+                        <BaseSelect
                             v-model="row.frequencyType"
                             :disabled="!row.enable"
                             :options="pageData.lightFrequencyList"

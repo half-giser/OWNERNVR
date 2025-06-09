@@ -84,14 +84,15 @@
                                         <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
                                         <!-- 持续时间 -->
                                         <el-form-item :label="Translate('IDCS_DURATION')">
-                                            <el-select-v2
+                                            <BaseSelect
                                                 v-model="detectionFormData.holdTime"
                                                 :options="detectionFormData.holdTimeList"
+                                                empty-text=""
                                             />
                                         </el-form-item>
                                         <!-- 抓拍间隔 -->
                                         <el-form-item :label="Translate('IDCS_SNAPSHOT_INTERVAL')">
-                                            <el-select-v2
+                                            <BaseSelect
                                                 v-model="detectionFormData.snapInterval"
                                                 :options="detectionPageData.snapList"
                                                 :disabled="detectionFormData.snapInterval === ''"
@@ -170,7 +171,7 @@
                                     v-show="supportAlarmAudioConfig"
                                     :label="Translate('IDCS_VOICE_PROMPT')"
                                 >
-                                    <el-select-v2
+                                    <BaseSelect
                                         v-model="detectionFormData.sysAudio"
                                         :options="pageData.voiceList"
                                     />
@@ -198,7 +199,7 @@
                         </el-tab-pane>
                     </el-tabs>
                     <!-- 高级设置 -->
-                    <el-popover
+                    <BasePopover
                         v-model:visible="pageData.isAdvance"
                         width="300"
                         popper-class="no-padding"
@@ -245,7 +246,7 @@
                                 </div>
                             </el-form>
                         </div>
-                    </el-popover>
+                    </BasePopover>
                 </div>
                 <div class="base-btn-box fixed">
                     <el-button
@@ -313,9 +314,8 @@
                                     </el-table-column>
                                     <el-table-column>
                                         <template #header>
-                                            <el-popover
-                                                ref="similarityRef"
-                                                :hide-on-click="false"
+                                            <BasePopover
+                                                v-model="recognitionPageData.isSimilarityPop"
                                                 width="300"
                                             >
                                                 <template #reference>
@@ -341,7 +341,7 @@
                                                     <el-button @click="changeAllSimilarity">{{ Translate('IDCS_OK') }}</el-button>
                                                     <el-button @click="recognitionPageData.isSimilarityPop = false">{{ Translate('IDCS_CANCEL') }}</el-button>
                                                 </div>
-                                            </el-popover>
+                                            </BasePopover>
                                         </template>
                                         <template #default="{ row }: TableColumn<AlarmFaceGroupDto>">
                                             <BaseNumberInput

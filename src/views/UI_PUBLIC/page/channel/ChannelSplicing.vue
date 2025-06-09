@@ -19,7 +19,7 @@
                 }"
             >
                 <el-form-item :label="Translate('IDCS_TYPE')">
-                    <el-select-v2
+                    <BaseSelect
                         v-model="formData.spliceType"
                         :options="formData.spliceTypeList"
                         @visible-change="toggleOCX"
@@ -57,6 +57,7 @@
                                 v-model="formData.spliceDistance"
                                 :min="formData.spliceDistanceMin"
                                 :max="formData.spliceDistanceMax"
+                                mode="blur"
                                 @out-of-range="outOfRange"
                             />
                         </el-form-item>

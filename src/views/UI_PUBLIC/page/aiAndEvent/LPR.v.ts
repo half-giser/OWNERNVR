@@ -104,12 +104,9 @@ export default defineComponent({
             // 侦测区域
             regionArea: 0,
             regionAreaChecked: [] as number[],
-            // reginConfiguredArea: [] as boolean[],
             // 屏蔽区域
             maskArea: -1,
             maskAreaChecked: [] as number[],
-            // 初始是否有数据（添加样式）
-            // maskConfiguredArea: [] as boolean[],
             // 检测区域-洲
             continentValue: '',
             continentDisabled: false,

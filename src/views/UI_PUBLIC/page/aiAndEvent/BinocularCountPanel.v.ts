@@ -96,10 +96,6 @@ export default defineComponent({
             detectionEnable: false,
             // 用于对比
             originalEnable: false,
-            // 已经清空进警戒线数据
-            isClearLine: false,
-            // 已经清空进警戒区域数据
-            isClearArea: false,
             // 警戒线的默认方向
             lineDirection: 'rightortop' as CanvasPasslineDirection,
             defaultLineDirection: 'rightortop' as CanvasPasslineDirection,
@@ -525,16 +521,16 @@ export default defineComponent({
                 countPeriod: {
                     countTimeType: $param('countPeriod/countTimeType').text(),
                     day: {
-                        date: $param('countPeriod/day/dateSpan').text().num(),
-                        dateTime: $param('countPeriod/day/dateTimeSpan').text(),
+                        date: $param('countPeriod/daily/dateSpan').text().num(),
+                        dateTime: $param('countPeriod/daily/dateTimeSpan').text(),
                     },
                     week: {
-                        date: $param('countPeriod/week/dateSpan').text().num(),
-                        dateTime: $param('countPeriod/week/dateTimeSpan').text(),
+                        date: $param('countPeriod/weekly/dateSpan').text().num(),
+                        dateTime: $param('countPeriod/weekly/dateTimeSpan').text(),
                     },
                     month: {
-                        date: $param('countPeriod/month/dateSpan').text().num(),
-                        dateTime: $param('countPeriod/month/dateTimeSpan').text(),
+                        date: $param('countPeriod/monthly/dateSpan').text().num(),
+                        dateTime: $param('countPeriod/monthly/dateTimeSpan').text(),
                     },
                 },
                 mutexList: $param('mutexList/item').map((item) => {
@@ -602,11 +598,11 @@ export default defineComponent({
                                     <alarmHoldTime unit="s">${data.holdTime}</alarmHoldTime>
                                     <sensitivity>${data.sensitivity.value}</sensitivity>
                                     <overcrowdingThreshold>${data.overcrowdingThreshold.value}</overcrowdingThreshold>
-                                    ${data.pictureAvailable ? rawXml`<saveSourcePicture>${data.saveSourcePicture}</saveSourcePicture>` : ''}
+                                    ${data.pictureAvailable ? `<saveSourcePicture>${data.saveSourcePicture}</saveSourcePicture>` : ''}
                                     <rule ruleRelationType="mutex">
-                                        <line type="list" count="${data.lineInfo.length ? data.lineInfo.length : 0}">
+                                        <line type="list" count="${data.lineInfo.length && pageData.value.detectType === 0 ? data.lineInfo.length : 0}">
                                         ${
-                                            !pageData.value.isClearLine
+                                            pageData.value.detectType === 0
                                                 ? rawXml`
                                                     ${data.lineInfo
                                                         .map((element) => {
@@ -630,9 +626,9 @@ export default defineComponent({
                                         }
 
                                         </line>
-                                        <boundary type="list" count="${data.boundaryInfo.length ? data.boundaryInfo.length : 0}">
+                                        <boundary type="list" count="${data.boundaryInfo.length && pageData.value.detectType === 1 ? data.boundaryInfo.length : 0}">
                                         ${
-                                            !pageData.value.isClearArea
+                                            pageData.value.detectType === 1
                                                 ? rawXml`
                                                     ${data.boundaryInfo
                                                         .map((element) => {
@@ -715,13 +711,13 @@ export default defineComponent({
                                         <showEnterOsd>${data.countOSD.showEnterOsd}</showEnterOsd>
                                         <showExitOsd>${data.countOSD.showExitOsd}</showExitOsd>
                                         <showStayOsd>${data.countOSD.showStayOsd}</showStayOsd>
-                                        <osdPersonName>${data.countOSD.osdPersonName}</osdPersonName>
-                                        <osdChildName>${data.countOSD.osdChildName}</osdChildName>
-                                        <osdAlarmName>${data.countOSD.osdAlarmName}</osdAlarmName>
-                                        <osdWelcomeName>${data.countOSD.osdWelcomeName}</osdWelcomeName>
-                                        ${data.countOSD.showEnterOsd ? `<osdEntranceName>${data.countOSD.osdEntranceName}</osdEntranceName>` : ''}
-                                        ${data.countOSD.showExitOsd ? `<osdExitName>${data.countOSD.osdExitName}</osdExitName>` : ''}
-                                        ${data.countOSD.showStayOsd ? `<osdStayName>${data.countOSD.osdStayName}</osdStayName>` : ''}
+                                        <osdPersonName>${wrapCDATA(data.countOSD.osdPersonName)}</osdPersonName>
+                                        <osdChildName>${wrapCDATA(data.countOSD.osdChildName)}</osdChildName>
+                                        <osdAlarmName>${wrapCDATA(data.countOSD.osdAlarmName)}</osdAlarmName>
+                                        <osdWelcomeName>${wrapCDATA(data.countOSD.osdWelcomeName)}</osdWelcomeName>
+                                        ${data.countOSD.showEnterOsd ? `<osdEntranceName>${wrapCDATA(data.countOSD.osdEntranceName)}</osdEntranceName>` : ''}
+                                        ${data.countOSD.showExitOsd ? `<osdExitName>${wrapCDATA(data.countOSD.osdExitName)}</osdExitName>` : ''}
+                                        ${data.countOSD.showStayOsd ? `<osdStayName>${wrapCDATA(data.countOSD.osdStayName)}</osdStayName>` : ''}
                                     </countOSD>
                                     <heightFilter>
                                         <switch>${data.enableHeightFilter}</switch>
@@ -832,8 +828,6 @@ export default defineComponent({
 
                     // 当前ipc侧只支持绘制警戒线/警戒区域的其中一种，在此判断，清空另一种绘制图形
                     if (pageData.value.detectType === 0) {
-                        // 若当前选择的是警戒线，则清除警戒区域的数据
-                        pageData.value.isClearArea = true
                         formData.value.boundaryInfo = [
                             {
                                 direction: pageData.value.defaultAreaDirection,
@@ -864,8 +858,6 @@ export default defineComponent({
                             },
                         ]
                     } else if (pageData.value.detectType === 1) {
-                        // 若当前选择的是警戒区域，则清除警戒线的数据
-                        pageData.value.isClearLine = true
                         formData.value.lineInfo = [
                             {
                                 direction: pageData.value.defaultLineDirection,
