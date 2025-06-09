@@ -275,9 +275,17 @@ const prop = withDefaults(
          */
         enablePos?: boolean
         /**
-         * @property
+         * @property 组件初始化时决定是否需要初始化目标检测canvas 默认为 false
          */
         enableDetect?: boolean
+        /**
+         * @peoperty 组件初始化时决定是否需要初始化绘图canvas 默认为 false
+         */
+        enableDraw?: boolean
+        /**
+         * @property 组件初始化时决定是否最大分屏数 默认为最大1分屏
+         */
+        model?: 'Interactive' | 'ReadOnly'
         /**
          * @property 是否显示视频丢失logo
          */
@@ -286,10 +294,6 @@ const prop = withDefaults(
          * @property 是否向插件发送位置数据
          */
         ocxUpdatePos?: boolean
-        /**
-         * @peoperty
-         */
-        enableDraw?: boolean
     }>(),
     {
         onlyWasm: false,
@@ -299,6 +303,7 @@ const prop = withDefaults(
         enableDetect: false,
         ocxUpdatePos: true,
         enableDraw: true,
+        model: 'ReadOnly',
     },
 )
 
@@ -449,7 +454,7 @@ const DIRECTION_MAP: Record<number, CanvasPasslineDirection> = {
  */
 const ALARMING_INTELIGENCE: Record<number, Record<string, boolean>> = {} // 正在报警的AI类型
 
-const MAX_SPLIT = 4
+const MAX_SPLIT = prop.model === 'ReadOnly' ? 1 : 4
 const zoomList = [1, 1.5, 2, 3, 4, 6, 8, 9, 12, 16]
 
 // 目标框缓存最大长度

@@ -85,7 +85,7 @@ export default {
                     sort: 20,
                     lk: 'IDCS_REPLAY',
                     icon: 'rec_menu',
-                    minWidth: 1580,
+                    minWidth: 1660,
                     minHeight: 850,
                 },
             },
@@ -140,13 +140,13 @@ export default {
             hasCap(systemCaps) {
                 return !systemCaps.IntelAndFaceConfigHide
             },
-            auth: 'parkingLotMgr',
+            // auth: 'parkingLotMgr',
         },
         beforeEnter(from, _to, next) {
             const userSession = useUserSessionStore()
             if (!userSession.hasAuth('businessMgr')) {
                 openMessageBox('IDCS_NO_PERMISSION')
-                if (from.fullPath.includes('parkLotManage')) {
+                if (from.fullPath.includes('park-lot-manage')) {
                     next('/live')
                 } else {
                     next(from)

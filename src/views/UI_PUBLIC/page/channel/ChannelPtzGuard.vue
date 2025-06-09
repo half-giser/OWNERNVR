@@ -59,7 +59,7 @@
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_NAME')">
                     <BaseSelect
-                        :model-value="tableData[pageData.tableIndex]?.number || ''"
+                        :model-value="typeof tableData[pageData.tableIndex]?.number === 'number' ? tableData[pageData.tableIndex].number : ''"
                         :disabled="!tableData[pageData.tableIndex] || tableData[pageData.tableIndex].disabled"
                         :options="tableData[pageData.tableIndex] ? getNameOption(tableData[pageData.tableIndex]) : []"
                         empty-text=""

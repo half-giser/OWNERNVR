@@ -128,7 +128,7 @@
                         show-overflow-tooltip
                         :show-header="false"
                         class="table"
-                        @row-click="handleRowClick($event)"
+                        @row-click="handleRowClick"
                     >
                         <el-table-column
                             width="170"

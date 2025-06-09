@@ -159,11 +159,12 @@ export const useUserSessionStore = defineStore(
          * @returns {boolean}
          */
         const hasAuth = (authName: string) => {
+            const mask = authMask.value
             if (!authEffective.value) {
                 return true
             }
             const authIndex = SYSTEM_AUTH_LIST.indexOf(authName)
-            return authIndex !== -1 && (authMask.value & Math.pow(2, authIndex)) !== 0
+            return authIndex !== -1 && (mask & Math.pow(2, authIndex)) !== 0
         }
 
         /**
@@ -327,6 +328,7 @@ export const useUserSessionStore = defineStore(
             setDualAuthInfo,
             daTokenLoginAuth,
             urlLoginAuth,
+            authMask,
         }
     },
     {

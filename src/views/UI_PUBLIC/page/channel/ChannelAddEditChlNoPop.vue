@@ -16,7 +16,7 @@
         >
             <el-form-item :label="Translate('IDCS_IP_ADDRESS')">
                 <el-input
-                    :model-data="data.ip"
+                    :model-value="data.ip"
                     disabled
                 />
             </el-form-item>

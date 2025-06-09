@@ -1376,7 +1376,7 @@ export default defineComponent({
 
         const getData = async () => {
             openLoading()
-            Promise.all([getUserdChlNum(), getDefaultPwd(), getLanFreeDevs(), getProtocolList(), getSystemCaps()]).then(() => {
+            Promise.all([getUserdChlNum(), getDefaultPwd(), getLanFreeDevs(), getProtocolList(), getSystemCaps(), getLanRecorders(), getAutoReportDevs()]).then(() => {
                 manualAddTableData.value = []
                 addManualAddRow()
                 closeLoading()

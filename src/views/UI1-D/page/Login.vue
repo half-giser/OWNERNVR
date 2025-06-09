@@ -11,7 +11,7 @@
         <div class="login-lang">
             <BaseSelect
                 v-model="pageData.langId"
-                :options="pageData.langTypes"
+                :options="langOptions"
                 @change="changeLang"
             />
             <BaseSelect

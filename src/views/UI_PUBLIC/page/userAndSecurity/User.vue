@@ -117,8 +117,9 @@
                 width="100%"
                 height="100%"
                 flexible
-                highlight-current-row
                 show-overflow-tooltip
+                :row-class-name="(data) => (data.row.userType === 'debug' ? 'disabled' : '')"
+                highlight-current-row
                 @cell-click="changeUser"
                 @cell-dblclick="openEditUserPop"
             >
@@ -141,6 +142,7 @@
                             v-show="row.edit"
                             file="edit2"
                             :stop-propagation="false"
+                            :disabled="row.userType === 'debug'"
                             @click="openEditUserPop(row)"
                         />
                     </template>

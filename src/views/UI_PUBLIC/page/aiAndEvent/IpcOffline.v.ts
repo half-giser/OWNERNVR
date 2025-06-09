@@ -331,15 +331,6 @@ export default defineComponent({
             })
         }
 
-        // ftpSnap 未传值
-        // const changeAllFtpSnap = (ftpSnap: string) => {
-        //     tableData.value.forEach((item) => {
-        //         if (!item.disabled) {
-        //             item.ftpSnap = ftpSnap
-        //         }
-        //     })
-        // }
-
         /**
          * @description 批量修改蜂鸣器联动
          * @param {string} beeper

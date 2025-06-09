@@ -49,7 +49,8 @@
                         <div
                             v-for="item2 in item1.eventList"
                             :key="item2.value"
-                            class="btn"
+                            v-title
+                            class="btn text-ellipsis"
                             :class="{
                                 active: pageData.selectedRecTypeList.includes(item2.value),
                             }"
@@ -158,6 +159,8 @@
     font-size: 12px;
     border: 1px solid var(--input-border);
     user-select: none;
+    box-sizing: border-box;
+    padding: 0 3px;
 
     &.active {
         border-color: var(--primary);

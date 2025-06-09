@@ -21,7 +21,6 @@ export default defineComponent({
         const router = useRouter()
 
         const pageData = ref({
-            langTypes: [] as SelectOption<string, string>[],
             langType: langStore.langType,
             langId: langStore.langId,
             calendarOptions: [] as SelectOption<string, string>[],
@@ -34,15 +33,6 @@ export default defineComponent({
             isDualAuthPop: false,
             // 双重认证错误信息
             dualAuthErrMsg: '',
-        })
-
-        langStore.getLangTypes().then((res) => {
-            pageData.value.langTypes = Object.entries(res.value).map((item) => {
-                return {
-                    label: item[1],
-                    value: item[0],
-                }
-            })
         })
 
         const formRef = useFormRef()
@@ -94,6 +84,15 @@ export default defineComponent({
             ]
         })
 
+        const langOptions = computed(() => {
+            return Object.entries(langStore.langTypes).map((item) => {
+                return {
+                    label: item[1],
+                    value: item[0],
+                }
+            })
+        })
+
         // 初始化错误超过次数锁定检测工具
         const errorLockChecker = useErrorLockChecker('login')
 
@@ -114,7 +113,7 @@ export default defineComponent({
         })
 
         const opacity = computed(() => {
-            return Translate('IDCS_INFO_TIP') === 'IDCS_INFO_TIP' ? 0 : 1
+            return Translate('IDCS_INFO_TIP') === 'IDCS_INFO_TIP' || userSessionStore.urlLoginAuth ? 0 : 1
         })
 
         const handleLogin = () => {
@@ -352,7 +351,6 @@ export default defineComponent({
         onMounted(() => {
             updateTitle()
             getIsShowPrivacy()
-            // updateCalendar()
         })
 
         return {
@@ -371,6 +369,7 @@ export default defineComponent({
             forgetPassword,
             opacity,
             calendarOptions,
+            langOptions,
         }
     },
 })
