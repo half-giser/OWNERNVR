@@ -26,6 +26,7 @@ export default defineComponent({
                 return {
                     label: item.chlName,
                     value: index,
+                    disabled: item.disabled,
                 }
             })
         })
@@ -248,10 +249,7 @@ export default defineComponent({
          */
         const handleRowClick = (row: ChannelLogoSetDto) => {
             const index = tableData.value.findIndex((item) => item.chlId === row.chlId)
-            if (!row.disabled) {
-                pageData.value.tableIndex = index
-            }
-            tableRef.value!.setCurrentRow(tableData.value[pageData.value.tableIndex])
+            pageData.value.tableIndex = index
         }
 
         // 首次加载成功 播放视频

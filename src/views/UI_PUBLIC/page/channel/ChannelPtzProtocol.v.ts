@@ -29,6 +29,7 @@ export default defineComponent({
                 return {
                     label: item.chlName,
                     value: index,
+                    disabled: item.disabled,
                 }
             })
         })

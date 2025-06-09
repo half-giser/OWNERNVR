@@ -26,6 +26,7 @@
                     :enable-pos="systemCaps.supportPOS"
                     :enable-draw="false"
                     type="record"
+                    model="Interactive"
                     @ready="handlePlayerReady"
                     @time="handlePlayerTimeUpdate"
                     @select="handlePlayerSelect"

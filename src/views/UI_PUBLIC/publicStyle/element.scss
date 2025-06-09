@@ -477,6 +477,7 @@
         .el-table__row {
             &.disabled {
                 color: var(--table-text-disabled);
+                pointer-events: none;
 
                 .el-table__expand-icon {
                     @include sprite($img-open, 1, 2);

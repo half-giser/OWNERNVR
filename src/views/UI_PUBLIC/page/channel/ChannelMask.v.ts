@@ -53,6 +53,7 @@ export default defineComponent({
                 return {
                     label: item.name,
                     value: item.id,
+                    disabled: item.disabled,
                 }
             })
         })
@@ -77,12 +78,8 @@ export default defineComponent({
         }
 
         const handleRowClick = (rowData: ChannelMaskDto) => {
-            if (!rowData.disabled) {
-                selectedChlId.value = rowData.id
-                formData.value = rowData
-            }
-
-            tableRef.value!.setCurrentRow(getRowById(selectedChlId.value))
+            selectedChlId.value = rowData.id
+            formData.value = rowData
             changeEditStatus(false)
 
             formData.value.mask.forEach((item, index) => {

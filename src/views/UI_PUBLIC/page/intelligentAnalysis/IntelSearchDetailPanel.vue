@@ -106,6 +106,7 @@
                         type="record"
                         :enable-pos="systemCaps.supportPOS"
                         :enable-detect="true"
+                        :enable-draw="false"
                         @ready="handlePlayerReady"
                         @message="notify"
                         @time="handleTime"

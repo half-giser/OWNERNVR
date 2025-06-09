@@ -63,6 +63,7 @@ export default defineComponent({
                 return {
                     value: item.id,
                     label: item.name,
+                    disabled: item.disabled,
                 }
             })
         })
@@ -76,11 +77,8 @@ export default defineComponent({
         }
 
         const handleRowClick = (rowData: ChannelMotionDto) => {
-            if (!rowData.disabled) {
-                selectedChlId.value = rowData.id
-                formData.value = rowData
-            }
-            tableRef.value!.setCurrentRow(getRowById(selectedChlId.value))
+            selectedChlId.value = rowData.id
+            formData.value = rowData
         }
 
         const handleDisposeWayClick = () => {

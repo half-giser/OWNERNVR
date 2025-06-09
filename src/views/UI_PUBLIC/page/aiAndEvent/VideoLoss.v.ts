@@ -234,15 +234,6 @@ export default defineComponent({
             }
         }
 
-        // 系统音频
-        // const changeAllAudio = (sysAudio: string) => {
-        //     tableData.value.forEach((item) => {
-        //         if (!item.disabled) {
-        //             item.sysAudio = sysAudio
-        //         }
-        //     })
-        // }
-
         // 消息推送
         const changeAllMsgPush = (msgPush: string) => {
             tableData.value.forEach((item) => {
@@ -251,15 +242,6 @@ export default defineComponent({
                 }
             })
         }
-
-        // ftpSnap 未传值
-        // const changeAllFtpSnap = (ftpSnap: string) => {
-        //     tableData.value.forEach((item) => {
-        //         if (!item.disabled) {
-        //             item.ftpSnap = ftpSnap
-        //         }
-        //     })
-        // }
 
         // 蜂鸣器
         const changeAllBeeper = (beeper: string) => {
