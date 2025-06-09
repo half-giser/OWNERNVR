@@ -159,7 +159,7 @@ const getSingletonPlugin = () => {
                     const $xmlDoc = XMLStr2XMLDoc(xmlStr)
                     const $ = queryXml($xmlDoc)
                     const url = $('response').attr('cmdUrl')
-                    console.log('%cresponse--' + url, 'color: red', $('response')[0])
+                    console.log('%cresponse--' + url, 'color: red', $xmlDoc)
                     CMD_QUEUE.resolve($('response')[0].element)
                 } else if (transType === 'websocket') {
                     VideoPluginNotifyEmitter.emit(identify, buffer)
@@ -239,7 +239,8 @@ const getSingletonPlugin = () => {
                                     calendarType: userSession.calendarType,
                                 })
                                 generateAsyncRoutes()
-                                router.replace('/live')
+                                const p2pDafultRoute = router.currentRoute.value.path === '/' ? '/live' : router.currentRoute.value.path
+                                router.replace(p2pDafultRoute)
                             } else {
                                 Logout()
                             }
@@ -755,10 +756,11 @@ const getSingletonPlugin = () => {
         let startPluginError = true
         isInstallPlugin.value = false
         pluginStore.currPluginMode = null
+        const osType = getSystemInfo().platform
 
         const connPlugin = WebsocketPlugin({
             wsType: 'pluginMainProcess',
-            port: userSession.appType === 'STANDARD' ? ClientPort : P2PClientPort,
+            port: userSession.appType === 'STANDARD' ? ClientPort : osType === 'windows' ? P2PClientPort : MacP2PClientPort,
             onopen: () => {
                 isInstallPlugin.value = true
             },
@@ -803,7 +805,7 @@ const getSingletonPlugin = () => {
                     pluginStore.ready = false
                     return
                 }
-                pluginStore.currPluginMode = 'ocx'
+                pluginStore.currPluginMode = isBrowserSupportWasm() ? 'h5' : 'ocx'
                 pluginStore.showPluginNoResponse = false // 插件崩溃时提示插件无响应
                 loadVideoPlugin()
             },

@@ -153,10 +153,11 @@ export const isHttpsLogin = (): boolean => {
     return window.location.protocol === 'https:' && userSession.appType === 'STANDARD'
 }
 
-// 判断浏览器是否支持webAssembly
+// 判断浏览器是否支持webAssembly（windows本地web、mac本地web、mac p2p web使用wasm播放）
 export const isBrowserSupportWasm = () => {
     const userSession = useUserSessionStore()
-    return 'WebAssembly' in window && userSession.appType === 'STANDARD'
+    const osType = getSystemInfo().platform
+    return 'WebAssembly' in window && (userSession.appType === 'STANDARD' || (osType === 'mac' && userSession.appType === 'P2P'))
 }
 
 // 判断浏览器是否不支持Websocket
