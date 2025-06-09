@@ -60,7 +60,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const userSession = useUserSessionStore()
         const router = useRouter()
         const systemCaps = useCababilityStore()
         const userAuth = useUserChlAuth()
@@ -703,19 +702,17 @@ export default defineComponent({
          * @description 创建Websocket连接
          */
         const createWebsocket = () => {
-            if (userSession.appType === 'STANDARD') {
-                keyframe = WebsocketKeyframe({
-                    onmessage: (data: WebsocketKeyframeOnMessageParam) => {
-                        pageData.value.timeSliceList.forEach((item) => {
-                            if (data.taskId.toUpperCase() === item.taskId) {
-                                item.imgUrl = data.imgUrl
-                                item.frameTime = data.frameTime
-                                pageData.value.timeSliceCount++
-                            }
-                        })
-                    },
-                })
-            }
+            keyframe = WebsocketKeyframe({
+                onmessage: (data: WebsocketKeyframeOnMessageParam) => {
+                    pageData.value.timeSliceList.forEach((item) => {
+                        if (data.taskId.toUpperCase() === item.taskId) {
+                            item.imgUrl = data.imgUrl
+                            item.frameTime = data.frameTime
+                            pageData.value.timeSliceCount++
+                        }
+                    })
+                },
+            })
         }
 
         /**
