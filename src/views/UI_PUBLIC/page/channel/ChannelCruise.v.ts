@@ -177,6 +177,7 @@ export default defineComponent({
                         }
                     })
                 item.cruiseNameMaxLen = $('cruises/itemType').attr('maxLen').num()
+                item.disabled = false
             }
         }
 
@@ -252,6 +253,9 @@ export default defineComponent({
                             cruisePresetMaxCount: 16,
                             cruisePresetHoldTimeList: [],
                             cruiseNameMaxLen: 64,
+                            status: '',
+                            statusTip: '',
+                            disabled: true,
                         }
                     })
             }

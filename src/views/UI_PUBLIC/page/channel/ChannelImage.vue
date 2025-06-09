@@ -145,11 +145,11 @@
                     <el-table-column
                         prop="name"
                         :label="Translate('IDCS_CHANNEL_NAME')"
-                        min-width="160"
+                        min-width="120"
                     />
                     <el-table-column
                         :label="Translate('IDCS_BRIGHTNESS')"
-                        min-width="160"
+                        min-width="120"
                     >
                         <template #default="{ row }: TableColumn<ChannelImageDto>">
                             <span v-if="row.isSpeco"></span>
@@ -167,7 +167,7 @@
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_CONTRAST')"
-                        min-width="160"
+                        min-width="120"
                     >
                         <template #default="{ row }: TableColumn<ChannelImageDto>">
                             <span v-if="row.isSpeco"></span>
@@ -185,7 +185,7 @@
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_SATURATION')"
-                        min-width="160"
+                        min-width="120"
                     >
                         <template #default="{ row }: TableColumn<ChannelImageDto>">
                             <span v-if="row.isSpeco"></span>
@@ -203,7 +203,7 @@
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_TONE')"
-                        min-width="160"
+                        min-width="120"
                     >
                         <template #default="{ row }: TableColumn<ChannelImageDto>">
                             <span v-if="row.isSpeco"></span>
@@ -1103,10 +1103,6 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-}
-
-:deep(.BaseNumberInput) {
-    width: 43px !important;
 }
 
 .page_content_item3 {

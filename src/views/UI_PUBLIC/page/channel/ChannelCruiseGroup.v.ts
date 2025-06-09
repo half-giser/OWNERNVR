@@ -127,17 +127,17 @@ export default defineComponent({
             closeLoading()
 
             if ($('status').text() === 'success') {
-                tableData.value[index].cruise = $('content/cruises/item').map((item) => {
+                const item = tableData.value[index]
+                item.cruise = $('content/cruises/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        // id: ++cruiseId,
                         index: item.attr('index').num(),
                         name: $item('name').text(),
                         number: item.attr('number').num(),
                     }
                 })
-                // tableData.value[index].maxCount = $('content/cruises').attr('maxCount').num()
-                tableData.value[index].cruiseCount = tableData.value[index].cruise.length
+                item.cruiseCount = item.cruise.length
+                item.disabled = false
             }
         }
 
@@ -171,6 +171,9 @@ export default defineComponent({
                             cruiseCount: $item('groupCruiseCount').text().num(),
                             cruise: [],
                             maxCount: CRUISE_MAX_COUNT,
+                            disabled: true,
+                            status: '',
+                            statusTip: '',
                         }
                     })
             }

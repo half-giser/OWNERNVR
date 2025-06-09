@@ -45,6 +45,7 @@
                     <BaseSelect
                         v-model="formData.presetIndex"
                         :options="presetOptions"
+                        :disabled="!chlOptions.length"
                         :props="{
                             label: 'index',
                         }"

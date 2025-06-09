@@ -35,6 +35,7 @@
                         :options="cruiseOptions"
                         :props="{ label: 'index' }"
                         :persistent="true"
+                        :disabled="!chlOptions.length"
                         empty-text=""
                     />
                     <div
