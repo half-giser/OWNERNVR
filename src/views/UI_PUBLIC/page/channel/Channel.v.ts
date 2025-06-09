@@ -178,15 +178,16 @@ export default defineComponent({
                 const result = await getTempLoginCert(sendXml)
                 const $ = queryXml(result)
                 if ($('status').text() === 'success') {
-                    const sn = $('sn').text()
-                    const protocol = $('protocol').text() // http、https
-                    let ip = $('ip').text()
+                    const $chl = queryXml($('content/chl')[0].element)
+                    const sn = $chl('sn').text()
+                    const protocol = $chl('protocol').text() // http、https
+                    let ip = $chl('ip').text()
                     ip = isPoe ? window.location.hostname : checkIpV6(ip) ? `[${ip}]` : ip
-                    const port = $('port').text() // http port、https port、poe port
-                    const softVersion = $('softVersion').text()
-                    const p2pWebUrl = $('p2pWebUrl').text()
-                    const userName = userSession.appType === 'STANDARD' ? AES_decrypt($('userName').text(), userSession.sesionKey) : $('userName').text()
-                    const password = userSession.appType === 'STANDARD' ? AES_decrypt($('password').text(), userSession.sesionKey) : $('password').text()
+                    const port = $chl('port').text() // http port、https port、poe port
+                    const softVersion = $chl('softVersion').text()
+                    const p2pWebUrl = $chl('p2pWebUrl').text()
+                    const userName = userSession.appType === 'STANDARD' ? AES_decrypt($chl('userName').text(), userSession.sesionKey) : $chl('userName').text()
+                    const password = userSession.appType === 'STANDARD' ? AES_decrypt($chl('password').text(), userSession.sesionKey) : $chl('password').text()
                     const reqTime = formatDate(new Date(), 'YYYY-MM-DD HH:mm:ss:SSS')
                     const reqID = getRandomGUID().replace('{', '').replace('}', '')
                     const jsonStr = JSON.stringify({
@@ -210,7 +211,7 @@ export default defineComponent({
                     if (isPoe && isTVT) {
                         params.addType = 'poe'
                     }
-                    const url = host + getURLSearchParams(params)
+                    const url = `${host}?${getURLSearchParams(params)}`
                     window.open(url, '_blank', '')
                 }
             } else {

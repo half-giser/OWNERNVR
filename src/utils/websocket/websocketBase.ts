@@ -58,40 +58,41 @@ export const WebsocketBase = (option: WebsocketBaseOption) => {
             plugin.VideoPluginNotifyEmitter.addListener((id: number, buffer: ArrayBuffer) => {
                 if (typeof id !== 'number' || !isBuffer(buffer)) return false
                 if (id === identify) {
-                    const payLoadData = Uint8ArrayToStr(new Uint8Array(buffer))
-                    // console.log('%cwebsocket--response =', 'color: red', payLoadData)
-                    isUpgradeWs = payLoadData.indexOf('create_connection#response') > -1 // http协议升级为websocket协议, 后续按websocket标准二进制结构通信
-                    if (isUpgradeWs) {
-                        onmessage(payLoadData)
-                    }
-                } else {
-                    if (tempObj) {
-                        tempObj.buffer = appendBuffer(tempObj.buffer as ArrayBuffer, buffer) as ArrayBuffer
-                        buffer = tempObj.buffer as ArrayBuffer
-                    }
-
-                    const headerObj = splitWebSocketHeader(new Uint8Array(buffer))
-                    const opCode = headerObj.ucOpCode // opCode操作码, 1: 纯文本, 2: 二进制
-                    const bFin = headerObj.bFin
-
-                    if (opCode === 1 || opCode === 2) {
-                        if (!tempObj) {
-                            tempObj = {
-                                buffer: new Uint8Array(buffer).buffer,
-                                headerLen: headerObj.dwHeaderLen,
-                                payLoadLen: headerObj.dwPayloadLen,
-                            }
+                    if (!isUpgradeWs) {
+                        // http协议
+                        const payLoadData = Uint8ArrayToStr(new Uint8Array(buffer))
+                        isUpgradeWs = payLoadData.indexOf('create_connection#response') > -1 // http协议升级为websocket协议, 后续按websocket标准二进制结构通信
+                        isUpgradeWs && onmessage(payLoadData)
+                    } else {
+                        // websocket协议
+                        if (tempObj) {
+                            tempObj.buffer = appendBuffer(tempObj.buffer as ArrayBuffer, buffer) as ArrayBuffer
+                            buffer = tempObj.buffer as ArrayBuffer
                         }
 
-                        if (tempObj && tempObj.buffer.byteLength >= tempObj.headerLen + tempObj.payLoadLen) {
-                            let payLoadData: string | ArrayBuffer = tempObj.buffer.slice(tempObj.headerLen) as ArrayBuffer
-                            if (opCode === 1) {
-                                payLoadData = Uint8ArrayToStr(new Uint8Array(payLoadData))
+                        const headerObj = splitWebSocketHeader(new Uint8Array(buffer))
+                        const opCode = headerObj.ucOpCode // opCode操作码, 1: 纯文本, 2: 二进制
+                        const bFin = headerObj.bFin
+
+                        if (opCode === 1 || opCode === 2) {
+                            if (!tempObj) {
+                                tempObj = {
+                                    buffer: new Uint8Array(buffer).buffer,
+                                    headerLen: headerObj.dwHeaderLen,
+                                    payLoadLen: headerObj.dwPayloadLen,
+                                }
                             }
 
-                            if (bFin === 1) {
-                                onmessage(payLoadData)
-                                tempObj = null
+                            if (tempObj && tempObj.buffer.byteLength >= tempObj.headerLen + tempObj.payLoadLen) {
+                                let payLoadData: string | ArrayBuffer = tempObj.buffer.slice(tempObj.headerLen) as ArrayBuffer
+                                if (opCode === 1) {
+                                    payLoadData = Uint8ArrayToStr(new Uint8Array(payLoadData))
+                                }
+
+                                if (bFin === 1) {
+                                    onmessage(payLoadData)
+                                    tempObj = null
+                                }
                             }
                         }
                     }
@@ -103,7 +104,7 @@ export const WebsocketBase = (option: WebsocketBaseOption) => {
             const random = getRandomGUID().match(/\{([\s\S]*)\}/)![1] // 随机数去掉{}号
             p2pTransport.CreateWsRequest({
                 url: wsUrl,
-                random: Number(random),
+                random: random,
             })
         }
     }

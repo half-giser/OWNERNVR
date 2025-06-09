@@ -27,7 +27,7 @@ export const useP2PTransport = defineStore('p2pTransport', () => {
         const url = option.url
         const data = option.data
         const callback = option.callback
-        const $request = queryXml(XMLStr2XMLDoc(option.data))('request')
+        const $request = XMLStr2XMLDoc(option.data)
         console.log('%crequest--' + url, 'color: green', $request)
         const payLoadData = getHttpHead(url, data)
         const metaDataXmlStr = getMetaData(payLoadData)
@@ -49,7 +49,7 @@ export const useP2PTransport = defineStore('p2pTransport', () => {
         wsReqQueueExcute()
     }
 
-    const createWsRequest = (option: { url: string; random: number }) => {
+    const createWsRequest = (option: { url: string; random: string }) => {
         const url = option.url
         const random = option.random
         const payLoadData = getWebsocketHead(url, random)
@@ -59,7 +59,7 @@ export const useP2PTransport = defineStore('p2pTransport', () => {
     }
 
     // P2P websocket请求, 二进制形式: xml元数据长度 + xml元数据 + 负载数据(websocket标准二进制结构报文)
-    const wsRequest = (option: { buffer: ArrayBuffer; identify: number }) => {
+    const wsRequest = (option: { buffer: ArrayBuffer | Uint8Array<ArrayBuffer>; identify: number }) => {
         const buffer = option.buffer
         const identify = option.identify
         const payLoadData = buffer
@@ -95,7 +95,7 @@ export const useP2PTransport = defineStore('p2pTransport', () => {
     }
 
     // 获取websocket消息头
-    const getWebsocketHead = (url: string, random: number) => {
+    const getWebsocketHead = (url: string, random: string) => {
         const sessionIdSplit = userSession.sessionId.match(/\{([\s\S]*)\}/)
         const sessionId = sessionIdSplit && sessionIdSplit.length > 0 && sessionIdSplit[1]
         return (
