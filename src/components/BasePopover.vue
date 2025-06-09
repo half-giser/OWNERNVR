@@ -46,6 +46,7 @@ withDefaults(
         modelValue: false,
         offset: 0,
         trigger: 'click',
+        teleported: true,
     },
 )
 

@@ -425,10 +425,10 @@ export default defineComponent({
                         .map((item) => {
                             if (!item.disabled) {
                                 return rawXml`
-                                        <item id='${item.id}'>
-                                            <subRec res='${item.resolution}' fps='${item.frameRate}' QoI='${item.videoQuality}' bitType ='${item.bitType || 'CBR'}' level='${item.level}' enct='${item.videoEncodeType}'></subRec>
-                                        </item>
-                                    `
+                                    <item id='${item.id}'>
+                                        <subRec res='${item.resolution}' fps='${item.frameRate}' QoI='${item.videoQuality}' bitType ='${item.bitType || 'CBR'}' level='${item.level}' enct='${item.videoEncodeType}'></subRec>
+                                    </item>
+                                `
                             }
                         })
                         .join('')}

@@ -52,7 +52,7 @@
                 >
                     <BaseSelect
                         v-model="pageData.langId"
-                        :options="pageData.langTypes"
+                        :options="langOptions"
                         @change="changeLang"
                     />
                 </el-form-item>

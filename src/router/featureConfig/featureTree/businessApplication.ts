@@ -12,7 +12,9 @@
 const checkTabAuth = (auth: string[]) => {
     const userSession = useUserSessionStore()
     const { Translate } = useLangStore()
-    const hasAuth = auth.some((item) => userSession.hasAuth(item))
+    const hasAuth = auth.some((item) => {
+        return userSession.hasAuth(item)
+    })
     if (!hasAuth) {
         openMessageBox(Translate('IDCS_NO_PERMISSION'))
         return false
@@ -38,7 +40,6 @@ const businessApplicationRoutes: FeatureItem = {
             meta: {
                 sort: 10,
                 lk: 'IDCS_PARKING_LOT_MANAGEMENT',
-                auth: 'parkingLotMgr',
                 hasCap(systemCaps) {
                     return systemCaps.supportParkingLot
                 },
@@ -82,7 +83,7 @@ const businessApplicationRoutes: FeatureItem = {
             },
             async beforeEnter(_to, from, next) {
                 if (!checkTabAuth(['businessCfg', 'businessMgr'])) {
-                    if (from.fullPath.includes('parkLotManage')) {
+                    if (from.fullPath.includes('park-lot-manage')) {
                         next('/live')
                     } else {
                         next(from)
@@ -99,7 +100,6 @@ const businessApplicationRoutes: FeatureItem = {
             meta: {
                 sort: 20,
                 lk: 'IDCS_ACCESS_CONTROL_MANAGEMENT',
-                auth: 'AccessControlMgr',
             },
             children: {
                 // 门禁配置
@@ -116,7 +116,7 @@ const businessApplicationRoutes: FeatureItem = {
             },
             async beforeEnter(_to, from, next) {
                 if (!checkTabAuth(['businessCfg'])) {
-                    if (from.fullPath.includes('accessControl')) {
+                    if (from.fullPath.includes('access-control')) {
                         next('/live')
                     } else {
                         next(from)
@@ -130,7 +130,7 @@ const businessApplicationRoutes: FeatureItem = {
         passengerFlow: {
             component: 'layout/L2T2L3T1Layout.vue',
             meta: {
-                sort: 10,
+                sort: 30,
                 lk: 'IDCS_PASSENGER_FLOW',
             },
             children: {
@@ -167,7 +167,7 @@ const businessApplicationRoutes: FeatureItem = {
                 },
             },
             async beforeEnter(_to, from, next) {
-                if (!checkTabAuth(['businessCfg', 'businessMgr'])) {
+                if (!checkTabAuth(['businessMgr', 'businessCfg'])) {
                     if (from.fullPath.includes('passengerFlow')) {
                         next('/live')
                     } else {
@@ -182,7 +182,7 @@ const businessApplicationRoutes: FeatureItem = {
         faceAttendance: {
             component: 'businessApplication/FaceAttendances.vue',
             meta: {
-                sort: 30,
+                sort: 40,
                 lk: 'IDCS_FACE_ATTENDANCE',
                 minWidth: 1400,
                 hasCap(systemCaps) {
@@ -191,7 +191,7 @@ const businessApplicationRoutes: FeatureItem = {
             },
             async beforeEnter(_to, from, next) {
                 if (!checkTabAuth(['businessMgr'])) {
-                    if (from.fullPath.includes('passengerFlow')) {
+                    if (from.fullPath.includes('face-attendance')) {
                         next('/live')
                     } else {
                         next(from)
@@ -205,7 +205,7 @@ const businessApplicationRoutes: FeatureItem = {
         faceCheck: {
             component: 'businessApplication/FaceCheck.vue',
             meta: {
-                sort: 40,
+                sort: 50,
                 lk: 'IDCS_FACE_CHECK',
                 minWidth: 1400,
                 hasCap(systemCaps) {
@@ -214,7 +214,7 @@ const businessApplicationRoutes: FeatureItem = {
             },
             async beforeEnter(_to, from, next) {
                 if (!checkTabAuth(['businessMgr'])) {
-                    if (from.fullPath.includes('passengerFlow')) {
+                    if (from.fullPath.includes('face-check')) {
                         next('/live')
                     } else {
                         next(from)
@@ -225,31 +225,6 @@ const businessApplicationRoutes: FeatureItem = {
             },
         },
     },
-    // async beforeEnter(_to, from, next) {
-    //     const { Translate } = useLangStore()
-    //     const userSession = useUserSessionStore()
-    //     const systemCaps = useCababilityStore()
-    //     // 非管理员账户
-    //     if (userSession.authGroupId) {
-    //         const supportFaceMatch = systemCaps.supportFaceMatch
-    //         const businessCfg = userSession.hasAuth('businessCfg')
-    //         const businessMgr = userSession.hasAuth('businessMgr')
-    //         if (!businessCfg && !businessMgr && !supportFaceMatch) {
-    //             openMessageBox(Translate('IDCS_NO_AUTH'))
-    //             if (from.fullPath.includes('business-application')) {
-    //                 next('/live')
-    //             } else {
-    //                 next(from)
-    //             }
-    //         } else {
-    //             next()
-    //         }
-    //     }
-    //     // 管理员账户
-    //     else {
-    //         next()
-    //     }
-    // },
 }
 
 export default businessApplicationRoutes

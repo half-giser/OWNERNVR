@@ -164,6 +164,7 @@
                                 :min="dateTimeFormData.ntpIntervalMin"
                                 :max="dateTimeFormData.ntpIntervalMax"
                                 :disabled="dateTimeFormData.syncType !== 'NTP'"
+                                mode="blur"
                                 @out-of-range="handleNtpIntervalOutOfRange"
                             />
                         </el-form-item>

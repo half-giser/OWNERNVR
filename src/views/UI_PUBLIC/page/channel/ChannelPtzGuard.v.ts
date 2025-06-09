@@ -43,6 +43,7 @@ export default defineComponent({
                 return {
                     label: item.chlName,
                     value: index,
+                    disabled: item.disabled,
                 }
             })
         })
@@ -351,12 +352,11 @@ export default defineComponent({
             for (const item of editRows.toArray()) {
                 const sendXml = rawXml`
                     <content>
-                        <chl id="${item.chlId}">
-                            <switch type="boolean">${item.enable}</switch>
-                            <location>${item.location}</location>
-                            <number>${['RSC', 'ASC'].includes(item.location) ? '' : item.number}</number>
-                            <waitTime>${item.waitTime}</waitTime>
-                        </chl>
+                        <chl id="${item.chlId}"></chl>
+                        <switch type="boolean">${item.enable}</switch>
+                        <location>${item.location}</location>
+                        <number>${['RSC', 'ASC'].includes(item.location) ? '' : item.number}</number>
+                        <waitTime>${item.waitTime}</waitTime>
                     </content>
                 `
                 try {

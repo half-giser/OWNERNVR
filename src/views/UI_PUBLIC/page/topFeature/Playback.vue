@@ -26,6 +26,7 @@
                     :enable-pos="systemCaps.supportPOS"
                     :enable-draw="false"
                     type="record"
+                    model="Interactive"
                     @ready="handlePlayerReady"
                     @time="handlePlayerTimeUpdate"
                     @select="handlePlayerSelect"
@@ -205,7 +206,7 @@
 }
 
 .bottom {
-    height: 170px;
+    height: 172px;
     display: flex;
 }
 
@@ -231,7 +232,7 @@
     font-size: 12px;
 
     div {
-        margin: 0 10px;
+        margin: 0 5px;
         display: flex;
         align-items: center;
         height: 100%;

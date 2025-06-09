@@ -57,6 +57,7 @@
                                 v-model="formData.spliceDistance"
                                 :min="formData.spliceDistanceMin"
                                 :max="formData.spliceDistanceMax"
+                                mode="blur"
                                 @out-of-range="outOfRange"
                             />
                         </el-form-item>
