@@ -58,6 +58,13 @@
                     </div>
                     <div class="base-ai-tip">{{ Translate('IDCS_DRAW_LINE_TIP') }}</div>
                 </div>
+                <ChannelPtzCtrlPanel
+                    v-show="chlData.supportAutoTrack"
+                    :chl-id="currChlId || ''"
+                    layout="event"
+                    enable-speed
+                    @speed="setSpeed"
+                />
             </div>
             <div class="base-ai-form">
                 <!-- 三种功能 -->
@@ -315,10 +322,6 @@
                                     <div class="base-ai-subheading">
                                         {{ Translate('IDCS_PTZ') }}
                                     </div>
-                                    <ChannelPtzCtrlPanel
-                                        :chl-id="currChlId || ''"
-                                        @speed="setSpeed"
-                                    />
                                     <el-form-item>
                                         <el-button @click="editLockStatus">
                                             {{ pageData.lockStatus ? Translate('IDCS_UNLOCK') : Translate('IDCS_LOCKED') }}
