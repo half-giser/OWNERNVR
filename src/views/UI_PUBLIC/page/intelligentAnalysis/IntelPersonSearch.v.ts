@@ -190,7 +190,7 @@ export default defineComponent({
             // 是否全选
             isCheckedAll: false,
             // 是否支持备份（H5模式）
-            isSupportBackUp: isBrowserSupportWasm() && !isHttpsLogin(),
+            isSupportBackUp: !isHttpsLogin(),
         })
         // 列表索引数据（根据分页索引pageIndex和分页大小pageSize从总数据targetIndexDatas中截取的当页列表数据）
         const sliceTargetIndexDatas = ref<IntelTargetIndexItem[]>([])
