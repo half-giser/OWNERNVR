@@ -1534,7 +1534,7 @@ export const OCX_XML_BackUpRecList = (format: string, path: string, groupby = 'c
                 ${list
                     .map(
                         (item) =>
-                            `<item chlId="${item.chlId}" chlName="${item.chlName}" chlIndex="${item.chlIndex}" event="${item.event}" startTime="${item.startTime}" startTimeEx="${item.startTimeEx}" endTime="${item.endTime}" endTimeEx="${item.endTimeEx}" duration="${item.duration}" />`,
+                            `<item chlId="${item.chlId}" chlIndex="${item.chlIndex}" event="${item.event}" startTime="${item.startTime}" startTimeEx="${item.startTimeEx}" endTime="${item.endTime}" endTimeEx="${item.endTimeEx}" duration="${item.duration}">${wrapCDATA(item.chlName)}</item>`,
                     )
                     .join('')}
             </backupRecList>
