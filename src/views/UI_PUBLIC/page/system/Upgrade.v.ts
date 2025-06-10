@@ -379,7 +379,7 @@ export default defineComponent({
                     },
                 })
             } else {
-                if (systemCaps.devSystemType !== 1 && noCheckversion) {
+                if (systemCaps.devSystemType !== 1 || noCheckversion) {
                     const param = {
                         filePath: formData.value.filePath,
                         version: 'SmallMemory',
@@ -387,6 +387,7 @@ export default defineComponent({
                         authPwd: userCheckAuthForm.password,
                         token: userSession.token,
                     }
+
                     const sendXML = OCX_XML_FileNetTransport('Upgrade', param)
                     plugin.ExecuteCmd(sendXML)
                 } else {
