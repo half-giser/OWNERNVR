@@ -805,7 +805,13 @@ const getSingletonPlugin = () => {
                     pluginStore.ready = false
                     return
                 }
-                pluginStore.currPluginMode = isBrowserSupportWasm() ? 'h5' : 'ocx'
+
+                if (systemInfo.platform === 'mac' && userSession.appType === 'P2P') {
+                    pluginStore.currPluginMode = 'h5'
+                } else {
+                    pluginStore.currPluginMode = 'ocx'
+                }
+
                 pluginStore.showPluginNoResponse = false // 插件崩溃时提示插件无响应
                 loadVideoPlugin()
             },
