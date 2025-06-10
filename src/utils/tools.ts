@@ -818,7 +818,7 @@ export const buildScheduleList = async (option: Partial<ScheduleListOption> = {}
     if (options.isDefault) {
         scheduleList.push({
             value: options.defaultValue,
-            label: `<${Translate('IDCS_NULL')}>`,
+            label: Translate('IDCS_NULL'),
         })
     }
 

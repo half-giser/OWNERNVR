@@ -325,7 +325,7 @@ export const OCX_XML_SetSessionIdLogin_P2P = (sessionId: string, sn: string, con
 export const OCX_XML_SetDATokenLogin_P2P = (sn: string, daToken: string, sign: string, config?: typeof DEFAULT_OCX_CONFIG) => {
     config = config || DEFAULT_OCX_CONFIG
     return wrapXml(rawXml`
-        <cmd type="SetLoginInfo" loginType="sessionId">
+        <cmd type="SetLoginInfo" loginType="daToken">
             <sn>${wrapCDATA(sn)}</sn>
             <sign>${wrapCDATA(sign)}</sign>
             <daToken>${wrapCDATA(daToken)}</daToken>
