@@ -1016,11 +1016,7 @@ const getSingletonPlugin = () => {
         isPluginAvailable.value = false
         pluginStore.ocxPort = 0
         // 与插件建链发生错误后，若当前浏览器支持H5方式，则可使用H5登录方式
-        if (isBrowserSupportWasm()) {
-            pluginStore.currPluginMode = 'h5'
-        } else {
-            pluginStore.currPluginMode = 'ocx'
-        }
+        pluginStore.currPluginMode = 'h5'
 
         if (userSession.appType === 'P2P') {
             getPluginNotice()
