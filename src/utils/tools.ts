@@ -374,8 +374,8 @@ export const checkChlListCaps = async (route: string): Promise<boolean> => {
 
     const supportFlag = $('content/item').some((item) => {
         const $item = queryXml(item.element)
-        const protocolType = $('protocolType').text()
-        const factoryName = $('productModel').attr('factoryName')
+        const protocolType = $item('protocolType').text()
+        const factoryName = $item('productModel').attr('factoryName')
         if (factoryName === 'Recorder') {
             return false
         }
