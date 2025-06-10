@@ -381,8 +381,7 @@ export const WebsocketSnap = (option: WebsocketSnapOption) => {
         const snapPicKey = PIC_KEY_MAP[key].snap_pic
         const infoKey = PIC_KEY_MAP[key].info
         itemOut.detect_list.forEach((item) => {
-            const key = item[snapPicKey as 'target_pic' | 'boundary_info'] as string
-            const snap_pic = getPicBase64(buffer, key, jsonEndPosition)
+            const snap_pic = getPicBase64(buffer, item[snapPicKey as 'target_pic' | 'boundary_info'] as string, jsonEndPosition)
             snapDataList.push({
                 type: key,
                 chlId: chlId,
