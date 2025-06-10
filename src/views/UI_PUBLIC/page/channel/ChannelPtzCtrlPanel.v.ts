@@ -48,7 +48,7 @@ export default defineComponent({
             default: 8,
         },
         layout: {
-            type: String as PropType<'horizontal' | 'vertical'>,
+            type: String as PropType<'horizontal' | 'vertical' | 'event'>,
             default: 'horizontal',
         },
     },

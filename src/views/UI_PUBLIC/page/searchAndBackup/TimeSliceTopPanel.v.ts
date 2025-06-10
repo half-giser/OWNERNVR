@@ -21,7 +21,6 @@ export default defineComponent({
     setup(_prop, ctx) {
         const { Translate } = useLangStore()
         const dateTime = useDateTimeStore()
-        const userSession = useUserSessionStore()
 
         // 允许显示缩略图的最大数量64
         const MAX_THUMBNAIL_SHOW_COUNTS = 64
@@ -206,17 +205,15 @@ export default defineComponent({
          * @description 初始化获取关键帧的websocket
          */
         const createWebsocketKeyframe = () => {
-            if (userSession.appType === 'STANDARD') {
-                keyframe = WebsocketKeyframe({
-                    onmessage: (data: WebsocketKeyframeOnMessageParam) => {
-                        if (timesliceMap[data.taskId.toUpperCase()]) {
-                            const [index, chlIndex] = timesliceMap[data.taskId.toUpperCase()]
-                            pageData.value.chlTimeSliceList[index].chlList[chlIndex].imgUrl = data.imgUrl
-                            pageData.value.chlTimeSliceList[index].chlList[chlIndex].frameTime = data.frameTime
-                        }
-                    },
-                })
-            }
+            keyframe = WebsocketKeyframe({
+                onmessage: (data: WebsocketKeyframeOnMessageParam) => {
+                    if (timesliceMap[data.taskId.toUpperCase()]) {
+                        const [index, chlIndex] = timesliceMap[data.taskId.toUpperCase()]
+                        pageData.value.chlTimeSliceList[index].chlList[chlIndex].imgUrl = data.imgUrl
+                        pageData.value.chlTimeSliceList[index].chlList[chlIndex].frameTime = data.frameTime
+                    }
+                },
+            })
         }
 
         /**

@@ -19,6 +19,7 @@ export default defineComponent({
         let chlMap: Record<string, string> = {}
         let eventMap: Record<string, string> = {}
         let chlLoadComplete = false
+        let lock = false
 
         const pageData = ref({
             searchType: 'byCar',
@@ -153,6 +154,10 @@ export default defineComponent({
          * @description 获取统计数据
          */
         const getData = async () => {
+            if (lock) {
+                return
+            }
+
             if (!formData.value.chl.length) {
                 // NTA1-1294 不显示已删除通道，表格没有可选通道时，提示“请选择通道”且不下发查询协议
                 if (chlLoadComplete) {
@@ -160,7 +165,9 @@ export default defineComponent({
                 }
                 return
             }
+
             openLoading()
+            lock = true
             const carXml = pageData.value.searchType === 'byCar' ? '<item>car</item>' : ''
             const motorXml = pageData.value.searchType === 'byMotorcycle' ? '<item>motor</item>' : ''
             const vehicleXml = pageData.value.searchType === 'byPlateNumber' ? '<item>car</item><item>motor</item>' : carXml + motorXml
@@ -204,6 +211,8 @@ export default defineComponent({
             const result = await faceImgStatistic_v2(sendXml)
             const $ = queryXml(result)
             closeLoading()
+            lock = false
+
             if ($('status').text() === 'success') {
                 tableData.value = $('content/timeStatistic/item').map((item) => {
                     const $item = queryXml(item.element)

@@ -169,7 +169,7 @@ export default defineComponent({
             // 是否全选
             isCheckedAll: false,
             // 是否支持备份（H5模式）
-            isSupportBackUp: isBrowserSupportWasm() && !isHttpsLogin(),
+            isSupportBackUp: !isHttpsLogin(),
             isRegisterPop: false,
             registerPlateNumber: '',
         })

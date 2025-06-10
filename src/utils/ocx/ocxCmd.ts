@@ -325,7 +325,7 @@ export const OCX_XML_SetSessionIdLogin_P2P = (sessionId: string, sn: string, con
 export const OCX_XML_SetDATokenLogin_P2P = (sn: string, daToken: string, sign: string, config?: typeof DEFAULT_OCX_CONFIG) => {
     config = config || DEFAULT_OCX_CONFIG
     return wrapXml(rawXml`
-        <cmd type="SetLoginInfo" loginType="sessionId">
+        <cmd type="SetLoginInfo" loginType="daToken">
             <sn>${wrapCDATA(sn)}</sn>
             <sign>${wrapCDATA(sign)}</sign>
             <daToken>${wrapCDATA(daToken)}</daToken>
@@ -1534,7 +1534,7 @@ export const OCX_XML_BackUpRecList = (format: string, path: string, groupby = 'c
                 ${list
                     .map(
                         (item) =>
-                            `<item chlId="${item.chlId}" chlName="${item.chlName}" chlIndex="${item.chlIndex}" event="${item.event}" startTime="${item.startTime}" startTimeEx="${item.startTimeEx}" endTime="${item.endTime}" endTimeEx="${item.endTimeEx}" duration="${item.duration}" />`,
+                            `<item chlId="${item.chlId}" chlIndex="${item.chlIndex}" event="${item.event}" startTime="${item.startTime}" startTimeEx="${item.startTimeEx}" endTime="${item.endTime}" endTimeEx="${item.endTimeEx}" duration="${item.duration}">${wrapCDATA(item.chlName)}</item>`,
                     )
                     .join('')}
             </backupRecList>
