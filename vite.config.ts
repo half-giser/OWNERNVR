@@ -228,15 +228,18 @@ export default defineConfig(({ mode }) => {
                       }),
                   ],
         ),
+        // 生产打包配置
         build: {
             outDir: `dist/${env.VITE_UI_TYPE}`,
             assetsInlineLimit: 0,
+            // 阻止将 CSS 样式文件放入 aysnc js chunk
             cssCodeSplit: false,
             minify: 'esbuild',
             target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
             // target: ['chrome105', 'edge105', 'firefox121', 'safari15.4'],
             // 设置 source map 选项
             sourcemap: false,
+            // 用户体验在当前的浏览器环境中，主要限制：脚本下载速度（network）以及浏览器主线程（CPU）解析脚本的速度，故而需要限制打包后的 chunk 体积
             chunkSizeWarningLimit: 1024,
             rollupOptions: {
                 output: {
