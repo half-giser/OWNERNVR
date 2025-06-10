@@ -371,7 +371,7 @@ export default defineComponent({
                 <content>
                     <cloudUpgrade>
                         <nvrItem>
-                            <upgradeType>${pageData.value.upgradeType}</upgradeType>
+                            <upgradeType>${formData.value.upgradeType}</upgradeType>
                         </nvrItem>
                     </cloudUpgrade>
                 </content>
