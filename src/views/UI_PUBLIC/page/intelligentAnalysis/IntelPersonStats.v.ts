@@ -23,6 +23,7 @@ export default defineComponent({
         let chlLoadComplete = false
         let totalTableData: IntelPersonStatsList[] = []
         let childTableData: IntelPersonStatsList[] = []
+        let lock = false
 
         const pageData = ref({
             // 日期范围类型
@@ -134,8 +135,6 @@ export default defineComponent({
         const changeType = (type: string) => {
             pageData.value.chartType = type
         }
-
-        let lock = false
 
         /**
          * @description 获取统计数据

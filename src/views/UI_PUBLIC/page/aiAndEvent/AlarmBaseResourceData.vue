@@ -5,7 +5,7 @@
 -->
 <template>
     <div>
-        <span>{{ Translate('IDCS_USAGE_RATE') }} {{ pageData.totalResourceOccupancy }}%</span>
+        <span>{{ Translate('IDCS_USAGE_RATE') }} {{ pageData.totalResourceOccupancy.toFixed(2) }}%</span>
         <BaseImgSpriteBtn
             class="detailBtn"
             file="detail"
@@ -45,10 +45,7 @@
                     :label="Translate('IDCS_USAGE_RATE')"
                     width="150"
                 />
-                <el-table-column
-                    :label="Translate('IDCS_FREE_AI_RESOURCE')"
-                    width="118"
-                >
+                <el-table-column :label="Translate('IDCS_FREE_AI_RESOURCE')">
                     <template #default="{ row }: TableColumn<AlarmAIResourceDto>">
                         <BaseImgSpriteBtn
                             file="del"
