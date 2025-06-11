@@ -264,6 +264,7 @@ export default defineComponent({
                 return {
                     label: item.name,
                     value: item.id,
+                    disabled: item.disabled,
                 }
             })
         })
@@ -486,9 +487,6 @@ export default defineComponent({
                 selectedChlId.value = row.id
                 tmpShutterUpLimit = row.shutterUpLimit
                 tmpShutterLowLimit = row.shutterLowLimit
-                // tmpDayTime = row.scheduleInfo.dayTime
-                // tmpNightTime = row.scheduleInfo.nightTime
-                // if (azList[tableData.value.indexOf(row)]) curLensCtrl.value = azList[tableData.value.indexOf(row)]
                 tableRef.value!.setCurrentRow(row)
                 formData.value = cloneDeep(row)
                 beforeEditData = cloneDeep(row)
@@ -516,12 +514,9 @@ export default defineComponent({
         }
 
         const handleRowClick = (rowData: ChannelImageDto) => {
-            if (!rowData.disabled) {
-                selectedChlId.value = rowData.id
-                formData.value = cloneDeep(rowData)
-                beforeEditData = cloneDeep(rowData)
-            }
-            tableRef.value!.setCurrentRow(getRowById(selectedChlId.value))
+            selectedChlId.value = rowData.id
+            formData.value = cloneDeep(rowData)
+            beforeEditData = cloneDeep(rowData)
         }
 
         const changeCfgFile = async () => {

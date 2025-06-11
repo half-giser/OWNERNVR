@@ -15,6 +15,7 @@
             <BaseVideoPlayer
                 v-if="playerOpened"
                 ref="playerRef"
+                :enable-draw="false"
                 @ready="ready"
             />
         </div>

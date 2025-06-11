@@ -14,17 +14,29 @@
         ]"
     >
         <div class="steer">
-            <BaseImgSpriteBtn
-                v-for="item in pageData.steer"
-                :key="item.file"
-                :file="item.file"
-                :disabled="!chlId || disabled || !enableCtrl"
-                @mousedown="addCmd(item)"
-                @mouseup="stopCmd()"
-            />
+            <div>
+                <BaseImgSpriteBtn
+                    v-for="item in pageData.steer"
+                    :key="item.file"
+                    :file="item.file"
+                    :disabled="!chlId || disabled || !enableCtrl"
+                    @mousedown="addCmd(item)"
+                    @mouseup="stopCmd()"
+                />
+            </div>
+            <div
+                v-if="layout === 'event'"
+                v-title
+                class="speed-label"
+            >
+                {{ Translate('IDCS_SPEED') }}
+            </div>
         </div>
         <div class="value">
-            <div class="speed">
+            <div
+                v-if="layout !== 'event'"
+                class="speed"
+            >
                 <BaseImgSpriteBtn
                     file="SpeedSlow"
                     :disabled="!chlId || disabled || !enableSpeed"
@@ -45,23 +57,50 @@
                     @click="increaseSpeed()"
                 />
             </div>
+            <div class="row-list">
+                <div
+                    v-for="item in pageData.controls"
+                    :key="item.name"
+                    class="row"
+                >
+                    <BaseImgSpriteBtn
+                        :file="item.control[0].file"
+                        :disabled="!item.validate()"
+                        @mousedown="addCmd(item.control[0])"
+                        @mouseup="stopCmd()"
+                    />
+                    <span>{{ item.name }}</span>
+                    <BaseImgSpriteBtn
+                        :file="item.control[1].file"
+                        :disabled="!item.validate()"
+                        @mousedown="addCmd(item.control[1])"
+                        @mouseup="stopCmd()"
+                    />
+                </div>
+            </div>
+
             <div
-                v-for="item in pageData.controls"
-                :key="item.name"
-                class="row"
+                v-if="layout === 'event'"
+                class="speed"
             >
                 <BaseImgSpriteBtn
-                    :file="item.control[0].file"
-                    :disabled="!item.validate()"
-                    @mousedown="addCmd(item.control[0])"
-                    @mouseup="stopCmd()"
+                    file="SpeedSlow"
+                    :disabled="!chlId || disabled || !enableSpeed"
+                    @click="decreaseSpeed()"
                 />
-                <span>{{ item.name }}</span>
+                <el-slider
+                    v-model="pageData.speed"
+                    :min="minSpeed"
+                    :max="maxSpeed"
+                    :step="1"
+                    :disabled="!chlId || disabled || !enableSpeed"
+                    :show-tooltip="!chlId || disabled || !enableSpeed ? false : true"
+                    placement="bottom"
+                />
                 <BaseImgSpriteBtn
-                    :file="item.control[1].file"
-                    :disabled="!item.validate()"
-                    @mousedown="addCmd(item.control[1])"
-                    @mouseup="stopCmd()"
+                    file="SpeedQuick"
+                    :disabled="!chlId || disabled || !enableSpeed"
+                    @click="increaseSpeed()"
                 />
             </div>
         </div>
@@ -103,9 +142,24 @@
     flex-shrink: 0;
     padding-top: 10px;
 
+    & > div:first-child {
+        width: 180px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
     span {
         margin: 2px;
     }
+}
+
+.speed-label {
+    text-align: left;
+    line-height: 32px;
+    width: 100%;
+    padding-left: 5px;
+    box-sizing: border-box;
 }
 
 .speed {
@@ -132,5 +186,13 @@
     align-items: center;
     justify-content: space-between;
     flex-shrink: 0;
+}
+
+.event .row-list {
+    padding-top: 10px;
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 </style>

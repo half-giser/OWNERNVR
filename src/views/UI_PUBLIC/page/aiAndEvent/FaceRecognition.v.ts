@@ -61,7 +61,6 @@ export default defineComponent({
         // 需要用到的系统配置
         const supportFaceMatch = systemCaps.supportFaceMatch
         const showAIReourceDetail = systemCaps.showAIReourceDetail
-        const localFaceDectEnabled = !!systemCaps.localFaceDectMaxCount
         const faceMatchLimitMaxChlNum = systemCaps.faceMatchLimitMaxChlNum
         const supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
         const AISwitch = systemCaps.AISwitch
@@ -76,10 +75,10 @@ export default defineComponent({
             isDispalyRangeChecked: false,
             snapList: [300, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 15000, 20000, 30000, 40000, 50000, 60000, 120000, 240000, 360000, 480000, 600000].map((item) => {
                 let label = ''
-                if (item / 1000 <= 60) {
-                    label = getTranslateForSecond(item / 1000)
+                if (item / 1000 < 60) {
+                    label = displaySecondWithUnit(item / 1000)
                 } else {
-                    label = getTranslateForMin(item / 1000 / 60)
+                    label = displayMinuteWithUnit(item / 1000 / 60)
                 }
                 return {
                     value: item.toString(),
@@ -237,7 +236,17 @@ export default defineComponent({
             })
 
             const result = await getChlList({
-                requireField: ['ip', 'supportVfd', 'supportAudioAlarmOut', 'supportFire', 'supportWhiteLightAlarmOut', 'supportTemperature'],
+                requireField: [
+                    'ip',
+                    'supportVfd',
+                    'supportFire',
+                    'supportTemperature',
+                    'protocolType',
+                    'supportAudioAlarmOut',
+                    'supportWhiteLightAlarmOut',
+                    // 如果IPC支持的分辨率没有能支持后侦测的分辨率，就不能支持后侦测。是否支持后侦测能力集
+                    'supportLocalVfd',
+                ],
             })
             commLoadResponseHandler(result, ($) => {
                 $('content/item').forEach((item) => {
@@ -251,9 +260,9 @@ export default defineComponent({
                         const supportFire = $item('supportFire').text().bool()
                         const supportTemperature = $item('supportTemperature').text().bool()
                         let supportBackVfd = false
-                        if (localFaceDectEnabled) {
+                        if (!!systemCaps.localFaceDectMaxCount) {
                             // 支持人脸后侦测且人脸前侦测为false，才算支持人脸后侦测
-                            supportBackVfd = !supportVfd
+                            supportBackVfd = $item('supportLocalVfd').text().bool()
                         }
 
                         // 热成像通道（火点检测/温度检测）不支持后侦测
@@ -825,6 +834,11 @@ export default defineComponent({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
+
+                watchDetection.update()
+                if (detectionFormData.value.enabledSwitch) {
+                    detectionFormData.value.originalSwitch = true
+                }
             } else {
                 const errorCode = $('errorCode').text().num()
                 switch (errorCode) {
@@ -842,11 +856,6 @@ export default defineComponent({
                         break
                 }
             }
-
-            if (detectionFormData.value.enabledSwitch) {
-                detectionFormData.value.originalSwitch = true
-            }
-            watchDetection.update()
         }
 
         /**
@@ -874,6 +883,7 @@ export default defineComponent({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
+                watchDetection.update()
             } else {
                 const errorCode = $('errorCode').text().num()
                 switch (errorCode) {
@@ -891,7 +901,6 @@ export default defineComponent({
                         break
                 }
             }
-            watchDetection.update()
         }
 
         // 首次加载成功 播放视频

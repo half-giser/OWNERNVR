@@ -788,7 +788,7 @@ export default defineComponent({
          * @description 时间轴的通道排序
          */
         const sortTimelineChlList = () => {
-            if (pageData.value.playStatus === 'stop') {
+            if (pageData.value.playStatus === 'stop' || pageData.value.playStatus === 'pending') {
                 const chlList = pageData.value.chls
                 const currentList: PlaybackRecList[] = chlList.map((item) => {
                     const find = pageData.value.recLogList.find((rec) => item.id === rec.chlId)
@@ -1470,7 +1470,7 @@ export default defineComponent({
                 } else {
                     pageData.value.mainStreamTypeChl = ''
                 }
-                cmd(OCX_XML_SetStreamType(pageData.value.winData.winIndex, type))
+                cmd(OCX_XML_SetStreamType(pageData.value.winData.winIndex, type === 1 ? 0 : 1))
             }
         }
 
@@ -1526,20 +1526,10 @@ export default defineComponent({
                     return item.records.length
                 })
                 .map((item) => {
-                    const events = Array.from(new Set(item.records.map((item) => item.event)))
-
                     return {
                         chlId: item.chlId,
                         chlName: item.chlName,
-                        events: events
-                            .map((item) => {
-                                const find = pageData.value.legend.find((legend) => legend.value === item)
-                                if (find) {
-                                    if (find.children.length) return find.children
-                                    else return find.value
-                                } else return []
-                            })
-                            .flat(),
+                        events: Array.from(new Set(item.records.map((item) => item.event))),
                         startTime,
                         endTime,
                         streamType: pageData.value.mainStreamTypeChl === item.chlId ? 0 : 1,
@@ -1670,7 +1660,7 @@ export default defineComponent({
                             duration: record.duration,
                         }
                     })
-                    cmd(OCX_XML_SetRecList(item.chlId, index, recordList, item.timeZone))
+                    cmd(OCX_XML_SetRecList(item.chlId, index, recordList, item.timeZone || 'UTC'))
                 })
             }
         }
@@ -1717,7 +1707,7 @@ export default defineComponent({
                 pageData.value.winData.winIndex = winIndex
                 pageData.value.winData.audio = $item('volumOn').text().bool()
                 pageData.value.winData.original = $item('isOriginalDisplayOn').text().bool()
-                pageData.value.winData.streamType = $item('streamType').text().num()
+                pageData.value.winData.streamType = $item('streamType').text().num() === 1 ? 0 : 1
                 if (pageData.value.isFullScreen) {
                     pageData.value.fullScreenIndex = winIndex
                 } else {

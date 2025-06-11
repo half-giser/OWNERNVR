@@ -35,6 +35,7 @@ export default defineComponent({
                 return {
                     label: item.name,
                     value: item.id,
+                    disabled: item.disabled,
                 }
             })
         })
@@ -82,11 +83,8 @@ export default defineComponent({
         }
 
         const handleRowClick = (rowData: ChannelFisheyeDto) => {
-            if (!rowData.disabled) {
-                selectedChlId.value = rowData.id
-                formData.value = rowData
-            }
-            tableRef.value!.setCurrentRow(getRowById(selectedChlId.value))
+            selectedChlId.value = rowData.id
+            formData.value = rowData
         }
 
         /**
@@ -355,7 +353,7 @@ export default defineComponent({
 
             for (const item of editRows.toArray()) {
                 if (!item.reqCfgFail) {
-                    const res = await editIPChlORChlFishEye(getSaveData(item, true))
+                    const res = await editIPChlORChlFishEye(getSaveData(item, rebootPrompt))
                     const $ = queryXml(res)
                     const success = $('status').text() === 'success'
                     if (success) {

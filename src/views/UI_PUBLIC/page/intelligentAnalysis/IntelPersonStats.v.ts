@@ -23,6 +23,7 @@ export default defineComponent({
         let chlLoadComplete = false
         let totalTableData: IntelPersonStatsList[] = []
         let childTableData: IntelPersonStatsList[] = []
+        let lock = false
 
         const pageData = ref({
             // 日期范围类型
@@ -139,6 +140,10 @@ export default defineComponent({
          * @description 获取统计数据
          */
         const getData = async () => {
+            if (lock) {
+                return
+            }
+
             if (!formData.value.chl.length) {
                 // NTA1-1294 不显示已删除通道，表格没有可选通道时，提示“请选择通道”且不下发查询协议
                 if (chlLoadComplete) {
@@ -146,6 +151,8 @@ export default defineComponent({
                 }
                 return
             }
+
+            lock = true
             openLoading()
             const attributeXml =
                 formData.value.event[0] === 'videoMetadata'
@@ -180,6 +187,7 @@ export default defineComponent({
             `
             const result = await faceImgStatistic_v2(sendXml)
             const $ = queryXml(result)
+            lock = false
             closeLoading()
             totalTableData = []
             childTableData = []

@@ -39,6 +39,7 @@ export default defineComponent({
                 return {
                     label: item.name,
                     value: item.id,
+                    disabled: item.disabled,
                 }
             })
         })
@@ -104,11 +105,8 @@ export default defineComponent({
          * @param {ChannelOsdDto} rowData
          */
         const handleRowClick = (rowData: ChannelOsdDto) => {
-            if (!rowData.disabled) {
-                selectedChlId.value = rowData.id
-                formData.value = cloneDeep(rowData)
-            }
-            tableRef.value!.setCurrentRow(getRowById(selectedChlId.value))
+            selectedChlId.value = rowData.id
+            formData.value = cloneDeep(rowData)
         }
 
         const changeSwitch = (flag: boolean, chlId: string, type: 'displayName' | 'displayTime' | 'remarkSwitch') => {

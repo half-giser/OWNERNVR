@@ -38,6 +38,7 @@
                         ref="playerRef"
                         type="record"
                         :enable-pos="systemCaps.supportPOS"
+                        :enable-draw="false"
                         @ready="handleReady"
                         @time="handleTime"
                         @success="handleSuccess"

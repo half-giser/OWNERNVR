@@ -108,33 +108,41 @@ export default defineComponent({
             const result = await getChlList({
                 requireField: [
                     'ip',
-                    'supportVfd',
-                    'supportVehiclePlate',
-                    'supportAOIEntry',
-                    'supportAOILeave',
+                    'supportInvokeEventTypeConfig',
                     'supportTripwire',
                     'supportPea',
                     'supportPeaTrigger',
-                    'supportIpd',
-                    'supportAvd',
-                    'supportCdd',
-                    'supportOsc',
-                    'supportCpc',
-                    'supportPassLine',
-                    'supportAudioAlarmOut',
-                    'supportAutoTrack',
-                    'supportFire',
-                    'supportWhiteLightAlarmOut',
-                    'supportTemperature',
-                    'protocolType',
-                    'supportVideoMetadata',
-                    'supportLoitering',
-                    'supportPvd',
-                    'supportRegionStatistics',
-                    'supportASD',
+                    'supportAOIEntry',
+                    'supportAOILeave',
+                    'supportVfd',
                     'supportHeatMap',
+                    'supportVehiclePlate',
+                    'supportVideoMetadata',
                     'supportCrowdGathering',
                     'supportBinocularCountConfig',
+                    'supportLoitering',
+                    'supportFire',
+                    'supportPassLine',
+                    'supportCpc',
+                    'supportOsc',
+                    'supportCdd',
+                    'supportASD',
+                    'supportAvd',
+                    'supportTemperature',
+                    'supportPvd',
+                    'supportIpd',
+                    'supportAutoTrack',
+                    'supportRegionStatistics',
+                    'protocolType',
+                    'supportAudioAlarmOut',
+                    'supportWhiteLightAlarmOut',
+                    // 如果IPC支持的分辨率没有能支持后侦测的分辨率，就不能支持后侦测。是否支持后侦测能力集
+                    'supportLocalVfd',
+                    'supportLocalTripwire',
+                    'supportLocalInvade',
+                    'supportLocalAOIEntry',
+                    'supportLocalAOILeave',
+                    'supportPtz',
                 ],
             })
             const $ = queryXml(result)
@@ -177,6 +185,12 @@ export default defineComponent({
                         const supportHeatMap = $item('supportHeatMap').text().bool()
                         const supportCrowdGathering = $item('supportCrowdGathering').text().bool()
                         const supportBinocularCountConfig = $item('supportBinocularCountConfig').text().bool()
+                        const supportLocalVfd = $item('supportLocalVfd').text().bool()
+                        const supportLocalTripwire = $item('supportLocalTripwire').text().bool()
+                        const supportLocalInvade = $item('supportLocalInvade').text().bool()
+                        const supportLocalAOIEntry = $item('supportLocalAOIEntry').text().bool()
+                        const supportLocalAOILeave = $item('supportLocalAOILeave').text().bool()
+
                         let supportBackVfd = false
                         let supportBackTripwire = false
                         let supportBackPea = false
@@ -185,14 +199,14 @@ export default defineComponent({
 
                         if (!!systemCaps.localFaceDectMaxCount) {
                             // 支持人脸后侦测且人脸前侦测为false，才算支持人脸后侦测
-                            supportBackVfd = !supportVfd
+                            supportBackVfd = supportLocalVfd
                         }
 
                         if (!!systemCaps.localTargetDectMaxCount) {
-                            supportBackTripwire = !supportTripwire
-                            supportBackPea = !supportPea
-                            supportBackAOIEntry = !supportAOIEntry
-                            supportBackAOILeave = !supportAOILeave
+                            supportBackTripwire = supportLocalTripwire
+                            supportBackPea = supportLocalInvade
+                            supportBackAOIEntry = supportLocalAOIEntry
+                            supportBackAOILeave = supportLocalAOILeave
                         }
 
                         // 热成像通道（火点检测/温度检测）不支持后侦测

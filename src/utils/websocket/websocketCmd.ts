@@ -10,7 +10,8 @@
 export const getWebsocketOpenUrl = () => {
     const userSession = useUserSessionStore()
     const localHost = window.location.host + import.meta.env.VITE_BASE_URL // import.meta.env.PROD ? window.location.host : import.meta.env.VITE_APP_IP
-    const host = userSession.appType === 'STANDARD' ? localHost : 'virtualWebsocket'
+    const p2pHost = 'virtualWebsocket' + '/'
+    const host = userSession.appType === 'STANDARD' ? localHost : p2pHost
     const protocol = window.location.protocol
     const wsProtocol = protocol === 'http:' ? 'ws' : 'wss'
     return wsProtocol + '://' + host + 'requestWebsocketConnection'

@@ -132,12 +132,13 @@ export default defineComponent({
                         `
                         queryUpgradeFileHead(sendXml).then((result) => {
                             const $$ = queryXml(result)
-                            const errorCode = $$('errorCode').text().num()
+                            const errorCode = $$('content/errorCode').text().num()
                             if ($$('status').text() === 'success') {
                                 if (errorCode !== 0) handleErrorMsg(errorCode)
                             }
                             // 若errorCode为0，即正常低升高版本
                             if (errorCode === 0) upgrade(true)
+                            closeLoading()
                         })
                     }
                 } else {
@@ -378,7 +379,7 @@ export default defineComponent({
                     },
                 })
             } else {
-                if (systemCaps.devSystemType !== 1 && noCheckversion) {
+                if (systemCaps.devSystemType !== 1 || noCheckversion) {
                     const param = {
                         filePath: formData.value.filePath,
                         version: 'SmallMemory',
@@ -386,6 +387,7 @@ export default defineComponent({
                         authPwd: userCheckAuthForm.password,
                         token: userSession.token,
                     }
+
                     const sendXML = OCX_XML_FileNetTransport('Upgrade', param)
                     plugin.ExecuteCmd(sendXML)
                 } else {

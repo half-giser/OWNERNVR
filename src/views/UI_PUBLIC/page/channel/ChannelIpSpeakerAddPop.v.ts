@@ -229,8 +229,13 @@ export default defineComponent({
                 const result = await queryVoiceDev(sendXml)
                 const $item = queryXml(result)
                 const associatedType = $item('content/associatedType').text()
-                const associatedDeviceID = associatedType === 'LOCAL' ? DEFAULT_EMPTY_ID : $item('content/associatedType').attr('id')
-                devIdList.push(associatedDeviceID)
+                if (associatedType === 'CHANNEL') {
+                    devIdList.push($('content/associatedType').attr('id'))
+                }
+                // 此时返的是NVR真实GUID，但web没法获取该ID，所以用原本讨论的全0 GUID代替，实际不会下发
+                else if (associatedType === 'LOCAL') {
+                    devIdList.push(DEFAULT_EMPTY_ID)
+                }
             }
             return devIdList
         }

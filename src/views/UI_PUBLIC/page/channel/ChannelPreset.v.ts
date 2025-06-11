@@ -147,20 +147,19 @@ export default defineComponent({
             closeLoading()
 
             if ($('status').text() === 'success') {
-                tableData.value[index].presets = $('content/presets/item')
+                const item = tableData.value[index]
+                item.presets = $('content/presets/item')
                     .map((item) => {
-                        // const $item = queryXml(item.element)
                         return {
                             index: item.attr('index').num(),
                             name: item.text(),
                         }
                     })
                     .sort((a, b) => a.index - b.index)
-                tableData.value[index].presetCount = tableData.value[index].presets.length
-                tableData.value[index].maxCount = $('content/presets').attr('maxCount').num() // 可配置的最大预置点数
-                tableData.value[index].nameMaxByteLen = $('content/presets/itemType').attr('maxByteLen').num() || nameByteMaxLen
-            } else {
-                tableData.value[index].disabled = true
+                item.presetCount = item.presets.length
+                item.maxCount = $('content/presets').attr('maxCount').num() // 可配置的最大预置点数
+                item.nameMaxByteLen = $('content/presets/itemType').attr('maxByteLen').num() || nameByteMaxLen
+                item.disabled = false
             }
         }
 
@@ -202,13 +201,15 @@ export default defineComponent({
                                 presets: [],
                                 maxCount: Infinity,
                                 nameMaxByteLen: 63,
-                                disabled: false,
+                                disabled: true,
                                 supportPtz,
                                 supportAZ,
                                 supportIris,
                                 minSpeed,
                                 maxSpeed,
                                 supportIntegratedPtz,
+                                status: '',
+                                statusTip: '',
                             })
                         }
                     }

@@ -31,6 +31,7 @@ export default defineComponent({
                 return {
                     label: item.chlName,
                     value: item.chlId,
+                    disabled: item.disabled,
                 }
             })
         })
@@ -278,16 +279,12 @@ export default defineComponent({
         }
 
         const handleRowClick = (rowData: ChannelWaterMarkDto) => {
-            if (!rowData.disabled) {
-                pageData.value.currChlId = rowData.chlId
-                pageData.value.chlData = rowData
-                if (pageData.value.chlData.disabled) {
-                    pageData.value.switchDisabled = true
-                } else {
-                    pageData.value.switchDisabled = false
-                }
-                tableRef.value!.setCurrentRow(rowData)
-                play()
+            pageData.value.currChlId = rowData.chlId
+            pageData.value.chlData = rowData
+            if (pageData.value.chlData.disabled) {
+                pageData.value.switchDisabled = true
+            } else {
+                pageData.value.switchDisabled = false
             }
         }
 

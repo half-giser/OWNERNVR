@@ -78,7 +78,7 @@
                     v-model="formData.ntpInterval"
                     :min="formData.ntpIntervalMin"
                     :max="formData.ntpIntervalMax"
-                    :disabled="formData.syncType === 'NTP'"
+                    :disabled="formData.syncType !== 'NTP'"
                     mode="blur"
                     @out-of-range="handleNtpIntervalOutOfRange"
                 />

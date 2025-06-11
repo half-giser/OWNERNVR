@@ -53,19 +53,25 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
      */
     const createLocalBackUpTask = (backupList: PlaybackBackUpTaskList[]) => {
         backupList.forEach((item) => {
-            const sendXML = OCX_XML_BackUpRecList(item.backupFileFormat, item.backupPath, item.groupby, item.streamType === 0 ? true : false, [
-                {
-                    chlName: item.chlName,
-                    chlId: item.chlId,
-                    chlIndex: item.chlIndex,
-                    startTime: item.startTime,
-                    endTime: item.endTime,
-                    event: item.eventType,
-                    startTimeEx: item.startTimeEx,
-                    endTimeEx: item.endTimeEx,
-                    duration: item.duration,
-                },
-            ])
+            const sendXML = OCX_XML_BackUpRecList(
+                item.backupFileFormat,
+                item.backupPath,
+                item.groupby,
+                item.streamType === 0 ? true : false,
+                item.eventType.split(',').map((event) => {
+                    return {
+                        chlName: item.chlName,
+                        chlId: item.chlId,
+                        chlIndex: item.chlIndex,
+                        startTime: item.startTime,
+                        endTime: item.endTime,
+                        event: event,
+                        startTimeEx: item.startTimeEx,
+                        endTimeEx: item.endTimeEx,
+                        duration: item.duration,
+                    }
+                }),
+            )
             cmd(sendXML)
         })
     }
@@ -285,7 +291,7 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
      */
     const addTask = (list: PlaybackBackUpRecList[], path: string, format: string, groupby = 'chlId') => {
         // 本地Creator
-        const LOCAL_CREATOR = userSession.getAuthInfo() ? userSession.getAuthInfo()![0] : ''
+        const LOCAL_CREATOR = userSession.userName
         list.forEach((item) => {
             chlIndex++
             localTableData.value.push({
