@@ -365,7 +365,11 @@
                             :label="Translate('IDCS_CLICK_TEMPERATURE_MEASUREMENT')"
                         />
                     </el-form-item>
-                    <el-form-item :label="Translate('IDCS_EMISSIVITY')">
+                    <el-form-item
+                        :label="Translate('IDCS_EMISSIVITY')"
+                        :title="Translate('IDCS_EMISSIVITY')"
+                        show-overflow-tooltip
+                    >
                         <BaseNumberInput
                             v-model="formData.tempInfo.emissivity.value"
                             :precision="2"
@@ -376,7 +380,11 @@
                             @out-of-range="blurValue(formData.tempInfo.emissivity.min, formData.tempInfo.emissivity.max)"
                         />
                     </el-form-item>
-                    <el-form-item :label="distanceText">
+                    <el-form-item
+                        :label="distanceText"
+                        :title="distanceText"
+                        show-overflow-tooltip
+                    >
                         <BaseNumberInput
                             v-model="formData.tempInfo.distance.value"
                             :precision="2"
@@ -389,6 +397,7 @@
                     </el-form-item>
                     <el-form-item
                         :label="reflectTemText"
+                        :title="reflectTemText"
                         show-overflow-tooltip
                     >
                         <BaseNumberInput
@@ -401,19 +410,22 @@
                             @out-of-range="blurValue(tempInfoReflectMin, tempInfoReflectMax)"
                         />
                     </el-form-item>
-                    <el-form-item>
+                    <el-form-item class="tempCheck">
                         <el-checkbox
                             v-model="formData.tempInfo.maxtemperen"
                             :label="Translate('IDCS_MAX_TEMPERATURE')"
+                            :title="Translate('IDCS_MAX_TEMPERATURE')"
                         />
                         <el-checkbox
                             v-if="formData.tempInfo.isShowAvgtemperen"
                             v-model="formData.tempInfo.avgtemperen"
                             :label="Translate('IDCS_AVE_TEMPERATURE')"
+                            :title="Translate('IDCS_AVE_TEMPERATURE')"
                         />
                         <el-checkbox
                             v-model="formData.tempInfo.mintemperen"
                             :label="Translate('IDCS_MIN_TEMPERATURE')"
+                            :title="Translate('IDCS_MIN_TEMPERATURE')"
                         />
                         <div class="divTip">
                             <BaseFloatError v-model:message="pageData.errorMessageTemp" />
@@ -446,5 +458,17 @@
 
 .base-table-box {
     height: 280px;
+}
+
+.tempCheck .el-checkbox {
+    margin-right: 15px;
+}
+
+::v-deep(.tempCheck .el-checkbox__label) {
+    max-width: 90px;
+    line-height: 32px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 </style>
