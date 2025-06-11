@@ -25,6 +25,7 @@ import { STATS_FILE_PATH, TYPE_AUTO_IMPORT_FILE_PATH, TYPE_COMPONENTS_FILE_PATH 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
     const split = mode.split(',')
+    // 获取环境目录下 /config/*，.env & .env[split[0]] 文件内容
     const env = loadEnv(split[0], envDir)
 
     env.VITE_UI_TYPE = split[1] || env.VITE_UI_TYPE
@@ -34,7 +35,7 @@ export default defineConfig(({ mode }) => {
     const VITE_PACKAGE_VER = Math.ceil(Date.now() / 1000 / 60).toString(36)
 
     return {
-        // envDir,
+        // global constant, 不论开发、生产环境都能使用此处的定义
         define: {
             'import.meta.env.NODE_ENV': env.NODE_ENV,
             'import.meta.env.VITE_UI_TYPE': JSON.stringify(env.VITE_UI_TYPE),
