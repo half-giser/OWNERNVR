@@ -181,7 +181,7 @@
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_USERNAME')"
-                    min-width="150"
+                    min-width="160"
                 >
                     <template #default="{ row, $index }: TableColumn<ChannelManualAddDto>">
                         <el-input
@@ -194,7 +194,7 @@
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_PASSWORD')"
-                    min-width="150"
+                    min-width="160"
                 >
                     <template #default="{ row, $index }: TableColumn<ChannelManualAddDto>">
                         <BasePasswordInput

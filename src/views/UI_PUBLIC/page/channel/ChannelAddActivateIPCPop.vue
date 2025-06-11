@@ -27,7 +27,7 @@
                 prop="password"
             >
                 <BasePasswordInput
-                    v-model.trim="formData.password"
+                    v-model="formData.password"
                     maxlength="16"
                     :disabled="useDefaultPwdSwitch"
                 />
@@ -37,7 +37,7 @@
                 prop="confirmPassword"
             >
                 <BasePasswordInput
-                    v-model.trim="formData.confirmPassword"
+                    v-model="formData.confirmPassword"
                     maxlength="16"
                     :disabled="useDefaultPwdSwitch"
                 />
