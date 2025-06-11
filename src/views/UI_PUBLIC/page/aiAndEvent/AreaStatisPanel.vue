@@ -76,7 +76,10 @@
                                         />
                                     </el-form-item>
                                     <!-- 持续时间 -->
-                                    <el-form-item :label="Translate('IDCS_DURATION')">
+                                    <el-form-item
+                                        v-if="formData.supportAlarmHoldTime"
+                                        :label="Translate('IDCS_DURATION')"
+                                    >
                                         <BaseSelect
                                             v-model="formData.holdTime"
                                             :options="formData.holdTimeList"
