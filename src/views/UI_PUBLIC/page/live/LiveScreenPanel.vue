@@ -154,6 +154,7 @@
     &-right {
         display: flex;
         justify-content: flex-end;
+        align-items: center;
 
         & > .Sprite {
             margin: 0 5px;

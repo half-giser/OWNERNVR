@@ -18,7 +18,7 @@
             >
                 <el-form-item :label="Translate('IDCS_USER_RIGHT_GROUP_NAME')">
                     <el-input
-                        v-model.trim="formData.name"
+                        v-model="formData.name"
                         disabled
                         :formatter="displayAuthGroup"
                     />

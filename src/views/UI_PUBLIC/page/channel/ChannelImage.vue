@@ -1074,7 +1074,7 @@
 <style scoped lang="scss">
 .expandContent {
     height: 420px;
-    width: calc(100% - 20px);
+    width: calc(100% - 10px);
     overflow: hidden;
     display: flex;
     justify-content: space-around;

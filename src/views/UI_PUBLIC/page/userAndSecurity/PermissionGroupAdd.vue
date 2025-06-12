@@ -16,7 +16,7 @@
                 :label="Translate('IDCS_USER_RIGHT_GROUP_NAME')"
             >
                 <BaseTextInput
-                    v-model.trim="formData.name"
+                    v-model="formData.name"
                     :maxlength="formData.nameMaxByteLen"
                 />
             </el-form-item>

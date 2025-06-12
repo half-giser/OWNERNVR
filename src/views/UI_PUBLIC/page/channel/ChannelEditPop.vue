@@ -72,6 +72,7 @@
                     v-model="formData.autoReportID"
                     :formatter="formatDigit"
                     :parser="formatDigit"
+                    :disabled="rowData.isOnline"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_REMOTE_CHANNEL_NUMBER')">
@@ -83,7 +84,7 @@
             <el-form-item :label="Translate('IDCS_PORT')">
                 <el-input
                     v-if="portDisabled"
-                    :model-value="formData.port < 10 ? (rowData.autoReportID ? '--' : '') : formData.port"
+                    :model-value="rowData.autoReportID ? '--' : formData.port < 10 ? '' : formData.port"
                     disabled
                 />
                 <BaseNumberInput

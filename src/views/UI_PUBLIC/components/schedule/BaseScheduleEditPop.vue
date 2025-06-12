@@ -34,12 +34,12 @@
                         class="radio-group"
                     >
                         <el-radio
-                            value="del"
-                            :label="Translate('IDCS_ERASE')"
-                        />
-                        <el-radio
                             value="add"
                             :label="Translate('IDCS_ADD')"
+                        />
+                        <el-radio
+                            value="del"
+                            :label="Translate('IDCS_ERASE')"
                         />
                     </el-radio-group>
                 </el-form-item>

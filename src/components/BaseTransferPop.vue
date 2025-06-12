@@ -112,6 +112,8 @@ const verify = () => {
  * @description 关闭弹窗
  */
 const close = () => {
+    data.value = []
+    chosedList.value = []
     emits('close')
 }
 

@@ -10,11 +10,10 @@
             :width="1000"
             placement="top-end"
             popper-class="no-padding"
-            :offset="26"
             @update:visible="$emit('update:visible', $event)"
         >
             <template #reference>
-                <span></span>
+                <span class="refer"></span>
             </template>
             <el-table
                 v-title
@@ -128,6 +127,12 @@
 <script lang="ts" src="./PlaybackBackUpPanel.v.ts"></script>
 
 <style lang="scss" scoped>
+.refer {
+    display: block;
+    height: 50px;
+    width: 1px;
+}
+
 .backup {
     flex-shrink: 0;
     margin: 0 5px;
