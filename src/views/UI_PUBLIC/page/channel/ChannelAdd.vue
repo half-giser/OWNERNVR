@@ -442,7 +442,7 @@
         />
         <ChannelAddEditChlNoPop
             v-model="pageData.isEditChlNoPop"
-            :data="pageData.chlNoEditData"
+            :data="pageData.editChlNoType === 'quickAdd' ? pageData.chlNoEditData : pageData.addReportChlNoEditData"
             :options="chlNumOptions"
             @confirm="confirmEditChlNum"
             @close="pageData.isEditChlNoPop = false"
