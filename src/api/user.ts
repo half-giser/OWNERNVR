@@ -52,15 +52,16 @@ export const Logout = async (isHttps?: boolean) => {
         userSession.clearSession()
         pluginStore.showPluginNoResponse = false
         removeAsyncRoutes()
+        const r = getNonce()
         if (typeof isHttps === 'boolean') {
             if (isHttps) {
-                window.location.href = `https://${location.host}/index.html`
+                window.location.href = `https://${location.host}/index.html?r=${r}`
             } else {
-                window.location.href = `http://${location.host}/index.html`
+                window.location.href = `http://${location.host}/index.html?r=${r}`
             }
         } else {
             router.push('/login')
-            window.location.href = '#/login'
+            window.location.href = `${location.origin}?r=${r}#/login`
         }
     } else {
         userSession.clearSession()

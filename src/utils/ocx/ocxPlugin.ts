@@ -892,7 +892,7 @@ const getSingletonPlugin = () => {
      * @param callback
      */
     const asynQueryInfo = (sendXML: string, callback?: (str: string) => void) => {
-        return new Promise((resolve) => {
+        return new Promise((resolve: (str: string) => void) => {
             getVideoPlugin().QueryInfo(sendXML, (strXMLFormat) => {
                 callback && callback(strXMLFormat)
                 resolve(strXMLFormat)

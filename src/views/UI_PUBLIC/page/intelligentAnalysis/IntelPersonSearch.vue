@@ -283,6 +283,7 @@
                 ref="detailRef"
                 @change-item="handleChangeItem"
                 @backup="handleBackupCurrentTarget"
+                @search="handleLeaveToSearchTarget"
             />
         </div>
     </div>

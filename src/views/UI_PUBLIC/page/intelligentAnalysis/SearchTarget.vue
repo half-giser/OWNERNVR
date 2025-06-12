@@ -1,3 +1,8 @@
+<!--
+ * @Description: 目标检索页面
+ * @Author: liyanqi a11219@tvt.net.cn
+ * @Date: 2025-05-26 14:21:56
+-->
 <template>
     <div class="lot">
         <!-- 头部操作区域 -->

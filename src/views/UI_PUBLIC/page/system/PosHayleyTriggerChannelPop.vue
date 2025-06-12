@@ -23,7 +23,7 @@
                 <el-table-column :label="Translate('IDCS_POS_TILL')">
                     <template #default="{ row }: TableColumn<SystemPosListChls>">
                         <el-input
-                            v-model.trim="row.till"
+                            v-model="row.till"
                             :formatter="formatDigit"
                             :parser="formatDigit"
                         />
