@@ -608,8 +608,8 @@ export class IntelTargetIndexItem {
  */
 export class IntelTargetDataItem extends IntelTargetIndexItem {
     isFaceFeature = false // 是否是人脸库图片
-    isNoData = true
-    isDelete = true
+    isNoData = false
+    isDelete = false
     targetID = ''
     featureStatus = false
     supportRegister = false
