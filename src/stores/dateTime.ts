@@ -66,8 +66,8 @@ export const useDateTimeStore = defineStore('dateTime', () => {
      * @description 获取时间格式化配置
      * @param {boolean} force 是否强制刷新日期格式化配置
      */
-    const getTimeConfig = async () => {
-        const result = await queryTimeCfg()
+    const getTimeConfig = async (state = false) => {
+        const result = await queryTimeCfg(state)
         const $ = queryXml(result)
         if ($('status').text() === 'success') {
             const time = $('content/formatInfo/time').text().num()

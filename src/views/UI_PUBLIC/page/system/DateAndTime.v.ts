@@ -132,7 +132,7 @@ export default defineComponent({
         const getData = async () => {
             openLoading()
 
-            const $ = await dateTime.getTimeConfig()
+            const $ = await dateTime.getTimeConfig(true)
 
             pageData.value.syncTypeOptions = $('types/synchronizeType/enum').map((item) => {
                 return {
