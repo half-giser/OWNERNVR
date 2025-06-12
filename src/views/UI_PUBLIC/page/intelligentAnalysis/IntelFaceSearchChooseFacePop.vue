@@ -31,7 +31,6 @@
                     :visible="pageData.isFaceOpen"
                     multiple
                     @change="chooseFace"
-                    @change-group="chooseFaceGroup"
                 />
                 <IntelFaceDBChooseFaceSnapPanel
                     v-show="pageData.type === 'snap'"
@@ -43,13 +42,6 @@
             </div>
         </div>
         <div class="base-btn-box">
-            <el-button
-                v-show="pageData.type !== 'import' && pageData.openType !== 'byBody'"
-                :disabled="pageData.type !== 'face'"
-                @click="confirmGroup"
-            >
-                {{ Translate('IDCS_SELECT_GROUP') }}
-            </el-button>
             <el-button
                 v-show="pageData.type !== 'import'"
                 :disabled="pageData.type !== 'face' && pageData.type !== 'snap'"
