@@ -260,6 +260,7 @@ export default defineComponent({
                 drawer = CanvasPolygon({
                     el: player.getDrawbordCanvas(0),
                     regulation: currentRegulation,
+                    oldVersionMaxMin: true,
                     onchange: changeVehicle,
                     closePath: closePath,
                     forceClosePath: forceClosePath,
@@ -928,10 +929,12 @@ export default defineComponent({
 
         // 计算位置
         const calcRegionInfo = (percent: number) => {
+            // 计算最大值最小值区域 宽:高=2:1
             const X1 = ((100 - percent) * 10000) / 100 / 2
-            const X2 = ((100 - percent) * 10000) / 100 / 2 + (percent * 10000) / 100
-            const Y1 = ((100 - percent) * 10000) / 100 / 2
-            const Y2 = ((100 - percent) * 10000) / 100 / 2 + (percent * 10000) / 100
+            const X2 = X1 + (percent * 10000) / 100
+            const heightPercent = (X2 - X1) / 2 / 100 // 计算高度所占的百分比
+            const Y1 = ((100 - heightPercent) * 10000) / 100 / 2
+            const Y2 = Y1 + (X2 - X1) / 2
             const regionInfo = {
                 X1: X1,
                 Y1: Y1,
@@ -1010,7 +1013,7 @@ export default defineComponent({
                                                         })
                                                         .join('')}
                                                 </point>
-                                            </item>   
+                                            </item>
                                         `
                                     })
                                     .join('')}
