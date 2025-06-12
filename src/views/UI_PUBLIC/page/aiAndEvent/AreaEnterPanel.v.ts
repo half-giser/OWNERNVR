@@ -116,6 +116,16 @@ export default defineComponent({
             // 当前画点规则 regulation==1：画矩形，regulation==0或空：画点 - (regulation=='1'则currentRegulation为true：画矩形，否则currentRegulation为false：画点)
             currentRegulation: false,
             moreDropDown: false,
+            // 高级弹出框的位置
+            poppeOptions: {
+                placement: 'bottom-end',
+                modifiers: [
+                    {
+                        name: 'offset',
+                        options: { offset: [30, 7] }, // [水平偏移, 垂直偏移]
+                    },
+                ],
+            },
         })
 
         const formData = ref(new AlarmPeaDto())

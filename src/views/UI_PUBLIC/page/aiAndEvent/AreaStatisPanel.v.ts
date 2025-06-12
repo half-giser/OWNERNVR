@@ -117,6 +117,16 @@ export default defineComponent({
             warnAreaChecked: [] as number[],
             // 更多弹窗数据
             moreDropDown: false,
+            // 高级弹出框的位置
+            poppeOptions: {
+                placement: 'bottom-end',
+                modifiers: [
+                    {
+                        name: 'offset',
+                        options: { offset: [30, 7] }, // [水平偏移, 垂直偏移]
+                    },
+                ],
+            },
         })
 
         const formData = ref(new AlarmAreaStatisDto())

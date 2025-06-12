@@ -95,6 +95,16 @@ export default defineComponent({
             // 云台锁定状态
             lockStatus: false,
             moreDropDown: false,
+            // 高级弹出框的位置
+            poppeOptions: {
+                placement: 'bottom-end',
+                modifiers: [
+                    {
+                        name: 'offset',
+                        options: { offset: [30, 7] }, // [水平偏移, 垂直偏移]
+                    },
+                ],
+            },
         })
 
         const formData = ref(new AlarmTripwireDto())
