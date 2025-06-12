@@ -157,7 +157,10 @@
             </div>
             <!-- 备份/全部备份按钮 -->
             <div class="base-btn-box">
-                <el-button @click="handleBackupAll">
+                <el-button
+                    :disabled="!getCurrTargetDatas().length"
+                    @click="handleBackupAll"
+                >
                     {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
                 </el-button>
                 <BaseDropdown placement="top-end">

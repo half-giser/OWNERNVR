@@ -179,7 +179,10 @@
                 <!-- 备份/全部备份按钮 -->
                 <div class="base-btn-box">
                     <!-- 目标检索 -->
-                    <el-button @click="handleBackupAll">
+                    <el-button
+                        :disabled="!pageData.targetDatasForSearchTarget.length"
+                        @click="handleBackupAll"
+                    >
                         {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
                     </el-button>
                     <BaseDropdown placement="top-end">

@@ -92,6 +92,7 @@ export default defineComponent({
         const pageData = ref({
             poeChlTotalCount: 0,
             usedChlNum: [] as number[],
+            editChlNoType: 'quickAdd',
             isEditChlNoPop: false,
             chlNoEditData: new ChannelQuickAddDto(),
             addReportChlNoEditData: new ChannelAddReportDto(),
@@ -337,6 +338,7 @@ export default defineComponent({
         const editQuickAddChlNum = (row: ChannelQuickAddDto) => {
             pageData.value.chlNoEditData = row
             pageData.value.isEditChlNoPop = true
+            pageData.value.editChlNoType = 'quickAdd'
         }
 
         const confirmEditChlNum = (chlNum: number) => {
@@ -444,27 +446,27 @@ export default defineComponent({
             addManualAddRow(index)
         }
 
-        const handleRefresh = () => {
+        const handleRefresh = async () => {
             switch (activeTab.value) {
                 case tabKeys.quickAdd:
                     openLoading()
-                    Promise.all([getDefaultPwd(), getLanFreeDevs(), getProtocolList()]).then(() => {
-                        closeLoading()
-                        manualAddTableData.value = []
-                        addManualAddRow()
-                    })
+                    await getDefaultPwd()
+                    await Promise.all([getLanFreeDevs(), getProtocolList()])
+                    closeLoading()
+                    manualAddTableData.value = []
+                    addManualAddRow()
                     break
                 case tabKeys.addRecorder:
                     openLoading()
-                    Promise.all([getDefaultPwd(), getLanRecorders()]).then(() => {
-                        closeLoading()
-                    })
+                    await getDefaultPwd()
+                    await getLanRecorders()
+                    closeLoading()
                     break
                 case tabKeys.autoReport:
                     openLoading()
-                    Promise.all([getDefaultPwd(), getAutoReportDevs()]).then(() => {
-                        closeLoading()
-                    })
+                    await getDefaultPwd()
+                    await getAutoReportDevs()
+                    closeLoading()
                     break
                 default:
                     break
@@ -1318,7 +1320,6 @@ export default defineComponent({
 
         const getAutoReportDevs = async () => {
             const defaultPwdData = Object.values(defaultPwdMap.value).find((item) => item.protocolType === 'TVT_IPCAMERA')!
-
             const result = await queryAutoReportDevList()
             const $ = queryXml(result)
             if ($('status').text() === 'success') {
@@ -1334,7 +1335,7 @@ export default defineComponent({
                         port: $item('port').text().num(),
                         manufacturer: $item('manufacturer').text(),
                         protocolType: $item('protocolType').text(),
-                        username: defaultPwdData.userName || '',
+                        username: defaultPwdData?.userName || '',
                         password: '******',
                         chlNum: 0,
                     }
@@ -1343,16 +1344,16 @@ export default defineComponent({
         }
 
         const displayAutoReportManufaturer = (row: ChannelAddReportDto) => {
-            return autoReportManufacturerMap.value[row.protocolType]
+            return autoReportManufacturerMap.value[row.manufacturer]
         }
 
         const handleAddReportRowClick = (row: ChannelAddReportDto) => {
-            addRecorderTableRef.value!.clearSelection()
-            addRecorderTableRef.value!.toggleRowSelection(row, true)
+            autoReportTableRef.value!.clearSelection()
+            autoReportTableRef.value!.toggleRowSelection(row, true)
         }
 
         const handleAddReportSelectionChange = () => {
-            const rows = quickAddTableRef.value!.getSelectionRows() as ChannelAddReportDto[]
+            const rows = autoReportTableRef.value!.getSelectionRows() as ChannelAddReportDto[]
             pageData.value.selNum = rows.length
             autoReportTableData.value.forEach((item) => {
                 if (!rows.includes(item)) {
@@ -1372,15 +1373,16 @@ export default defineComponent({
         const editAutoReportChlNum = (row: ChannelAddReportDto) => {
             pageData.value.isEditChlNoPop = true
             pageData.value.addReportChlNoEditData = row
+            pageData.value.editChlNoType = 'autoReport'
         }
 
         const getData = async () => {
             openLoading()
-            Promise.all([getUserdChlNum(), getDefaultPwd(), getLanFreeDevs(), getProtocolList(), getSystemCaps(), getLanRecorders(), getAutoReportDevs()]).then(() => {
-                manualAddTableData.value = []
-                addManualAddRow()
-                closeLoading()
-            })
+            await getDefaultPwd()
+            await Promise.all([getUserdChlNum(), getLanFreeDevs(), getProtocolList(), getSystemCaps(), getLanRecorders(), getAutoReportDevs()])
+            manualAddTableData.value = []
+            addManualAddRow()
+            closeLoading()
         }
 
         onMounted(() => {
