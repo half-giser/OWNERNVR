@@ -17,6 +17,7 @@ export default defineComponent({
         const auth = useUserChlAuth(true)
         const router = useRouter()
         const backupPopRef = ref<IntelSearchBackUpExpose>()
+        const layoutStore = useLayoutStore()
 
         // 详情弹框
         const detailRef = ref()
@@ -126,10 +127,17 @@ export default defineComponent({
          * @description 返回
          */
         const handleExit = () => {
-            localStorage.setItem('extractResultInfos', '')
-            router.push({
-                path: '/intelligent-analysis/search/search-person',
-            })
+            localStorage.removeItem('extractResultInfos')
+
+            if (layoutStore.searchTargetFromPage === 'vehicle') {
+                router.push({
+                    path: '/intelligent-analysis/search/search-vehicle',
+                })
+            } else {
+                router.push({
+                    path: '/intelligent-analysis/search/search-person',
+                })
+            }
         }
 
         /**
@@ -948,7 +956,7 @@ export default defineComponent({
         })
 
         onBeforeUnmount(() => {
-            localStorage.setItem('extractResultInfos', '')
+            localStorage.removeItem('extractResultInfos')
         })
 
         return {

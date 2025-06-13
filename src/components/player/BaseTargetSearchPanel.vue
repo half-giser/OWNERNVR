@@ -196,15 +196,42 @@ const handleNoSwitch = () => {
     openMessageBox({
         type: 'question',
         message: Translate('IDCS_REID_ENABLE_TIP'),
-    }).then(async () => {
-        const sendXml = rawXml`
-            <content>
-                <switch>true</switch>
-            </content>
-        `
-        await editREIDCfg(sendXml)
-        setDetectImg()
     })
+        .then(async () => {
+            const sendXml = rawXml`
+                <content>
+                    <switch>true</switch>
+                </content>
+            `
+            const result = await editREIDCfg(sendXml)
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                openMessageBox('IDCS_SAVE_DATA_SUCCESS')
+                setDetectImg()
+            } else {
+                const errorCode = $('errorCode').text().num()
+                let errorInfo = ''
+                switch (errorCode) {
+                    case 536870983:
+                        errorInfo = Translate('IDCS_DECODE_CAPABILITY_NOT_ENOUGH')
+                        break
+                    case 536871042:
+                        errorInfo = Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_NO_RESOURCE')
+                        break
+                    case 536871091:
+                        errorInfo = Translate('IDCS_RESOLUTION_OVER_CAPABILITY')
+                        break
+                    default:
+                        errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
+                        break
+                }
+                emits('update:visible', false)
+                openMessageBox(Translate(errorInfo))
+            }
+        })
+        .catch(() => {
+            emits('update:visible', false)
+        })
 }
 
 const getSnapPic = async () => {
@@ -414,37 +441,37 @@ const search = async (detectImgInfo: TargetImgInfo, targetItem: TargetListDto) =
     const sendXml = rawXml`
         <content>
             <extractImgInfos>
-                    <item index="${detectImgInfo.detectIndex}">
-                        <imgWidth>${detectImgInfo.imgWidth}</imgWidth>
-                        <imgHeight>${detectImgInfo.imgHeight}</imgHeight>
-                        <imgFormat>${detectImgInfo.imgFormat}</imgFormat>
-                        <imgData>${detectImgInfo.imgData}</imgData>
-                        <rect>
-                            <leftTop>
-                                <x>${targetItem.rect.leftTop.x}</x>
-                                <y>${targetItem.rect.leftTop.y}</y>
-                            </leftTop>
-                            <rightBottom>
-                                <x>${targetItem.rect.rightBottom.x}</x>
-                                <y>${targetItem.rect.rightBottom.y}</y>
-                            </rightBottom>
-                            <scaleWidth>${targetItem.rect.scaleWidth}</scaleWidth>
-                            <scaleHeight>${targetItem.rect.scaleHeight}</scaleHeight>
-                        </rect>
-                        <targetType>${targetItem.targetType}</targetType>
-                        <featurePointInfos>
-                            ${targetItem.featurePointInfos
-                                .map((point) => {
-                                    return rawXml`
-                                        <item index="${point.faceFeatureIndex}">
-                                            <x>${point.x}</x>
-                                            <y>${point.y}</y>
-                                        </item>
-                                    `
-                                })
-                                .join('')}
-                        </featurePointInfos>
-                    </item>
+                <item index="${detectImgInfo.detectIndex}">
+                    <imgWidth>${detectImgInfo.imgWidth}</imgWidth>
+                    <imgHeight>${detectImgInfo.imgHeight}</imgHeight>
+                    <imgFormat>${detectImgInfo.imgFormat}</imgFormat>
+                    <imgData>${detectImgInfo.imgData}</imgData>
+                    <rect>
+                        <leftTop>
+                            <x>${targetItem.rect.leftTop.x}</x>
+                            <y>${targetItem.rect.leftTop.y}</y>
+                        </leftTop>
+                        <rightBottom>
+                            <x>${targetItem.rect.rightBottom.x}</x>
+                            <y>${targetItem.rect.rightBottom.y}</y>
+                        </rightBottom>
+                        <scaleWidth>${targetItem.rect.scaleWidth}</scaleWidth>
+                        <scaleHeight>${targetItem.rect.scaleHeight}</scaleHeight>
+                    </rect>
+                    <targetType>${targetItem.targetType}</targetType>
+                    <featurePointInfos>
+                        ${targetItem.featurePointInfos
+                            .map((point) => {
+                                return rawXml`
+                                    <item index="${point.faceFeatureIndex}">
+                                        <x>${point.x}</x>
+                                        <y>${point.y}</y>
+                                    </item>
+                                `
+                            })
+                            .join('')}
+                    </featurePointInfos>
+                </item>
             </extractImgInfos>
         </content>
     `

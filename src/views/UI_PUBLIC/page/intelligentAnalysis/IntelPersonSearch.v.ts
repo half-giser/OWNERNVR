@@ -13,6 +13,7 @@ import IntelSearchDetailPanel from './IntelSearchDetailPanel.vue'
 import IntelSearchBackupPop, { type IntelSearchBackUpExpose } from './IntelSearchBackupPop.vue'
 import IntelFaceDBSnapRegisterPop from './IntelFaceDBSnapRegisterPop.vue'
 import { type CheckboxValueType } from 'element-plus'
+import dayjs from 'dayjs'
 
 export default defineComponent({
     components: {
@@ -31,12 +32,71 @@ export default defineComponent({
         const systemCaps = useCababilityStore()
         const dateTime = useDateTimeStore()
         const auth = useUserChlAuth(true)
-        // 三个排序下拉框的引用
-        // const faceSortDropdown = ref<DropdownInstance>()
-        // const bodySortDropdown = ref<DropdownInstance>()
-        // const personAttributeSortDropdown = ref<DropdownInstance>()
         const backupPopRef = ref<IntelSearchBackUpExpose>()
         const detailRef = ref()
+        const layoutStore = useLayoutStore()
+
+        // 性别
+        const OLD_NEW_GENDER_MAP: Record<number, string> = {
+            1: 'male',
+            2: 'female',
+        }
+
+        // 年龄（将婴幼儿、少年映射为儿童，青年、中年、老年映射为成人）
+        const OLD_NEW_AGE_MAP: Record<number, string> = {
+            1: 'child',
+            2: 'child',
+            3: 'adult',
+            4: 'adult',
+            5: 'adult',
+        }
+
+        // 上衣（类型）
+        const OLD_NEW_UPPER_TYPE_MAP: Record<number, string> = {
+            1: 'shortSleeve',
+            2: 'longSleeve',
+        }
+
+        // 上衣（颜色）
+        const OLD_NEW_UPPER_COLOR_MAP: Record<number, string> = {
+            1: 'red',
+            2: 'orange',
+            3: 'yellow',
+            4: 'green',
+            5: 'blue',
+            6: 'cyan',
+            7: 'purple',
+            8: 'black',
+            9: 'white',
+            10: 'silver',
+            11: 'gray',
+            12: 'gold',
+            13: 'brown',
+        }
+
+        // 配饰（口罩）
+        const OLD_NEW_MASK_ATTRIBUTE_MAP: Record<number, string> = {
+            1: 'mask',
+            2: 'nonMask',
+        }
+
+        // 配饰（帽子）
+        const OLD_NEW_HAT_ATTRIBUTE_MAP: Record<number, string> = {
+            1: 'hat',
+            2: 'nonHat',
+        }
+
+        // 配饰（眼镜）
+        const OLD_NEW_GLASSES_ATTRIBUTE_MAP: Record<number, string> = {
+            1: 'glass',
+            2: 'nonGlass',
+        }
+
+        // 背包
+        const OLD_NEW_BACKPACK_ATTRIBUTE_MAP: Record<number, string> = {
+            1: 'backpack',
+            2: 'nonBackpack',
+        }
 
         // key对应界面tab类型，value对应协议需要下发的searchType字段
         const SEARCH_TYPE_MAPPING: Record<string, string> = {
@@ -1628,6 +1688,168 @@ export default defineComponent({
             pageData.value.listTypeOptions[1].show = pageData.value.searchType === 'byFace' && pageData.value.choosePicsForFace.length === 1
         })
 
+        const checkSearchData = () => {
+            try {
+                const LiveToSearch = JSON.parse(localStorage.getItem('LiveToSearch')!)
+
+                if (LiveToSearch) {
+                    const isFaceCompare = LiveToSearch.isFaceCompare
+                    const eventType = LiveToSearch.data.eventType
+
+                    if (LiveToSearch.searchDateForFace) {
+                        pageData.value.dateRange = [
+                            dayjs(LiveToSearch.searchDateForFace).hour(0).minute(0).second(0).valueOf(),
+                            dayjs(LiveToSearch.searchDateForFace).hour(23).minute(59).second(59).valueOf(),
+                        ]
+                    }
+
+                    if (isFaceCompare) {
+                        // 跳转至：人-人脸
+                        pageData.value.searchType = 'byFace'
+                        // 设置图片数据（人-人脸界面）
+                        // NTA1-3474 外部跳转过来时，如果不支持人脸比对，则不执行以图搜图的逻辑
+                        if (systemCaps.supportFaceMatch) {
+                            const faceFeatureCache = LiveToSearch.faceFeatureCache
+                            // 人脸库图片
+                            if (faceFeatureCache && Object.keys(faceFeatureCache).length) {
+                                pageData.value.picCacheListForFace = [
+                                    {
+                                        id: faceFeatureCache.id,
+                                        number: faceFeatureCache.number,
+                                        name: faceFeatureCache.name,
+                                        sex: faceFeatureCache.sex,
+                                        birthday: faceFeatureCache.birthday,
+                                        nativePlace: faceFeatureCache.nativePlace,
+                                        certificateType: faceFeatureCache.certificateType,
+                                        certificateNum: faceFeatureCache.certificateNum,
+                                        mobile: faceFeatureCache.mobile,
+                                        note: faceFeatureCache.note,
+                                        faceImgCount: faceFeatureCache.faceImgCount,
+                                        pic: wrapBase64Img(faceFeatureCache.data),
+                                        groupId: faceFeatureCache.groups.groupId,
+                                        picBase64: faceFeatureCache.data, // dataURL的base64部分                                    featureData: faceFeatureCache.searchByImageFeatureData, // 图片特征值featureData
+                                        libIndex: 0,
+                                        picWidth: faceFeatureCache.picWidth,
+                                        picHeight: faceFeatureCache.picHeight,
+                                    },
+                                ]
+                            }
+                            // 非人脸库图片
+                            else {
+                                const data = LiveToSearch.data
+                                pageData.value.picCacheListForFace = [
+                                    {
+                                        faceFeatureId: data.dataInfo?.face_id || '',
+                                        timestamp: 0,
+                                        frameTime: data.frameTime,
+                                        imgId: 0,
+                                        chlId: data.chlId,
+                                        chlName: '',
+                                        pic: wrapBase64Img(data.content),
+                                        featureStatus: false,
+                                        picBase64: data.content, // dataURL的base64部分
+                                        featureIndex: data.index, // 图片特征索引index
+                                        featureData: data.searchByImageFeatureData, // 图片特征值featureData
+                                        libIndex: 0,
+                                        picWidth: data.ptWidth,
+                                        picHeight: data.ptHeight,
+                                    },
+                                ]
+                            }
+                        }
+                    } else {
+                        if (eventType === 'video_metavideo') {
+                            pageData.value.searchType = 'byPersonAttribute'
+                            // 旧协议
+                            const person_info = LiveToSearch.data.dataInfo.person_info || {}
+
+                            const mapping = [
+                                {
+                                    key: 'gender',
+                                    mapping: OLD_NEW_GENDER_MAP,
+                                    infoKey: 'gender',
+                                },
+                                {
+                                    key: 'ageBracket',
+                                    mapping: OLD_NEW_AGE_MAP,
+                                    infoKey: 'age',
+                                },
+                                {
+                                    key: 'upperClothType',
+                                    mapping: OLD_NEW_UPPER_TYPE_MAP,
+                                    infoKey: 'upper_length',
+                                },
+                                {
+                                    key: 'upperClothColor',
+                                    mapping: OLD_NEW_UPPER_COLOR_MAP,
+                                    infoKey: 'upper_color',
+                                },
+                                {
+                                    key: 'mask',
+                                    mapping: OLD_NEW_MASK_ATTRIBUTE_MAP,
+                                    infoKey: 'mask',
+                                },
+                                {
+                                    key: 'hat',
+                                    mapping: OLD_NEW_HAT_ATTRIBUTE_MAP,
+                                    infoKey: 'hat',
+                                },
+                                {
+                                    key: 'glasses',
+                                    mapping: OLD_NEW_GLASSES_ATTRIBUTE_MAP,
+                                    infoKey: 'galsses',
+                                },
+                                {
+                                    key: 'backpack',
+                                    mapping: OLD_NEW_BACKPACK_ATTRIBUTE_MAP,
+                                    infoKey: 'backpack',
+                                },
+                            ]
+
+                            if (person_info && Object.keys(person_info).length) {
+                                mapping.forEach((item) => {
+                                    if (typeof person_info[item.infoKey] === 'number' || person_info[item.infoKey] === 'string') {
+                                        pageData.value.attributeForPersonAttribute.person[item.key] = [item.mapping[person_info[item.infoKey]]]
+                                    }
+                                })
+                            }
+
+                            const humanAttrInfo = LiveToSearch.data.dataInfo.humanAttrInfo
+                            if (humanAttrInfo && Object.keys(humanAttrInfo).length) {
+                                mapping.forEach((item) => {
+                                    if (typeof humanAttrInfo[item.key] === 'string') {
+                                        pageData.value.attributeForPersonAttribute.person[item.key] = humanAttrInfo[item.key].split(',')
+                                    }
+                                })
+                            }
+                        } else {
+                            pageData.value.searchType = 'byBody'
+                        }
+                    }
+
+                    getAllTargetIndexDatas(isFaceCompare)
+                }
+                localStorage.removeItem('LiveToSearch')
+            } catch {
+                localStorage.removeItem('LiveToSearch')
+            }
+
+            if (layoutStore.searchTargetFromSearchType) {
+                pageData.value.searchType = layoutStore.searchTargetFromSearchType as 'byFace' | 'byBody' | 'byPersonAttribute'
+                layoutStore.searchTargetFromSearchType = ''
+                layoutStore.searchTargetFromPage = ''
+            }
+        }
+
+        const handleLeaveToSearchTarget = () => {
+            layoutStore.searchTargetFromPage = 'person'
+            layoutStore.searchTargetFromSearchType = pageData.value.searchType
+        }
+
+        onMounted(() => {
+            checkSearchData()
+        })
+
         return {
             pageData,
             detailRef,
@@ -1667,6 +1889,7 @@ export default defineComponent({
             getCurrPageIndex,
             getCurrTargetIndexDatas,
             changeSearchType,
+            handleLeaveToSearchTarget,
         }
     },
 })

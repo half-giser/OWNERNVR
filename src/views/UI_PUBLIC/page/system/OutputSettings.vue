@@ -54,6 +54,7 @@
                 <el-switch
                     v-show="pageData.tabId === -1 && pageData.isConfigSwitch"
                     v-model="pageData.configSwitch"
+                    @change="handleConfigSwitchChange"
                 />
             </div>
             <div
@@ -113,6 +114,7 @@
                         <el-switch
                             v-show="pageData.tabId === -1 && pageData.isConfigSwitch"
                             v-model="pageData.configSwitch"
+                            @change="handleConfigSwitchChange"
                         />
                     </div>
                     <div
@@ -406,6 +408,8 @@
     background-color: var(--output-tab-bg);
     justify-content: space-between;
     align-items: center;
+    box-sizing: border-box;
+    padding: 0 10px;
 
     &.no-decoder {
         border: 1px solid var(--content-border);

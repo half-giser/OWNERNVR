@@ -86,7 +86,7 @@ export default defineComponent({
                         openMessageBox(Translate('IDCS_DECODE_CAPABILITY_NOT_ENOUGH'))
                         break
                     case 536871042:
-                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
+                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_NO_RESOURCE'))
                         break
                     case 536871091:
                         openMessageBox(Translate('IDCS_RESOLUTION_OVER_CAPABILITY'))

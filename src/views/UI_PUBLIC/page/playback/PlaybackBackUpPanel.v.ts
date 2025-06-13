@@ -105,7 +105,7 @@ export default defineComponent({
                         startEndTime: formatDate(startTime, dateTime.dateTimeFormat) + '~' + formatDate(endTime, dateTime.dateTimeFormat),
                         duration,
                         chlName: $item('chls/item').text(),
-                        destination: 'remote', // Translate('IDCS_REMOTE'),
+                        destination: 'remote',
                         backupFileFormat: $item('backupFileFormat').text(),
                         backupPath: $item('backupPath').text(),
                         creator: $item('creator').text(),

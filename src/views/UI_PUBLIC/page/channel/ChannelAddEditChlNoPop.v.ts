@@ -6,7 +6,7 @@
 export default defineComponent({
     props: {
         data: {
-            type: Object as PropType<ChannelQuickAddDto>,
+            type: Object as PropType<{ ip: string; chlNum: number }>,
             required: true,
         },
         options: {

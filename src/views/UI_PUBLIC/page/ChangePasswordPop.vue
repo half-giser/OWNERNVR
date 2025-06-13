@@ -45,7 +45,10 @@
                 prop="confirmNewPassword"
                 :label="Translate('IDCS_CONFIRM_NEW_PASSWORD')"
             >
-                <BasePasswordInput v-model="formData.confirmNewPassword" />
+                <BasePasswordInput
+                    v-model="formData.confirmNewPassword"
+                    maxlength="16"
+                />
             </el-form-item>
         </el-form>
         <div class="base-btn-box flex-start">

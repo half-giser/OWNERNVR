@@ -17,7 +17,7 @@
                 :label="Translate('IDCS_USERNAME')"
             >
                 <el-input
-                    v-model.trim="formData.userName"
+                    v-model="formData.userName"
                     type="text"
                     :formatter="formatInputUserName"
                     :parser="formatInputUserName"

@@ -105,6 +105,16 @@ export default defineComponent({
             renderLevel: 100,
             imgOrigBase64: '',
             heatMapChartData: [] as AlarmHeatMapChartDto[],
+            // 高级弹出框的位置
+            poppeOptions: {
+                placement: 'bottom-end',
+                modifiers: [
+                    {
+                        name: 'offset',
+                        options: { offset: [30, 7] }, // [水平偏移, 垂直偏移]
+                    },
+                ],
+            },
         })
 
         const formData = ref(new AlarmHeatMapDto())

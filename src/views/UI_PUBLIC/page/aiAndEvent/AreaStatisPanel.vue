@@ -449,6 +449,7 @@
                     v-model:visible="pageData.moreDropDown"
                     width="400"
                     popper-class="no-padding"
+                    :popper-options="pageData.poppeOptions"
                 >
                     <template #reference>
                         <div class="base-ai-advance-btn">

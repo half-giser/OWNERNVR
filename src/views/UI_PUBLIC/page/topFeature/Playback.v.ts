@@ -1355,7 +1355,7 @@ export default defineComponent({
             }
 
             if (mode.value === 'h5') {
-                if (pageData.value.playStatus === 'stop') {
+                if (pageData.value.playStatus === 'stop' || pageData.value.playStatus === 'pending') {
                     playAll(timestamp)
                 } else {
                     player.seek(timestamp)

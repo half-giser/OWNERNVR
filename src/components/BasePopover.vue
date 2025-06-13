@@ -15,6 +15,7 @@
         :offset
         :disabled
         :append-to
+        :popper-options
         @update:visible="emit('update:visible', $event)"
         @before-enter="emit('beforeEnter')"
         @after-leave="emit('afterLeave')"
@@ -40,6 +41,7 @@ withDefaults(
         offset?: number
         appendTo?: string
         popperClass?: string
+        popperOptions?: object
     }>(),
     {
         visible: null,

@@ -745,7 +745,7 @@
     }
 
     .el-picker__popper {
-        transition: none;
+        transform: none !important;
     }
 
     .el-time {

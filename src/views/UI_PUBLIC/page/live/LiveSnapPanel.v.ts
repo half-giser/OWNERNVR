@@ -331,7 +331,7 @@ export default defineComponent({
             // NTA1-3904 人脸库图片跳转到智能分析时，需要携带对应的人员信息
             if (type === 'featureImg') {
                 searchInfo.faceFeatureCache = {
-                    '@id': data.info!.face_id,
+                    id: data.info!.face_id,
                     faceFeatureId: data.info!.face_respo_id,
                     data: imgBase64,
                     picWidth: width,
@@ -347,11 +347,12 @@ export default defineComponent({
                     mobile: data.info!.mobile_phone_number,
                     createTime: '',
                     faceImgCount: data.info!.faceImgCount,
-                    groups: [
-                        {
-                            groupName: data.info!.group_name,
-                        },
-                    ],
+                    groupId: '',
+                    // groups: [
+                    //     {
+                    //         groupName: data.info!.group_name,
+                    //     },
+                    // ],
                     content1: 'data:image/png;base64,' + imgBase64,
                 }
             }
@@ -385,11 +386,13 @@ export default defineComponent({
                     router.push({
                         path: '/intelligent-analysis/search/search-person',
                     })
+                    closeLoading()
                     return
                 } catch {
                     openMessageBox(Translate('IDCS_UNQUALIFIED_PICTURE'))
+                    closeLoading()
+                    return
                 }
-                closeLoading()
             }
 
             if (menuType === 'vehicle') {

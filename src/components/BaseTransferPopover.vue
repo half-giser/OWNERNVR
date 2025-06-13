@@ -8,7 +8,7 @@
         <el-transfer
             v-model="chosedList"
             v-title
-            :data="sourceData"
+            :data="sourceList"
             :props="{
                 key: 'value',
                 label: 'label',
@@ -71,6 +71,7 @@ const emits = defineEmits<{
 }>()
 
 const chosedList = ref<string[]>([])
+const sourceList = ref<T[]>([])
 
 const { Translate } = useLangStore()
 
@@ -79,6 +80,7 @@ const { Translate } = useLangStore()
  */
 const open = () => {
     chosedList.value = props.linkedList
+    sourceList.value = props.sourceData
 }
 
 /**
@@ -115,6 +117,8 @@ watch(
     (visible) => {
         if (visible) {
             open()
+        } else {
+            sourceList.value = []
         }
     },
 )

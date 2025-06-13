@@ -34,7 +34,7 @@ export const queryActivationStatus = () => fetch('queryActivationStatus', '')
  * @description 获取时间配置
  * @returns
  */
-export const queryTimeCfg = (state = true) => fetch('queryTimeCfg', '', {}, state)
+export const queryTimeCfg = (state = false) => fetch('queryTimeCfg', '', {}, state)
 
 /**
  * @description 编辑时间

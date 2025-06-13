@@ -279,6 +279,7 @@
                     v-model:visible="pageData.moreDropDown"
                     width="300"
                     popper-class="no-padding"
+                    :popper-options="pageData.poppeOptions"
                 >
                     <template #reference>
                         <div

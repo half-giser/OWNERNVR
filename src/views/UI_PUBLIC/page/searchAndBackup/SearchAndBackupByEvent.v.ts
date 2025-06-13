@@ -303,6 +303,8 @@ export default defineComponent({
                                             <item>smdPerson</item>
                                             <item>smdCar</item>
                                         `
+                                    } else if (item === 'schedule') {
+                                        return ''
                                     } else {
                                         return `<item>${item}</item>`
                                     }
