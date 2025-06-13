@@ -126,6 +126,7 @@ export default defineComponent({
                 row.id = item.attr('id')
                 row.name = $item('name').text()
                 row.index = index
+                row.disabled = false
                 return row
             })
         }
@@ -211,6 +212,8 @@ export default defineComponent({
                 item.audioChannel = $param('audioParamLimit/audioChannel').text()
                 item.audioDepth = $param('audioParamLimit/audioDepth').text()
                 item.audioFileLimitSize = $param('audioParamLimit/audioMaxlen').text().num()
+            } else {
+                item.disabled = true
             }
         }
 
@@ -430,6 +433,7 @@ export default defineComponent({
                 row.id = item.attr('id')
                 row.name = $item('name').text()
                 row.index = index
+                row.disabled = false
                 return row
             })
         }
@@ -512,6 +516,8 @@ export default defineComponent({
                 item.isSpeakerMutex = $param('audioOutputswitch').length > 0
                 item.loudSpeakerswitch = $param('loudSpeakerswitch').text().bool()
                 item.audioOutputswitch = $param('audioOutputswitch').text().bool()
+            } else {
+                item.disabled = true
             }
         }
 

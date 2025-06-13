@@ -206,10 +206,11 @@
                             :disabled="!deviceFormData.audioInSwitch || !deviceFormData.loudSpeaker || deviceFormData.audioOutputswitch"
                             :options="deviceFormData.audioOutputType"
                         />
-                        <el-checkbox
+                        <el-radio
                             v-show="deviceFormData.isSpeakerMutex"
                             v-model="deviceFormData.loudSpeakerswitch"
                             :disabled="!deviceFormData.audioInSwitch"
+                            :value="true"
                             @change="changeLoudSpeakerswitch"
                         />
                     </el-form-item>
@@ -220,10 +221,11 @@
                             :options="deviceFormData.audioOutputType"
                             :disabled="!deviceFormData.audioInSwitch || !deviceFormData.audioOutput || deviceFormData.loudSpeakerswitch"
                         />
-                        <el-checkbox
+                        <el-radio
                             v-show="deviceFormData.isSpeakerMutex"
                             v-model="deviceFormData.audioOutputswitch"
                             :disabled="!deviceFormData.audioInSwitch"
+                            :value="true"
                             @change="changeAudioOutputswitch"
                         />
                     </el-form-item>
