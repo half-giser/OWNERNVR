@@ -17,6 +17,7 @@ import { cleanUpTempFiles } from './scripts/cleanTempFiles'
 import BasicSSL from '@vitejs/plugin-basic-ssl'
 // import PostCssVariableCompress from 'postcss-variable-compress'
 import PostCssPresetEnv from 'postcss-preset-env'
+// 生产环境使用的 CSS 文件压缩工具，能更快的部署优化后的样式模块（确保最终样式的最小化）
 import CssNano from 'cssnano'
 import { visualizer as Visualizer } from 'rollup-plugin-visualizer'
 import optimizeDepsIncludes from './scripts/optimizeDeps'
@@ -52,6 +53,7 @@ export default defineConfig(({ mode }) => {
             'import.meta.env.VITE_P2P_PASSWORD': JSON.stringify(env.VITE_P2P_PASSWORD || ''),
         },
         base: './',
+        // Vite 构建工具，开发模式下，预构建依赖（利用 strong cache, 缓存所有源代码中使用到的依赖裸模块）
         server: {
             port: 9000,
             proxy: {
@@ -91,6 +93,7 @@ export default defineConfig(({ mode }) => {
             },
         },
         css: {
+            // 样式预处理器-转换 sass/scss 文件
             preprocessorOptions: {
                 scss: {
                     additionalData: `
@@ -99,6 +102,7 @@ export default defineConfig(({ mode }) => {
                     api: 'modern-compiler',
                 },
             },
+            // 样式兼容处理- 执行样式文件压缩以及样式兼容性（针对不同浏览器）
             postcss: {
                 plugins: ([] as AcceptedPlugin[]).concat(
                     process.env.NODE_ENV === 'development'
@@ -110,8 +114,8 @@ export default defineConfig(({ mode }) => {
                                   preset: 'default',
                               }),
                               PostCssPresetEnv({
+                                  // 使用本插件目的：稳定的使用现代CSS特性，根据支持的浏览器目标，自动添加 polyfill 以达到浏览器兼容效果
                                   // 此处配置为:has的最低支持版本
-                                  // browsers: ['Chrome >= 105', 'Firefox >= 121', 'Edge >= 105', 'Safari >= 15.4'],
                                   browsers: ['Chrome >= 87', 'Firefox >= 78', 'Edge >= 88', 'Safari >= 14'],
                               }),
                           ],

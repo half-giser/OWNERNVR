@@ -6,7 +6,7 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    // 设置在 typeRoots 目录（node_modules/@types）下需要包括在编译内的类型模块，如果没有指定列表，默认是取 typeRoots 目录下所有类型模块
+    // 设置在 node_modules/@types 目录下需要包括在编译内的类型模块，如果没有指定列表，默认是取 node_modules/@types 目录下所有类型模块
     "types": ["element-plus/global", "node"]
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"]

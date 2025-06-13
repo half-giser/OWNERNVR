@@ -11,7 +11,7 @@ import './plugin/elementPlus'
 import i18nPlugin from './plugin/i18n'
 import typeEnhance from './plugin/typeEnhance'
 import toolsPlugin from './plugin/tools'
-// 非官方加载全局样式的方式，实测比官方配置 additionalData 性能更好，能达到在任意组件中都能直接使用的效果
+// 全局样式注入，实测比配置 additionalData 性能更好，能达到在任意组件中都能直接使用的效果
 import './plugin/css'
 import datePlugin from './plugin/date'
 import { regAllDirective } from './directives'
