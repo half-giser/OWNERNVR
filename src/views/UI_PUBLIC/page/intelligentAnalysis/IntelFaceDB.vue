@@ -132,11 +132,7 @@
                                 </div>
                                 <div class="expand-info">
                                     <div class="expand-avatar">
-                                        <img
-                                            v-for="(src, key) in currentFace.pic"
-                                            :key
-                                            :src
-                                        />
+                                        <img :src="currentFace.pic" />
                                     </div>
                                     <el-form
                                         v-title
@@ -316,6 +312,10 @@
             height: 100px;
             border: 1px solid var(--intel-snap-border);
             margin: 20px;
+
+            &[src=''] {
+                opacity: 0;
+            }
         }
     }
 }
