@@ -68,6 +68,12 @@ export default defineFlatConfig([
                 },
             ],
             quotes: ['error', 'single', { avoidEscape: true }],
+            'prettier/prettier': [
+                'off',
+                {
+                    endOfLine: 'lf',
+                },
+            ],
         },
     },
     {
