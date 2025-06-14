@@ -18,7 +18,7 @@
     "stylelint": "stylelint src",
     "format": "prettier --write src",
     "mirror:get": "npm config get registry",
-    "mirror:set": "npm config set registry http://192.168.0.61:8081/repository/npm-public/",
+    "mirror:set": "npm config set registry https://registry.npmmirror.com/",
     "mirror:rm": "npm config rm registry",
     "backup": "git add . && git commit -m \"chore: backup\" && git push",
     "up": "npx npm-check-updates -u",

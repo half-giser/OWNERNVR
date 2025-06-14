@@ -133,6 +133,8 @@ export default defineConfig(({ mode }) => {
             }),
             /**
              * 自动导入 API ，不用每次都 import
+             * @notice 使用自动导入 api，由于首次加载项目时，还没有生成自动导入的类型声明文件，所以会触发 typescript 的错误提示，
+             * 但实际运行时不会有问题，等到自动导入的类型声明文件生成后，就不会再有错误提示了。
              */
             AutoImport({
                 imports: ['vue', 'vue-router', 'pinia'],
