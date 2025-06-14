@@ -24,7 +24,7 @@ export default defineComponent({
             name: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (!value.trim()) {
+                        if (!value) {
                             callback(new Error(Translate('IDCS_USER_GROUP_EMPTY_TIPS')))
                             return
                         }
@@ -207,6 +207,7 @@ export default defineComponent({
          * @description 验证表单，通过后打开授权弹窗
          */
         const verify = () => {
+            formData.value.name = formData.value.name.trim()
             formRef.value!.validate((valid) => {
                 if (valid) {
                     doCreateAuthGroup()

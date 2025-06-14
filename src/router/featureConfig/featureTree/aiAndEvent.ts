@@ -167,7 +167,7 @@ const aiAndEventRoutes: FeatureItem = {
                 default: true,
                 inHome: 'self',
                 homeSort: 10,
-                minWidth: 1560,
+                minWidth: 1800,
                 minHeight: 850,
                 hasCap(systemCaps) {
                     return !systemCaps.IntelAndFaceConfigHide && !systemCaps.hotStandBy
@@ -198,7 +198,7 @@ const aiAndEventRoutes: FeatureItem = {
                 group: 'aiEvent',
                 inHome: 'self',
                 homeSort: 20,
-                minWidth: 1560,
+                minWidth: 1800,
                 minHeight: 850,
                 hasCap(systemCaps) {
                     return !systemCaps.IntelAndFaceConfigHide && !systemCaps.hotStandBy
@@ -229,7 +229,7 @@ const aiAndEventRoutes: FeatureItem = {
                 group: 'aiEvent',
                 inHome: 'self',
                 homeSort: 30,
-                minWidth: 1560,
+                minWidth: 1800,
                 minHeight: 850,
                 hasCap(systemCaps) {
                     return !systemCaps.IntelAndFaceConfigHide && !systemCaps.hotStandBy
@@ -258,7 +258,7 @@ const aiAndEventRoutes: FeatureItem = {
                 sort: 50,
                 lk: 'IDCS_VSD_DETECTION',
                 group: 'aiEvent',
-                minWidth: 1560,
+                minWidth: 1800,
                 minHeight: 850,
                 hasCap(systemCaps) {
                     return !systemCaps.IntelAndFaceConfigHide && !systemCaps.hotStandBy

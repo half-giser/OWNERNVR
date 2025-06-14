@@ -17,6 +17,7 @@ export default defineComponent({
         const auth = useUserChlAuth(true)
         const router = useRouter()
         const backupPopRef = ref<IntelSearchBackUpExpose>()
+        const layoutStore = useLayoutStore()
 
         // 详情弹框
         const detailRef = ref()
@@ -87,7 +88,7 @@ export default defineComponent({
             // 是否全选
             isCheckedAll: false,
             // 是否支持备份（H5模式）
-            isSupportBackUp: isBrowserSupportWasm() && !isHttpsLogin(),
+            isSupportBackUp: !isHttpsLogin(),
         })
         // 列表索引数据（根据分页索引pageIndex和分页大小pageSize从总数据targetIndexDatas中截取的当页列表数据）
         const sliceTargetIndexDatas = ref<IntelTargetIndexItem[]>([])
@@ -126,10 +127,17 @@ export default defineComponent({
          * @description 返回
          */
         const handleExit = () => {
-            localStorage.setItem('extractResultInfos', '')
-            router.push({
-                path: '/intelligent-analysis/search/search-person',
-            })
+            localStorage.removeItem('extractResultInfos')
+
+            if (layoutStore.searchTargetFromPage === 'vehicle') {
+                router.push({
+                    path: '/intelligent-analysis/search/search-vehicle',
+                })
+            } else {
+                router.push({
+                    path: '/intelligent-analysis/search/search-person',
+                })
+            }
         }
 
         /**
@@ -948,7 +956,7 @@ export default defineComponent({
         })
 
         onBeforeUnmount(() => {
-            localStorage.setItem('extractResultInfos', '')
+            localStorage.removeItem('extractResultInfos')
         })
 
         return {

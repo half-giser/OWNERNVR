@@ -31,6 +31,7 @@ export default defineComponent({
         // 三个排序下拉框的引用
         const backupPopRef = ref<IntelSearchBackUpExpose>()
         const detailRef = ref()
+        const layoutStore = useLayoutStore()
 
         // key对应界面tab类型，value对应协议需要下发的searchType字段
         const SEARCH_TYPE_MAPPING: Record<string, string> = {
@@ -47,6 +48,115 @@ export default defineComponent({
         type attrObjToListItem = {
             attrType: string
             attrValue: string[]
+        }
+
+        // 颜色
+        const OLD_NEW_COLOR_MAP: Record<number, string> = {
+            1: 'red',
+            2: 'orange',
+            3: 'yellow',
+            4: 'green',
+            5: 'blue',
+            6: 'cyan',
+            7: 'purple',
+            8: 'black',
+            9: 'white',
+            10: 'silver',
+            11: 'gray',
+            12: 'gold',
+            13: 'brown',
+        }
+
+        // 汽车品牌
+        const OLD_NEW_CAR_BRAND_MAP: Record<number | string, string> = {
+            3: 'acura',
+            4: 'alfaromeo',
+            5: 'astonmartin',
+            6: 'audi',
+            10: 'bmw',
+            11: 'brabus',
+            15: 'bentley',
+            16: 'benz',
+            18: 'bugatti',
+            19: 'buick',
+            21: 'cowin',
+            22: 'cadillac',
+            24: 'chevrolet',
+            25: 'chrysler',
+            26: 'citroen',
+            27: 'denza',
+            30: 'ds',
+            31: 'dacia',
+            32: 'dodge',
+            36: 'fiat',
+            40: 'ferrari',
+            41: 'foday',
+            42: 'ford',
+            43: 'gmc',
+            45: 'genesis',
+            53: 'honda',
+            55: 'hyundai',
+            56: 'infiniti',
+            60: 'jaguar',
+            61: 'jeep',
+            63: 'jetta',
+            66: 'kia',
+            68: 'lancia',
+            71: 'lamborghini',
+            72: 'landrover',
+            75: 'lexus',
+            76: 'lincoln',
+            79: 'lotus',
+            82: 'mg',
+            83: 'mini',
+            84: 'maserati',
+            85: 'mazda',
+            86: 'mclaren',
+            87: 'mitsubishi',
+            91: 'nissan',
+            94: 'opel',
+            95: 'pagani',
+            96: 'peugeot',
+            97: 'porsche',
+            100: 'renault',
+            102: 'rollsroyce',
+            104: 'skoda',
+            105: 'suzuki',
+            106: 'swm',
+            107: 'seat',
+            108: 'smart',
+            110: 'ssangyong',
+            111: 'subaru',
+            112: 'toyota',
+            114: 'tesla',
+            117: 'volkswagen',
+            118: 'volvo',
+            1: 'other',
+            other: 'other',
+        }
+
+        // 汽车类型
+        const OLD_NEW_CAR_TYPE_MAP: Record<number, string> = {
+            1: 'sedan',
+            2: 'suv',
+            3: 'mpv',
+            4: 'sportsCar',
+            5: 'van',
+            6: 'publicBus',
+            7: 'schoolBus',
+            8: 'bus',
+            9: 'lightBus',
+            10: 'pickUp',
+            11: 'truck',
+            12: 'specialVehicle',
+        }
+
+        // 摩托车类型
+        const OLD_NEW_MOTOR_TYPE_MAP: Record<number, string> = {
+            1: 'bicycle',
+            2: 'batteryCar',
+            3: 'motor',
+            4: 'tricycle',
         }
 
         // 界面数据
@@ -169,7 +279,7 @@ export default defineComponent({
             // 是否全选
             isCheckedAll: false,
             // 是否支持备份（H5模式）
-            isSupportBackUp: isBrowserSupportWasm() && !isHttpsLogin(),
+            isSupportBackUp: !isHttpsLogin(),
             isRegisterPop: false,
             registerPlateNumber: '',
         })
@@ -1027,6 +1137,126 @@ export default defineComponent({
             pageData.value.registerPlateNumber = item.plateAttrInfo.plateNumber
         }
 
+        const checkSearchData = () => {
+            try {
+                const LiveToSearch = JSON.parse(localStorage.getItem('LiveToSearch')!)
+                if (LiveToSearch) {
+                    const type = LiveToSearch.data.type
+                    const targetType = LiveToSearch.data.targetType
+                    const eventType = LiveToSearch.data.eventType
+
+                    if (type === 'vehicle_plate') {
+                        pageData.value.searchType = 'byPlateNumber'
+                        // 旧协议
+                        const dataInfo = LiveToSearch.data.dataInfo || {}
+                        pageData.value.plateColors = dataInfo.platecolor
+                        pageData.value.plateNumber = dataInfo.plate
+
+                        const plateAttrInfo = dataInfo.plateAttrInfo
+                        if (plateAttrInfo && Object.keys(plateAttrInfo).length) {
+                            pageData.value.plateColors = plateAttrInfo.plateColor
+                            pageData.value.plateNumber = plateAttrInfo.plateNumber
+                        }
+                    } else {
+                        const dataInfo = LiveToSearch.data.dataInfo || {}
+
+                        if (targetType === 'vehicle') {
+                            pageData.value.searchType = 'byCar'
+
+                            if (eventType === 'video_metavideo') {
+                                const mapping = [
+                                    {
+                                        key: 'vehicleColor',
+                                        mapping: OLD_NEW_COLOR_MAP,
+                                        infoKey: 'color',
+                                    },
+                                    {
+                                        key: 'vehicleBrand',
+                                        mapping: OLD_NEW_CAR_BRAND_MAP,
+                                        infoKey: 'brand',
+                                    },
+                                    {
+                                        key: 'vehicleType',
+                                        mapping: OLD_NEW_CAR_TYPE_MAP,
+                                        infoKey: 'type',
+                                    },
+                                ]
+
+                                // 旧协议
+                                const car_info = dataInfo.car_info
+                                if (car_info && Object.keys(car_info).length) {
+                                    mapping.forEach((item) => {
+                                        if (typeof car_info[item.infoKey] === 'number' || car_info[item.infoKey] === 'string') {
+                                            pageData.value.attributeForCar.person[item.key] = [item.mapping[car_info[item.infoKey]]]
+                                        }
+                                    })
+                                }
+
+                                const vehicleAttrInfo = LiveToSearch.data.dataInfo.vehicleAttrInfo
+                                if (vehicleAttrInfo && Object.keys(vehicleAttrInfo).length) {
+                                    mapping.forEach((item) => {
+                                        if (typeof vehicleAttrInfo[item.key] === 'string') {
+                                            pageData.value.attributeForCar.person[item.key] = vehicleAttrInfo[item.key].split(',')
+                                        }
+                                    })
+                                }
+                            }
+                        } else {
+                            pageData.value.searchType = 'byMotorcycle'
+
+                            if (eventType === 'video_metavideo') {
+                                const mapping = [
+                                    {
+                                        key: 'nonMotorizedVehicleType',
+                                        mapping: OLD_NEW_MOTOR_TYPE_MAP,
+                                        infoKey: 'bike_type',
+                                    },
+                                ]
+
+                                // 旧协议
+                                const bike_info = dataInfo.bike_info
+                                if (bike_info && Object.keys(bike_info).length) {
+                                    mapping.forEach((item) => {
+                                        if (typeof bike_info[item.infoKey] === 'number' || bike_info[item.infoKey] === 'string') {
+                                            pageData.value.attributeForMotorcycle.person[item.key] = [item.mapping[bike_info[item.infoKey]]]
+                                        }
+                                    })
+                                }
+
+                                const nonMotorVehicleAttrInfo = LiveToSearch.data.dataInfo.nonMotorVehicleAttrInfo
+                                if (nonMotorVehicleAttrInfo && Object.keys(nonMotorVehicleAttrInfo).length) {
+                                    mapping.forEach((item) => {
+                                        if (typeof nonMotorVehicleAttrInfo[item.key] === 'string') {
+                                            pageData.value.attributeForCar.person[item.key] = nonMotorVehicleAttrInfo[item.key].split(',')
+                                        }
+                                    })
+                                }
+                            }
+                        }
+                        getAllTargetIndexDatas()
+                    }
+                    localStorage.removeItem('LiveToSearch')
+                }
+            } catch {
+                localStorage.removeItem('LiveToSearch')
+            }
+
+            if (layoutStore.searchTargetFromSearchType) {
+                pageData.value.searchType = layoutStore.searchTargetFromSearchType as 'byCar' | 'byMotorcycle' | 'byPlateNumber'
+                layoutStore.searchTargetFromSearchType = ''
+                layoutStore.searchTargetFromPage = ''
+            }
+        }
+
+        const handleLeaveToSearchTarget = () => {
+            layoutStore.searchTargetFromPage = 'vehicle'
+            layoutStore.searchTargetFromSearchType = pageData.value.searchType
+        }
+
+        onMounted(() => {
+            checkSearchData()
+        })
+
         return {
             pageData,
             detailRef,
@@ -1052,6 +1282,7 @@ export default defineComponent({
             setCurrPageIndex,
             getCurrTargetDatas,
             openDetailIndex,
+            handleLeaveToSearchTarget,
         }
     },
 })

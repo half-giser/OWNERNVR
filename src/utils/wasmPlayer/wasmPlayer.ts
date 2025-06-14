@@ -184,6 +184,9 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
      * @description 初始化下载线程
      */
     let downloadWorker: Worker
+    /**
+     * @description 推导函数 WebsocketBase 返回的对象类型 { send: aysnc Function, close: Function, setP2PCreate: Function, getP2PCreate: Function }
+     */
     let downloadWebsocket: ReturnType<typeof WebsocketBase>
 
     if (userSession.appType === 'STANDARD') {

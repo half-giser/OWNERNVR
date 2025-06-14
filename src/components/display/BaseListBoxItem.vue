@@ -85,12 +85,17 @@ li {
         height: 30px;
         width: 100%;
         overflow: hidden;
+        display: flex;
+        align-items: center;
     }
 
     :deep(.el-checkbox__label) {
         text-overflow: ellipsis;
         width: calc(100% - 20px);
+        font-size: 13px;
+        height: 30px;
         overflow: hidden;
+        line-height: 30px;
     }
 
     &.show-hover {

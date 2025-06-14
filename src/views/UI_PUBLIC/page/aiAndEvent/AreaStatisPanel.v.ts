@@ -117,6 +117,16 @@ export default defineComponent({
             warnAreaChecked: [] as number[],
             // 更多弹窗数据
             moreDropDown: false,
+            // 高级弹出框的位置
+            poppeOptions: {
+                placement: 'bottom-end',
+                modifiers: [
+                    {
+                        name: 'offset',
+                        options: { offset: [30, 7] }, // [水平偏移, 垂直偏移]
+                    },
+                ],
+            },
         })
 
         const formData = ref(new AlarmAreaStatisDto())
@@ -437,7 +447,7 @@ export default defineComponent({
                     formData.value.sensitivity = formData.value.onlyPerson ? $('sensitivity').text().num() : 0
 
                     // 默认用line的第一个数据初始化检测目标
-                    if (formData.value.boundaryInfo[0].objectFilter.detectTargetList.length) {
+                    if (formData.value.boundaryInfo.length > 0 && formData.value.boundaryInfo[0].objectFilter.detectTargetList.length > 0) {
                         formData.value.detectTargetList = formData.value.boundaryInfo[0].objectFilter.detectTargetList.map((item) => {
                             return {
                                 value: item,
@@ -472,23 +482,25 @@ export default defineComponent({
                     let exitOsdFormat = osdExitName + '  : '
                     let stayOsdFormat = osdStayName + ' : '
 
-                    const objectFilterData = formData.value.boundaryInfo[0].objectFilter
-                    if (objectFilterData.supportPerson) {
-                        if (showEnterOsd) entryOsdFormat += 'human-# '
-                        if (showExitOsd) exitOsdFormat += 'human-# '
-                        if (showStayOsd) stayOsdFormat += 'human-# '
-                    }
+                    if (formData.value.boundaryInfo.length > 0) {
+                        const objectFilterData = formData.value.boundaryInfo[0].objectFilter
+                        if (objectFilterData.supportPerson) {
+                            if (showEnterOsd) entryOsdFormat += 'human-# '
+                            if (showExitOsd) exitOsdFormat += 'human-# '
+                            if (showStayOsd) stayOsdFormat += 'human-# '
+                        }
 
-                    if (objectFilterData.supportCar) {
-                        if (showEnterOsd) entryOsdFormat += 'car-# '
-                        if (showExitOsd) exitOsdFormat += 'car-# '
-                        if (showStayOsd) stayOsdFormat += 'car-# '
-                    }
+                        if (objectFilterData.supportCar) {
+                            if (showEnterOsd) entryOsdFormat += 'car-# '
+                            if (showExitOsd) exitOsdFormat += 'car-# '
+                            if (showStayOsd) stayOsdFormat += 'car-# '
+                        }
 
-                    if (objectFilterData.supportMotor) {
-                        if (showEnterOsd) entryOsdFormat += 'bike-# '
-                        if (showExitOsd) exitOsdFormat += 'bike-# '
-                        if (showStayOsd) stayOsdFormat += 'bike-# '
+                        if (objectFilterData.supportMotor) {
+                            if (showEnterOsd) entryOsdFormat += 'bike-# '
+                            if (showExitOsd) exitOsdFormat += 'bike-# '
+                            if (showStayOsd) stayOsdFormat += 'bike-# '
+                        }
                     }
 
                     if (supportOsdEntranceName || supportOsdExitName || supportOsdStayName) {

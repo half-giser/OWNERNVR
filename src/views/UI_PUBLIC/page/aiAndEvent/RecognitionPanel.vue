@@ -8,30 +8,40 @@
         <!-- 人脸识别——识别成功 -->
         <el-form v-title>
             <!-- 人脸分组 -->
-            <el-form-item
-                v-if="taskData.ruleType === 'hit'"
-                :label="Translate('IDCS_FACE_LIBRARY_GROUP')"
-            >
-                <el-button @click="pageData.isGroupPop = true">{{ Translate('IDCS_MORE') }}</el-button>
-                <el-checkbox
-                    v-model="pageData.selectAll"
-                    :label="Translate('IDCS_ALL')"
-                    @change="toggleSelectAll"
-                />
-                <span>{{ groupName }}</span>
+            <el-form-item v-if="taskData.ruleType === 'hit'">
+                <el-form-item :label="Translate('IDCS_FACE_LIBRARY_GROUP')">
+                    <el-button @click="pageData.isGroupPop = true">{{ Translate('IDCS_MORE') }}</el-button>
+                    <el-checkbox
+                        v-model="pageData.selectAll"
+                        :label="Translate('IDCS_ALL')"
+                        @change="toggleSelectAll"
+                    />
+                    <div
+                        v-title
+                        class="text-ellipsis"
+                    >
+                        {{ groupName }}
+                    </div>
+                </el-form-item>
+                <el-form-item />
             </el-form-item>
             <!-- 车牌分组 -->
-            <el-form-item
-                v-if="taskData.ruleType === 'whitelist'"
-                :label="Translate('IDCS_PLATE_LIBRARY_GROUP')"
-            >
-                <el-button @click="pageData.isGroupPop = true">{{ Translate('IDCS_MORE') }}</el-button>
-                <el-checkbox
-                    v-model="pageData.selectAll"
-                    :label="Translate('IDCS_ALL')"
-                    @change="toggleSelectAll"
-                />
-                <span>{{ groupName }}</span>
+            <el-form-item v-if="taskData.ruleType === 'whitelist'">
+                <el-form-item :label="Translate('IDCS_PLATE_LIBRARY_GROUP')">
+                    <el-button @click="pageData.isGroupPop = true">{{ Translate('IDCS_MORE') }}</el-button>
+                    <el-checkbox
+                        v-model="pageData.selectAll"
+                        :label="Translate('IDCS_ALL')"
+                        @change="toggleSelectAll"
+                    />
+                    <div
+                        v-title
+                        class="text-ellipsis"
+                    >
+                        {{ groupName }}
+                    </div>
+                </el-form-item>
+                <el-form-item />
             </el-form-item>
             <!-- 排程配置 -->
             <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">

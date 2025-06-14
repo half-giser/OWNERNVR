@@ -239,6 +239,14 @@ export default defineComponent({
             ctx.emit('close')
         }
 
+        const btnDisabled = computed(() => {
+            if (formData.value.destination === 'local') {
+                return false
+            }
+
+            return !formData.value.remoteDeviceName
+        })
+
         return {
             formRef,
             pageData,
@@ -249,6 +257,7 @@ export default defineComponent({
             confirmCreateRecBackupTask,
             openFolder,
             formRule,
+            btnDisabled,
         }
     },
 })

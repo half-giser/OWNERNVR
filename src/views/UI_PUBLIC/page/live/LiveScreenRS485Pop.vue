@@ -11,16 +11,16 @@
             :width="Math.ceil(pageData.list.length / 9) * 110"
             popper-class="no-padding"
             :disabled="!pageData.switch"
-            :offset="10"
         >
             <template #reference>
-                <BaseImgSpriteBtn
-                    class="btn"
-                    file="custom_operate"
-                    :title="pageData.name"
-                    :active="pageData.isRS485Pop"
-                    :disabled="!pageData.switch"
-                />
+                <div class="refer">
+                    <BaseImgSpriteBtn
+                        file="custom_operate"
+                        :title="pageData.name"
+                        :active="pageData.isRS485Pop"
+                        :disabled="!pageData.switch"
+                    />
+                </div>
             </template>
             <div>
                 <div class="base-head-box title">{{ pageData.name }}</div>
@@ -41,7 +41,11 @@
 <script lang="ts" src="./LiveScreenRS485Pop.v.ts"></script>
 
 <style lang="less" scoped>
-.btn {
+.refer {
+    width: 34px;
+    height: 50px;
+    display: flex;
+    align-items: center;
     margin: 0 5px;
 }
 

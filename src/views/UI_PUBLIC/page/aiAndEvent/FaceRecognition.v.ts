@@ -75,10 +75,10 @@ export default defineComponent({
             isDispalyRangeChecked: false,
             snapList: [300, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 15000, 20000, 30000, 40000, 50000, 60000, 120000, 240000, 360000, 480000, 600000].map((item) => {
                 let label = ''
-                if (item / 1000 <= 60) {
-                    label = getTranslateForSecond(item / 1000)
+                if (item / 1000 < 60) {
+                    label = displaySecondWithUnit(item / 1000)
                 } else {
-                    label = getTranslateForMin(item / 1000 / 60)
+                    label = displayMinuteWithUnit(item / 1000 / 60)
                 }
                 return {
                     value: item.toString(),
@@ -129,6 +129,16 @@ export default defineComponent({
             notSupport: false,
             // 高级设置
             isAdvance: false,
+            // 高级弹出框的位置
+            poppeOptions: {
+                placement: 'bottom-end',
+                modifiers: [
+                    {
+                        name: 'offset',
+                        options: { offset: [30, 7] }, // [水平偏移, 垂直偏移]
+                    },
+                ],
+            },
         })
 
         const ready = computed(() => {

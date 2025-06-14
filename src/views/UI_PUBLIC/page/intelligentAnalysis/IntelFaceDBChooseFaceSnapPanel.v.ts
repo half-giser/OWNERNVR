@@ -160,8 +160,8 @@ export default defineComponent({
                     <resultLimit>10000</resultLimit>
                     <condition>
                         <searchType>byHumanBodyPic</searchType>
-                        <startTime>${localToUtc(formData.value.dateRange[0])}</startTime>
-                        <endTime>${localToUtc(formData.value.dateRange[1])}</endTime>
+                        <startTime isUTC="true">${localToUtc(formData.value.dateRange[0])}</startTime>
+                        <endTime isUTC="true">${localToUtc(formData.value.dateRange[1])}</endTime>
                         <chls type="list">${formData.value.chls.map((item) => `<item id="${item.value}" />`).join('')}</chls>
                         <byAllQualified>true</byAllQualified>
                     </condition>
@@ -177,7 +177,7 @@ export default defineComponent({
                         const index = $item('index').text()
                         const searchByImageIndex = $item('index').text()
                         const chlId = $item('chlID').text()
-                        const timestamp = $item('timestamp').text().num() * 1000
+                        const timestamp = $item('timeStamp').text().num() * 1000
                         const calTimeS = $item('calTimeS').text()
                         const calTimeNS = $item('calTimeNS').text()
                         const frameTime = localToUtc(calTimeS) + ':' + calTimeNS

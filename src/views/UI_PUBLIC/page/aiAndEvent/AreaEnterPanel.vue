@@ -53,6 +53,13 @@
                         </div>
                     </div>
                     <div class="base-ai-tip">{{ formData.regulation ? Translate('IDCS_DRAW_RECT_TIP') : Translate('IDCS_DRAW_AREA_TIP').formatForLang(maxCount) }}</div>
+                    <ChannelPtzCtrlPanel
+                        v-show="chlData.supportAutoTrack"
+                        :chl-id="currChlId || ''"
+                        layout="event"
+                        enable-speed
+                        @speed="setSpeed"
+                    />
                 </div>
             </div>
             <div class="base-ai-form">
@@ -272,10 +279,6 @@
                                         <div class="base-ai-subheading">
                                             {{ Translate('IDCS_PTZ') }}
                                         </div>
-                                        <ChannelPtzCtrlPanel
-                                            :chl-id="currChlId || ''"
-                                            @speed="setSpeed"
-                                        />
                                         <el-form-item>
                                             <el-button @click="editLockStatus">
                                                 {{ pageData.lockStatus ? Translate('IDCS_UNLOCK') : Translate('IDCS_LOCKED') }}
@@ -340,6 +343,7 @@
                     v-model:visible="pageData.moreDropDown"
                     width="300"
                     popper-class="no-padding"
+                    :popper-options="pageData.poppeOptions"
                 >
                     <template #reference>
                         <div

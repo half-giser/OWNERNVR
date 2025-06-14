@@ -45,20 +45,6 @@ export default defineComponent({
             default: () => [],
         },
         /**
-         * @property 回显的人脸组数据
-         */
-        group: {
-            type: Array as PropType<IntelFaceDBGroupList[]>,
-            default: () => [],
-        },
-        /**
-         * @property 回显的外部导入人脸数据
-         */
-        external: {
-            type: Array as PropType<IntelFaceDBImportFaceDto[]>,
-            default: () => [],
-        },
-        /**
          * @property 回显类型
          */
         type: {
@@ -85,9 +71,6 @@ export default defineComponent({
             return Array.isArray(e)
         },
         chooseBodySnap(e: IntelBodyDBSnapBodyList[]) {
-            return Array.isArray(e)
-        },
-        chooseGroup(e: IntelFaceDBGroupList[]) {
             return Array.isArray(e)
         },
         chooseFace(e: IntelFaceDBFaceInfo[]) {
@@ -119,8 +102,6 @@ export default defineComponent({
             ],
             // 当前选中的人脸
             currentFace: [] as IntelFaceDBFaceInfo[],
-            // 当前选中的人脸组
-            currentFaceGroup: [] as IntelFaceDBGroupList[],
             // 当前选中的人脸抓怕数据
             currentFaceSnap: [] as IntelFaceDBSnapFaceList[],
             // 当前选中的人体抓拍数据
@@ -188,14 +169,6 @@ export default defineComponent({
         }
 
         /**
-         * @description 选中人脸组
-         * @param {IntelFaceDBGroupList[]} list
-         */
-        const chooseFaceGroup = (list: IntelFaceDBGroupList[]) => {
-            pageData.value.currentFaceGroup = list
-        }
-
-        /**
          * @description 格式化日期
          * @param {number} timestamp
          * @returns {string}
@@ -236,7 +209,6 @@ export default defineComponent({
          * @param {IntelFaceDBImportFaceDto[]} e
          */
         const importImg = (e: IntelFaceDBImportFaceDto[]) => {
-            // pageData.value.currentImport = e
             ctx.emit('importFiles', e)
             close()
         }
@@ -260,22 +232,6 @@ export default defineComponent({
             }
         }
 
-        /**
-         * @description 确认人脸组数据，关闭弹窗
-         */
-        const confirmGroup = () => {
-            const count = pageData.value.currentFaceGroup.reduce((a, b) => {
-                return a + b.count
-            }, 0)
-            if (count >= 200) {
-                openMessageBox(Translate('IDCS_GROUP_FACE_NUM_IS_TOO_MANY').formatForLang(5))
-                return
-            } else {
-                ctx.emit('chooseGroup', pageData.value.currentFaceGroup)
-                close()
-            }
-        }
-
         // 回显数据的数量
         const currentSelected = computed(() => {
             let len = 0
@@ -293,9 +249,6 @@ export default defineComponent({
                 case 'snapBody':
                     len = prop.snapBody.length
                     break
-                case 'group':
-                    len = prop.group.length
-                    break
                 default:
                     break
             }
@@ -304,7 +257,6 @@ export default defineComponent({
 
         return {
             pageData,
-            confirmGroup,
             confirm,
             open,
             changeType,
@@ -312,7 +264,6 @@ export default defineComponent({
             chooseSnap,
             importImg,
             chooseFace,
-            chooseFaceGroup,
             displayDateTime,
             currentSelected,
         }

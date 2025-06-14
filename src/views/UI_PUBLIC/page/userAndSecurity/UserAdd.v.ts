@@ -96,7 +96,7 @@ export default defineComponent({
             userName: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (!value.trim()) {
+                        if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
                         }
@@ -166,6 +166,7 @@ export default defineComponent({
          * @description 验证表单，通过后打开授权弹窗
          */
         const verify = () => {
+            formData.value.userName = formData.value.userName.trim()
             formRef.value!.validate((valid) => {
                 if (valid) {
                     pageData.value.isCheckAuthPop = true

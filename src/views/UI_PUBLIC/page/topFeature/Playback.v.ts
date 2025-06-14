@@ -1355,7 +1355,7 @@ export default defineComponent({
             }
 
             if (mode.value === 'h5') {
-                if (pageData.value.playStatus === 'stop') {
+                if (pageData.value.playStatus === 'stop' || pageData.value.playStatus === 'pending') {
                     playAll(timestamp)
                 } else {
                     player.seek(timestamp)
@@ -1526,20 +1526,10 @@ export default defineComponent({
                     return item.records.length
                 })
                 .map((item) => {
-                    const events = Array.from(new Set(item.records.map((item) => item.event)))
-
                     return {
                         chlId: item.chlId,
                         chlName: item.chlName,
-                        events: events
-                            .map((item) => {
-                                const find = pageData.value.legend.find((legend) => legend.value === item)
-                                if (find) {
-                                    if (find.children.length) return find.children
-                                    else return find.value
-                                } else return []
-                            })
-                            .flat(),
+                        events: Array.from(new Set(item.records.map((item) => item.event))),
                         startTime,
                         endTime,
                         streamType: pageData.value.mainStreamTypeChl === item.chlId ? 0 : 1,
@@ -1670,7 +1660,7 @@ export default defineComponent({
                             duration: record.duration,
                         }
                     })
-                    cmd(OCX_XML_SetRecList(item.chlId, index, recordList, item.timeZone))
+                    cmd(OCX_XML_SetRecList(item.chlId, index, recordList, item.timeZone || 'UTC'))
                 })
             }
         }

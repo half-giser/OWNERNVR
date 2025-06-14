@@ -57,8 +57,8 @@ const vFormat = {
         el.addEventListener('compositionend', handleCompositionEnd)
     },
     beforeUnmount(el: HTMLElement) {
-        el.removeEventListener('input', handleCompositionEnd)
-        el.removeEventListener('compositionend', handleInput)
+        el.removeEventListener('input', handleInput)
+        el.removeEventListener('compositionend', handleCompositionEnd)
     },
 }
 

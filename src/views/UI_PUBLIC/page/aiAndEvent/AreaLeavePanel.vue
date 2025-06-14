@@ -32,31 +32,35 @@
                         @message="notify"
                     />
                 </div>
-                <div v-show="pageData.tab === 'param'">
-                    <div class="base-btn-box space-between">
-                        <div>
-                            <el-checkbox
-                                v-show="isShowAllVisible"
-                                v-model="pageData.isShowAllArea"
-                                :label="Translate('IDCS_DISPLAY_ALL_AREA')"
-                                @change="toggleShowAllArea"
-                            />
-                        </div>
-                        <div>
-                            <el-button @click="clearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
-                            <el-button
-                                v-if="isShowAllVisible"
-                                @click="clearAllArea"
-                            >
-                                {{ Translate('IDCS_FACE_CLEAR_ALL') }}
-                            </el-button>
-                        </div>
+                <div class="base-btn-box space-between">
+                    <div>
+                        <el-checkbox
+                            v-show="isShowAllVisible"
+                            v-model="pageData.isShowAllArea"
+                            :label="Translate('IDCS_DISPLAY_ALL_AREA')"
+                            @change="toggleShowAllArea"
+                        />
                     </div>
-                    <div class="base-ai-tip">{{ formData.regulation ? Translate('IDCS_DRAW_RECT_TIP') : Translate('IDCS_DRAW_AREA_TIP').formatForLang(maxCount) }}</div>
+                    <div>
+                        <el-button @click="clearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
+                        <el-button
+                            v-if="isShowAllVisible"
+                            @click="clearAllArea"
+                        >
+                            {{ Translate('IDCS_FACE_CLEAR_ALL') }}
+                        </el-button>
+                    </div>
                 </div>
+                <div class="base-ai-tip">{{ formData.regulation ? Translate('IDCS_DRAW_RECT_TIP') : Translate('IDCS_DRAW_AREA_TIP').formatForLang(maxCount) }}</div>
+                <ChannelPtzCtrlPanel
+                    v-show="chlData.supportAutoTrack"
+                    :chl-id="currChlId || ''"
+                    layout="event"
+                    enable-speed
+                    @speed="setSpeed"
+                />
             </div>
             <div class="base-ai-form">
-                <!-- 三种功能 -->
                 <el-tabs
                     v-model="pageData.tab"
                     class="base-ai-tabs"
@@ -251,10 +255,6 @@
                                         <div class="base-ai-subheading">
                                             {{ Translate('IDCS_PTZ') }}
                                         </div>
-                                        <ChannelPtzCtrlPanel
-                                            :chl-id="currChlId || ''"
-                                            @speed="setSpeed"
-                                        />
                                         <el-form-item>
                                             <el-button @click="editLockStatus">
                                                 {{ pageData.lockStatus ? Translate('IDCS_UNLOCK') : Translate('IDCS_LOCKED') }}
@@ -319,6 +319,7 @@
                     v-model:visible="pageData.moreDropDown"
                     width="300"
                     popper-class="no-padding"
+                    :popper-options="pageData.poppeOptions"
                 >
                     <template #reference>
                         <div

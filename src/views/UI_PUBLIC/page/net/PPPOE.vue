@@ -23,7 +23,7 @@
                 prop="userName"
             >
                 <BaseTextInput
-                    v-model.trim="formData.userName"
+                    v-model="formData.userName"
                     :disabled="!formData.switch"
                     :maxlength="formData.userNameMaxByteLen"
                 />
@@ -40,7 +40,7 @@
                     </div>
                 </template>
                 <BasePasswordInput
-                    v-model.trim="formData.password"
+                    v-model="formData.password"
                     :disabled="!formData.switch || !pageData.passwordSwitch || pageData.wirelessSwitch"
                     :maxlength="32"
                 />

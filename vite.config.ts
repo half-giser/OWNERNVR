@@ -17,6 +17,7 @@ import { cleanUpTempFiles } from './scripts/cleanTempFiles'
 import BasicSSL from '@vitejs/plugin-basic-ssl'
 // import PostCssVariableCompress from 'postcss-variable-compress'
 import PostCssPresetEnv from 'postcss-preset-env'
+// 生产环境使用的 CSS 文件压缩工具，能更快的部署优化后的样式模块（确保最终样式的最小化）
 import CssNano from 'cssnano'
 import { visualizer as Visualizer } from 'rollup-plugin-visualizer'
 import optimizeDepsIncludes from './scripts/optimizeDeps'
@@ -25,6 +26,7 @@ import { STATS_FILE_PATH, TYPE_AUTO_IMPORT_FILE_PATH, TYPE_COMPONENTS_FILE_PATH 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
     const split = mode.split(',')
+    // 获取环境目录下 /config/*，.env & .env[split[0]] 文件内容
     const env = loadEnv(split[0], envDir)
 
     env.VITE_UI_TYPE = split[1] || env.VITE_UI_TYPE
@@ -34,7 +36,7 @@ export default defineConfig(({ mode }) => {
     const VITE_PACKAGE_VER = Math.ceil(Date.now() / 1000 / 60).toString(36)
 
     return {
-        // envDir,
+        // global constant, 不论开发、生产环境都能使用此处的定义
         define: {
             'import.meta.env.NODE_ENV': env.NODE_ENV,
             'import.meta.env.VITE_UI_TYPE': JSON.stringify(env.VITE_UI_TYPE),
@@ -51,6 +53,7 @@ export default defineConfig(({ mode }) => {
             'import.meta.env.VITE_P2P_PASSWORD': JSON.stringify(env.VITE_P2P_PASSWORD || ''),
         },
         base: './',
+        // Vite 构建工具，开发模式下，预构建依赖（利用 strong cache, 缓存所有源代码中使用到的依赖裸模块）
         server: {
             port: 9000,
             proxy: {
@@ -90,6 +93,7 @@ export default defineConfig(({ mode }) => {
             },
         },
         css: {
+            // 样式预处理器-转换 sass/scss 文件
             preprocessorOptions: {
                 scss: {
                     additionalData: `
@@ -98,6 +102,7 @@ export default defineConfig(({ mode }) => {
                     api: 'modern-compiler',
                 },
             },
+            // 样式兼容处理- 执行样式文件压缩以及样式兼容性（针对不同浏览器）
             postcss: {
                 plugins: ([] as AcceptedPlugin[]).concat(
                     process.env.NODE_ENV === 'development'
@@ -109,8 +114,8 @@ export default defineConfig(({ mode }) => {
                                   preset: 'default',
                               }),
                               PostCssPresetEnv({
+                                  // 使用本插件目的：稳定的使用现代CSS特性，根据支持的浏览器目标，自动添加 polyfill 以达到浏览器兼容效果
                                   // 此处配置为:has的最低支持版本
-                                  // browsers: ['Chrome >= 105', 'Firefox >= 121', 'Edge >= 105', 'Safari >= 15.4'],
                                   browsers: ['Chrome >= 87', 'Firefox >= 78', 'Edge >= 88', 'Safari >= 14'],
                               }),
                           ],
@@ -230,15 +235,18 @@ export default defineConfig(({ mode }) => {
                       }),
                   ],
         ),
+        // 生产打包配置
         build: {
             outDir: `dist/${env.VITE_UI_TYPE}`,
             assetsInlineLimit: 0,
+            // 阻止将 CSS 样式文件放入 aysnc js chunk
             cssCodeSplit: false,
             minify: 'esbuild',
             target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
             // target: ['chrome105', 'edge105', 'firefox121', 'safari15.4'],
             // 设置 source map 选项
             sourcemap: false,
+            // 用户体验在当前的浏览器环境中，主要限制：脚本下载速度（network）以及浏览器主线程（CPU）解析脚本的速度，故而需要限制打包后的 chunk 体积
             chunkSizeWarningLimit: 1024,
             rollupOptions: {
                 output: {

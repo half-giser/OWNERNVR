@@ -235,7 +235,10 @@
                 v-show="!pageData.isTrail"
                 class="base-btn-box"
             >
-                <el-button @click="handleBackupAll">
+                <el-button
+                    :disabled="!getCurrTargetDatas().length"
+                    @click="handleBackupAll"
+                >
                     {{ Translate('IDCS_BACK_UP_ALL_FACE') }}
                 </el-button>
                 <BaseDropdown placement="top-end">
@@ -283,6 +286,7 @@
                 ref="detailRef"
                 @change-item="handleChangeItem"
                 @backup="handleBackupCurrentTarget"
+                @search="handleLeaveToSearchTarget"
             />
         </div>
     </div>

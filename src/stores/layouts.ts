@@ -36,6 +36,9 @@ export const useLayoutStore = defineStore('layout', () => {
     // 配置页菜单
     const configMenu = ref<RouteRecordRawExtends | null>(null)
 
+    const searchTargetFromPage = ref('')
+    const searchTargetFromSearchType = ref('')
+
     if (import.meta.env.DEV) {
         watch(messageBoxCount, (val) => {
             console.log('messageBoxCount:', val)
@@ -64,5 +67,8 @@ export const useLayoutStore = defineStore('layout', () => {
         menu3Items,
         menu3Item,
         configMenu,
+
+        searchTargetFromPage,
+        searchTargetFromSearchType,
     }
 })
